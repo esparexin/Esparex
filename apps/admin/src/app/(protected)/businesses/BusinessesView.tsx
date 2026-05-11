@@ -7,6 +7,11 @@ import {
     Ban,
     RotateCcw,
     ChartBar,
+    CheckCircle2,
+    XCircle,
+    PowerOff,
+    History,
+    CalendarClock,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ColumnDef } from "@/components/ui/DataTable";
@@ -49,9 +54,14 @@ export default function BusinessesView() {
     const searchParams = useSearchParams();
 
     const [suspendTarget, setSuspendTarget] = useState<Business | null>(null);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [bulkRejectReason, setBulkRejectReason] = useState(false);
     const rawStatus = searchParams.get("status");
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const rawLocationId = searchParams.get("locationId");
+    const rawExpiringIn3Days = searchParams.get("expiringIn3Days");
+    const rawWarningSent = searchParams.get("warningSent");
+    const rawWarningNotSent = searchParams.get("warningNotSent");
     const rawPage = searchParams.get("page");
 
     const activeTab =
@@ -80,10 +90,32 @@ export default function BusinessesView() {
         mapOverview,
         extraQueryParams: {
             locationId: locationIdFilter,
+            expiringIn3Days: rawExpiringIn3Days || undefined,
+            warningSent: rawWarningSent || undefined,
+            warningNotSent: rawWarningNotSent || undefined,
             includeDeleted: activeTab === "deleted" || activeTab === "all" ? "true" : undefined,
         },
     });
-    const { businesses, loading, error, pagination, overview, handleSuspend, handleActivate } = businessList;
+    const { 
+        businesses, loading, error, pagination, overview, 
+        handleSuspend, handleActivate, fetchBusinesses,
+        handleBulkApprove, handleBulkReject, handleBulkDeactivate, handleBulkExpire, handleBulkRenew
+    } = businessList;
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === businesses.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(businesses.map((b) => b.id)));
+        }
+    };
+
+    const toggleSelect = (id: string) => {
+        const next = new Set(selectedIds);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        setSelectedIds(next);
+    };
 
     useEffect(() => {
         const nextUrl = buildUrlWithSearchParams(
@@ -92,6 +124,9 @@ export default function BusinessesView() {
                 status: activeTab,
                 q: search,
                 locationId: locationIdFilter,
+                expiringIn3Days: rawExpiringIn3Days,
+                warningSent: rawWarningSent,
+                warningNotSent: rawWarningNotSent,
                 page: page > 1 ? page : null,
             })
         );
@@ -109,6 +144,27 @@ export default function BusinessesView() {
     }, [loading, page, pagination.pages, replaceQueryState]);
 
     const columns: ColumnDef<Business>[] = [
+        {
+            id: "selection",
+            header: (
+                <input
+                    type="checkbox"
+                    checked={businesses.length > 0 && selectedIds.size === businesses.length}
+                    onChange={toggleSelectAll}
+                    className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4"
+                />
+            ),
+            cell: (biz) => (
+                <input
+                    type="checkbox"
+                    checked={selectedIds.has(biz.id)}
+                    onChange={() => toggleSelect(biz.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4"
+                />
+            ),
+            className: "w-10 px-4",
+        },
         {
             header: "Business",
             cell: (biz) => (
@@ -223,8 +279,8 @@ export default function BusinessesView() {
                         { label: "All", value: overview.total, color: "text-slate-700" },
                         { label: "Live", value: overview.live, color: "text-emerald-600" },
                         { label: "Pending", value: overview.pending, color: "text-amber-600" },
+                        { label: "Expiring (3d)", value: (overview as any).expiringIn3Days ?? 0, color: "text-rose-600" },
                         { label: "Suspended", value: overview.suspended, color: "text-red-600" },
-                        { label: "Deleted", value: overview.deleted, color: "text-slate-500" },
                     ].map(({ label, value, color }) => (
                         <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 shadow-sm">
                             <ChartBar size={16} className="text-slate-300" />
@@ -289,13 +345,58 @@ export default function BusinessesView() {
                     wrap
                     searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
-                        <input
-                            type="text"
-                            placeholder="Filter by location ID..."
-                            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52"
-                            value={locationIdFilter}
-                            onChange={(event) => replaceQueryState({ locationId: event.target.value, page: null })}
-                        />
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Filter by location ID..."
+                                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52"
+                                value={locationIdFilter}
+                                onChange={(event) => replaceQueryState({ locationId: event.target.value, page: null })}
+                            />
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => replaceQueryState({ 
+                                        expiringIn3Days: rawExpiringIn3Days === "true" ? null : "true",
+                                        page: null 
+                                    })}
+                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${
+                                        rawExpiringIn3Days === "true" 
+                                            ? "bg-rose-50 border-rose-200 text-rose-700 shadow-sm" 
+                                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    Expiring (3d)
+                                </button>
+                                <button
+                                    onClick={() => replaceQueryState({ 
+                                        warningSent: rawWarningSent === "true" ? null : "true",
+                                        warningNotSent: null,
+                                        page: null 
+                                    })}
+                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${
+                                        rawWarningSent === "true" 
+                                            ? "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm" 
+                                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    Warning Sent
+                                </button>
+                                <button
+                                    onClick={() => replaceQueryState({ 
+                                        warningNotSent: rawWarningNotSent === "true" ? null : "true",
+                                        warningSent: null,
+                                        page: null 
+                                    })}
+                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${
+                                        rawWarningNotSent === "true" 
+                                            ? "bg-amber-50 border-amber-200 text-amber-700 shadow-sm" 
+                                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    }`}
+                                >
+                                    No Warning
+                                </button>
+                            </div>
+                        </>
                     }
                 />
 
@@ -308,8 +409,94 @@ export default function BusinessesView() {
                     pagination={pagination}
                     onRowClick={(biz) => businessList.setSelectedBusiness(biz)}
                     emptyMessage={error || "No businesses found."}
+                    selectedCount={selectedIds.size}
+                    bulkActions={
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => {
+                                    void handleBulkApprove(Array.from(selectedIds));
+                                    setSelectedIds(new Set());
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-bold transition-colors border border-emerald-200"
+                            >
+                                <CheckCircle2 size={14} /> Approve
+                            </button>
+                            <button
+                                onClick={() => setBulkRejectReason(true)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-200"
+                            >
+                                <XCircle size={14} /> Reject
+                            </button>
+                            <button
+                                onClick={() => {
+                                    void handleBulkDeactivate(Array.from(selectedIds));
+                                    setSelectedIds(new Set());
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-xs font-bold transition-colors border border-slate-200"
+                            >
+                                <PowerOff size={14} /> Deactivate
+                            </button>
+                            <button
+                                onClick={() => {
+                                    void handleBulkExpire(Array.from(selectedIds));
+                                    setSelectedIds(new Set());
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors border border-amber-200"
+                            >
+                                <History size={14} /> Expire
+                            </button>
+                            <button
+                                onClick={() => {
+                                    void handleBulkRenew(Array.from(selectedIds));
+                                    setSelectedIds(new Set());
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors border border-blue-200"
+                            >
+                                <CalendarClock size={14} /> Renew
+                            </button>
+                        </div>
+                    }
                 />
             </div>
+
+            {bulkRejectReason && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
+                        <div className="flex items-center gap-3 text-red-600">
+                            <XCircle size={24} />
+                            <h3 className="text-lg font-bold">Bulk Reject Reason</h3>
+                        </div>
+                        <p className="text-sm text-slate-500">
+                            Please provide a reason for rejecting the {selectedIds.size} selected businesses.
+                        </p>
+                        <textarea
+                            id="bulk-reject-reason"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all min-h-[100px]"
+                            placeholder="Reason for rejection..."
+                        />
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={() => setBulkRejectReason(false)}
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    const reason = (document.getElementById("bulk-reject-reason") as HTMLTextAreaElement).value;
+                                    if (!reason.trim()) return;
+                                    await handleBulkReject(Array.from(selectedIds), reason);
+                                    setBulkRejectReason(false);
+                                    setSelectedIds(new Set());
+                                }}
+                                className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white hover:bg-red-700 transition-colors"
+                            >
+                                Confirm Reject
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <BusinessListModals
                 controller={buildBusinessModalController(businesses, businessList)}

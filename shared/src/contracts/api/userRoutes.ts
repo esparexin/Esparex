@@ -85,6 +85,11 @@ export const USER_ROUTES = {
   BUSINESSES_UPLOAD: "businesses/upload",
   BUSINESS_ME: "businesses/me",
   BUSINESS_ME_STATS: "businesses/me/stats",
+  BUSINESS_DEACTIVATE: "businesses/me/deactivate",
+  BUSINESS_REACTIVATE: "businesses/me/reactivate",
+  BUSINESS_CLOSE: "businesses/me/close",
+  BUSINESS_RENEW: (id: string) => `businesses/${id}/renew`,
+
   BUSINESS_DETAIL: (id: string) => `businesses/${id}`,
   BUSINESS_STATS: (id: string) => `businesses/${id}/stats`,
   BUSINESS_SERVICES: (id: string) => `businesses/${id}/services`,

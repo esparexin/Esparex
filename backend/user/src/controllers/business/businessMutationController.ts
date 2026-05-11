@@ -183,3 +183,100 @@ export const withdrawBusiness = async (req: Request, res: Response) => {
         sendErrorResponse(req, res, 500, 'Failed to withdraw business application');
     }
 };
+
+export const deactivateBusiness = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            sendErrorResponse(req, res, 401, 'Unauthorized');
+            return;
+        }
+
+        const business = await businessService.deactivateBusiness(user._id.toString());
+        if (!business) {
+            sendErrorResponse(req, res, 404, 'No active business found to deactivate');
+            return;
+        }
+
+        res.json(respond({ success: true, message: 'Business deactivated successfully' }));
+    } catch (error: unknown) {
+        logger.error('Deactivate Business Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to deactivate business');
+    }
+};
+
+export const reactivateBusiness = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            sendErrorResponse(req, res, 401, 'Unauthorized');
+            return;
+        }
+
+        const business = await businessService.reactivateBusiness(user._id.toString());
+        if (!business) {
+            sendErrorResponse(req, res, 404, 'No deactivated business found to reactivate');
+            return;
+        }
+
+        res.json(respond({ success: true, message: 'Business reactivated successfully' }));
+    } catch (error: unknown) {
+        logger.error('Reactivate Business Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to reactivate business');
+    }
+};
+
+export const closeBusiness = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            sendErrorResponse(req, res, 401, 'Unauthorized');
+            return;
+        }
+
+        const business = await businessService.closeBusiness(user._id.toString());
+        if (!business) {
+            sendErrorResponse(req, res, 404, 'No active business found to close');
+            return;
+        }
+
+        res.json(respond({ success: true, message: 'Business closed successfully. User role reverted to default.' }));
+    } catch (error: unknown) {
+        logger.error('Close Business Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to close business');
+    }
+};
+
+export const renewBusiness = async (req: Request, res: Response) => {
+    try {
+        const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID format' });
+        if (!id) return;
+        const user = req.user;
+        if (!user) {
+            sendErrorResponse(req, res, 401, 'Unauthorized');
+            return;
+        }
+
+        const business = await businessService.getBusinessById(id);
+        if (!business) {
+            sendErrorResponse(req, res, 404, 'Business not found');
+            return;
+        }
+
+        if (business.userId.toString() !== user._id.toString() && !['admin', 'super_admin'].includes(user.role)) {
+            sendErrorResponse(req, res, 403, 'Unauthorized');
+            return;
+        }
+
+        const updated = await businessService.renewBusiness(id, {
+            type: user.role === 'admin' || user.role === 'super_admin' ? 'admin' : 'user',
+            id: user._id.toString()
+        } as any);
+
+        res.json(respond({ success: true, data: updated, message: 'Business renewed successfully' }));
+    } catch (error: unknown) {
+        logger.error('Renew Business Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to renew business');
+    }
+};
+

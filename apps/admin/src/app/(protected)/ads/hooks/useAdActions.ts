@@ -14,7 +14,8 @@ import {
     fetchAdminAdDetail,
     rejectAdminAd,
     bulkApproveAds,
-    bulkUpdateAdStatus
+    bulkUpdateAdStatus,
+    bulkExtendAds
 } from "@/lib/api/moderation";
 import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
 import { useAdminMutation } from "@/hooks/useAdminMutation";
@@ -358,6 +359,48 @@ export function useAdActions({
         handleBanSeller: openBanSellerModal,
         handleBulkApprove,
         handleBulkDelete: openBulkDelete,
+        handleBulkDeactivate: async () => {
+            if (selectedIds.length === 0) return;
+            await runMutation(
+                () => bulkUpdateAdStatus(selectedIds, 'deactivated'),
+                {
+                    successMessage: `Deactivated ${selectedIds.length} ${entityLabel}(s)`,
+                    failureMessage: `Failed to bulk deactivate ${entityLabelPlural}`,
+                    onSuccess: () => {
+                        setSelectedIds([]);
+                        refresh();
+                    }
+                }
+            );
+        },
+        handleBulkExpire: async () => {
+            if (selectedIds.length === 0) return;
+            await runMutation(
+                () => bulkUpdateAdStatus(selectedIds, 'expired'),
+                {
+                    successMessage: `Marked ${selectedIds.length} ${entityLabel}(s) as expired`,
+                    failureMessage: `Failed to bulk expire ${entityLabelPlural}`,
+                    onSuccess: () => {
+                        setSelectedIds([]);
+                        refresh();
+                    }
+                }
+            );
+        },
+        handleBulkExtend: async () => {
+            if (selectedIds.length === 0) return;
+            await runMutation(
+                () => bulkExtendAds(selectedIds),
+                {
+                    successMessage: `Extended ${selectedIds.length} ${entityLabel}(s)`,
+                    failureMessage: `Failed to bulk extend ${entityLabelPlural}`,
+                    onSuccess: () => {
+                        setSelectedIds([]);
+                        refresh();
+                    }
+                }
+            );
+        },
 
         // Modal Specific
         handleModalApprove,

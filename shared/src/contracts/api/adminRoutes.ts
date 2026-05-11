@@ -49,9 +49,17 @@ export const ADMIN_ROUTES = {
   BUSINESS_DETAIL: (id: string) => `/businesses/${id}`,
   BUSINESS_APPROVE: (id: string) => `/businesses/${id}/approve`,
   BUSINESS_REJECT: (id: string) => `/businesses/${id}/reject`,
+  BUSINESS_RENEW: (id: string) => `/businesses/${id}/renew`,
+  BUSINESS_EXPIRE: (id: string) => `/businesses/${id}/expire`,
+  BUSINESS_BULK_APPROVE: "/businesses/bulk/approve",
+  BUSINESS_BULK_REJECT: "/businesses/bulk/reject",
+  BUSINESS_BULK_DEACTIVATE: "/businesses/bulk/deactivate",
+  BUSINESS_BULK_EXPIRE: "/businesses/bulk/expire",
+  BUSINESS_BULK_RENEW: "/businesses/bulk/renew",
   DELETE_BUSINESS: (id: string) => `/businesses/${id}`,
   BUSINESS_UPDATE: (id: string) => `/businesses/${id}`,
   BUSINESS_STATUS: (id: string) => `/businesses/${id}/status`,
+
 
   // Ads / Reports
   LISTINGS: "/listings",
@@ -64,6 +72,9 @@ export const ADMIN_ROUTES = {
   LISTING_COUNTS: "/listings/counts",
   LISTING_BULK_APPROVE: "/listings/bulk/approve",
   LISTING_BULK_REJECT: "/listings/bulk/reject",
+  LISTING_BULK_DEACTIVATE: "/listings/bulk/deactivate",
+  LISTING_BULK_EXPIRE: "/listings/bulk/expire",
+  LISTING_BULK_EXTEND: "/listings/bulk/extend",
   LISTING_DELETE: (id: string) => `/listings/${id}`,
   LISTING_REPORT_RESOLVE: (id: string) => `/listings/${id}/report-resolve`,
   // Legacy report aliases mapped to canonical reports surface

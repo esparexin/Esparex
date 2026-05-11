@@ -77,8 +77,19 @@ router.get('/businesses/:id', adminBusiness.getBusinessAccountById);
 router.patch('/businesses/:id/approve', adminBusiness.approveBusinessAccount);
 router.patch('/businesses/:id/reject', adminBusiness.rejectBusinessAccount);
 router.patch('/businesses/:id/status', adminBusiness.updateBusinessStatus);
+router.patch('/businesses/:id/renew', adminBusiness.renewBusinessAccount);
+router.patch('/businesses/:id/expire', adminBusiness.expireBusinessAccount);
 router.patch('/businesses/:id', adminBusiness.updateBusinessByAdmin);
+
 router.delete('/businesses/:id', adminBusiness.deleteBusinessAccount);
+
+// Bulk Operations
+router.post('/businesses/bulk/approve', adminBusiness.adminBulkApproveBusinesses);
+router.post('/businesses/bulk/reject', adminBusiness.adminBulkRejectBusinesses);
+router.post('/businesses/bulk/deactivate', adminBusiness.adminBulkDeactivateBusinesses);
+router.post('/businesses/bulk/expire', adminBusiness.adminBulkExpireBusinesses);
+router.post('/businesses/bulk/renew', adminBusiness.adminBulkRenewBusinesses);
+
 
 // Listings and reports
 router.get('/listings', adminListings.adminListListings);
@@ -108,6 +119,9 @@ router.delete('/listings/:id', adminListings.adminSoftDeleteListing);
 // Bulk Operations
 router.post('/listings/bulk/approve', adminListings.adminBulkApproveListings);
 router.post('/listings/bulk/reject', adminListings.adminBulkRejectListings);
+router.post('/listings/bulk/deactivate', adminListings.adminBulkDeactivateListings);
+router.post('/listings/bulk/expire', adminListings.adminBulkExpireListings);
+router.post('/listings/bulk/extend', adminListings.adminBulkExtendListings);
 
 router.get('/reports', adminReports.getReportedAds);
 router.get('/reports/:id', adminReports.getReportedAdById);

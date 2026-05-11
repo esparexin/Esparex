@@ -255,3 +255,45 @@ export const adminBulkRejectListings = async (req: Request, res: Response) => {
         return sendAdminError(req, res, error);
     }
 };
+
+export const adminBulkDeactivateListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkDeactivateListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk deactivation process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkExpireListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkExpireListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk expiration process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkExtendListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkExtendListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk extension process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};

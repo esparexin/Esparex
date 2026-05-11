@@ -59,6 +59,13 @@ router.delete('/me', protect, mutationLimiter, businessController.withdrawBusine
 // GET /api/v1/businesses/me/stats - Get my business stats
 router.get('/me/stats', protect, businessController.getMyBusinessStats);
 
+// Lifecycle Actions (User-owned)
+router.post('/me/deactivate', protect, mutationLimiter, businessController.deactivateBusiness);
+router.post('/me/reactivate', protect, mutationLimiter, businessController.reactivateBusiness);
+router.post('/me/close', protect, mutationLimiter, businessController.closeBusiness);
+router.post('/:id/renew', protect, mutationLimiter, businessController.renewBusiness);
+
+
 // GET /api/v1/businesses/:id/stats - Get public business stats by ID/slug
 router.get('/:id/stats', validateIdOrSlug('id'), businessController.getBusinessStatsById);
 

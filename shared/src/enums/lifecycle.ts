@@ -6,7 +6,9 @@ export const LIFECYCLE_STATUS = {
     EXPIRED: 'expired',
     DEACTIVATED: 'deactivated',
     SOLD: 'sold',
+    CLOSED: 'closed',
     DELETED: 'deleted',
+
     SUSPENDED: 'suspended',
     BANNED: 'banned',
     INACTIVE: 'inactive',

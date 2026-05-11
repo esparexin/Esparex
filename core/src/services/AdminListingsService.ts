@@ -665,3 +665,93 @@ export const adminBulkRejectListings = async (
         results
     };
 };
+
+export const adminBulkDeactivateListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminDeactivateListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated.listing });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+    };
+};
+
+export const adminBulkExpireListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminExpireListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+    };
+};
+
+export const adminBulkExtendListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminExtendListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+    };
+};

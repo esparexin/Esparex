@@ -72,9 +72,9 @@ export default function AdsView({ listingType }: AdsViewProps) {
         viewAd, viewModalOpen, setViewModalOpen, viewLoading, viewError, handleView, setViewAd, setViewError,
         rejectModalOpen, setRejectModalOpen, rejectTitle, rejectTargetIds, isMutating, setRejectTargetIds, setRejectTitle,
         openSingleReject, openBulkReject, handleRejectSubmit,
-        handleApprove, handleDeactivate, handleActivate, handleDelete, handleBanSeller, handleBulkApprove, handleBulkDelete,
+        handleApprove, handleDeactivate, handleActivate, handleDelete, handleBanSeller, 
+        handleBulkApprove, handleBulkDelete, handleBulkDeactivate, handleBulkExpire, handleBulkExtend,
         handleModalApprove, handleModalDeactivate, handleModalActivate, handleModalBlockSeller, handleModalExtend,
-        // Added confirmations
         deleteModalOpen, setDeleteModalOpen, deleteTargetIds, deleteDisplayTitle, handleConfirmDelete,
         banModalOpen, setBanModalOpen, banTargetSellerName, handleConfirmBan,
     } = useAdActions({
@@ -266,38 +266,72 @@ export default function AdsView({ listingType }: AdsViewProps) {
                         onActivate={(item) => void handleActivate(item)}
                         onDelete={(item) => void handleDelete(item)}
                         onBanSeller={(item) => void handleBanSeller(item)}
-                        showCheckboxes={filters.status === 'pending'}
+                        showCheckboxes={true}
                         columnVisibility={columnVisibility}
                         onColumnVisibilityChange={setColumnVisibility}
                         hideColumnVisibilityButton={true}
                         bulkActions={
-                            filters.status === 'pending' ? (
-                                <>
-                                    <button
-                                        type="button"
-                                        onClick={() => void handleBulkApprove()}
-                                        disabled={selectedCount === 0}
-                                        className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        Approve Selected
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={openBulkReject}
-                                        disabled={selectedCount === 0}
-                                        className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        Reject Selected
-                                    </button>
+                            selectedCount > 0 ? (
+                                <div className="flex items-center gap-2">
+                                    {filters.status === 'pending' && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleBulkApprove()}
+                                                className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 transition-all shadow-sm"
+                                            >
+                                                Approve Selected
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={openBulkReject}
+                                                className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition-all shadow-sm"
+                                            >
+                                                Reject Selected
+                                            </button>
+                                        </>
+                                    )}
+
+                                    {filters.status !== 'pending' && (
+                                        <div className="flex items-center gap-2">
+                                            {filters.status === 'live' && (
+                                                <>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => void handleBulkDeactivate()}
+                                                        className="rounded-lg bg-slate-600 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition-all shadow-sm"
+                                                    >
+                                                        Deactivate Selected
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => void handleBulkExpire()}
+                                                        className="rounded-lg bg-orange-600 px-3 py-2 text-xs font-semibold text-white hover:bg-orange-700 transition-all shadow-sm"
+                                                    >
+                                                        Expire Selected
+                                                    </button>
+                                                </>
+                                            )}
+                                            {(filters.status === 'live' || filters.status === 'expired') && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void handleBulkExtend()}
+                                                    className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white hover:bg-indigo-700 transition-all shadow-sm"
+                                                >
+                                                    Extend Selected
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <button
                                         type="button"
                                         onClick={() => void handleBulkDelete()}
-                                        disabled={selectedCount === 0}
-                                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
                                     >
                                         Delete Selected
                                     </button>
-                                </>
+                                </div>
                             ) : undefined
                         }
                     />

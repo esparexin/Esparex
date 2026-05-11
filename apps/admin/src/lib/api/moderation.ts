@@ -184,15 +184,41 @@ export async function bulkUpdateAdStatus(
         return;
     }
 
-    // Fallback for other statuses not yet supported by bulk backend
-    await Promise.all(ids.map(id => {
-        if (status === 'deactivated') {
-            return adminFetch(ADMIN_ROUTES.LISTING_DEACTIVATE(id), { method: 'POST' });
-        }
-        if (status === 'live') {
-            return adminFetch(ADMIN_ROUTES.LISTING_APPROVE(id), { method: 'POST' });
-        }
+    if (status === 'deactivated') {
+        await bulkDeactivateAds(ids);
+        return;
+    }
 
-        throw new Error(`Unsupported bulk status transition: ${status}`);
-    }));
+    if (status === 'expired') {
+        await bulkExpireAds(ids);
+        return;
+    }
+
+    if (status === 'live') {
+        await bulkApproveAds(ids);
+        return;
+    }
+
+    throw new Error(`Unsupported bulk status transition: ${status}`);
+}
+
+export async function bulkDeactivateAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_DEACTIVATE, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkExpireAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_EXPIRE, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkExtendAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_EXTEND, {
+        method: "POST",
+        body: { ids }
+    });
 }
