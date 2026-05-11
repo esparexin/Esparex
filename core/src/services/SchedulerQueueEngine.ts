@@ -7,7 +7,7 @@ import {
     type SchedulerJobName
 } from '../queues/schedulerQueue';
 import { runExpireAdsJob } from '../jobs/expireAds.job';
-import { runSuspendExpiredBusinessesJob } from '../jobs/suspendExpiredBusinesses.job';
+import { runExpireBusinessesJob } from '../jobs/expireBusinesses.job';
 import { runNotifyBusinessJob } from '../jobs/notifyBusiness.job';
 import { runPaymentReconciliationJob } from '../jobs/reconcilePayments.job';
 import { runMonthlySlotResetJob } from '../jobs/resetMonthlySlots.job';
@@ -20,10 +20,11 @@ import { runAdminMetricsJob } from '../jobs/adminMetrics.job';
 import { runHomeFeedWarmupJob } from '../jobs/homeFeedWarmup.job';
 import { runQualityScoreBackfill } from '../workers/QualityScoreBackfillWorker';
 import { runCleanupReadNotificationsJob } from '../jobs/cleanupReadNotifications.job';
+import { runExpiryWarningJob } from '../jobs/expiryWarning.job';
 
 const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     expire_ads_job: runExpireAdsJob,
-    suspend_expired_businesses: runSuspendExpiredBusinessesJob,
+    expire_businesses: runExpireBusinessesJob,
     notify_business_expiry: runNotifyBusinessJob,
     payment_reconciliation: runPaymentReconciliationJob,
     monthly_slot_reset: runMonthlySlotResetJob,
@@ -36,6 +37,7 @@ const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     admin_metrics_cache_job: runAdminMetricsJob,
     home_feed_warmup: runHomeFeedWarmupJob,
     quality_score_backfill_job: runQualityScoreBackfill,
+    proactive_expiry_warning: runExpiryWarningJob,
 };
 
 let schedulerQueueEngineStarted = false;

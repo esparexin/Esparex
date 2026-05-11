@@ -6,7 +6,7 @@ import { registerWorkerWithTrace, type TraceableJobData } from '../utils/queueWr
 import { withQueueDefaults } from './queueDefaults';
 export type SchedulerJobName =
     | 'expire_ads_job'
-    | 'suspend_expired_businesses'
+    | 'expire_businesses'
     | 'notify_business_expiry'
     | 'payment_reconciliation'
     | 'monthly_slot_reset'
@@ -18,7 +18,8 @@ export type SchedulerJobName =
     | 's3_garbage_collector_job'
     | 'admin_metrics_cache_job'
     | 'home_feed_warmup'
-    | 'quality_score_backfill_job';
+    | 'quality_score_backfill_job'
+    | 'proactive_expiry_warning';
 
 type SchedulerProcessor = (job: Job<TraceableJobData>) => Promise<unknown>;
 
@@ -28,7 +29,7 @@ const shouldDisableSchedulerQueue =
 
 const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     expire_ads_job: '1 0 * * *',
-    suspend_expired_businesses: '0 0 * * *',
+    expire_businesses: '10 0 * * *',
     notify_business_expiry: '0 9 * * *',
     payment_reconciliation: '*/10 * * * *',
     monthly_slot_reset: '5 0 1 * *',
@@ -41,6 +42,7 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     admin_metrics_cache_job: '0 1 * * *',
     home_feed_warmup: '* * * * *',
     quality_score_backfill_job: '*/5 * * * *',
+    proactive_expiry_warning: '30 8 * * *',
 };
 
 const schedulerDefaultJobOptions = withQueueDefaults({

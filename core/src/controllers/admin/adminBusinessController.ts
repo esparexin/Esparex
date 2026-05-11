@@ -52,11 +52,17 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
         const status = typeof req.query.status === 'string' ? req.query.status : undefined;
         const locationId = typeof req.query.locationId === 'string' ? req.query.locationId.trim() : undefined;
         const search = typeof req.query.q === 'string' ? req.query.q.trim() : undefined;
+        const expiringIn3Days = typeof req.query.expiringIn3Days === 'string' ? req.query.expiringIn3Days : undefined;
+        const warningSent = typeof req.query.warningSent === 'string' ? req.query.warningSent : undefined;
+        const warningNotSent = typeof req.query.warningNotSent === 'string' ? req.query.warningNotSent : undefined;
 
         const { adminQuery } = await adminBusinessService.getAdminBusinessAccountsData({
             status,
             locationId,
             search,
+            expiringIn3Days,
+            warningSent,
+            warningNotSent,
             page,
             limit,
         });
@@ -185,6 +191,118 @@ export const deleteBusinessAccount = async (req: Request, res: Response) => {
             buildLogFn(req)
         );
         sendSuccessResponse(res, { deleted: true }, 'Business deleted successfully');
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
+export const renewBusinessAccount = async (req: Request, res: Response) => {
+    try {
+        const business = await adminBusinessService.renewAdminBusiness(
+            req.params.id as string,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business renewed successfully');
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
+export const expireBusinessAccount = async (req: Request, res: Response) => {
+    try {
+        const business = await adminBusinessService.expireAdminBusiness(
+            req.params.id as string,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, serializeBusinessForAdmin(business), 'Business marked as expired');
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+export const adminBulkApproveBusinesses = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids?: string[] };
+        if (!Array.isArray(ids) || !ids.length) {
+            return sendAdminError(req, res, 'IDs array is required', 400);
+        }
+        const count = await adminBusinessService.adminBulkApproveBusinesses(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, { approvedCount: count }, `${count} businesses approved successfully`);
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkRejectBusinesses = async (req: Request, res: Response) => {
+    try {
+        const { ids, reason } = req.body as { ids?: string[]; reason?: string };
+        if (!Array.isArray(ids) || !ids.length) {
+            return sendAdminError(req, res, 'IDs array is required', 400);
+        }
+        const finalReason = typeof reason === 'string' ? reason.trim() : 'Rejected by admin';
+        const count = await adminBusinessService.adminBulkRejectBusinesses(
+            ids,
+            finalReason,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, { rejectedCount: count }, `${count} businesses rejected`);
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkDeactivateBusinesses = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids?: string[] };
+        if (!Array.isArray(ids) || !ids.length) {
+            return sendAdminError(req, res, 'IDs array is required', 400);
+        }
+        const count = await adminBusinessService.adminBulkDeactivateBusinesses(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, { deactivatedCount: count }, `${count} businesses deactivated`);
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkExpireBusinesses = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids?: string[] };
+        if (!Array.isArray(ids) || !ids.length) {
+            return sendAdminError(req, res, 'IDs array is required', 400);
+        }
+        const count = await adminBusinessService.adminBulkExpireBusinesses(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, { expiredCount: count }, `${count} businesses marked as expired`);
+    } catch (error: unknown) {
+        sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkRenewBusinesses = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids?: string[] };
+        if (!Array.isArray(ids) || !ids.length) {
+            return sendAdminError(req, res, 'IDs array is required', 400);
+        }
+        const count = await adminBusinessService.adminBulkRenewBusinesses(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        sendSuccessResponse(res, { renewedCount: count }, `${count} businesses renewed successfully`);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

@@ -80,6 +80,11 @@ export interface IAd extends Document, ISoftDeleteDocument {
     publishedAt?: Date;
     approvedAt?: Date;
     approvedBy?: Types.ObjectId;
+    expiryWarningSentAt?: Date;
+    expiryWarningCount: number;
+    spotlightWarningSentAt?: Date;
+    spotlightWarningCount: number;
+    lastExpiryWarningChannel?: string;
     timeline: Array<{
         status: string;
         timestamp: Date;
@@ -233,6 +238,11 @@ const AdSchema: Schema = new Schema({
     publishedAt: { type: Date },
     approvedAt: { type: Date },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    expiryWarningSentAt: { type: Date },
+    expiryWarningCount: { type: Number, default: 0 },
+    spotlightWarningSentAt: { type: Date },
+    spotlightWarningCount: { type: Number, default: 0 },
+    lastExpiryWarningChannel: { type: String },
     timeline: [{
         status: { type: String, enum: [...LISTING_STATUS_VALUES, 'deleted', 'restored', 'spotlight_expired'], required: true },
         timestamp: { type: Date, required: true },

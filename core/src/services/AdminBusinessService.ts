@@ -13,7 +13,9 @@ import type { AdminLogFn } from './AdminListingsService';
 import { dispatchTemplatedNotification } from './NotificationService';
 import { recalculateTrustScore } from './TrustService';
 import { normalizeLocation } from './location/LocationNormalizer';
+import logger from '../utils/logger';
 import * as businessService from './BusinessService';
+
 import type { IBusiness } from '../models/Business';
 
 /**
@@ -32,6 +34,7 @@ export const getBusinessOverview = async () => {
         deleted,
         total,
         expiringSoon,
+        expiringIn3Days,
         timeline,
         topCities,
     ] = await Promise.all([
@@ -44,6 +47,11 @@ export const getBusinessOverview = async () => {
         Business.countDocuments({
             status: publishedBusinessStatusQuery,
             expiresAt: { $lte: thirtyDaysFromNow, $gte: new Date() },
+            isDeleted: false,
+        }),
+        Business.countDocuments({
+            status: publishedBusinessStatusQuery,
+            expiresAt: { $lte: new Date(Date.now() + 3 * MS_IN_DAY), $gte: new Date() },
             isDeleted: false,
         }),
         Business.aggregate([
@@ -73,6 +81,7 @@ export const getBusinessOverview = async () => {
         rejected,
         deleted,
         expiringSoon,
+        expiringIn3Days,
         analytics: {
             timeline,
             topCities,
@@ -151,9 +160,22 @@ export interface AdminBusinessPaginationParams {
 }
 
 export const getAdminBusinessAccountsData = (params: AdminBusinessPaginationParams) => {
-    const { status, locationId } = params;
+    const { status, locationId, expiringIn3Days, warningSent, warningNotSent } = params;
     const adminQuery = getBusinessAccountsQuery(status);
     if (locationId) adminQuery.locationId = locationId;
+
+    if (expiringIn3Days === 'true') {
+        const window = new Date(Date.now() + 3 * MS_IN_DAY);
+        adminQuery.expiresAt = { $lte: window, $gte: new Date() };
+        adminQuery.status = publishedBusinessStatusQuery;
+    }
+
+    if (warningSent === 'true') {
+        adminQuery.expiryWarningSentAt = { $exists: true, $ne: null };
+    } else if (warningNotSent === 'true') {
+        adminQuery.expiryWarningSentAt = { $exists: false };
+    }
+
     return Promise.resolve({ adminQuery });
 };
 
@@ -362,4 +384,162 @@ export const deleteAdminBusiness = async (
     );
 
     return true;
+};
+
+export const renewAdminBusiness = async (
+    id: string,
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    const business = await businessService.renewBusiness(id, {
+        type: ACTOR_TYPE.ADMIN,
+        id: actorId
+    }) as IBusiness | null;
+
+    if (!business) {
+        throw new AppError('Business not found', 404);
+    }
+
+    await logFn('RENEW_BUSINESS', 'Business', id, { expiresAt: business.expiresAt });
+
+    await dispatchTemplatedNotification(
+        business.userId.toString(),
+        'BUSINESS_STATUS',
+        'BUSINESS_RENEWED',
+        { name: business.name, expiresAt: business.expiresAt?.toLocaleDateString() },
+        { businessId: id, status: BUSINESS_STATUS.LIVE }
+    );
+
+    return business;
+};
+
+export const expireAdminBusiness = async (
+    id: string,
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    const business = await Business.findById(id);
+    if (!business) {
+        throw new AppError('Business not found', 404);
+    }
+
+    const actor: ActorMetadata = { type: ACTOR_TYPE.ADMIN, id: actorId };
+    await mutateStatus({
+        domain: 'business',
+        entityId: id,
+        toStatus: BUSINESS_STATUS.EXPIRED,
+        actor,
+        reason: 'Manual expiry by admin',
+    });
+
+    const cascadedCount = await cascadeExpireBusinessListings(business._id, actor, 'Cascaded from admin manual expiry');
+
+    await logFn('EXPIRE_BUSINESS', 'Business', id, { cascadedListings: cascadedCount });
+
+    await dispatchTemplatedNotification(
+        business.userId.toString(),
+        'BUSINESS_STATUS',
+        'BUSINESS_EXPIRED',
+        { name: business.name },
+        { businessId: id, status: BUSINESS_STATUS.EXPIRED }
+    );
+
+    return Business.findById(id).lean();
+};
+
+export const adminBulkApproveBusinesses = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!ids.length) return 0;
+    
+    // Process each to ensure full validation and notifications
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await approveAdminBusiness(id, actorId, logFn);
+            count++;
+        } catch (err) {
+            logger.error(`Bulk approve failed for business ${id}:`, err);
+        }
+    }
+    return count;
+};
+
+export const adminBulkRejectBusinesses = async (
+    ids: string[],
+    reason: string,
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!ids.length) return 0;
+    
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await rejectAdminBusiness(id, reason, actorId, logFn);
+            count++;
+        } catch (err) {
+            logger.error(`Bulk reject failed for business ${id}:`, err);
+        }
+    }
+    return count;
+};
+
+export const adminBulkDeactivateBusinesses = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!ids.length) return 0;
+    
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await suspendAdminBusiness(id, 'Deactivated by admin', actorId, logFn);
+            count++;
+        } catch (err) {
+            logger.error(`Bulk deactivate failed for business ${id}:`, err);
+        }
+    }
+    return count;
+};
+
+export const adminBulkExpireBusinesses = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!ids.length) return 0;
+    
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await expireAdminBusiness(id, actorId, logFn);
+            count++;
+        } catch (err) {
+            logger.error(`Bulk expire failed for business ${id}:`, err);
+        }
+    }
+    return count;
+};
+
+export const adminBulkRenewBusinesses = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!ids.length) return 0;
+    
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await renewAdminBusiness(id, actorId, logFn);
+            count++;
+        } catch (err) {
+            logger.error(`Bulk renew failed for business ${id}:`, err);
+        }
+    }
+    return count;
 };

@@ -22,6 +22,9 @@ export interface ISmartAlert extends Document {
   notificationChannels?: string[]
   lastTriggeredAt?: Date
   expiresAt?: Date
+  expiryWarningSentAt?: Date
+  expiryWarningCount: number
+  lastExpiryWarningChannel?: string
 }
 
 const SmartAlertSchema = new Schema<ISmartAlert>({
@@ -49,6 +52,9 @@ const SmartAlertSchema = new Schema<ISmartAlert>({
   notificationChannels: [{ type: String }],
   lastTriggeredAt: { type: Date },
   expiresAt: { type: Date },
+  expiryWarningSentAt: { type: Date },
+  expiryWarningCount: { type: Number, default: 0 },
+  lastExpiryWarningChannel: { type: String },
 }, { 
   timestamps: true,
   toJSON: {
