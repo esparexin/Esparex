@@ -15,13 +15,19 @@ import Business from "@esparex/core/models/Business";
 import Ad from "@esparex/core/models/Ad";
 import { BUSINESS_STATUS } from "@shared/enums/businessStatus";
 import { LIFECYCLE_STATUS } from "@shared/enums/lifecycle";
+import { runExpiryWarningJob } from "@esparex/core/jobs/expiryWarning.job";
 
 async function run(): Promise<void> {
     console.info("[job-verify] Connecting to MongoDB...");
     await connectDB();
     console.info("[job-verify] Connected.");
 
-    // 1. Identify "Expiring Business" from seed
+    // 1. Trigger Warnings (for data that hasn't expired yet)
+    console.info("[job-verify] Triggering runExpiryWarningJob...");
+    await runExpiryWarningJob();
+    console.info("[job-verify] Warning job completed.");
+
+    // 2. Identify "Expiring Business" from seed
     const expiringBiz = await Business.findOne({ name: "Expiring Business" });
     if (!expiringBiz) {
         console.error("[job-verify] 'Expiring Business' not found. Did you run the seed script?");
@@ -30,12 +36,12 @@ async function run(): Promise<void> {
 
     console.info(`[job-verify] Found Expiring Business: ${expiringBiz._id} (Status: ${expiringBiz.status}, ExpiresAt: ${expiringBiz.expiresAt})`);
 
-    // 2. Check its listings
+    // 3. Check its listings
     const listingsBefore = await Ad.find({ businessId: expiringBiz._id });
     console.info(`[job-verify] Listings before job: ${listingsBefore.length}`);
     listingsBefore.forEach(l => console.info(` - ${l.title}: ${l.status}`));
 
-    // 3. Trigger Service directly (avoid Redis lock issues in local script)
+    // 4. Trigger Service directly (avoid Redis lock issues in local script)
     console.info("[job-verify] Triggering expireBusinesses service directly...");
     const expiredBusinesses = await expireBusinesses();
     console.info(`[job-verify] Service completed. Expired ${expiredBusinesses.length} businesses.`);
