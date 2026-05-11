@@ -41,7 +41,6 @@ export default function SmartAlertsPage() {
         } else {
             getAlerts({ page, limit: 50 });
         }
-        setSelectedIds(new Set());
     }, [page, activeView, getLogs, getAlerts]);
 
     const isLoading = activeView === 'logs' ? logsLoading : alertsLoading;
@@ -53,7 +52,7 @@ export default function SmartAlertsPage() {
         if (selectedIds.size === alerts.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(alerts.map(a => a._id || a.id)));
+            setSelectedIds(new Set(alerts.map(a => a._id || a.id).filter((id): id is string => typeof id === 'string')));
         }
     };
 
@@ -75,13 +74,13 @@ export default function SmartAlertsPage() {
                 <div className="flex items-center justify-between">
                     <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
                         <button
-                            onClick={() => { setActiveView('logs'); setPage(1); }}
+                            onClick={() => { setActiveView('logs'); setPage(1); setSelectedIds(new Set()); }}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'logs' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Delivery Logs
                         </button>
                         <button
-                            onClick={() => { setActiveView('management'); setPage(1); }}
+                            onClick={() => { setActiveView('management'); setPage(1); setSelectedIds(new Set()); }}
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${activeView === 'management' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                             Alert Management
@@ -207,7 +206,7 @@ export default function SmartAlertsPage() {
                                                                 </>
                                                             )}
                                                             <span className="text-2xs font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                                                {log.adId.price > 0 ? `$${log.adId.price}` : "Free"}
+                                                                {(log.adId.price ?? 0) > 0 ? `$${log.adId.price}` : "Free"}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -246,12 +245,12 @@ export default function SmartAlertsPage() {
                                     ))
                                 ) : (
                                     (items as AlertItem[]).map((alert) => (
-                                        <tr key={alert._id || alert.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr key={String(alert._id || alert.id)} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-4 py-4">
                                                 <input
                                                     type="checkbox"
-                                                    checked={selectedIds.has(alert._id || alert.id)}
-                                                    onChange={() => toggleSelect(alert._id || alert.id)}
+                                                    checked={selectedIds.has(String(alert._id || alert.id))}
+                                                    onChange={() => toggleSelect(String(alert._id || alert.id))}
                                                     className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                                                 />
                                             </td>
@@ -290,7 +289,7 @@ export default function SmartAlertsPage() {
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <button
-                                                    onClick={() => handleDeleteAlert(alert._id || alert.id)}
+                                                    onClick={() => handleDeleteAlert(String(alert._id || alert.id))}
                                                     className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
                                                 >
                                                     <Trash2 size={16} />
@@ -310,14 +309,14 @@ export default function SmartAlertsPage() {
                             <div className="flex gap-2">
                                 <button
                                     disabled={page === 1}
-                                    onClick={() => setPage(p => p - 1)}
+                                    onClick={() => { setPage(p => p - 1); setSelectedIds(new Set()); }}
                                     className="px-3 py-1.5 text-sm font-medium bg-white border border-slate-200 rounded-md shadow-sm hover:bg-slate-50 disabled:opacity-50 transition-colors"
                                 >
                                     Previous
                                 </button>
                                 <button
                                     disabled={page === pagination.pages}
-                                    onClick={() => setPage(p => p + 1)}
+                                    onClick={() => { setPage(p => p + 1); setSelectedIds(new Set()); }}
                                     className="px-3 py-1.5 text-sm font-medium bg-white border border-slate-200 rounded-md shadow-sm hover:bg-slate-50 disabled:opacity-50 transition-colors"
                                 >
                                     Next

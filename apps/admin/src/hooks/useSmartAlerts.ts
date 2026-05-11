@@ -39,8 +39,8 @@ export function useSmartAlerts() {
                 page: String(params.page),
                 limit: String(params.limit),
             });
-            const response = await adminFetch<{ items: AlertItem[]; pagination?: Record<string, number> }>(`${ADMIN_ROUTES.SMART_ALERTS}?${query.toString()}`);
-            const parsed = parseAdminResponse<{ items: AlertItem[]; pagination?: Record<string, number> }>(response);
+            const response = await adminFetch(`${ADMIN_ROUTES.SMART_ALERTS}?${query.toString()}`);
+            const parsed = parseAdminResponse<AlertItem>(response);
             
             setAlerts(parsed.items);
             setPagination({
