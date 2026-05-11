@@ -185,7 +185,7 @@ export const expireBusinesses = async () => {
                 reason: 'Automated business expiry'
             });
             processed.push(biz);
-        } catch (err) {
+        } catch {
             // Skip failing ones to ensure bulk job finishes
         }
     }

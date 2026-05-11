@@ -1,9 +1,14 @@
 const mockGetAndVerifyOwnedListing = jest.fn();
+const mockMutateStatus = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
 jest.mock('@esparex/core/utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: (...args: unknown[]) => mockGetAndVerifyOwnedListing(...args),
+}));
+
+jest.mock('@esparex/core/services/StatusMutationService', () => ({
+    mutateStatus: (...args: unknown[]) => mockMutateStatus(...args),
 }));
 
 jest.mock('@esparex/core/utils/respond', () => ({
@@ -14,58 +19,73 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
+jest.mock('@shared/enums/listingStatus', () => ({
+    LISTING_STATUS: {
+        LIVE: 'live',
+        PENDING: 'pending',
+        DRAFT: 'draft',
+        REJECTED: 'rejected',
+        EXPIRED: 'expired',
+        SOLD: 'sold',
+        DEACTIVATED: 'deactivated',
+        DELETED: 'deleted',
+    },
+}));
+
+jest.mock('@shared/enums/actor', () => ({
+    ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
+}));
+
 import type { Request, Response, NextFunction } from 'express';
 import { markListingStatusSold } from '../../controllers/listing/lifecycle.controller';
 
 const LISTING_ID = '65f0a1b2c3d4e5f6a7b8c9d0';
+const USER_ID    = '65f0a1b2c3d4e5f6a7b8c9d1';
+
+const makeReq = (overrides: Partial<{ user: unknown; body: Record<string, unknown>; params: Record<string, string> }> = {}): Request =>
+    ({
+        user: { _id: USER_ID, role: 'user' },
+        body: {},
+        params: { id: LISTING_ID },
+        ...overrides,
+    } as unknown as Request);
 
 describe('lifecycle.controller — markListingStatusSold', () => {
-    let mockSave: jest.Mock;
-
     beforeEach(() => {
         jest.clearAllMocks();
-        mockSave = jest.fn().mockResolvedValue(true);
-    });
-
-    const createMockListing = (status: string, isSold = false) => ({
-        _id: LISTING_ID,
-        status,
-        isSold,
-        soldAt: undefined as Date | undefined,
-        save: mockSave,
+        mockMutateStatus.mockResolvedValue({ _id: LISTING_ID, status: 'sold', isSold: true });
     });
 
     it('returns early when listing not found or not owned', async () => {
         mockGetAndVerifyOwnedListing.mockResolvedValue(null);
-        const req = {} as Request;
+        const req = makeReq();
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
         await markListingStatusSold(req, res, next);
 
-        expect(mockSave).not.toHaveBeenCalled();
+        expect(mockMutateStatus).not.toHaveBeenCalled();
         expect(next).not.toHaveBeenCalled();
     });
 
     it('returns 400 when listing is not expired', async () => {
-        const listing = createMockListing('live');
-        mockGetAndVerifyOwnedListing.mockResolvedValue(listing);
-        const req = {} as Request;
+        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'live', isSold: false });
+        const req = makeReq();
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
         await markListingStatusSold(req, res, next);
 
         expect(mockSendErrorResponse).toHaveBeenCalledWith(
-            req, res, 400, 'Listing must be expired to be marked as sold under this endpoint'
+            req, res, 400,
+            'Only expired listings can be retrospectively marked as sold via this endpoint'
         );
-        expect(mockSave).not.toHaveBeenCalled();
+        expect(mockMutateStatus).not.toHaveBeenCalled();
     });
 
     it('returns 400 when listing is already marked as sold', async () => {
-        const listing = createMockListing('expired', true);
-        mockGetAndVerifyOwnedListing.mockResolvedValue(listing);
-        const req = {} as Request;
+        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'expired', isSold: true });
+        const req = makeReq();
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
@@ -74,33 +94,41 @@ describe('lifecycle.controller — markListingStatusSold', () => {
         expect(mockSendErrorResponse).toHaveBeenCalledWith(
             req, res, 400, 'Listing is already marked as sold'
         );
-        expect(mockSave).not.toHaveBeenCalled();
+        expect(mockMutateStatus).not.toHaveBeenCalled();
     });
 
-    it('marks listing as sold and saves successfully', async () => {
-        const listing = createMockListing('expired', false);
+    it('delegates to mutateStatus and responds with success', async () => {
+        const listing = { _id: LISTING_ID, status: 'expired', isSold: false, listingType: 'ad' };
         mockGetAndVerifyOwnedListing.mockResolvedValue(listing);
-        const req = {} as Request;
+        const result = { _id: LISTING_ID, status: 'sold', isSold: true };
+        mockMutateStatus.mockResolvedValue(result);
+        const req = makeReq();
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
         await markListingStatusSold(req, res, next);
 
-        expect(listing.isSold).toBe(true);
-        expect(listing.soldAt).toBeInstanceOf(Date);
-        expect(mockSave).toHaveBeenCalled();
-        expect(mockSendSuccessResponse).toHaveBeenCalledWith(
-            res, listing, 'Listing marked as sold successfully'
+        expect(mockMutateStatus).toHaveBeenCalledWith(
+            expect.objectContaining({
+                domain: 'ad',
+                entityId: LISTING_ID,
+                toStatus: 'sold',
+                actor: expect.objectContaining({ type: 'USER', id: USER_ID }),
+                patch: expect.objectContaining({ isSold: true, isChatLocked: true }),
+            })
         );
+        expect(mockSendSuccessResponse).toHaveBeenCalledWith(
+            res, result, 'Listing marked as sold successfully'
+        );
+        expect(next).not.toHaveBeenCalled();
     });
 
     it('passes errors to next() middleware on failure', async () => {
-        const listing = createMockListing('expired', false);
-        const dbError = new Error('Database save failure');
-        mockSave.mockRejectedValue(dbError);
+        const listing = { _id: LISTING_ID, status: 'expired', isSold: false, listingType: 'ad' };
         mockGetAndVerifyOwnedListing.mockResolvedValue(listing);
-
-        const req = {} as Request;
+        const dbError = new Error('Database save failure');
+        mockMutateStatus.mockRejectedValue(dbError);
+        const req = makeReq();
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 

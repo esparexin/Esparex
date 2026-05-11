@@ -8,7 +8,7 @@ import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationSe
 import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
 import * as feedService from '@esparex/core/services/FeedService';
 import * as trendingService from '@esparex/core/services/TrendingService';
-import { warnIfLegacyAdUserIdAliasUsed } from '@esparex/core/utils/legacyOwnerAliasTelemetry';
+
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { respond } from "@esparex/core/utils/respond";
@@ -123,7 +123,6 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
  */
 export const getListings = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        warnIfLegacyAdUserIdAliasUsed(req, 'query');
         if (hasLegacyAdUserIdAlias(req.query)) {
             return sendLegacyAliasError(req, res, 'query');
         }
@@ -222,7 +221,6 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
  */
 export const getNearbyListings = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        warnIfLegacyAdUserIdAliasUsed(req, 'query');
         if (hasLegacyAdUserIdAlias(req.query)) {
             return sendLegacyAliasError(req, res, 'query');
         }

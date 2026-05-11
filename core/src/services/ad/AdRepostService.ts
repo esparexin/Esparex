@@ -5,7 +5,6 @@ import Ad from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
 import { LISTING_STATUS } from "../../constants/enums/listingStatus";
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
-import { getAdPostingBalance } from '../AdSlotService';
 import { mutateStatus } from '../StatusMutationService';
 import { normalizeAdStatus } from "../AdStatusService";
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';

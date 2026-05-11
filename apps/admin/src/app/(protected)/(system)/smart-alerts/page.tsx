@@ -1,13 +1,31 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
-import { Loader2, RefreshCw, BellRing, Navigation, Trash2, Send, History } from "lucide-react";
+import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "lucide-react";
 import { format } from "date-fns";
+
+type AlertLog = {
+    _id: string;
+    alertId: string | { name?: string; criteria?: Record<string, unknown> };
+    adId: string | { title: string; location?: string; price?: number };
+    deliveredAt: string;
+};
+type AlertItem = {
+    _id?: string;
+    id?: string;
+    name?: string;
+    userId: string;
+    criteria?: Record<string, unknown>;
+    isActive: boolean;
+    expiresAt?: string;
+    expiryWarningCount?: number;
+    expiryWarningSentAt?: string;
+};
 
 export default function SmartAlertsPage() {
     const [activeView, setActiveView] = useState<'logs' | 'management'>('logs');
@@ -161,7 +179,7 @@ export default function SmartAlertsPage() {
                                         </td>
                                     </tr>
                                 ) : activeView === 'logs' ? (
-                                    (items as any[]).map((log) => (
+                                    (items as AlertLog[]).map((log) => (
                                         <tr key={log._id} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 {typeof log.alertId === "object" ? (
@@ -227,7 +245,7 @@ export default function SmartAlertsPage() {
                                         </tr>
                                     ))
                                 ) : (
-                                    (items as any[]).map((alert) => (
+                                    (items as AlertItem[]).map((alert) => (
                                         <tr key={alert._id || alert.id} className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-4 py-4">
                                                 <input

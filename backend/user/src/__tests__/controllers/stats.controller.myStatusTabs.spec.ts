@@ -63,7 +63,6 @@ describe('stats.controller getMyListingStatusCounts', () => {
                 {
                     $match: expect.objectContaining({
                         isDeleted: { $ne: true },
-                        status: { $ne: 'deactivated' },
                     }),
                 },
                 {
@@ -78,10 +77,10 @@ describe('stats.controller getMyListingStatusCounts', () => {
         expect(mockSendSuccessResponse).toHaveBeenCalledWith(
             res,
             {
-                live: 3, // 2 live + 1 active
+                live: 3,   // 2 live + 1 active (no deactivated in mock data)
                 pending: 3,
-                expired: 2, // 1 expired + 1 rejected
-                total: 8,
+                expired: 1, // 1 expired only (rejected not counted, sold not in mock)
+                total: 7,
             }
         );
     });
@@ -144,7 +143,7 @@ describe('stats.controller getMyTabListings', () => {
         expect(mockGetOwnerListings).toHaveBeenCalledWith(
             expect.objectContaining({
                 sellerId: '65f0a1b2c3d4e5f6a7b8c9d1',
-                status: { $in: ['active', 'live'] },
+                status: { $in: ['active', 'live', 'deactivated'] },
                 isDeleted: { $ne: true },
             }),
             1,
@@ -185,7 +184,7 @@ describe('stats.controller getMyTabListings', () => {
 
         expect(mockGetOwnerListings).toHaveBeenCalledWith(
             expect.objectContaining({
-                status: { $in: ['expired', 'rejected'] },
+                status: { $in: ['expired', 'sold'] },
             }),
             1,
             20

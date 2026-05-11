@@ -47,6 +47,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // 1. Force CSRF token pre-fetch first so cookies are initialized & matching on subsequent state-changing requests
       await fetchCsrfToken().catch((err) => {
+        // eslint-disable-next-line no-console
         console.error("[AdminAuth] CSRF bootstrap token failed:", err);
       });
 

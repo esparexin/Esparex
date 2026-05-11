@@ -189,7 +189,8 @@ export const initializeDatabaseMonitoring = () => {
         post: (method: string, fn: (this: unknown, docs: unknown, next: () => void) => void) => void;
     };
 
-    function markStartTime(this: any, next?: () => void) {
+    type MongoosePreHookContext = { _metricsStartTime?: number };
+    function markStartTime(this: MongoosePreHookContext, next?: () => void) {
         this._metricsStartTime = Date.now();
 
         if (typeof next === "function") {

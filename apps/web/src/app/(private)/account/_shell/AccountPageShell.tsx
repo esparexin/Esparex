@@ -9,7 +9,7 @@
 import { useRouter } from "next/navigation";
 import { ProfileSettingsSidebar } from "@/components/user/ProfileSettingsSidebar";
 import { UserPage, getPageRoute } from "@/lib/routeUtils";
-import { useUser } from "@/hooks/useUser";
+import { useCurrentUser as useUser } from "@/hooks/useCurrentUser";
 import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
 import { markLogoutRedirectBypass } from "@/lib/authHelpers";
 import type { ProfileTabValue } from "@/config/navigation";

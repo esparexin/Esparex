@@ -12,7 +12,6 @@ import {
     deleteAdminAd,
     extendAdminListing,
     fetchAdminAdDetail,
-    rejectAdminAd,
     bulkApproveAds,
     bulkUpdateAdStatus,
     bulkExtendAds,

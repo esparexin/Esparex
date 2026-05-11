@@ -1,17 +1,10 @@
 import Admin, { IAdmin } from '../models/Admin';
 import { Types } from 'mongoose';
 import AdminLog from '../models/AdminLog';
-import { comparePassword, generateAdminToken } from '../utils/auth';
 import { USER_STATUS } from '../constants/enums/userStatus';
 import logger from '../utils/logger';
-import { AppError } from '../utils/AppError';
 import { env } from '../config/env';
 import { escapeRegExp } from '../utils/stringUtils';
-
-interface AdminLoginResult {
-    token: string;
-    admin: Partial<IAdmin>;
-}
 
 export const seedAdmin = async (email: string) => {
     // Explicit local bootstrap only. Never seed defaults in production/CI.

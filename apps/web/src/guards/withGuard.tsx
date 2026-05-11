@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useUser } from '@/hooks/useUser';
+import { useCurrentUser as useUser } from '@/hooks/useCurrentUser';
 import { User } from '@/types/User';
 import logger from "@/lib/logger";
 import { buildAuthCallbackUrl, buildLoginUrl, consumeLogoutRedirectBypass } from "@/lib/authHelpers";

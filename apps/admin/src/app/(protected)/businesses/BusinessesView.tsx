@@ -98,7 +98,7 @@ export default function BusinessesView() {
     });
     const { 
         businesses, loading, error, pagination, overview, 
-        handleSuspend, handleActivate, fetchBusinesses,
+        handleSuspend, handleActivate,
         handleBulkApprove, handleBulkReject, handleBulkDeactivate, handleBulkExpire, handleBulkRenew, handleBulkResendWarnings
     } = businessList;
 
@@ -135,7 +135,7 @@ export default function BusinessesView() {
         if (nextUrl !== currentUrl) {
             router.replace(nextUrl, { scroll: false });
         }
-    }, [activeTab, locationIdFilter, page, pathname, rawStatus, router, search, searchParams]);
+    }, [activeTab, locationIdFilter, page, pathname, rawExpiringIn3Days, rawStatus, rawWarningNotSent, rawWarningSent, router, search, searchParams]);
 
     useEffect(() => {
         if (!loading && page > pagination.pages) {
@@ -279,7 +279,7 @@ export default function BusinessesView() {
                         { label: "All", value: overview.total, color: "text-slate-700" },
                         { label: "Live", value: overview.live, color: "text-emerald-600" },
                         { label: "Pending", value: overview.pending, color: "text-amber-600" },
-                        { label: "Expiring (3d)", value: (overview as any).expiringIn3Days ?? 0, color: "text-rose-600" },
+                        { label: "Expiring (3d)", value: (overview as Record<string, number>).expiringIn3Days ?? 0, color: "text-rose-600" },
                         { label: "Suspended", value: overview.suspended, color: "text-red-600" },
                     ].map(({ label, value, color }) => (
                         <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 shadow-sm">

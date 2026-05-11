@@ -64,7 +64,7 @@ const makeReq = (overrides: Partial<Request> = {}): Request =>
 
 beforeEach(() => {
     jest.clearAllMocks();
-    mockedGetAndVerifyOwnedListing.mockResolvedValue({ _id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'draft' });
+    mockedGetAndVerifyOwnedListing.mockResolvedValue({ _id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'expired' });
 });
 
 describe('repostListing', () => {

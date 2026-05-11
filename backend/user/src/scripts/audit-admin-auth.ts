@@ -1,11 +1,9 @@
 
-import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import '@esparex/core/config/loadEnv';
 import { env } from '@esparex/core/config/env';
 import Admin from '@esparex/core/models/Admin';
 import { connectDB } from '@esparex/core/config/db';
-import logger from '@esparex/core/utils/logger';
 
 async function auditAdmin() {
     try {

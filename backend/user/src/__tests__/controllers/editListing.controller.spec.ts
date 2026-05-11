@@ -49,7 +49,7 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
 }));
 
 jest.mock('@shared/enums/listingStatus', () => ({
-    LISTING_STATUS: { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected' },
+    LISTING_STATUS: { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected', EXPIRED: 'expired' },
 }));
 
 // ─── Imports ──────────────────────────────────────────────────────────────────

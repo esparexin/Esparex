@@ -7,8 +7,20 @@ import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { useToast } from "@/context/ToastContext";
 import { bulkResendAlertWarnings } from "@/lib/api/smartAlerts";
 
+type AlertItem = {
+    _id?: string;
+    id?: string;
+    name?: string;
+    userId: string;
+    criteria?: Record<string, unknown>;
+    isActive: boolean;
+    expiresAt?: string;
+    expiryWarningCount?: number;
+    expiryWarningSentAt?: string;
+};
+
 export function useSmartAlerts() {
-    const [alerts, setAlerts] = useState<any[]>([]);
+    const [alerts, setAlerts] = useState<AlertItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [pagination, setPagination] = useState({
@@ -27,8 +39,8 @@ export function useSmartAlerts() {
                 page: String(params.page),
                 limit: String(params.limit),
             });
-            const response = await adminFetch<any>(`${ADMIN_ROUTES.SMART_ALERTS}?${query.toString()}`);
-            const parsed = parseAdminResponse<any>(response);
+            const response = await adminFetch<{ items: AlertItem[]; pagination?: Record<string, number> }>(`${ADMIN_ROUTES.SMART_ALERTS}?${query.toString()}`);
+            const parsed = parseAdminResponse<{ items: AlertItem[]; pagination?: Record<string, number> }>(response);
             
             setAlerts(parsed.items);
             setPagination({
@@ -49,7 +61,7 @@ export function useSmartAlerts() {
             await adminFetch(ADMIN_ROUTES.SMART_ALERTS + `/${id}`, { method: "DELETE" });
             showToast("Alert deleted", "success");
             await getAlerts({ page: pagination.page, limit: pagination.limit });
-        } catch (err) {
+        } catch {
             showToast("Failed to delete alert", "error");
         }
     };
@@ -59,7 +71,7 @@ export function useSmartAlerts() {
             await bulkResendAlertWarnings(ids);
             showToast(`Resent warnings for ${ids.length} alerts`, "success");
             await getAlerts({ page: pagination.page, limit: pagination.limit });
-        } catch (err) {
+        } catch {
             showToast("Failed to resend warnings", "error");
         }
     };

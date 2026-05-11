@@ -43,9 +43,9 @@ export type ListingStatsResponse = Record<string, Record<string, number>>;
 export const getMyListingsStats = async (): Promise<ListingStatsResponse> => {
     try {
         const [adRes, serviceRes, spareRes] = await Promise.all([
-            toApiResult<any>(apiClient.get('listings/my/status-counts?listingType=ad')),
-            toApiResult<any>(apiClient.get('listings/my/status-counts?listingType=service')),
-            toApiResult<any>(apiClient.get('listings/my/status-counts?listingType=spare_part'))
+            toApiResult<Record<string, number>>(apiClient.get('listings/my/status-counts?listingType=ad')),
+            toApiResult<Record<string, number>>(apiClient.get('listings/my/status-counts?listingType=service')),
+            toApiResult<Record<string, number>>(apiClient.get('listings/my/status-counts?listingType=spare_part'))
         ]);
 
         return {

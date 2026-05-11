@@ -6,7 +6,7 @@ import { notify } from "@/lib/notify";
 import { Button } from "@/components/ui/button";
 
 import { BusinessProfileFlow } from "@/components/user/business-registration/BusinessProfileFlow";
-import { useUser } from "@/hooks/useUser";
+import { useCurrentUser as useUser } from "@/hooks/useCurrentUser";
 import { useBusiness } from "@/hooks/useBusiness";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";

@@ -231,7 +231,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                             <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
                                 <select
                                     value={filters.expiryWarningStatus}
-                                    onChange={(e) => updateFilter("expiryWarningStatus", e.target.value as any)}
+                                    onChange={(e) => updateFilter("expiryWarningStatus", e.target.value as ModerationFilters["expiryWarningStatus"])}
                                     className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
                                 >
                                     <option value="all">Warning: All</option>
@@ -251,7 +251,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                             <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
                                 <select
                                     value={filters.spotlightWarningStatus}
-                                    onChange={(e) => updateFilter("spotlightWarningStatus", e.target.value as any)}
+                                    onChange={(e) => updateFilter("spotlightWarningStatus", e.target.value as ModerationFilters["spotlightWarningStatus"])}
                                     className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
                                 >
                                     <option value="all">Spot: All</option>

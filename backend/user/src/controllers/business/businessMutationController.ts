@@ -8,6 +8,7 @@ import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
 import { getUserPhoneVerification } from '@esparex/core/services/UserService';
+import { type ActorTypeValue } from '@esparex/core/constants/enums/actor';
 
 export const registerBusiness = async (req: Request, res: Response) => {
     try {
@@ -268,10 +269,11 @@ export const renewBusiness = async (req: Request, res: Response) => {
             return;
         }
 
+        const actorType: ActorTypeValue = user.role === 'admin' || user.role === 'super_admin' ? 'admin' : 'user';
         const updated = await businessService.renewBusiness(id, {
-            type: user.role === 'admin' || user.role === 'super_admin' ? 'admin' : 'user',
+            type: actorType,
             id: user._id.toString()
-        } as any);
+        });
 
         res.json(respond({ success: true, data: updated, message: 'Business renewed successfully' }));
     } catch (error: unknown) {

@@ -19,7 +19,7 @@ const expiryWarningQueue = new Queue('expiry_warning_queue', { connection: redis
  * Daily proactive notification system to warn users before their 
  * entities (Businesses, Listings, Alerts) expire.
  */
-export const runExpiryWarningJob = async (job?: TraceableJobData): Promise<void> => {
+export const runExpiryWarningJob = async (_job?: TraceableJobData): Promise<void> => {
     const startTime = Date.now();
     logger.info('[expiryWarningJob] Starting proactive expiry warning scan...');
 

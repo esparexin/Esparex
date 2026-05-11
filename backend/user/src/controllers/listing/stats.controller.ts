@@ -107,12 +107,12 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
         const mongoose = (await import('mongoose')).default;
         const Ad = (await import('@esparex/core/models/Ad')).default;
 
-        const matchStage: Record<string, any> = {
+        const matchStage: Record<string, unknown> = {
             sellerId: new mongoose.Types.ObjectId(userId),
             isDeleted: { $ne: true }
         };
 
-        const andConditions: any[] = [
+        const andConditions: Record<string, unknown>[] = [
             {
                 $or: [
                     { deletedAt: { $exists: false } },
@@ -194,7 +194,7 @@ export const getMyTabListings = async (req: Request, res: Response) => {
 
         const { tab, page = 1, limit = 20 } = req.query;
 
-        const query: Record<string, any> = {
+        const query: Record<string, unknown> = {
             sellerId: userId,
             isDeleted: { $ne: true },
             $or: [

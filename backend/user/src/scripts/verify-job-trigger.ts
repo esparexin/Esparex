@@ -47,12 +47,12 @@ async function run(): Promise<void> {
     console.info(`[job-verify] Service completed. Expired ${expiredBusinesses.length} businesses.`);
 
     if (expiredBusinesses.length > 0) {
-        const actor = { type: "system", id: 'cron_expireBusinesses' };
+        const actor = { type: "system" as const, id: 'cron_expireBusinesses' };
         for (const biz of expiredBusinesses) {
             console.info(`[job-verify] Processing secondary effects for business: ${biz._id}`);
             await cascadeExpireBusinessListings(
                 biz._id,
-                actor as any,
+                actor,
                 'Automatic expiration: Business subscription ended'
             );
         }

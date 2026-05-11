@@ -46,7 +46,7 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
 }));
 
 jest.mock('@shared/enums/listingStatus', () => ({
-    LISTING_STATUS: { LIVE: 'live', SOLD: 'sold', PENDING: 'pending', DRAFT: 'draft' },
+    LISTING_STATUS: { LIVE: 'live', SOLD: 'sold', PENDING: 'pending', DRAFT: 'draft', DELETED: 'deleted' },
 }));
 
 jest.mock('@shared/enums/actor', () => ({
@@ -200,7 +200,7 @@ describe('lifecycle.controller — deleteListing', () => {
             expect.objectContaining({
                 domain: 'ad',
                 entityId: LISTING_ID,
-                toStatus: 'deactivated',
+                toStatus: 'deleted',
                 patch: expect.objectContaining({ isDeleted: true, isChatLocked: true }),
             })
         );

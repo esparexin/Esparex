@@ -61,7 +61,7 @@ async function run(): Promise<void> {
         return user;
     };
 
-    const businessSeller = await createSeller("9999900001", "Business Lifecycle Tester");
+    await createSeller("9999900001", "Business Lifecycle Tester");
     const regularSeller = await createSeller("9999900002", "Regular Listing Tester");
 
     console.info("[seed] Sellers ready.");

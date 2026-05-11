@@ -57,6 +57,25 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
             });
         }
 
+        // Lifecycle Guard: terminal statuses are read-only
+        if (
+            listing.status === LISTING_STATUS.EXPIRED ||
+            listing.status === LISTING_STATUS.REJECTED
+        ) {
+            return sendErrorResponse(
+                req, res, 400,
+                'Expired or rejected listings are strictly read-only and cannot be edited'
+            );
+        }
+
+        // Lifecycle Guard: pending listings are view-only
+        if (listing.status === LISTING_STATUS.PENDING) {
+            return sendErrorResponse(
+                req, res, 400,
+                'Pending listings are view-only and cannot be edited'
+            );
+        }
+
         if (lockErrors.length > 0) {
             return sendErrorResponse(req, res, 400, 'Validation failed', {
                 code: 'LOCKED_FIELDS',

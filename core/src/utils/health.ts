@@ -53,11 +53,11 @@ export const getHealthCheckData = async (deep = false) => {
         queueHealth = {
             enabled: redisConnected,
             status: redisConnected ? 'up' as const : 'down' as const,
-            queues: [] as any[]
+            queues: [] as { name: string; status: string }[]
         };
         workerHealth = {
             status: redisConnected ? 'up' as const : 'down' as const,
-            workers: [] as any[]
+            workers: [] as { name: string; status: string }[]
         };
     }
 
