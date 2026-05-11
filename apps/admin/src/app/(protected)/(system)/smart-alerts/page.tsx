@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState, useMemo } from "react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -243,9 +245,13 @@ export default function SmartAlertsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-1 flex-wrap max-w-xs">
-                                                    {Object.entries(alert.criteria || {}).map(([k, v]) => (
-                                                        v && <span key={k} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] border border-slate-200">{k}: {String(v)}</span>
-                                                    ))}
+                                                    {Object.entries(alert.criteria || {}).map(([k, v]) => 
+                                                        v ? (
+                                                            <span key={k} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] border border-slate-200">
+                                                                {k}: {String(v)}
+                                                            </span>
+                                                        ) : null
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
