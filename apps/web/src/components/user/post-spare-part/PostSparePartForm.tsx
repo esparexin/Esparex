@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type UseFormRegister } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/components/ui/utils";
 import { Check, CircuitBoard } from "@/icons/IconRegistry";
@@ -24,6 +24,34 @@ import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import { usePostSparePartFormOrchestration } from "./hooks/usePostSparePartFormOrchestration";
 import { LISTING_TYPE } from "@shared/enums/listingType";
 
+function PostSparePartTitleField({ register, error }: { register: ReturnType<UseFormRegister<PostSparePartFormValues>>; error?: string }) {
+    const title = useWatch({ name: "title" }) as string || "";
+    return (
+        <ListingTitleField
+            label="Part Title"
+            error={error}
+            registerProps={register}
+            placeholder="e.g. iPhone 14 OEM Display Screen"
+            valueLength={title.length}
+            maxLength={120}
+        />
+    );
+}
+
+function PostSparePartDescriptionField({ register, error }: { register: ReturnType<UseFormRegister<PostSparePartFormValues>>; error?: string }) {
+    const description = useWatch({ name: "description" }) as string || "";
+    return (
+        <ListingDescriptionField
+            label="Description"
+            error={error}
+            registerProps={register}
+            placeholder="Describe origin, quality, compatibility notes..."
+            valueLength={description.length}
+            maxLength={2000}
+        />
+    );
+}
+
 export default function PostSparePartForm({ editSparePartId }: { editSparePartId?: string }) {
     const isEditMode = !!editSparePartId;
     const router = useRouter();
@@ -44,10 +72,12 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     });
 
     const { register, setValue, setError, clearErrors, control, formState: { errors } } = form;
-    const [categoryId, sparePartTypeId, brandId, title, description] = useWatch({
+    
+    // Only watch category, spare part type and brand in the heavy parent component.
+    const [categoryId, sparePartTypeId, brandId] = useWatch({
         control,
-        name: ["categoryId", "sparePartTypeId", "brandId", "title", "description"],
-    }) as [string, string, string, string, string];
+        name: ["categoryId", "sparePartTypeId", "brandId"],
+    }) as [string, string, string];
 
     const {
         dynamicCategories,
@@ -217,13 +247,9 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 </Field>
             )}
 
-            <ListingTitleField
-                label="Part Title"
+            <PostSparePartTitleField
+                register={register("title")}
                 error={errors.title?.message}
-                registerProps={register("title")}
-                placeholder="e.g. iPhone 14 OEM Display Screen"
-                valueLength={(title || "").length}
-                maxLength={120}
             />
 
             <ListingPriceField
@@ -232,12 +258,9 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                 registerProps={register("price", { valueAsNumber: true })}
             />
 
-            <ListingDescriptionField
-                label="Description"
+            <PostSparePartDescriptionField
+                register={register("description")}
                 error={errors.description?.message}
-                registerProps={register("description")}
-                placeholder="Describe origin, quality, compatibility notes..."
-                valueLength={(description || "").length}
             />
         </GenericPostForm>
     );

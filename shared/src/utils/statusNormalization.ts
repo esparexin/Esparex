@@ -3,7 +3,7 @@
  * Standardizes naming drift across Ad, Business, and Service entities.
  */
 
-export type DomainStatus = 'pending' | 'live' | 'rejected' | 'suspended' | 'expired' | 'deactivated' | 'sold' | 'deleted';
+export type DomainStatus = 'pending' | 'live' | 'rejected' | 'suspended' | 'expired' | 'deactivated' | 'sold' | 'deleted' | 'closed';
 
 /**
  * Base normalization logic for any domain status.
@@ -17,7 +17,7 @@ export function normalizeStatus(value: unknown, fallback: DomainStatus = 'pendin
         return 'live';
     }
 
-    const validStatuses: DomainStatus[] = ['pending', 'rejected', 'suspended', 'expired', 'deactivated', 'sold'];
+    const validStatuses: DomainStatus[] = ['pending', 'rejected', 'suspended', 'expired', 'deactivated', 'sold', 'deleted', 'closed'];
     if (validStatuses.includes(normalized as DomainStatus)) {
         return normalized as DomainStatus;
     }
@@ -28,10 +28,10 @@ export function normalizeStatus(value: unknown, fallback: DomainStatus = 'pendin
 /**
  * Specific normalizer for Business status.
  */
-export function normalizeBusinessStatus(value: unknown, fallback: 'pending' = 'pending'): 'live' | 'pending' | 'rejected' | 'suspended' | 'deleted' {
+export function normalizeBusinessStatus(value: unknown, fallback: 'pending' = 'pending'): 'live' | 'pending' | 'rejected' | 'suspended' | 'deleted' | 'expired' | 'deactivated' | 'closed' {
     const status = normalizeStatus(value, fallback);
-    if (status === 'sold' || status === 'expired' || status === 'deactivated') return 'pending';
-    return status as 'live' | 'pending' | 'rejected' | 'suspended' | 'deleted';
+    if (status === 'sold') return 'closed';
+    return status as 'live' | 'pending' | 'rejected' | 'suspended' | 'deleted' | 'expired' | 'deactivated' | 'closed';
 }
 
 /**

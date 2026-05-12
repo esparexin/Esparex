@@ -111,6 +111,7 @@ export interface PostAdContextType {
     brandsError: string | null;
 
     generateDescription: (targetField: 'title' | 'description') => Promise<void>;
+    autoFillTaxonomy: () => Promise<void>;
     submitAd: () => Promise<void>;
 
     isLoading: boolean;
@@ -149,6 +150,7 @@ export type PostAdStateContextType = Omit<
     | "loadCategorySchema"
     | "setAvailableModels"
     | "generateDescription"
+    | "autoFillTaxonomy"
     | "submitAd"
     | "setUserHasInteracted"
     | "setLoadError"
@@ -178,6 +180,7 @@ export type PostAdActionContextType = Pick<
     | "loadCategorySchema"
     | "setAvailableModels"
     | "generateDescription"
+    | "autoFillTaxonomy"
     | "submitAd"
     | "setUserHasInteracted"
     | "setLoadError"
@@ -345,7 +348,7 @@ export function PostAdProvider({
     const isLocationLocked = isEditMode && (originalAdStatus === 'live' || originalAdStatus === 'pending');
 
     // State for pending states and submission outcomes
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(isEditMode);
     const [brandIsPending, setBrandIsPending] = useState(false);
     const [submittedAd, setSubmittedAd] = useState<Listing | null>(null);
 
@@ -429,7 +432,7 @@ export function PostAdProvider({
 
     /* ---------- SPARE PARTS ---------- */
     /* ---------- GENERATE AI ---------- */
-    const { generateDescription } = usePostAdAiGeneration(form, categoryMap, setIsLoading, setFormError);
+    const { generateDescription, autoFillTaxonomy } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setIsLoading, setFormError);
 
 
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(
@@ -541,6 +544,7 @@ export function PostAdProvider({
         loadCategorySchema,
         setAvailableModels,
         generateDescription,
+        autoFillTaxonomy,
         submitAd,
         setUserHasInteracted,
         setLoadError,
@@ -567,6 +571,7 @@ export function PostAdProvider({
         loadCategorySchema,
         setAvailableModels,
         generateDescription,
+        autoFillTaxonomy,
         submitAd,
         setUserHasInteracted,
         setLoadError,

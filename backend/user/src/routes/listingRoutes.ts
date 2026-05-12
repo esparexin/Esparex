@@ -56,9 +56,15 @@ router.post("/upload-presign", protect, mutationLimiter, createListingController
 // Unified fetch for user's listing counts across all types
 router.get("/mine/stats", protect, statsController.getMyListingStats);
 
+// GET /api/v1/listings/my/status-counts
+router.get("/my/status-counts", protect, statsController.getMyListingStatusCounts);
+
 // GET /api/v1/listings/mine
 // Unified fetch for user's own listings (all types)
 router.get("/mine", protect, statsController.getMyListings);
+
+// GET /api/v1/listings/my
+router.get("/my", protect, statsController.getMyTabListings);
 
 /**
  * Public Detail Routes
@@ -84,9 +90,16 @@ router.put("/:id/edit", protect, validateObjectId, mutationLimiter, validateRequ
 // SSOT: Required terminal state transition
 router.patch("/:id/sold", protect, validateObjectId, mutationLimiter, lifecycleController.markListingSold);
 
+// PATCH /api/v1/listings/:id/mark-sold
+router.patch("/:id/mark-sold", protect, validateObjectId, mutationLimiter, lifecycleController.markListingStatusSold);
+
 // PATCH /api/v1/listings/:id/deactivate
 // Lifecycle: LIVE -> DEACTIVATED
 router.patch("/:id/deactivate", protect, validateObjectId, mutationLimiter, lifecycleController.deactivateListing);
+
+// PATCH /api/v1/listings/:id/activate
+// Lifecycle: DEACTIVATED -> LIVE (immediate)
+router.patch("/:id/activate", protect, validateObjectId, mutationLimiter, lifecycleController.activateListing);
 
 // DELETE /api/v1/listings/:id
 // Lifecycle: Soft delete

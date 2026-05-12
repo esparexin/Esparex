@@ -219,7 +219,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
         
         // 6. Record Real-time Telemetry (Success) - Always outside critical transaction
         setImmediate(() => {
-            recordMutationMetric('success', domain, fromStatus, toStatus).catch(err => {
+            recordMutationMetric('success', domain, fromStatus, toStatus, actor.type).catch(err => {
                 logger.error('Telemetry Error (Success Path):', err);
             });
         });
@@ -306,7 +306,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
         const metricStatus = isValidationFailure ? 'rejection' : 'failure';
         
         setImmediate(() => {
-            recordMutationMetric(metricStatus as 'success' | 'rejection' | 'failure', domain, fromStatus, toStatus).catch(err => {
+            recordMutationMetric(metricStatus as 'success' | 'rejection' | 'failure', domain, fromStatus, toStatus, actor.type).catch(err => {
                 logger.error('Telemetry Error (Error Path):', err);
             });
         });
@@ -402,9 +402,22 @@ async function recordMutationMetric(
     status: 'success' | 'rejection' | 'failure',
     domain: string,
     from: string,
-    to: string
+    to: string,
+    actorType: string
 ) {
     try {
+        // 1. Prometheus Telemetry (High-Resolution)
+        if (status === 'success') {
+            const { listingStatusTransitionsTotal } = await import('../utils/metrics');
+            listingStatusTransitionsTotal.inc({
+                fromStatus: from,
+                toStatus: to,
+                actorType: actorType,
+                listingType: domain,
+            });
+        }
+
+        // 2. Database Metrics (Historical Trends)
         const date = new Date();
         date.setHours(0, 0, 0, 0);
 

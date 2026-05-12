@@ -63,6 +63,10 @@ export async function fetchAdminModerationAds(input: {
     if (filters.dateFrom) params.set("createdAfter", new Date(filters.dateFrom + "T00:00:00.000Z").toISOString());
     if (filters.dateTo) params.set("createdBefore", new Date(filters.dateTo + "T23:59:59.999Z").toISOString());
     if (filters.listingType) params.set("listingType", filters.listingType);
+    if (filters.expiryWarningStatus && filters.expiryWarningStatus !== "all") params.set("expiryWarningStatus", filters.expiryWarningStatus);
+    if (filters.expiringWithinDays) params.set("expiringWithinDays", filters.expiringWithinDays);
+    if (filters.spotlightWarningStatus && filters.spotlightWarningStatus !== "all") params.set("spotlightWarningStatus", filters.spotlightWarningStatus);
+    if (filters.spotlightExpiringWithinDays) params.set("spotlightExpiringWithinDays", filters.spotlightExpiringWithinDays);
 
     applySort(params, filters.sort);
 
@@ -161,8 +165,11 @@ export async function blockAdminSeller(sellerId: string, reason: string): Promis
 /**
  * Bulk Approve Ads/Services
  */
-export async function bulkApproveAds(ids: string[], _domain: 'ad' | 'service'): Promise<void> {
-    await Promise.all(ids.map(id => adminFetch(ADMIN_ROUTES.LISTING_APPROVE(id), { method: "POST" })));
+export async function bulkApproveAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_APPROVE, { 
+        method: "POST",
+        body: { ids }
+    });
 }
 
 /**
@@ -171,23 +178,65 @@ export async function bulkApproveAds(ids: string[], _domain: 'ad' | 'service'): 
 export async function bulkUpdateAdStatus(
     ids: string[],
     status: string,
-    _domain: 'ad' | 'service',
     reason?: string
 ): Promise<void> {
-    await Promise.all(ids.map(id => {
-        if (status === 'rejected') {
-            return adminFetch(ADMIN_ROUTES.LISTING_REJECT(id), {
-                method: "POST",
-                body: { rejectionReason: reason || 'Rejected in bulk operation' }
-            });
-        }
-        if (status === 'deactivated') {
-            return adminFetch(ADMIN_ROUTES.LISTING_DEACTIVATE(id), { method: 'POST' });
-        }
-        if (status === 'live') {
-            return adminFetch(ADMIN_ROUTES.LISTING_APPROVE(id), { method: 'POST' });
-        }
+    if (status === 'rejected') {
+        await adminFetch(ADMIN_ROUTES.LISTING_BULK_REJECT, {
+            method: "POST",
+            body: { ids, rejectionReason: reason || 'Rejected in bulk operation' }
+        });
+        return;
+    }
 
-        throw new Error(`Unsupported bulk status transition: ${status}`);
-    }));
+    if (status === 'deactivated') {
+        await bulkDeactivateAds(ids);
+        return;
+    }
+
+    if (status === 'expired') {
+        await bulkExpireAds(ids);
+        return;
+    }
+
+    if (status === 'live') {
+        await bulkApproveAds(ids);
+        return;
+    }
+
+    throw new Error(`Unsupported bulk status transition: ${status}`);
+}
+
+export async function bulkDeactivateAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_DEACTIVATE, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkExpireAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_EXPIRE, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkExtendAds(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_EXTEND, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkResendListingWarnings(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_RESEND_WARNINGS, {
+        method: "POST",
+        body: { ids }
+    });
+}
+
+export async function bulkResendSpotlightWarnings(ids: string[]): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_BULK_RESEND_SPOTLIGHT_WARNINGS, {
+        method: "POST",
+        body: { ids }
+    });
 }

@@ -157,6 +157,34 @@ export const buildAdMatchStage = async (
             : { $or: flaggedOr };
     }
 
+    // Expiry Warning Filters
+    if (filters.expiryWarningStatus === 'sent') {
+        match.expiryWarningSentAt = { $ne: null };
+    } else if (filters.expiryWarningStatus === 'not_sent') {
+        match.expiryWarningSentAt = null;
+    }
+
+    if (filters.expiringWithinDays) {
+        const now = new Date();
+        const future = new Date();
+        future.setDate(now.getDate() + Number(filters.expiringWithinDays));
+        match.expiresAt = { $gte: now, $lte: future };
+    }
+
+    // Spotlight Warning Filters
+    if (filters.spotlightWarningStatus === 'sent') {
+        match.spotlightWarningSentAt = { $ne: null };
+    } else if (filters.spotlightWarningStatus === 'not_sent') {
+        match.spotlightWarningSentAt = null;
+    }
+
+    if (filters.spotlightExpiringWithinDays) {
+        const now = new Date();
+        const future = new Date();
+        future.setDate(now.getDate() + Number(filters.spotlightExpiringWithinDays));
+        match.spotlightExpiresAt = { $gte: now, $lte: future };
+    }
+
     return match;
 };
 

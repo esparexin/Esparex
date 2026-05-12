@@ -1,5 +1,4 @@
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from '../../routes';
 import { toPaginatedApiResult, toApiResult } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { normalizeListing, type ListingPageResult, type Listing } from './normalizer';
@@ -10,27 +9,30 @@ import { normalizeListing, type ListingPageResult, type Listing } from './normal
 export const getMyListings = async (type?: string, status?: string, page = 1, limit = 20): Promise<ListingPageResult> => {
     const params = new URLSearchParams();
     if (type) params.append('listingType', type);
-    if (status) params.append('status', status);
+    
+    const tab = status || 'live';
+    params.append('tab', tab);
+
     params.append('page', String(page));
     params.append('limit', String(limit));
 
-    const endpoint = `${API_ROUTES.USER.MY_LISTINGS}?${params.toString()}`;
-        const { data: result, error } = await toPaginatedApiResult<Listing>(
-            apiClient.get(endpoint)
-        );
+    const endpoint = `listings/my?${params.toString()}`;
+    const { data: result, error } = await toPaginatedApiResult<Listing>(
+        apiClient.get(endpoint)
+    );
 
-        if (error) {
-            throw error;
-        }
+    if (error) {
+        throw error;
+    }
 
-        if (!result) {
-            return { data: [], pagination: { total: 0, page, limit, hasMore: false } };
-        }
+    if (!result) {
+        return { data: [], pagination: { total: 0, page, limit, hasMore: false } };
+    }
 
-        return {
-            data: result.data.map(normalizeListing),
-            pagination: result.pagination,
-        };
+    return {
+        data: result.data.map(normalizeListing),
+        pagination: result.pagination,
+    };
 };
 
 
@@ -40,10 +42,29 @@ export type ListingStatsResponse = Record<string, Record<string, number>>;
  */
 export const getMyListingsStats = async (): Promise<ListingStatsResponse> => {
     try {
-        const { data: result } = await toApiResult<ListingStatsResponse>(
-            apiClient.get(API_ROUTES.USER.MY_LISTINGS_STATS)
-        );
-        return result || {};
+        const [adRes, serviceRes, spareRes] = await Promise.all([
+            toApiResult<Record<string, number>>(apiClient.get('listings/my/status-counts?listingType=ad')),
+            toApiResult<Record<string, number>>(apiClient.get('listings/my/status-counts?listingType=service')),
+            toApiResult<Record<string, number>>(apiClient.get('listings/my/status-counts?listingType=spare_part'))
+        ]);
+
+        return {
+            ad: {
+                live: adRes.data?.live || 0,
+                pending: adRes.data?.pending || 0,
+                expired: adRes.data?.expired || 0,
+            },
+            service: {
+                live: serviceRes.data?.live || 0,
+                pending: serviceRes.data?.pending || 0,
+                expired: serviceRes.data?.expired || 0,
+            },
+            "spare_part": {
+                live: spareRes.data?.live || 0,
+                pending: spareRes.data?.pending || 0,
+                expired: spareRes.data?.expired || 0,
+            },
+        };
     } catch (e) {
         logger.error('Failed to load listing stats', e);
         return {};

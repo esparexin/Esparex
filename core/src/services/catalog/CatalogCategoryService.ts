@@ -69,9 +69,9 @@ export async function getCatalogEntityCounts() {
 
 // ─── Category queries ─────────────────────────────────────────────────────────
 
-export const findCategoryById = async (id: string | undefined) => {
+export const findCategoryById = async (id: string | undefined, extraQuery: Record<string, unknown> = {}) => {
     if (!id) return null;
-    return Category.findById(id);
+    return Category.findOne({ _id: id, ...extraQuery });
 };
 
 export const categoryParentExists = async (parentId: string | undefined) => {

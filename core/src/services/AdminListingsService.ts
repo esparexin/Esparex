@@ -20,6 +20,8 @@ import {
 } from './ListingModerationQueryService';
 import { REPORT_STATUS } from '../constants/enums/reportStatus';
 import { AppError } from '../utils/AppError';
+import Ad from '../models/Ad';
+import { dispatchTemplatedNotification } from './NotificationService';
 
 // ---------------------------------------------------------
 // Types
@@ -53,6 +55,10 @@ export interface AdminListingsQuery {
     createdBefore?: unknown;
     listingType?: unknown;
     sortBy?: unknown;
+    expiryWarningStatus?: unknown;
+    expiringWithinDays?: unknown;
+    spotlightWarningStatus?: unknown;
+    spotlightExpiringWithinDays?: unknown;
 }
 
 type DuplicateBypassBody = {
@@ -154,6 +160,10 @@ export const adminListListings = async (query: AdminListingsQuery) => {
             createdBefore: asString(query.createdBefore),
             listingType,
             sortBy: asString(query.sortBy) as ListingModerationFilters['sortBy'],
+            expiryWarningStatus: asString(query.expiryWarningStatus) as ListingModerationFilters['expiryWarningStatus'],
+            expiringWithinDays: asNumber(query.expiringWithinDays),
+            spotlightWarningStatus: asString(query.spotlightWarningStatus) as ListingModerationFilters['spotlightWarningStatus'],
+            spotlightExpiringWithinDays: asNumber(query.spotlightExpiringWithinDays),
         },
         { page, limit }
     );
@@ -309,6 +319,9 @@ export const adminApproveListing = async (
             approvedAt,
             approvedBy: actorId,
             expiresAt,
+            expiryWarningSentAt: null,
+            expiryWarningCount: 0,
+            lastExpiryWarningChannel: null,
             moderationStatus: 'manual_approved',
             rejectionReason: undefined,
             $push: {
@@ -594,4 +607,274 @@ export const adminResolveListingReport = async (
 export const adminGetListingCounts = async (listingTypeRaw?: unknown) => {
     const listingType = resolveListingTypeFilter(listingTypeRaw);
     return getModerationCounts(listingType);
+};
+
+// ─── Bulk Moderation ─────────────────────────────────────────────────────────
+
+export const adminBulkApproveListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminApproveListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error),
+                statusCode: (error as { statusCode?: number }).statusCode || 500
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
+};
+
+export const adminBulkRejectListings = async (
+    ids: string[],
+    actorId: string,
+    rejectionReason: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+    if (!rejectionReason || !rejectionReason.trim()) {
+        throw new AppError('Rejection reason is required for bulk rejection', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminRejectListing(id, actorId, rejectionReason, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error),
+                statusCode: (error as { statusCode?: number }).statusCode || 500
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
+};
+
+export const adminBulkDeactivateListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminDeactivateListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated.listing });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+    };
+};
+
+export const adminBulkExpireListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminExpireListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+    };
+};
+
+export const adminBulkExtendListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            const updated = await adminExtendListing(id, actorId, logFn);
+            results.push({ id, success: true, listing: updated });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+    };
+};
+
+export const adminBulkResendListingWarnings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            validateListingId(id);
+            const ad = await Ad.findById(id);
+            if (!ad) throw new AppError('Listing not found', 404);
+
+            await dispatchTemplatedNotification(
+                ad.sellerId.toString(),
+                'SYSTEM',
+                'LISTING_EXPIRY_WARNING_3D',
+                { 
+                    title: ad.title, 
+                    date: ad.expiresAt?.toLocaleDateString() || 'N/A' 
+                },
+                { adId: ad._id.toString() }
+            );
+
+            ad.expiryWarningSentAt = new Date();
+            ad.expiryWarningCount = (ad.expiryWarningCount || 0) + 1;
+            ad.lastExpiryWarningChannel = 'in-app';
+            await ad.save();
+
+            await logFn('expiry_warning_resent', 'ExpiryWarning', id, {
+                entityType: 'Ad',
+                adminId: actorId
+            });
+
+            results.push({ id, success: true });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
+};
+
+export const adminBulkResendSpotlightWarnings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    if (!Array.isArray(ids) || ids.length === 0) {
+        throw new AppError('A non-empty list of listing IDs is required', 400);
+    }
+
+    const results = [];
+    for (const id of ids) {
+        try {
+            validateListingId(id);
+            const ad = await Ad.findById(id);
+            if (!ad) throw new AppError('Listing not found', 404);
+            if (!ad.isSpotlight) throw new AppError('Listing is not in spotlight', 400);
+
+            await dispatchTemplatedNotification(
+                ad.sellerId.toString(),
+                'SYSTEM',
+                'SPOTLIGHT_EXPIRY_WARNING_3D',
+                { 
+                    title: ad.title, 
+                    date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' 
+                },
+                { adId: ad._id.toString(), type: 'spotlight' }
+            );
+
+            ad.spotlightWarningSentAt = new Date();
+            ad.spotlightWarningCount = (ad.spotlightWarningCount || 0) + 1;
+            await ad.save();
+
+            await logFn('expiry_warning_resent', 'SpotlightPromotion', id, {
+                type: 'spotlight',
+                adminId: actorId
+            });
+
+            results.push({ id, success: true });
+        } catch (error) {
+            results.push({ 
+                id, 
+                success: false, 
+                message: error instanceof Error ? error.message : String(error)
+            });
+        }
+    }
+
+    return {
+        processedCount: ids.length,
+        successCount: results.filter(r => r.success).length,
+        errorCount: results.filter(r => !r.success).length,
+        results
+    };
 };

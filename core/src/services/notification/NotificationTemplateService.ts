@@ -24,7 +24,23 @@ const TEMPLATES: Record<string, (params: TemplateParams) => NotificationTemplate
     }),
     BUSINESS_EXPIRING_SOON: (p) => ({
         title: 'Business Expiring Soon ⚠️',
-        body: `Your business "${p.name}" will expire on ${p.date}. Contact support to renew.`
+        body: `Your business "${p.name}" will expire on ${p.date}. Renew now to keep your listings active.`
+    }),
+    BUSINESS_EXPIRY_WARNING_3D: (p) => ({
+        title: 'Business Renewal Reminder 🏢',
+        body: `Your business profile "${p.name}" expires in 3 days (${p.date}). Renew today to avoid any service interruption.`
+    }),
+    LISTING_EXPIRY_WARNING_3D: (p) => ({
+        title: 'Listing Expiring Soon 🏷️',
+        body: `Your listing "${p.title}" will expire in 3 days (${p.date}). Renew it now to keep it visible to buyers.`
+    }),
+    SMART_ALERT_EXPIRY_WARNING_3D: (p) => ({
+        title: 'Search Alert Expiring 🔍',
+        body: `Your smart alert "${p.name || 'Saved Search'}" expires in 3 days. Extend it now to continue receiving matches.`
+    }),
+    SPOTLIGHT_EXPIRY_WARNING_3D: (p) => ({
+        title: 'Spotlight Expiring Soon 🚀',
+        body: `Your spotlight promotion for "${p.title}" expires in 3 days. Renew it to stay at the top of search results.`
     }),
     BUSINESS_SUSPENDED: (p) => ({
         title: 'Business Account Suspended',

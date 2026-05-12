@@ -1,4 +1,4 @@
-const LOCATION_SEARCH_DEBOUNCE_MS = 150;
+
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchLocations, type Location } from "@/lib/api/user/locations";
@@ -22,7 +22,7 @@ export function useLocationSearch({
     isOpen: boolean;
     isPanel?: boolean;
     query: string;
-    onApplySelection: (loc: Location) => void;
+    onApplySelection: (loc: Location, source?: "manual" | "gps") => void;
     onClose?: () => void;
 }) {
     const { loading: globalDetecting } = useLocationStatus();
@@ -144,7 +144,7 @@ export function useLocationSearch({
                 setIsSearching(false);
                 setShowSkeleton(false);
             }
-        }, LOCATION_SEARCH_DEBOUNCE_MS);
+        }, SEARCH_DEBOUNCE_MS);
 
         return () => {
             clearTimeout(debounce);
@@ -181,7 +181,7 @@ export function useLocationSearch({
         setDetectFeedback(null);
         
         // Pass it up to the caller to handle local state (e.g. Post-Ad forms)
-        onApplySelection(detectedLocation as unknown as Location);
+        onApplySelection(detectedLocation as unknown as Location, "gps");
         
         if (isPanel) onClose?.();
         else onDone?.();

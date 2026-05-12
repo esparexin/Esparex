@@ -35,10 +35,12 @@ import {
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
     sendValidationError,
-    handleCatalogToggleStatus
+    handleCatalogToggleStatus,
+    applyTaxonomyStatusFilter,
 } from './shared';
-import { CATALOG_STATUS } from "@esparex/shared";
+import { TAXONOMY_APPROVAL_STATUS } from "../../../constants/enums/taxonomyApprovalStatus";
 import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
+import { deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.
@@ -49,15 +51,15 @@ import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
 export const getCategories = async (req: Request, res: Response) => {
     const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
-    if (rawStatus === CATALOG_STATUS.ACTIVE || rawStatus === CATALOG_STATUS.INACTIVE) {
-        queryParams.isActive = rawStatus === CATALOG_STATUS.ACTIVE;
-        delete queryParams.status;
-    }
+    delete queryParams.status;
+    const adminQuery: QueryRecord = {};
+    applyTaxonomyStatusFilter(adminQuery, rawStatus);
 
     return handlePaginatedContent(req, res, CategoryModel, {
         searchFields: ['name', 'slug'],
         defaultSort: { name: 1 },
         publicQuery: { ...ACTIVE_CATEGORY_QUERY },
+        adminQuery,
         queryParams
     });
 };
@@ -89,8 +91,8 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
  */
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
-        // Admin route always uses validateObjectId middleware — ObjectId lookup only.
-        const category = await findCategoryById(req.params.id as string);
+        const isAdminView = req.originalUrl.includes('/admin');
+        const category = await findCategoryById(req.params.id as string, isAdminView ? {} : ACTIVE_CATEGORY_QUERY);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -106,7 +108,8 @@ export const getCategoryById = async (req: Request, res: Response) => {
 export const getCategorySchema = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
-        const category = await findCategoryById(id);
+        const isAdminView = req.originalUrl.includes('/admin');
+        const category = await findCategoryById(id, isAdminView ? {} : ACTIVE_CATEGORY_QUERY);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -178,7 +181,11 @@ export const createCategory = async (req: Request, res: Response) => {
 
         const category = await CatalogOrchestrator.createCategory({
             ...payload,
-            status: payload.isActive === false ? CATALOG_STATUS.INACTIVE : CATALOG_STATUS.ACTIVE
+            approvalStatus: deriveApprovalStatus({
+                approvalStatus: (payload as Record<string, unknown>).approvalStatus,
+                isActive: payload.isActive,
+                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            }),
         } as Partial<import('@esparex/core/models/Category').ICategory>);
 
         clearCategoryCanonicalCache();
@@ -224,7 +231,14 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
 
         const payloadWithStatus = payload.isActive !== undefined
-            ? { ...payload, status: payload.isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE }
+            ? {
+                ...payload,
+                approvalStatus: deriveApprovalStatus({
+                    approvalStatus: (payload as Record<string, unknown>).approvalStatus,
+                    isActive: payload.isActive,
+                    fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                }),
+            }
             : payload;
 
         const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<import('@esparex/core/models/Category').ICategory>);

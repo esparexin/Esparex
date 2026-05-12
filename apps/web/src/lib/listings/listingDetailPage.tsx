@@ -22,9 +22,16 @@ export interface ListingLike {
     title?: string;
     description?: string;
     images?: string[];
-    price?: number;
+    price?: number | null;
+    priceMin?: number | null;
+    priceMax?: number | null;
+    currency?: string;
     status?: string;
     sellerName?: string;
+    listingType?: string;
+    condition?: string;
+    brandName?: string;
+    locationName?: string;
 }
 
 interface BuildListingMetadataOptions {
@@ -74,18 +81,31 @@ export async function buildListingMetadata({
     }
     if (!listing) return { title: missingTitle };
 
-    const listingTitle = listing.title || missingTitle;
-    const canonicalSlug = generateAdSlug(listingTitle);
+    const locationSuffix = listing.locationName ? ` in ${listing.locationName}` : "";
+    const listingTitle = `${listing.title}${locationSuffix}` || missingTitle;
+    
+    const canonicalSlug = generateAdSlug(listing.title || "");
     const canonicalUrl = `${canonicalBasePath}/${canonicalSlug}-${listing.id}`;
     const previousImages = (await parent).openGraph?.images || [];
     const mainImage = listing.images?.[0];
 
     const isIndexable = !listing.status || listing.status === "live";
-    const ogDescription = listing.description?.slice(0, 300);
+    
+    // SEO Optimized Description
+    let seoDescription = "";
+    if (listing.listingType === "service" && listing.priceMin) {
+        seoDescription = `Service starting from ${listing.currency || "₹"}${listing.priceMin}. `;
+    } else if (listing.price) {
+        seoDescription = `Price: ${listing.currency || "₹"}${listing.price}. `;
+    }
+    seoDescription += listing.description || "";
+    
+    const metaDescription = seoDescription.slice(0, 160);
+    const ogDescription = seoDescription.slice(0, 300);
 
     return {
         title: `${listingTitle} | Esparex`,
-        description: listing.description?.slice(0, 160),
+        description: metaDescription,
         alternates: { canonical: canonicalUrl },
         robots: isIndexable ? undefined : { index: false, follow: false },
         openGraph: {

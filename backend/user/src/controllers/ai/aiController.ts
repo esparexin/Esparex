@@ -8,6 +8,8 @@ import {
     getAiContext,
     isAIRequestType
 } from '@esparex/core/services/AiService';
+import { TaxonomyAiService } from '@esparex/core/services/catalog/taxonomyAiService';
+import { validateBrandSuggestion, validateModelSuggestion } from '@esparex/core/controllers/admin/catalog';
 
 export const catalogSuggest = async (req: Request, res: Response) => {
     try {
@@ -74,5 +76,48 @@ export const generate = async (req: Request, res: Response) => {
         const err = error as Error;
         logger.error('AI Service Error:', err);
         sendErrorResponse(req, res, 500, 'AI Service Error');
+    }
+};
+
+export const analyzeTaxonomy = async (req: Request, res: Response) => {
+    try {
+        const { input, brand, category } = req.body as { input: string; brand?: string; category?: string };
+        if (!input || input.length < 3) {
+            return sendErrorResponse(req, res, 400, 'Input text is required (min 3 chars)');
+        }
+
+        const result = await TaxonomyAiService.analyzeModel(input, brand);
+        res.json(respond({ success: true, data: result }));
+    } catch (error) {
+        logger.error('[AI Controller] analyzeTaxonomy failed', error);
+        sendErrorResponse(req, res, 500, 'Taxonomy analysis failed');
+    }
+};
+
+export const suggestBrand = async (req: Request, res: Response) => {
+    try {
+        const { name } = req.body as { name: string };
+        if (!name) return sendErrorResponse(req, res, 400, 'Brand name is required');
+        
+        const { cleanName } = validateBrandSuggestion(name);
+        const result = await TaxonomyAiService.analyzeBrand(cleanName);
+        res.json(respond({ success: true, data: result }));
+    } catch (error) {
+        logger.error('[AI Controller] suggestBrand failed', error);
+        sendErrorResponse(req, res, 500, 'Brand suggestion analysis failed');
+    }
+};
+
+export const suggestModel = async (req: Request, res: Response) => {
+    try {
+        const { name, brandName } = req.body as { name: string; brandName?: string };
+        if (!name) return sendErrorResponse(req, res, 400, 'Model name is required');
+
+        const { cleanName } = validateModelSuggestion(name);
+        const result = await TaxonomyAiService.analyzeModel(cleanName, brandName);
+        res.json(respond({ success: true, data: result }));
+    } catch (error) {
+        logger.error('[AI Controller] suggestModel failed', error);
+        sendErrorResponse(req, res, 500, 'Model suggestion analysis failed');
     }
 };

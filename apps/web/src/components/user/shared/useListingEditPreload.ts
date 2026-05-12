@@ -40,18 +40,12 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
 
     React.useEffect(() => {
         if (!editId || !enabled) {
-            loadedIdRef.current = null;
             void (async () => {
                 setIsFetchingData(false);
                 callbacksRef.current.onLoadingChange?.(false);
             })();
             return;
         }
-
-        if (loadedIdRef.current === editId) {
-            return;
-        }
-        loadedIdRef.current = editId;
 
         let isActive = true;
 
@@ -62,7 +56,10 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
 
             try {
                 const payload = await getListingById(editId);
-                if (!isActive || !payload) return;
+                if (!isActive) return;
+                if (!payload) {
+                    throw new Error("Listing not found");
+                }
                 await callbacksRef.current.onPayload(payload as unknown as TPayload);
             } catch (error) {
                 if (!isActive) return;

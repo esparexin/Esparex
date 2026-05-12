@@ -127,9 +127,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
         const db = await connectOpsDb();
 
         try {
-            const [{ default: AdminBoundary }] = await Promise.all([
-                import('@esparex/core/models/AdminBoundary'),
-            ]);
+            const AdminBoundary = require('../../models/AdminBoundary').default;
 
             if (!db) throw new Error('DB handle not available');
 

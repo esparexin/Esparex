@@ -13,7 +13,10 @@ export function useAssignableCategories(categories: CategoryData[], condition?: 
     return useMemo(() => {
         // Shared global filters
         const assignableCategories = categories.filter(
-            (cat) => cat.isActive !== false && !cat.isDeleted && cat.status !== 'inactive' && cat.status !== 'rejected'
+            (cat) =>
+                cat.isActive !== false &&
+                !cat.isDeleted &&
+                (cat.approvalStatus || "approved") !== "rejected"
         ).filter(condition || (() => true));
 
         // Create a quick lookup set

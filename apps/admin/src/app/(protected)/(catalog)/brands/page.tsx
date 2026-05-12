@@ -11,6 +11,7 @@ import { adminBrandSchema } from "@/schemas/admin.schemas";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState } from "react";
 import {
+    deriveTaxonomyLifecycleStatus,
     getEntityCategoryIds,
     resolveModalAssignableCategoryState,
     toCategoryOptions,
@@ -26,6 +27,7 @@ import {
     CatalogEntityCell,
     CatalogEditDeleteActionPair,
     CatalogSelectFilter,
+    CatalogRejectSuggestionForm,
 } from "@/components/catalog/CatalogUiPrimitives";
 
 export default function BrandsPage() {
@@ -79,7 +81,7 @@ export default function BrandsPage() {
 
     return (
         <>
-        <CatalogPageTemplate<Brand, { name: string; categoryIds: string[]; isActive: boolean; status: Brand['status'] }>
+        <CatalogPageTemplate<Brand, { name: string; categoryIds: string[]; isActive: boolean }>
             title="Brand Management"
             description="Manage product brands and their category assignments."
             createLabel="Add Brand"
@@ -91,7 +93,7 @@ export default function BrandsPage() {
             setPage={setPage}
             handleCreate={handleCreate}
             handleUpdate={handleUpdate}
-            defaultFormData={{ name: "", categoryIds: [], isActive: true, status: "live" }}
+            defaultFormData={{ name: "", categoryIds: [], isActive: true }}
             validationSchema={adminBrandSchema}
             onModalOpen={(item, setFormData) => {
                 if (item) {
@@ -104,7 +106,6 @@ export default function BrandsPage() {
                         name: item.name,
                         categoryIds: assignableCategoryIds,
                         isActive: item.isActive,
-                        status: item.status
                     });
                 } else {
                     setArchivedCategoryCount(0);
@@ -152,6 +153,7 @@ export default function BrandsPage() {
                     header: "Actions",
                     className: "text-right",
                     cell: (brand) => {
+                        const lifecycleStatus = deriveTaxonomyLifecycleStatus(brand);
                         if (brand.isDeleted) {
                             return (
                                 <div className="text-xs font-medium text-slate-400">
@@ -161,7 +163,7 @@ export default function BrandsPage() {
                         }
                         return (
                             <CatalogActionsRow>
-                                {brand.status === 'pending' && (
+                                {lifecycleStatus === 'pending' && (
                                     <>
                                         <CatalogActionIconButton
                                             onClick={() => void handleApprove(brand.id)}
@@ -288,56 +290,15 @@ export default function BrandsPage() {
             onClose={() => !isRejecting && setRejectingBrand(null)}
             title="Reject Brand Application"
         >
-            <div className="p-6 space-y-4">
-                <div className="flex items-start gap-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600" />
-                    <div>
-                        <p className="text-sm font-semibold text-orange-700">
-                            Rejection Action
-                        </p>
-                        <p className="mt-1 text-sm text-orange-600">
-                            You are rejecting <strong>&ldquo;{rejectingBrand?.name}&rdquo;</strong>. 
-                            Please provide a reason to notify the submitter.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Rejection Reason
-                    </label>
-                    <textarea
-                        autoFocus
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        placeholder="e.g. Logo missing, Invalid category mapping..."
-                        className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                    />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                    <button
-                        type="button"
-                        disabled={isRejecting}
-                        onClick={() => setRejectingBrand(null)}
-                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        disabled={isRejecting || !rejectionReason.trim()}
-                        onClick={() => void confirmReject()}
-                        className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
-                    >
-                        {isRejecting ? (
-                            <><Loader2 size={14} className="animate-spin" /> Submitting…</>
-                        ) : (
-                            "Confirm Rejection"
-                        )}
-                    </button>
-                </div>
-            </div>
+            <CatalogRejectSuggestionForm
+                itemName={rejectingBrand?.name}
+                rejectionReason={rejectionReason}
+                onRejectionReasonChange={setRejectionReason}
+                onCancel={() => setRejectingBrand(null)}
+                onConfirm={() => void confirmReject()}
+                isSubmitting={isRejecting}
+                placeholder="e.g. Logo missing, Invalid category mapping..."
+            />
         </CatalogModal>
         </>
     );

@@ -14,7 +14,8 @@ import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
 import { sendAdminError } from '../../../utils/adminBaseController';
-import { CatalogStatusValue, CATALOG_STATUS } from '../../../constants/enums/catalogStatus';
+import { TAXONOMY_APPROVAL_STATUS } from '../../../constants/enums/taxonomyApprovalStatus';
+import { deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
 
 // Re-export SSOT validation helpers so controllers import from one place.
 import {
@@ -27,12 +28,10 @@ import {
 import { logAdminAction } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 
-export type { CatalogStatusValue };
 export { 
     sendAdminError,
     sendSuccessResponse,
     sendCatalogError,
-    CATALOG_STATUS,
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
     getActiveCategoryIds,
@@ -46,6 +45,49 @@ export type CatalogRequest = Request & {
 };
 
 export type QueryRecord = Record<string, unknown>;
+
+const hasSchemaPath = (
+    model: { schema: { path(field: string): unknown } },
+    path: string
+): boolean => Boolean(model.schema.path(path));
+
+export type TaxonomyStatusFilterToken =
+    | 'live'
+    | 'active'
+    | 'inactive'
+    | 'deactivated'
+    | 'pending'
+    | 'rejected';
+
+export const applyTaxonomyStatusFilter = (
+    targetQuery: QueryRecord,
+    rawStatus: unknown
+) => {
+    if (typeof rawStatus !== 'string') return;
+    const status = rawStatus.trim().toLowerCase();
+    if (!status || status === 'all') return;
+
+    if (status === 'live') {
+        targetQuery.approvalStatus = TAXONOMY_APPROVAL_STATUS.APPROVED;
+        targetQuery.isActive = true;
+        return;
+    }
+    if (status === 'active') {
+        targetQuery.isActive = true;
+        return;
+    }
+    if (status === 'inactive' || status === 'deactivated') {
+        targetQuery.isActive = false;
+        return;
+    }
+    if (status === 'pending') {
+        targetQuery.approvalStatus = TAXONOMY_APPROVAL_STATUS.PENDING;
+        return;
+    }
+    if (status === 'rejected') {
+        targetQuery.approvalStatus = TAXONOMY_APPROVAL_STATUS.REJECTED;
+    }
+};
 
 /**
  * Check if request has admin access
@@ -249,20 +291,26 @@ export async function handleCatalogToggleStatus<T extends Document>(
         }
 
         const isActive = !(item as T & { isActive?: boolean }).isActive;
-        const status = isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE;
-        const nextState = (model.schema as { path(f: string): unknown }).path('status')
-            ? { isActive, status }
-            : { isActive };
+        const typedItem = item as T & { approvalStatus?: unknown; isActive?: boolean };
+        const approvalStatus = deriveApprovalStatus({
+            approvalStatus: typedItem.approvalStatus,
+            isActive: typedItem.isActive,
+            fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        });
+        const nextState: Record<string, unknown> = { isActive };
+        if (hasSchemaPath(model, 'approvalStatus')) {
+            nextState.approvalStatus = approvalStatus;
+        }
 
         await model.findByIdAndUpdate(req.params.id, nextState);
         
         if (options.postOp) options.postOp();
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, status });
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, approvalStatus });
         }
 
-        return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${status}`);
+        return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${isActive ? 'active' : 'inactive'}`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
@@ -295,9 +343,11 @@ export async function handleCatalogDelete<T extends Document>(
             }
         }
 
-        const softDeleteUpdate = (model.schema as { path(f: string): unknown }).path('status')
-            ? { isDeleted: true, status: CATALOG_STATUS.INACTIVE }
-            : { isDeleted: true };
+        const softDeleteUpdate: Record<string, unknown> = {
+            isDeleted: true,
+            deletedAt: new Date(),
+            isActive: false,
+        };
 
         const item = await model.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
         if (!item) {
@@ -337,20 +387,30 @@ export async function handleCatalogReview<T extends Document>(
 
         let updates: Record<string, unknown> = {};
         if (action === 'APPROVE') {
-            updates = { status: CATALOG_STATUS.ACTIVE, isActive: true };
+            updates = {
+                approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: true
+            };
         } else {
             const parsed = schema?.safeParse(req.body);
             if (schema && !parsed?.success) {
                 return sendValidationError(req, res, parsed!.error);
             }
             updates = {
-                status: CATALOG_STATUS.REJECTED,
+                approvalStatus: TAXONOMY_APPROVAL_STATUS.REJECTED,
                 isActive: false,
                 rejectionReason: (parsed?.data as { reason?: string } | undefined)?.reason || (req.body as { reason?: string })?.reason
             };
         }
 
-        const item = await model.findByIdAndUpdate(req.params.id, updates, { new: true });
+        const adminId = getAdminActorId(req);
+        if (hasSchemaPath(model, 'aiDecision')) {
+            updates['aiDecision.reviewedBy'] = adminId;
+            updates['aiDecision.reviewedAt'] = new Date();
+            updates['aiDecision.requiresReview'] = false;
+        }
+
+        const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
         if (!item) {
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }

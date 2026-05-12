@@ -37,11 +37,9 @@ export const extractAdminToken = (req: Request): { token: string; source: 'cooki
     return null;
 };
 
-const isStaticAsset = (path?: string): boolean => {
-    if (!path) return false;
-
+const isStaticAsset = (path: string | undefined): boolean => {
+    if (!path || typeof path !== 'string') return false;
     const cleanPath = path.split('?')[0];
-
     return (
         cleanPath === '/manifest.json' ||
         cleanPath === '/sw.js' ||

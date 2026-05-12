@@ -19,3 +19,21 @@ export async function getCatalogHierarchyTree(): Promise<HierarchyTreeResponse> 
         categories: [],
     };
 }
+
+export async function getCatalogGovernanceMetrics(): Promise<any> {
+    const response = await adminFetch<any>(ADMIN_ROUTES.CATALOG_GOVERNANCE_METRICS);
+    const parsed = parseAdminResponse<never, any>(response);
+    return parsed.data;
+}
+
+export async function getCatalogGovernanceLogs(): Promise<any[]> {
+    const response = await adminFetch<any[]>(ADMIN_ROUTES.CATALOG_GOVERNANCE_LOGS);
+    const parsed = parseAdminResponse<never, any[]>(response);
+    return parsed.data ?? [];
+}
+
+export async function getAiModerationQueue(): Promise<{ brands: any[], models: any[] }> {
+    const response = await adminFetch<{ brands: any[], models: any[] }>(ADMIN_ROUTES.AI_ANALYSIS_QUEUE);
+    const parsed = parseAdminResponse<never, { brands: any[], models: any[] }>(response);
+    return parsed.data ?? { brands: [], models: [] };
+}

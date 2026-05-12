@@ -32,8 +32,11 @@ const buildDetectedLocationDisplay = (location: AppLocation): string =>
         || "Current location",
     );
 
-const getCurrentLocationSourceLabel = (source: "auto" | ""): string => {
+import type { AppLocationSource } from "@/types/location";
+
+const getCurrentLocationSourceLabel = (source: AppLocationSource | ""): string => {
     if (source === "auto") return "GPS";
+    if (source === "ip") return "IP";
     return "";
 };
 
@@ -53,7 +56,7 @@ export const applyDetectedCurrentLocation = ({
     setFormData((previous) => ({
         ...previous,
         currentLocationDisplay: display,
-        currentLocationSource: "auto",
+        currentLocationSource: detectedLocation.source || "auto",
         currentLocationCity: detectedLocation.city || previous.currentLocationCity,
         currentLocationState: detectedLocation.state || previous.currentLocationState,
         currentLocationPincode: detectedLocation.pincode || previous.currentLocationPincode,

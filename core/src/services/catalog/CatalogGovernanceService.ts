@@ -10,7 +10,7 @@ import Brand from '../../models/Brand';
 import CatalogModel from '../../models/Model';
 
 export async function findCategoryByIdLean(id: string) {
-    return Category.findById(id).lean<{ name: string; isActive: boolean } | null>();
+    return Category.findById(id).lean<{ name: string; isActive: boolean; approvalStatus?: string } | null>();
 }
 
 export async function getCategoryHealthMetrics(categoryId: string) {
@@ -27,18 +27,9 @@ export async function getCategoryHealthMetrics(categoryId: string) {
                 }
             }
         ]),
-        Brand.countDocuments({ categoryId, isDeleted: { $ne: true } }),
+        Brand.countDocuments({ categoryIds: objectId, isDeleted: { $ne: true } }),
         CatalogModel.aggregate([
-            {
-                $lookup: {
-                    from: 'brands',
-                    localField: 'brandId',
-                    foreignField: '_id',
-                    as: 'brand'
-                }
-            },
-            { $unwind: '$brand' },
-            { $match: { 'brand.categoryId': objectId, isDeleted: { $ne: true } } },
+            { $match: { categoryIds: objectId, isDeleted: { $ne: true } } },
             { $count: 'total' }
         ])
     ]);

@@ -194,6 +194,7 @@ export interface EnsuredModel {
     brandId: string;
     categoryId?: string;
     status?: string;
+    aiAnalysis?: any;
 }
 
 /**
@@ -228,6 +229,7 @@ export async function ensureModel(
             brandId,
             categoryId: data?.categoryId as string | undefined,
             status: data?.status as string | undefined,
+            aiAnalysis: data?.aiAnalysis,
         };
     } catch (error) {
         logger.error("[MasterData] ensureModel failed:", error);

@@ -8,8 +8,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import type { BusinessStatusValue } from "@shared";
+
 interface BusinessStatusBannerProps {
-    status: 'pending' | 'live' | 'rejected' | 'suspended' | 'deleted';
+    status: BusinessStatusValue;
     rejectionReason?: string;
     onAction?: () => void;
 }

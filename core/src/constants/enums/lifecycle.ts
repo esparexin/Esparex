@@ -1,10 +1,12 @@
 export const LIFECYCLE_STATUS = {
     PENDING: 'pending',
     LIVE: 'live',
+    ACTIVE: 'active',
     REJECTED: 'rejected',
     EXPIRED: 'expired',
     DEACTIVATED: 'deactivated',
     SOLD: 'sold',
+    CLOSED: 'closed',
     DELETED: 'deleted',
     SUSPENDED: 'suspended',
     BANNED: 'banned',

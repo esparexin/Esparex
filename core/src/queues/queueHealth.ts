@@ -19,7 +19,7 @@ type QueueCounts = {
     completed: number;
 };
 
-type QueueHealth = {
+export type QueueHealth = {
     name: string;
     status: 'up' | 'degraded' | 'down';
     counts: QueueCounts;

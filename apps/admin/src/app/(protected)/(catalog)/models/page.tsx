@@ -5,7 +5,7 @@ import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import type { Model } from "@esparex/shared";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
-import { Layers, AlertTriangle, Loader2 } from "lucide-react";
+import { Layers, AlertTriangle, Loader2, Check, CheckCircle, XCircle } from "lucide-react";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { adminModelSchema } from "@/schemas/admin.schemas";
@@ -13,6 +13,7 @@ import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState } from "react";
 import {
+    deriveTaxonomyLifecycleStatus,
     getEntityCategoryIds,
     hasCategoryOverlap,
     resolveModalAssignableCategoryState,
@@ -28,6 +29,9 @@ import {
     CatalogActiveToggleButton,
     CatalogSelectField,
     CatalogSelectFilter,
+    CatalogActionsRow,
+    CatalogActionIconButton,
+    CatalogRejectSuggestionForm,
 } from "@/components/catalog/CatalogUiPrimitives";
 
 export default function ModelsPage() {
@@ -42,11 +46,16 @@ export default function ModelsPage() {
         handleUpdate,
         pagination,
         setPage,
-        handleToggleStatus
+        handleToggleStatus,
+        handleApproveModel,
+        handleRejectModel
     } = useAdminModels();
 
     const [deletingModel, setDeletingModel] = useState<Model | null>(null);
+    const [rejectingModel, setRejectingModel] = useState<Model | null>(null);
+    const [rejectionReason, setRejectionReason] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isRejecting, setIsRejecting] = useState(false);
 
     const confirmDelete = async () => {
         if (!deletingModel) return;
@@ -54,6 +63,15 @@ export default function ModelsPage() {
         const success = await handleDelete(deletingModel.id);
         setIsDeleting(false);
         if (success) setDeletingModel(null);
+    };
+
+    const confirmReject = async () => {
+        if (!rejectingModel || !rejectionReason.trim()) return;
+        setIsRejecting(true);
+        await handleRejectModel(rejectingModel.id, rejectionReason.trim());
+        setIsRejecting(false);
+        setRejectingModel(null);
+        setRejectionReason("");
     };
 
     const { brands } = useAdminBrands();
@@ -65,9 +83,9 @@ export default function ModelsPage() {
 
     return (
         <>
-        <CatalogPageTemplate<Model, { name: string; brandId: string; categoryIds: string[]; status: Model['status']; isActive: boolean }>
-            title="Model Management"
-            description="Manage product models and their brand and category mappings."
+        <CatalogPageTemplate<Model, { name: string; brandId: string; categoryIds: string[]; isActive: boolean }>
+            title="Models Management"
+            description="Manage device models. Note: A model must be 'LIVE' (Approved) AND 'Active' (Visibility) to appear in the 'Post Ad' flow. Pending suggestions must be approved via the 'Check' icon before they become public."
             createLabel="Add Model"
             csvFileName="models.csv"
             items={models}
@@ -77,7 +95,7 @@ export default function ModelsPage() {
             setPage={setPage}
             handleCreate={handleCreate}
             handleUpdate={handleUpdate}
-            defaultFormData={{ name: "", brandId: "", categoryIds: [], status: "live", isActive: true }}
+            defaultFormData={{ name: "", brandId: "", categoryIds: [], isActive: true }}
             validationSchema={adminModelSchema}
             customSubmitValidation={(formData) => {
                 const categoryError = validateRequiredCategoryIds(formData.categoryIds);
@@ -99,7 +117,6 @@ export default function ModelsPage() {
                         name: item.name,
                         brandId: normalizeObjectIdLike(item.brandId),
                         categoryIds: assignableCategoryIds,
-                        status: item.status,
                         isActive: item.isActive
                     });
                 } else {
@@ -145,24 +162,52 @@ export default function ModelsPage() {
                 },
                 {
                     header: "Approval State",
-                    cell: (model) => (
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${model.status === 'live' ? "bg-emerald-100 text-emerald-700" :
-                            model.status === 'pending' ? "bg-amber-100 text-amber-700" :
-                                "bg-red-100 text-red-700"
-                            }`}>
-                            {model.status}
-                        </span>
-                    )
+                    cell: (model) => {
+                        const lifecycleStatus = deriveTaxonomyLifecycleStatus(model);
+                        return (
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${lifecycleStatus === 'live' ? "bg-emerald-100 text-emerald-700" :
+                                lifecycleStatus === 'pending' ? "bg-amber-100 text-amber-700" :
+                                    lifecycleStatus === 'rejected' ? "bg-red-100 text-red-700" :
+                                        "bg-slate-100 text-slate-700"
+                                }`}>
+                                {lifecycleStatus}
+                            </span>
+                        );
+                    }
                 },
                 {
                     header: "Actions",
                     className: "text-right",
-                    cell: (model) => (
-                        <CatalogEditDeleteActions
-                            onEdit={() => openEditModal(model)}
-                            onDelete={() => setDeletingModel(model)}
-                        />
-                    )
+                    cell: (model) => {
+                        const lifecycleStatus = deriveTaxonomyLifecycleStatus(model);
+                        return (
+                            <CatalogActionsRow>
+                                {lifecycleStatus === 'pending' && (
+                                    <>
+                                        <CatalogActionIconButton
+                                            onClick={() => void handleApproveModel(model.id)}
+                                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                            title="Approve"
+                                            icon={<CheckCircle size={18} />}
+                                        />
+                                        <CatalogActionIconButton
+                                            onClick={() => {
+                                                setRejectionReason("");
+                                                setRejectingModel(model);
+                                            }}
+                                            className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all"
+                                            title="Reject"
+                                            icon={<XCircle size={18} />}
+                                        />
+                                    </>
+                                )}
+                                <CatalogEditDeleteActions
+                                    onEdit={() => openEditModal(model)}
+                                    onDelete={() => setDeletingModel(model)}
+                                />
+                            </CatalogActionsRow>
+                        );
+                    }
                 }
             ]}
             filterLayoutClassName="md:grid-cols-4"
@@ -225,18 +270,6 @@ export default function ModelsPage() {
                                 placeholder="Select Brand"
                                 required
                             />
-
-                            <CatalogSelectField
-                                label="Status"
-                                value={formData.status}
-                                onChange={(status: string) => setFormData((prev) => ({ ...prev, status: status as typeof prev.status }))}
-                                options={[
-                                    { value: "live", label: "Live" },
-                                    { value: "pending", label: "Pending" },
-                                    { value: "rejected", label: "Rejected" },
-                                ]}
-                                placeholder=""
-                            />
                         </div>
                     </>
                 );
@@ -287,6 +320,22 @@ export default function ModelsPage() {
                     </button>
                 </div>
             </div>
+        </CatalogModal>
+
+        <CatalogModal
+            isOpen={!!rejectingModel}
+            onClose={() => !isRejecting && setRejectingModel(null)}
+            title="Reject Model Suggestion"
+        >
+            <CatalogRejectSuggestionForm
+                itemName={rejectingModel?.name}
+                rejectionReason={rejectionReason}
+                onRejectionReasonChange={setRejectionReason}
+                onCancel={() => setRejectingModel(null)}
+                onConfirm={() => void confirmReject()}
+                isSubmitting={isRejecting}
+                placeholder="e.g. Duplicate entry, Invalid category, Spelled incorrectly..."
+            />
         </CatalogModal>
         </>
     );

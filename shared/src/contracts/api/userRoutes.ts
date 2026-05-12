@@ -49,6 +49,7 @@ export const USER_ROUTES = {
   LISTING_EDIT: (id: string | number) => `listings/${id}/edit`,
   LISTING_SOLD: (id: string | number) => `listings/${id}/sold`,
   LISTING_DEACTIVATE: (id: string | number) => `listings/${id}/deactivate`,
+  LISTING_ACTIVATE: (id: string | number) => `listings/${id}/activate`,
   LISTING_PROMOTE: (id: string | number) => `listings/${id}/promote`,
   LISTING_ANALYTICS: (id: string | number) => `listings/${id}/analytics`,
   LISTING_VIEW: (id: string | number) => `listings/${id}/view`,
@@ -78,12 +79,20 @@ export const USER_ROUTES = {
 
   // AI
   AI_GENERATE: "ai/generate",
+  AI_TAXONOMY_ANALYZE: "ai/taxonomy/analyze",
+  AI_TAXONOMY_SUGGEST_BRAND: "ai/taxonomy/suggest-brand",
+  AI_TAXONOMY_SUGGEST_MODEL: "ai/taxonomy/suggest-model",
 
   // Businesses
   BUSINESSES_PUBLIC: "businesses",
   BUSINESSES_UPLOAD: "businesses/upload",
   BUSINESS_ME: "businesses/me",
   BUSINESS_ME_STATS: "businesses/me/stats",
+  BUSINESS_DEACTIVATE: "businesses/me/deactivate",
+  BUSINESS_REACTIVATE: "businesses/me/reactivate",
+  BUSINESS_CLOSE: "businesses/me/close",
+  BUSINESS_RENEW: (id: string) => `businesses/${id}/renew`,
+
   BUSINESS_DETAIL: (id: string) => `businesses/${id}`,
   BUSINESS_STATS: (id: string) => `businesses/${id}/stats`,
   BUSINESS_SERVICES: (id: string) => `businesses/${id}/services`,

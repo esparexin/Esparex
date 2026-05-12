@@ -19,7 +19,7 @@ import { computeListingQualityScore } from '../utils/adQualityScorer';
 import { 
     validateBrandBelongsToCategory, 
     validateModelBelongsToBrand,
-    validateAdCategoryCapability
+    validateListingCategoryCapability
 } from './catalog/CatalogValidationService';
 
 export interface PreparedPayload {
@@ -146,11 +146,24 @@ export class AdCreationService {
             if (payload.description.length < 20) throw new AppError('Description must be at least 20 characters.', 400);
         }
 
+        // 🛡️ GOVERNANCE: Category capability guard (Type-aware)
         if (payload.categoryId) {
-            const catValidation = await validateAdCategoryCapability(payload.categoryId);
+            const catValidation = await validateListingCategoryCapability(payload.categoryId, listingType);
             if (!catValidation.ok) {
-                throw new AppError(catValidation.reason || 'Invalid category for ads.', 400);
+                throw new AppError(catValidation.reason || `Invalid category for ${listingType}.`, 400);
             }
+        }
+
+        // 🛡️ GOVERNANCE: Unified Relation Validation
+        if (listingType === LISTING_TYPE.SERVICE && Array.isArray(payload.serviceTypeIds) && payload.serviceTypeIds.length > 0) {
+            const serviceTypeIds = payload.serviceTypeIds.filter(Boolean) as string[];
+            if (serviceTypeIds.length === 0) {
+                throw new AppError('At least one service type is required for service listings.', 400);
+            }
+        }
+
+        if (listingType === LISTING_TYPE.SPARE_PART && !payload.sparePartId) {
+            throw new AppError('A valid spare part from the catalog is required for spare part listings.', 400);
         }
 
         if (payload.categoryId && payload.brandId) {

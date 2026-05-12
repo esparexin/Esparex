@@ -16,6 +16,7 @@ export type PaginatedAuditLogs = {
 type AuditLogQuery = {
     q: string;
     action: string;
+    targetType?: string;
     page?: number;
     limit?: number;
 };
@@ -23,6 +24,7 @@ type AuditLogQuery = {
 export async function fetchAuditLogs({
     q,
     action,
+    targetType = "all",
     page = 1,
     limit = 50,
 }: AuditLogQuery): Promise<PaginatedAuditLogs> {
@@ -36,6 +38,9 @@ export async function fetchAuditLogs({
     }
     if (action !== "all") {
         query.set("action", action);
+    }
+    if (targetType && targetType !== "all") {
+        query.set("targetType", targetType);
     }
 
     const response = await adminFetch<unknown>(`${ADMIN_ROUTES.AUDIT_LOGS}?${query.toString()}`);

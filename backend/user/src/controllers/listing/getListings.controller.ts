@@ -8,7 +8,7 @@ import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationSe
 import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
 import * as feedService from '@esparex/core/services/FeedService';
 import * as trendingService from '@esparex/core/services/TrendingService';
-import { warnIfLegacyAdUserIdAliasUsed } from '@esparex/core/utils/legacyOwnerAliasTelemetry';
+
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
 import { LISTING_STATUS } from "@shared/enums/listingStatus";
 import { respond } from "@esparex/core/utils/respond";
@@ -123,7 +123,6 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
  */
 export const getListings = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        warnIfLegacyAdUserIdAliasUsed(req, 'query');
         if (hasLegacyAdUserIdAlias(req.query)) {
             return sendLegacyAliasError(req, res, 'query');
         }
@@ -155,11 +154,17 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
                     page: cachedResult.pagination?.page ?? query.page ?? 1,
                     limit: cachedResult.pagination?.limit ?? query.limit ?? 20
                 };
-                return res.json(respond<PaginatedResponse<Ad>>({
+                const payload = respond<PaginatedResponse<Ad>>({
                     success: true,
                     data: cachedResult.data as Ad[],
                     pagination
-                }));
+                });
+                const etagValue = `W/"${Buffer.from(JSON.stringify(payload)).toString('base64').substring(0, 24)}"`;
+                res.setHeader('ETag', etagValue);
+                if (req.headers['if-none-match'] === etagValue) {
+                    return res.status(304).end();
+                }
+                return res.json(payload);
             }
         }
 
@@ -216,7 +221,6 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
  */
 export const getNearbyListings = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        warnIfLegacyAdUserIdAliasUsed(req, 'query');
         if (hasLegacyAdUserIdAlias(req.query)) {
             return sendLegacyAliasError(req, res, 'query');
         }
@@ -304,10 +308,16 @@ export const getHomeFeed = async (req: Request, res: Response, next: NextFunctio
             categoryId: query.categoryId,
         });
 
-        return res.json(respond<ApiResponse<HomeFeedResponse>>({
+        const payload = respond<ApiResponse<HomeFeedResponse>>({
             success: true,
             data: data
-        }));
+        });
+        const etagValue = `W/"${Buffer.from(JSON.stringify(payload)).toString('base64').substring(0, 24)}"`;
+        res.setHeader('ETag', etagValue);
+        if (req.headers['if-none-match'] === etagValue) {
+            return res.status(304).end();
+        }
+        return res.json(payload);
     } catch (error: unknown) {
         return next(error);
     }

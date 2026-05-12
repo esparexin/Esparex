@@ -222,3 +222,106 @@ export const adminGetListingCountsLegacyAdapter = async (req: Request, res: Resp
         sendAdminError(req, res, error, 500);
     }
 };
+
+// ─── Bulk Moderation ─────────────────────────────────────────────────────────
+
+export const adminBulkApproveListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkApproveListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk approval process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkRejectListings = async (req: Request, res: Response) => {
+    try {
+        const { ids, rejectionReason, reason } = req.body as { ids: string[]; rejectionReason?: string; reason?: string };
+        const resolvedReason = rejectionReason ?? reason ?? 'Rejected by bulk moderation';
+        
+        const result = await adminListingsService.adminBulkRejectListings(
+            ids,
+            getActorId(req),
+            resolvedReason,
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk rejection process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkDeactivateListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkDeactivateListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk deactivation process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkExpireListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkExpireListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk expiration process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkExtendListings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkExtendListings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk extension process completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkResendListingWarnings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkResendListingWarnings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk re-send listing warnings completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};
+
+export const adminBulkResendSpotlightWarnings = async (req: Request, res: Response) => {
+    try {
+        const { ids } = req.body as { ids: string[] };
+        const result = await adminListingsService.adminBulkResendSpotlightWarnings(
+            ids,
+            getActorId(req),
+            buildLogFn(req)
+        );
+        return sendSuccessResponse(res, result, 'Bulk re-send spotlight warnings completed');
+    } catch (error) {
+        return sendAdminError(req, res, error);
+    }
+};

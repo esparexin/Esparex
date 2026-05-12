@@ -130,6 +130,33 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
     })();
   }, [businessId, enabled, includeStats, user, requestNonce, silent]);
 
+    const deactivate = useCallback(async () => {
+        const { deactivateBusiness } = await import("@/lib/api/user/businesses");
+        await deactivateBusiness();
+        retry();
+    }, [retry]);
+
+    const reactivate = useCallback(async () => {
+        const { reactivateBusiness } = await import("@/lib/api/user/businesses");
+        await reactivateBusiness();
+        retry();
+    }, [retry]);
+
+    const close = useCallback(async () => {
+        const { closeBusiness } = await import("@/lib/api/user/businesses");
+        await closeBusiness();
+        retry();
+    }, [retry]);
+
+    const renew = useCallback(async (id: string) => {
+        const { renewBusiness } = await import("@/lib/api/user/businesses");
+        const updated = await renewBusiness(id);
+        if (updated) {
+            setBusinessData(updated);
+        }
+        return updated;
+    }, []);
+
     return { 
         businessData, 
         setBusinessData, 
@@ -138,5 +165,10 @@ export function useBusiness(user: User | null, businessId?: string, options?: Us
         isFetched, 
         error,
         retry,
+        deactivate,
+        reactivate,
+        close,
+        renew,
     };
+
 }

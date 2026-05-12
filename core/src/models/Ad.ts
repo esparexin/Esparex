@@ -39,7 +39,9 @@ export interface IAd extends Document, ISoftDeleteDocument {
     duplicateOf?: Types.ObjectId;
     isDuplicateFlag: boolean;
     imageHashes: string[];
+    isSold?: boolean;
     soldAt?: Date;
+    rejectedAt?: Date;
     soldReason?: 'sold_on_platform' | 'sold_outside' | 'no_longer_available';
     fraudScore: number;
     fraudFlags: string[];
@@ -78,6 +80,11 @@ export interface IAd extends Document, ISoftDeleteDocument {
     publishedAt?: Date;
     approvedAt?: Date;
     approvedBy?: Types.ObjectId;
+    expiryWarningSentAt?: Date;
+    expiryWarningCount: number;
+    spotlightWarningSentAt?: Date;
+    spotlightWarningCount: number;
+    lastExpiryWarningChannel?: string;
     timeline: Array<{
         status: string;
         timestamp: Date;
@@ -144,7 +151,9 @@ const AdSchema: Schema = new Schema({
     duplicateOf: { type: Schema.Types.ObjectId, ref: 'Ad' },
     isDuplicateFlag: { type: Boolean, default: false },
     imageHashes: [{ type: String }],
+    isSold: { type: Boolean, default: false },
     soldAt: { type: Date },
+    rejectedAt: { type: Date },
     soldReason: {
         type: String,
         enum: ['sold_on_platform', 'sold_outside', 'no_longer_available']
@@ -229,6 +238,11 @@ const AdSchema: Schema = new Schema({
     publishedAt: { type: Date },
     approvedAt: { type: Date },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    expiryWarningSentAt: { type: Date },
+    expiryWarningCount: { type: Number, default: 0 },
+    spotlightWarningSentAt: { type: Date },
+    spotlightWarningCount: { type: Number, default: 0 },
+    lastExpiryWarningChannel: { type: String },
     timeline: [{
         status: { type: String, enum: [...LISTING_STATUS_VALUES, 'deleted', 'restored', 'spotlight_expired'], required: true },
         timestamp: { type: Date, required: true },
@@ -273,32 +287,32 @@ const AdSchema: Schema = new Schema({
 // toJSON Helper is defined within AdSchema options
 
 
-AdSchema.index({ seoSlug: 1 }, { name: 'ad_seoSlug_unique_idx', unique: true, sparse: true });
+AdSchema.index({ seoSlug: 1 }, { name: 'idx_ad_seoSlug_unique_idx', unique: true, sparse: true });
 
 // 🚀 CORE PERFORMANCE INDEXES (Explicitly Named)
-AdSchema.index({ 'location.coordinates': '2dsphere' }, { name: 'ad_geo_coordinates_2dsphere' });
+AdSchema.index({ 'location.coordinates': '2dsphere' }, { name: 'idx_ad_geo_coordinates_2dsphere' });
 AdSchema.index(
     { createdAt: -1 },
     { 
-        name: 'ad_status_live_createdAt_partial_idx',
+        name: 'idx_ad_status_live_createdAt_partial_idx',
         partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
     }
 );
 
-AdSchema.index({ sellerId: 1, status: 1 }, { name: 'ad_sellerId_status_idx' });
-AdSchema.index({ duplicateScore: 1 }, { name: 'ad_duplicateScore_idx' });
-AdSchema.index({ isDuplicateFlag: 1 }, { name: 'ad_isDuplicateFlag_idx' });
-AdSchema.index({ fraudScore: 1 }, { name: 'ad_fraudScore_idx' });
-AdSchema.index({ isSpotlight: 1 }, { name: 'ad_isSpotlight_idx' });
-AdSchema.index({ sellerTrustSnapshot: 1 }, { name: 'ad_sellerTrustSnapshot_idx' });
-AdSchema.index({ expiresAt: 1 }, { name: 'ad_expiresAt_ttl_idx', expireAfterSeconds: 0 });
-AdSchema.index({ duplicateOf: 1 }, { name: 'ad_duplicateOf_idx' });
-AdSchema.index({ modelId: 1 }, { name: 'ad_modelId_idx' });
+AdSchema.index({ sellerId: 1, status: 1 }, { name: 'idx_ad_sellerId_status_idx' });
+AdSchema.index({ duplicateScore: 1 }, { name: 'idx_ad_duplicateScore_idx' });
+AdSchema.index({ isDuplicateFlag: 1 }, { name: 'idx_ad_isDuplicateFlag_idx' });
+AdSchema.index({ fraudScore: 1 }, { name: 'idx_ad_fraudScore_idx' });
+AdSchema.index({ isSpotlight: 1 }, { name: 'idx_ad_isSpotlight_idx' });
+AdSchema.index({ sellerTrustSnapshot: 1 }, { name: 'idx_ad_sellerTrustSnapshot_idx' });
+AdSchema.index({ expiresAt: 1 }, { name: 'idx_ad_expiresAt_ttl_idx', expireAfterSeconds: 0 });
+AdSchema.index({ duplicateOf: 1 }, { name: 'idx_ad_duplicateOf_idx' });
+AdSchema.index({ modelId: 1 }, { name: 'idx_ad_modelId_idx' });
 
-AdSchema.index({ title: 'text', description: 'text' }, { weights: { title: 10, description: 5 }, name: 'ad_text_search_idx' });
+AdSchema.index({ title: 'text', description: 'text' }, { weights: { title: 10, description: 5 }, name: 'idx_ad_text_search_idx' });
 AdSchema.index({ isDeleted: 1 }, { name: 'idx_ad_isDeleted' });
-AdSchema.index({ sparePartId: 1, status: 1, createdAt: -1 }, { name: 'ad_sparePartId_status_idx', sparse: true });
-AdSchema.index({ businessId: 1, status: 1, createdAt: -1 }, { name: 'ad_businessId_status_idx', sparse: true });
+AdSchema.index({ sparePartId: 1, status: 1, createdAt: -1 }, { name: 'idx_ad_sparePartId_status_idx', sparse: true });
+AdSchema.index({ businessId: 1, status: 1, createdAt: -1 }, { name: 'idx_ad_businessId_status_idx', sparse: true });
 
 // ─── Phase 1: Unified Listing Engine indexes ──────────────────────────────────
 // Covers: per-listingType feed tabs, admin moderation queue, type-aware cron expiry
@@ -319,8 +333,8 @@ AdSchema.index(
 AdSchema.index(
     { status: 1, isDeleted: 1, expiresAt: 1, createdAt: -1 },
     {
-        name: 'ad_public_visibility_createdAt_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        name: 'idx_ad_public_visibility_createdAt_idx',
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
@@ -328,7 +342,7 @@ AdSchema.index(
 AdSchema.index(
     { status: 1, isSpotlight: 1, createdAt: -1 },
     { 
-        name: 'ad_spotlight_live_createdAt_minus1_partial',
+        name: 'idx_ad_spotlight_live_createdAt_minus1_partial',
         partialFilterExpression: { status: LISTING_STATUS.LIVE } 
     }
 );
@@ -338,39 +352,39 @@ AdSchema.index({
     'location.state': 1,
     'status': 1,
     'createdAt': -1
-}, { name: 'ad_location_hierarchy_visibility_idx' });
+}, { name: 'idx_ad_location_hierarchy_visibility_idx' });
 
 AdSchema.index({ 
     status: 1, 
     categoryId: 1, 
     createdAt: -1 
-}, { name: 'ad_status_category_freshness_idx' });
+}, { name: 'idx_ad_status_category_freshness_idx' });
 
 AdSchema.index({
     'location.locationId': 1,
     'categoryId': 1,
     'status': 1,
     'createdAt': -1
-}, { name: 'ad_location_category_freshness_idx' });
+}, { name: 'idx_ad_location_category_freshness_idx' });
 
-AdSchema.index({ status: 1, locationPath: 1, createdAt: -1 }, { name: 'ad_status_locationPath_freshness_idx' });
+AdSchema.index({ status: 1, locationPath: 1, createdAt: -1 }, { name: 'idx_ad_status_locationPath_freshness_idx' });
 
-AdSchema.index({ status: 1, expiresAt: 1, categoryId: 1, 'location.coordinates': '2dsphere', freshnessScore: -1 }, { name: 'ad_feed_ranking_freshness_idx' });
+AdSchema.index({ status: 1, expiresAt: 1, categoryId: 1, 'location.coordinates': '2dsphere', freshnessScore: -1 }, { name: 'idx_ad_feed_ranking_freshness_idx' });
 
 // 🔒 FEED SAFETY: moderationStatus compound index
 // Covers: feed queries filtering by both status + moderationStatus to prevent
 // community-hidden or admin-rejected ads from leaking into public results.
 AdSchema.index(
     { moderationStatus: 1, status: 1, createdAt: -1 },
-    { name: 'ad_moderationStatus_status_freshness_idx' }
+    { name: 'idx_ad_moderationStatus_status_freshness_idx' }
 );
 
 // L3 hierarchy support: state-level range scan used by the PR-3 fallback chain
 AdSchema.index(
     { 'location.state': 1, status: 1, createdAt: -1 },
     {
-        name: 'ad_state_status_freshness_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        name: 'idx_ad_state_status_freshness_idx',
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
@@ -378,20 +392,20 @@ AdSchema.index(
 AdSchema.index(
     { 'location.city': 1, status: 1, createdAt: -1 },
     {
-        name: 'ad_city_status_freshness_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        name: 'idx_ad_city_status_freshness_idx',
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
 // 🚀 SHARDING & CLUSTERING STRATEGY
-AdSchema.index({ sellerId: 1, createdAt: 1 }, { name: 'ad_seller_clustering_idx' });
+AdSchema.index({ sellerId: 1, createdAt: 1 }, { name: 'idx_ad_seller_clustering_idx' });
 
 // 🚀 OPTIMIZED LISTING SEARCH
 AdSchema.index(
     { categoryId: 1, status: 1, createdAt: -1 },
     { 
-        name: 'ad_category_listing_search_idx',
-        partialFilterExpression: { status: LISTING_STATUS.LIVE, isDeleted: false }
+        name: 'idx_ad_category_listing_search_idx',
+        partialFilterExpression: { isDeleted: false }
     }
 );
 
@@ -403,7 +417,11 @@ AdSchema.index({
     modelId: 1,
     'location.locationId': 1,
     createdAt: -1
-}, { name: 'ad_seller_complex_listing_idx' });
+}, { name: 'idx_ad_seller_complex_listing_idx' });
+AdSchema.index(
+    { sellerId: 1, status: 1, isSold: 1, deletedAt: 1, createdAt: -1 },
+    { name: 'idx_ad_listings_seller_status_isSold_deletedAt_createdAt' }
+);
 AdSchema.index(
     { duplicateFingerprint: 1 },
     {
@@ -492,7 +510,10 @@ AdSchema.pre('save', async function (this: IAd) {
     }
 
     if (!this.seoSlug) {
-        this.seoSlug = await generateUniqueSlug(Ad, this.title, undefined);
+        // Build an SEO-optimized base for the slug: "Title in City"
+        const locationContext = this.location?.city ? ` in ${this.location.city}` : '';
+        const slugTitle = `${this.title}${locationContext}`;
+        this.seoSlug = await generateUniqueSlug(Ad, slugTitle, undefined);
     }
 });
 

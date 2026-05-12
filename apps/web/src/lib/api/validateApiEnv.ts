@@ -36,6 +36,10 @@ export function validateApiEnv() {
     const appEnv = process.env.NEXT_PUBLIC_APP_ENV || 'local';
     const riskOverride = process.env.NEXT_PUBLIC_PROD_RISK_OVERRIDE === 'true';
 
+    if (nodeEnv === "test" && !url) {
+        return;
+    }
+
     if (!url) {
         throw new Error(
             "[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL is missing"

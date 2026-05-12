@@ -47,7 +47,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
 
         // Lifecycle Guard: Location is immutable once live or pending
         if (
-            (listing.status === LISTING_STATUS.LIVE || listing.status === LISTING_STATUS.PENDING)
+            listing.status === LISTING_STATUS.LIVE
             && (hasOwnField(body, 'location') || hasOwnField(body, 'locationId'))
         ) {
             lockErrors.push({
@@ -55,6 +55,25 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
                 message: 'Location cannot be changed once a listing is live or under review.',
                 code: 'IMMUTABLE_FIELD',
             });
+        }
+
+        // Lifecycle Guard: terminal statuses are read-only
+        if (
+            listing.status === LISTING_STATUS.EXPIRED ||
+            listing.status === LISTING_STATUS.REJECTED
+        ) {
+            return sendErrorResponse(
+                req, res, 400,
+                'Expired or rejected listings are strictly read-only and cannot be edited'
+            );
+        }
+
+        // Lifecycle Guard: pending listings are view-only
+        if (listing.status === LISTING_STATUS.PENDING) {
+            return sendErrorResponse(
+                req, res, 400,
+                'Pending listings are view-only and cannot be edited'
+            );
         }
 
         if (lockErrors.length > 0) {

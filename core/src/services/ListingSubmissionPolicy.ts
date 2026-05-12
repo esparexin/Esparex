@@ -1,6 +1,7 @@
 import type { ClientSession } from 'mongoose';
 import { AdSlotService, type AdPostingSlotSource } from './AdSlotService';
-import { type ListingTypeValue } from '../constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
+import { checkPostLimit } from './PlanService';
 
 /** @deprecated Use ListingTypeValue from shared/enums/listingType */
 export type SubmissionListingType = ListingTypeValue;
@@ -27,12 +28,24 @@ export class ListingSubmissionPolicy {
             return { source: 'admin_bypass' };
         }
 
-        const result = await AdSlotService.consumeSlot(
-            input.userId,
-            input.session,
-            input.listingId
-        );
-
-        return { source: result.source };
+        // 🎯 SSOT: Distinguish between Credit-based (Ads) and Limit-based (Services/Parts)
+        if (input.listingType === LISTING_TYPE.AD) {
+            const result = await AdSlotService.consumeSlot(
+                input.userId,
+                input.session,
+                input.listingId
+            );
+            return { source: result.source };
+        } else {
+            // For Services and Spare Parts, we enforce active inventory limits
+            // defined in the user's plan.
+            const type = input.listingType === LISTING_TYPE.SERVICE 
+                ? 'service' 
+                : 'spare_part_listing';
+            
+            await checkPostLimit(input.userId, type, input.session);
+            
+            return { source: 'active_slot_limit' };
+        }
     }
 }

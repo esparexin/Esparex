@@ -12,7 +12,6 @@ import * as adminPlans from '@esparex/core/controllers/admin/plan';
 import * as adminBusiness from '@esparex/core/controllers/admin/adminBusinessController';
 import * as adminListings from '@esparex/core/controllers/admin/adminListingsController';
 import * as adminReports from '@esparex/core/controllers/admin/adminReportsController';
-import * as adminCatalog from '@esparex/core/controllers/admin/catalog';
 import * as adminTransactions from '@esparex/core/controllers/admin/adminTransactionController';
 import * as adminInvoices from '@esparex/core/controllers/admin/adminInvoiceController';
 import * as adminNotifications from '@esparex/core/controllers/admin/adminNotificationController';
@@ -77,55 +76,59 @@ router.get('/businesses/:id', adminBusiness.getBusinessAccountById);
 router.patch('/businesses/:id/approve', adminBusiness.approveBusinessAccount);
 router.patch('/businesses/:id/reject', adminBusiness.rejectBusinessAccount);
 router.patch('/businesses/:id/status', adminBusiness.updateBusinessStatus);
+router.patch('/businesses/:id/renew', adminBusiness.renewBusinessAccount);
+router.patch('/businesses/:id/expire', adminBusiness.expireBusinessAccount);
 router.patch('/businesses/:id', adminBusiness.updateBusinessByAdmin);
+
 router.delete('/businesses/:id', adminBusiness.deleteBusinessAccount);
+
+// Bulk Operations
+router.post('/businesses/bulk/approve', adminBusiness.adminBulkApproveBusinesses);
+router.post('/businesses/bulk/reject', adminBusiness.adminBulkRejectBusinesses);
+router.post('/businesses/bulk/deactivate', adminBusiness.adminBulkDeactivateBusinesses);
+router.post('/businesses/bulk/expire', adminBusiness.adminBulkExpireBusinesses);
+router.post('/businesses/bulk/renew', adminBusiness.adminBulkRenewBusinesses);
+router.post('/businesses/bulk/resend-warnings', adminBusiness.adminBulkResendBusinessWarnings);
+
 
 // Listings and reports
 router.get('/listings', adminListings.adminListListings);
 router.get('/listings/counts', adminListings.adminGetListingCounts);
 router.get('/listings/:id', adminListings.adminGetListingById);
+
+// Moderation Actions (Support both POST and PATCH for compatibility)
 router.patch('/listings/:id/approve', adminListings.adminApproveListing);
+router.post('/listings/:id/approve', adminListings.adminApproveListing);
+
 router.patch('/listings/:id/reject', adminListings.adminRejectListing);
+router.post('/listings/:id/reject', adminListings.adminRejectListing);
+
 router.patch('/listings/:id/deactivate', adminListings.adminDeactivateListing);
+router.post('/listings/:id/deactivate', adminListings.adminDeactivateListing);
+
 router.patch('/listings/:id/expire', adminListings.adminExpireListing);
+router.post('/listings/:id/expire', adminListings.adminExpireListing);
+
 router.patch('/listings/:id/extend', adminListings.adminExtendListing);
+router.post('/listings/:id/extend', adminListings.adminExtendListing);
+
 router.patch('/listings/:id/report-resolve', adminListings.adminResolveListingReport);
+router.post('/listings/:id/report-resolve', adminListings.adminResolveListingReport);
 router.delete('/listings/:id', adminListings.adminSoftDeleteListing);
+
+// Bulk Operations
+router.post('/listings/bulk/approve', adminListings.adminBulkApproveListings);
+router.post('/listings/bulk/reject', adminListings.adminBulkRejectListings);
+router.post('/listings/bulk/deactivate', adminListings.adminBulkDeactivateListings);
+router.post('/listings/bulk/expire', adminListings.adminBulkExpireListings);
+router.post('/listings/bulk/extend', adminListings.adminBulkExtendListings);
+router.post('/listings/bulk/resend-warnings', adminListings.adminBulkResendListingWarnings);
+router.post('/listings/bulk/resend-spotlight-warnings', adminListings.adminBulkResendSpotlightWarnings);
 
 router.get('/reports', adminReports.getReportedAds);
 router.get('/reports/:id', adminReports.getReportedAdById);
 router.patch('/reports/:id/resolve', adminReports.resolveReport);
 router.patch('/reports/:id/status', adminReports.updateReportStatus);
-
-// Catalog
-router.get('/categories', adminCatalog.getCategories);
-router.get('/categories/counts', adminCatalog.getCategoryCounts);
-router.get('/categories/:id', adminCatalog.getCategoryById);
-router.get('/categories/:id/schema', adminCatalog.getCategorySchema);
-router.patch('/categories/:id/status', adminCatalog.toggleCategoryStatus);
-
-router.get('/governance/hierarchy-tree', adminCatalog.getHierarchyTree);
-
-router.get('/brands', adminCatalog.getBrands);
-router.get('/brands/:id', adminCatalog.getBrandById);
-router.patch('/brands/:id/approve', adminCatalog.approveBrand);
-router.patch('/brands/:id/reject', adminCatalog.rejectBrand);
-
-router.get('/models', adminCatalog.getModels);
-router.get('/models/:id', adminCatalog.getModelById);
-router.post('/models/ensure', adminCatalog.ensureModel);
-router.patch('/models/:id/approve', adminCatalog.approveModel);
-router.patch('/models/:id/reject', adminCatalog.rejectModel);
-
-router.get('/spare-parts', adminCatalog.getSpareParts);
-router.get('/spare-parts/:id', adminCatalog.getSparePartById);
-
-router.get('/service-types', adminCatalog.getServiceTypes);
-router.get('/service-types/:id', adminCatalog.getServiceTypeById);
-router.patch('/service-types/:id/toggle-status', adminCatalog.toggleServiceTypeStatus);
-
-router.get('/screen-sizes', adminCatalog.getScreenSizes);
-router.get('/screen-sizes/:id', adminCatalog.getScreenSizeById);
 
 // Finance
 router.get('/finance/transactions', adminTransactions.getAllTransactions);
@@ -148,10 +151,15 @@ router.patch('/api-keys/:id/revoke', adminApiKeys.revokeApiKey);
 
 // Locations and geofences
 router.get('/locations', adminLocations.getAllLocations);
+router.post('/locations', adminLocations.createLocation);
 router.get('/locations/analytics', adminSystem.getLocationAnalytics);
 router.get('/locations/states', adminLocations.getDistinctStates);
-router.get('/locations/:id', adminLocations.getAllLocations);
+router.get('/locations/moderation-queue', adminLocations.getModerationQueue);
+router.post('/locations/refresh-stats', adminLocations.refreshLocationStats);
+router.patch('/locations/:id', adminLocations.updateLocation);
 router.patch('/locations/:id/toggle', adminLocations.toggleLocationStatus);
+router.patch('/locations/:id/review', adminLocations.approveRejectLocation);
+router.delete('/locations/:id', adminLocations.deleteLocation);
 
 router.get('/geofences', adminLocations.getGeofences);
 router.post('/geofences', adminLocations.createGeofence);
@@ -178,5 +186,9 @@ router.post('/import/seed-devices', adminImportContent.seedDevices);
 router.get('/smart-alerts', adminSmartAlerts.getAllSmartAlerts);
 router.get('/smart-alerts/logs', adminSmartAlerts.getSmartAlertLogs);
 router.delete('/smart-alerts/:id', adminSmartAlerts.deleteSmartAlertById);
+router.post('/smart-alerts/bulk/resend-warnings', adminSmartAlerts.adminBulkResendAlertWarnings);
+
+// Add these to respective sections if needed, but I'll add them near their bulk operations
+// For clarity, I'll place them exactly where the other bulk operations are.
 
 export default router;

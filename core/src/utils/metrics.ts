@@ -63,6 +63,16 @@ export const listingCreationTotal = new client.Counter({
 });
 
 /**
+ * Listing Status Transition Counter
+ * Tracks all status mutations across the platform.
+ */
+export const listingStatusTransitionsTotal = new client.Counter({
+    name: 'esparex_listing_status_transitions_total',
+    help: 'Total number of listing status transitions',
+    labelNames: ['fromStatus', 'toStatus', 'actorType', 'listingType'] as const,
+});
+
+/**
  * API Error Counter
  * Tracks error responses by method/route/status.
  */

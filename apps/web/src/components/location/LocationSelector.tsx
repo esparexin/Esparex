@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
@@ -45,6 +46,7 @@ export default function LocationSelector({
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [selectedLabel, setSelectedLabel] = useState(currentDisplay || "");
     const [hasSelection, setHasSelection] = useState(Boolean(currentDisplay));
+    const [selectionSource, setSelectionSource] = useState<"manual" | "gps" | null>(currentDisplay ? "manual" : null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -52,8 +54,9 @@ export default function LocationSelector({
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
     const manuallyClearedRef = useRef(false);
 
-    const applySelection = useCallback((loc: Location) => {
+    const applySelection = useCallback((loc: Location, source: "manual" | "gps" = "manual") => {
         manuallyClearedRef.current = false;
+        setSelectionSource(source);
         if (!isPanel) {
             const rawLabel = normalizeLocationName(loc.display || loc.name || loc.city);
             const prefix = (loc as SnappedLocation).isSnapped ? "~ " : "";
@@ -106,9 +109,23 @@ export default function LocationSelector({
                 const spaceBelow = window.innerHeight - rect.bottom;
                 const dropdownMaxH = 320;
                 if (spaceBelow < dropdownMaxH && rect.top > dropdownMaxH) {
-                    setDropdownStyle({ position: "fixed", top: rect.top - dropdownMaxH - 4, left: rect.left, width: rect.width, zIndex: 9999, maxHeight: dropdownMaxH });
+                    setDropdownStyle({ 
+                        position: "fixed", 
+                        bottom: window.innerHeight - rect.top + 4, 
+                        left: rect.left, 
+                        width: rect.width, 
+                        zIndex: Z_INDEX.locationSelectorDropdown, 
+                        maxHeight: dropdownMaxH 
+                    });
                 } else {
-                    setDropdownStyle({ position: "fixed", top: rect.bottom + 4, left: rect.left, width: rect.width, zIndex: 9999, maxHeight: Math.min(dropdownMaxH, spaceBelow - 8) });
+                    setDropdownStyle({ 
+                        position: "fixed", 
+                        top: rect.bottom + 4, 
+                        left: rect.left, 
+                        width: rect.width, 
+                        zIndex: Z_INDEX.locationSelectorDropdown, 
+                        maxHeight: Math.min(dropdownMaxH, spaceBelow - 8) 
+                    });
                 }
             }
         };
@@ -165,7 +182,7 @@ export default function LocationSelector({
                 level: loc.level, coordinates: canonicalGeoJSONPoint,
             };
 
-            applySelection(finalLoc as Location);
+            applySelection(finalLoc as Location, "manual");
             if (isPanel) {
                 await new Promise<void>(r => setTimeout(r, 80));
                 onClose?.();
@@ -204,6 +221,7 @@ export default function LocationSelector({
         manuallyClearedRef.current = true;
         setSelectedLabel("");
         setHasSelection(false);
+        setSelectionSource(null);
         setQuery("");
         setIsOpen(true);
         searchApi.clearSearchSession();
@@ -449,9 +467,8 @@ export default function LocationSelector({
                 />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                     {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-                    {hasSelection && (
-                        <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 uppercase tracking-tighter">
-                            {/* We could get the source from global state here if needed */}
+                    {hasSelection && selectionSource === "gps" && (
+                        <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-tighter">
                             GPS
                         </span>
                     )}
@@ -463,7 +480,7 @@ export default function LocationSelector({
                 </div>
             </div>
 
-            {isOpen && !hasSelection && !disabled && (
+            {isOpen && !hasSelection && !disabled && typeof document !== "undefined" && createPortal(
                 <>
                     <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={handleBackdropMouseDown} />
                     <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
@@ -485,7 +502,8 @@ export default function LocationSelector({
                     </div>
                     {renderResultsBody()}
                     </div>
-                </>
+                </>,
+                document.body
             )}
         </div>
     );

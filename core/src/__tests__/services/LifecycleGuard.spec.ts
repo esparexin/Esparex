@@ -16,13 +16,14 @@ describe('LifecycleGuard', () => {
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.LIVE, LISTING_STATUS.DEACTIVATED)).toBe(true);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.REJECTED, LISTING_STATUS.PENDING)).toBe(true);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.EXPIRED, LISTING_STATUS.PENDING)).toBe(true);
+        // EXPIRED → SOLD: intentional — sellers can retrospectively mark expired listings as sold
+        expect(isValidLifecycleTransition('ad', LISTING_STATUS.EXPIRED, LISTING_STATUS.SOLD)).toBe(true);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.DEACTIVATED, LISTING_STATUS.PENDING)).toBe(true);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.DEACTIVATED, LISTING_STATUS.LIVE)).toBe(true);
     });
 
     it('rejects illegal transitions', () => {
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.PENDING, LISTING_STATUS.SOLD)).toBe(false);
-        expect(isValidLifecycleTransition('ad', LISTING_STATUS.EXPIRED, LISTING_STATUS.SOLD)).toBe(false);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.PENDING, 'banned')).toBe(false);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.LIVE, LISTING_STATUS.LIVE)).toBe(false);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.SOLD, LISTING_STATUS.LIVE)).toBe(false);

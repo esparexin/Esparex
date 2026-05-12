@@ -88,6 +88,21 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
         
         const normalizedDateFrom = readStringParam(dateFromQuery);
         const normalizedDateTo = readStringParam(dateToQuery);
+
+        const expiryWarningStatusFromQuery = searchParams.get("expiryWarningStatus");
+        const expiringWithinDaysFromQuery = searchParams.get("expiringWithinDays");
+        const spotlightWarningStatusFromQuery = searchParams.get("spotlightWarningStatus");
+        const spotlightExpiringWithinDaysFromQuery = searchParams.get("spotlightExpiringWithinDays");
+
+        const normalizedExpiryWarningStatus: ModerationFilters['expiryWarningStatus'] = (expiryWarningStatusFromQuery === 'sent' || expiryWarningStatusFromQuery === 'not_sent') 
+            ? (expiryWarningStatusFromQuery as 'sent' | 'not_sent') 
+            : 'all';
+        const normalizedExpiringWithinDays = readStringParam(expiringWithinDaysFromQuery) || "";
+        const normalizedSpotlightWarningStatus: ModerationFilters['spotlightWarningStatus'] = (spotlightWarningStatusFromQuery === 'sent' || spotlightWarningStatusFromQuery === 'not_sent')
+            ? (spotlightWarningStatusFromQuery as 'sent' | 'not_sent')
+            : 'all';
+        const normalizedSpotlightExpiringWithinDays = readStringParam(spotlightExpiringWithinDaysFromQuery) || "";
+
         const normalizedPage = readPositiveIntParam(searchParams.get("page"), 1);
         const normalizedLimit = readPositiveIntParam(searchParams.get("limit"), 20);
 
@@ -102,6 +117,10 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
                 dateFrom: normalizedDateFrom,
                 dateTo: normalizedDateTo,
                 listingType,
+                expiryWarningStatus: normalizedExpiryWarningStatus,
+                expiringWithinDays: normalizedExpiringWithinDays,
+                spotlightWarningStatus: normalizedSpotlightWarningStatus,
+                spotlightExpiringWithinDays: normalizedSpotlightExpiringWithinDays,
             },
             page: normalizedPage,
             pageSize: normalizedLimit,
@@ -113,6 +132,10 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
                 sort: normalizedSort !== DEFAULT_FILTERS.sort ? normalizedSort : undefined,
                 dateFrom: normalizedDateFrom || undefined,
                 dateTo: normalizedDateTo || undefined,
+                expiryWarningStatus: normalizedExpiryWarningStatus !== 'all' ? normalizedExpiryWarningStatus : undefined,
+                expiringWithinDays: normalizedExpiringWithinDays || undefined,
+                spotlightWarningStatus: normalizedSpotlightWarningStatus !== 'all' ? normalizedSpotlightWarningStatus : undefined,
+                spotlightExpiringWithinDays: normalizedSpotlightExpiringWithinDays || undefined,
                 page: normalizedPage > 1 ? normalizedPage : undefined,
                 limit: normalizedLimit !== 20 ? normalizedLimit : undefined,
             }),
@@ -142,6 +165,10 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
             sort: nextFilters.sort !== DEFAULT_FILTERS.sort ? nextFilters.sort : undefined,
             dateFrom: nextFilters.dateFrom || undefined,
             dateTo: nextFilters.dateTo || undefined,
+            expiryWarningStatus: nextFilters.expiryWarningStatus !== 'all' ? nextFilters.expiryWarningStatus : undefined,
+            expiringWithinDays: nextFilters.expiringWithinDays || undefined,
+            spotlightWarningStatus: nextFilters.spotlightWarningStatus !== 'all' ? nextFilters.spotlightWarningStatus : undefined,
+            spotlightExpiringWithinDays: nextFilters.spotlightExpiringWithinDays || undefined,
             page: nextPage > 1 ? nextPage : undefined,
             limit: nextLimit !== 20 ? nextLimit : undefined,
         });
@@ -170,6 +197,10 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
             sort: DEFAULT_FILTERS.sort,
             dateFrom: "",
             dateTo: "",
+            expiryWarningStatus: "all",
+            expiringWithinDays: "",
+            spotlightWarningStatus: "all",
+            spotlightExpiringWithinDays: "",
             page: 1,
             limit: 20,
         });

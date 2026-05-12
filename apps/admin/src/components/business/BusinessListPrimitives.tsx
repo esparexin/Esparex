@@ -152,6 +152,8 @@ export function BusinessListTable({
     pagination,
     onRowClick,
     emptyMessage,
+    selectedCount,
+    bulkActions,
 }: {
     data: Business[];
     columns: ColumnDef<Business>[];
@@ -164,6 +166,8 @@ export function BusinessListTable({
     };
     onRowClick: (business: Business) => void;
     emptyMessage: string;
+    selectedCount?: number;
+    bulkActions?: ReactNode;
 }) {
     return (
         <DataTable
@@ -179,6 +183,8 @@ export function BusinessListTable({
                 onPageChange: setPage,
             }}
             emptyMessage={emptyMessage}
+            selectedCount={selectedCount}
+            bulkActions={bulkActions}
         />
     );
 }

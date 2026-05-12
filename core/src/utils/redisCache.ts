@@ -23,7 +23,7 @@ export const cacheMetrics = {
 const REDIS_MODE = env.REDIS_MODE;
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedis =
-    (env.NODE_ENV === 'test' || isJestRuntime) && !env.ALLOW_REDIS;
+    (env.NODE_ENV === 'test' || isJestRuntime || !env.ALLOW_REDIS);
 
 const client = redisClient;
 

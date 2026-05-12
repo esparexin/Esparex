@@ -19,9 +19,19 @@ export interface ISmartAlert extends Document {
   }
   radiusKm?: number
   isActive: boolean
+  status?: string
   notificationChannels?: string[]
   lastTriggeredAt?: Date
   expiresAt?: Date
+  expiredAt?: Date
+  expiryWarningSentAt?: Date
+  expiryWarningCount: number
+  lastExpiryWarningChannel?: string
+  timeline?: {
+    status: string
+    timestamp: Date
+    reason?: string
+  }[]
 }
 
 const SmartAlertSchema = new Schema<ISmartAlert>({
@@ -46,9 +56,19 @@ const SmartAlertSchema = new Schema<ISmartAlert>({
   },
   radiusKm: { type: Number, default: 10 },
   isActive: { type: Boolean, default: true },
+  status: { type: String, default: 'active' },
   notificationChannels: [{ type: String }],
   lastTriggeredAt: { type: Date },
   expiresAt: { type: Date },
+  expiredAt: { type: Date },
+  expiryWarningSentAt: { type: Date },
+  expiryWarningCount: { type: Number, default: 0 },
+  lastExpiryWarningChannel: { type: String },
+  timeline: [{
+    status: { type: String },
+    timestamp: { type: Date, default: Date.now },
+    reason: { type: String }
+  }]
 }, { 
   timestamps: true,
   toJSON: {

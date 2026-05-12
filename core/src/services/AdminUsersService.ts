@@ -81,7 +81,7 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
     const { search, status, role, isVerified } = filters;
     const { skip, limit } = pagination;
 
-    const query: Record<string, unknown> = { status: { $ne: USER_STATUS.DELETED } };
+    const query: Record<string, unknown> = { status: { $ne: USER_STATUS.DELETED }, userType: 'marketplace' };
     
     if (search) {
         query.$or = [
@@ -164,24 +164,29 @@ export const getUserManagementOverview = async () => {
     const cachedVerifiedUsers = toNumberIfFinite(payload.verifiedUsers);
     const cachedUnverifiedUsers = toNumberIfFinite(payload.unverifiedUsers);
 
-    const [newUsersToday, suspendedUsers, bannedUsers, liveTotalUsers, liveActiveUsers, liveVerifiedUsers] = await Promise.all([
+    const [newUsersToday, suspendedUsers, bannedUsers, liveTotalUsers, liveActiveUsers, liveVerifiedUsers, individuals, businesses, verifiedBusinesses, blockedUsers] = await Promise.all([
         User.countDocuments({
+            userType: 'marketplace',
             status: { $ne: USER_STATUS.DELETED },
             createdAt: { $gte: startOfDay }
         }),
-        User.countDocuments({ status: USER_STATUS.SUSPENDED }),
-        User.countDocuments({ status: USER_STATUS.BANNED }),
+        User.countDocuments({ userType: 'marketplace', status: USER_STATUS.SUSPENDED }),
+        User.countDocuments({ userType: 'marketplace', status: USER_STATUS.BANNED }),
         cachedTotalUsers === undefined
-            ? User.countDocuments({ status: { $ne: USER_STATUS.DELETED } })
+            ? User.countDocuments({ userType: 'marketplace', status: { $ne: USER_STATUS.DELETED } })
             : Promise.resolve(cachedTotalUsers),
         cachedActiveUsers === undefined
-            ? User.countDocuments({ status: ACTIVE_USER_STATUS_QUERY })
+            ? User.countDocuments({ userType: 'marketplace', status: ACTIVE_USER_STATUS_QUERY })
             : Promise.resolve(cachedActiveUsers),
         cachedVerifiedUsers !== undefined
             ? Promise.resolve(cachedVerifiedUsers)
             : (cachedTotalUsers !== undefined && cachedUnverifiedUsers !== undefined)
                 ? Promise.resolve(Math.max(cachedTotalUsers - cachedUnverifiedUsers, 0))
-                : User.countDocuments({ status: { $ne: USER_STATUS.DELETED }, isVerified: true }),
+                : User.countDocuments({ userType: 'marketplace', status: { $ne: USER_STATUS.DELETED }, isVerified: true }),
+        User.countDocuments({ userType: 'marketplace', role: { $in: ['user', 'individual', 'seller', 'buyer'] }, status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ userType: 'marketplace', role: 'business', status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ userType: 'marketplace', role: 'business', isVerified: true, status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ userType: 'marketplace', status: { $in: [USER_STATUS.SUSPENDED, USER_STATUS.BANNED] } }),
     ]);
 
     const newUsersThisWeek = toNumberIfFinite(payload.newUsersThisWeek) ?? 0;
@@ -212,7 +217,11 @@ export const getUserManagementOverview = async () => {
         weekGrowth,
         newUsersToday,
         suspendedUsers,
-        bannedUsers
+        bannedUsers,
+        individuals,
+        businesses,
+        verifiedBusinesses,
+        blockedUsers
     };
 };
 

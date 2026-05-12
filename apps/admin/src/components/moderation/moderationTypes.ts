@@ -68,6 +68,10 @@ export type ModerationFilters = {
     dateTo: string;
     sort: "newest" | "oldest" | "price_high" | "price_low";
     listingType?: ListingTypeValue;
+    expiryWarningStatus?: 'sent' | 'not_sent' | 'all';
+    expiringWithinDays?: string;
+    spotlightWarningStatus?: 'sent' | 'not_sent' | 'all';
+    spotlightExpiringWithinDays?: string;
 };
 
 export type ModerationSummary = {
@@ -106,5 +110,9 @@ export const DEFAULT_FILTERS: ModerationFilters = {
     dateFrom: "",
     dateTo: "",
     sort: "newest",
-    listingType: undefined
+    listingType: undefined,
+    expiryWarningStatus: 'all',
+    expiringWithinDays: "",
+    spotlightWarningStatus: 'all',
+    spotlightExpiringWithinDays: ""
 };

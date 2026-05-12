@@ -61,14 +61,12 @@ export function usePopupDialogState(
     return () => clearTimeout(timer);
   }, [active, onClose]);
 
-  const [countdown, setCountdown] = useState<number | null>(null);
-  useEffect(() => {
-    if (!active?.retryAfter) {
-      const clearTimer = setTimeout(() => setCountdown(null), 0);
-      return () => clearTimeout(clearTimer);
-    }
+  const [countdown, setCountdown] = useState<number | null>(() => active?.retryAfter ?? null);
 
-    const initTimer = setTimeout(() => setCountdown(active.retryAfter ?? null), 0);
+  // Handle countdown intervals in an effect.
+  useEffect(() => {
+    if (!active?.retryAfter) return;
+
     const interval = setInterval(() => {
       setCountdown((prev) => {
         if (prev === null || prev <= 1) {
@@ -80,7 +78,6 @@ export function usePopupDialogState(
     }, 1000);
 
     return () => {
-      clearTimeout(initTimer);
       clearInterval(interval);
     };
   }, [active?.id, active?.retryAfter]);

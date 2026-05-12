@@ -111,6 +111,8 @@ export const promoteAdLogic = async (
 
             ad.isSpotlight = true;
             ad.spotlightExpiresAt = endsAt;
+            ad.spotlightWarningSentAt = undefined;
+            ad.spotlightWarningCount = 0;
             await ad.save({ session });
         });
 

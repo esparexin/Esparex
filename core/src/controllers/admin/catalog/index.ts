@@ -39,7 +39,11 @@ export {
     approveModel,
     rejectModel,
     toggleModelStatus,
-    ensureModel
+    ensureModel,
+    suggestBrand,
+    suggestModel,
+    validateBrandSuggestion,
+    validateModelSuggestion
 } from './catalogBrandModelController';
 
 // Export all spare parts functions
@@ -75,6 +79,17 @@ export {
     runHierarchyRepair,
     getCategoryHealth
 } from './catalogGovernanceController';
+
+export {
+    getGovernanceMetrics,
+    getGovernanceLogs
+} from './taxonomyGovernanceController';
+
+export {
+    analyzeBrandSuggestion,
+    analyzeModelSuggestion,
+    getAiAnalysisQueue
+} from './taxonomyAiController';
 
 // Export shared utilities
 export { hasAdminAccess, getAdminActorId, asModel, sendCatalogError } from './shared';

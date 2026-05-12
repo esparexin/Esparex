@@ -10,7 +10,6 @@ import logger from '../../utils/logger';
 type CascadeDoc = {
     _id: mongoose.Types.ObjectId;
     categoryIds?: mongoose.Types.ObjectId[];
-    categoryId?: mongoose.Types.ObjectId;
     brandId?: mongoose.Types.ObjectId;
 };
 
@@ -105,16 +104,13 @@ export class CatalogOrchestrator {
 
         // 2) Models: never delete by brand sweep unless brand is actually archived.
         //    Prefer detaching deleted category; soft-delete only if model becomes orphaned.
-        const modelOrFilters: Array<Record<string, unknown>> = [
-            { categoryId: categoryObjectId },
-            { categoryIds: categoryObjectId },
-        ];
+        const modelOrFilters: Array<Record<string, unknown>> = [{ categoryIds: categoryObjectId }];
         if (brandIdsToDelete.length > 0) {
             modelOrFilters.push({ brandId: { $in: brandIdsToDelete } });
         }
 
         const affectedModels = await Model.find({ $or: modelOrFilters })
-            .select('_id brandId categoryId categoryIds')
+            .select('_id brandId categoryIds')
             .session(txSession)
             .lean<CascadeDoc[]>();
 
@@ -246,9 +242,9 @@ export class CatalogOrchestrator {
     }
 
     /**
-     * Resolve a single CategoryID from a BrandID (backward compatibility)
+     * Resolve a deterministic primary CategoryID from a BrandID.
      */
-    static async resolveCategoryIdFromBrand(brandId: string): Promise<string | null> {
+    static async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
         const ids = await this.resolveCategoryIdsFromBrand(brandId);
         return ids.length > 0 ? (ids[0] ?? null) : null;
     }

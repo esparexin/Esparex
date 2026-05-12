@@ -9,7 +9,7 @@ import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import CatalogModel from '../../models/Model';
 import AdModel from '../../models/Ad';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
 
 // Re-export model instance for generic handler calls in the controller layer
 export const SparePartModel = SparePartModelImport;
@@ -32,10 +32,8 @@ export const getActiveBrandIdsForCategories = async (activeCategoryIds: string[]
     const brands = await BrandModel.find({
         isActive: true,
         isDeleted: { $ne: true },
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } }
-        ],
+        deletedAt: null,
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
         categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();
     return brands.map(b => String(b._id));
@@ -45,11 +43,10 @@ export const getActiveBrandIdsForCategories = async (activeCategoryIds: string[]
 export const getActiveModelIdsForCategories = async (activeCategoryIds: string[]): Promise<string[]> => {
     const models = await CatalogModel.find({
         isActive: true,
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } }
-        ],
-        categoryId: { $in: activeCategoryIds }
+        isDeleted: { $ne: true },
+        deletedAt: null,
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();
     return models.map(m => String(m._id));
 };

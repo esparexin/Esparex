@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { normalizeBusinessStatus } from '@/lib/status/statusNormalization';
 
 import { useBusiness } from '@/hooks/useBusiness';
-import { useUser } from '@/hooks/useUser';
+import { useCurrentUser as useUser } from '@/hooks/useCurrentUser';
 import { BusinessProfileFlow } from '@/components/user/business-registration/BusinessProfileFlow';
 import { mapErrorToMessage } from '@/lib/errorMapper';
 

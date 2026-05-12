@@ -48,6 +48,20 @@ router.post(
    catalogController.ensureModel
 );
 
+router.post(
+   '/brands/suggest',
+   protect,
+   mutationLimiter,
+   catalogController.suggestBrand
+);
+
+router.post(
+   '/models/suggest',
+   protect,
+   mutationLimiter,
+   catalogController.suggestModel
+);
+
 /* ==========================================================
    4. SPARE PARTS
    ========================================================== */

@@ -7,7 +7,6 @@ import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
 import { CategoryBrowser } from "@/components/home/CategoryBrowser";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
-import { BusinessQuickActionsShell } from "@/components/home/BusinessQuickActionsShell";
 
 const shouldLogHomeServerFallback = () => process.env.NODE_ENV === "development";
 
@@ -133,7 +132,6 @@ export default async function Home() {
 
             <section data-primary className="flex flex-col isolate">
                 <CategoryBrowser categories={categories} />
-                <BusinessQuickActionsShell />
 
                 <HomeFeed initialData={initialHomeAds} />
                 <HomeBannerAd />

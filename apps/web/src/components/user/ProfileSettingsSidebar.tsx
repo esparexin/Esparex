@@ -91,11 +91,21 @@ export function ProfileSettingsSidebar({
   });
 
   const { dynamicPlans } = useDynamicPlans(activeTab, user);
-  const { businessData, businessStats, isLoading: businessLoading, isFetched: businessFetched } = useBusiness(
-    user,
-    undefined,
-    { enabled: activeTab === "business" }
-  );
+    const { 
+      businessData, 
+      businessStats, 
+      isLoading: businessLoading, 
+      isFetched: businessFetched,
+      deactivate: deactivateBusiness,
+      reactivate: reactivateBusiness,
+      close: closeBusiness,
+      renew: renewBusiness
+    } = useBusiness(
+      user,
+      undefined,
+      { enabled: activeTab === "business" }
+    );
+
   const {
     smartAlertItems,
     savedSearches,
@@ -289,7 +299,20 @@ export function ProfileSettingsSidebar({
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
-      case "business": return <BusinessTab businessData={businessData} businessStats={businessStats} isLoading={businessLoading} isFetched={businessFetched} navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)} />;
+      case "business": return (
+        <BusinessTab 
+          businessData={businessData} 
+          businessStats={businessStats} 
+          isLoading={businessLoading} 
+          isFetched={businessFetched} 
+          navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)}
+          onDeactivate={deactivateBusiness}
+          onReactivate={reactivateBusiness}
+          onClose={closeBusiness}
+          onRenew={renewBusiness}
+        />
+      );
+
       case "settings": return (
         <SettingsTab
           notifications={notifications}

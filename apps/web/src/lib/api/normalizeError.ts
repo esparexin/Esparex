@@ -41,8 +41,9 @@ export function normalizeError(raw: unknown): NormalizedApiError {
             const data = error.response.data as {
                 retryAfter?: number;
                 retry_after?: number;
+                retryAfterSeconds?: number;
             };
-            retryAfter = data.retryAfter || data.retry_after;
+            retryAfter = data.retryAfterSeconds ?? data.retryAfter ?? data.retry_after;
         }
 
         return {

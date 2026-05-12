@@ -35,6 +35,9 @@ export interface IBusiness extends Document {
     rejectionReason?: string;
     approvedAt?: Date;
     expiresAt?: Date;
+    expiryWarningSentAt?: Date;
+    expiryWarningCount: number;
+    lastExpiryWarningChannel?: string;
     slug?: string;
     branding?: {
         logoUrl?: string;
@@ -122,6 +125,9 @@ const BusinessSchema: Schema = new Schema({
     rejectionReason: { type: String },
     approvedAt: { type: Date },
     expiresAt: { type: Date },
+    expiryWarningSentAt: { type: Date },
+    expiryWarningCount: { type: Number, default: 0 },
+    lastExpiryWarningChannel: { type: String },
     slug: { type: String },
     branding: {
         logoUrl: { type: String },
@@ -205,12 +211,17 @@ BusinessSchema.index({ isDeleted: 1 }, { name: 'idx_business_isDeleted' });
 // Keep a dedicated read-path index for owner lookups without colliding with the
 // partial unique ownership constraint below.
 BusinessSchema.index({ userId: 1, isDeleted: 1 }, { name: 'idx_business_userId_isDeleted' });
+BusinessSchema.index({ expiresAt: 1 }, { name: 'idx_business_expiresAt' });
+BusinessSchema.index({ status: 1, createdAt: -1 }, { name: 'idx_business_status_createdAt' });
+
 
 const activeBusinessPartialFilter = { isDeleted: false };
 
-// Partial index mapping purely active working records
+// Freshness index for active records (partial)
+// Note: Consolidating with idx_business_status_createdAt by adding isDeleted to key pattern
+// to satisfy Index Governance SSOT requirements while maintaining partial optimization.
 BusinessSchema.index(
-    { status: 1, createdAt: -1 }, 
+    { status: 1, isDeleted: 1, createdAt: -1 }, 
     { 
         name: 'idx_business_active_freshness_partial',
         partialFilterExpression: activeBusinessPartialFilter 

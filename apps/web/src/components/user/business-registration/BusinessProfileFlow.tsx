@@ -12,6 +12,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import { injectApiErrors } from "@/lib/injectApiErrors";
 import logger from "@/lib/logger";
 import type { User } from "@/types/User";
+import type { AppLocationSource } from "@/types/location";
 import type { Path, FieldValues } from "react-hook-form";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import {
@@ -66,7 +67,7 @@ type BusinessWizardFormShape = {
     businessDescription: string;
     fullAddress: string;
     currentLocationDisplay: string;
-    currentLocationSource?: "auto" | "";
+    currentLocationSource?: AppLocationSource | "";
     currentLocationCity?: string | null;
     currentLocationState?: string | null;
     currentLocationPincode?: string | null;

@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 relative before:absolute before:inset-y-[-2px] before:inset-x-0 before:content-[''] before:pointer-events-auto";
 
 const variants = {
   default: "bg-primary text-primary-foreground hover:bg-primary/90", // Backwards compatibility
@@ -16,10 +16,10 @@ const variants = {
 };
 
 const sizes = {
-  default: "h-10 px-4",
-  sm: "h-9 px-3 text-sm",
-  lg: "h-11 px-6 text-base",
-  icon: "size-10",
+  default: "h-11 px-5", // 44px - standard premium button height
+  sm: "h-10 px-4 text-sm", // 40px visual (44px touch-compliant with inset extension)
+  lg: "h-12 px-6 text-base", // 48px
+  icon: "size-11", // 44px
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

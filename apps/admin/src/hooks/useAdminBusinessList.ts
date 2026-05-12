@@ -207,6 +207,71 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         }
     };
 
+    const handleBulkApprove = async (ids: string[]) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_APPROVE, {
+                method: "POST",
+                body: { ids },
+            });
+            showToast(`${ids.length} businesses approved`, "success");
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(getErrorMessage(err, "Failed to approve businesses"), "error");
+        }
+    };
+
+    const handleBulkReject = async (ids: string[], reason: string) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_REJECT, {
+                method: "POST",
+                body: { ids, reason },
+            });
+            showToast(`${ids.length} businesses rejected`, "success");
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(getErrorMessage(err, "Failed to reject businesses"), "error");
+        }
+    };
+
+    const handleBulkDeactivate = async (ids: string[]) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_DEACTIVATE, {
+                method: "POST",
+                body: { ids },
+            });
+            showToast(`${ids.length} businesses deactivated`, "success");
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(getErrorMessage(err, "Failed to deactivate businesses"), "error");
+        }
+    };
+
+    const handleBulkExpire = async (ids: string[]) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_EXPIRE, {
+                method: "POST",
+                body: { ids },
+            });
+            showToast(`${ids.length} businesses expired`, "success");
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(getErrorMessage(err, "Failed to expire businesses"), "error");
+        }
+    };
+
+    const handleBulkRenew = async (ids: string[]) => {
+        try {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_RENEW, {
+                method: "POST",
+                body: { ids },
+            });
+            showToast(`${ids.length} businesses renewed`, "success");
+            await fetchBusinesses();
+        } catch (err) {
+            showToast(getErrorMessage(err, "Failed to renew businesses"), "error");
+        }
+    };
+
     return {
         businesses,
         loading,
@@ -230,5 +295,23 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         handleDelete,
         handleSuspend,
         handleActivate,
+        handleBulkApprove,
+        handleBulkReject,
+        handleBulkDeactivate,
+        handleBulkExpire,
+        handleBulkRenew,
+        handleBulkResendWarnings: async (ids: string[]) => {
+            try {
+                await adminFetch(ADMIN_ROUTES.BUSINESS_BULK_RESEND_WARNINGS, {
+                    method: "POST",
+                    body: { ids },
+                });
+                showToast(`Expiry warnings resent for ${ids.length} businesses`, "success");
+                await fetchBusinesses();
+            } catch (err) {
+                showToast(getErrorMessage(err, "Failed to resend business warnings"), "error");
+            }
+        },
     };
 }
+

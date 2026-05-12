@@ -52,6 +52,7 @@ export const Z_INDEX = {
 
   // ── Popovers & Selection Overlays ────────────────────────────────────────
   locationSelectorBackdrop: 9998,
+  locationSelectorDropdown: 9999,
   brandSearchBackdrop: 9998,
   selectContent: 99999,         // Select dropdown content (above all)
 

@@ -11,7 +11,7 @@ import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { CATALOG_STATUS } from "@esparex/shared";
+import { TAXONOMY_APPROVAL_STATUS } from "../../../constants/enums/taxonomyApprovalStatus";
 import {
     BrandModel,
     CatalogModel,
@@ -25,11 +25,11 @@ import {
     findBrandByNameInCategory,
     checkBrandDependencies,
     findModelByFilter,
-    findModelsByPattern,
     findModelSuggestion,
     findModelByNameAndBrand,
     createModelRecord,
     checkModelDependencies,
+    findModelBySlug,
 } from '../../../services/catalog/CatalogBrandModelService';
 import { validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
 import { escapeRegExp } from '../../../utils/stringUtils';
@@ -46,10 +46,13 @@ import {
     handleCatalogDelete,
     handleCatalogReview,
     isDuplicateKeyError,
-    sendEmptyPublicList
+    sendEmptyPublicList,
+    applyTaxonomyStatusFilter,
 } from './shared';
+import { toOptionalString, toStringArray } from './inputCoercion';
 import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
 import { validateBrandSuggestion, validateModelSuggestion } from '../../../utils/suggestionValidation';
+export { validateBrandSuggestion, validateModelSuggestion };
 import {
     brandCreateSchema,
     brandUpdateSchema,
@@ -59,6 +62,9 @@ import {
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
+import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus, isDuplicateSuggestion } from '../../../services/catalog/taxonomySsot';
+import { CatalogNotificationService } from '../../../services/catalog/CatalogNotificationService';
+import { TaxonomyAiService } from '../../../services/catalog/taxonomyAiService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
@@ -67,26 +73,6 @@ const catalogCacheKey = {
     models: (categoryId: string, brandId?: string) => brandId
         ? `catalog:models:${categoryId}:${brandId}`
         : `catalog:models:${categoryId}`,
-};
-
-const toOptionalString = (value: unknown): string | undefined => {
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed || undefined;
-    }
-    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
-        const stringValue = (value as { toString: () => string }).toString().trim();
-        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
-    }
-    return undefined;
-};
-
-const toStringArray = (value: unknown): string[] | undefined => {
-    if (!Array.isArray(value)) return undefined;
-    const normalized = value
-        .map((entry) => toOptionalString(entry))
-        .filter((entry): entry is string => Boolean(entry));
-    return normalized.length > 0 ? normalized : undefined;
 };
 
 /** Wraps res.json to write-through to Redis on success (public path only). */
@@ -113,7 +99,7 @@ const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
  */
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
-    const categoryId = (req.query.categoryId || req.query.categoryIds) as string;
+    const categoryId = req.query.categoryId as string;
     let categoryObjectId: string | undefined = categoryId;
     if (!isAdminView && categoryId) {
         // Public view allows passing slug for categoryId
@@ -150,18 +136,16 @@ export const getBrands = async (req: Request, res: Response) => {
     const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
     delete queryParams.categoryId;
     delete queryParams.categoryIds;
+    delete queryParams.status;
 
     const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+    const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
+    applyTaxonomyStatusFilter(adminCategoryFilter, rawStatus);
 
     return handlePaginatedContent(req, res, BrandModel, {
         publicQuery: {
-            isActive: true,
-            isDeleted: { $ne: true },
-            $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
-            ],
+            ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
             ...categoryFilter
         },
         adminQuery: adminCategoryFilter,
@@ -180,12 +164,7 @@ export const getBrandById = async (req: Request, res: Response) => {
             ...(isAdminView
                 ? {}
                 : {
-                    isActive: true,
-                    isDeleted: { $ne: true },
-                    $or: [
-                        { status: CATALOG_STATUS.ACTIVE },
-                        { status: { $exists: false } }
-                    ]
+                    ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
                 })
         });
         if (!brand) return sendCatalogError(req, res, 'Brand not found', 404);
@@ -205,13 +184,13 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'Brand slug is required', 400);
         }
 
+        const slugAlias = slug.replace(/-/g, ' ');
         const brand = await findBrandByFilter({
-            slug,
-            isActive: true,
-            isDeleted: { $ne: true },
+            ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
             $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
+                { slug },
+                { canonicalName: slugAlias },
+                { aliases: { $in: [slugAlias, slug] } },
             ]
         });
 
@@ -233,11 +212,12 @@ export const createBrand = async (req: Request, res: Response) => {
         auditAction: 'BRAND_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
-            // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
-            }
-            delete payload.categoryId;
+            const approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive,
+                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            });
+            payload.approvalStatus = approvalStatus;
 
             const categoryValidation = await validateActiveCategories((payload.categoryIds as string[]).map(String));
             if (!categoryValidation.ok) {
@@ -256,13 +236,14 @@ export const updateBrand = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, BrandModel, brandUpdateSchema, {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
-            // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
-            }
-            delete payload.categoryId;
+            const typedOldBrand = oldBrand as { categoryIds?: unknown[]; approvalStatus?: unknown; isActive?: boolean };
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus ?? typedOldBrand.approvalStatus,
+                isActive: payload.isActive ?? typedOldBrand.isActive,
+                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            });
 
-            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : ((oldBrand as { categoryIds?: unknown[] }).categoryIds || []).map(String);
+            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : (typedOldBrand.categoryIds || []).map(String);
             const categoryValidation = await validateActiveCategories(nextCategoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
@@ -315,7 +296,7 @@ export const suggestBrand = async (req: Request, res: Response) => {
 
         const cleanName = validation.cleanName;
 
-        // Check for existing active brand
+        // Check for existing active brand (Exact match)
         const existing = await findActiveBrandByName(new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'));
 
         if (existing) {
@@ -326,11 +307,18 @@ export const suggestBrand = async (req: Request, res: Response) => {
                 // Brand is active and already covers this category — user should select from dropdown
                 return sendCatalogError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
             }
+        }
 
-            // Brand is already admin-approved in another category.
-            // Under the new taxonomy model, a Brand strictly belongs to ONE category.
-            // If they suggest the same name in a different category, we must create a new record.
-            // Let it fall through to create a new Brand record.
+        // Advanced fuzzy duplicate detection (Phase 4)
+        const allBrands = await BrandModel.find({ isDeleted: false }, 'name aliases canonicalName');
+        const duplicateCheck = isDuplicateSuggestion(cleanName, allBrands as any);
+
+        if (duplicateCheck.isDuplicate && duplicateCheck.confidence < 1.0) {
+            return res.status(200).json(respond({
+                success: true,
+                message: `"${cleanName}" is very similar to existing brand "${duplicateCheck.matchedWith}". Please use that instead.`,
+                data: { match: duplicateCheck.matchedWith, confidence: duplicateCheck.confidence }
+            }));
         }
 
         // Check for pending from same user
@@ -344,14 +332,22 @@ export const suggestBrand = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'You already have a pending suggestion for this brand.', 409);
         }
 
+        const aiResult = await TaxonomyAiService.analyzeBrand(cleanName);
+
         const brand = await createBrandRecord({
             name: cleanName,
             slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
             categoryIds: [categoryIds],
-            status: CATALOG_STATUS.PENDING,
+            approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
             isActive: false,
-            suggestedBy: userId
+            suggestedBy: userId,
+            aiAnalysis: aiResult?.analysis,
+            aiDecision: aiResult?.decision
         });
+
+        if (brand.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+            void CatalogNotificationService.notifyAdminsOfSuggestion('brand', cleanName, String(userId));
+        }
 
         await CatalogOrchestrator.invalidateCatalogCache();
 
@@ -380,6 +376,7 @@ export const getModels = async (req: Request, res: Response) => {
     const { brandId } = req.query;
     const brandObjectId = typeof brandId === 'string' ? brandId : undefined;
     const categoryId = req.query.categoryId as string;
+    const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
 
     let categoryObjectId: string | undefined = categoryId;
     if (!isAdminView && categoryId) {
@@ -422,23 +419,20 @@ export const getModels = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = {};
     if (brandId) adminQuery.brandId = brandObjectId;
     if (categoryId) {
-        Object.assign(adminQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId }).build());
+        Object.assign(adminQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build());
     }
+    applyTaxonomyStatusFilter(adminQuery, rawStatus);
 
     const publicQuery: QueryRecord = {
-        isDeleted: { $ne: true },
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE, isActive: true },
-            { status: CATALOG_STATUS.PENDING }
-        ]
+        ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
     };
     if (!isAdminView) {
-        publicQuery.categoryId = { $in: activeCategoryIds };
+        Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build());
         publicQuery.brandId = { $in: activeBrandIds };
     }
     if (brandObjectId) publicQuery.brandId = brandObjectId;
     if (categoryObjectId) {
-        Object.assign(publicQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryObjectId }).build());
+        Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryObjectId] }).build());
     }
 
     if (!isAdminView && brandObjectId) {
@@ -447,12 +441,15 @@ export const getModels = async (req: Request, res: Response) => {
             return sendEmptyPublicList(res);
         }
     }
+    const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
+    delete queryParams.status;
 
     return handlePaginatedContent(req, res, CatalogModel, {
         populate: isAdminView ? undefined : 'brandId categoryIds',
         adminQuery,
         publicQuery,
-        searchFields: ['name']
+        searchFields: ['name'],
+        queryParams,
     });
 };
 
@@ -467,12 +464,7 @@ export const getModelById = async (req: Request, res: Response) => {
             ...(isAdminView
                 ? {}
                 : {
-                    isActive: true,
-                    isDeleted: { $ne: true },
-                    $or: [
-                        { status: CATALOG_STATUS.ACTIVE },
-                        { status: { $exists: false } }
-                    ]
+                    ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
                 })
         });
         if (!model) return sendCatalogError(req, res, 'Model not found', 404);
@@ -482,10 +474,7 @@ export const getModelById = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Get single public model by slug.
- * Models do not persist a dedicated slug, so we resolve against the canonicalized name.
- */
+/** Get single public model by canonical slug (with alias fallback). */
 export const getModelBySlug = async (req: Request, res: Response) => {
     try {
         const slug = String(req.params.slug || '').trim().toLowerCase();
@@ -493,34 +482,21 @@ export const getModelBySlug = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'Model slug is required', 400);
         }
 
-        const humanizedSlug = slug.replace(/-/g, ' ');
-        const slugPattern = new RegExp(
-            `^${escapeRegExp(humanizedSlug).replace(/\s+/g, '[-\\s]+')}$`,
-            'i'
-        );
+        const slugAlias = slug.replace(/-/g, ' ');
+        const baseFilter = { ...TAXONOMY_PUBLIC_VISIBILITY_QUERY };
 
-        const candidates = await findModelsByPattern(slugPattern, {
-            isActive: true,
-            isDeleted: { $ne: true },
+        const model = await findModelBySlug(slug, baseFilter) || await findModelByFilter({
+            ...baseFilter,
             $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
+                { canonicalName: slugAlias },
+                { aliases: { $in: [slugAlias, slug] } },
             ]
         });
 
-        const matches = candidates.filter((candidate) =>
-            slugify(candidate.name || '', { lower: true, strict: true, trim: true }) === slug
-        );
-
-        if (matches.length === 0) {
+        if (!model) {
             return sendCatalogError(req, res, 'Model not found', 404);
         }
-
-        if (matches.length > 1) {
-            return sendCatalogError(req, res, 'Model slug is ambiguous', 409);
-        }
-
-        sendSuccessResponse(res, matches[0]);
+        sendSuccessResponse(res, model);
     } catch (error) {
         sendCatalogError(req, res, error);
     }
@@ -534,31 +510,28 @@ export const createModel = async (req: Request, res: Response) => {
         auditAction: 'MODEL_CREATE',
         preOp: async (payload) => {
             const brandId = toOptionalString(payload.brandId);
-            const categoryId = toOptionalString(payload.categoryId);
             const categoryIds = toStringArray(payload.categoryIds);
 
-            // Auto-derive categoryId if missing
-            if (!categoryId) {
+            // Auto-derive categoryIds if missing
+            if (!categoryIds || categoryIds.length === 0) {
                 if (!brandId) throw new Error('brandId is required');
-                const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(brandId);
+                const derivedId = await CatalogOrchestrator.resolvePrimaryCategoryIdFromBrand(brandId);
                 if (!derivedId) throw new Error('Invalid brandId: cannot resolve parent category');
-                payload.categoryId = derivedId.toString();
+                payload.categoryIds = [derivedId.toString()];
             } else {
-                payload.categoryId = categoryId;
-            }
-
-            // Sync categoryId <-> categoryIds
-            if (payload.categoryId && (!categoryIds || categoryIds.length === 0)) {
-                payload.categoryIds = [String(payload.categoryId)];
-            } else if (categoryIds && categoryIds.length > 0 && !payload.categoryId) {
                 payload.categoryIds = categoryIds;
-                payload.categoryId = categoryIds[0];
             }
 
             if (!brandId) throw new Error('brandId is required');
             payload.brandId = brandId;
             const { ok, reason } = await validateBrandIsActive(brandId);
             if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
+
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive,
+                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            });
             
             return payload;
         },
@@ -572,9 +545,8 @@ export const createModel = async (req: Request, res: Response) => {
 export const updateModel = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, CatalogModel, modelUpdateSchema, {
         auditAction: 'MODEL_RENAME',
-        preUpdate: async (_id, payload) => {
+        preUpdate: async (_id, payload, existingModel) => {
             const brandId = toOptionalString(payload.brandId);
-            const categoryId = toOptionalString(payload.categoryId);
             const categoryIds = toStringArray(payload.categoryIds);
 
             if (payload.brandId !== undefined && !brandId) {
@@ -585,16 +557,19 @@ export const updateModel = async (req: Request, res: Response) => {
                 const { ok, reason } = await validateBrandIsActive(brandId);
                 if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
             }
-            // Sync categoryId <-> categoryIds
-            if (categoryId) {
-                payload.categoryId = categoryId;
-            }
-            if (payload.categoryId && (!categoryIds || categoryIds.length === 0)) {
-                payload.categoryIds = [String(payload.categoryId)];
-            } else if (categoryIds && categoryIds.length > 0) {
+            // Normalize to canonical categoryIds array
+            if (categoryIds && categoryIds.length > 0) {
                 payload.categoryIds = categoryIds;
-                payload.categoryId = categoryIds[0];
+            } else if ((existingModel as { categoryIds?: unknown[] }).categoryIds) {
+                payload.categoryIds = ((existingModel as { categoryIds?: unknown[] }).categoryIds || []).map(String);
             }
+
+            const typedExisting = existingModel as { approvalStatus?: unknown; isActive?: boolean };
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus ?? typedExisting.approvalStatus,
+                isActive: payload.isActive ?? typedExisting.isActive,
+                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            });
             return payload;
         },
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
@@ -680,29 +655,51 @@ export const suggestModel = async (req: Request, res: Response) => {
 
         const cleanName = validation.cleanName;
 
-        // Check if model already exists (Active or Pending) regardless of who suggested it
+        // Check if model already exists (Exact match)
         const existing = await findModelSuggestion(
             new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'),
             brandId
         );
 
         if (existing) {
+            const existingApprovalStatus = (existing as { approvalStatus?: string }).approvalStatus;
             return res.status(200).json(respond({
                 success: true,
-                message: existing.status === CATALOG_STATUS.ACTIVE 
+                message: existingApprovalStatus === TAXONOMY_APPROVAL_STATUS.APPROVED
                     ? `"${cleanName}" already exists and is active.` 
                     : `"${cleanName}" is already suggested and awaiting approval.`,
                 data: existing
             }));
         }
 
+        // Advanced fuzzy duplicate detection (Phase 4)
+        const allModels = await CatalogModel.find({ brandId, isDeleted: false }, 'name aliases canonicalName');
+        const duplicateCheck = isDuplicateSuggestion(cleanName, allModels as any);
+
+        if (duplicateCheck.isDuplicate && duplicateCheck.confidence < 1.0) {
+            return res.status(200).json(respond({
+                success: true,
+                message: `"${cleanName}" is very similar to existing model "${duplicateCheck.matchedWith}". Please use that instead.`,
+                data: { match: duplicateCheck.matchedWith, confidence: duplicateCheck.confidence }
+            }));
+        }
+
+        const brandDoc = await BrandModel.findById(brandId);
+        const aiResult = await TaxonomyAiService.analyzeModel(cleanName, brandDoc?.name);
+
         const model = await createModelRecord({
             name: cleanName,
             brandId,
-            status: CATALOG_STATUS.PENDING,
+            approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
             isActive: false,
-            suggestedBy: userId
+            suggestedBy: userId,
+            aiAnalysis: aiResult?.analysis,
+            aiDecision: aiResult?.decision
         });
+
+        if (model.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+            void CatalogNotificationService.notifyAdminsOfSuggestion('model', cleanName, String(userId));
+        }
 
         await CatalogOrchestrator.invalidateCatalogCache();
 
@@ -742,13 +739,16 @@ export const ensureModel = async (req: Request, res: Response) => {
         let brand = await findBrandByNameInCategory(brandRegex, categoryId);
         if (!brand) {
             const brandVal = validateBrandSuggestion(brandName);
+            const aiResult = await TaxonomyAiService.analyzeBrand(brandVal.cleanName || brandName);
             brand = await createBrandRecord({
                 name: brandVal.cleanName || brandName,
                 slug: slugify(brandVal.cleanName || brandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
                 categoryIds: [categoryId],
                 isActive: false,
-                status: CATALOG_STATUS.PENDING,
-                suggestedBy: userId
+                approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+                suggestedBy: userId,
+                aiAnalysis: aiResult?.analysis,
+                aiDecision: aiResult?.decision
             });
         }
 
@@ -757,14 +757,24 @@ export const ensureModel = async (req: Request, res: Response) => {
 
         if (!model) {
             const modelVal = validateModelSuggestion(modelName);
+            const aiResult = await TaxonomyAiService.analyzeModel(modelVal.cleanName || modelName, brand.name);
             model = await createModelRecord({
                 name: modelVal.cleanName || modelName,
                 brandId: brand._id,
                 categoryIds: [categoryId],
                 isActive: false,
-                status: CATALOG_STATUS.PENDING,
-                suggestedBy: userId
+                approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+                suggestedBy: userId,
+                aiAnalysis: aiResult?.analysis,
+                aiDecision: aiResult?.decision
             });
+        }
+
+        if ((brand as { approvalStatus?: string }).approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+            void CatalogNotificationService.notifyAdminsOfSuggestion('brand', brandName, String(userId));
+        }
+        if ((model as { approvalStatus?: string }).approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+            void CatalogNotificationService.notifyAdminsOfSuggestion('model', modelName, String(userId));
         }
 
         await CatalogOrchestrator.invalidateCatalogCache();
