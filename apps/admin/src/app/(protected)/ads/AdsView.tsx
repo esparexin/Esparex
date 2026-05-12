@@ -25,6 +25,7 @@ const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> =
     { label: "Price High", value: "price_high" },
     { label: "Price Low", value: "price_low" }
 ];
+const allowed = new Set(["pending", "live", "rejected", "deactivated", "sold", "expired", "all"]);
 
 type AdsViewProps = {
     mode?: "ads";
@@ -59,6 +60,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
     const { 
         filters, page, pageSize, updateFilter, clearFilters, replaceRoute 
     } = useAdFilters(listingType);
+    const normalizedStatus = allowed.has(filters.status) ? filters.status : "all";
 
     const { 
         items, pagination, isLoading, error, moduleTabs, activeStatusOptions 
@@ -315,7 +317,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                         bulkActions={
                             selectedCount > 0 ? (
                                 <div className="flex items-center gap-2">
-                                    {filters.status === 'pending' && (
+                                    {normalizedStatus === 'pending' && (
                                         <>
                                             <button
                                                 type="button"

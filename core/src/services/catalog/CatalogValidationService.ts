@@ -1,7 +1,7 @@
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';
 
@@ -11,17 +11,16 @@ import { validateObjectIdOrThrow } from '../../utils/idUtils';
 export const ACTIVE_CATEGORY_QUERY = {
     isActive: true,
     isDeleted: { $ne: true } as Record<string, unknown>,
-    status: CATALOG_STATUS.ACTIVE,
+    deletedAt: null,
+    approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
 };
 
 /** Reusable filter for active, non-deleted brands */
 export const ACTIVE_BRAND_QUERY = {
-    isActive: true,
     isDeleted: { $ne: true } as Record<string, unknown>,
-    $or: [
-        { status: CATALOG_STATUS.ACTIVE },
-        { status: { $exists: false } },
-    ] as Record<string, unknown>[],
+    deletedAt: null,
+    isActive: true,
+    approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,7 +76,7 @@ export async function validateBrandBelongsToCategory(
     const brand = await Brand.findOne({
         _id: brandId,
         ...ACTIVE_BRAND_QUERY,
-        ...CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build(),
+        ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build(),
     }).select('_id').lean();
 
     if (!brand) {
@@ -112,12 +111,10 @@ export async function validateModelBelongsToBrand(
 
     const model = await Model.findOne({
         _id: modelId,
-        isActive: true,
         isDeleted: { $ne: true },
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } },
-        ],
+        deletedAt: null,
+        isActive: true,
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
     }).select('brandId').lean();
 
     if (!model) {
@@ -311,7 +308,7 @@ export async function validateScreenSizeRelations(
     const brand = await Brand.findOne({
         _id: brandId,
         ...ACTIVE_BRAND_QUERY,
-        ...CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build(),
+        ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build(),
     }).select('_id').lean();
 
     if (!brand) {

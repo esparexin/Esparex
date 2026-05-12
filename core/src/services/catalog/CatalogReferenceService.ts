@@ -9,7 +9,7 @@ import ScreenSizeModelImport from '../../models/ScreenSize';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import AdModel from '../../models/Ad';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
 import { LISTING_STATUS } from "../../constants/enums/listingStatus";
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 // Re-export model instances for generic handler calls in the controller layer
@@ -62,17 +62,12 @@ export const findScreenSizeById = async (id: string | undefined) => {
 
 // ─── Active brand IDs for screen sizes ───────────────────────────────────────
 
-/**
- * Return active brand documents for the screen sizes public view.
- * Note: screen sizes use the singular `categoryId` field on brand, not `categoryIds`.
- */
+/** Return active brand documents for the screen sizes public view. */
 export const getActiveBrandsForScreenSizes = async (activeCategoryIds: string[]) =>
     BrandModel.find({
         isActive: true,
         isDeleted: { $ne: true },
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } }
-        ],
-        categoryId: { $in: activeCategoryIds }
+        deletedAt: null,
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();

@@ -73,6 +73,8 @@ const envSchema = z.object({
     PROD_RISK_OVERRIDE: z.string().transform(val => val === 'true').default('false'),
 
     GEMINI_API_KEY: z.string().optional(),
+    AI_MODEL: z.string().optional(),
+    GEMINI_MODEL: z.string().optional(),
 
     RAZORPAY_KEY_ID: z.string().optional(),
     RAZORPAY_KEY_SECRET: z.string().optional(),

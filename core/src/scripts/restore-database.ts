@@ -8,6 +8,7 @@
  * Usage:
  *   npm run restore -- --file=backups/esparex_user_2026-01-31.gz
  *   npm run restore -- --file=backups/esparex_admin_2026-01-31.gz --db=admin
+ *   npm run restore -- --file=backups/esparex_user_2026-01-31.gz --dry-run
  * 
  * @module scripts/restore-database
  */
@@ -18,7 +19,18 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { env } from '../config/env';
 import logger from '../utils/logger';
-import { parseMongoUri } from '../utils/mongoUtils';
+
+const shellQuote = (value: string): string => `'${value.replace(/'/g, `'\\''`)}'`;
+
+const extractDatabaseName = (uri: string): string => {
+    try {
+        const parsed = new URL(uri);
+        const db = parsed.pathname.replace(/^\//, '');
+        return db || 'unknown_db';
+    } catch {
+        return 'unknown_db';
+    }
+};
 
 
 /**
@@ -50,9 +62,11 @@ async function restoreDatabase(
     uri: string,
     backupFile: string,
     label: string,
-    skipConfirmation = false
+    skipConfirmation = false,
+    dryRun = false
 ): Promise<void> {
-    const { host, port, database, username, password } = parseMongoUri(uri);
+    const database = extractDatabaseName(uri);
+    const quotedBackupFile = shellQuote(backupFile);
 
     // Verify backup file exists
     if (!fs.existsSync(backupFile)) {
@@ -65,14 +79,13 @@ async function restoreDatabase(
 
     logger.info(`Preparing to restore: ${label}`, {
         database,
-        host,
-        port,
         backupFile,
         size: `${sizeMB} MB`,
+        dryRun,
     });
 
     // Confirm restore (unless skipped)
-    if (!skipConfirmation) {
+    if (!skipConfirmation && !dryRun) {
         const confirmed = await confirmRestore(database, backupFile);
         if (!confirmed) {
             logger.warn('Restore cancelled by user');
@@ -82,17 +95,18 @@ async function restoreDatabase(
 
     try {
         // Build mongorestore command
-        let command = `mongorestore --host=${host} --port=${port}`;
+        let command = `mongorestore --uri=${shellQuote(uri)}`;
 
-        if (username && password) {
-            command += ` --username=${username} --password=${password} --authenticationDatabase=admin`;
+        command += ` --archive=${quotedBackupFile} --gzip`;
+        if (dryRun) {
+            command += ' --dryRun';
+        } else {
+            command += ' --drop';
         }
-
-        command += ` --archive=${backupFile} --gzip --drop`;
 
         // Execute restore
         const startTime = Date.now();
-        logger.info(`Starting restore: ${label}`);
+        logger.info(`Starting restore: ${label}`, { dryRun });
 
         execSync(command, { stdio: 'inherit' });
 
@@ -152,13 +166,14 @@ async function main() {
     const fileArg = args.find(arg => arg.startsWith('--file='));
     const dbArg = args.find(arg => arg.startsWith('--db='));
     const skipConfirmArg = args.includes('--yes');
+    const dryRunArg = args.includes('--dry-run');
 
     const backupDir = process.env.BACKUP_DIR || path.join(process.cwd(), 'backups');
 
     // List backups if no file specified
     if (!fileArg) {
         logger.info('MongoDB Restore Script');
-        logger.info('Usage: npm run restore -- --file=<backup-file> [--db=user|admin] [--yes]');
+        logger.info('Usage: npm run restore -- --file=<backup-file> [--db=user|admin] [--yes] [--dry-run]');
         listBackups(backupDir);
         process.exit(0);
     }
@@ -169,6 +184,7 @@ async function main() {
     logger.info('MongoDB Restore Script Started', {
         backupFile,
         targetDb,
+        dryRun: dryRunArg,
     });
 
     try {
@@ -187,7 +203,7 @@ async function main() {
         }
 
         // Restore database
-        await restoreDatabase(uri, backupFile, label, skipConfirmArg);
+        await restoreDatabase(uri, backupFile, label, skipConfirmArg, dryRunArg);
 
         logger.info('Restore process completed successfully');
         process.exit(0);

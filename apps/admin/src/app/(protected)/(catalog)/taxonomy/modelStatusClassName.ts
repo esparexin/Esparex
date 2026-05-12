@@ -3,5 +3,7 @@ export const getModelStatusClassName = (status: string) => {
         ? "bg-emerald-50 text-emerald-600"
         : status === "pending"
             ? "bg-amber-50 text-amber-600"
-            : "bg-red-50 text-red-600";
+            : status === "inactive"
+                ? "bg-slate-100 text-slate-600"
+                : "bg-red-50 text-red-600";
 };

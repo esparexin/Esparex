@@ -109,9 +109,23 @@ export default function LocationSelector({
                 const spaceBelow = window.innerHeight - rect.bottom;
                 const dropdownMaxH = 320;
                 if (spaceBelow < dropdownMaxH && rect.top > dropdownMaxH) {
-                    setDropdownStyle({ position: "fixed", top: rect.top - dropdownMaxH - 4, left: rect.left, width: rect.width, zIndex: Z_INDEX.locationSelectorDropdown, maxHeight: dropdownMaxH });
+                    setDropdownStyle({ 
+                        position: "fixed", 
+                        bottom: window.innerHeight - rect.top + 4, 
+                        left: rect.left, 
+                        width: rect.width, 
+                        zIndex: Z_INDEX.locationSelectorDropdown, 
+                        maxHeight: dropdownMaxH 
+                    });
                 } else {
-                    setDropdownStyle({ position: "fixed", top: rect.bottom + 4, left: rect.left, width: rect.width, zIndex: Z_INDEX.locationSelectorDropdown, maxHeight: Math.min(dropdownMaxH, spaceBelow - 8) });
+                    setDropdownStyle({ 
+                        position: "fixed", 
+                        top: rect.bottom + 4, 
+                        left: rect.left, 
+                        width: rect.width, 
+                        zIndex: Z_INDEX.locationSelectorDropdown, 
+                        maxHeight: Math.min(dropdownMaxH, spaceBelow - 8) 
+                    });
                 }
             }
         };

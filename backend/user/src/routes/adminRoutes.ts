@@ -12,7 +12,6 @@ import * as adminPlans from '@esparex/core/controllers/admin/plan';
 import * as adminBusiness from '@esparex/core/controllers/admin/adminBusinessController';
 import * as adminListings from '@esparex/core/controllers/admin/adminListingsController';
 import * as adminReports from '@esparex/core/controllers/admin/adminReportsController';
-import * as adminCatalog from '@esparex/core/controllers/admin/catalog';
 import * as adminTransactions from '@esparex/core/controllers/admin/adminTransactionController';
 import * as adminInvoices from '@esparex/core/controllers/admin/adminInvoiceController';
 import * as adminNotifications from '@esparex/core/controllers/admin/adminNotificationController';
@@ -131,36 +130,6 @@ router.get('/reports/:id', adminReports.getReportedAdById);
 router.patch('/reports/:id/resolve', adminReports.resolveReport);
 router.patch('/reports/:id/status', adminReports.updateReportStatus);
 
-// Catalog
-router.get('/categories', adminCatalog.getCategories);
-router.get('/categories/counts', adminCatalog.getCategoryCounts);
-router.get('/categories/:id', adminCatalog.getCategoryById);
-router.get('/categories/:id/schema', adminCatalog.getCategorySchema);
-router.patch('/categories/:id/status', adminCatalog.toggleCategoryStatus);
-
-router.get('/governance/hierarchy-tree', adminCatalog.getHierarchyTree);
-
-router.get('/brands', adminCatalog.getBrands);
-router.get('/brands/:id', adminCatalog.getBrandById);
-router.patch('/brands/:id/approve', adminCatalog.approveBrand);
-router.patch('/brands/:id/reject', adminCatalog.rejectBrand);
-
-router.get('/models', adminCatalog.getModels);
-router.get('/models/:id', adminCatalog.getModelById);
-router.post('/models/ensure', adminCatalog.ensureModel);
-router.patch('/models/:id/approve', adminCatalog.approveModel);
-router.patch('/models/:id/reject', adminCatalog.rejectModel);
-
-router.get('/spare-parts', adminCatalog.getSpareParts);
-router.get('/spare-parts/:id', adminCatalog.getSparePartById);
-
-router.get('/service-types', adminCatalog.getServiceTypes);
-router.get('/service-types/:id', adminCatalog.getServiceTypeById);
-router.patch('/service-types/:id/toggle-status', adminCatalog.toggleServiceTypeStatus);
-
-router.get('/screen-sizes', adminCatalog.getScreenSizes);
-router.get('/screen-sizes/:id', adminCatalog.getScreenSizeById);
-
 // Finance
 router.get('/finance/transactions', adminTransactions.getAllTransactions);
 router.get('/finance/stats', adminTransactions.getTransactionStats);
@@ -182,10 +151,15 @@ router.patch('/api-keys/:id/revoke', adminApiKeys.revokeApiKey);
 
 // Locations and geofences
 router.get('/locations', adminLocations.getAllLocations);
+router.post('/locations', adminLocations.createLocation);
 router.get('/locations/analytics', adminSystem.getLocationAnalytics);
 router.get('/locations/states', adminLocations.getDistinctStates);
-router.get('/locations/:id', adminLocations.getAllLocations);
+router.get('/locations/moderation-queue', adminLocations.getModerationQueue);
+router.post('/locations/refresh-stats', adminLocations.refreshLocationStats);
+router.patch('/locations/:id', adminLocations.updateLocation);
 router.patch('/locations/:id/toggle', adminLocations.toggleLocationStatus);
+router.patch('/locations/:id/review', adminLocations.approveRejectLocation);
+router.delete('/locations/:id', adminLocations.deleteLocation);
 
 router.get('/geofences', adminLocations.getGeofences);
 router.post('/geofences', adminLocations.createGeofence);

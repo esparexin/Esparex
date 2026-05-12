@@ -29,8 +29,10 @@ const RankingTelemetrySchema = new Schema({
         popularityScore: { type: Number }
     },
     // TTL index: documents automatically expire after 7 days
-    createdAt: { type: Date, default: Date.now, expires: '7d' }
+    createdAt: { type: Date, default: Date.now }
 });
+
+RankingTelemetrySchema.index({ createdAt: 1 }, { name: 'idx_rankingtelemetry_createdAt_ttl', expireAfterSeconds: 604800 });
 
 const RankingTelemetry: Model<IRankingTelemetry> = (getUserConnection().models.RankingTelemetry as Model<IRankingTelemetry> | undefined) || getUserConnection().model<IRankingTelemetry>('RankingTelemetry', RankingTelemetrySchema);
 

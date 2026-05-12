@@ -429,7 +429,7 @@ export function PostAdProvider({
 
     /* ---------- SPARE PARTS ---------- */
     /* ---------- GENERATE AI ---------- */
-    const { generateDescription } = usePostAdAiGeneration(form, categoryMap, setIsLoading, setFormError);
+    const { generateDescription } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setIsLoading, setFormError);
 
 
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(

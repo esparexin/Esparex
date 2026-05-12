@@ -17,8 +17,8 @@ const AlertDeliveryLogSchema: Schema = new Schema({
 /* Indexes (Explicitly Named)                                                 */
 /* -------------------------------------------------------------------------- */
 
-AlertDeliveryLogSchema.index({ deliveredAt: 1 }, { name: 'idx_alertlog_deliveredAt_ttl_idx', expireAfterSeconds: 60 * 60 * 24 * 7 });
-AlertDeliveryLogSchema.index({ alertId: 1, adId: 1 }, { name: 'idx_alertlog_alert_ad_unique_idx', unique: true });
+AlertDeliveryLogSchema.index({ deliveredAt: 1 }, { name: 'idx_alertdeliverylog_deliveredAt_ttl_idx', expireAfterSeconds: 60 * 60 * 24 * 7 });
+AlertDeliveryLogSchema.index({ alertId: 1, adId: 1 }, { name: 'idx_alertdeliverylog_alert_ad_unique_idx', unique: true });
 
 const modelName = 'AlertDeliveryLog';
 const connection = getUserConnection();

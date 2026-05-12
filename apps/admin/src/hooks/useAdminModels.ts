@@ -1,4 +1,4 @@
-import { createModel, deleteModel, getModels, updateModel, toggleModelStatus } from "@/lib/api/models";
+import { createModel, deleteModel, getModels, updateModel, toggleModelStatus, approveModel, rejectModel } from "@/lib/api/models";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import type { Model } from "@shared/types";
 import { useCallback } from "react";
@@ -47,10 +47,30 @@ export function useAdminModels() {
 
     const handleToggleStatus = useCallback(async (id: string) => {
         await runAction(() => toggleModelStatus(id), {
-            successMessage: "Model status toggled successfully",
+            successMessage: "Model visibility updated",
             errorMessage: "Failed to toggle model status",
             onSuccess: async () => {
                 setItems((prev) => prev.map((m) => m.id === id ? { ...m, isActive: !m.isActive } : m));
+            }
+        });
+    }, [runAction, setItems]);
+
+    const handleApproveModel = useCallback(async (id: string) => {
+        await runAction(() => approveModel(id), {
+            successMessage: "Model approved and activated successfully",
+            errorMessage: "Failed to approve model",
+            onSuccess: async () => {
+                setItems((prev) => prev.map((m) => m.id === id ? { ...m, approvalStatus: "approved", isActive: true } : m));
+            }
+        });
+    }, [runAction, setItems]);
+
+    const handleRejectModel = useCallback(async (id: string, reason: string) => {
+        await runAction(() => rejectModel(id, reason), {
+            successMessage: "Model rejected successfully",
+            errorMessage: "Failed to reject model",
+            onSuccess: async () => {
+                setItems((prev) => prev.map((m) => m.id === id ? { ...m, approvalStatus: "rejected", isActive: false } : m));
             }
         });
     }, [runAction, setItems]);
@@ -68,5 +88,7 @@ export function useAdminModels() {
         handleCreate,
         handleUpdate,
         handleToggleStatus,
+        handleApproveModel,
+        handleRejectModel,
     };
 }

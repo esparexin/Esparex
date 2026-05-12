@@ -12,7 +12,7 @@
  * Do NOT duplicate these checks inside individual controllers.
  */
 
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
 import type {
     HierarchyTreeResponse,
 } from "@esparex/shared";
@@ -183,11 +183,11 @@ export async function getHierarchyTree(): Promise<HierarchyTreeResponse> {
             .sort({ name: 1 })
             .lean(),
         Brand.find({ isDeleted: { $ne: true } })
-            .select('_id name categoryIds isActive status')
+            .select('_id name categoryIds isActive approvalStatus')
             .sort({ name: 1 })
             .lean(),
         Model.find({ isDeleted: { $ne: true } })
-            .select('_id name brandId categoryId categoryIds isActive status')
+            .select('_id name brandId categoryIds isActive approvalStatus')
             .sort({ name: 1 })
             .lean(),
     ]);
@@ -215,12 +215,18 @@ export async function getHierarchyTree(): Promise<HierarchyTreeResponse> {
                     id: String(brand._id),
                     name: brand.name,
                     isActive: Boolean(brand.isActive),
-                    status: typeof brand.status === 'string' ? brand.status : undefined,
+                    approvalStatus:
+                        typeof (brand as { approvalStatus?: unknown }).approvalStatus === 'string'
+                            ? ((brand as { approvalStatus?: string }).approvalStatus as 'pending' | 'approved' | 'rejected')
+                            : undefined,
                     models: brandModels.map((model) => ({
                         id: String(model._id),
                         name: model.name,
                         isActive: Boolean(model.isActive),
-                        status: typeof model.status === 'string' ? model.status : undefined,
+                        approvalStatus:
+                            typeof (model as { approvalStatus?: unknown }).approvalStatus === 'string'
+                                ? ((model as { approvalStatus?: string }).approvalStatus as 'pending' | 'approved' | 'rejected')
+                                : undefined,
                     })),
                 };
             });
@@ -443,11 +449,12 @@ export async function activateValidRecords(): Promise<{
 }> {
     const validCatIds = new Set(await getActiveCategoryIds());
 
-    // Brands: status=active + valid categoryId + not flagged
+    // Brands: pending/rejected records stay inactive; only approved records can be auto-activated.
     const inactiveBrands = await Brand.find({
         isDeleted: { $ne: true },
+        deletedAt: null,
         isActive: false,
-        status: CATALOG_STATUS.ACTIVE,
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
         needsReview: { $ne: true },
         categoryIds: { $exists: true, $not: { $size: 0 } },
     }).select('_id categoryIds').lean();

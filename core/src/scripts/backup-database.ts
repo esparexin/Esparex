@@ -18,11 +18,22 @@ import * as fs from 'fs';
 import * as path from 'path';
 import logger from '../utils/logger';
 import env from '../config/env';
-import { parseMongoUri } from '../utils/mongoUtils';
 
 // Backup configuration
 const BACKUP_DIR = process.env.BACKUP_DIR || path.join(process.cwd(), 'backups');
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10);
+
+const shellQuote = (value: string): string => `'${value.replace(/'/g, `'\\''`)}'`;
+
+const extractDatabaseName = (uri: string): string => {
+    try {
+        const parsed = new URL(uri);
+        const db = parsed.pathname.replace(/^\//, '');
+        return db || 'unknown_db';
+    } catch {
+        return 'unknown_db';
+    }
+};
 
 
 /**
@@ -47,7 +58,7 @@ function getBackupFilename(database: string, isEncrypted: boolean): string {
  * Backup a MongoDB database
  */
 function backupDatabase(uri: string, label: string): string {
-    const { host, port, database, username, password } = parseMongoUri(uri);
+    const database = extractDatabaseName(uri);
     const encryptionKey = process.env.BACKUP_ENCRYPTION_KEY;
     if (env.NODE_ENV === 'production' && !encryptionKey) {
         logger.warn('⚠️ BACKUP_ENCRYPTION_KEY missing in production. Daily snapshot backups will be unencrypted.');
@@ -55,26 +66,21 @@ function backupDatabase(uri: string, label: string): string {
 
     const isEncrypted = !!encryptionKey;
     const backupFile = path.join(BACKUP_DIR, getBackupFilename(database, isEncrypted));
+    const quotedBackupFile = shellQuote(backupFile);
 
     logger.info(`Starting backup: ${label}`, {
         database,
-        host,
-        port,
         backupFile,
     });
 
     try {
-        let command = `mongodump --host=${host} --port=${port} --db=${database}`;
-
-        if (username && password) {
-            command += ` --username=${username} --password=${password} --authenticationDatabase=admin`;
-        }
+        let command = `mongodump --uri=${shellQuote(uri)}`;
 
         if (isEncrypted) {
             // 🔒 AES-256-CBC Encryption Pipeline
-            command += ` --archive | gzip | openssl enc -aes-256-cbc -salt -pass pass:${encryptionKey} -pbkdf2 -out ${backupFile}`;
+            command += ` --archive | gzip | openssl enc -aes-256-cbc -salt -pass pass:${encryptionKey} -pbkdf2 -out ${quotedBackupFile}`;
         } else {
-            command += ` --archive=${backupFile} --gzip`;
+            command += ` --archive=${quotedBackupFile} --gzip`;
         }
 
         // Execute backup

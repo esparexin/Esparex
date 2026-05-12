@@ -58,13 +58,17 @@ type ExecuteAiRequestInput = {
     contextText: string;
 };
 
-export const AI_REQUEST_TIMEOUT_MS = env.AI_REQUEST_TIMEOUT_MS ?? 12000;
+export const AI_REQUEST_TIMEOUT_MS = env.AI_REQUEST_TIMEOUT_MS ?? 30000;
 export const AI_MAX_IMAGE_BYTES = env.AI_MAX_IMAGE_BYTES ?? (4 * 1024 * 1024);
 
 const parseJsonFromAi = (raw: string): Record<string, unknown> | null => {
-    const cleaned = raw.replace(/```json|```/g, '').trim();
     try {
-        const parsed: unknown = JSON.parse(cleaned) as unknown;
+        const start = raw.indexOf('{');
+        const end = raw.lastIndexOf('}');
+        if (start === -1 || end === -1) return null;
+        
+        const jsonPart = raw.slice(start, end + 1).trim();
+        const parsed: unknown = JSON.parse(jsonPart) as unknown;
         return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : null;
     } catch {
         return null;
@@ -88,17 +92,25 @@ const buildUserMessage = (prompt: string, imageDataUrl?: string): OpenAIMessage 
 
 
 const mapProviderError = (error: OpenAICallFailure): AIServiceFailure => {
+    const status = typeof error.status === 'string' ? parseInt(error.status, 10) : error.status;
+
     if (error.code === 'TIMEOUT') {
         return { ok: false, status: 504, error: 'AI provider timeout', code: 'AI_PROVIDER_TIMEOUT' };
     }
-    if (error.status === 429) {
-        return { ok: false, status: 429, error: 'AI rate limit exceeded', code: 'AI_RATE_LIMIT' };
+    if (status === 429) {
+        return { ok: false, status: 429, error: 'AI quota exceeded or rate limit reached', code: 'AI_QUOTA_EXCEEDED' };
     }
-    if (error.status === 503 || (error.status !== undefined && error.status >= 500)) {
+    if (status === 404) {
+        return { ok: false, status: 404, error: 'AI model not found', code: 'AI_MODEL_NOT_FOUND' };
+    }
+    if (status === 503 || (status !== undefined && status >= 500)) {
         return { ok: false, status: 503, error: 'AI provider unavailable', code: 'AI_PROVIDER_UNAVAILABLE' };
     }
-    if (error.status === 401 || error.status === 403) {
-        return { ok: false, status: 500, error: 'AI provider authentication failed', code: 'AI_PROVIDER_AUTH' };
+    if (status === 401) {
+        return { ok: false, status: 500, error: 'AI provider authentication failed (Invalid API Key)', code: 'AI_INVALID_API_KEY' };
+    }
+    if (status === 403) {
+        return { ok: false, status: 403, error: 'AI provider access forbidden', code: 'AI_PROVIDER_FORBIDDEN' };
     }
     return { ok: false, status: 502, error: 'AI provider request failed', code: 'AI_PROVIDER_ERROR' };
 };
@@ -196,6 +208,7 @@ const parseValidJsonResult = (
 
     const data = parseJsonFromAi(result.content);
     if (!data) {
+        logger.error('AI JSON Parse Failed. Raw content:', { content: result.content });
         return toServiceFailure({
             ok: false,
             status: 502,
@@ -240,13 +253,14 @@ type GeminiApiResponse = {
 
 const callGemini = async (
     apiKey: string,
+    model: string,
     prompt: string,
     image?: string,
     maxTokens: number = 500,
     temperature: number = 0.7
 ): Promise<OpenAICallResult> => {
     try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
         const contents: GeminiContent[] = [{
             parts: [{ text: prompt }]
@@ -284,7 +298,8 @@ const callGemini = async (
         }
 
         const data = await response.json() as GeminiApiResponse;
-        const content = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        const parts = data.candidates?.[0]?.content?.parts;
+        const content = parts?.map(p => p.text || '').join('').trim();
         
         if (!content) {
             return { ok: false, status: 502, error: 'Empty response from Gemini' };
@@ -300,6 +315,9 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     const { type, context, image, contextText } = input;
     
     // ... validation logic (kept implicitly) ...
+    if (type === 'generate' && !context.brand && !context.model) {
+        return toServiceFailure({ ok: false, status: 400, error: 'Brand and Model context are required for generation' });
+    }
 
     const config = await getSystemConfigDoc();
     const aiConfig = config?.ai;
@@ -310,13 +328,40 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
         ? aiConfig.seo.openaiApiKey.trim()
         : '';
 
-    const model = aiConfig?.seo?.model || (geminiKey ? 'gemini-1.5-flash' : 'gpt-4o');
-    const maxTokens = typeof aiConfig?.seo?.maxTokens === 'number' ? aiConfig.seo.maxTokens : 500;
+    // Model Resolution Priority:
+    // 1. Explicit model in aiConfig (from DB)
+    // 2. env.AI_MODEL
+    // 3. env.GEMINI_MODEL (if geminiKey present)
+    // 4. Default fallbacks
+    const envAiModel = env.AI_MODEL;
+    const envGeminiModel = env.GEMINI_MODEL;
+    
+    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-flash-latest') : 'gpt-4o');
+
+    // Legacy Model Sanitation: If DB or ENV has a known invalid/deprecated model name, force upgrade it.
+    if (model === 'gemini-1.5-flash' || model === 'gemini-2.5-flash') {
+        model = 'gemini-flash-latest';
+    }
+
+    // Cross-provider safety check: 
+    // If we have a Gemini key but the model doesn't look like a Gemini model, 
+    // and we DON'T have an OpenAI key, force a Gemini fallback.
+    if (geminiKey && !model.toLowerCase().startsWith('gemini') && !openAiKey) {
+        model = envGeminiModel || 'gemini-flash-latest';
+    }
+
+
+    const maxTokens = typeof aiConfig?.seo?.maxTokens === 'number' ? aiConfig.seo.maxTokens : 1024;
     const temperature = typeof aiConfig?.seo?.temperature === 'number' ? aiConfig.seo.temperature : 0.7;
 
     if (type === 'identify') {
         if (!geminiKey && !openAiKey) {
-            return toServiceFailure({ ok: false, status: 500, error: 'AI Identification Config Missing' });
+            return toServiceFailure({ 
+                ok: false, 
+                status: 412, 
+                error: 'AI Provider Config Missing. Please set GEMINI_API_KEY or openaiApiKey.',
+                code: 'AI_CONFIG_MISSING'
+            });
         }
 
         const prompt = contextText
@@ -324,16 +369,39 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
             : 'Identify the device brand and model from the image. Return strict JSON: {"brand":"...","model":"...","confidence":0.9}.';
 
         const result = geminiKey 
-            ? await callGemini(geminiKey, prompt, image, 300, temperature)
+            ? await callGemini(geminiKey, model, prompt, image, 300, temperature)
             : await callOpenAIWithMessages(openAiKey, model, [buildUserMessage(prompt, image)], 300, temperature);
 
         return parseValidJsonResult(result, 'AI identify response parse failed');
     }
 
     if (type === 'generate') {
-        const prompt = `Generate a Title and Description for a used ad. Brand: ${String(context.brand)}, Model: ${String(context.model)}. Return JSON: {"title":"...","description":"..."}`;
+        if (!geminiKey && !openAiKey) {
+            return toServiceFailure({ 
+                ok: false, 
+                status: 412, 
+                error: 'AI Generation Config Missing. Please set GEMINI_API_KEY or openaiApiKey.',
+                code: 'AI_CONFIG_MISSING'
+            });
+        }
+
+        const prompt = `Generate a professional and catchy Title and a detailed selling Description for an electronic device listing on a marketplace.
+Context:
+- Category: ${String(context.category || 'Electronics')}
+- Brand: ${String(context.brand)}
+- Model: ${String(context.model)}
+- Condition: ${String(context.condition)}
+${context.workingParts ? `- Working Spare Parts: ${String(context.workingParts)}` : ''}
+
+Rules:
+1. Return strict JSON: {"title": "...", "description": "..."}.
+2. The Title should be concise (50-70 characters).
+3. The Description should be persuasive, highlighting the brand, model, and condition.
+4. If working spare parts are provided, mention them as a value-add for the buyer.
+5. Do not include placeholders or generic text.`;
+
         const result = geminiKey
-            ? await callGemini(geminiKey, prompt, undefined, maxTokens, temperature)
+            ? await callGemini(geminiKey, model, prompt, undefined, maxTokens, temperature)
             : await callOpenAI(openAiKey, model, prompt, maxTokens, temperature);
             
         return parseValidJsonResult(result, 'AI generate response parse failed');
@@ -342,7 +410,7 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     if (type === 'moderate') {
         const prompt = `Moderate this ad for safety. Return JSON: {"safe": boolean, "reason": string | null}. Content: "${contextText || ''}"`;
         const result = geminiKey
-            ? await callGemini(geminiKey, prompt, image, maxTokens, temperature)
+            ? await callGemini(geminiKey, model, prompt, image, maxTokens, temperature)
             : await callOpenAIWithMessages(openAiKey, model, [buildUserMessage(prompt, image)], maxTokens, temperature);
             
         return parseValidJsonResult(result, 'AI moderation response parse failed');

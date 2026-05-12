@@ -3,28 +3,56 @@
 /**
  * FIX-5: Add expiresAt+status compound sparse indexes to `services` and `spare_part_listings`.
  *
- * Background:
- *   The daily expiry cron (businessContentService.expireOutdatedContent) queries:
- *     { status: LIVE, expiresAt: { $lt: now } }
- *   on both collections. Without indexes, this is a full collection scan on every daily run.
- *
- *   The Ad model already has an expiresAt index. This migration brings Services and SPL up to parity.
- *
- * Indexes created:
- *   services.service_expiresAt_status_idx  { expiresAt: 1, status: 1 }  sparse: true
- *   spare_part_listings.spl_expiresAt_status_idx  { expiresAt: 1, status: 1 }  sparse: true
+ * Idempotency note:
+ *   Some environments already contain equivalent indexes under legacy names
+ *   (for example: `idx_service_expiresAt_status`). In those cases we should
+ *   treat the index as satisfied and skip index creation rather than failing
+ *   with IndexOptionsConflict.
  */
 
-'use strict';
+function keysEqual(a = {}, b = {}) {
+    const aEntries = Object.entries(a);
+    const bEntries = Object.entries(b);
+    if (aEntries.length !== bEntries.length) return false;
+    return aEntries.every(([key, value]) => b[key] === value);
+}
+
+async function ensureIndex(collection, key, options) {
+    const exists = await collection.db
+        .listCollections({ name: collection.collectionName })
+        .hasNext();
+    if (!exists) {
+        // eslint-disable-next-line no-console
+        console.log(`[migrate] ${collection.collectionName}: collection missing, skipping ${options.name}`);
+        return;
+    }
+
+    const indexes = await collection.indexes();
+    const existing = indexes.find((index) => index.name === options.name);
+    if (existing) return;
+
+    const equivalent = indexes.find((index) => keysEqual(index.key, key));
+    if (equivalent) {
+        // eslint-disable-next-line no-console
+        console.log(
+            `[migrate] ${collection.collectionName}: equivalent index already exists (${equivalent.name}), skipping ${options.name}`
+        );
+        return;
+    }
+
+    await collection.createIndex(key, options);
+}
 
 /** @param {import('mongodb').Db} db */
 async function up(db) {
-    await db.collection('services').createIndex(
+    await ensureIndex(
+        db.collection('services'),
         { expiresAt: 1, status: 1 },
         { name: 'service_expiresAt_status_idx', sparse: true, background: true }
     );
 
-    await db.collection('spare_part_listings').createIndex(
+    await ensureIndex(
+        db.collection('spare_part_listings'),
         { expiresAt: 1, status: 1 },
         { name: 'spl_expiresAt_status_idx', sparse: true, background: true }
     );
@@ -33,7 +61,9 @@ async function up(db) {
 /** @param {import('mongodb').Db} db */
 async function down(db) {
     await db.collection('services').dropIndex('service_expiresAt_status_idx').catch(() => {});
+    await db.collection('services').dropIndex('idx_service_expiresAt_status').catch(() => {});
     await db.collection('spare_part_listings').dropIndex('spl_expiresAt_status_idx').catch(() => {});
+    await db.collection('spare_part_listings').dropIndex('idx_spl_expiresAt_status').catch(() => {});
 }
 
 module.exports = { up, down };

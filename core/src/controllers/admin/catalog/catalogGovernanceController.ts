@@ -12,6 +12,7 @@ import { findCategoryByIdLean, getCategoryHealthMetrics } from '../../../service
 import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
 import { logAdminAction } from '../../../utils/adminLogger';
 import { IAuthUser as AuthUser } from '../../../types/auth';
+import { TAXONOMY_APPROVAL_STATUS } from '../../../constants/enums/taxonomyApprovalStatus';
 
 import { getCache, setCache } from '../../../utils/redisCache';
 import logger from '../../../utils/logger';
@@ -123,7 +124,8 @@ export const getCategoryHealth = async (req: Request, res: Response) => {
                 totalBrands: brandCount,
                 totalModels
             },
-            status: category.isActive ? 'active' : 'inactive'
+            approvalStatus: (category as { approvalStatus?: string }).approvalStatus ?? TAXONOMY_APPROVAL_STATUS.APPROVED,
+            isActive: Boolean(category.isActive)
         };
 
         sendSuccessResponse(res, health);

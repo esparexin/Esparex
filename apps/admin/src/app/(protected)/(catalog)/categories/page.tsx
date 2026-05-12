@@ -33,7 +33,7 @@ type CategoryFormData = {
     _editingSlug?: string;
 };
 
-const CATEGORY_STATUS_VALUES = new Set(["all", "active", "inactive"]);
+const CATEGORY_STATUS_VALUES = new Set(["all", "active", "inactive", "live"]);
 const LISTING_TYPE_SET = new Set<string>(LISTING_TYPE_VALUES);
 
 const normalizeCategoryStatusParam = (value: string | null) =>

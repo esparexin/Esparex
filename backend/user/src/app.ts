@@ -59,6 +59,7 @@ import editorialRoutes from './routes/editorialRoutes';
 import contactRoutes from './routes/contactRoutes';
 import rootRoutes from './routes/rootRoutes';
 import adminRoutes from './routes/adminRoutes';
+import adminCatalogRoutes from './routes/adminCatalogRoutes';
 
 
 
@@ -459,6 +460,7 @@ app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/contacts', contactRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/admin/catalog', adminCatalogRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
 /**

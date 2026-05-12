@@ -5,7 +5,7 @@ import Category, { ICategory } from '../../models/Category';
 import Brand from '../../models/Brand';
 import ProductModel from '../../models/Model';
 import CatalogOrchestrator from '../catalog/CatalogOrchestrator';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
 
 interface ImportResult {
     success: number;
@@ -90,7 +90,7 @@ export class CatalogImportService {
                                     isDeleted: false,
                                     deletedAt: undefined,
                                     isActive: true,
-                                    status: CATALOG_STATUS.ACTIVE
+                                    approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
                                 }
                             }
                         }
@@ -103,7 +103,7 @@ export class CatalogImportService {
                                 slug: slugify(item.name, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
                                 categoryIds: dedupeObjectIds(categoryIds),
                                 isActive: true,
-                                status: CATALOG_STATUS.ACTIVE
+                                approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
                             }
                         }
                     });
@@ -160,10 +160,9 @@ export class CatalogImportService {
                             $set: {
                                 name: item.name,
                                 brandId: brandRecord._id,
-                                categoryId: categoryId,
                                 categoryIds: [categoryId],
                                 isActive: true,
-                                status: CATALOG_STATUS.ACTIVE
+                                approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
                             }
                         },
                         upsert: true
@@ -226,7 +225,12 @@ export class CatalogImportService {
                  const brand = await Brand.findOneAndUpdate(
                     { name: { $regex: new RegExp(`^${device.brand}$`, 'i') } },
                     {
-                        $setOnInsert: { name: device.brand, slug: brandSlug, isActive: true, status: CATALOG_STATUS.ACTIVE },
+                        $setOnInsert: {
+                            name: device.brand,
+                            slug: brandSlug,
+                            isActive: true,
+                            approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
+                        },
                         $addToSet: { categoryIds: catId }
                     },
                     { upsert: true, new: true }
@@ -236,10 +240,9 @@ export class CatalogImportService {
                     {
                         name: device.name,
                         brandId: brand._id,
-                        categoryId: catId,
                         categoryIds: [catId],
                         isActive: true,
-                        status: CATALOG_STATUS.ACTIVE,
+                        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
                         specifications: device.specs || {}
                     },
                     { upsert: true, new: true }

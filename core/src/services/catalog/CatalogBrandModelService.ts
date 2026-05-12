@@ -11,8 +11,8 @@ import CatalogModelImport from '../../models/Model';
 import AdModel from '../../models/Ad';
 import SparePartModel from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
-import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
+import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
+import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
 
 // Re-export model instances for generic handler calls in the controller layer
 export const BrandModel = BrandModelImport;
@@ -39,11 +39,7 @@ export const findBrandByFilter = async (filter: Record<string, unknown>) =>
 /** Return the _id strings of all active brands in the given categories. */
 export const getActiveBrandIds = async (activeCategoryIds: string[]): Promise<string[]> => {
     const brands = await BrandModelImport.find({
-        isActive: true,
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } }
-        ],
+        ...ACTIVE_BRAND_QUERY,
         categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();
     return brands.map(b => String(b._id));
@@ -53,17 +49,19 @@ export const getActiveBrandIds = async (activeCategoryIds: string[]): Promise<st
 export const checkBrandInCategories = async (brandId: string, activeCategoryIds: string[]) =>
     BrandModelImport.exists({
         _id: brandId,
-        isActive: true,
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } }
-        ],
+        ...ACTIVE_BRAND_QUERY,
         categoryIds: { $in: activeCategoryIds }
     });
 
 /** Find an active brand by case-insensitive name regex (for suggestBrand). */
 export const findActiveBrandByName = async (nameRegex: RegExp) =>
-    BrandModelImport.findOne({ name: { $regex: nameRegex }, status: CATALOG_STATUS.ACTIVE }).lean();
+    BrandModelImport.findOne({
+        name: { $regex: nameRegex },
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        isActive: true,
+        isDeleted: { $ne: true },
+        deletedAt: null
+    }).lean();
 
 /** Find a pending brand suggestion from the same user (for suggestBrand duplicate check). */
 export const findPendingBrandSuggestion = async (
@@ -73,7 +71,7 @@ export const findPendingBrandSuggestion = async (
 ) =>
     BrandModelImport.findOne({
         name: { $regex: nameRegex },
-        status: CATALOG_STATUS.PENDING,
+        approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
         categoryIds,
         suggestedBy: suggestedBy as string | undefined
     }).lean();
@@ -113,12 +111,16 @@ export const findModelsByPattern = async (
     baseFilter: Record<string, unknown>
 ) => CatalogModelImport.find({ name: namePattern, ...baseFilter }).populate('brandId categoryIds');
 
+/** Find model directly by SEO slug. */
+export const findModelBySlug = async (slug: string, baseFilter: Record<string, unknown>) =>
+    CatalogModelImport.findOne({ slug, ...baseFilter }).populate('brandId categoryIds');
+
 /** Find an existing model suggestion (Active or Pending) by name + brandId (for suggestModel). */
 export const findModelSuggestion = async (nameRegex: RegExp, brandId: string) =>
     CatalogModelImport.findOne({
         name: { $regex: nameRegex },
         brandId,
-        status: { $in: [CATALOG_STATUS.ACTIVE, CATALOG_STATUS.PENDING] }
+        approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
     }).lean();
 
 /** Find a model by exact name regex under a brand (for ensureModel). */

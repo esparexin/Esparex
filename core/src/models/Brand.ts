@@ -2,12 +2,26 @@ import { Schema, Document, Types, Model } from 'mongoose'
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin'
 import softDeletePlugin from '../utils/softDeletePlugin'
 import { CATALOG_STATUS } from '../constants/enums/catalogStatus'
+import {
+  TAXONOMY_APPROVAL_STATUS,
+  TAXONOMY_APPROVAL_STATUS_VALUES,
+  TaxonomyApprovalStatusValue,
+} from '../constants/enums/taxonomyApprovalStatus'
+import {
+  applyTaxonomyNamingDefaults,
+} from '../services/catalog/taxonomySsot'
+import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string
+  displayName: string
+  canonicalName: string
   slug: string
+  aliases: string[]
+  synonyms: string[]
   categoryIds: Types.ObjectId[]
   isActive: boolean
+  approvalStatus: TaxonomyApprovalStatusValue
   status: string
   suggestedBy?: Types.ObjectId
   rejectionReason?: string
@@ -20,10 +34,19 @@ export interface IBrand extends Document, ISoftDeleteDocument {
 
 
 const BrandSchema = new Schema<IBrand>({
-  name: { type: String, required: true },
-  slug: { type: String, required: true },
+  name: { type: String, required: true, trim: true },
+  displayName: { type: String, required: true, trim: true },
+  canonicalName: { type: String, required: true, trim: true },
+  slug: { type: String, required: true, trim: true, lowercase: true },
+  aliases: { type: [String], default: [] },
+  synonyms: { type: [String], default: [] },
   categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
   isActive: { type: Boolean, default: true },
+  approvalStatus: {
+    type: String,
+    enum: TAXONOMY_APPROVAL_STATUS_VALUES,
+    default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+  },
   status: { type: String, enum: Object.values(CATALOG_STATUS), default: CATALOG_STATUS.ACTIVE },
   suggestedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectionReason: { type: String },
@@ -34,18 +57,20 @@ const BrandSchema = new Schema<IBrand>({
   toJSON: {
     virtuals: true,
     versionKey: false,
-    transform: function (_doc, ret) {
-      const json = ret as Record<string, unknown>;
-      json.id = String(json._id);
-      delete json._id;
-      return json;
-    }
+    transform: taxonomyEntityToJsonTransform
   },
   toObject: { virtuals: true, versionKey: false }
 })
 
 // Apply soft-delete plugin (adds isDeleted, deletedAt fields + auto-filter pre-hooks + softDelete()/restore() methods)
 BrandSchema.plugin(softDeletePlugin);
+
+BrandSchema.pre('validate', function () {
+  const mutableDoc = this as unknown as Record<string, unknown>;
+  applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
+  applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+  mutableDoc.name = mutableDoc.displayName;
+});
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
@@ -54,17 +79,17 @@ BrandSchema.plugin(installSafeSoftDeleteQuery);
 // 🚀 CORE INDEXES (Aligned with Atlas ground truth in migrations)
 BrandSchema.index({ categoryIds: 1 }, { name: 'idx_brand_categoryIds_idx' })
 BrandSchema.index({ status: 1 }, { name: 'idx_brand_status_idx' })
+BrandSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_brand_approval_active_idx' })
 BrandSchema.index({ isDeleted: 1 }, { name: 'idx_brand_isDeleted_idx' })
 
 BrandSchema.index(
-  { categoryIds: 1, name: 1 },
+  { categoryIds: 1, canonicalName: 1 },
   {
     unique: true,
-    name: 'idx_brand_categoryIds_name_unique',
+    name: 'idx_brand_categoryIds_canonicalName_unique',
     partialFilterExpression: {
       isDeleted: false,
-      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for legacy records
-      status: { $in: ['live', 'active', 'pending'] }
+      approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
     },
     collation: { locale: 'en', strength: 2 }
   }
@@ -77,8 +102,7 @@ BrandSchema.index(
     name: 'idx_brand_categoryIds_slug_unique',
     partialFilterExpression: {
       isDeleted: false,
-      // 'live' is CATALOG_STATUS.ACTIVE; 'active' kept for legacy records
-      status: { $in: ['live', 'active', 'pending'] }
+      approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
     }
   }
 )
