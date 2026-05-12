@@ -83,6 +83,12 @@ export {
     getGovernanceLogs
 } from './taxonomyGovernanceController';
 
+export {
+    analyzeBrandSuggestion,
+    analyzeModelSuggestion,
+    getAiAnalysisQueue
+} from './taxonomyAiController';
+
 // Export shared utilities
 export { hasAdminAccess, getAdminActorId, asModel, sendCatalogError } from './shared';
 export type { CatalogRequest, QueryRecord } from './shared';

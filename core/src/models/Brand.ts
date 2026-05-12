@@ -11,6 +11,7 @@ import {
   applyTaxonomyNamingDefaults,
 } from '../services/catalog/taxonomySsot'
 import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+import { TaxonomyAiAnalysisSchema, TaxonomyAiDecisionSchema } from './taxonomyAiSchema';
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string
@@ -30,6 +31,8 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   deletedAt?: Date
   createdAt: Date;
   updatedAt: Date;
+  aiAnalysis?: any;
+  aiDecision?: any;
 }
 
 
@@ -51,6 +54,8 @@ const BrandSchema = new Schema<IBrand>({
   suggestedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectionReason: { type: String },
   needsReview: { type: Boolean, default: false },
+  aiAnalysis: { type: TaxonomyAiAnalysisSchema },
+  aiDecision: { type: TaxonomyAiDecisionSchema },
   // isDeleted and deletedAt are injected by softDeletePlugin below
 }, {
   timestamps: true,

@@ -31,11 +31,14 @@ export const catalogManagementTabs: AdminTabItem[] = [
     { label: "Screen Sizes",      href: "/screen-sizes" },
     { label: "Service Types",     href: "/service-types" },
     { label: "Hierarchy",         href: "/taxonomy" },
+    { label: "Governance",        href: "/taxonomy/governance" },
+    { label: "AI Moderation",     href: "/taxonomy/ai-moderation" },
 ];
 
 export const sparePartsMasterTabs: AdminTabItem[] = [
     { label: "Spare Parts",  href: "/spare-parts-catalog" },
     { label: "Hierarchy", href: "/taxonomy" },
+    { label: "Governance", href: "/taxonomy/governance" },
 ];
 
 export const moderationTabs: AdminTabItem[] = [

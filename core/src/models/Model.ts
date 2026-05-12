@@ -9,6 +9,7 @@ import {
     applyTaxonomyNamingDefaults,
 } from '../services/catalog/taxonomySsot';
 import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+import { TaxonomyAiAnalysisSchema, TaxonomyAiDecisionSchema } from './taxonomyAiSchema';
 
 export interface IModel extends Document {
     name: string;
@@ -28,6 +29,8 @@ export interface IModel extends Document {
     deletedAt?: Date;
     softDelete(): Promise<this>;
     restore(): Promise<this>;
+    aiAnalysis?: any;
+    aiDecision?: any;
 }
 
 const ModelSchema: Schema = new Schema({
@@ -48,6 +51,8 @@ const ModelSchema: Schema = new Schema({
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
     suggestedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
     rejectionReason: { type: String, default: null },
+    aiAnalysis: { type: TaxonomyAiAnalysisSchema },
+    aiDecision: { type: TaxonomyAiDecisionSchema },
 }, {
     timestamps: true,
     toJSON: {

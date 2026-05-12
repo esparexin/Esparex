@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Location } from "@/lib/api/user/locations";
 
 import Image from "next/image";
-import { X, Upload, Loader2 } from "@/icons/IconRegistry";
+import { X, Upload, Loader2, Sparkles } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 import LocationSelector from "@/components/location/LocationSelector";
@@ -75,6 +75,7 @@ export default function ListingDetailsFields() {
     const { isLoading, stepValidationAttempts } = usePostAdFlow();
     const {
         generateDescription,
+        autoFillTaxonomy,
         setLocation: setContextLocation,
         addImages,
         removeImage,
@@ -239,7 +240,16 @@ export default function ListingDetailsFields() {
                                 {isLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Suggest"}
                             </Button>
                         </div>
-                        <div className="flex justify-end">
+                        <div className="flex justify-between items-center">
+                            <button
+                                type="button"
+                                onClick={autoFillTaxonomy}
+                                disabled={isLoading}
+                                className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline disabled:opacity-50"
+                            >
+                                <Sparkles className="w-3 h-3" />
+                                AI Auto-Fill Category/Brand
+                            </button>
                             <TitleCharCounter />
                         </div>
                     </div>

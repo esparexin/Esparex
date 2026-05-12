@@ -79,6 +79,9 @@ export const USER_ROUTES = {
 
   // AI
   AI_GENERATE: "ai/generate",
+  AI_TAXONOMY_ANALYZE: "ai/taxonomy/analyze",
+  AI_TAXONOMY_SUGGEST_BRAND: "ai/taxonomy/suggest-brand",
+  AI_TAXONOMY_SUGGEST_MODEL: "ai/taxonomy/suggest-model",
 
   // Businesses
   BUSINESSES_PUBLIC: "businesses",

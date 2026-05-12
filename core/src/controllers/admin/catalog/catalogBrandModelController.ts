@@ -63,6 +63,7 @@ import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
 import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus, isDuplicateSuggestion } from '../../../services/catalog/taxonomySsot';
 import { CatalogNotificationService } from '../../../services/catalog/CatalogNotificationService';
+import { TaxonomyAiService } from '../../../services/catalog/taxonomyAiService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
@@ -330,13 +331,17 @@ export const suggestBrand = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'You already have a pending suggestion for this brand.', 409);
         }
 
+        const aiResult = await TaxonomyAiService.analyzeBrand(cleanName);
+
         const brand = await createBrandRecord({
             name: cleanName,
             slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
             categoryIds: [categoryIds],
             approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
             isActive: false,
-            suggestedBy: userId
+            suggestedBy: userId,
+            aiAnalysis: aiResult?.analysis,
+            aiDecision: aiResult?.decision
         });
 
         if (brand.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
@@ -678,12 +683,17 @@ export const suggestModel = async (req: Request, res: Response) => {
             }));
         }
 
+        const brandDoc = await BrandModel.findById(brandId);
+        const aiResult = await TaxonomyAiService.analyzeModel(cleanName, brandDoc?.name);
+
         const model = await createModelRecord({
             name: cleanName,
             brandId,
             approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
             isActive: false,
-            suggestedBy: userId
+            suggestedBy: userId,
+            aiAnalysis: aiResult?.analysis,
+            aiDecision: aiResult?.decision
         });
 
         if (model.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
@@ -728,13 +738,16 @@ export const ensureModel = async (req: Request, res: Response) => {
         let brand = await findBrandByNameInCategory(brandRegex, categoryId);
         if (!brand) {
             const brandVal = validateBrandSuggestion(brandName);
+            const aiResult = await TaxonomyAiService.analyzeBrand(brandVal.cleanName || brandName);
             brand = await createBrandRecord({
                 name: brandVal.cleanName || brandName,
                 slug: slugify(brandVal.cleanName || brandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
                 categoryIds: [categoryId],
                 isActive: false,
                 approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
-                suggestedBy: userId
+                suggestedBy: userId,
+                aiAnalysis: aiResult?.analysis,
+                aiDecision: aiResult?.decision
             });
         }
 
@@ -743,13 +756,16 @@ export const ensureModel = async (req: Request, res: Response) => {
 
         if (!model) {
             const modelVal = validateModelSuggestion(modelName);
+            const aiResult = await TaxonomyAiService.analyzeModel(modelVal.cleanName || modelName, brand.name);
             model = await createModelRecord({
                 name: modelVal.cleanName || modelName,
                 brandId: brand._id,
                 categoryIds: [categoryId],
                 isActive: false,
                 approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
-                suggestedBy: userId
+                suggestedBy: userId,
+                aiAnalysis: aiResult?.analysis,
+                aiDecision: aiResult?.decision
             });
         }
 

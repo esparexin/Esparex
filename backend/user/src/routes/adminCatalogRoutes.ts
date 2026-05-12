@@ -16,6 +16,10 @@ router.get('/governance/hierarchy-tree', adminCatalog.getHierarchyTree);
 router.get('/governance/metrics', adminCatalog.getGovernanceMetrics);
 router.get('/governance/logs', adminCatalog.getGovernanceLogs);
 
+router.get('/ai-analysis', adminCatalog.getAiAnalysisQueue);
+router.post('/ai-analysis/analyze-brand', adminCatalog.analyzeBrandSuggestion);
+router.post('/ai-analysis/analyze-model', adminCatalog.analyzeModelSuggestion);
+
 router.get('/brands', adminCatalog.getBrands);
 router.get('/brands/:id', adminCatalog.getBrandById);
 router.post('/brands', adminCatalog.createBrand);

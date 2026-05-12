@@ -403,7 +403,14 @@ export async function handleCatalogReview<T extends Document>(
             };
         }
 
-        const item = await model.findByIdAndUpdate(req.params.id, updates, { new: true });
+        const adminId = getAdminActorId(req);
+        if (hasSchemaPath(model, 'aiDecision')) {
+            updates['aiDecision.reviewedBy'] = adminId;
+            updates['aiDecision.reviewedAt'] = new Date();
+            updates['aiDecision.requiresReview'] = false;
+        }
+
+        const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
         if (!item) {
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }

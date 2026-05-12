@@ -75,6 +75,7 @@ const envSchema = z.object({
     GEMINI_API_KEY: z.string().optional(),
     AI_MODEL: z.string().optional(),
     GEMINI_MODEL: z.string().optional(),
+    AI_PROVIDER: z.enum(['gemini', 'openai']).default('gemini'),
 
     RAZORPAY_KEY_ID: z.string().optional(),
     RAZORPAY_KEY_SECRET: z.string().optional(),
