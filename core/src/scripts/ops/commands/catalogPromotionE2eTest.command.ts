@@ -60,21 +60,13 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
         // Connect to MongoDB (ops runner does not bootstrap a connection)
         await connectOpsDb();
 
-        const [
-            { default: Category },
-            { default: Brand },
-            { default: Model },
-            { default: Ad },
-            { default: User },
-            { lifecycleEvents },
-        ] = await Promise.all([
-            import('@esparex/core/models/Category'),
-            import('@esparex/core/models/Brand'),
-            import('@esparex/core/models/Model'),
-            import('@esparex/core/models/Ad'),
-            import('@esparex/core/models/User'),
-            import('../../../events'),
-        ]);
+        // Use require() for absolute compatibility with ts-node/commonjs
+        const Category = require('../../models/Category').default;
+        const Brand = require('../../models/Brand').default;
+        const Model = require('../../models/Model').default;
+        const Ad = require('../../models/Ad').default;
+        const User = require('../../models/User').default;
+        const { lifecycleEvents } = require('../../../events');
 
         // Register the listener in this process so it catches the event we are about to fire
         installCatalogPromotionListener();
@@ -215,10 +207,8 @@ export const catalogPromotionE2eTestCommand: OpsCommand = {
             };
         } finally {
             // 7. Always clean up test data and disconnect
-            const [{ default: Ad }, { default: Model }] = await Promise.all([
-                import('@esparex/core/models/Ad'),
-                import('@esparex/core/models/Model'),
-            ]);
+            const Ad = require('../../models/Ad').default;
+            const Model = require('../../models/Model').default;
 
             const cleanupOps: Promise<unknown>[] = [];
             if (testAdId) {

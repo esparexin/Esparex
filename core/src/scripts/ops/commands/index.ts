@@ -8,6 +8,7 @@ import { catalogPromotionE2eTestCommand } from './catalogPromotionE2eTest.comman
 import { adminBoundaryIngestCommand } from './adminBoundaryIngest.command';
 import { addMissingStatesCommand } from './addMissingStates.command';
 import { catalogCategorizationAuditCommand } from './catalogCategorizationAudit.command';
+import { listingLocationSsotBackfillCommand } from './listingLocationSsotBackfill.command';
 
 import { pruneSoftDeletedCommand } from './pruneSoftDeleted.command';
 
@@ -22,6 +23,7 @@ export const opsCommands: OpsCommand[] = [
   addMissingStatesCommand,
   catalogCategorizationAuditCommand,
   pruneSoftDeletedCommand,
+  listingLocationSsotBackfillCommand,
 ];
 
 export const getOpsCommand = (commandName: string): OpsCommand | undefined =>
