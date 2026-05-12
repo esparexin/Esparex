@@ -78,6 +78,11 @@ export {
     getCategoryHealth
 } from './catalogGovernanceController';
 
+export {
+    getGovernanceMetrics,
+    getGovernanceLogs
+} from './taxonomyGovernanceController';
+
 // Export shared utilities
 export { hasAdminAccess, getAdminActorId, asModel, sendCatalogError } from './shared';
 export type { CatalogRequest, QueryRecord } from './shared';

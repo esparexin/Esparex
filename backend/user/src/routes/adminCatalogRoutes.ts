@@ -13,6 +13,8 @@ router.get('/categories/:id/schema', adminCatalog.getCategorySchema);
 router.patch('/categories/:id/status', adminCatalog.toggleCategoryStatus);
 
 router.get('/governance/hierarchy-tree', adminCatalog.getHierarchyTree);
+router.get('/governance/metrics', adminCatalog.getGovernanceMetrics);
+router.get('/governance/logs', adminCatalog.getGovernanceLogs);
 
 router.get('/brands', adminCatalog.getBrands);
 router.get('/brands/:id', adminCatalog.getBrandById);

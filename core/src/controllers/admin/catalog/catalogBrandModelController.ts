@@ -61,7 +61,7 @@ import {
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
-import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
+import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus, isDuplicateSuggestion } from '../../../services/catalog/taxonomySsot';
 import { CatalogNotificationService } from '../../../services/catalog/CatalogNotificationService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
@@ -294,7 +294,7 @@ export const suggestBrand = async (req: Request, res: Response) => {
 
         const cleanName = validation.cleanName;
 
-        // Check for existing active brand
+        // Check for existing active brand (Exact match)
         const existing = await findActiveBrandByName(new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'));
 
         if (existing) {
@@ -305,11 +305,18 @@ export const suggestBrand = async (req: Request, res: Response) => {
                 // Brand is active and already covers this category — user should select from dropdown
                 return sendCatalogError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
             }
+        }
 
-            // Brand is already admin-approved in another category.
-            // Under the new taxonomy model, a Brand strictly belongs to ONE category.
-            // If they suggest the same name in a different category, we must create a new record.
-            // Let it fall through to create a new Brand record.
+        // Advanced fuzzy duplicate detection (Phase 4)
+        const allBrands = await BrandModel.find({ isDeleted: false }, 'name aliases canonicalName');
+        const duplicateCheck = isDuplicateSuggestion(cleanName, allBrands as any);
+
+        if (duplicateCheck.isDuplicate && duplicateCheck.confidence < 1.0) {
+            return res.status(200).json(respond({
+                success: true,
+                message: `"${cleanName}" is very similar to existing brand "${duplicateCheck.matchedWith}". Please use that instead.`,
+                data: { match: duplicateCheck.matchedWith, confidence: duplicateCheck.confidence }
+            }));
         }
 
         // Check for pending from same user
@@ -642,7 +649,7 @@ export const suggestModel = async (req: Request, res: Response) => {
 
         const cleanName = validation.cleanName;
 
-        // Check if model already exists (Active or Pending) regardless of who suggested it
+        // Check if model already exists (Exact match)
         const existing = await findModelSuggestion(
             new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'),
             brandId
@@ -656,6 +663,18 @@ export const suggestModel = async (req: Request, res: Response) => {
                     ? `"${cleanName}" already exists and is active.` 
                     : `"${cleanName}" is already suggested and awaiting approval.`,
                 data: existing
+            }));
+        }
+
+        // Advanced fuzzy duplicate detection (Phase 4)
+        const allModels = await CatalogModel.find({ brandId, isDeleted: false }, 'name aliases canonicalName');
+        const duplicateCheck = isDuplicateSuggestion(cleanName, allModels as any);
+
+        if (duplicateCheck.isDuplicate && duplicateCheck.confidence < 1.0) {
+            return res.status(200).json(respond({
+                success: true,
+                message: `"${cleanName}" is very similar to existing model "${duplicateCheck.matchedWith}". Please use that instead.`,
+                data: { match: duplicateCheck.matchedWith, confidence: duplicateCheck.confidence }
             }));
         }
 

@@ -1,15 +1,15 @@
-import mongoose from 'mongoose';
-import * as dotenv from 'dotenv';
-import path from 'path';
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const path = require('path');
 
-dotenv.config({ path: path.join(__dirname, '../../../../backend/user/.env') });
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/esparex_user';
 
-async function auditCatalog() {
+async function verifyTaxonomy() {
     try {
         await mongoose.connect(MONGODB_URI);
-        const db = mongoose.connection.db!;
+        const db = mongoose.connection.db;
         
         console.log('--- DEVICE TAXONOMY SSOT PRODUCTION VALIDATION ---');
         
@@ -25,7 +25,7 @@ async function auditCatalog() {
 
         // 2. Index Verification
         console.log('\n[2] INDEX VERIFICATION:');
-        const checkIndex = async (collName: string, keys: string[]) => {
+        const checkIndex = async (collName, keys) => {
             try {
                 const indexes = await db.collection(collName).indexes();
                 const exists = indexes.some(idx => {
@@ -33,7 +33,7 @@ async function auditCatalog() {
                     return keys.every(k => idxKeys.includes(k)) && idxKeys.length === keys.length;
                 });
                 console.log(`${exists ? '✅' : '❌'} ${collName}: ${keys.join(', ')}`);
-            } catch (e: any) {
+            } catch (e) {
                 console.log(`❌ ${collName} (Error: ${e.message})`);
             }
         };
@@ -75,4 +75,4 @@ async function auditCatalog() {
     }
 }
 
-auditCatalog();
+verifyTaxonomy();
