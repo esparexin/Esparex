@@ -52,6 +52,7 @@ import {
 import { toOptionalString, toStringArray } from './inputCoercion';
 import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
 import { validateBrandSuggestion, validateModelSuggestion } from '../../../utils/suggestionValidation';
+export { validateBrandSuggestion, validateModelSuggestion };
 import {
     brandCreateSchema,
     brandUpdateSchema,

@@ -23,7 +23,8 @@ export interface IUser extends Document {
   isEmailVerified: boolean;
   isVerified: boolean;
 
-  role: 'user' | 'business' | 'admin' | 'superadmin' | 'super_admin';
+  userType: 'marketplace' | 'admin';
+  role: 'user' | 'business' | 'admin' | 'superadmin' | 'super_admin' | 'individual' | 'seller' | 'buyer' | 'moderator' | 'support' | 'finance';
   status: UserStatusValue;
   statusChangedAt?: Date;
   statusReason?: string;
@@ -144,9 +145,15 @@ const UserSchema: Schema = new Schema({
   isEmailVerified: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
 
+  userType: {
+    type: String,
+    enum: ['marketplace', 'admin'],
+    required: true,
+    default: 'marketplace',
+  },
   role: {
     type: String,
-    enum: ['user', 'business', 'admin', 'superadmin', 'super_admin'],
+    enum: ['user', 'business', 'admin', 'superadmin', 'super_admin', 'individual', 'seller', 'buyer', 'moderator', 'support', 'finance'],
     default: 'user',
   },
   status: {
@@ -221,6 +228,8 @@ const UserSchema: Schema = new Schema({
 });
 
 // Indexes
+UserSchema.index({ userType: 1, role: 1, isDeleted: 1 }, { name: 'idx_user_type_role_deleted' });
+UserSchema.index({ userType: 1, createdAt: -1 }, { name: 'idx_user_type_createdAt' });
 UserSchema.index({ mobile: 1 }, { unique: true, name: 'idx_user_mobile_unique_idx' });
 UserSchema.index({ email: 1 }, { unique: true, sparse: true, name: 'idx_user_email_unique_idx' });
 UserSchema.index({ role: 1, status: 1 }, { name: 'idx_user_role_status_idx' });
