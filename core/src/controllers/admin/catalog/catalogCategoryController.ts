@@ -35,13 +35,13 @@ import {
     sendCatalogError,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
-    sendValidationError,
     handleCatalogToggleStatus,
-    applyTaxonomyStatusFilter,
+    applyCatalogStatusFilter,
+    deriveApprovalStatus,
+    sendValidationError
 } from './shared';
-import { TAXONOMY_APPROVAL_STATUS } from "../../../constants/enums/taxonomyApprovalStatus";
+import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
 import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
-import { deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.
@@ -54,7 +54,7 @@ export const getCategories = async (req: Request, res: Response) => {
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
     delete queryParams.status;
     const adminQuery: QueryRecord = {};
-    applyTaxonomyStatusFilter(adminQuery, rawStatus);
+    applyCatalogStatusFilter(adminQuery, rawStatus);
 
     return handlePaginatedContent(req, res, CategoryModel, {
         searchFields: ['name', 'slug'],
@@ -184,8 +184,8 @@ export const createCategory = async (req: Request, res: Response) => {
             ...payload,
             approvalStatus: deriveApprovalStatus({
                 approvalStatus: (payload as Record<string, unknown>).approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             }),
         } as Partial<import('@esparex/core/models/Category').ICategory>);
 
@@ -236,8 +236,8 @@ export const updateCategory = async (req: Request, res: Response) => {
                 ...payload,
                 approvalStatus: deriveApprovalStatus({
                     approvalStatus: (payload as Record<string, unknown>).approvalStatus,
-                    isActive: payload.isActive,
-                    fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                    isActive: payload.isActive as boolean | undefined,
+                    fallback: CATALOG_APPROVAL_STATUS.APPROVED,
                 }),
             }
             : payload;

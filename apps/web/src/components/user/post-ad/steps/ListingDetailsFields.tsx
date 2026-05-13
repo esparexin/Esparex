@@ -75,7 +75,6 @@ export default function ListingDetailsFields() {
     const { isLoading, stepValidationAttempts } = usePostAdFlow();
     const {
         generateDescription,
-        autoFillTaxonomy,
         setLocation: setContextLocation,
         addImages,
         removeImage,
@@ -241,15 +240,7 @@ export default function ListingDetailsFields() {
                             </Button>
                         </div>
                         <div className="flex justify-between items-center">
-                            <button
-                                type="button"
-                                onClick={autoFillTaxonomy}
-                                disabled={isLoading}
-                                className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline disabled:opacity-50"
-                            >
-                                <Sparkles className="w-3 h-3" />
-                                AI Auto-Fill Category/Brand
-                            </button>
+
                             <TitleCharCounter />
                         </div>
                     </div>

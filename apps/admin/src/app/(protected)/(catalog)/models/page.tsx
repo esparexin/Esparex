@@ -13,7 +13,7 @@ import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState } from "react";
 import {
-    deriveTaxonomyLifecycleStatus,
+    deriveCatalogLifecycleStatus,
     getEntityCategoryIds,
     hasCategoryOverlap,
     resolveModalAssignableCategoryState,
@@ -165,7 +165,7 @@ export default function ModelsPage() {
                 {
                     header: "Approval State",
                     cell: (model) => {
-                        const lifecycleStatus = deriveTaxonomyLifecycleStatus(model);
+                        const lifecycleStatus = deriveCatalogLifecycleStatus(model);
                         return (
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${lifecycleStatus === 'live' ? "bg-emerald-100 text-emerald-700" :
                                 lifecycleStatus === 'pending' ? "bg-amber-100 text-amber-700" :
@@ -181,7 +181,7 @@ export default function ModelsPage() {
                     header: "Actions",
                     className: "text-right",
                     cell: (model) => {
-                        const lifecycleStatus = deriveTaxonomyLifecycleStatus(model);
+                        const lifecycleStatus = deriveCatalogLifecycleStatus(model);
                         return (
                             <CatalogActionsRow>
                                 {lifecycleStatus === 'pending' && (

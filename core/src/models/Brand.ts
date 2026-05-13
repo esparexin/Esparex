@@ -3,15 +3,10 @@ import { ISoftDeleteDocument } from '../utils/softDeletePlugin'
 import softDeletePlugin from '../utils/softDeletePlugin'
 import { CATALOG_STATUS } from '../constants/enums/catalogStatus'
 import {
-  TAXONOMY_APPROVAL_STATUS,
-  TAXONOMY_APPROVAL_STATUS_VALUES,
-  TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus'
-import {
-  applyTaxonomyNamingDefaults,
-} from '../services/catalog/taxonomySsot'
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
-import { TaxonomyAiAnalysisSchema, TaxonomyAiDecisionSchema } from './taxonomyAiSchema';
+  CATALOG_APPROVAL_STATUS,
+  CATALOG_APPROVAL_STATUS_VALUES,
+  CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus'
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string
@@ -23,7 +18,7 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   categoryId?: Types.ObjectId
   categoryIds: Types.ObjectId[]
   isActive: boolean
-  approvalStatus: TaxonomyApprovalStatusValue
+  approvalStatus: CatalogApprovalStatusValue
   status: string
   suggestedBy?: Types.ObjectId
   rejectionReason?: string
@@ -32,8 +27,6 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   deletedAt?: Date
   createdAt: Date;
   updatedAt: Date;
-  aiAnalysis?: any;
-  aiDecision?: any;
 }
 
 
@@ -49,22 +42,19 @@ const BrandSchema = new Schema<IBrand>({
   isActive: { type: Boolean, default: true },
   approvalStatus: {
     type: String,
-    enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-    default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+    enum: CATALOG_APPROVAL_STATUS_VALUES,
+    default: CATALOG_APPROVAL_STATUS.APPROVED,
   },
   status: { type: String, enum: Object.values(CATALOG_STATUS), default: CATALOG_STATUS.ACTIVE },
   suggestedBy: { type: Schema.Types.ObjectId, ref: 'User' },
   rejectionReason: { type: String },
   needsReview: { type: Boolean, default: false },
-  aiAnalysis: { type: TaxonomyAiAnalysisSchema },
-  aiDecision: { type: TaxonomyAiDecisionSchema },
   // isDeleted and deletedAt are injected by softDeletePlugin below
 }, {
   timestamps: true,
   toJSON: {
     virtuals: true,
     versionKey: false,
-    transform: taxonomyEntityToJsonTransform
   },
   toObject: { virtuals: true, versionKey: false }
 })
@@ -74,8 +64,15 @@ BrandSchema.plugin(softDeletePlugin);
 
 BrandSchema.pre('validate', function () {
   const mutableDoc = this as any;
-  applyTaxonomyNamingDefaults(mutableDoc);
-  applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+  
+  if (!mutableDoc.canonicalName && mutableDoc.displayName) {
+    mutableDoc.canonicalName = mutableDoc.displayName;
+  }
+  
+  if (!mutableDoc.approvalStatus) {
+    mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+  }
+
   mutableDoc.name = mutableDoc.displayName;
 
   // Enforce bidirectional singular/plural category synchronization
@@ -103,7 +100,7 @@ BrandSchema.index(
     name: 'idx_brand_canonicalName_unique',
     partialFilterExpression: {
       isDeleted: false,
-      approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
+      approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] }
     },
     collation: { locale: 'en', strength: 2 }
   }
@@ -116,7 +113,7 @@ BrandSchema.index(
     name: 'idx_brand_categoryIds_slug_unique',
     partialFilterExpression: {
       isDeleted: false,
-      approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
+      approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] }
     }
   }
 )

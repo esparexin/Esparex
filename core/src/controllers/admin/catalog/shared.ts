@@ -14,15 +14,16 @@ import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
 import { sendAdminError } from '../../../utils/adminBaseController';
-import { TAXONOMY_APPROVAL_STATUS } from '../../../constants/enums/taxonomyApprovalStatus';
-import { deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
+import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
 
 // Re-export SSOT validation helpers so controllers import from one place.
 import {
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
     getActiveCategoryIds,
     validateActiveCategories,
+    deriveApprovalStatus,
 } from '../../../services/catalog/CatalogValidationService';
 
 import { logAdminAction } from '../../../utils/adminLogger';
@@ -34,9 +35,11 @@ export {
     sendCatalogError,
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
     getActiveCategoryIds,
     validateActiveCategories,
-    handlePaginatedContent
+    handlePaginatedContent,
+    deriveApprovalStatus
 };
 
 export type CatalogRequest = Request & {
@@ -51,7 +54,7 @@ const hasSchemaPath = (
     path: string
 ): boolean => Boolean(model.schema.path(path));
 
-export type TaxonomyStatusFilterToken =
+export type CatalogStatusFilterToken =
     | 'live'
     | 'active'
     | 'inactive'
@@ -59,7 +62,7 @@ export type TaxonomyStatusFilterToken =
     | 'pending'
     | 'rejected';
 
-export const applyTaxonomyStatusFilter = (
+export const applyCatalogStatusFilter = (
     targetQuery: QueryRecord,
     rawStatus: unknown
 ) => {
@@ -68,7 +71,7 @@ export const applyTaxonomyStatusFilter = (
     if (!status || status === 'all') return;
 
     if (status === 'live') {
-        targetQuery.approvalStatus = TAXONOMY_APPROVAL_STATUS.APPROVED;
+        targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
         targetQuery.isActive = true;
         return;
     }
@@ -81,11 +84,11 @@ export const applyTaxonomyStatusFilter = (
         return;
     }
     if (status === 'pending') {
-        targetQuery.approvalStatus = TAXONOMY_APPROVAL_STATUS.PENDING;
+        targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.PENDING;
         return;
     }
     if (status === 'rejected') {
-        targetQuery.approvalStatus = TAXONOMY_APPROVAL_STATUS.REJECTED;
+        targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.REJECTED;
     }
 };
 
@@ -300,7 +303,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
         const approvalStatus = deriveApprovalStatus({
             approvalStatus: typedItem.approvalStatus,
             isActive: typedItem.isActive,
-            fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            fallback: CATALOG_APPROVAL_STATUS.APPROVED,
         });
         const nextState: Record<string, unknown> = { isActive };
         if (hasSchemaPath(model, 'approvalStatus')) {
@@ -393,7 +396,7 @@ export async function handleCatalogReview<T extends Document>(
         let updates: Record<string, unknown> = {};
         if (action === 'APPROVE') {
             updates = {
-                approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
                 isActive: true
             };
         } else {
@@ -402,19 +405,13 @@ export async function handleCatalogReview<T extends Document>(
                 return sendValidationError(req, res, parsed!.error);
             }
             updates = {
-                approvalStatus: TAXONOMY_APPROVAL_STATUS.REJECTED,
+                approvalStatus: CATALOG_APPROVAL_STATUS.REJECTED,
                 isActive: false,
                 rejectionReason: (parsed?.data as { reason?: string } | undefined)?.reason || (req.body as { reason?: string })?.reason
             };
         }
 
         const adminId = getAdminActorId(req);
-        if (hasSchemaPath(model, 'aiDecision')) {
-            updates['aiDecision.reviewedBy'] = adminId;
-            updates['aiDecision.reviewedAt'] = new Date();
-            updates['aiDecision.requiresReview'] = false;
-        }
-
         const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
         if (!item) {
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);

@@ -12,7 +12,7 @@
  * Do NOT duplicate these checks inside individual controllers.
  */
 
-import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
 import type {
     HierarchyTreeResponse,
 } from "@esparex/shared";
@@ -454,7 +454,7 @@ export async function activateValidRecords(): Promise<{
         isDeleted: { $ne: true },
         deletedAt: null,
         isActive: false,
-        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
         needsReview: { $ne: true },
         categoryIds: { $exists: true, $not: { $size: 0 } },
     }).select('_id categoryIds').lean();

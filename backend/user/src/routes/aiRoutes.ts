@@ -9,8 +9,6 @@ const router = express.Router();
 
 router.post('/generate', protect, mutationLimiter, validateRequest(aiGenerateSchema), aiController.generate);
 router.post('/catalog-suggest', protect, mutationLimiter, aiController.catalogSuggest);
-router.post('/taxonomy/analyze', protect, mutationLimiter, aiController.analyzeTaxonomy);
-router.post('/taxonomy/suggest-brand', protect, mutationLimiter, aiController.suggestBrand);
-router.post('/taxonomy/suggest-model', protect, mutationLimiter, aiController.suggestModel);
+
 
 export default router;

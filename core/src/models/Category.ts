@@ -1,14 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../constants/enums/catalogStatus';
 import {
-    TAXONOMY_APPROVAL_STATUS,
-    TAXONOMY_APPROVAL_STATUS_VALUES,
-    TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus';
-import {
-    applyTaxonomyNamingDefaults,
-} from '../services/catalog/taxonomySsot';
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 
 export interface ICategory extends Document {
     name: string;
@@ -22,7 +18,7 @@ export interface ICategory extends Document {
     description?: string;
     parentId?: mongoose.Types.ObjectId;
     isActive: boolean;
-    approvalStatus: TaxonomyApprovalStatusValue;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -49,8 +45,8 @@ const CategorySchema = new Schema<ICategory>({
     isActive: { type: Boolean, default: true },
     approvalStatus: {
         type: String,
-        enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-        default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        enum: CATALOG_APPROVAL_STATUS_VALUES,
+        default: CATALOG_APPROVAL_STATUS.APPROVED,
     },
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
     filters: { type: [Schema.Types.Mixed], default: [] },
@@ -63,7 +59,6 @@ const CategorySchema = new Schema<ICategory>({
     toJSON: {
         virtuals: true,
         versionKey: false,
-        transform: taxonomyEntityToJsonTransform
     },
     toObject: { virtuals: true, versionKey: false }
 });
@@ -102,9 +97,16 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
 
 CategorySchema.pre('validate', function () {
-    const mutableDoc = this as unknown as Record<string, unknown>;
-    applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
-    applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+    const mutableDoc = this as any;
+    
+    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
+        mutableDoc.canonicalName = mutableDoc.displayName;
+    }
+    
+    if (!mutableDoc.approvalStatus) {
+        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    }
+
     mutableDoc.name = mutableDoc.displayName;
 });
 
@@ -116,7 +118,7 @@ CategorySchema.plugin(installSafeSoftDeleteQuery);
 // Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
 CategorySchema.post('init', function(doc) {
     if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
-        doc.type = doc.type.toLowerCase() as typeof doc.type;
+        doc.type = doc.type.toLowerCase() as any;
     }
 });
 

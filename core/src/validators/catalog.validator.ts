@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TAXONOMY_APPROVAL_STATUS } from '../constants/enums/taxonomyApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '../constants/enums/catalogApprovalStatus';
 import { CATEGORY_TYPES } from "@esparex/shared";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from '../constants/enums/listingType';
 import { normalizeObjectIdLike } from '../utils/idUtils';
@@ -28,7 +28,7 @@ const categoryFields = {
     categoryIds: z.array(requiredObjectIdSchema)
 };
 
-const taxonomyTextFields = {
+const catalogTextFields = {
     name: z.string().trim().min(1).max(120),
     displayName: z.string().trim().min(1).max(120).optional(),
     canonicalName: z.string().trim().min(1).max(160).optional(),
@@ -42,7 +42,7 @@ const taxonomyTextFields = {
 // CATEGORIES
 // ==========================================
 const categoryBaseSchema = z.object({
-    ...taxonomyTextFields,
+    ...catalogTextFields,
     type: z.enum(CATEGORY_TYPES).optional(),
     icon: z.string().trim().max(255).optional(),
     description: z.string().trim().max(2000).optional(),
@@ -82,10 +82,10 @@ export const toggleCategoryStatusSchema = z.object({}).strict();
 // BRANDS & MODELS
 // ==========================================
 const brandBaseSchema = z.object({
-    ...taxonomyTextFields,
+    ...catalogTextFields,
     ...categoryFields,
     isActive: z.boolean().optional(),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
     suggestedBy: optionalObjectIdSchema,
     rejectionReason: z.string().trim().max(500).optional()
 }).strict();
@@ -98,11 +98,11 @@ export const brandUpdateSchema = brandBaseSchema
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
 
 export const modelCreateSchema = z.object({
-    ...taxonomyTextFields,
+    ...catalogTextFields,
     brandId: requiredObjectIdSchema,
     categoryIds: z.array(requiredObjectIdSchema),
     isActive: z.boolean().optional(),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
     suggestedBy: optionalObjectIdSchema,
     rejectionReason: z.string().trim().max(500).optional()
 }).strict();
@@ -122,14 +122,14 @@ export const ensureModelSchema = z.object({
 // SPARE PARTS
 // ==========================================
 const sparePartBaseSchema = z.object({
-    ...taxonomyTextFields,
+    ...catalogTextFields,
     // type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
     listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
     ...categoryFields,
     sortOrder: z.number().int().min(0).optional(),
     filters: z.array(z.unknown()).optional(),
     isActive: z.boolean().optional(),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
     rejectionReason: z.string().trim().max(500).optional(),
     brandId: objectIdSchema.optional(),
     modelId: objectIdSchema.optional()
@@ -146,10 +146,10 @@ export const sparePartUpdateSchema = sparePartBaseSchema
 // REFERENCE DATA
 // ==========================================
 const serviceTypeBaseSchema = z.object({
-    ...taxonomyTextFields,
+    ...catalogTextFields,
     ...categoryFields,
     isActive: z.boolean().optional(),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const serviceTypeCreateSchema = serviceTypeBaseSchema;
@@ -161,17 +161,17 @@ export const serviceTypeUpdateSchema = serviceTypeBaseSchema
 
 export const screenSizeCreateSchema = z.object({
     size: z.string().trim().min(1).max(20),
-    displayName: taxonomyTextFields.displayName,
-    canonicalName: taxonomyTextFields.canonicalName,
-    slug: taxonomyTextFields.slug,
-    aliases: taxonomyTextFields.aliases,
-    synonyms: taxonomyTextFields.synonyms,
-    name: taxonomyTextFields.name.optional(),
+    displayName: catalogTextFields.displayName,
+    canonicalName: catalogTextFields.canonicalName,
+    slug: catalogTextFields.slug,
+    aliases: catalogTextFields.aliases,
+    synonyms: catalogTextFields.synonyms,
+    name: catalogTextFields.name.optional(),
     value: z.number().int().min(1).max(500),
     categoryId: objectIdSchema,
     brandId: objectIdSchema.optional(),
     isActive: z.boolean().optional(),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const screenSizeUpdateSchema = screenSizeCreateSchema

@@ -11,13 +11,13 @@ async function auditCatalog() {
         await mongoose.connect(MONGODB_URI);
         const db = mongoose.connection.db!;
         
-        console.log('--- DEVICE TAXONOMY SSOT PRODUCTION VALIDATION ---');
+        console.log('--- CATALOG SSOT PRODUCTION VALIDATION ---');
         
         // 1. Collections Verification
         console.log('\n[1] COLLECTIONS VERIFICATION:');
         const collections = await db.listCollections().toArray();
         const collectionNames = collections.map(c => c.name.toLowerCase());
-        const required = ['variants', 'attributes', 'taxonomyaliases', 'taxonomysynonyms'];
+        const required = ['variants', 'attributes', 'catalogaliases', 'catalogsynonyms'];
         required.forEach(req => {
             const exists = collectionNames.includes(req);
             console.log(`${exists ? '✅' : '❌'} ${req}`);

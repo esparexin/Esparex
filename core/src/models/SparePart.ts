@@ -2,14 +2,10 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '../constants/enums/listingType';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '../constants/enums/catalogStatus';
 import {
-    TAXONOMY_APPROVAL_STATUS,
-    TAXONOMY_APPROVAL_STATUS_VALUES,
-    TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus';
-import {
-    applyTaxonomyNamingDefaults,
-} from '../services/catalog/taxonomySsot';
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 
 export interface ISparePart extends Document {
     name: string;
@@ -26,7 +22,7 @@ export interface ISparePart extends Document {
     usageCount: number;
     filters?: unknown[];
     isActive: boolean;
-    approvalStatus: TaxonomyApprovalStatusValue;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     createdBy?: mongoose.Types.ObjectId;
     isDeleted: boolean;
@@ -63,8 +59,8 @@ const SparePartSchema = new Schema<ISparePart>(
         isActive: { type: Boolean, default: true },
         approvalStatus: {
             type: String,
-            enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-            default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            enum: CATALOG_APPROVAL_STATUS_VALUES,
+            default: CATALOG_APPROVAL_STATUS.APPROVED,
         },
         status: {
             type: String,
@@ -76,6 +72,10 @@ const SparePartSchema = new Schema<ISparePart>(
 
     {
         timestamps: true,
+        toJSON: {
+            virtuals: true,
+            versionKey: false,
+        },
         toObject: { virtuals: true, versionKey: false }
     }
 );
@@ -84,9 +84,16 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 SparePartSchema.plugin(softDeletePlugin);
 
 SparePartSchema.pre('validate', function () {
-    const mutableDoc = this as unknown as Record<string, unknown>;
-    applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
-    applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+    const mutableDoc = this as any;
+    
+    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
+        mutableDoc.canonicalName = mutableDoc.displayName;
+    }
+    
+    if (!mutableDoc.approvalStatus) {
+        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    }
+
     mutableDoc.name = mutableDoc.displayName;
 });
 
@@ -95,10 +102,6 @@ import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 SparePartSchema.plugin(installSafeSoftDeleteQuery);
 
 // INDEXES
-/* -------------------------------------------------------------------------- */
-/* Indexes (Explicitly Named)                                                 */
-/* -------------------------------------------------------------------------- */
-
 SparePartSchema.index({ slug: 1 }, { 
     name: 'idx_sparepart_slug_unique', 
     unique: true,
@@ -114,15 +117,6 @@ SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
 
 import { getUserConnection } from '../config/db';
-import { applyToJSONTransform } from '../utils/schemaOptions';
-
-applyToJSONTransform(SparePartSchema);
-
-SparePartSchema.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: taxonomyEntityToJsonTransform,
-});
 
 export const SparePartModel: Model<ISparePart> =
     (getUserConnection().models.SparePart as Model<ISparePart> | undefined) ||

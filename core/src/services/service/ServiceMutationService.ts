@@ -124,7 +124,7 @@ const extractBusinessLocationId = (business: ServiceBusinessContext): mongoose.T
     return normalizeObjectId(rawBusinessLocationId);
 };
 
-const resolveTaxonomyIds = async (
+const resolveCatalogIds = async (
     body: ServiceMutationBody,
     opts: { includeDeviceModel?: boolean } = {}
 ) => {
@@ -243,7 +243,7 @@ export const createServiceMutation = async ({
     const safeBody = pickAllowedFields(body, SERVICE_ALLOWED_FIELDS, { allowUndefined: true });
     const createServiceTypeTokens = safeBody.serviceTypeIds;
 
-    const { categoryId: resolvedCategoryId, brandId, modelId } = await resolveTaxonomyIds(body, { includeDeviceModel: true });
+    const { categoryId: resolvedCategoryId, brandId, modelId } = await resolveCatalogIds(body, { includeDeviceModel: true });
 
     if (!user?._id || !business || !isBusinessPublishedStatus(business.status)) {
         throw new AppError('Approved Business Account Required', 403, 'BUSINESS_APPROVAL_REQUIRED');

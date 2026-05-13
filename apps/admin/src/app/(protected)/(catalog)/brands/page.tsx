@@ -12,7 +12,7 @@ import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { useState } from "react";
 import {
-    deriveTaxonomyLifecycleStatus,
+    deriveCatalogLifecycleStatus,
     getEntityCategoryIds,
     resolveModalAssignableCategoryState,
     toCategoryOptions,
@@ -183,7 +183,7 @@ export default function BrandsPage() {
                     header: "Actions",
                     className: "text-right",
                     cell: (brand) => {
-                        const lifecycleStatus = deriveTaxonomyLifecycleStatus(brand);
+                        const lifecycleStatus = deriveCatalogLifecycleStatus(brand);
                         if (brand.isDeleted) {
                             return (
                                 <div className="text-xs font-medium text-slate-400">

@@ -1,14 +1,14 @@
 import { Schema, Document, Model } from 'mongoose';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '../constants/enums/catalogStatus';
 import {
-    TAXONOMY_APPROVAL_STATUS,
-    TAXONOMY_APPROVAL_STATUS_VALUES,
-    TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus';
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 import {
-    applyTaxonomyNamingDefaults,
-} from '../services/catalog/taxonomySsot';
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+    applyCatalogNamingDefaults,
+} from '../services/catalog/CatalogValidationService';
+import { applyCatalogLifecycleFields, catalogEntityToJsonTransform } from './catalogLifecycle';
 
 export interface IScreenSize extends Document {
     size: string;
@@ -22,7 +22,7 @@ export interface IScreenSize extends Document {
     categoryId: Document['_id'];
     brandId?: Document['_id'];
     isActive: boolean;
-    approvalStatus: TaxonomyApprovalStatusValue;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -44,8 +44,8 @@ const ScreenSizeSchema: Schema = new Schema({
     isActive: { type: Boolean, default: true },
     approvalStatus: {
         type: String,
-        enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-        default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        enum: CATALOG_APPROVAL_STATUS_VALUES,
+        default: CATALOG_APPROVAL_STATUS.APPROVED,
     },
     status: {
         type: String,
@@ -89,8 +89,8 @@ ScreenSizeSchema.pre('validate', function () {
     if (typeof mutableDoc.name !== 'string' && typeof mutableDoc.size === 'string') {
         mutableDoc.name = `${mutableDoc.size} Screen Size`;
     }
-    applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
-    applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+    applyCatalogNamingDefaults(mutableDoc as Parameters<typeof applyCatalogNamingDefaults>[0]);
+    applyCatalogLifecycleFields(mutableDoc, CATALOG_APPROVAL_STATUS.APPROVED);
     mutableDoc.name = mutableDoc.displayName;
 });
 
@@ -104,7 +104,7 @@ applyToJSONTransform(ScreenSizeSchema);
 ScreenSizeSchema.set('toJSON', {
     virtuals: true,
     versionKey: false,
-    transform: taxonomyEntityToJsonTransform
+    transform: catalogEntityToJsonTransform
 });
 
 const userConnection = getUserConnection();

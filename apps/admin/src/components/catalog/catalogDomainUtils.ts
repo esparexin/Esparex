@@ -12,13 +12,13 @@ type NamedCategory = {
     approvalStatus?: string | null;
 };
 
-export type CatalogTaxonomyLifecycleStatus = "live" | "inactive" | "pending" | "rejected";
+export type CatalogLifecycleStatus = "live" | "inactive" | "pending" | "rejected";
 
-export function deriveTaxonomyLifecycleStatus(entity: {
+export function deriveCatalogLifecycleStatus(entity: {
     approvalStatus?: string | null;
     isActive?: boolean;
     isDeleted?: boolean;
-}): CatalogTaxonomyLifecycleStatus {
+}): CatalogLifecycleStatus {
     const approvalStatus = (entity.approvalStatus || "").toLowerCase();
     if (approvalStatus === "pending") return "pending";
     if (approvalStatus === "rejected") return "rejected";

@@ -14,7 +14,7 @@ type OpenAIMessage = {
     content: OpenAIMessageContent;
 };
 
-export type AIRequestType = 'identify' | 'generate' | 'moderate' | 'taxonomy';
+export type AIRequestType = 'identify' | 'generate' | 'moderate';
 
 export type AIRequestBody = {
     type?: string;
@@ -222,7 +222,7 @@ const parseValidJsonResult = (
 };
 
 export const isAIRequestType = (value: unknown): value is AIRequestType =>
-    value === 'identify' || value === 'generate' || value === 'moderate' || value === 'taxonomy';
+    value === 'identify' || value === 'generate' || value === 'moderate';
 
 export const getAiContext = (body: AIRequestBody): {
     context: Record<string, unknown>;
@@ -433,22 +433,6 @@ Rules:
         return parseValidJsonResult(result, 'AI moderation response parse failed');
     }
 
-    if (type === 'taxonomy') {
-        if (!geminiKey && !openAiKey) {
-            return toServiceFailure({ 
-                ok: false, 
-                status: 412, 
-                error: 'AI Taxonomy Config Missing.',
-                code: 'AI_CONFIG_MISSING'
-            });
-        }
-
-        const result = geminiKey
-            ? await callGemini(geminiKey, model, contextText, undefined, 500, 0.1) // Low temperature for extraction
-            : await callOpenAI(openAiKey, model, contextText, 500, 0.1);
-
-        return parseValidJsonResult(result, 'AI taxonomy analysis response parse failed');
-    }
 
     return toServiceFailure({ ok: false, status: 400, error: 'Invalid AI request type' });
 };

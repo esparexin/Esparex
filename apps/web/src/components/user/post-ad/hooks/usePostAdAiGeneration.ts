@@ -6,7 +6,6 @@ import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization"
 import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
-import { analyzeTaxonomy } from "@/lib/api/user/taxonomyAi";
 
 export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
@@ -61,44 +60,5 @@ export function usePostAdAiGeneration(
         }
     }, [categoryMap, availableSpareParts, form, setFormError, setIsLoading]);
 
-    const autoFillTaxonomy = useCallback(async () => {
-        const title = form.getValues("title");
-        if (!title || title.length < 5) return;
-
-        setIsLoading(true);
-        try {
-            const result = await analyzeTaxonomy(title);
-            if (result?.analysis) {
-                const { categorySuggestion, brandSuggestion, modelSuggestion, confidence } = result.analysis;
-                
-                if (confidence >= 0.8) {
-                    // Try to find category ID
-                    const category = Object.values(categoryMap).find(c => 
-                        c.name.toLowerCase() === categorySuggestion.toLowerCase()
-                    );
-                    
-                    if (category) {
-                        form.setValue("categoryId", category.id, { shouldValidate: true });
-                        form.setValue("category", category.name);
-                        
-                        // We set brand and model names. 
-                        // The BrandSearchSelect and ModelSearchSelect will handle these as "custom/pending" 
-                        // if they aren't in the list, or match them if they are.
-                        form.setValue("brand", brandSuggestion, { shouldValidate: true });
-                        if (modelSuggestion) {
-                            form.setValue("model", modelSuggestion, { shouldValidate: true });
-                        }
-                        
-                        notify.success(`AI suggested: ${category.name} > ${brandSuggestion}${modelSuggestion ? ' > ' + modelSuggestion : ''}`);
-                    }
-                }
-            }
-        } catch (err) {
-            console.error("AI Taxonomy auto-fill failed:", err);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [form, categoryMap, setIsLoading]);
-
-    return { generateDescription, autoFillTaxonomy };
+    return { generateDescription };
 }

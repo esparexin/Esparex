@@ -1,14 +1,14 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '../constants/enums/catalogStatus';
 import {
-    TAXONOMY_APPROVAL_STATUS,
-    TAXONOMY_APPROVAL_STATUS_VALUES,
-    TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus';
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 import {
-    applyTaxonomyNamingDefaults,
-} from '../services/catalog/taxonomySsot';
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+    applyCatalogNamingDefaults,
+} from '../services/catalog/CatalogValidationService';
+import { applyCatalogLifecycleFields, catalogEntityToJsonTransform } from './catalogLifecycle';
 
 export interface IServiceType extends Document {
     name: string;
@@ -20,7 +20,7 @@ export interface IServiceType extends Document {
     categoryIds: mongoose.Types.ObjectId[];
     filters?: unknown[];
     isActive: boolean;
-    approvalStatus: TaxonomyApprovalStatusValue;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -46,8 +46,8 @@ const ServiceTypeSchema: Schema = new Schema({
     isActive: { type: Boolean, default: true },
     approvalStatus: {
         type: String,
-        enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-        default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        enum: CATALOG_APPROVAL_STATUS_VALUES,
+        default: CATALOG_APPROVAL_STATUS.APPROVED,
     },
     status: {
         type: String,
@@ -86,8 +86,8 @@ ServiceTypeSchema.plugin(softDeletePlugin);
 
 ServiceTypeSchema.pre('validate', function () {
     const mutableDoc = this as unknown as Record<string, unknown>;
-    applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
-    applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+    applyCatalogNamingDefaults(mutableDoc as Parameters<typeof applyCatalogNamingDefaults>[0]);
+    applyCatalogLifecycleFields(mutableDoc, CATALOG_APPROVAL_STATUS.APPROVED);
     mutableDoc.name = mutableDoc.displayName;
 });
 
@@ -103,7 +103,7 @@ applyToJSONTransform(ServiceTypeSchema);
 ServiceTypeSchema.set('toJSON', {
     virtuals: true,
     versionKey: false,
-    transform: taxonomyEntityToJsonTransform
+    transform: catalogEntityToJsonTransform
 });
 
 export default ServiceType;

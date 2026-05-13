@@ -39,7 +39,7 @@ export * from './enums/requestStatus';
 export * from './enums/roles';
 export * from './enums/serviceStatus';
 export * from './enums/serviceType';
-export * from './enums/taxonomyApprovalStatus';
+export * from './enums/catalogApprovalStatus';
 export * from './enums/userStatus';
 
 // CONSTANTS

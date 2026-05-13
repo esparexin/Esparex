@@ -86,12 +86,12 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
     },
     {
         key: "masterData",
-        label: "Device Taxonomy",
+        label: "Device Catalog",
         icon: Layers,
         href: "/categories",
         roles: ["admin", "super_admin"],
         section: "Master Data",
-        aliases: ["/categories", "/brands", "/models", "/screen-sizes", "/taxonomy", "/service-types"],
+        aliases: ["/categories", "/brands", "/models", "/screen-sizes", "/service-types"],
     },
     {
         key: "partsCatalog",

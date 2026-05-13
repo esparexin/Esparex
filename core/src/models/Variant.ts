@@ -1,12 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '../constants/enums/catalogStatus';
 import {
-    TAXONOMY_APPROVAL_STATUS,
-    TAXONOMY_APPROVAL_STATUS_VALUES,
-    type TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus';
-import { applyTaxonomyNamingDefaults } from '../services/catalog/taxonomySsot';
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    type CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 import softDeletePlugin from '../utils/softDeletePlugin';
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 import { getUserConnection } from '../config/db';
@@ -21,7 +19,7 @@ export interface IVariant extends Document {
     modelId: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
     isActive: boolean;
-    approvalStatus: TaxonomyApprovalStatusValue;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -42,8 +40,8 @@ const VariantSchema = new Schema<IVariant>(
         isActive: { type: Boolean, default: true },
         approvalStatus: {
             type: String,
-            enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-            default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+            enum: CATALOG_APPROVAL_STATUS_VALUES,
+            default: CATALOG_APPROVAL_STATUS.APPROVED,
         },
         status: {
             type: String,
@@ -56,7 +54,6 @@ const VariantSchema = new Schema<IVariant>(
         toJSON: {
             virtuals: true,
             versionKey: false,
-            transform: taxonomyEntityToJsonTransform,
         },
         toObject: { virtuals: true, versionKey: false },
     }
@@ -66,9 +63,16 @@ VariantSchema.plugin(softDeletePlugin);
 VariantSchema.plugin(installSafeSoftDeleteQuery);
 
 VariantSchema.pre('validate', function () {
-    const mutableDoc = this as unknown as Record<string, unknown>;
-    applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
-    applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+    const mutableDoc = this as any;
+    
+    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
+        mutableDoc.canonicalName = mutableDoc.displayName;
+    }
+    
+    if (!mutableDoc.approvalStatus) {
+        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    }
+
     mutableDoc.name = mutableDoc.displayName;
 });
 

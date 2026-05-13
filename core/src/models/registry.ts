@@ -9,8 +9,6 @@ import './SparePart';
 import './ServiceType';
 import './ScreenSize';
 import './Variant';
-import './TaxonomyAlias';
-import './TaxonomySynonym';
 import './Plan';
 import './AdminLog';
 import './AdminSession';

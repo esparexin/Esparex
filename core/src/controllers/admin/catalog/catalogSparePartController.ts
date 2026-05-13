@@ -31,7 +31,9 @@ import {
     handleCatalogDelete,
     sendEmptyPublicList,
     getAdminActorId,
-    applyTaxonomyStatusFilter,
+    applyCatalogStatusFilter,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
+    deriveApprovalStatus
 } from './shared';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import { validateSparePartRelations } from '../../../services/catalog/CatalogValidationService';
@@ -42,8 +44,7 @@ import {
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { LISTING_TYPE, type ListingTypeValue } from "../../../constants/enums/listingType";
 import { getCache, setCache } from '../../../utils/redisCache';
-import { TAXONOMY_APPROVAL_STATUS } from '../../../constants/enums/taxonomyApprovalStatus';
-import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
+import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
 import { toOptionalString, toStringArray } from './inputCoercion';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
@@ -110,7 +111,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
 
     // Build public query
     const publicQuery: QueryRecord = {
-        ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
     };
     publicQuery.$and = [
@@ -192,7 +193,7 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
 
     // Build admin query
     const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
-    applyTaxonomyStatusFilter(adminQuery, status);
+    applyCatalogStatusFilter(adminQuery, status);
     if (requestedListingType) {
         adminQuery.listingType = requestedListingType;
     }
@@ -250,8 +251,8 @@ export const createSparePart = async (req: Request, res: Response) => {
             payload.usageCount = 0;
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             
             return payload;
@@ -286,8 +287,8 @@ export const updateSparePart = async (req: Request, res: Response) => {
 
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus ?? (existingPart as { approvalStatus?: unknown }).approvalStatus,
-                isActive: payload.isActive ?? (existingPart as { isActive?: boolean }).isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: (payload.isActive ?? (existingPart as { isActive?: boolean }).isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
 
             return payload;
@@ -327,7 +328,7 @@ export const getSparePartById = async (req: Request, res: Response) => {
         if (!isAdminView) {
             const typed = sparePart as { approvalStatus?: string; isActive?: boolean; isDeleted?: boolean; deletedAt?: Date | null };
             if (
-                typed.approvalStatus !== TAXONOMY_APPROVAL_STATUS.APPROVED ||
+                typed.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED ||
                 typed.isActive !== true ||
                 typed.isDeleted === true ||
                 typed.deletedAt

@@ -1,4 +1,4 @@
-export interface ITaxonomyAiAnalysis {
+export interface ICatalogAiAnalysis {
     categorySuggestion?: string;
     brandSuggestion?: string;
     modelSuggestion?: string;
@@ -12,14 +12,14 @@ export interface ITaxonomyAiAnalysis {
     promptVersion: string;
 }
 
-export interface ITaxonomyAiDecision {
+export interface ICatalogAiDecision {
     autoAccepted: boolean;
     requiresReview: boolean;
     reviewedBy?: string;
     reviewedAt?: Date;
 }
 
-export interface ITaxonomyAiResult {
-    analysis: ITaxonomyAiAnalysis;
-    decision: ITaxonomyAiDecision;
+export interface ICatalogAiResult {
+    analysis: ICatalogAiAnalysis;
+    decision: ICatalogAiDecision;
 }

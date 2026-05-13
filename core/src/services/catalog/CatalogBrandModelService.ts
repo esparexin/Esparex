@@ -13,7 +13,7 @@ import SparePartModel from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
 import ScreenSizeModel from '../../models/ScreenSize';
 import SmartAlertModel from '../../models/SmartAlert';
-import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
 
 // Re-export model instances for generic handler calls in the controller layer
@@ -59,7 +59,7 @@ export const checkBrandInCategories = async (brandId: string, activeCategoryIds:
 export const findActiveBrandByName = async (nameRegex: RegExp) =>
     BrandModelImport.findOne({
         name: { $regex: nameRegex },
-        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
         isActive: true,
         isDeleted: { $ne: true },
         deletedAt: null
@@ -73,7 +73,7 @@ export const findPendingBrandSuggestion = async (
 ) =>
     BrandModelImport.findOne({
         name: { $regex: nameRegex },
-        approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+        approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
         categoryIds,
         suggestedBy: suggestedBy as string | undefined
     }).lean();
@@ -130,7 +130,7 @@ export const findModelSuggestion = async (nameRegex: RegExp, brandId: string) =>
     CatalogModelImport.findOne({
         name: { $regex: nameRegex },
         brandId,
-        approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
+        approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] }
     }).lean();
 
 /** Find a brand by exact name regex under a brand (for ensureModel). */

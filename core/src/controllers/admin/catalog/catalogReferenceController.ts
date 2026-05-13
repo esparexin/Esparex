@@ -18,7 +18,9 @@ import {
     handleCatalogDelete,
     sendEmptyPublicList,
     sendSuccessResponse,
-    handlePaginatedContent
+    handlePaginatedContent,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
+    deriveApprovalStatus
 } from './shared';
 import { validateScreenSizeRelations } from '../../../services/catalog/CatalogValidationService';
 import {
@@ -38,8 +40,7 @@ import {
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
 } from '../../../services/catalog/CatalogReferenceService';
-import { TAXONOMY_APPROVAL_STATUS } from '../../../constants/enums/taxonomyApprovalStatus';
-import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from '../../../services/catalog/taxonomySsot';
+import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
 import { toOptionalString } from './inputCoercion';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
@@ -68,7 +69,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
         .withFilters({ categoryIds: categoryId ? [categoryId] : null })
         .build();
     const publicQuery: QueryRecord = { 
-        ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forPlural()
             .withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : null })
             .build()
@@ -92,7 +93,7 @@ export const getServiceTypeById = async (req: Request, res: Response) => {
         if (!isAdminView) {
             const typed = serviceType as { approvalStatus?: string; isActive?: boolean; isDeleted?: boolean; deletedAt?: Date | null };
             if (
-                typed.approvalStatus !== TAXONOMY_APPROVAL_STATUS.APPROVED ||
+                typed.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED ||
                 typed.isActive !== true ||
                 typed.isDeleted === true ||
                 typed.deletedAt
@@ -115,8 +116,8 @@ export const createServiceType = async (req: Request, res: Response) => {
         preOp: (payload) => {
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             return Promise.resolve(payload);
         },
@@ -133,8 +134,8 @@ export const updateServiceType = async (req: Request, res: Response) => {
         preUpdate: (id, payload) => {
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             return Promise.resolve(payload);
         },
@@ -201,7 +202,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryId as string }).build();
 
     const publicQuery: QueryRecord = { 
-        ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forSingular().withFilters({ 
             categoryId: categoryObjectId ? String(categoryObjectId) : undefined, 
             categoryIds: activeCategoryIds 
@@ -231,7 +232,7 @@ export const getScreenSizeById = async (req: Request, res: Response) => {
         if (!isAdminView) {
             const typed = size as { approvalStatus?: string; isActive?: boolean; isDeleted?: boolean; deletedAt?: Date | null };
             if (
-                typed.approvalStatus !== TAXONOMY_APPROVAL_STATUS.APPROVED ||
+                typed.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED ||
                 typed.isActive !== true ||
                 typed.isDeleted === true ||
                 typed.deletedAt
@@ -260,8 +261,8 @@ export const createScreenSize = async (req: Request, res: Response) => {
             if (brandId) payload.brandId = brandId;
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             const relation = await validateScreenSizeRelations({ categoryId, brandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
@@ -287,8 +288,8 @@ export const updateScreenSize = async (req: Request, res: Response) => {
             if (payload.brandId !== undefined && nextBrandId) payload.brandId = nextBrandId;
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus ?? (existingSize as { approvalStatus?: unknown }).approvalStatus,
-                isActive: payload.isActive ?? (existingSize as { isActive?: boolean }).isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: (payload.isActive ?? (existingSize as { isActive?: boolean }).isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             const relation = await validateScreenSizeRelations({ categoryId: nextCategoryId, brandId: nextBrandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');

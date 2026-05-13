@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from "../enums/listingType";
-import { TAXONOMY_APPROVAL_STATUS } from "../enums/taxonomyApprovalStatus";
+import { CATALOG_APPROVAL_STATUS } from "../enums/catalogApprovalStatus";
 
 // Base Validations
 export const ObjectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, "Invalid ObjectId");
@@ -46,7 +46,7 @@ export const CreateCategorySchema = z.object({
     serviceSelectionMode: z.enum(['single', 'multi']).default('multi'),
     hasScreenSizes: z.boolean().default(false),
     filters: z.array(CategoryFilterSchema).optional(),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateCategorySchema = CreateCategorySchema.partial();
@@ -70,7 +70,7 @@ export const CreateBrandSchema = z.object({
     synonyms: z.array(z.string().min(1).max(120)).optional(),
         categoryIds: z.array(ObjectIdSchema),
     isActive: z.boolean().default(true),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateBrandSchema = CreateBrandSchema.partial();
@@ -93,7 +93,7 @@ export const CreateModelSchema = z.object({
     brandId: ObjectIdSchema,
     categoryIds: z.array(ObjectIdSchema),
     isActive: z.boolean().default(true),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateModelSchema = CreateModelSchema.partial();
@@ -119,7 +119,7 @@ export const CreateSparePartSchema = z.object({
     modelId: ObjectIdSchema.optional(),
     sortOrder: z.number().default(0),
     isActive: z.boolean().default(true),
-    approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateSparePartSchema = CreateSparePartSchema.partial();

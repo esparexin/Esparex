@@ -11,7 +11,7 @@ import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { TAXONOMY_APPROVAL_STATUS } from "../../../constants/enums/taxonomyApprovalStatus";
+import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
 import { getUserConnection } from '../../../config/db';
 import {
     BrandModel,
@@ -34,8 +34,7 @@ import {
     checkModelDependencies,
     findModelBySlug,
 } from '../../../services/catalog/CatalogBrandModelService';
-import { validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
-import { normalizeCatalogCanonicalName } from '../../../services/catalog/taxonomySsot';
+import { normalizeCatalogCanonicalName, validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
 import { escapeRegExp } from '../../../utils/stringUtils';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import {
@@ -51,8 +50,10 @@ import {
     handleCatalogReview,
     isDuplicateKeyError,
     sendEmptyPublicList,
-    applyTaxonomyStatusFilter,
+    applyCatalogStatusFilter,
     hasAdminAccess,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
+    deriveApprovalStatus
 } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { toOptionalString, toStringArray } from './inputCoercion';
@@ -68,9 +69,8 @@ import {
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
-import { TAXONOMY_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus, isDuplicateSuggestion } from '../../../services/catalog/taxonomySsot';
+import { isDuplicateSuggestion } from '../../../services/catalog/CatalogValidationService';
 import { CatalogNotificationService } from '../../../services/catalog/CatalogNotificationService';
-import { TaxonomyAiService } from '../../../services/catalog/taxonomyAiService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
@@ -147,11 +147,11 @@ export const getBrands = async (req: Request, res: Response) => {
     const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
-    applyTaxonomyStatusFilter(adminCategoryFilter, rawStatus);
+    applyCatalogStatusFilter(adminCategoryFilter, rawStatus);
 
     return handlePaginatedContent(req, res, BrandModel, {
         publicQuery: {
-            ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+            ...CATALOG_PUBLIC_VISIBILITY_QUERY,
             ...categoryFilter
         },
         adminQuery: adminCategoryFilter,
@@ -170,7 +170,7 @@ export const getBrandById = async (req: Request, res: Response) => {
             ...(isAdminView
                 ? {}
                 : {
-                    ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+                    ...CATALOG_PUBLIC_VISIBILITY_QUERY,
                 })
         });
         if (!brand) return sendCatalogError(req, res, 'Brand not found', 404);
@@ -192,7 +192,7 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
 
         const slugAlias = slug.replace(/-/g, ' ');
         const brand = await findBrandByFilter({
-            ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+            ...CATALOG_PUBLIC_VISIBILITY_QUERY,
             $or: [
                 { slug },
                 { canonicalName: slugAlias },
@@ -229,8 +229,8 @@ export const createBrand = async (req: Request, res: Response) => {
 
             const approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             payload.approvalStatus = approvalStatus;
 
@@ -265,8 +265,8 @@ export const updateBrand = async (req: Request, res: Response) => {
 
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus ?? typedOldBrand.approvalStatus,
-                isActive: payload.isActive ?? typedOldBrand.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: (payload.isActive ?? typedOldBrand.isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
 
             const categoryValidation = await validateActiveCategories(nextCategoryIds);
@@ -512,20 +512,16 @@ export const suggestBrand = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'You already have a pending suggestion for this brand.', 409);
         }
 
-        const aiResult = await TaxonomyAiService.analyzeBrand(cleanName);
-
         const brand = await createBrandRecord({
             name: cleanName,
             slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
             categoryIds: [categoryIds],
-            approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+            approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
             isActive: false,
-            suggestedBy: userId,
-            aiAnalysis: aiResult?.analysis,
-            aiDecision: aiResult?.decision
+            suggestedBy: userId
         });
 
-        if (brand.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+        if (brand.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
             void CatalogNotificationService.notifyAdminsOfSuggestion('brand', cleanName, String(userId));
         }
 
@@ -601,10 +597,10 @@ export const getModels = async (req: Request, res: Response) => {
     if (categoryId) {
         Object.assign(adminQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build());
     }
-    applyTaxonomyStatusFilter(adminQuery, rawStatus);
+    applyCatalogStatusFilter(adminQuery, rawStatus);
 
     const publicQuery: QueryRecord = {
-        ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
     };
     if (!isAdminView) {
         Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build());
@@ -644,7 +640,7 @@ export const getModelById = async (req: Request, res: Response) => {
             ...(isAdminView
                 ? {}
                 : {
-                    ...TAXONOMY_PUBLIC_VISIBILITY_QUERY,
+                    ...CATALOG_PUBLIC_VISIBILITY_QUERY,
                 })
         });
         if (!model) return sendCatalogError(req, res, 'Model not found', 404);
@@ -663,7 +659,7 @@ export const getModelBySlug = async (req: Request, res: Response) => {
         }
 
         const slugAlias = slug.replace(/-/g, ' ');
-        const baseFilter = { ...TAXONOMY_PUBLIC_VISIBILITY_QUERY };
+        const baseFilter = { ...CATALOG_PUBLIC_VISIBILITY_QUERY };
 
         const model = await findModelBySlug(slug, baseFilter) || await findModelByFilter({
             ...baseFilter,
@@ -717,8 +713,8 @@ export const createModel = async (req: Request, res: Response) => {
 
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
-                isActive: payload.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             
             return payload;
@@ -763,8 +759,8 @@ export const updateModel = async (req: Request, res: Response) => {
             const typedExisting = existingModel as { approvalStatus?: unknown; isActive?: boolean };
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus ?? typedExisting.approvalStatus,
-                isActive: payload.isActive ?? typedExisting.isActive,
-                fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                isActive: (payload.isActive ?? typedExisting.isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
             return payload;
         },
@@ -861,7 +857,7 @@ export const suggestModel = async (req: Request, res: Response) => {
             const existingApprovalStatus = (existing as { approvalStatus?: string }).approvalStatus;
             return res.status(200).json(respond({
                 success: true,
-                message: existingApprovalStatus === TAXONOMY_APPROVAL_STATUS.APPROVED
+                message: existingApprovalStatus === CATALOG_APPROVAL_STATUS.APPROVED
                     ? `"${cleanName}" already exists and is active.` 
                     : `"${cleanName}" is already suggested and awaiting approval.`,
                 data: existing
@@ -880,20 +876,15 @@ export const suggestModel = async (req: Request, res: Response) => {
             }));
         }
 
-        const brandDoc = await BrandModel.findById(brandId);
-        const aiResult = await TaxonomyAiService.analyzeModel(cleanName, brandDoc?.name);
-
         const model = await createModelRecord({
             name: cleanName,
             brandId,
-            approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+            approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
             isActive: false,
-            suggestedBy: userId,
-            aiAnalysis: aiResult?.analysis,
-            aiDecision: aiResult?.decision
+            suggestedBy: userId
         });
 
-        if (model.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+        if (model.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
             void CatalogNotificationService.notifyAdminsOfSuggestion('model', cleanName, String(userId));
         }
 
@@ -957,25 +948,10 @@ export const ensureModel = async (req: Request, res: Response) => {
                     slug: slugify(cleanBrandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
                     categoryIds: [new mongoose.Types.ObjectId(categoryId)],
                     isActive: false,
-                    approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+                    approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
                     suggestedBy: userId
                 });
                 brandCreated = true;
-
-                // Launch background AI enrichment
-                void (async () => {
-                    try {
-                        const aiResult = await TaxonomyAiService.analyzeBrand(cleanBrandName);
-                        if (aiResult) {
-                            await BrandModel.updateOne({ _id: brand?._id }, {
-                                aiAnalysis: aiResult.analysis,
-                                aiDecision: aiResult.decision
-                            });
-                        }
-                    } catch (error) {
-                        logger.error(`[ensureModel] Background Brand AI analysis failed: ${cleanBrandName}`, { error });
-                    }
-                })();
             } catch (error) {
                 // Handle Race Condition: If another request created it between our lookup and insert
                 if (isDuplicateKeyError(error)) {
@@ -1002,25 +978,10 @@ export const ensureModel = async (req: Request, res: Response) => {
                     brandId: brand._id,
                     categoryIds: [new mongoose.Types.ObjectId(categoryId)],
                     isActive: false,
-                    approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+                    approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
                     suggestedBy: userId
                 });
                 modelCreated = true;
-
-                // Launch background AI enrichment
-                void (async () => {
-                    try {
-                        const aiResult = await TaxonomyAiService.analyzeModel(cleanModelName, brand?.name);
-                        if (aiResult) {
-                            await CatalogModel.updateOne({ _id: model?._id }, {
-                                aiAnalysis: aiResult.analysis,
-                                aiDecision: aiResult.decision
-                            });
-                        }
-                    } catch (error) {
-                        logger.error(`[ensureModel] Background Model AI analysis failed: ${cleanModelName}`, { error });
-                    }
-                })();
             } catch (error) {
                 // Handle Race Condition
                 if (isDuplicateKeyError(error)) {
@@ -1033,10 +994,10 @@ export const ensureModel = async (req: Request, res: Response) => {
         }
 
         // 3. Post-Process (Background)
-        if (brandCreated && brand.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+        if (brandCreated && brand.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
             void CatalogNotificationService.notifyAdminsOfSuggestion('brand', brandName, String(userId));
         }
-        if (modelCreated && model.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+        if (modelCreated && model.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
             void CatalogNotificationService.notifyAdminsOfSuggestion('model', modelName, String(userId));
         }
         if (brandCreated || modelCreated) {

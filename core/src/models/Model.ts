@@ -1,15 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../constants/enums/catalogStatus';
 import {
-    TAXONOMY_APPROVAL_STATUS,
-    TAXONOMY_APPROVAL_STATUS_VALUES,
-    TaxonomyApprovalStatusValue,
-} from '../constants/enums/taxonomyApprovalStatus';
-import {
-    applyTaxonomyNamingDefaults,
-} from '../services/catalog/taxonomySsot';
-import { applyTaxonomyLifecycleFields, taxonomyEntityToJsonTransform } from './taxonomyLifecycle';
-import { TaxonomyAiAnalysisSchema, TaxonomyAiDecisionSchema } from './taxonomyAiSchema';
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 
 export interface IModel extends Document {
     name: string;
@@ -22,7 +17,7 @@ export interface IModel extends Document {
     categoryId?: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
     isActive: boolean;
-    approvalStatus: TaxonomyApprovalStatusValue;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     suggestedBy?: mongoose.Types.ObjectId;
     rejectionReason?: string;
@@ -30,8 +25,6 @@ export interface IModel extends Document {
     deletedAt?: Date;
     softDelete(): Promise<this>;
     restore(): Promise<this>;
-    aiAnalysis?: any;
-    aiDecision?: any;
 }
 
 const ModelSchema: Schema = new Schema({
@@ -47,20 +40,17 @@ const ModelSchema: Schema = new Schema({
     isActive: { type: Boolean, default: true },
     approvalStatus: {
         type: String,
-        enum: TAXONOMY_APPROVAL_STATUS_VALUES,
-        default: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        enum: CATALOG_APPROVAL_STATUS_VALUES,
+        default: CATALOG_APPROVAL_STATUS.APPROVED,
     },
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
     suggestedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
     rejectionReason: { type: String, default: null },
-    aiAnalysis: { type: TaxonomyAiAnalysisSchema },
-    aiDecision: { type: TaxonomyAiDecisionSchema },
 }, {
     timestamps: true,
     toJSON: {
         virtuals: true,
         versionKey: false,
-        transform: taxonomyEntityToJsonTransform
     },
     toObject: { virtuals: true, versionKey: false }
 });
@@ -74,7 +64,7 @@ ModelSchema.index(
         collation: { locale: 'en', strength: 2 },
         partialFilterExpression: {
             isDeleted: false,
-            approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] },
+            approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
         }
     }
 );
@@ -116,8 +106,15 @@ ModelSchema.plugin(softDeletePlugin);
 
 ModelSchema.pre('validate', function () {
     const mutableDoc = this as any;
-    applyTaxonomyNamingDefaults(mutableDoc);
-    applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
+    
+    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
+        mutableDoc.canonicalName = mutableDoc.displayName;
+    }
+    
+    if (!mutableDoc.approvalStatus) {
+        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    }
+
     mutableDoc.name = mutableDoc.displayName;
 
     // Enforce bidirectional singular/plural category synchronization

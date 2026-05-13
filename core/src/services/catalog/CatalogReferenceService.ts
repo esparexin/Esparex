@@ -9,7 +9,7 @@ import ScreenSizeModelImport from '../../models/ScreenSize';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import AdModel from '../../models/Ad';
-import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
 import { LISTING_STATUS } from "../../constants/enums/listingStatus";
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 // Re-export model instances for generic handler calls in the controller layer
@@ -68,6 +68,6 @@ export const getActiveBrandsForScreenSizes = async (activeCategoryIds: string[])
         isActive: true,
         isDeleted: { $ne: true },
         deletedAt: null,
-        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
         categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();

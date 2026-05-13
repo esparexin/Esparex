@@ -5,7 +5,7 @@ import Category, { ICategory } from '../../models/Category';
 import Brand from '../../models/Brand';
 import ProductModel from '../../models/Model';
 import CatalogOrchestrator from '../catalog/CatalogOrchestrator';
-import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
 
 interface ImportResult {
     success: number;
@@ -92,7 +92,7 @@ export class CatalogImportService {
                                     isDeleted: false,
                                     deletedAt: undefined,
                                     isActive: true,
-                                    approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
+                                    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                                 }
                             }
                         }
@@ -106,7 +106,7 @@ export class CatalogImportService {
                                 categoryId: categoryIds[0],
                                 categoryIds: dedupeObjectIds(categoryIds),
                                 isActive: true,
-                                approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
+                                approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                             }
                         }
                     });
@@ -166,7 +166,7 @@ export class CatalogImportService {
                                 categoryId: categoryId,
                                 categoryIds: [categoryId],
                                 isActive: true,
-                                approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
+                                approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                             }
                         },
                         upsert: true
@@ -233,7 +233,7 @@ export class CatalogImportService {
                             name: device.brand,
                             slug: brandSlug,
                             isActive: true,
-                            approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                            approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
                             categoryId: catId
                         },
                         $set: {
@@ -251,7 +251,7 @@ export class CatalogImportService {
                         categoryId: catId,
                         categoryIds: [catId],
                         isActive: true,
-                        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                        approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
                         specifications: device.specs || {}
                     },
                     { upsert: true, new: true }
