@@ -439,12 +439,12 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
 export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const { ids, adminNotes } = req.body as { ids: string[]; adminNotes?: string };
+        const { requestIds } = req.body as { requestIds: string[] };
         const results = [];
 
-        for (const requestId of ids) {
+        for (const requestId of requestIds) {
             try {
-                const result = await approveCatalogRequest({ requestId, adminId, adminNotes });
+                const result = await approveCatalogRequest({ requestId, adminId });
                 void notifyRequesterReviewOutcome(result.request, 'approved', {
                     approvedEntityId: String(result.resolvedEntityId),
                     updatedAdsCount: result.updatedAdsCount,
@@ -455,7 +455,7 @@ export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Respo
             }
         }
 
-        return sendSuccessResponse(res, { results }, `Processed ${ids.length} catalog requests`);
+        return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
     } catch (error) {
         return sendControllerError(req, res, error);
     }
@@ -464,12 +464,12 @@ export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Respo
 export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const { ids, rejectionReason, adminNotes } = req.body as { ids: string[]; rejectionReason: string; adminNotes?: string };
+        const { requestIds, reason } = req.body as { requestIds: string[]; reason: string };
         const results = [];
 
-        for (const requestId of ids) {
+        for (const requestId of requestIds) {
             try {
-                const result = await rejectCatalogRequest({ requestId, adminId, rejectionReason, adminNotes });
+                const result = await rejectCatalogRequest({ requestId, adminId, rejectionReason: reason });
                 void notifyRequesterReviewOutcome(result.request, 'rejected', {
                     rejectionReason: result.request.rejectionReason,
                 });
@@ -479,7 +479,7 @@ export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Respon
             }
         }
 
-        return sendSuccessResponse(res, { results }, `Processed ${ids.length} catalog requests`);
+        return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
     } catch (error) {
         return sendControllerError(req, res, error);
     }
@@ -488,12 +488,12 @@ export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Respon
 export const bulkMarkCatalogRequestsDuplicateByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const { ids, duplicateOfEntityId, adminNotes } = req.body as { ids: string[]; duplicateOfEntityId: string; adminNotes?: string };
+        const { requestIds, duplicateOfId } = req.body as { requestIds: string[]; duplicateOfId: string };
         const results = [];
 
-        for (const requestId of ids) {
+        for (const requestId of requestIds) {
             try {
-                const result = await markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId, adminNotes });
+                const result = await markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: duplicateOfId });
                 void notifyRequesterReviewOutcome(result.request, 'duplicate', {
                     duplicateOfEntityId: String(result.resolvedEntityId),
                     updatedAdsCount: result.updatedAdsCount,
@@ -504,7 +504,7 @@ export const bulkMarkCatalogRequestsDuplicateByAdmin = async (req: Request, res:
             }
         }
 
-        return sendSuccessResponse(res, { results }, `Processed ${ids.length} catalog requests`);
+        return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
     } catch (error) {
         return sendControllerError(req, res, error);
     }

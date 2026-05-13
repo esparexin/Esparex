@@ -491,10 +491,10 @@ export default function CatalogRequestsPage() {
 
     const handleBulkApprove = useCallback(async () => {
         if (selectedIds.size === 0) return;
-        const ids = Array.from(selectedIds);
+        const requestIds = Array.from(selectedIds);
         
         await runMutation(async () => {
-            const response = await bulkApproveAdminCatalogRequests({ ids });
+            const response = await bulkApproveAdminCatalogRequests({ requestIds });
             const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
             showToast(`Bulk approved ${successes} requests`, successes > 0 ? 'success' : 'error');
             setSelectedIds(new Set());
@@ -506,9 +506,9 @@ export default function CatalogRequestsPage() {
         const reason = window.prompt('Please provide a rejection reason for all selected requests:');
         if (!reason) return;
 
-        const ids = Array.from(selectedIds);
+        const requestIds = Array.from(selectedIds);
         await runMutation(async () => {
-            const response = await bulkRejectAdminCatalogRequests({ ids, rejectionReason: reason });
+            const response = await bulkRejectAdminCatalogRequests({ requestIds, reason });
             const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
             showToast(`Bulk rejected ${successes} requests`, successes > 0 ? 'success' : 'error');
             setSelectedIds(new Set());
@@ -520,9 +520,9 @@ export default function CatalogRequestsPage() {
         const targetId = window.prompt('Please provide the canonical Brand/Model ObjectId to link all selected requests to:');
         if (!targetId) return;
 
-        const ids = Array.from(selectedIds);
+        const requestIds = Array.from(selectedIds);
         await runMutation(async () => {
-            const response = await bulkMarkAdminCatalogRequestsDuplicate({ ids, duplicateOfEntityId: targetId });
+            const response = await bulkMarkAdminCatalogRequestsDuplicate({ requestIds, duplicateOfId: targetId });
             const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
             showToast(`Bulk marked ${successes} requests as duplicate`, successes > 0 ? 'success' : 'error');
             setSelectedIds(new Set());

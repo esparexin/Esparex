@@ -92,25 +92,14 @@ export const markCatalogRequestDuplicateSchema = z
     })
     .strict();
 
-export const bulkApproveCatalogRequestSchema = z
-    .object({
-        ids: z.array(objectIdSchema).min(1).max(100),
-        adminNotes: z.string().trim().max(1200).optional(),
-    })
-    .strict();
+export const bulkApproveCatalogRequestSchema = z.object({
+    requestIds: z.array(objectIdSchema).min(1, 'At least one request ID is required'),
+});
 
-export const bulkRejectCatalogRequestSchema = z
-    .object({
-        ids: z.array(objectIdSchema).min(1).max(100),
-        rejectionReason: z.string().trim().min(1).max(500),
-        adminNotes: z.string().trim().max(1200).optional(),
-    })
-    .strict();
+export const bulkRejectCatalogRequestSchema = bulkApproveCatalogRequestSchema.extend({
+    reason: z.string().trim().min(1).max(500),
+});
 
-export const bulkMarkCatalogRequestDuplicateSchema = z
-    .object({
-        ids: z.array(objectIdSchema).min(1).max(100),
-        duplicateOfEntityId: objectIdSchema,
-        adminNotes: z.string().trim().max(1200).optional(),
-    })
-    .strict();
+export const bulkMarkCatalogRequestDuplicateSchema = bulkApproveCatalogRequestSchema.extend({
+    duplicateOfId: objectIdSchema,
+});

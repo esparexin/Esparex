@@ -114,7 +114,7 @@ export async function getAdminCatalogRequestStats(requestType?: CatalogRequestTy
     return adminFetch<CatalogRequestStats>(`${ADMIN_ROUTES.CATALOG_REQUEST_STATS}${suffix}`);
 }
 
-export async function bulkApproveAdminCatalogRequests(payload: { ids: string[]; adminNotes?: string }) {
+export async function bulkApproveAdminCatalogRequests(payload: { requestIds: string[] }) {
     return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string; updatedAdsCount?: number }> }>(
         ADMIN_ROUTES.CATALOG_REQUEST_BULK_APPROVE,
         {
@@ -124,7 +124,7 @@ export async function bulkApproveAdminCatalogRequests(payload: { ids: string[]; 
     );
 }
 
-export async function bulkRejectAdminCatalogRequests(payload: { ids: string[]; rejectionReason: string; adminNotes?: string }) {
+export async function bulkRejectAdminCatalogRequests(payload: { requestIds: string[]; reason: string }) {
     return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string }> }>(
         ADMIN_ROUTES.CATALOG_REQUEST_BULK_REJECT,
         {
@@ -134,7 +134,7 @@ export async function bulkRejectAdminCatalogRequests(payload: { ids: string[]; r
     );
 }
 
-export async function bulkMarkAdminCatalogRequestsDuplicate(payload: { ids: string[]; duplicateOfEntityId: string; adminNotes?: string }) {
+export async function bulkMarkAdminCatalogRequestsDuplicate(payload: { requestIds: string[]; duplicateOfId: string }) {
     return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string; updatedAdsCount?: number }> }>(
         ADMIN_ROUTES.CATALOG_REQUEST_BULK_MARK_DUPLICATE,
         {
