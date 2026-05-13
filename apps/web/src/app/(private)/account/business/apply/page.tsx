@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { Button } from "@/components/ui/button";
 
 import { BusinessProfileFlow } from "@/components/user/business-registration/BusinessProfileFlow";

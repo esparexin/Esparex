@@ -100,6 +100,17 @@ Tool-specific files may exist only as compatibility layers for local IDEs or ext
 - AI agents must not make speculative business-rule changes.
 - Runtime AI prompts and provider behavior are code-owned by the runtime AI implementation, not by IDE prompt files.
 
+### Notification and Feedback Rules
+
+- Do not use `toast.*` or the `sonner` package.
+- Do not use legacy `notify.*` from `@/lib/notify`.
+- Do not mount `<Toaster />` or any other toast providers.
+- All client success feedback and error notifications must go through the centralized feedback system:
+  - Canonical State Manager: `FeedbackSystemContext.tsx`
+  - Canonical Event Dispatcher: `feedback.ts`
+  - Canonical UI Rendering Layer: `SystemFeedbackBanners.tsx` (inline banners)
+  - Code Review Checklist: Any new Sonner dependencies, direct toast invocations, or parallel toast notifications must be rejected.
+
 ## 5. Runtime AI Canonical Ownership
 
 The runtime product AI system is currently OpenAI-backed and is owned by code, not by IDE prompt files.

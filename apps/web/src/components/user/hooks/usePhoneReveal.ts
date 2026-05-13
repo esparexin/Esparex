@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { getListingPhone, type Listing as Ad } from '@/lib/api/user/listings';
 import type { User } from '@/types/User';
-import { notify } from '@/lib/notify';
+import { notify } from "@/lib/feedback";
 import { buildLoginUrl } from '@/lib/authHelpers';
 
 export function usePhoneReveal(ad: Ad | undefined | null, user: User | undefined | null, router: AppRouterInstance) {

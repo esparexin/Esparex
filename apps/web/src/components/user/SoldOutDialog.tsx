@@ -11,7 +11,7 @@ import {
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { CheckCircle, Store, ExternalLink, MoreHorizontal } from "lucide-react";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { FormError } from "../ui/FormError";
 import logger from "@/lib/logger";
 

@@ -20,7 +20,7 @@ import { unsaveAd } from "@/lib/api/user/users";
 import type { SavedAd } from "@/lib/api/user/users";
 import type { UserPage } from "@/lib/routeUtils";
 import { useAuth } from "@/context/AuthContext";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import type { Ad } from "@/schemas/ad.schema";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";

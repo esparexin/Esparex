@@ -8,7 +8,14 @@ import axios, {
 import logger from "@/lib/logger";
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
-import { emitErrorPopup } from '@/lib/popup/popupEvents';
+
+function dispatchGlobalErrorEvent(error: unknown, onRetry?: () => void) {
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent("esparex_global_error", {
+            detail: { error, onRetry }
+        }));
+    }
+}
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
@@ -180,7 +187,7 @@ class APIClient {
                 if (!ok) {
                     const error = this.createHealthGateError(config);
                     if (!(config as EsparexRequestConfig).silent) {
-                        emitErrorPopup(error);
+                        dispatchGlobalErrorEvent(error);
                     }
                     return Promise.reject(error);
                 }
@@ -194,7 +201,7 @@ class APIClient {
 
                 const error = this.createHealthGateError(config);
                 if (!(config as EsparexRequestConfig).silent) {
-                    emitErrorPopup(error);
+                    dispatchGlobalErrorEvent(error);
                 }
                 return Promise.reject(error);
             }
@@ -287,7 +294,7 @@ class APIClient {
                                 endpoint: response.config?.url?.toString()
                             }
                         });
-                    emitErrorPopup(error);
+                    dispatchGlobalErrorEvent(error);
                     return Promise.reject(error);
                 }
 
@@ -432,7 +439,7 @@ class APIClient {
                         isManualRetryable && requestConfig
                             ? () => { void this.client.request({ ...requestConfig, _retryCount: 0 } as EsparexRequestConfig); }
                             : undefined;
-                    emitErrorPopup(apiError, onRetry);
+                    dispatchGlobalErrorEvent(apiError, onRetry);
                 }
 
                 return Promise.reject(apiError);

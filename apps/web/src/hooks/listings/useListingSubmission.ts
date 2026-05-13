@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import type { ListingImage } from "@/types/listing";
 import type { ListingLocation } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";

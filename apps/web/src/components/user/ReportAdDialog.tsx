@@ -14,7 +14,7 @@ import {
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { AlertTriangle } from "lucide-react";
 import { FormError } from "../ui/FormError";
 import { mapErrorToMessage } from "@/lib/errorMapper";

@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent } from "@/lib/api/user/ai";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
 import { analyzeTaxonomy } from "@/lib/api/user/taxonomyAi";

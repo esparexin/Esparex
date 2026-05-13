@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/lib/api/routes";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
 import { deleteAccountFormSchema } from "@/schemas/profileSettings.schema";
 import type {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 
 import { listSavedSearches, removeSavedSearch } from "@/lib/api/user/savedSearches";
 import {

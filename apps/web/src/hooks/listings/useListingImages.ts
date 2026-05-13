@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import type { ListingImage } from "@/types/listing";
 import { MAX_AD_IMAGES, MAX_AD_IMAGE_BYTES } from "@shared/constants/adLimits";
 import imageCompression from 'browser-image-compression';
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
 
 import { generateFileHash, LISTING_IMAGE_COMPRESSION_OPTIONS } from "@/lib/listings/imageUtils";
