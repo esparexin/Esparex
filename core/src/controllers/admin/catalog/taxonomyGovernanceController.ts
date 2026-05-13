@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { sendSuccessResponse, sendAdminError } from '../../../utils/adminBaseController';
 import { TAXONOMY_GOVERNANCE_THRESHOLDS } from '../../../services/catalog/taxonomySsot';
+import { getUserConnection } from '../../../config/db';
 
 export const getGovernanceMetrics = async (req: Request, res: Response) => {
     try {
-        const db = mongoose.connection.db;
+        const db = getUserConnection().db;
         if (!db) throw new Error('DB connection not ready');
 
         const collections = ['brands', 'models', 'categories', 'variants'];
@@ -66,7 +67,7 @@ export const getGovernanceMetrics = async (req: Request, res: Response) => {
 
 export const getGovernanceLogs = async (req: Request, res: Response) => {
     try {
-        const db = mongoose.connection.db;
+        const db = getUserConnection().db;
         if (!db) throw new Error('DB connection not ready');
 
         const logs = await db.collection('systemLogs')
