@@ -12,6 +12,8 @@ import Ad from '../models/Ad';
 import { AppError } from '../utils/AppError';
 import { CATALOG_APPROVAL_STATUS } from '../constants/enums/catalogApprovalStatus';
 import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
+import { CatalogNotificationService } from './catalog/CatalogNotificationService';
+import logger from '../utils/logger';
 
 const NON_DELETED_QUERY = {
     isDeleted: { $ne: true },
@@ -53,7 +55,8 @@ const normalizeCatalogCanonicalName = (value: string): string =>
     value.trim().toLowerCase().replace(/\s+/g, ' ');
 
 const assertPendingRequest = (request: ICatalogRequest): void => {
-    if (request.status !== 'pending') {
+    const isWaiting = ['pending', 'under_review', 'duplicate_review'].includes(request.status);
+    if (!isWaiting) {
         throw new AppError('Only pending catalog requests can be reviewed.', 409, 'CATALOG_REQUEST_NOT_PENDING');
     }
 };
@@ -384,7 +387,14 @@ const resolveWaitingAds = async (
     request: ICatalogRequest,
     resolvedEntityId: Types.ObjectId,
     session: ClientSession
-): Promise<number> => {
+): Promise<{ modifiedCount: number; sellerIds: string[] }> => {
+    // 1. Identify affected sellers before update
+    const sellerIds = await Ad.distinct('sellerId', {
+        catalogRequestId: request._id,
+        catalogPending: true,
+        isDeleted: { $ne: true },
+    }).session(session);
+
     const adPatch: Record<string, unknown> = {
         catalogPending: false,
     };
@@ -408,7 +418,10 @@ const resolveWaitingAds = async (
         { session }
     );
 
-    return Number((result as { modifiedCount?: number }).modifiedCount ?? 0);
+    return {
+        modifiedCount: Number((result as { modifiedCount?: number }).modifiedCount ?? 0),
+        sellerIds: sellerIds.map(id => id.toString()),
+    };
 };
 
 const loadRequestForReview = async (
@@ -437,6 +450,7 @@ export async function approveCatalogRequest(params: {
 
     try {
         let response: CatalogRequestApprovalResult | null = null;
+        let affectedSellerIds: string[] = [];
 
         await session.withTransaction(async () => {
             const request = await loadRequestForReview(requestId, session);
@@ -456,13 +470,14 @@ export async function approveCatalogRequest(params: {
             request.rejectedAt = null;
             await request.save({ session });
 
-            const updatedAdsCount = await resolveWaitingAds(request, resolution.entityId, session);
+            const { modifiedCount, sellerIds } = await resolveWaitingAds(request, resolution.entityId, session);
+            affectedSellerIds = sellerIds;
 
             response = {
                 request,
                 resolvedEntityId: resolution.entityId,
                 createdCanonicalEntity: resolution.createdCanonicalEntity,
-                updatedAdsCount,
+                updatedAdsCount: modifiedCount,
             };
         });
 
@@ -470,7 +485,18 @@ export async function approveCatalogRequest(params: {
             throw new AppError('Failed to approve catalog request.', 500, 'CATALOG_REQUEST_APPROVAL_FAILED');
         }
 
-        return response;
+        const finalResponse = response as CatalogRequestApprovalResult;
+
+        // Notify sellers (best-effort, outside transaction)
+        if (affectedSellerIds.length > 0) {
+            void CatalogNotificationService.notifySellersOfApproval(
+                affectedSellerIds,
+                finalResponse.request._id.toString(),
+                finalResponse.request.requestedName
+            );
+        }
+
+        return finalResponse;
     } finally {
         await session.endSession();
     }
@@ -492,6 +518,7 @@ export async function markCatalogRequestDuplicate(params: {
 
     try {
         let response: CatalogRequestApprovalResult | null = null;
+        let affectedSellerIds: string[] = [];
 
         await session.withTransaction(async () => {
             const request = await loadRequestForReview(requestId, session);
@@ -509,13 +536,14 @@ export async function markCatalogRequestDuplicate(params: {
             request.rejectedAt = null;
             await request.save({ session });
 
-            const updatedAdsCount = await resolveWaitingAds(request, resolvedEntityId, session);
+            const { modifiedCount, sellerIds } = await resolveWaitingAds(request, resolvedEntityId, session);
+            affectedSellerIds = sellerIds;
 
             response = {
                 request,
                 resolvedEntityId,
                 createdCanonicalEntity: false,
-                updatedAdsCount,
+                updatedAdsCount: modifiedCount,
             };
         });
 
@@ -523,7 +551,18 @@ export async function markCatalogRequestDuplicate(params: {
             throw new AppError('Failed to mark catalog request as duplicate.', 500, 'CATALOG_REQUEST_DUPLICATE_FAILED');
         }
 
-        return response;
+        const finalResponse = response as CatalogRequestApprovalResult;
+
+        // Notify sellers (best-effort, outside transaction)
+        if (affectedSellerIds.length > 0) {
+            void CatalogNotificationService.notifySellersOfApproval(
+                affectedSellerIds,
+                finalResponse.request._id.toString(),
+                finalResponse.request.requestedName
+            );
+        }
+
+        return finalResponse;
     } finally {
         await session.endSession();
     }

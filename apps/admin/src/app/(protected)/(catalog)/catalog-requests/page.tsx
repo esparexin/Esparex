@@ -22,6 +22,9 @@ import {
     rejectAdminCatalogRequest,
     markAdminCatalogRequestDuplicate,
     getAdminCatalogRequestStats,
+    bulkApproveAdminCatalogRequests,
+    bulkRejectAdminCatalogRequests,
+    bulkMarkAdminCatalogRequestsDuplicate,
 } from '@/lib/api/catalogRequests';
 import { getCategories } from '@/lib/api/categories';
 import { getBrands } from '@/lib/api/brands';
@@ -294,6 +297,10 @@ export default function CatalogRequestsPage() {
 
     const [categoryMap, setCategoryMap] = useState<NameMap>({});
     const [brandMap, setBrandMap] = useState<NameMap>({});
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    const isAllSelected = items.length > 0 && items.every(item => selectedIds.has(item.id));
+    const isSomeSelected = items.some(item => selectedIds.has(item.id)) && !isAllSelected;
 
     const status = coerceStatusTab(searchParams.get('status'));
     const requestType = coerceTypeFilter(searchParams.get('requestType'));
@@ -482,6 +489,66 @@ export default function CatalogRequestsPage() {
         });
     }, [runMutation, selectedRequest, showToast]);
 
+    const handleBulkApprove = useCallback(async () => {
+        if (selectedIds.size === 0) return;
+        const ids = Array.from(selectedIds);
+        
+        await runMutation(async () => {
+            const response = await bulkApproveAdminCatalogRequests({ ids });
+            const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
+            showToast(`Bulk approved ${successes} requests`, successes > 0 ? 'success' : 'error');
+            setSelectedIds(new Set());
+        });
+    }, [runMutation, selectedIds, showToast]);
+
+    const handleBulkReject = useCallback(async () => {
+        if (selectedIds.size === 0) return;
+        const reason = window.prompt('Please provide a rejection reason for all selected requests:');
+        if (!reason) return;
+
+        const ids = Array.from(selectedIds);
+        await runMutation(async () => {
+            const response = await bulkRejectAdminCatalogRequests({ ids, rejectionReason: reason });
+            const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
+            showToast(`Bulk rejected ${successes} requests`, successes > 0 ? 'success' : 'error');
+            setSelectedIds(new Set());
+        });
+    }, [runMutation, selectedIds, showToast]);
+
+    const handleBulkMarkDuplicate = useCallback(async () => {
+        if (selectedIds.size === 0) return;
+        const targetId = window.prompt('Please provide the canonical Brand/Model ObjectId to link all selected requests to:');
+        if (!targetId) return;
+
+        const ids = Array.from(selectedIds);
+        await runMutation(async () => {
+            const response = await bulkMarkAdminCatalogRequestsDuplicate({ ids, duplicateOfEntityId: targetId });
+            const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
+            showToast(`Bulk marked ${successes} requests as duplicate`, successes > 0 ? 'success' : 'error');
+            setSelectedIds(new Set());
+        });
+    }, [runMutation, selectedIds, showToast]);
+
+    const toggleSelectAll = useCallback(() => {
+        if (isAllSelected) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(items.map(item => item.id)));
+        }
+    }, [isAllSelected, items]);
+
+    const toggleSelectItem = useCallback((id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    }, []);
+
     const statusTabs = useMemo(() => {
         const makeHref = (tabStatus: StatusTab) => {
             const params = new URLSearchParams();
@@ -504,6 +571,31 @@ export default function CatalogRequestsPage() {
 
     const columns: ColumnDef<CatalogRequestItem>[] = useMemo(
         () => [
+            {
+                id: 'selection',
+                header: (
+                    <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        ref={el => {
+                            if (el) el.indeterminate = isSomeSelected;
+                        }}
+                        onChange={toggleSelectAll}
+                        className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                    />
+                ),
+                cell: (item) => (
+                    <input
+                        type="checkbox"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => toggleSelectItem(item.id)}
+                        onClick={e => e.stopPropagation()}
+                        className="h-4 w-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                    />
+                ),
+                className: 'w-10 px-4',
+                exportValue: () => '',
+            },
             {
                 header: 'Request',
                 cell: (item) => (
@@ -570,7 +662,7 @@ export default function CatalogRequestsPage() {
                 exportValue: () => '',
             },
         ],
-        [brandMap, categoryMap, openDetails]
+        [brandMap, categoryMap, isAllSelected, isSomeSelected, openDetails, selectedIds, toggleSelectAll, toggleSelectItem]
     );
 
     return (
@@ -618,6 +710,35 @@ export default function CatalogRequestsPage() {
                         enableColumnVisibility
                         enableCsvExport
                         csvFileName="catalog-requests.csv"
+                        selectedCount={selectedIds.size}
+                        bulkActions={
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleBulkApprove}
+                                    disabled={mutating}
+                                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-emerald-700 disabled:opacity-60"
+                                >
+                                    Quick Approve
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleBulkReject}
+                                    disabled={mutating}
+                                    className="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-rose-700 disabled:opacity-60"
+                                >
+                                    Quick Reject
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleBulkMarkDuplicate}
+                                    disabled={mutating}
+                                    className="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-amber-700 disabled:opacity-60"
+                                >
+                                    Quick Duplicate
+                                </button>
+                            </div>
+                        }
                         pagination={{
                             currentPage: pagination.page,
                             totalPages: pagination.totalPages,

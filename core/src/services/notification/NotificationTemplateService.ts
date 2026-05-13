@@ -69,6 +69,10 @@ const TEMPLATES: Record<string, (params: TemplateParams) => NotificationTemplate
     SYSTEM_ALERT: (p) => ({
         title: String(p.title || 'System Alert'),
         body: String(p.message || p.body || '')
+    }),
+    CATALOG_ITEM_APPROVED: (p) => ({
+        title: 'Catalog Request Approved',
+        body: 'Your requested catalog item has been approved. Your listing is now back in moderation review.'
     })
 };
 

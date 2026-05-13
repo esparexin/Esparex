@@ -67,6 +67,7 @@ export async function fetchAdminModerationAds(input: {
     if (filters.expiringWithinDays) params.set("expiringWithinDays", filters.expiringWithinDays);
     if (filters.spotlightWarningStatus && filters.spotlightWarningStatus !== "all") params.set("spotlightWarningStatus", filters.spotlightWarningStatus);
     if (filters.spotlightExpiringWithinDays) params.set("spotlightExpiringWithinDays", filters.spotlightExpiringWithinDays);
+    if (filters.catalogPending !== undefined) params.set("catalogPending", String(filters.catalogPending));
 
     applySort(params, filters.sort);
 
@@ -95,6 +96,7 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
         expired: ensureNumber(data.expired, 'expired'),
         sold: ensureNumber(data.sold, 'sold'),
         deactivated: ensureNumber(data.deactivated, 'deactivated'),
+        catalogPending: ensureNumber(data.catalogPending, 'catalogPending'),
     };
 }
 

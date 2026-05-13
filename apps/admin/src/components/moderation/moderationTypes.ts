@@ -56,6 +56,13 @@ export type ModerationItem = {
     reportCount: number;
     fraudScore: number;
     riskScore?: number;
+    catalogDependency?: {
+        isBlocked: boolean;
+        requestId?: string;
+        status?: string;
+        requestedBrandName?: string;
+        requestedModelName?: string;
+    };
 };
 
 export type ModerationFilters = {
@@ -72,6 +79,7 @@ export type ModerationFilters = {
     expiringWithinDays?: string;
     spotlightWarningStatus?: 'sent' | 'not_sent' | 'all';
     spotlightExpiringWithinDays?: string;
+    catalogPending?: boolean;
 };
 
 export type ModerationSummary = {
@@ -82,6 +90,7 @@ export type ModerationSummary = {
     expired: number;
     sold: number;
     deactivated: number;
+    catalogPending: number;
 };
 
 export const DEFAULT_SUMMARY: ModerationSummary = {
@@ -91,7 +100,8 @@ export const DEFAULT_SUMMARY: ModerationSummary = {
     rejected: 0,
     expired: 0,
     sold: 0,
-    deactivated: 0
+    deactivated: 0,
+    catalogPending: 0
 };
 
 export type ModerationPagination = {
@@ -114,5 +124,6 @@ export const DEFAULT_FILTERS: ModerationFilters = {
     expiryWarningStatus: 'all',
     expiringWithinDays: "",
     spotlightWarningStatus: 'all',
-    spotlightExpiringWithinDays: ""
+    spotlightExpiringWithinDays: "",
+    catalogPending: undefined
 };

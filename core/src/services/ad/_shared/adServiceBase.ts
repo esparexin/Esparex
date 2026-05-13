@@ -17,6 +17,7 @@ export { default as Report } from '../../../models/Report';
 export { default as BlockedUser } from '../../../models/BlockedUser';
 export { default as SparePart } from '../../../models/SparePart';
 export { default as ServiceType } from '../../../models/ServiceType';
+export { default as CatalogRequest } from '../../../models/CatalogRequest';
 export { serializeDoc } from '../../../utils/serialize';
 export { normalizeLocationResponse } from '../../location/LocationNormalizer';
 export { touchLocationSearchAnalytics } from '../../location/LocationAnalyticsService';

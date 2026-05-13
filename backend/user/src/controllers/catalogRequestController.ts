@@ -435,3 +435,77 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
         return sendControllerError(req, res, error);
     }
 };
+
+export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Response) => {
+    try {
+        const adminId = getAdminActorId(req);
+        const { ids, adminNotes } = req.body as { ids: string[]; adminNotes?: string };
+        const results = [];
+
+        for (const requestId of ids) {
+            try {
+                const result = await approveCatalogRequest({ requestId, adminId, adminNotes });
+                void notifyRequesterReviewOutcome(result.request, 'approved', {
+                    approvedEntityId: String(result.resolvedEntityId),
+                    updatedAdsCount: result.updatedAdsCount,
+                });
+                results.push({ id: requestId, status: 'success', updatedAdsCount: result.updatedAdsCount });
+            } catch (err) {
+                results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
+            }
+        }
+
+        return sendSuccessResponse(res, { results }, `Processed ${ids.length} catalog requests`);
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};
+
+export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Response) => {
+    try {
+        const adminId = getAdminActorId(req);
+        const { ids, rejectionReason, adminNotes } = req.body as { ids: string[]; rejectionReason: string; adminNotes?: string };
+        const results = [];
+
+        for (const requestId of ids) {
+            try {
+                const result = await rejectCatalogRequest({ requestId, adminId, rejectionReason, adminNotes });
+                void notifyRequesterReviewOutcome(result.request, 'rejected', {
+                    rejectionReason: result.request.rejectionReason,
+                });
+                results.push({ id: requestId, status: 'success' });
+            } catch (err) {
+                results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
+            }
+        }
+
+        return sendSuccessResponse(res, { results }, `Processed ${ids.length} catalog requests`);
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};
+
+export const bulkMarkCatalogRequestsDuplicateByAdmin = async (req: Request, res: Response) => {
+    try {
+        const adminId = getAdminActorId(req);
+        const { ids, duplicateOfEntityId, adminNotes } = req.body as { ids: string[]; duplicateOfEntityId: string; adminNotes?: string };
+        const results = [];
+
+        for (const requestId of ids) {
+            try {
+                const result = await markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId, adminNotes });
+                void notifyRequesterReviewOutcome(result.request, 'duplicate', {
+                    duplicateOfEntityId: String(result.resolvedEntityId),
+                    updatedAdsCount: result.updatedAdsCount,
+                });
+                results.push({ id: requestId, status: 'success', updatedAdsCount: result.updatedAdsCount });
+            } catch (err) {
+                results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
+            }
+        }
+
+        return sendSuccessResponse(res, { results }, `Processed ${ids.length} catalog requests`);
+    } catch (error) {
+        return sendControllerError(req, res, error);
+    }
+};

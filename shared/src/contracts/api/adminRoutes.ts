@@ -117,6 +117,9 @@ export const ADMIN_ROUTES = {
   CATALOG_REQUEST_APPROVE: (id: string) => `/catalog-requests/${id}/approve`,
   CATALOG_REQUEST_REJECT: (id: string) => `/catalog-requests/${id}/reject`,
   CATALOG_REQUEST_MARK_DUPLICATE: (id: string) => `/catalog-requests/${id}/mark-duplicate`,
+  CATALOG_REQUEST_BULK_APPROVE: "/catalog-requests/bulk/approve",
+  CATALOG_REQUEST_BULK_REJECT: "/catalog-requests/bulk/reject",
+  CATALOG_REQUEST_BULK_MARK_DUPLICATE: "/catalog-requests/bulk/mark-duplicate",
   CATALOG_REQUEST_STATS: "/catalog-requests/stats",
 
   // Finance

@@ -113,3 +113,33 @@ export async function getAdminCatalogRequestStats(requestType?: CatalogRequestTy
     const suffix = query ? `?${query}` : '';
     return adminFetch<CatalogRequestStats>(`${ADMIN_ROUTES.CATALOG_REQUEST_STATS}${suffix}`);
 }
+
+export async function bulkApproveAdminCatalogRequests(payload: { ids: string[]; adminNotes?: string }) {
+    return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string; updatedAdsCount?: number }> }>(
+        ADMIN_ROUTES.CATALOG_REQUEST_BULK_APPROVE,
+        {
+            method: 'POST',
+            body: payload,
+        }
+    );
+}
+
+export async function bulkRejectAdminCatalogRequests(payload: { ids: string[]; rejectionReason: string; adminNotes?: string }) {
+    return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string }> }>(
+        ADMIN_ROUTES.CATALOG_REQUEST_BULK_REJECT,
+        {
+            method: 'POST',
+            body: payload,
+        }
+    );
+}
+
+export async function bulkMarkAdminCatalogRequestsDuplicate(payload: { ids: string[]; duplicateOfEntityId: string; adminNotes?: string }) {
+    return adminFetch<{ results: Array<{ id: string; status: 'success' | 'error'; message?: string; updatedAdsCount?: number }> }>(
+        ADMIN_ROUTES.CATALOG_REQUEST_BULK_MARK_DUPLICATE,
+        {
+            method: 'POST',
+            body: payload,
+        }
+    );
+}

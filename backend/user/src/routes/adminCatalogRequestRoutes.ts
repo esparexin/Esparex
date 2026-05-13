@@ -8,6 +8,9 @@ import {
     approveCatalogRequestSchema,
     rejectCatalogRequestSchema,
     markCatalogRequestDuplicateSchema,
+    bulkApproveCatalogRequestSchema,
+    bulkRejectCatalogRequestSchema,
+    bulkMarkCatalogRequestDuplicateSchema,
 } from '@esparex/core/validators/catalogRequest.validator';
 import {
     getAdminCatalogRequests,
@@ -16,6 +19,9 @@ import {
     rejectCatalogRequestByAdmin,
     markCatalogRequestDuplicateByAdmin,
     getAdminCatalogRequestStats,
+    bulkApproveCatalogRequestsByAdmin,
+    bulkRejectCatalogRequestsByAdmin,
+    bulkMarkCatalogRequestsDuplicateByAdmin,
 } from '../controllers/catalogRequestController';
 
 const router = express.Router();
@@ -24,6 +30,24 @@ router.use(requireAdmin);
 
 router.get('/stats', validateRequest({ query: adminCatalogRequestStatsQuerySchema }), getAdminCatalogRequestStats);
 router.get('/', validateRequest({ query: adminCatalogRequestListQuerySchema }), getAdminCatalogRequests);
+
+// Bulk Operations
+router.post(
+    '/bulk/approve',
+    validateRequest(bulkApproveCatalogRequestSchema),
+    bulkApproveCatalogRequestsByAdmin
+);
+router.post(
+    '/bulk/reject',
+    validateRequest(bulkRejectCatalogRequestSchema),
+    bulkRejectCatalogRequestsByAdmin
+);
+router.post(
+    '/bulk/mark-duplicate',
+    validateRequest(bulkMarkCatalogRequestDuplicateSchema),
+    bulkMarkCatalogRequestsDuplicateByAdmin
+);
+
 router.get('/:id', validateObjectId, getAdminCatalogRequestById);
 router.post(
     '/:id/approve',

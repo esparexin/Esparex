@@ -49,6 +49,10 @@ export const NOTIFICATION_META: Record<NotificationTypeValue, NotificationMeta> 
         icon: Tag,
         iconTone: "text-rose-600",
     },
+    CATALOG_ITEM_APPROVED: {
+        icon: Check,
+        iconTone: "text-emerald-600",
+    },
 };
 
 type NotificationItemCardProps = {

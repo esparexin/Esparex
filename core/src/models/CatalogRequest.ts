@@ -6,7 +6,7 @@ import { applyToJSONTransform } from '../utils/schemaOptions';
 export const CATALOG_REQUEST_TYPE_VALUES = ['brand', 'model'] as const;
 export type CatalogRequestTypeValue = (typeof CATALOG_REQUEST_TYPE_VALUES)[number];
 
-export const CATALOG_REQUEST_STATUS_VALUES = ['pending', 'approved', 'rejected', 'duplicate'] as const;
+export const CATALOG_REQUEST_STATUS_VALUES = ['pending', 'under_review', 'duplicate_review', 'approved', 'rejected', 'duplicate'] as const;
 export type CatalogRequestStatusValue = (typeof CATALOG_REQUEST_STATUS_VALUES)[number];
 
 export interface ICatalogRequest extends Document {

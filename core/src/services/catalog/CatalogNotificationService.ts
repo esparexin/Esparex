@@ -52,4 +52,43 @@ export class CatalogNotificationService {
             });
         }
     }
+
+    /**
+     * Notify all unique sellers whose listings were held by this request.
+     */
+    static async notifySellersOfApproval(sellerIds: string[], requestId: string, brandName: string) {
+        if (!sellerIds.length) return;
+
+        try {
+            // Deduplicate for safety (distinct query in service should already have handled this, but we're safe here)
+            const uniqueSellers = [...new Set(sellerIds)];
+
+            const promises = uniqueSellers.map(sellerId => {
+                const intent = new NotificationIntent({
+                    userId: sellerId,
+                    type: NOTIFICATION_TYPE.CATALOG_ITEM_APPROVED,
+                    entityRef: { domain: 'catalog_request', id: requestId },
+                    message: { 
+                        title: 'Catalog Request Approved', 
+                        body: 'Your requested catalog item has been approved. Your listing is now back in moderation review.',
+                        data: {
+                            requestId,
+                            brandName,
+                            link: '/dashboard/my-ads'
+                        } 
+                    },
+                    priority: 'medium'
+                });
+                return NotificationDispatcher.dispatch(intent);
+            });
+
+            await Promise.all(promises);
+            logger.info(`[CatalogNotification] Sent approval notifications to ${uniqueSellers.length} sellers for request ${requestId}`);
+        } catch (error) {
+            logger.error('[CatalogNotification] Failed to notify sellers of catalog approval', {
+                error: error instanceof Error ? error.message : String(error),
+                requestId
+            });
+        }
+    }
 }

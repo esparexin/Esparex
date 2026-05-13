@@ -24,7 +24,7 @@ const sendDashboardError = (req: Request, res: Response, error: unknown) => {
 export const getStats = async (req: Request, res: Response) => {
     try {
         const publicAdFilter = buildPublicAdFilter();
-        const { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg } =
+        const { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth } =
             await getDashboardOverviewStats(publicAdFilter);
 
         const stats = unifiedStats[0];
@@ -60,7 +60,8 @@ export const getStats = async (req: Request, res: Response) => {
                 pendingBusinesses: pendingBusinesses,
                 pendingAds: pendingAds
             },
-            revenue: totalRevenue
+            revenue: totalRevenue,
+            catalogHealth
         });
     } catch (error: unknown) {
         sendDashboardError(req, res, error);
@@ -70,7 +71,7 @@ export const getStats = async (req: Request, res: Response) => {
 export const getDashboardStats = async (req: Request, res: Response) => {
     try {
         const publicAdFilter = buildPublicAdFilter();
-        const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg } =
+        const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth } =
             await getDashboardCardStats(publicAdFilter);
 
         const activeAds = adStats[0].live[0]?.count || 0;
@@ -83,7 +84,8 @@ export const getDashboardStats = async (req: Request, res: Response) => {
             pendingAds,
             totalReports,
             totalBusinesses,
-            revenue
+            revenue,
+            catalogHealth
         });
     } catch (error: unknown) {
         sendDashboardError(req, res, error);

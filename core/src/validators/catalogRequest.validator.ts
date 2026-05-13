@@ -91,3 +91,26 @@ export const markCatalogRequestDuplicateSchema = z
         adminNotes: z.string().trim().max(1200).optional(),
     })
     .strict();
+
+export const bulkApproveCatalogRequestSchema = z
+    .object({
+        ids: z.array(objectIdSchema).min(1).max(100),
+        adminNotes: z.string().trim().max(1200).optional(),
+    })
+    .strict();
+
+export const bulkRejectCatalogRequestSchema = z
+    .object({
+        ids: z.array(objectIdSchema).min(1).max(100),
+        rejectionReason: z.string().trim().min(1).max(500),
+        adminNotes: z.string().trim().max(1200).optional(),
+    })
+    .strict();
+
+export const bulkMarkCatalogRequestDuplicateSchema = z
+    .object({
+        ids: z.array(objectIdSchema).min(1).max(100),
+        duplicateOfEntityId: objectIdSchema,
+        adminNotes: z.string().trim().max(1200).optional(),
+    })
+    .strict();

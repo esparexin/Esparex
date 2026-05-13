@@ -17,6 +17,13 @@ import { fetchAuditLogs } from "@/lib/api/auditLogs";
 import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
 
+interface CatalogHealthMetrics {
+  pendingRequests: number;
+  heldListings: number;
+  averageResolutionHours: number;
+  duplicateRequests: number;
+}
+
 type DashboardStats = {
   totalUsers: number;
   activeUsers: number;
@@ -48,13 +55,14 @@ export default function DashboardPage() {
   const [pendingSpareParts, setPendingSpareParts] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [pendingBusinessCount, setPendingBusinessCount] = useState(0);
+  const [catalogHealth, setCatalogHealth] = useState<CatalogHealthMetrics | null>(null);
   const [liveLogs, setLiveLogs] = useState<AdminLog[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessOverviewPayload, financePayload, auditPayload] = await Promise.all([
+        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessOverviewPayload, financePayload, auditPayload, dashboardStatsPayload] = await Promise.all([
           fetchAdminAdSummary(),
           fetchAdminServiceSummary(),
           fetchAdminSparePartSummary(),
@@ -64,6 +72,7 @@ export default function DashboardPage() {
           adminFetch<BusinessOverview>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
           adminFetch<FinanceStats>(ADMIN_ROUTES.FINANCE_STATS),
           fetchAuditLogs({ q: "", action: "all", page: 1, limit: 5 }),
+          adminFetch<Record<string, unknown>>(ADMIN_ROUTES.DASHBOARD_STATS),
         ]);
 
         const overviewData = parseAdminResponse<never, DashboardOverview>(userOverview).data || {} as DashboardOverview;
@@ -90,6 +99,11 @@ export default function DashboardPage() {
         setReportCount(Number(reportPagination?.total || 0));
         setPendingBusinessCount(Number(businessOverview.pending || 0));
         setLiveLogs(auditPayload.items);
+        
+        const dashboardStats = parseAdminResponse<never, { catalogHealth?: CatalogHealthMetrics }>(dashboardStatsPayload).data;
+        if (dashboardStats?.catalogHealth) {
+          setCatalogHealth(dashboardStats.catalogHealth);
+        }
       } catch (err) {
         const message = mapErrorToMessage(err, "Failed to load dashboard data");
         setError(message);
@@ -193,6 +207,40 @@ export default function DashboardPage() {
           icon={Package}
           className="border-teal-100 bg-teal-50/5"
           href={ADMIN_UI_ROUTES.spareParts({ status: "pending" })}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <DashboardCard
+          title="Pending Requests"
+          value={catalogHealth?.pendingRequests ?? 0}
+          icon={Clock}
+          className="border-amber-100 bg-amber-50/5"
+          description="Catalog suggestions awaiting review"
+          href={ADMIN_UI_ROUTES.catalogRequests({ status: 'pending' })}
+        />
+        <DashboardCard
+          title="Held Listings"
+          value={catalogHealth?.heldListings ?? 0}
+          icon={AlertCircle}
+          className="border-orange-100 bg-orange-50/5"
+          description="Listings blocked by catalog dependency"
+          href={ADMIN_UI_ROUTES.ads({ catalogPending: 'true' })}
+        />
+        <DashboardCard
+          title="Avg Resolution (hrs)"
+          value={catalogHealth?.averageResolutionHours ?? 0}
+          icon={TrendingUp}
+          className="border-sky-100 bg-sky-50/5"
+          description="Average turnaround for requests"
+        />
+        <DashboardCard
+          title="Duplicates"
+          value={catalogHealth?.duplicateRequests ?? 0}
+          icon={AlertCircle}
+          className="border-slate-100 bg-slate-50/5"
+          description="Requests marked as duplicates"
+          href={ADMIN_UI_ROUTES.catalogRequests({ status: 'duplicate' })}
         />
       </div>
 
