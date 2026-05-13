@@ -14,6 +14,7 @@ export const NOTIFICATION_TYPE = {
     SYSTEM:          'SYSTEM',
     PRICE_DROP:      'PRICE_DROP',
     CHAT:            'CHAT',
+    CATALOG_ITEM_APPROVED: 'CATALOG_ITEM_APPROVED',
 } as const;
 
 export type NotificationTypeValue = (typeof NOTIFICATION_TYPE)[keyof typeof NOTIFICATION_TYPE];

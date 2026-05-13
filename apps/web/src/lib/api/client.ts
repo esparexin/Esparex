@@ -9,13 +9,7 @@ import logger from "@/lib/logger";
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
 
-function dispatchGlobalErrorEvent(error: unknown, onRetry?: () => void) {
-    if (typeof window !== 'undefined') {
-        window.dispatchEvent(new CustomEvent("esparex_global_error", {
-            detail: { error, onRetry }
-        }));
-    }
-}
+// error event dispatch logic removed
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
@@ -187,7 +181,7 @@ class APIClient {
                 if (!ok) {
                     const error = this.createHealthGateError(config);
                     if (!(config as EsparexRequestConfig).silent) {
-                        dispatchGlobalErrorEvent(error);
+                        console.error("[API ERROR]", error);
                     }
                     return Promise.reject(error);
                 }
@@ -201,7 +195,7 @@ class APIClient {
 
                 const error = this.createHealthGateError(config);
                 if (!(config as EsparexRequestConfig).silent) {
-                    dispatchGlobalErrorEvent(error);
+                    console.error("[API ERROR]", error);
                 }
                 return Promise.reject(error);
             }
@@ -294,7 +288,7 @@ class APIClient {
                                 endpoint: response.config?.url?.toString()
                             }
                         });
-                    dispatchGlobalErrorEvent(error);
+                    console.error("[API ERROR]", error);
                     return Promise.reject(error);
                 }
 
@@ -433,13 +427,7 @@ class APIClient {
                     });
 
                 if (!requestConfig?.silent && !shouldSuppressPopupForApiError(apiError.status, requestConfig)) {
-                    // For retryable errors that exhausted automatic retries or are not candidate for auto-retry, offer manual retry action.
-                    const isManualRetryable = isTransientError;
-                    const onRetry =
-                        isManualRetryable && requestConfig
-                            ? () => { void this.client.request({ ...requestConfig, _retryCount: 0 } as EsparexRequestConfig); }
-                            : undefined;
-                    dispatchGlobalErrorEvent(apiError, onRetry);
+                    console.error("[API ERROR]", apiError);
                 }
 
                 return Promise.reject(apiError);

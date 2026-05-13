@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { createCatalogRequest } from "@/lib/api/user/catalogRequest";
 import { Loader2, CheckCircle2 } from "@/icons/IconRegistry";
-import { useAppFeedback } from "@/context/FeedbackSystemContext";
+
 
 interface CatalogRequestDialogProps {
     open: boolean;
@@ -35,14 +35,14 @@ export function CatalogRequestDialog({
     initialName = "",
     onSuccess,
 }: CatalogRequestDialogProps) {
-    const { emitError } = useAppFeedback();
+
     const [name, setName] = useState(initialName);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
     const handleSubmit = async () => {
         if (!name.trim()) {
-            emitError("Please enter a name");
+            console.error("[CatalogRequest]", "Please enter a name");
             return;
         }
 
@@ -64,7 +64,7 @@ export function CatalogRequestDialog({
                 setName("");
             }, 2000);
         } catch (error) {
-            emitError(error);
+            console.error("[CatalogRequest]", error);
         } finally {
             setIsSubmitting(false);
         }

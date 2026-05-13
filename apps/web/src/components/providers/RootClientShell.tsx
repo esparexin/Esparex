@@ -6,8 +6,7 @@ import { ErrorBoundary } from "@/errors";
 import { PopupProvider } from "@/context/PopupProvider";
 import { LocationProvider } from "@/context/LocationContext";
 import { CookieConsentBanner } from "@/components/common/CookieConsentBanner";
-import { AppFeedbackProvider } from "@/context/FeedbackSystemContext";
-import { SuccessFeedbackBanner } from "@/components/feedback/SystemFeedbackBanners";
+
 
 export function RootClientShell({
     children,
@@ -18,16 +17,12 @@ export function RootClientShell({
 }) {
     return (
         <ErrorBoundary>
-            <AppFeedbackProvider>
                 <PopupProvider>
                     <LocationProvider initialHasAuthCookie={initialHasAuthCookie}>
-                        <SuccessFeedbackBanner />
-                        {/* <ErrorFeedbackBanners /> */}
                         {children}
                         <CookieConsentBanner />
                     </LocationProvider>
                 </PopupProvider>
-            </AppFeedbackProvider>
         </ErrorBoundary>
     );
 }

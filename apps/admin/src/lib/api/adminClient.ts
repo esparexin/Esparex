@@ -2,7 +2,6 @@ import type { AdminEnvelope } from "@/types/admin";
 import {
   ADMIN_ROUTES,
 } from "@/lib/api/routes";
-import { emitAdminErrorPopup } from "@/lib/popup/popupEvents";
 import { resolveValidatedAdminApiBase } from "@/lib/api/validateAdminApiEnv";
 
 const ADMIN_API_BASE = resolveValidatedAdminApiBase();
@@ -202,7 +201,7 @@ export async function adminFetch<T>(
       // expected business logic and should be handled by the calling hook.
       const isUnexpected = response.status === 0 || response.status >= 500;
       if (isUnexpected) {
-        emitAdminErrorPopup(response.status, String(message));
+        console.error("[API ERROR]", message);
       }
 
       throw error;
@@ -214,11 +213,11 @@ export async function adminFetch<T>(
   try {
     return await makeRequest(false);
   } catch (err) {
-    // Re-throw AdminApiError (already handled + popup shown inside makeRequest)
+    // Re-throw AdminApiError (already handled inside makeRequest)
     if (err instanceof AdminApiError) throw err;
     // Network-level failure (fetch threw before receiving a response)
     const message = err instanceof Error ? err.message : "Unable to connect to server.";
-    emitAdminErrorPopup(0, message, "NETWORK_FAILURE");
+    console.error("[API ERROR]", message);
     throw err;
   }
 }
