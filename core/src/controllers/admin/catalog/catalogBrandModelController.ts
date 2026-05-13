@@ -12,6 +12,7 @@ import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import { TAXONOMY_APPROVAL_STATUS } from "../../../constants/enums/taxonomyApprovalStatus";
+import { getUserConnection } from '../../../config/db';
 import {
     BrandModel,
     CatalogModel,
@@ -288,28 +289,53 @@ export const toggleBrandStatus = async (req: Request, res: Response) => {
     });
 };
 
-/**
- * Delete brand (soft delete with dependency check)
- */
 export const deleteBrand = async (req: Request, res: Response) => {
     try {
         if (!hasAdminAccess(req)) {
-            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+            return res.status(403).json({
+                success: false,
+                error: 'Admin access required',
+                path: req.originalUrl || req.path,
+                status: 403
+            });
         }
 
         const id = String(req.params.id);
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid Brand ID format',
+                path: req.originalUrl || req.path,
+                status: 400
+            });
+        }
+
+        // Treat already deleted brands as a successful idempotent operation.
+        const existingBrand = await BrandModel.findOne({ _id: id }).setOptions({ withDeleted: true });
+        if (!existingBrand || existingBrand.isDeleted) {
+            return res.status(200).json({
+                success: true,
+                message: 'Brand and dependent models and spare parts soft-deleted successfully',
+                data: {
+                    brandId: id,
+                    deletedModels: 0,
+                    deletedSpareParts: 0,
+                    alreadyDeleted: true
+                }
+            });
+        }
+
         const deps = await checkBrandDependencies(id);
         
-        // If there are user listings (ads) or spare parts linked, prevent deletion to maintain integrity.
-        if (deps.details.listings > 0 || deps.details.spareParts > 0) {
-            return sendContractErrorResponse(
-                req,
-                res,
-                400,
-                `Cannot delete Brand with active marketplace dependencies (listings: ${deps.details.listings}, spare parts: ${deps.details.spareParts})`,
-                { details: deps.details }
-            );
+        // If there are user listings (ads) linked, prevent deletion to maintain integrity.
+        if (deps.details.listings > 0) {
+            return res.status(400).json({
+                success: false,
+                error: `Cannot delete Brand with active marketplace dependencies (listings: ${deps.details.listings})`,
+                path: req.originalUrl || req.path,
+                status: 400
+            });
         }
 
         const softDeleteUpdate: Record<string, unknown> = {
@@ -318,19 +344,107 @@ export const deleteBrand = async (req: Request, res: Response) => {
             isActive: false,
         };
 
-        const brand = await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
-        if (!brand) {
-            return sendContractErrorResponse(req, res, 404, 'Brand not found');
+        const performDelete = async (txSession: any) => {
+            const brand = txSession
+                ? await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true }).session(txSession)
+                : await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
+
+            if (!brand) {
+                return { deletedModels: 0, deletedSpareParts: 0, brand };
+            }
+
+            // Cascade soft-delete all models belonging to this brand and their spare parts
+            const cascadeRes = await CatalogOrchestrator.cascadeBrandDelete(id, txSession);
+            return {
+                deletedModels: cascadeRes.deletedModels,
+                deletedSpareParts: cascadeRes.deletedSpareParts,
+                brand
+            };
+        };
+
+        let session: any = null;
+        let deletedModels = 0;
+        let deletedSpareParts = 0;
+        let brandDoc: any = null;
+
+        try {
+            session = await getUserConnection().startSession();
+            session.startTransaction();
+            const resData = await performDelete(session);
+            deletedModels = resData.deletedModels;
+            deletedSpareParts = resData.deletedSpareParts;
+            brandDoc = resData.brand;
+            await session.commitTransaction();
+        } catch (e: any) {
+            if (session) {
+                try {
+                    await session.abortTransaction();
+                } catch (abortErr) {
+                    logger.debug(`Failed to abort transaction: ${abortErr}`);
+                }
+                try {
+                    await session.endSession();
+                } catch (endErr) {
+                    logger.debug(`Failed to end session: ${endErr}`);
+                }
+                session = null;
+            }
+
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
+
+            if (isSessionError) {
+                logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
+                const resData = await performDelete(null);
+                deletedModels = resData.deletedModels;
+                deletedSpareParts = resData.deletedSpareParts;
+                brandDoc = resData.brand;
+            } else {
+                throw e;
+            }
+        } finally {
+            if (session) {
+                try {
+                    await session.endSession();
+                } catch (endErr) {
+                    logger.debug(`Failed to end session in finally: ${endErr}`);
+                }
+            }
         }
 
-        // Cascade soft-delete all models belonging to this brand
-        await CatalogOrchestrator.cascadeBrandDelete(id);
+        if (!brandDoc) {
+            return res.status(200).json({
+                success: true,
+                message: 'Brand and dependent models and spare parts soft-deleted successfully',
+                data: {
+                    brandId: id,
+                    deletedModels: 0,
+                    deletedSpareParts: 0,
+                    alreadyDeleted: true
+                }
+            });
+        }
 
-        void logAdminAction(req, 'BRAND_DELETE', 'Brand', brand._id);
+        void logAdminAction(req, 'BRAND_DELETE', 'Brand', brandDoc._id);
 
-        return sendSuccessResponse(res, null, 'Brand and all dependent models soft-deleted successfully');
+        return res.status(200).json({
+            success: true,
+            message: 'Brand and dependent models and spare parts soft-deleted successfully',
+            data: {
+                brandId: id,
+                deletedModels,
+                deletedSpareParts,
+                alreadyDeleted: false
+            }
+        });
     } catch (error) {
-        return sendCatalogError(req, res, error);
+        const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+        return res.status(500).json({
+            success: false,
+            error: message,
+            path: req.originalUrl || req.path,
+            status: 500
+        });
     }
 };
 

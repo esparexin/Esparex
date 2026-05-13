@@ -56,9 +56,12 @@ export default function BrandsPage() {
     const confirmDelete = async () => {
         if (!deletingBrand) return;
         setIsDeleting(true);
-        const success = await handleDelete(deletingBrand.id);
-        setIsDeleting(false);
-        if (success) setDeletingBrand(null);
+        try {
+            await handleDelete(deletingBrand.id);
+        } finally {
+            setIsDeleting(false);
+            setDeletingBrand(null);
+        }
     };
 
     const confirmReject = async () => {

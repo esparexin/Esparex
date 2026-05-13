@@ -1,5 +1,6 @@
 import express from 'express';
 import { requireAdmin } from '../middleware/adminAuth';
+import { validateObjectId } from '../middleware/validateObjectId';
 import * as adminCatalog from '@esparex/core/controllers/admin/catalog';
 
 const router = express.Router();
@@ -31,7 +32,7 @@ router.post('/brands', adminCatalog.createBrand);
 router.put('/brands/:id', adminCatalog.updateBrand);
 router.patch('/brands/:id', adminCatalog.updateBrand);
 router.patch('/brands/:id/status', adminCatalog.toggleBrandStatus);
-router.delete('/brands/:id', adminCatalog.deleteBrand);
+router.delete('/brands/:id', validateObjectId, adminCatalog.deleteBrand);
 router.patch('/brands/:id/approve', adminCatalog.approveBrand);
 router.patch('/brands/:id/reject', adminCatalog.rejectBrand);
 

@@ -200,16 +200,49 @@ export class CatalogOrchestrator {
     }
 
     /**
-     * Cascade Brand soft-delete to Models
+     * Cascade Brand soft-delete to Models and SpareParts
      */
     static async cascadeBrandDelete(brandId: string, session?: ClientSession) {
-        await Model.updateMany(
+        const txSession = session || null;
+        const now = new Date();
+
+        // Find all models associated with this brand
+        const models = await Model.find({ brandId })
+            .select('_id')
+            .session(txSession)
+            .lean<CascadeDoc[]>();
+        const modelIds = models.map((m) => m._id);
+
+        // Soft-delete those Models
+        const modelRes = await Model.updateMany(
             { brandId },
-            { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } }
-        ).session(session || null);
+            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
+        ).session(txSession);
+
+        let deletedSpareParts = 0;
+        // Soft-delete SpareParts linked to those models
+        if (modelIds.length > 0) {
+            const spRes1 = await SparePart.updateMany(
+                { modelId: { $in: modelIds } },
+                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
+            ).session(txSession);
+            deletedSpareParts += spRes1.modifiedCount || 0;
+        }
+
+        // Soft-delete SpareParts linked to the brand directly
+        const spRes2 = await SparePart.updateMany(
+            { brandId },
+            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
+        ).session(txSession);
+        deletedSpareParts += spRes2.modifiedCount || 0;
 
         await this.invalidateCatalogCache();
         logger.info(`Cascaded soft-delete for brand: ${brandId}`);
+
+        return {
+            deletedModels: modelRes.modifiedCount || 0,
+            deletedSpareParts
+        };
     }
 
     /**
