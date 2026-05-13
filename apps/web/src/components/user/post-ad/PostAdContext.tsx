@@ -63,7 +63,7 @@ export interface PostAdContextType {
 
     // Logic Wrappers
     handleCategoryChange: (id: string) => Promise<void>;
-    handleBrandChange: (name: string) => Promise<void>;
+    handleBrandChange: (name: string, requestId?: string) => Promise<void>;
 
     brandIsPending: boolean;
 

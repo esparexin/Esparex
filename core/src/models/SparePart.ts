@@ -114,6 +114,7 @@ SparePartSchema.index({ categoryIds: 1, isActive: 1 }, { name: 'idx_sparepart_ca
 SparePartSchema.index({ brandId: 1, modelId: 1 }, { name: 'idx_sparepart_brand_model' });
 SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
+SparePartSchema.index({ name: 1 }, { name: 'idx_sparepart_name', collation: { locale: 'en', strength: 2 } });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
 
 import { getUserConnection } from '../config/db';

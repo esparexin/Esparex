@@ -12,6 +12,8 @@ const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     categoryId: 'Category cannot be changed while editing a listing.',
     brandId: 'Brand cannot be changed while editing a listing.',
     modelId: 'Model cannot be changed while editing a listing.',
+    catalogRequestId: 'Catalog request reference cannot be changed while editing a listing.',
+    catalogPending: 'Catalog pending state cannot be changed while editing a listing.',
     screenSize: 'Screen size cannot be changed while editing a listing.',
     spareParts: 'Spare-part mapping cannot be changed while editing a listing.',
     deviceCondition: 'Device condition cannot be changed while editing a listing.',

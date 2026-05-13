@@ -91,6 +91,7 @@ BrandSchema.plugin(installSafeSoftDeleteQuery);
 BrandSchema.index({ categoryIds: 1 }, { name: 'idx_brand_categoryIds_idx' })
 BrandSchema.index({ status: 1 }, { name: 'idx_brand_status_idx' })
 BrandSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_brand_approval_active_idx' })
+BrandSchema.index({ name: 1 }, { name: 'idx_brand_name', collation: { locale: 'en', strength: 2 } })
 BrandSchema.index({ isDeleted: 1 }, { name: 'idx_brand_isDeleted_idx' })
 
 BrandSchema.index(

@@ -5,6 +5,7 @@ import './Admin';
 import './Category';
 import './Brand';
 import './Model';
+import './CatalogRequest';
 import './SparePart';
 import './ServiceType';
 import './ScreenSize';

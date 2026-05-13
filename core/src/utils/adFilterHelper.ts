@@ -30,6 +30,8 @@ export interface AdFilterCriteria {
     createdAfter?: string;
     createdBefore?: string;
     status?: string | string[] | UnknownRecord;
+    catalogRequestId?: string;
+    catalogPending?: boolean;
 }
 
 /**
@@ -164,6 +166,14 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
         } else {
             match.status = criteria.status;
         }
+    }
+
+    // Catalog Request Filters
+    if (criteria.catalogRequestId && mongoose.Types.ObjectId.isValid(criteria.catalogRequestId)) {
+        match.catalogRequestId = new mongoose.Types.ObjectId(criteria.catalogRequestId);
+    }
+    if (typeof criteria.catalogPending === 'boolean') {
+        match.catalogPending = criteria.catalogPending;
     }
 
     return match;

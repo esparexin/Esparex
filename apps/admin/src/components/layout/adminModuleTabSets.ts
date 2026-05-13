@@ -30,6 +30,7 @@ export const catalogManagementTabs: AdminTabItem[] = [
     { label: "Models",            href: "/models" },
     { label: "Screen Sizes",      href: "/screen-sizes" },
     { label: "Service Types",     href: "/service-types" },
+    { label: "Catalog Requests",  href: "/catalog-requests?status=pending" },
 ];
 
 export const sparePartsMasterTabs: AdminTabItem[] = [

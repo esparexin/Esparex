@@ -167,6 +167,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     return handlePaginatedContent(req, res, SparePartModel, {
         publicQuery,
         queryParams: cleanQuery,
+        searchFields: ['name', 'canonicalName', 'aliases'],
         defaultSort: { sortOrder: 1 }
     });
 };
@@ -215,6 +216,7 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
     return handlePaginatedContent(req, res, SparePartModel, {
         adminQuery,
         queryParams: cleanQuery,
+        searchFields: ['name', 'canonicalName', 'aliases'],
         defaultSort: { sortOrder: 1 }
     });
 };

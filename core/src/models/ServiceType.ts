@@ -64,6 +64,7 @@ ServiceTypeSchema.index({ categoryIds: 1 }, { name: 'idx_servicetype_categoryIds
 ServiceTypeSchema.index({ isActive: 1 }, { name: 'idx_servicetype_isActive' });
 ServiceTypeSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_servicetype_approval_active' });
 ServiceTypeSchema.index({ isDeleted: 1 }, { name: 'idx_servicetype_isDeleted' });
+ServiceTypeSchema.index({ name: 1 }, { name: 'idx_servicetype_name', collation: { locale: 'en', strength: 2 } });
 ServiceTypeSchema.index(
     { canonicalName: 1, categoryIds: 1 },
     {

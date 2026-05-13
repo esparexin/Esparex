@@ -80,6 +80,7 @@ CategorySchema.index({ type: 1, isActive: 1 }, { name: 'idx_category_type_active
 CategorySchema.index({ status: 1 }, { name: 'idx_category_status' });
 CategorySchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_category_approval_active' });
 CategorySchema.index({ isDeleted: 1, isActive: 1 }, { name: 'idx_category_isDeleted_isActive' });
+CategorySchema.index({ name: 1 }, { name: 'idx_category_name', collation: { locale: 'en', strength: 2 } });
 CategorySchema.index({ isDeleted: 1 }, { name: 'idx_category_isDeleted' });
 
 CategorySchema.index({ listingType: 1 }, { name: 'idx_category_listingType' });

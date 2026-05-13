@@ -26,6 +26,8 @@ export interface PreparedPayload {
     categoryId?: string;
     brandId?: string;
     modelId?: string;
+    catalogRequestId?: string;
+    catalogPending?: boolean;
     screenSize?: string;
     title?: string;
     description?: string;
@@ -121,6 +123,7 @@ export class AdCreationService {
             categoryId: typeof source.categoryId === 'string' ? source.categoryId : undefined,
             brandId: typeof source.brandId === 'string' ? source.brandId : undefined,
             modelId: typeof source.modelId === 'string' ? source.modelId : undefined,
+            catalogRequestId: typeof source.catalogRequestId === 'string' ? source.catalogRequestId : undefined,
             screenSize: typeof source.screenSize === 'string' ? source.screenSize : undefined,
             title: typeof source.title === 'string' ? source.title : undefined,
             description: typeof source.description === 'string' ? source.description : undefined,
@@ -139,6 +142,56 @@ export class AdCreationService {
             sellerType: typeof source.sellerType === 'string' ? source.sellerType : undefined,
             attributes: source.attributes && typeof source.attributes === 'object' ? source.attributes : undefined,
         };
+
+        if (payload.catalogRequestId) {
+            if (!mongoose.Types.ObjectId.isValid(payload.catalogRequestId)) {
+                throw new AppError('catalogRequestId must be a valid ObjectId.', 400);
+            }
+
+            const CatalogRequest = (await import('../models/CatalogRequest')).default;
+            const catalogRequest = await CatalogRequest.findById(payload.catalogRequestId)
+                .select('requestType categoryId parentBrandId status requestedBy')
+                .lean<{
+                    requestType?: 'brand' | 'model';
+                    categoryId?: mongoose.Types.ObjectId;
+                    parentBrandId?: mongoose.Types.ObjectId | null;
+                    status?: 'pending' | 'approved' | 'rejected' | 'duplicate';
+                    requestedBy?: mongoose.Types.ObjectId;
+                } | null>();
+
+            if (!catalogRequest) {
+                throw new AppError('Referenced catalog request was not found.', 404, 'CATALOG_REQUEST_NOT_FOUND');
+            }
+
+            if (catalogRequest.status !== 'pending') {
+                throw new AppError('Only pending catalog requests can be linked to ads.', 400, 'CATALOG_REQUEST_NOT_PENDING');
+            }
+
+            if (context.actor === 'USER' && String(catalogRequest.requestedBy) !== context.sellerId) {
+                throw new AppError('You can only link your own pending catalog requests.', 403, 'CATALOG_REQUEST_OWNERSHIP_MISMATCH');
+            }
+
+            if (payload.categoryId && String(catalogRequest.categoryId) !== payload.categoryId) {
+                throw new AppError('catalogRequestId category does not match the listing category.', 400, 'CATALOG_REQUEST_CATEGORY_MISMATCH');
+            }
+
+            if (!payload.categoryId) {
+                payload.categoryId = String(catalogRequest.categoryId);
+            }
+
+            if (catalogRequest.requestType === 'model') {
+                const parentBrandId = catalogRequest.parentBrandId ? String(catalogRequest.parentBrandId) : null;
+                if (!parentBrandId) {
+                    throw new AppError('Model catalog requests must include a valid parent brand.', 400, 'CATALOG_REQUEST_PARENT_BRAND_MISSING');
+                }
+                if (payload.brandId && payload.brandId !== parentBrandId) {
+                    throw new AppError('Listing brand does not match the model request parent brand.', 400, 'CATALOG_REQUEST_BRAND_MISMATCH');
+                }
+                payload.brandId = parentBrandId;
+            }
+
+            payload.catalogPending = true;
+        }
 
         if (payload.title) payload.title = payload.title.replace(/<[^>]*>?/gm, '').trim();
         if (payload.description) {
@@ -254,10 +307,14 @@ export class AdCreationService {
         if (!partial) {
             payload.sellerId = context.sellerId;
             payload.createdAt = payload.updatedAt = new Date();
-            payload.status = context.actor === 'ADMIN' ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
-            payload.moderationStatus = context.actor === 'ADMIN' ? 'auto_approved' : 'held_for_review';
+            
+            const isHeldForCatalog = payload.catalogPending === true;
+            
+            payload.status = (context.actor === 'ADMIN' && !isHeldForCatalog) ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
+            payload.moderationStatus = (context.actor === 'ADMIN' && !isHeldForCatalog) ? 'auto_approved' : 'held_for_review';
+            
             payload.isFree = payload.price === 0 || payload.isFree === true;
-            payload.expiresAt = context.actor === 'ADMIN' ? await computeActiveExpiry(listingType) : undefined;
+            payload.expiresAt = (context.actor === 'ADMIN' && !isHeldForCatalog) ? await computeActiveExpiry(listingType) : undefined;
         }
 
         // --- Compute Lightweight Listing Quality Score ---

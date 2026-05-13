@@ -248,6 +248,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
         }
         delete ad.category;
 
+        // ── Brand Hydration ──────────────────────────────────────────
         const bId = extractId(ad.brandId || ad.brand);
         if (bId) {
             ad.brandId = bId;
@@ -256,8 +257,13 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
                 if (brand.name) ad.brandName = brand.name;
             }
         }
-        delete ad.brand;
+        // Preserve 'brand' object if it was already populated, but ensure brandName is set
+        if (typeof ad.brand === 'object' && ad.brand !== null && !ad.brandName) {
+            const b = ad.brand as any;
+            if (b.name) ad.brandName = b.name;
+        }
 
+        // ── Model Hydration ──────────────────────────────────────────
         const mId = extractId(ad.modelId || ad.model);
         if (mId) {
             ad.modelId = mId;
@@ -266,7 +272,11 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
                 if (model.name) ad.modelName = model.name;
             }
         }
-        delete ad.model;
+        // Preserve 'model' object if it was already populated, but ensure modelName is set
+        if (typeof ad.model === 'object' && ad.model !== null && !ad.modelName) {
+            const m = ad.model as any;
+            if (m.name) ad.modelName = m.name;
+        }
 
         const spId = extractId(ad.sparePartId || ad.sparePart);
         if (spId) {
@@ -640,6 +650,8 @@ export const getAds = async (
             deviceCondition: 1,
             sparePartsSnapshot: 1,
             sparePartIds: 1,
+            catalogRequestId: 1,
+            catalogPending: 1,
             // Include populated fields (if lookups were performed)
             category: 1,
             brand: 1,

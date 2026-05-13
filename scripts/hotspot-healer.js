@@ -12,8 +12,7 @@ const HOTSPOTS = [
     'apps/web/src/context/AuthContext.tsx',
     'apps/web/src/app/(public)/terms/page.tsx',
     'apps/web/src/components/user/profile/tabs/MyListingsTab.tsx',
-    'apps/web/src/components/user/useBrowseListingsController.ts',
-    'core/src/jobs/suspendExpiredBusinesses.job.ts'
+    'apps/web/src/components/user/useBrowseListingsController.ts'
 ];
 
 console.log('🩹 Starting Safe Hotspot Healing (v2)...');

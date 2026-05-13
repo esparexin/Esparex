@@ -79,7 +79,7 @@ describe("adminUsersController.getUserManagementOverview", () => {
                 }),
             })
         );
-        expect(mockUser.countDocuments).toHaveBeenCalledTimes(6);
+        expect(mockUser.countDocuments).toHaveBeenCalledTimes(10);
     });
 
     it("prefers cached totals when metrics cache is complete", async () => {
@@ -116,7 +116,7 @@ describe("adminUsersController.getUserManagementOverview", () => {
                 }),
             })
         );
-        expect(mockUser.countDocuments).toHaveBeenCalledTimes(3);
+        expect(mockUser.countDocuments).toHaveBeenCalledTimes(7);
     });
 });
 

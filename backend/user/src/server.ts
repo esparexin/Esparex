@@ -2,7 +2,6 @@
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
 import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
 import { getHealthCheckData } from '@esparex/core/utils/health';
-import { startTaxonomyHealthCron } from './cron/taxonomyHealth';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
 import { initIO } from '@esparex/core/config/socket';
@@ -105,9 +104,6 @@ export async function startServer() {
         startReliabilityProbeLoop();
 
         if (shouldRunSchedulers) {
-            // Start taxonomy health cron (lightweight; runs on scheduler-enabled process)
-            startTaxonomyHealthCron();
-
             // Start user geo audit cron (lightweight; runs with distributed lock)
             startGeoAuditCron();
 

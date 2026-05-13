@@ -62,6 +62,8 @@ export interface AdFilters {
     expiringWithinDays?: number;
     spotlightWarningStatus?: 'sent' | 'not_sent';
     spotlightExpiringWithinDays?: number;
+    catalogRequestId?: string | mongoose.Types.ObjectId;
+    catalogPending?: boolean;
 }
 
 export interface PaginationOptions {

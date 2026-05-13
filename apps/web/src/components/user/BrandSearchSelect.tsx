@@ -6,13 +6,16 @@ import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 
+import { CatalogRequestDialog } from "./CatalogRequestDialog";
+
 interface BrandSearchSelectProps {
     brands: string[];
     brandMap: Record<string, { id?: string } | undefined>;
     /** Currently selected brandId */
     value: string;
-    /** Called with (brandId, brandName) on selection */
-    onChange: (brandId: string, brandName: string) => void;
+    /** Called with (brandId, brandName, requestId) on selection */
+    onChange: (brandId: string, brandName: string, requestId?: string) => void;
+    categoryId: string;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -23,12 +26,14 @@ export function BrandSearchSelect({
     brandMap,
     value,
     onChange,
+    categoryId,
     disabled = false,
     placeholder = "Search brand...",
     className,
 }: BrandSearchSelectProps) {
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
+    const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
@@ -146,40 +151,62 @@ export function BrandSearchSelect({
                                     We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
                                 </p>
                                 
-                                {search.trim().length >= 2 && (
                                     <button
                                         type="button"
                                         onPointerDown={(e) => {
                                             e.preventDefault();
-                                            onChange("", search.trim());
-                                            setSearch("");
-                                            setIsEditing(false);
+                                            setIsRequestDialogOpen(true);
                                         }}
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all active:scale-[0.97] shadow-md shadow-primary/20"
+                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all active:scale-[0.97] shadow-md shadow-slate-900/10"
                                     >
                                         <span className="text-lg leading-none">+</span>
-                                        Use &ldquo;{search.trim()}&rdquo;
+                                        Suggest &ldquo;{search.trim()}&rdquo;
                                     </button>
-                                )}
-                            </div>
-                        ) : (
-                            filtered.slice(0, 10).map((b) => (
+                                </div>
+                            ) : (
+                                <>
+                                {filtered.slice(0, 10).map((b) => (
+                                    <button
+                                        key={b}
+                                        type="button"
+                                        onPointerDown={(e) => {
+                                            e.preventDefault();
+                                            handleSelect(b);
+                                        }}
+                                        className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
+                                    >
+                                        {b}
+                                    </button>
+                                ))}
+                                
                                 <button
-                                    key={b}
                                     type="button"
                                     onPointerDown={(e) => {
                                         e.preventDefault();
-                                        handleSelect(b);
+                                        setIsRequestDialogOpen(true);
                                     }}
-                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
+                                    className="w-full p-3 border-t border-slate-50 text-[10px] font-bold text-primary hover:bg-slate-50 transition-colors uppercase tracking-wider text-center"
                                 >
-                                    {b}
+                                    Don&apos;t see your brand? Suggest it
                                 </button>
-                            ))
+                            </>
                         )}
                     </div>
                 </>
             )}
+
+            <CatalogRequestDialog
+                open={isRequestDialogOpen}
+                onOpenChange={setIsRequestDialogOpen}
+                requestType="brand"
+                categoryId={categoryId}
+                initialName={search}
+                onSuccess={(requestId, name) => {
+                    onChange("", name, requestId);
+                    setSearch("");
+                    setIsEditing(false);
+                }}
+            />
         </div>
     );
 }

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, useEffect, type CSSProperties } from "react";
-import { Check, Search, Loader2, Plus } from "@/icons/IconRegistry";
+import { Check, Search, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 import { usePostAd } from "@/components/user/post-ad/PostAdContext";
 import type { DeviceModel } from "@/lib/api/user/masterData";
-import { ensureModel } from "@/lib/api/user/masterData";
+import { CatalogRequestDialog } from "./CatalogRequestDialog";
 
 interface ModelSearchSelectProps {
     brandId: string;
@@ -18,8 +18,8 @@ interface ModelSearchSelectProps {
     value: string;
     /** Human-readable display name for the current value — used when value is an ObjectId not in availableModels */
     modelDisplayName?: string;
-    /** Called with (modelId, modelName) on selection */
-    onChange: (modelId: string, modelName: string) => void;
+    /** Called with (modelId, modelName, requestId) on selection */
+    onChange: (modelId: string, modelName: string, requestId?: string) => void;
     /**
      * Called after ensureModel creates a new brand record so the parent can
      * sync the pending brandId back into the form.
@@ -32,24 +32,22 @@ interface ModelSearchSelectProps {
 
 export function ModelSearchSelect({
     brandId,
-    brandName = "",
     categoryId,
     value,
     modelDisplayName = "",
     onChange,
-    onBrandResolved,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
 }: ModelSearchSelectProps) {
-    const { availableModels, loadModelsForBrand, setAvailableModels } = usePostAd();
+    const { availableModels, loadModelsForBrand } = usePostAd();
     
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [ensureError, setEnsureError] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
+    const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
 
     // Local selection bridges the gap during prop/context sync.
     // Only consulted when selectedModel (from catalog) is not yet available.
@@ -121,49 +119,10 @@ export function ModelSearchSelect({
         setIsEditing(false);
     };
 
-    const [isEnsuring, setIsEnsuring] = useState(false);
-
-    const handleAddNew = async () => {
+    const handleAddNew = () => {
         const trimmed = search.trim();
         if (!trimmed || !categoryId) return;
-
-        // Resolve brand identifier: prefer the display name, fall back to the DB id.
-        const effectiveBrandName = brandName || brandId;
-        if (!effectiveBrandName) return;
-
-        setIsEnsuring(true);
-        setEnsureError(null);
-        try {
-            const result = await ensureModel(categoryId, effectiveBrandName, trimmed);
-            setLocalSelection({ id: result.id, name: result.name });
-            onChange(result.id, result.name);
-
-            // If a new pending brand was created, propagate its ID to the parent form.
-            if (result.brandId && (!brandId || brandId !== result.brandId)) {
-                onBrandResolved?.(result.brandId, brandName || effectiveBrandName);
-            }
-
-            // Push the new model into the catalog state immediately so the chip finds it.
-            const newModel: DeviceModel = {
-                id: result.id,
-                _id: result.id,
-                name: result.name,
-                brandId: result.brandId || brandId,
-                categoryId: categoryId,
-                status: 'pending'
-            };
-            setAvailableModels([...availableModels, newModel]);
-            // Success — close search mode
-            setSearch("");
-            setIsEditing(false);
-        } catch (err) {
-            // Surface the error so the user knows what happened and can retry.
-            const msg = err instanceof Error ? err.message : "Failed to add model — please try again.";
-            setEnsureError(msg);
-            // Keep isEditing=true so the user's search text stays and they can retry.
-        } finally {
-            setIsEnsuring(false);
-        }
+        setIsRequestDialogOpen(true);
     };
 
     // ── Selected State ──────────────────────────────────────────────────────
@@ -221,34 +180,13 @@ export function ModelSearchSelect({
                     }}
                     onFocus={() => setIsEditing(true)}
                     placeholder={placeholder}
-                    disabled={disabled || isEnsuring}
+                    disabled={disabled}
                     className={cn(
                         "pl-10 pr-12 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all",
                         "focus:ring-2 focus:ring-primary/10 focus:border-primary shadow-sm"
                     )}
                 />
-                {search.length >= 2 && !isLoading && (
-                    <button
-                        type="button"
-                        onClick={handleAddNew}
-                        disabled={isEnsuring}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all shadow-sm active:scale-95 disabled:opacity-60 disabled:cursor-wait"
-                        title={`Add "${search}" as a new suggestion`}
-                    >
-                        {isEnsuring ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                            <Plus className="w-5 h-5" />
-                        )}
-                    </button>
-                )}
             </div>
-
-            {ensureError && (
-                <p className="mt-1 px-1 text-xs text-red-600 font-medium flex items-center gap-1">
-                    <span>⚠</span> {ensureError}
-                </p>
-            )}
 
             {(isEditing || search) && dropdownStyle && (
                 <>
@@ -265,40 +203,7 @@ export function ModelSearchSelect({
                         className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"
                     >
                         <div className="overflow-y-auto max-h-[280px] p-1.5 space-y-1">
-                            {availableModels.length === 0 && !isLoading && search.length >= 2 ? (
-                                <div className="py-8 px-5 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-300">
-                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
-                                        <Search className="w-5 h-5 text-slate-300" />
-                                    </div>
-                                    <h3 className="text-sm font-bold text-slate-700 mb-1">
-                                        Model Not Found
-                                    </h3>
-                                    <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6 max-w-[200px]">
-                                        We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
-                                    </p>
-                                    
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            handleAddNew();
-                                        }}
-                                        disabled={isEnsuring}
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all active:scale-[0.97] shadow-md shadow-primary/20 disabled:opacity-70"
-                                    >
-                                        {isEnsuring ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <span className="text-lg leading-none">+</span>
-                                        )}
-                                        {isEnsuring ? "Adding..." : `Use "${search.trim()}"`}
-                                    </button>
-                                </div>
-                            ) : availableModels.length === 0 && !isLoading && !search ? (
-                                <div className="py-8 px-4 text-center text-sm text-slate-400 font-medium italic">
-                                    Start typing to find your model...
-                                </div>
-                            ) : (
+                            {availableModels.length > 0 ? (
                                 <>
                                     {availableModels.map((m) => (
                                         <button
@@ -318,19 +223,60 @@ export function ModelSearchSelect({
                                                 e.preventDefault();
                                                 handleAddNew();
                                             }}
-                                            disabled={isEnsuring}
-                                            className="w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold text-primary hover:bg-slate-50 transition-colors disabled:opacity-60"
+                                            className="w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold text-primary hover:bg-slate-50 transition-colors"
                                         >
-                                            {isEnsuring ? <Loader2 className="w-3 h-3 animate-spin" /> : <span>+</span>}
-                                            {isEnsuring ? "Adding..." : `Don't see it? Add "${search}"`}
+                                            <span>+</span>
+                                            Don&apos;t see it? Suggest &ldquo;{search}&rdquo;
                                         </button>
                                     )}
                                 </>
-                            )}
+                            ) : !isLoading && search.length >= 2 ? (
+                                <div className="py-8 px-5 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-300">
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
+                                        <Search className="w-5 h-5 text-slate-300" />
+                                    </div>
+                                    <h3 className="text-sm font-bold text-slate-700 mb-1">
+                                        Model Not Found
+                                    </h3>
+                                    <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6 max-w-[200px]">
+                                        We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
+                                    </p>
+                                    
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleAddNew();
+                                        }}
+                                        className="w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold text-primary hover:bg-slate-50 transition-colors"
+                                    >
+                                        <span>+</span>
+                                        Don&apos;t see it? Suggest &ldquo;{search}&rdquo;
+                                    </button>
+                                </div>
+                            ) : availableModels.length === 0 && !isLoading && !search ? (
+                                <div className="py-8 px-4 text-center text-sm text-slate-400 font-medium italic">
+                                    Start typing to find your model...
+                                </div>
+                            ) : null}
                         </div>
                     </div>
                 </>
             )}
+
+            <CatalogRequestDialog
+                open={isRequestDialogOpen}
+                onOpenChange={setIsRequestDialogOpen}
+                requestType="model"
+                categoryId={categoryId}
+                parentBrandId={brandId}
+                initialName={search}
+                onSuccess={(requestId, name) => {
+                    onChange("", name, requestId);
+                    setSearch("");
+                    setIsEditing(false);
+                }}
+            />
         </div>
     );
 }

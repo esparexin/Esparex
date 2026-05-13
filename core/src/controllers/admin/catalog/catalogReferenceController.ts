@@ -78,7 +78,8 @@ export const getServiceTypes = async (req: Request, res: Response) => {
     return handlePaginatedContent(req, res, ServiceTypeModel, {
         populate: isAdminView ? undefined : 'categoryIds',
         adminQuery,
-        publicQuery
+        publicQuery,
+        searchFields: ['name', 'canonicalName', 'aliases']
     });
 };
 

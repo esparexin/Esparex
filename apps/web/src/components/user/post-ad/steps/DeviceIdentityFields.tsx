@@ -150,8 +150,9 @@ export default function DeviceIdentityFields() {
                             <BrandSearchSelect
                                 brands={availableBrands}
                                 brandMap={brandMapForSelect}
+                                categoryId={categoryId}
                                 value={brandNameValue}
-                                onChange={(_id, name) => handleBrandChange(name)}
+                                onChange={(_id, name, requestId) => handleBrandChange(name, requestId)}
                                 disabled={brandIsPending}
                                 placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
                             />
@@ -199,9 +200,12 @@ export default function DeviceIdentityFields() {
                                 categoryId={categoryId}
                                 value={modelId || modelNameValue}
                                 modelDisplayName={modelNameValue}
-                                onChange={(mId, mName) => {
+                                onChange={(mId, mName, requestId) => {
                                     setValue("modelId", mId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                    if (requestId) {
+                                        setValue("catalogRequestId", requestId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                    }
                                 }}
                                 onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
                                     // A new pending brand was created — sync its ID back into the form

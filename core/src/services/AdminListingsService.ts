@@ -153,7 +153,7 @@ export const adminListListings = async (query: AdminListingsQuery) => {
             brandId: asString(query.brandId),
             modelId: asString(query.modelId),
             locationId: asString(query.locationId),
-            q: asString(query.q),
+            q: asString(query.q || query.search),
             minPrice: asNumber(query.minPrice),
             maxPrice: asNumber(query.maxPrice),
             createdAfter: asString(query.createdAfter),

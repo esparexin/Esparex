@@ -80,6 +80,10 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
         title: "Spare Parts Master",
         subtitle: "Manage the spare parts catalog and compatibility matrix.",
     },
+    "catalog-requests": {
+        title: "Catalog Requests",
+        subtitle: "Review user-submitted brand and model requests, then approve, reject, or mark duplicates.",
+    },
     "admin-users": {
         title: "Administration",
         subtitle: "Control operator access, roles, and privileged account governance.",

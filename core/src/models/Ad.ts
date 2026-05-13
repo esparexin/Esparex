@@ -20,6 +20,8 @@ export interface IAd extends Document, ISoftDeleteDocument {
     categoryId: Types.ObjectId;
     brandId?: Types.ObjectId;
     modelId?: Types.ObjectId;
+    catalogRequestId?: Types.ObjectId;
+    catalogPending?: boolean;
     screenSize?: string;
     sparePartIds?: Types.ObjectId[];
     sparePartsSnapshot?: Array<{
@@ -120,6 +122,8 @@ const AdSchema: Schema = new Schema({
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true }, // Now Required
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand' },
     modelId: { type: Schema.Types.ObjectId, ref: 'Model' },
+    catalogRequestId: { type: Schema.Types.ObjectId, ref: 'CatalogRequest' },
+    catalogPending: { type: Boolean, default: false },
     screenSize: { type: String },
     sparePartIds: {
         type: [{ type: Schema.Types.ObjectId, ref: 'SparePart' }],

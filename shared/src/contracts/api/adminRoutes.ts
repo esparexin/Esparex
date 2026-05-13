@@ -112,6 +112,12 @@ export const ADMIN_ROUTES = {
   SCREEN_SIZES: "/catalog/screen-sizes",
   SCREEN_SIZE_BY_ID: (id: string) => `/catalog/screen-sizes/${id}`,
   SCREEN_SIZE_TOGGLE: (id: string) => `/catalog/screen-sizes/${id}/toggle-status`,
+  CATALOG_REQUESTS: "/catalog-requests",
+  CATALOG_REQUEST_BY_ID: (id: string) => `/catalog-requests/${id}`,
+  CATALOG_REQUEST_APPROVE: (id: string) => `/catalog-requests/${id}/approve`,
+  CATALOG_REQUEST_REJECT: (id: string) => `/catalog-requests/${id}/reject`,
+  CATALOG_REQUEST_MARK_DUPLICATE: (id: string) => `/catalog-requests/${id}/mark-duplicate`,
+  CATALOG_REQUEST_STATS: "/catalog-requests/stats",
 
   // Finance
   FINANCE_TRANSACTIONS: "/finance/transactions",

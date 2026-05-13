@@ -52,6 +52,8 @@ import invoiceRoutes from './routes/invoiceRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import reportRoutes from './routes/reportRoutes';
 import chatRoutes from './routes/chatRoutes';
+import catalogRequestRoutes from './routes/catalogRequestRoutes';
+import adminCatalogRequestRoutes from './routes/adminCatalogRequestRoutes';
 
 
 
@@ -426,6 +428,7 @@ app.use('/api/v1', verifyCsrfToken);
 // --- SSOT API Namespace ---
 app.use('/api/v1', rootRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
+app.use('/api/v1/catalog-requests', catalogRequestRoutes);
 app.use('/api/v1/locations', locationRoutes);
 app.use('/api/v1/editorial', editorialRoutes);
 
@@ -460,6 +463,7 @@ app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1/contacts', contactRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/admin/catalog-requests', adminCatalogRequestRoutes);
 app.use('/api/v1/admin/catalog', adminCatalogRoutes);
 app.use('/api/v1/admin', adminRoutes);
 

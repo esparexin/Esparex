@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import {
     BarChart3,
     Bell,
+    ClipboardList,
     LayoutDashboard,
     Layers,
     MapPin,
@@ -32,7 +33,8 @@ export type AdminModuleKey =
     | "settings"
     | "masterData"
     | "partsCatalog"
-    | "locations";
+    | "locations"
+    | "catalogRequests";
 
 export type AdminModuleItem = {
     key: AdminModuleKey;
@@ -92,6 +94,15 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         roles: ["admin", "super_admin"],
         section: "Master Data",
         aliases: ["/categories", "/brands", "/models", "/screen-sizes", "/service-types"],
+    },
+    {
+        key: "catalogRequests",
+        label: "Catalog Requests",
+        icon: ClipboardList,
+        href: "/catalog-requests?status=pending",
+        roles: ["admin", "super_admin"],
+        section: "Master Data",
+        aliases: ["/catalog-requests"],
     },
     {
         key: "partsCatalog",

@@ -9,7 +9,7 @@ export class CatalogNotificationService {
     /**
      * Notify all admins about a new brand or model suggestion.
      */
-    static async notifyAdminsOfSuggestion(type: 'brand' | 'model', name: string, suggestedBy: string) {
+    static async notifyAdminsOfSuggestion(type: 'brand' | 'model', name: string, suggestedBy: string, requestId?: string) {
         try {
             const admins = await User.find({ 
                 role: { $in: [Role.ADMIN, Role.SUPER_ADMIN] }, 
@@ -24,11 +24,11 @@ export class CatalogNotificationService {
             const title = `New ${type === 'brand' ? 'Brand' : 'Model'} Suggestion`;
             const body = `A new ${type} "${name}" has been suggested and is awaiting approval.`;
             const data = {
-                type: 'CATALOG_SUGGESTION',
+                kind: 'catalog_request_submitted',
+                requestId,
                 entityType: type,
-                name: name,
-                suggestedBy: suggestedBy,
-                actionUrl: type === 'brand' ? '/brands?status=pending' : '/models?status=pending'
+                name,
+                actionUrl: requestId ? `/catalog-requests/${requestId}` : '/catalog-requests?status=pending'
             };
 
             const promises = admins.map(admin => {

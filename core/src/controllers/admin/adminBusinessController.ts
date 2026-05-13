@@ -51,7 +51,7 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
         const { page, limit, skip } = getPaginationParams(req);
         const status = typeof req.query.status === 'string' ? req.query.status : undefined;
         const locationId = typeof req.query.locationId === 'string' ? req.query.locationId.trim() : undefined;
-        const search = typeof req.query.q === 'string' ? req.query.q.trim() : undefined;
+        const search = typeof (req.query.q || req.query.search) === 'string' ? String(req.query.q || req.query.search).trim() : undefined;
         const expiringIn3Days = typeof req.query.expiringIn3Days === 'string' ? req.query.expiringIn3Days : undefined;
         const warningSent = typeof req.query.warningSent === 'string' ? req.query.warningSent : undefined;
         const warningNotSent = typeof req.query.warningNotSent === 'string' ? req.query.warningNotSent : undefined;

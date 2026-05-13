@@ -150,6 +150,7 @@ export const getBrands = async (req: Request, res: Response) => {
     applyCatalogStatusFilter(adminCategoryFilter, rawStatus);
 
     return handlePaginatedContent(req, res, BrandModel, {
+        searchFields: ['name', 'canonicalName', 'aliases'],
         publicQuery: {
             ...CATALOG_PUBLIC_VISIBILITY_QUERY,
             ...categoryFilter
@@ -624,7 +625,7 @@ export const getModels = async (req: Request, res: Response) => {
         populate: isAdminView ? undefined : 'brandId categoryIds',
         adminQuery,
         publicQuery,
-        searchFields: ['name'],
+        searchFields: ['name', 'canonicalName', 'aliases'],
         queryParams,
     });
 };

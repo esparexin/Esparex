@@ -72,6 +72,7 @@ ScreenSizeSchema.index({ brandId: 1 }, { name: 'idx_screensize_brandId' });
 ScreenSizeSchema.index({ isActive: 1 }, { name: 'idx_screensize_isActive' });
 ScreenSizeSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_screensize_approval_active' });
 ScreenSizeSchema.index({ isDeleted: 1 }, { name: 'idx_screensize_isDeleted' });
+ScreenSizeSchema.index({ name: 1 }, { name: 'idx_screensize_name', collation: { locale: 'en', strength: 2 } });
 ScreenSizeSchema.index(
     { categoryId: 1, slug: 1, brandId: 1 },
     {
