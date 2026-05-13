@@ -1,0 +1,2522 @@
+◇ injected env (41) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+{
+  "scannedAt": "2026-05-13T05:27:50.450Z",
+  "database": "esparex_user",
+  "totals": {
+    "categories": 4,
+    "brands": 3,
+    "models": 190,
+    "spareParts": 26,
+    "screenSizes": 8
+  },
+  "activeTotals": {
+    "categories": 4,
+    "brands": 0,
+    "models": 190
+  },
+  "broken": {
+    "brands": [
+      {
+        "_id": "69896258820e62e091a7c2f5",
+        "name": "Apple",
+        "categoryIds": [],
+        "missingCategories": [],
+        "inactiveCategories": []
+      },
+      {
+        "_id": "69896258820e62e091a7c2fc",
+        "name": "Samsung",
+        "categoryIds": [],
+        "missingCategories": [],
+        "inactiveCategories": []
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a10",
+        "name": "BlackBerry",
+        "categoryIds": [],
+        "missingCategories": [],
+        "inactiveCategories": []
+      }
+    ],
+    "models": [
+      {
+        "_id": "69896258820e62e091a7c2f6",
+        "name": "iPhone 15 Pro Max",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c2f7",
+        "name": "iPhone 15 Pro",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c2f9",
+        "name": "iPhone 15",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c2fa",
+        "name": "iPhone 14 Pro",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c2fb",
+        "name": "iPhone 13",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c2fd",
+        "name": "Galaxy S24 Ultra",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c2ff",
+        "name": "Galaxy S24",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c301",
+        "name": "Galaxy Z Fold5",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c302",
+        "name": "Galaxy Z Flip5",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896258820e62e091a7c304",
+        "name": "Pixel 8 Pro",
+        "brandId": "69896258820e62e091a7c303",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c305",
+        "name": "Pixel 8",
+        "brandId": "69896258820e62e091a7c303",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c306",
+        "name": "Pixel 7a",
+        "brandId": "69896258820e62e091a7c303",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c308",
+        "name": "OnePlus 12",
+        "brandId": "69896259820e62e091a7c307",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c309",
+        "name": "OnePlus 12R",
+        "brandId": "69896259820e62e091a7c307",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c30c",
+        "name": "Xiaomi 14 Ultra",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c30d",
+        "name": "Xiaomi 14",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c30f",
+        "name": "iPad Pro 12.9 (M2)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c310",
+        "name": "iPad Pro 11 (M2)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c311",
+        "name": "iPad Air (5th Gen)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c312",
+        "name": "iPad (10th Gen)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69896259820e62e091a7c313",
+        "name": "iPad mini (6th Gen)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c314",
+        "name": "Galaxy Tab S9 Ultra",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c315",
+        "name": "Galaxy Tab S9+",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c316",
+        "name": "Galaxy Tab S9",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c317",
+        "name": "Galaxy Tab S9 FE",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c319",
+        "name": "Surface Pro 9",
+        "brandId": "6989625a820e62e091a7c318",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c31a",
+        "name": "Surface Go 3",
+        "brandId": "6989625a820e62e091a7c318",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c31c",
+        "name": "Tab P12 Pro",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c31d",
+        "name": "Tab M10 Plus",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c31e",
+        "name": "Pixel Tablet",
+        "brandId": "69896258820e62e091a7c303",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c31f",
+        "name": "MacBook Pro 14 (M3)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c320",
+        "name": "MacBook Air 13 (M2)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c322",
+        "name": "XPS 13",
+        "brandId": "6989625a820e62e091a7c321",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625a820e62e091a7c324",
+        "name": "Spectre x360",
+        "brandId": "6989625a820e62e091a7c323",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "6989625b820e62e091a7c325",
+        "name": "ThinkPad X1 Carbon",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a15a58d20c75c6b09da",
+        "name": "Galaxy A55",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a16a58d20c75c6b09db",
+        "name": "OnePlus Nord 3",
+        "brandId": "69896259820e62e091a7c307",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a16a58d20c75c6b09dc",
+        "name": "Xiaomi 13T Pro",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a17a58d20c75c6b09de",
+        "name": "Redmi Note 13 Pro+",
+        "brandId": "69c24a16a58d20c75c6b09dd",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a17a58d20c75c6b09df",
+        "name": "Redmi Note 13",
+        "brandId": "69c24a16a58d20c75c6b09dd",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a17a58d20c75c6b09e0",
+        "name": "Redmi 13C",
+        "brandId": "69c24a16a58d20c75c6b09dd",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a17a58d20c75c6b09e2",
+        "name": "Poco F6 Pro",
+        "brandId": "69c24a17a58d20c75c6b09e1",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a17a58d20c75c6b09e3",
+        "name": "Poco X6 Pro",
+        "brandId": "69c24a17a58d20c75c6b09e1",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a17a58d20c75c6b09e5",
+        "name": "Realme GT 5 Pro",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09e6",
+        "name": "Realme 12 Pro+",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09e7",
+        "name": "Realme Narzo 60",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09e9",
+        "name": "Vivo X100 Pro",
+        "brandId": "69c24a18a58d20c75c6b09e8",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09ea",
+        "name": "Vivo V30 Pro",
+        "brandId": "69c24a18a58d20c75c6b09e8",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09eb",
+        "name": "Vivo Y100",
+        "brandId": "69c24a18a58d20c75c6b09e8",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09ed",
+        "name": "Oppo Find X7 Ultra",
+        "brandId": "69c24a18a58d20c75c6b09ec",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a18a58d20c75c6b09ee",
+        "name": "Oppo Reno 11 Pro",
+        "brandId": "69c24a18a58d20c75c6b09ec",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a19a58d20c75c6b09ef",
+        "name": "Oppo A79",
+        "brandId": "69c24a18a58d20c75c6b09ec",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a19a58d20c75c6b09f1",
+        "name": "Motorola Edge 50 Pro",
+        "brandId": "69c24a19a58d20c75c6b09f0",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a19a58d20c75c6b09f2",
+        "name": "Moto G84",
+        "brandId": "69c24a19a58d20c75c6b09f0",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a19a58d20c75c6b09f3",
+        "name": "Moto G54",
+        "brandId": "69c24a19a58d20c75c6b09f0",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a19a58d20c75c6b09f5",
+        "name": "Nokia G42",
+        "brandId": "69c24a19a58d20c75c6b09f4",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a19a58d20c75c6b09f6",
+        "name": "Nokia C32",
+        "brandId": "69c24a19a58d20c75c6b09f4",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b09f8",
+        "name": "Huawei Pura 70 Pro",
+        "brandId": "69c24a19a58d20c75c6b09f7",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b09f9",
+        "name": "Huawei Nova 12",
+        "brandId": "69c24a19a58d20c75c6b09f7",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b09fb",
+        "name": "Honor Magic6 Pro",
+        "brandId": "69c24a1aa58d20c75c6b09fa",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b09fc",
+        "name": "Honor 90",
+        "brandId": "69c24a1aa58d20c75c6b09fa",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b09fe",
+        "name": "Infinix Zero 30",
+        "brandId": "69c24a1aa58d20c75c6b09fd",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b09ff",
+        "name": "Infinix Hot 40 Pro",
+        "brandId": "69c24a1aa58d20c75c6b09fd",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b0a01",
+        "name": "Tecno Phantom V Fold",
+        "brandId": "69c24a1aa58d20c75c6b0a00",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1aa58d20c75c6b0a02",
+        "name": "Tecno Camon 30 Pro",
+        "brandId": "69c24a1aa58d20c75c6b0a00",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a04",
+        "name": "iQOO 12",
+        "brandId": "69c24a1ba58d20c75c6b0a03",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a05",
+        "name": "iQOO Neo 9 Pro",
+        "brandId": "69c24a1ba58d20c75c6b0a03",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a07",
+        "name": "Nothing Phone (2)",
+        "brandId": "69c24a1ba58d20c75c6b0a06",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a08",
+        "name": "Nothing Phone (2a)",
+        "brandId": "69c24a1ba58d20c75c6b0a06",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a0a",
+        "name": "Asus ROG Phone 8 Pro",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a0b",
+        "name": "Asus Zenfone 10",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ba58d20c75c6b0a0c",
+        "name": "Xperia 1 VI",
+        "brandId": "6989625b820e62e091a7c327",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a0d",
+        "name": "Xperia 5 V",
+        "brandId": "6989625b820e62e091a7c327",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a0f",
+        "name": "HTC U23 Pro",
+        "brandId": "69c24a1ca58d20c75c6b0a0e",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a11",
+        "name": "BlackBerry KEY2",
+        "brandId": "69c24a1ca58d20c75c6b0a10",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a13",
+        "name": "Lava Blaze 2",
+        "brandId": "69c24a1ca58d20c75c6b0a12",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a15",
+        "name": "Micromax In 2c",
+        "brandId": "69c24a1ca58d20c75c6b0a14",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a17",
+        "name": "Karbonn Titanium S9 Lite",
+        "brandId": "69c24a1ca58d20c75c6b0a16",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1ca58d20c75c6b0a19",
+        "name": "Gionee G13 Pro",
+        "brandId": "69c24a1ca58d20c75c6b0a18",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1da58d20c75c6b0a1b",
+        "name": "Meizu 21 Pro",
+        "brandId": "69c24a1da58d20c75c6b0a1a",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1da58d20c75c6b0a1d",
+        "name": "ZTE Axon 50 Ultra",
+        "brandId": "69c24a1da58d20c75c6b0a1c",
+        "categoryId": "69c24a14a58d20c75c6b09d8",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1da58d20c75c6b0a1e",
+        "name": "iPad Pro 13 (M4)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a1da58d20c75c6b0a1f",
+        "name": "iPad Pro 11 (M4)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a1da58d20c75c6b0a20",
+        "name": "iPad Air 13 (M2)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a1da58d20c75c6b0a21",
+        "name": "iPad Air 11 (M2)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a1ea58d20c75c6b0a22",
+        "name": "Galaxy Tab A9+",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a1fa58d20c75c6b0a23",
+        "name": "Tab M10 Plus (3rd Gen)",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1fa58d20c75c6b0a24",
+        "name": "Tab P11 Pro (2nd Gen)",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1fa58d20c75c6b0a25",
+        "name": "Xiaomi Pad 6 Pro",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1fa58d20c75c6b0a26",
+        "name": "Xiaomi Pad 6",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1fa58d20c75c6b0a27",
+        "name": "Realme Pad 2",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a1fa58d20c75c6b0a28",
+        "name": "Realme Pad X",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a29",
+        "name": "MatePad Pro 13.2",
+        "brandId": "69c24a19a58d20c75c6b09f7",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a2a",
+        "name": "MatePad 11.5",
+        "brandId": "69c24a19a58d20c75c6b09f7",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a2b",
+        "name": "Honor Pad 9",
+        "brandId": "69c24a1aa58d20c75c6b09fa",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a2c",
+        "name": "Honor Pad 8",
+        "brandId": "69c24a1aa58d20c75c6b09fa",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a2d",
+        "name": "Nokia T21",
+        "brandId": "69c24a19a58d20c75c6b09f4",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a2f",
+        "name": "Fire HD 10 (2023)",
+        "brandId": "69c24a20a58d20c75c6b0a2e",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a20a58d20c75c6b0a30",
+        "name": "Fire HD 8 (2022)",
+        "brandId": "69c24a20a58d20c75c6b0a2e",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a31",
+        "name": "Vivobook 13 Slate OLED",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a32",
+        "name": "Zenpad 10",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a34",
+        "name": "Chromebook Tab 10",
+        "brandId": "69c24a21a58d20c75c6b0a33",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a36",
+        "name": "TCL NXTPAPER 11",
+        "brandId": "69c24a21a58d20c75c6b0a35",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a38",
+        "name": "Alcatel 3T 10",
+        "brandId": "69c24a21a58d20c75c6b0a37",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a3a",
+        "name": "Chuwi HiPad X Pro",
+        "brandId": "69c24a21a58d20c75c6b0a39",
+        "categoryId": "69896257820e62e091a7c2f2",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a21a58d20c75c6b0a3b",
+        "name": "MacBook Pro 16 (M3 Pro)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a22a58d20c75c6b0a3c",
+        "name": "MacBook Air 15 (M3)",
+        "brandId": "69896258820e62e091a7c2f5",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a22a58d20c75c6b0a3d",
+        "name": "XPS 15",
+        "brandId": "6989625a820e62e091a7c321",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a22a58d20c75c6b0a3e",
+        "name": "Inspiron 15",
+        "brandId": "6989625a820e62e091a7c321",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a22a58d20c75c6b0a3f",
+        "name": "Spectre x360 14",
+        "brandId": "6989625a820e62e091a7c323",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a22a58d20c75c6b0a40",
+        "name": "Envy 13",
+        "brandId": "6989625a820e62e091a7c323",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a23a58d20c75c6b0a41",
+        "name": "Pavilion 15",
+        "brandId": "6989625a820e62e091a7c323",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a23a58d20c75c6b0a42",
+        "name": "IdeaPad Slim 5",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a23a58d20c75c6b0a43",
+        "name": "Yoga 9i",
+        "brandId": "6989625a820e62e091a7c31b",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a23a58d20c75c6b0a44",
+        "name": "ROG Zephyrus G14",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a23a58d20c75c6b0a45",
+        "name": "ZenBook 14",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a23a58d20c75c6b0a46",
+        "name": "VivoBook 15",
+        "brandId": "69c24a1ba58d20c75c6b0a09",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a47",
+        "name": "Swift 3",
+        "brandId": "69c24a21a58d20c75c6b0a33",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a48",
+        "name": "Predator Helios 300",
+        "brandId": "69c24a21a58d20c75c6b0a33",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a49",
+        "name": "Aspire 5",
+        "brandId": "69c24a21a58d20c75c6b0a33",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a4b",
+        "name": "Raider GE76",
+        "brandId": "69c24a24a58d20c75c6b0a4a",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a4c",
+        "name": "Stealth 15M",
+        "brandId": "69c24a24a58d20c75c6b0a4a",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a4d",
+        "name": "Prestige 14",
+        "brandId": "69c24a24a58d20c75c6b0a4a",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a24a58d20c75c6b0a4e",
+        "name": "Galaxy Book4 Pro",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a4f",
+        "name": "Galaxy Book3 Ultra",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a50",
+        "name": "Galaxy Book3 360",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a51",
+        "name": "Surface Laptop 5",
+        "brandId": "6989625a820e62e091a7c318",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a52",
+        "name": "Surface Laptop Studio 2",
+        "brandId": "6989625a820e62e091a7c318",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a54",
+        "name": "Razer Blade 15",
+        "brandId": "69c24a25a58d20c75c6b0a53",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a55",
+        "name": "Razer Blade 14",
+        "brandId": "69c24a25a58d20c75c6b0a53",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a56",
+        "name": "MateBook X Pro",
+        "brandId": "69c24a19a58d20c75c6b09f7",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a25a58d20c75c6b0a57",
+        "name": "MateBook D 15",
+        "brandId": "69c24a19a58d20c75c6b09f7",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a58",
+        "name": "LG Gram 14",
+        "brandId": "6989625b820e62e091a7c329",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a59",
+        "name": "LG Gram 16",
+        "brandId": "6989625b820e62e091a7c329",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a5b",
+        "name": "Aorus 15",
+        "brandId": "69c24a26a58d20c75c6b0a5a",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a5c",
+        "name": "Gigabyte G5",
+        "brandId": "69c24a26a58d20c75c6b0a5a",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a5e",
+        "name": "Avita Liber V14",
+        "brandId": "69c24a26a58d20c75c6b0a5d",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a5f",
+        "name": "Infinix InBook X2",
+        "brandId": "69c24a1aa58d20c75c6b09fd",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a26a58d20c75c6b0a60",
+        "name": "Mi Notebook Pro X",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a61",
+        "name": "Redmi Book Pro 15",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a62",
+        "name": "Realme Book Prime",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a63",
+        "name": "Honor MagicBook X14",
+        "brandId": "69c24a1aa58d20c75c6b09fa",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a64",
+        "name": "Honor MagicBook 16",
+        "brandId": "69c24a1aa58d20c75c6b09fa",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a65",
+        "name": "Chuwi GemiBook Pro",
+        "brandId": "69c24a21a58d20c75c6b0a39",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a67",
+        "name": "Fujitsu Lifebook U7412",
+        "brandId": "69c24a27a58d20c75c6b0a66",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a69",
+        "name": "Toshiba Satellite Pro C50",
+        "brandId": "69c24a27a58d20c75c6b0a68",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a27a58d20c75c6b0a6b",
+        "name": "Panasonic Toughbook 55",
+        "brandId": "69c24a27a58d20c75c6b0a6a",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a6c",
+        "name": "Sony Vaio FE15",
+        "brandId": "6989625b820e62e091a7c327",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a6e",
+        "name": "Vaio SX14",
+        "brandId": "69c24a28a58d20c75c6b0a6d",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a70",
+        "name": "Dynabook Portege X30L",
+        "brandId": "69c24a28a58d20c75c6b0a6f",
+        "categoryId": "69896257820e62e091a7c2f3",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a71",
+        "name": "Samsung Neo QLED 8K",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a72",
+        "name": "Samsung QLED 4K Q80C",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a73",
+        "name": "Samsung Crystal UHD",
+        "brandId": "69896258820e62e091a7c2fc",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": false,
+          "inactiveBrand": true,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": true
+        }
+      },
+      {
+        "_id": "69c24a28a58d20c75c6b0a74",
+        "name": "Sony Bravia XR A95L",
+        "brandId": "6989625b820e62e091a7c327",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a75",
+        "name": "Sony Bravia XR A80L",
+        "brandId": "6989625b820e62e091a7c327",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a76",
+        "name": "Sony Bravia X90L",
+        "brandId": "6989625b820e62e091a7c327",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a77",
+        "name": "LG OLED C3",
+        "brandId": "6989625b820e62e091a7c329",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a78",
+        "name": "LG QNED 85",
+        "brandId": "6989625b820e62e091a7c329",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a79",
+        "name": "LG UHD 4K",
+        "brandId": "6989625b820e62e091a7c329",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a7a",
+        "name": "Xiaomi TV A2 Pro",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a29a58d20c75c6b0a7b",
+        "name": "Xiaomi Smart TV 5A Pro",
+        "brandId": "69896259820e62e091a7c30b",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a7c",
+        "name": "OnePlus TV 65 Y1S Pro",
+        "brandId": "69896259820e62e091a7c307",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a7d",
+        "name": "OnePlus TV 55 U1S",
+        "brandId": "69896259820e62e091a7c307",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a7e",
+        "name": "Realme Smart TV 4K",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a7f",
+        "name": "Realme SLED 4K TV",
+        "brandId": "69c24a17a58d20c75c6b09e4",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a80",
+        "name": "TCL QLED C835",
+        "brandId": "69c24a21a58d20c75c6b0a35",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a81",
+        "name": "TCL 4K UHD P635",
+        "brandId": "69c24a21a58d20c75c6b0a35",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2aa58d20c75c6b0a82",
+        "name": "Panasonic OLED TV TZ2000",
+        "brandId": "69c24a27a58d20c75c6b0a6a",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ba58d20c75c6b0a83",
+        "name": "Panasonic 4K LED TX-55LX700",
+        "brandId": "69c24a27a58d20c75c6b0a6a",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ba58d20c75c6b0a85",
+        "name": "Philips OLED 807",
+        "brandId": "69c24a2ba58d20c75c6b0a84",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ba58d20c75c6b0a86",
+        "name": "Philips 4K UHD 7600",
+        "brandId": "69c24a2ba58d20c75c6b0a84",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ba58d20c75c6b0a88",
+        "name": "Hisense ULED 4K U8K",
+        "brandId": "69c24a2ba58d20c75c6b0a87",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ba58d20c75c6b0a89",
+        "name": "Hisense 4K A7H",
+        "brandId": "69c24a2ba58d20c75c6b0a87",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ca58d20c75c6b0a8b",
+        "name": "Vu 4K Cinema TV",
+        "brandId": "69c24a2ba58d20c75c6b0a8a",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ca58d20c75c6b0a8c",
+        "name": "Vu Premium 4K",
+        "brandId": "69c24a2ba58d20c75c6b0a8a",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ca58d20c75c6b0a8e",
+        "name": "Kodak 4K QLED",
+        "brandId": "69c24a2ca58d20c75c6b0a8d",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ca58d20c75c6b0a90",
+        "name": "Thomson QLED 4K",
+        "brandId": "69c24a2ca58d20c75c6b0a8f",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2da58d20c75c6b0a92",
+        "name": "Blaupunkt 4K UHD Cybersound",
+        "brandId": "69c24a2da58d20c75c6b0a91",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2da58d20c75c6b0a93",
+        "name": "Motorola ZX2 4K",
+        "brandId": "69c24a19a58d20c75c6b09f0",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2da58d20c75c6b0a94",
+        "name": "Nokia Smart TV 5500A",
+        "brandId": "69c24a19a58d20c75c6b09f4",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2da58d20c75c6b0a96",
+        "name": "Haier 4K QLED LE55S800QT",
+        "brandId": "69c24a2da58d20c75c6b0a95",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2da58d20c75c6b0a98",
+        "name": "Sharp 4K UHD AQUOS",
+        "brandId": "69c24a2da58d20c75c6b0a97",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2da58d20c75c6b0a99",
+        "name": "Toshiba 4K UHD Fire TV",
+        "brandId": "69c24a27a58d20c75c6b0a68",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0a9b",
+        "name": "BPL 4K Android TV",
+        "brandId": "69c24a2da58d20c75c6b0a9a",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0a9d",
+        "name": "Sansui 4K JSW55ASUHD",
+        "brandId": "69c24a2ea58d20c75c6b0a9c",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0a9f",
+        "name": "Onida 4K Fire TV",
+        "brandId": "69c24a2ea58d20c75c6b0a9e",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0aa1",
+        "name": "Weston 4K Smart TV",
+        "brandId": "69c24a2ea58d20c75c6b0aa0",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0aa3",
+        "name": "Lloyd 4K UHD LED",
+        "brandId": "69c24a2ea58d20c75c6b0aa2",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0aa4",
+        "name": "Redmi Smart TV X65",
+        "brandId": "69c24a16a58d20c75c6b09dd",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      },
+      {
+        "_id": "69c24a2ea58d20c75c6b0aa5",
+        "name": "Redmi Smart TV X55",
+        "brandId": "69c24a16a58d20c75c6b09dd",
+        "categoryId": "69c24a14a58d20c75c6b09d9",
+        "issues": {
+          "missingBrand": true,
+          "inactiveBrand": false,
+          "missingCategory": false,
+          "inactiveCategory": false,
+          "brandCategoryMismatch": false
+        }
+      }
+    ],
+    "spareParts": [],
+    "screenSizes": []
+  },
+  "brokenCounts": {
+    "brands": 3,
+    "models": 190,
+    "spareParts": 0,
+    "screenSizes": 0
+  }
+}

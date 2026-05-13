@@ -11,6 +11,8 @@ import CatalogModelImport from '../../models/Model';
 import AdModel from '../../models/Ad';
 import SparePartModel from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
+import ScreenSizeModel from '../../models/ScreenSize';
+import SmartAlertModel from '../../models/SmartAlert';
 import { TAXONOMY_APPROVAL_STATUS } from '../../constants/enums/taxonomyApprovalStatus';
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
 
@@ -86,16 +88,24 @@ export const findBrandByNameInCategory = async (nameRegex: RegExp, categoryId: s
 
 // ─── Brand dependency counts ──────────────────────────────────────────────────
 
-/** Dependency check for brand deletion — counts linked models, listings, spare parts. */
+/** Dependency check for brand deletion — counts linked models, listings, spare parts, screen sizes, smart alerts. */
 export const checkBrandDependencies = async (id: string) => {
-    const [modelsCount, listingsCount, sparePartsCount] = await Promise.all([
+    const [modelsCount, listingsCount, sparePartsCount, screenSizesCount, smartAlertsCount] = await Promise.all([
         CatalogModelImport.countDocuments({ brandId: id }),
         AdModel.countDocuments({ brandId: id }),
-        SparePartModel.countDocuments({ brandId: id })
+        SparePartModel.countDocuments({ brandId: id }),
+        ScreenSizeModel.countDocuments({ brandId: id }),
+        SmartAlertModel.countDocuments({ brandId: id })
     ]);
     return {
-        count: modelsCount + listingsCount + sparePartsCount,
-        details: { models: modelsCount, listings: listingsCount, spareParts: sparePartsCount }
+        count: modelsCount + listingsCount + sparePartsCount + screenSizesCount + smartAlertsCount,
+        details: {
+            models: modelsCount,
+            listings: listingsCount,
+            spareParts: sparePartsCount,
+            screenSizes: screenSizesCount,
+            smartAlerts: smartAlertsCount
+        }
     };
 };
 

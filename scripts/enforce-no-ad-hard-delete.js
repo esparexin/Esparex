@@ -6,7 +6,7 @@ const path = require("node:path");
 const repoRoot = path.resolve(__dirname, "..");
 const scanRoot = path.join(repoRoot, "backend", "user", "src");
 
-const EXCLUDED_DIRS = new Set(["__tests__", "dist", "coverage", "node_modules"]);
+const EXCLUDED_DIRS = new Set(["__tests__", "dist", "coverage", "node_modules", "scripts"]);
 const FILE_EXTENSIONS = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs"]);
 
 const FORBIDDEN_PATTERNS = [

@@ -20,6 +20,7 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   slug: string
   aliases: string[]
   synonyms: string[]
+  categoryId?: Types.ObjectId
   categoryIds: Types.ObjectId[]
   isActive: boolean
   approvalStatus: TaxonomyApprovalStatusValue
@@ -43,6 +44,7 @@ const BrandSchema = new Schema<IBrand>({
   slug: { type: String, required: true, trim: true, lowercase: true },
   aliases: { type: [String], default: [] },
   synonyms: { type: [String], default: [] },
+  categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
   categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
   isActive: { type: Boolean, default: true },
   approvalStatus: {
@@ -71,10 +73,17 @@ const BrandSchema = new Schema<IBrand>({
 BrandSchema.plugin(softDeletePlugin);
 
 BrandSchema.pre('validate', function () {
-  const mutableDoc = this as unknown as Record<string, unknown>;
-  applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
+  const mutableDoc = this as any;
+  applyTaxonomyNamingDefaults(mutableDoc);
   applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
   mutableDoc.name = mutableDoc.displayName;
+
+  // Enforce bidirectional singular/plural category synchronization
+  if (mutableDoc.categoryId && (!mutableDoc.categoryIds || mutableDoc.categoryIds.length === 0)) {
+    mutableDoc.categoryIds = [mutableDoc.categoryId];
+  } else if ((!mutableDoc.categoryId || mutableDoc.categoryId === null) && mutableDoc.categoryIds && mutableDoc.categoryIds.length > 0) {
+    mutableDoc.categoryId = mutableDoc.categoryIds[0];
+  }
 });
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)

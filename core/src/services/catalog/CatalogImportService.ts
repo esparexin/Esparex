@@ -81,12 +81,14 @@ export class CatalogImportService {
 
                 const existingBrand = brandMap.get(item.name.toLowerCase());
                 if (existingBrand) {
+                    const mergedCategoryIds = dedupeObjectIds([...(existingBrand.categoryIds || []), ...categoryIds]);
                     ops.push({
                         updateOne: {
                             filter: { _id: existingBrand._id },
                             update: {
                                 $set: {
-                                    categoryIds: dedupeObjectIds([...(existingBrand.categoryIds || []), ...categoryIds]),
+                                    categoryId: mergedCategoryIds[0],
+                                    categoryIds: mergedCategoryIds,
                                     isDeleted: false,
                                     deletedAt: undefined,
                                     isActive: true,
@@ -101,6 +103,7 @@ export class CatalogImportService {
                             document: {
                                 name: item.name,
                                 slug: slugify(item.name, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
+                                categoryId: categoryIds[0],
                                 categoryIds: dedupeObjectIds(categoryIds),
                                 isActive: true,
                                 approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
@@ -160,6 +163,7 @@ export class CatalogImportService {
                             $set: {
                                 name: item.name,
                                 brandId: brandRecord._id,
+                                categoryId: categoryId,
                                 categoryIds: [categoryId],
                                 isActive: true,
                                 approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
@@ -229,7 +233,11 @@ export class CatalogImportService {
                             name: device.brand,
                             slug: brandSlug,
                             isActive: true,
-                            approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED
+                            approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+                            categoryId: catId
+                        },
+                        $set: {
+                            categoryId: catId
                         },
                         $addToSet: { categoryIds: catId }
                     },
@@ -240,6 +248,7 @@ export class CatalogImportService {
                     {
                         name: device.name,
                         brandId: brand._id,
+                        categoryId: catId,
                         categoryIds: [catId],
                         isActive: true,
                         approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,

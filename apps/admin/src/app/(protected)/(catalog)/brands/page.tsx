@@ -9,6 +9,7 @@ import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { adminBrandSchema } from "@/schemas/admin.schemas";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
+import { AdminApiError } from "@/lib/api/adminClient";
 import { useState } from "react";
 import {
     deriveTaxonomyLifecycleStatus,
@@ -52,16 +53,42 @@ export default function BrandsPage() {
     const [rejectionReason, setRejectionReason] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
+    const [deleteError, setDeleteError] = useState<{
+        message: string;
+        details?: {
+            models?: number;
+            listings?: number;
+            spareParts?: number;
+            screenSizes?: number;
+            smartAlerts?: number;
+        };
+    } | null>(null);
 
     const confirmDelete = async () => {
         if (!deletingBrand) return;
         setIsDeleting(true);
-        try {
-            await handleDelete(deletingBrand.id);
-        } finally {
-            setIsDeleting(false);
-            setDeletingBrand(null);
-        }
+        setDeleteError(null);
+        await handleDelete(deletingBrand.id, {
+            onSuccess: () => {
+                setDeletingBrand(null);
+                setDeleteError(null);
+                setIsDeleting(false);
+            },
+            onError: (error: any) => {
+                setIsDeleting(false);
+                if (error instanceof AdminApiError) {
+                    const payload = error.payload;
+                    setDeleteError({
+                        message: payload.error || error.message || "Failed to delete brand.",
+                        details: payload.details as any,
+                    });
+                } else {
+                    setDeleteError({
+                        message: error.message || "An unexpected error occurred.",
+                    });
+                }
+            }
+        });
     };
 
     const confirmReject = async () => {
@@ -244,22 +271,67 @@ export default function BrandsPage() {
 
         <CatalogModal
             isOpen={!!deletingBrand}
-            onClose={() => !isDeleting && setDeletingBrand(null)}
+            onClose={() => {
+                if (!isDeleting) {
+                    setDeletingBrand(null);
+                    setDeleteError(null);
+                }
+            }}
             title="Delete Brand"
         >
             <div className="p-6 space-y-4">
-                <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-                    <div>
-                        <p className="text-sm font-semibold text-red-700">
-                            Cascade delete — this cannot be undone
-                        </p>
-                        <p className="mt-1 text-sm text-red-600">
-                            Deleting <strong>&ldquo;{deletingBrand?.name}&rdquo;</strong> will also 
-                            soft-delete all Models and Spare Parts linked exclusively to this brand.
-                        </p>
+                {deleteError ? (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 space-y-2">
+                        <div className="flex items-start gap-3">
+                            <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
+                            <div>
+                                <p className="text-sm font-semibold text-rose-800">
+                                    Deletion Blocked (409 Conflict)
+                                </p>
+                                <p className="mt-1 text-sm text-rose-700">
+                                    {deleteError.message}
+                                </p>
+                            </div>
+                        </div>
+                        {deleteError.details && (
+                            <div className="mt-2 pl-8 space-y-1">
+                                <p className="text-xs font-semibold text-rose-800 uppercase tracking-wider">
+                                    Active Dependencies:
+                                </p>
+                                <ul className="text-xs text-rose-700 list-disc list-inside space-y-1">
+                                    {typeof deleteError.details.listings === "number" && deleteError.details.listings > 0 && (
+                                        <li>Marketplace Listings: <strong>{deleteError.details.listings}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.models === "number" && deleteError.details.models > 0 && (
+                                        <li>Catalog Models: <strong>{deleteError.details.models}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.spareParts === "number" && deleteError.details.spareParts > 0 && (
+                                        <li>Spare Parts: <strong>{deleteError.details.spareParts}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.screenSizes === "number" && deleteError.details.screenSizes > 0 && (
+                                        <li>Screen Sizes: <strong>{deleteError.details.screenSizes}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.smartAlerts === "number" && deleteError.details.smartAlerts > 0 && (
+                                        <li>Smart Alerts: <strong>{deleteError.details.smartAlerts}</strong></li>
+                                    )}
+                                </ul>
+                            </div>
+                        )}
                     </div>
-                </div>
+                ) : (
+                    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                        <div>
+                            <p className="text-sm font-semibold text-red-700">
+                                Cascade delete — this cannot be undone
+                            </p>
+                            <p className="mt-1 text-sm text-red-600">
+                                Deleting <strong>&ldquo;{deletingBrand?.name}&rdquo;</strong> will also 
+                                soft-delete all Models and Spare Parts linked exclusively to this brand.
+                            </p>
+                        </div>
+                    </div>
+                )}
                 <p className="text-sm text-slate-600">
                     To hide this brand temporarily, <strong>deactivate it</strong> instead of deleting.
                 </p>
@@ -267,14 +339,17 @@ export default function BrandsPage() {
                     <button
                         type="button"
                         disabled={isDeleting}
-                        onClick={() => setDeletingBrand(null)}
+                        onClick={() => {
+                            setDeletingBrand(null);
+                            setDeleteError(null);
+                        }}
                         className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
                     >
                         Cancel
                     </button>
                     <button
                         type="button"
-                        disabled={isDeleting}
+                        disabled={isDeleting || !!deleteError}
                         onClick={() => void confirmDelete()}
                         className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
                     >

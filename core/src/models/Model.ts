@@ -19,6 +19,7 @@ export interface IModel extends Document {
     aliases: string[];
     synonyms: string[];
     brandId: mongoose.Types.ObjectId;
+    categoryId?: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
     isActive: boolean;
     approvalStatus: TaxonomyApprovalStatusValue;
@@ -41,6 +42,7 @@ const ModelSchema: Schema = new Schema({
     aliases: { type: [String], default: [] },
     synonyms: { type: [String], default: [] },
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
+    categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
     categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
     isActive: { type: Boolean, default: true },
     approvalStatus: {
@@ -113,10 +115,17 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 ModelSchema.plugin(softDeletePlugin);
 
 ModelSchema.pre('validate', function () {
-    const mutableDoc = this as unknown as Record<string, unknown>;
-    applyTaxonomyNamingDefaults(mutableDoc as Parameters<typeof applyTaxonomyNamingDefaults>[0]);
+    const mutableDoc = this as any;
+    applyTaxonomyNamingDefaults(mutableDoc);
     applyTaxonomyLifecycleFields(mutableDoc, TAXONOMY_APPROVAL_STATUS.APPROVED);
     mutableDoc.name = mutableDoc.displayName;
+
+    // Enforce bidirectional singular/plural category synchronization
+    if (mutableDoc.categoryId && (!mutableDoc.categoryIds || mutableDoc.categoryIds.length === 0)) {
+        mutableDoc.categoryIds = [mutableDoc.categoryId];
+    } else if ((!mutableDoc.categoryId || mutableDoc.categoryId === null) && mutableDoc.categoryIds && mutableDoc.categoryIds.length > 0) {
+        mutableDoc.categoryId = mutableDoc.categoryIds[0];
+    }
 });
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)

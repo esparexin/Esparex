@@ -328,13 +328,19 @@ export const deleteBrand = async (req: Request, res: Response) => {
 
         const deps = await checkBrandDependencies(id);
         
-        // If there are user listings (ads) linked, prevent deletion to maintain integrity.
-        if (deps.details.listings > 0) {
-            return res.status(400).json({
+        // If there are any dependencies (models, listings, etc.), prevent deletion to maintain integrity.
+        if (deps.count > 0) {
+            return res.status(409).json({
                 success: false,
-                error: `Cannot delete Brand with active marketplace dependencies (listings: ${deps.details.listings})`,
-                path: req.originalUrl || req.path,
-                status: 400
+                error: 'Brand cannot be deleted because dependencies exist',
+                status: 409,
+                details: {
+                    models: deps.details.models,
+                    listings: deps.details.listings,
+                    spareParts: deps.details.spareParts,
+                    screenSizes: deps.details.screenSizes,
+                    smartAlerts: deps.details.smartAlerts
+                }
             });
         }
 

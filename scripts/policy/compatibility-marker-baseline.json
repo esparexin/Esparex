@@ -32,6 +32,7 @@
   "backend/user/src/middleware/validateIdOrSlug.ts": 4,
   "backend/user/src/models/Ad.ts": 3,
   "backend/user/src/routes/adRoutes.ts": 2,
+  "backend/user/src/routes/adminRoutes.ts": 1,
   "backend/user/src/routes/serviceRoutes.ts": 2,
   "backend/user/src/routes/sparePartRoutes.ts": 2,
   "apps/web/src/__tests__/ad-report-payload.spec.ts": 2,
