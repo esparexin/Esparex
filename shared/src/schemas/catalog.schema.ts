@@ -68,7 +68,7 @@ export const CreateBrandSchema = z.object({
     slug: SlugSchema.optional(),
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
-    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+        categoryIds: z.array(ObjectIdSchema),
     isActive: z.boolean().default(true),
     approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
@@ -91,7 +91,7 @@ export const CreateModelSchema = z.object({
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
     brandId: ObjectIdSchema,
-    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    categoryIds: z.array(ObjectIdSchema),
     isActive: z.boolean().default(true),
     approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
@@ -114,7 +114,7 @@ export const CreateSparePartSchema = z.object({
     aliases: z.array(z.string().min(1).max(120)).optional(),
     synonyms: z.array(z.string().min(1).max(120)).optional(),
     listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
-    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    categoryIds: z.array(ObjectIdSchema),
     brandId: ObjectIdSchema.optional(),
     modelId: ObjectIdSchema.optional(),
     sortOrder: z.number().default(0),

@@ -65,9 +65,9 @@ const ModelSchema: Schema = new Schema({
 
 // INDEXES
 ModelSchema.index(
-    { categoryIds: 1, brandId: 1, canonicalName: 1 },
+    { brandId: 1, canonicalName: 1 },
     {
-        name: 'idx_model_categories_brand_canonical_name',
+        name: 'idx_model_brand_canonical_name_unique',
         unique: true,
         collation: { locale: 'en', strength: 2 },
         partialFilterExpression: {

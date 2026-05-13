@@ -23,6 +23,8 @@ import {
     findPendingBrandSuggestion,
     createBrandRecord,
     findBrandByNameInCategory,
+    findBrandByCanonicalName,
+    findModelByBrandAndCanonicalName,
     checkBrandDependencies,
     findModelByFilter,
     findModelSuggestion,
@@ -32,6 +34,7 @@ import {
     findModelBySlug,
 } from '../../../services/catalog/CatalogBrandModelService';
 import { validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
+import { normalizeCatalogCanonicalName } from '../../../services/catalog/taxonomySsot';
 import { escapeRegExp } from '../../../utils/stringUtils';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import {
@@ -212,6 +215,15 @@ export const createBrand = async (req: Request, res: Response) => {
         auditAction: 'BRAND_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
+            const categoryIds = Array.isArray(payload.categoryIds)
+                ? (payload.categoryIds as string[]).map(String)
+                : [];
+            payload.categoryIds = categoryIds;
+
+            if (categoryIds.length === 0) {
+                payload.isActive = false;
+            }
+
             const approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
                 isActive: payload.isActive,
@@ -219,7 +231,7 @@ export const createBrand = async (req: Request, res: Response) => {
             });
             payload.approvalStatus = approvalStatus;
 
-            const categoryValidation = await validateActiveCategories((payload.categoryIds as string[]).map(String));
+            const categoryValidation = await validateActiveCategories(categoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
             }
@@ -237,13 +249,23 @@ export const updateBrand = async (req: Request, res: Response) => {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
             const typedOldBrand = oldBrand as { categoryIds?: unknown[]; approvalStatus?: unknown; isActive?: boolean };
+            
+            const nextCategoryIds = payload.categoryIds
+                ? (payload.categoryIds as string[]).map(String)
+                : (typedOldBrand.categoryIds || []).map(String);
+            
+            payload.categoryIds = nextCategoryIds;
+
+            if (nextCategoryIds.length === 0) {
+                payload.isActive = false;
+            }
+
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus ?? typedOldBrand.approvalStatus,
                 isActive: payload.isActive ?? typedOldBrand.isActive,
                 fallback: TAXONOMY_APPROVAL_STATUS.APPROVED,
             });
 
-            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : (typedOldBrand.categoryIds || []).map(String);
             const categoryValidation = await validateActiveCategories(nextCategoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
@@ -516,8 +538,12 @@ export const createModel = async (req: Request, res: Response) => {
             if (!categoryIds || categoryIds.length === 0) {
                 if (!brandId) throw new Error('brandId is required');
                 const derivedId = await CatalogOrchestrator.resolvePrimaryCategoryIdFromBrand(brandId);
-                if (!derivedId) throw new Error('Invalid brandId: cannot resolve parent category');
-                payload.categoryIds = [derivedId.toString()];
+                if (derivedId) {
+                    payload.categoryIds = [derivedId.toString()];
+                } else {
+                    payload.categoryIds = [];
+                    payload.isActive = false;
+                }
             } else {
                 payload.categoryIds = categoryIds;
             }
@@ -526,6 +552,10 @@ export const createModel = async (req: Request, res: Response) => {
             payload.brandId = brandId;
             const { ok, reason } = await validateBrandIsActive(brandId);
             if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
+
+            if (!payload.categoryIds || (payload.categoryIds as unknown[]).length === 0) {
+                payload.isActive = false;
+            }
 
             payload.approvalStatus = deriveApprovalStatus({
                 approvalStatus: payload.approvalStatus,
@@ -557,11 +587,19 @@ export const updateModel = async (req: Request, res: Response) => {
                 const { ok, reason } = await validateBrandIsActive(brandId);
                 if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
             }
+            
             // Normalize to canonical categoryIds array
             if (categoryIds && categoryIds.length > 0) {
                 payload.categoryIds = categoryIds;
+            } else if (payload.categoryIds !== undefined) {
+                payload.categoryIds = [];
+                payload.isActive = false;
             } else if ((existingModel as { categoryIds?: unknown[] }).categoryIds) {
                 payload.categoryIds = ((existingModel as { categoryIds?: unknown[] }).categoryIds || []).map(String);
+            }
+
+            if (!payload.categoryIds || (payload.categoryIds as unknown[]).length === 0) {
+                payload.isActive = false;
             }
 
             const typedExisting = existingModel as { approvalStatus?: unknown; isActive?: boolean };
@@ -727,59 +765,133 @@ export const ensureModel = async (req: Request, res: Response) => {
         if (!categoryId || !brandName || !modelName) {
             return sendCatalogError(req, res, 'Missing fields', 400);
         }
+
         const { ok: catOk } = await validateCategoryIsActive(categoryId);
         if (!catOk) {
             return sendCatalogError(req, res, 'categoryId must reference an active category', 400);
         }
 
-        // Optimistically search for Brand and any Model with that name under it
-        const brandRegex = new RegExp(`^${escapeRegExp(brandName)}$`, 'i');
-        const modelRegex = new RegExp(`^${escapeRegExp(modelName)}$`, 'i');
+        const brandCanonical = normalizeCatalogCanonicalName(brandName);
+        const modelCanonical = normalizeCatalogCanonicalName(modelName);
 
-        let brand = await findBrandByNameInCategory(brandRegex, categoryId);
-        if (!brand) {
+        let brandCreated = false;
+        let modelCreated = false;
+
+        // 1. Brand Stage
+        let brand = await findBrandByCanonicalName(brandCanonical);
+
+        if (brand) {
+            const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
+            if (!brand.categoryIds.some(id => String(id) === categoryId)) {
+                await BrandModel.updateOne(
+                    { _id: brand._id },
+                    { $addToSet: { categoryIds: categoryObjectId } }
+                );
+                brandCreated = true;
+            }
+        } else {
             const brandVal = validateBrandSuggestion(brandName);
-            const aiResult = await TaxonomyAiService.analyzeBrand(brandVal.cleanName || brandName);
-            brand = await createBrandRecord({
-                name: brandVal.cleanName || brandName,
-                slug: slugify(brandVal.cleanName || brandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
-                categoryIds: [categoryId],
-                isActive: false,
-                approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
-                suggestedBy: userId,
-                aiAnalysis: aiResult?.analysis,
-                aiDecision: aiResult?.decision
-            });
+            const cleanBrandName = brandVal.cleanName || brandName;
+            
+            try {
+                brand = await createBrandRecord({
+                    name: cleanBrandName,
+                    slug: slugify(cleanBrandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
+                    categoryIds: [new mongoose.Types.ObjectId(categoryId)],
+                    isActive: false,
+                    approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+                    suggestedBy: userId
+                });
+                brandCreated = true;
+
+                // Launch background AI enrichment
+                void (async () => {
+                    try {
+                        const aiResult = await TaxonomyAiService.analyzeBrand(cleanBrandName);
+                        if (aiResult) {
+                            await BrandModel.updateOne({ _id: brand?._id }, {
+                                aiAnalysis: aiResult.analysis,
+                                aiDecision: aiResult.decision
+                            });
+                        }
+                    } catch (error) {
+                        logger.error(`[ensureModel] Background Brand AI analysis failed: ${cleanBrandName}`, { error });
+                    }
+                })();
+            } catch (error) {
+                // Handle Race Condition: If another request created it between our lookup and insert
+                if (isDuplicateKeyError(error)) {
+                    brand = await findBrandByCanonicalName(brandCanonical);
+                    if (!brand) throw error; // Rethrow if it's still missing (unexpected)
+                } else {
+                    throw error;
+                }
+            }
         }
 
         const brandId = String(brand._id);
-        let model = await findModelByNameAndBrand(modelRegex, brandId);
+
+        // 2. Model Stage
+        let model = await findModelByBrandAndCanonicalName(brandId, modelCanonical);
 
         if (!model) {
             const modelVal = validateModelSuggestion(modelName);
-            const aiResult = await TaxonomyAiService.analyzeModel(modelVal.cleanName || modelName, brand.name);
-            model = await createModelRecord({
-                name: modelVal.cleanName || modelName,
-                brandId: brand._id,
-                categoryIds: [categoryId],
-                isActive: false,
-                approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
-                suggestedBy: userId,
-                aiAnalysis: aiResult?.analysis,
-                aiDecision: aiResult?.decision
-            });
+            const cleanModelName = modelVal.cleanName || modelName;
+
+            try {
+                model = await createModelRecord({
+                    name: cleanModelName,
+                    brandId: brand._id,
+                    categoryIds: [new mongoose.Types.ObjectId(categoryId)],
+                    isActive: false,
+                    approvalStatus: TAXONOMY_APPROVAL_STATUS.PENDING,
+                    suggestedBy: userId
+                });
+                modelCreated = true;
+
+                // Launch background AI enrichment
+                void (async () => {
+                    try {
+                        const aiResult = await TaxonomyAiService.analyzeModel(cleanModelName, brand?.name);
+                        if (aiResult) {
+                            await CatalogModel.updateOne({ _id: model?._id }, {
+                                aiAnalysis: aiResult.analysis,
+                                aiDecision: aiResult.decision
+                            });
+                        }
+                    } catch (error) {
+                        logger.error(`[ensureModel] Background Model AI analysis failed: ${cleanModelName}`, { error });
+                    }
+                })();
+            } catch (error) {
+                // Handle Race Condition
+                if (isDuplicateKeyError(error)) {
+                    model = await findModelByBrandAndCanonicalName(brandId, modelCanonical);
+                    if (!model) throw error;
+                } else {
+                    throw error;
+                }
+            }
         }
 
-        if ((brand as { approvalStatus?: string }).approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+        // 3. Post-Process (Background)
+        if (brandCreated && brand.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
             void CatalogNotificationService.notifyAdminsOfSuggestion('brand', brandName, String(userId));
         }
-        if ((model as { approvalStatus?: string }).approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
+        if (modelCreated && model.approvalStatus === TAXONOMY_APPROVAL_STATUS.PENDING) {
             void CatalogNotificationService.notifyAdminsOfSuggestion('model', modelName, String(userId));
         }
+        if (brandCreated || modelCreated) {
+            void CatalogOrchestrator.invalidateCatalogCache();
+        }
 
-        await CatalogOrchestrator.invalidateCatalogCache();
-
-        res.status(201).json(respond({ success: true, data: model }));
+        res.status(201).json({
+            success: true,
+            data: {
+                brand: { _id: brand._id, name: brand.name, status: brand.approvalStatus },
+                model: { _id: model._id, name: model.name, status: model.approvalStatus }
+            }
+        });
     } catch (error) {
         sendCatalogError(req, res, error);
     }

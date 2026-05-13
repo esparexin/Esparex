@@ -7,7 +7,7 @@
 export const BANNED_WORDS = {
     // Adult/Explicit content
     adult: [
-        'porn', 'xxx', 'nude', 'naked', 'sex', 'escort', 'prostitute',
+        'porn', 'xxx', 'nude', 'sex', 'prostitute',
         'onlyfans', 'webcam', 'erotic', 'adult content', 'nsfw'
     ],
 

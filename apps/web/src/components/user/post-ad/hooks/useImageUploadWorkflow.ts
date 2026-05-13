@@ -78,12 +78,19 @@ export function useImageUploadWorkflow<T>(
                 } finally {
                     setIsInternalUploading(false);
                 }
-            }, (errors: unknown) => {
-                logger.error("[PostAdSubmit] Form validation errors:", errors);
-                const errorRecord = errors && typeof errors === "object"
-                    ? (errors as Record<string, unknown>)
-                    : {};
-                const firstErrorKey = Object.keys(errorRecord)[0];
+            }, (errors: any) => {
+                const sanitizedErrors = Object.keys(errors).reduce((acc, key) => {
+                    const err = errors[key];
+                    acc[key] = {
+                        message: err?.message,
+                        type: err?.type
+                    };
+                    return acc;
+                }, {} as Record<string, any>);
+
+                logger.error("[PostAdSubmit] Form validation errors:", sanitizedErrors);
+                
+                const firstErrorKey = Object.keys(errors)[0];
                 if (typeof document !== "undefined" && firstErrorKey) {
                     if (firstErrorKey === "images") {
                         document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });

@@ -123,9 +123,17 @@ export const findModelSuggestion = async (nameRegex: RegExp, brandId: string) =>
         approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }
     }).lean();
 
-/** Find a model by exact name regex under a brand (for ensureModel). */
+/** Find a brand by exact name regex under a brand (for ensureModel). */
 export const findModelByNameAndBrand = async (nameRegex: RegExp, brandId: string) =>
     CatalogModelImport.findOne({ name: { $regex: nameRegex }, brandId });
+
+/** Find a brand by global canonicalName (for global deduplication). */
+export const findBrandByCanonicalName = async (canonicalName: string) =>
+    BrandModelImport.findOne({ canonicalName });
+
+/** Find a model by brand and canonicalName (for brand-scoped deduplication). */
+export const findModelByBrandAndCanonicalName = async (brandId: string, canonicalName: string) =>
+    CatalogModelImport.findOne({ brandId, canonicalName });
 
 /** Create a new model record. */
 export const createModelRecord = async (data: Record<string, unknown>) =>

@@ -9,7 +9,12 @@ router.use(requireAdmin);
 router.get('/categories', adminCatalog.getCategories);
 router.get('/categories/counts', adminCatalog.getCategoryCounts);
 router.get('/categories/:id', adminCatalog.getCategoryById);
+router.post('/categories', adminCatalog.createCategory);
+router.put('/categories/:id', adminCatalog.updateCategory);
+router.patch('/categories/:id', adminCatalog.updateCategory);
+router.delete('/categories/:id', adminCatalog.deleteCategory);
 router.get('/categories/:id/schema', adminCatalog.getCategorySchema);
+router.put('/categories/:id/schema', adminCatalog.updateCategorySchema);
 router.patch('/categories/:id/status', adminCatalog.toggleCategoryStatus);
 
 router.get('/governance/hierarchy-tree', adminCatalog.getHierarchyTree);

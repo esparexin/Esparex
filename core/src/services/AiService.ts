@@ -137,7 +137,8 @@ const callOpenAIWithMessages = async (
                 model: model || 'gpt-4o',
                 messages,
                 max_tokens: maxTokens,
-                temperature
+                temperature,
+                response_format: { type: 'json_object' }
             })
         });
 
@@ -259,6 +260,9 @@ const callGemini = async (
     maxTokens: number = 500,
     temperature: number = 0.7
 ): Promise<OpenAICallResult> => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), AI_REQUEST_TIMEOUT_MS);
+
     try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
         
@@ -282,9 +286,11 @@ const callGemini = async (
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
             body: JSON.stringify({
                 contents,
                 generationConfig: {
+                    responseMimeType: 'application/json',
                     maxOutputTokens: maxTokens,
                     temperature
                 }
@@ -306,8 +312,19 @@ const callGemini = async (
         }
         return { ok: true, content };
     } catch (error) {
+        if ((error as { name?: string }).name === 'AbortError') {
+            logger.error('Gemini API Timeout');
+            return {
+                ok: false,
+                status: 504,
+                code: 'TIMEOUT',
+                error: `Gemini request timed out after ${AI_REQUEST_TIMEOUT_MS}ms`
+            };
+        }
         logger.error('Fetch Gemini Error:', error);
         return { ok: false, status: 502, error: 'Failed to call Gemini provider' };
+    } finally {
+        clearTimeout(timeout);
     }
 };
 
@@ -336,18 +353,18 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     const envAiModel = env.AI_MODEL;
     const envGeminiModel = env.GEMINI_MODEL;
     
-    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-flash-latest') : 'gpt-4o');
+    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-1.5-flash') : 'gpt-4o');
 
     // Legacy Model Sanitation: If DB or ENV has a known invalid/deprecated model name, force upgrade it.
-    if (model === 'gemini-1.5-flash' || model === 'gemini-2.5-flash') {
-        model = 'gemini-flash-latest';
+    if (model === 'gemini-flash-latest' || model === 'gemini-2.5-flash') {
+        model = 'gemini-1.5-flash';
     }
 
     // Cross-provider safety check: 
     // If we have a Gemini key but the model doesn't look like a Gemini model, 
     // and we DON'T have an OpenAI key, force a Gemini fallback.
     if (geminiKey && !model.toLowerCase().startsWith('gemini') && !openAiKey) {
-        model = envGeminiModel || 'gemini-flash-latest';
+        model = envGeminiModel || 'gemini-1.5-flash';
     }
 
 

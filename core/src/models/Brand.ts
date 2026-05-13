@@ -88,10 +88,10 @@ BrandSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_brand_approva
 BrandSchema.index({ isDeleted: 1 }, { name: 'idx_brand_isDeleted_idx' })
 
 BrandSchema.index(
-  { categoryIds: 1, canonicalName: 1 },
+  { canonicalName: 1 },
   {
     unique: true,
-    name: 'idx_brand_categoryIds_canonicalName_unique',
+    name: 'idx_brand_canonicalName_unique',
     partialFilterExpression: {
       isDeleted: false,
       approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] }

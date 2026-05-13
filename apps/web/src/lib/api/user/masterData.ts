@@ -215,21 +215,22 @@ export async function ensureModel(
             modelName: modelName.trim(),
         });
         const payload = unwrapApiPayload<unknown>(response);
-        const data = (
-            payload && typeof payload === "object" && "data" in (payload as Record<string, unknown>)
-                ? (payload as Record<string, unknown>).data
-                : payload
-        ) as Record<string, unknown>;
-        const id = (data?.id ?? data?._id ?? "") as string;
-        const brandId = (data?.brandId ?? "") as string;
+        const data = payload as {
+            brand: { _id: string; name: string; status: string };
+            model: { _id: string; name: string; status: string; categoryId?: string; aiAnalysis?: any };
+        };
+
+        const id = data?.model?._id || "";
+        const brandId = data?.brand?._id || "";
+
         return {
             id,
             _id: id,
-            name: String(data?.name ?? modelName),
+            name: data?.model?.name || modelName,
             brandId,
-            categoryId: data?.categoryId as string | undefined,
-            status: data?.status as string | undefined,
-            aiAnalysis: data?.aiAnalysis,
+            categoryId: data?.model?.categoryId,
+            status: data?.model?.status,
+            aiAnalysis: data?.model?.aiAnalysis,
         };
     } catch (error) {
         logger.error("[MasterData] ensureModel failed:", error);

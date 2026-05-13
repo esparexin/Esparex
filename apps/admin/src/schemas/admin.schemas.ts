@@ -23,13 +23,13 @@ export const adminServiceModerationSchema = z.object({
 
 export const adminBrandSchema = z.object({
     name: z.string().min(1, 'Brand name is required').max(100, 'Brand name too long'),
-    categoryIds: z.array(ObjectIdSchema).min(1, 'At least one category is required'),
+    categoryIds: z.array(ObjectIdSchema),
 });
 
 export const adminModelSchema = z.object({
     name: z.string().min(1, 'Model name is required').max(100, 'Model name too long'),
     brandId: ObjectIdSchema,
-    categoryIds: z.array(ObjectIdSchema).min(1, 'At least one category is required'),
+    categoryIds: z.array(ObjectIdSchema),
 });
 
 export const adminLocationSchema = z.object({

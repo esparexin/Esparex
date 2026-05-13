@@ -15,12 +15,11 @@ export const ACTIVE_CATEGORY_QUERY = {
     approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
 };
 
-/** Reusable filter for active, non-deleted brands */
 export const ACTIVE_BRAND_QUERY = {
     isDeleted: { $ne: true } as Record<string, unknown>,
     deletedAt: null,
     isActive: true,
-    approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+    approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] },
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -114,7 +113,7 @@ export async function validateModelBelongsToBrand(
         isDeleted: { $ne: true },
         deletedAt: null,
         isActive: true,
-        approvalStatus: TAXONOMY_APPROVAL_STATUS.APPROVED,
+        approvalStatus: { $in: [TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.PENDING] },
     }).select('brandId').lean();
 
     if (!model) {

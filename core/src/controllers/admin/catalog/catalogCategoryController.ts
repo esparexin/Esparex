@@ -6,7 +6,8 @@
 
 import { Request, Response } from 'express';
 import slugify from 'slugify';
-import { getAdminConnection } from '../../../config/db';
+import logger from '../../../utils/logger';
+import { getAdminConnection, getUserConnection } from '../../../config/db';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
     CategoryModel,
@@ -274,32 +275,74 @@ export const toggleCategoryStatus = async (req: Request, res: Response) => {
  * Delete category (soft delete with dependency check)
  */
 export const deleteCategory = async (req: Request, res: Response) => {
-    const session = await getAdminConnection().startSession();
-    session.startTransaction();
+    if (!hasAdminAccess(req)) {
+        return sendCatalogError(req, res, 'Admin access required', 403);
+    }
 
-    try {
-        if (!hasAdminAccess(req)) {
-            throw new AppError('Admin access required', 403, 'FORBIDDEN');
-        }
+    const categoryId = req.params.id as string;
 
-        const categoryId = req.params.id as string;
-        const category = await findCategoryByIdWithSession(categoryId, session);
+    const performDelete = async (txSession: any) => {
+        const category = txSession 
+            ? await findCategoryByIdWithSession(categoryId, txSession)
+            : await findCategoryById(categoryId);
+
         if (!category) {
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
         }
 
-        // Soft-delete the category itself, then cascade to children.
-        // Single write here; cascadeCategoryDelete handles brands/models/parts/sizes.
-        await softDeleteCategoryById(category._id, session);
+        if (txSession) {
+            await softDeleteCategoryById(category._id, txSession);
+            await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), txSession);
+        } else {
+            await softDeleteCategoryById(category._id, null as any);
+            await CatalogOrchestrator.cascadeCategoryDelete(String(category._id));
+        }
+        return category;
+    };
 
-        await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), session);
-
+    let session: any = null;
+    try {
+        session = await getUserConnection().startSession();
+        session.startTransaction();
+        await performDelete(session);
         await session.commitTransaction();
         clearCategoryCanonicalCache();
-
         sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
-    } catch (e: unknown) {
-        await session.abortTransaction();
+    } catch (e: any) {
+        if (session) {
+            try {
+                await session.abortTransaction();
+            } catch (abortErr) {
+                // Ignore abort failure
+            }
+            try {
+                await session.endSession();
+            } catch (endErr) {
+                // Ignore end failure
+            }
+            session = null;
+        }
+
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
+
+        if (isSessionError) {
+            logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
+            try {
+                await performDelete(null);
+                clearCategoryCanonicalCache();
+                return sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
+            } catch (fallbackError) {
+                const err = fallbackError instanceof AppError ? fallbackError : null;
+                if (err?.code === 'FORBIDDEN') {
+                    return sendCatalogError(req, res, err.message, 403);
+                } else if (err?.code === 'CATEGORY_NOT_FOUND') {
+                    return sendCatalogError(req, res, err.message, 404);
+                }
+                return sendCatalogError(req, res, fallbackError);
+            }
+        }
+
         const err = e instanceof AppError ? e : null;
         if (err?.code === 'FORBIDDEN') {
             return sendCatalogError(req, res, err.message, 403);
@@ -308,6 +351,13 @@ export const deleteCategory = async (req: Request, res: Response) => {
         }
         return sendCatalogError(req, res, e);
     } finally {
-        await session.endSession();
+        if (session) {
+            try {
+                await session.endSession();
+            } catch (endErr) {
+                // Ignore end failure
+            }
+        }
     }
 };
+

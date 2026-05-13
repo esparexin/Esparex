@@ -291,7 +291,12 @@ export async function handleCatalogToggleStatus<T extends Document>(
         }
 
         const isActive = !(item as T & { isActive?: boolean }).isActive;
-        const typedItem = item as T & { approvalStatus?: unknown; isActive?: boolean };
+        const typedItem = item as T & { approvalStatus?: unknown; isActive?: boolean; categoryIds?: string[] };
+
+        if (isActive && hasSchemaPath(model, 'categoryIds') && (!typedItem.categoryIds || typedItem.categoryIds.length === 0)) {
+            return sendContractErrorResponse(req, res, 400, 'Cannot activate brand/model with no assigned categories');
+        }
+
         const approvalStatus = deriveApprovalStatus({
             approvalStatus: typedItem.approvalStatus,
             isActive: typedItem.isActive,

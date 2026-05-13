@@ -25,7 +25,7 @@ export const rejectionSchema = z.object({
 
 // Centralized Category Logic
 const categoryFields = {
-    categoryIds: z.array(requiredObjectIdSchema).min(1)
+    categoryIds: z.array(requiredObjectIdSchema)
 };
 
 const taxonomyTextFields = {
@@ -100,7 +100,7 @@ export const brandUpdateSchema = brandBaseSchema
 export const modelCreateSchema = z.object({
     ...taxonomyTextFields,
     brandId: requiredObjectIdSchema,
-    categoryIds: z.array(requiredObjectIdSchema).min(1),
+    categoryIds: z.array(requiredObjectIdSchema),
     isActive: z.boolean().optional(),
     approvalStatus: z.enum([TAXONOMY_APPROVAL_STATUS.PENDING, TAXONOMY_APPROVAL_STATUS.APPROVED, TAXONOMY_APPROVAL_STATUS.REJECTED]).optional(),
     suggestedBy: optionalObjectIdSchema,

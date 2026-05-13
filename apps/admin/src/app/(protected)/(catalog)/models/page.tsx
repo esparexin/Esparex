@@ -100,9 +100,11 @@ export default function ModelsPage() {
             customSubmitValidation={(formData) => {
                 const categoryError = validateRequiredCategoryIds(formData.categoryIds);
                 if (categoryError) return categoryError;
-                const selectedBrand = brands.find((brand) => brand.id === formData.brandId);
-                if (!hasCategoryOverlap(selectedBrand, formData.categoryIds)) {
-                    return "Selected brand is not mapped to any of the selected categories";
+                if (formData.categoryIds.length > 0) {
+                    const selectedBrand = brands.find((brand) => brand.id === formData.brandId);
+                    if (!hasCategoryOverlap(selectedBrand, formData.categoryIds)) {
+                        return "Selected brand is not mapped to any of the selected categories";
+                    }
                 }
                 return null;
             }}

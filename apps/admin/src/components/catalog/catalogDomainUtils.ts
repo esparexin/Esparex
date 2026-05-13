@@ -69,7 +69,6 @@ export function hasCategoryOverlap(
 }
 
 export function validateRequiredCategoryIds(categoryIds: string[]): string | null {
-    if (categoryIds.length === 0) return "At least one category is required";
     return null;
 }
 
