@@ -7,7 +7,7 @@ import { PopupProvider } from "@/context/PopupProvider";
 import { LocationProvider } from "@/context/LocationContext";
 import { CookieConsentBanner } from "@/components/common/CookieConsentBanner";
 import { AppFeedbackProvider } from "@/context/FeedbackSystemContext";
-import { SuccessFeedbackBanner, ErrorFeedbackBanners } from "@/components/feedback/SystemFeedbackBanners";
+import { SuccessFeedbackBanner } from "@/components/feedback/SystemFeedbackBanners";
 
 export function RootClientShell({
     children,
@@ -22,7 +22,7 @@ export function RootClientShell({
                 <PopupProvider>
                     <LocationProvider initialHasAuthCookie={initialHasAuthCookie}>
                         <SuccessFeedbackBanner />
-                        <ErrorFeedbackBanners />
+                        {/* <ErrorFeedbackBanners /> */}
                         {children}
                         <CookieConsentBanner />
                     </LocationProvider>

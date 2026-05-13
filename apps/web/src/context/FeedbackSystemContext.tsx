@@ -77,6 +77,9 @@ export function AppFeedbackProvider({ children }: { children: React.ReactNode })
     // Handle global custom events from raw JS / API interceptors
     useEffect(() => {
         const handleGlobalError = (event: Event) => {
+            const isEnabled = process.env.NEXT_PUBLIC_ENABLE_GLOBAL_ERROR_BANNERS === "true";
+            if (!isEnabled) return;
+
             const customEvent = event as CustomEvent<{ error: unknown; onRetry?: () => void }>;
             emitError(customEvent.detail.error, { onRetry: customEvent.detail.onRetry });
         };

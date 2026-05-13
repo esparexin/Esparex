@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Location } from "@/lib/api/user/locations";
 
 import Image from "next/image";
-import { X, Upload, Loader2, Sparkles } from "@/icons/IconRegistry";
+import { X, Upload, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 import LocationSelector from "@/components/location/LocationSelector";
