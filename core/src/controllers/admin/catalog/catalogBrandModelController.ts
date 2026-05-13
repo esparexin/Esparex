@@ -51,7 +51,9 @@ import {
     isDuplicateKeyError,
     sendEmptyPublicList,
     applyTaxonomyStatusFilter,
+    hasAdminAccess,
 } from './shared';
+import { logAdminAction } from '../../../utils/adminLogger';
 import { toOptionalString, toStringArray } from './inputCoercion';
 import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
 import { validateBrandSuggestion, validateModelSuggestion } from '../../../utils/suggestionValidation';
@@ -290,10 +292,46 @@ export const toggleBrandStatus = async (req: Request, res: Response) => {
  * Delete brand (soft delete with dependency check)
  */
 export const deleteBrand = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, BrandModel, checkBrandDependencies, {
-        auditAction: 'BRAND_DELETE',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
-    });
+    try {
+        if (!hasAdminAccess(req)) {
+            return sendContractErrorResponse(req, res, 403, 'Admin access required');
+        }
+
+        const id = String(req.params.id);
+
+        const deps = await checkBrandDependencies(id);
+        
+        // If there are user listings (ads) or spare parts linked, prevent deletion to maintain integrity.
+        if (deps.details.listings > 0 || deps.details.spareParts > 0) {
+            return sendContractErrorResponse(
+                req,
+                res,
+                400,
+                `Cannot delete Brand with active marketplace dependencies (listings: ${deps.details.listings}, spare parts: ${deps.details.spareParts})`,
+                { details: deps.details }
+            );
+        }
+
+        const softDeleteUpdate: Record<string, unknown> = {
+            isDeleted: true,
+            deletedAt: new Date(),
+            isActive: false,
+        };
+
+        const brand = await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
+        if (!brand) {
+            return sendContractErrorResponse(req, res, 404, 'Brand not found');
+        }
+
+        // Cascade soft-delete all models belonging to this brand
+        await CatalogOrchestrator.cascadeBrandDelete(id);
+
+        void logAdminAction(req, 'BRAND_DELETE', 'Brand', brand._id);
+
+        return sendSuccessResponse(res, null, 'Brand and all dependent models soft-deleted successfully');
+    } catch (error) {
+        return sendCatalogError(req, res, error);
+    }
 };
 
 /**
