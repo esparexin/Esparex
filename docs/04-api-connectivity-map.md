@@ -17,6 +17,7 @@ Owner: Enterprise Architect
 - **Public API**: `/api/v1/*` (Handled by `backend/user`)
 - **Admin API**: `/api/v1/admin/*` (Handled by `backend/user` with Admin Auth)
 - **Shared Contracts**: Defined in `shared/src/contracts/api/`
+- **Backward Compatibility**: All shared contracts MUST follow the safe-default policy defined in `ai-governance/SSOT.md`.
 
 ## 3. Database Connectivity
 

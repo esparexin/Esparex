@@ -81,6 +81,25 @@ assertPattern(
     'Moderation hub regression: query-param allowed status set changed unexpectedly.'
 );
 
+// Contract safety regression guards
+assertPattern(
+    moderationApi,
+    /catalogPending:\s*ensureNumber\(data\.catalogPending\s*\?\?\s*data\.heldForCatalog\s*\?\?\s*0,\s*'catalogPending'\)/,
+    'Moderation API regression: catalogPending contract mapping changed or lost numeric safety.'
+);
+
+assertPattern(
+    moderationApi,
+    /const ensureNumber = \(value: unknown, _label: string\): number => \{/,
+    'Moderation API regression: ensureNumber utility removed or signature changed.'
+);
+
+assertPattern(
+    moderationApi,
+    /return isNaN\(parsed\)\s*\?\s*0\s*:\s*parsed;/,
+    'Moderation API regression: ensureNumber lost NaN safety.'
+);
+
 if (failures.length > 0) {
     console.error("Moderation regression guard failed:");
     for (const failure of failures) {

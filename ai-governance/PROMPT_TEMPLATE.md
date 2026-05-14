@@ -35,6 +35,10 @@ Constraints:
   - Do not repeat rules already defined elsewhere.
   - Every new rule MUST include an enforcement plan (script/CI).
   - Every new enforcement script MUST be documented in the registry.
+- **UI Composition**: 
+  - Ensure shared UI components (tabs, headers) are rendered exactly once at the page layout level.
+  - Set `isNested={true}` in child content templates to suppress redundant navigation.
+- **Backward Compatibility**: All shared API contracts MUST be backward compatible with safe defaults. Never break existing modules with new mandatory fields.
 - Report files changed, checks run, and blockers.
 
 If the task conflicts with canonical governance, stop and explain the conflict.

@@ -92,6 +92,18 @@ For detailed rules on API, Database, Naming, and Frontend standards, AI agents M
   - Canonical Event Dispatcher: `feedback.ts`
   - Canonical UI Rendering Layer: `SystemFeedbackBanners.tsx` (inline banners)
   - Code Review Checklist: Any new Sonner dependencies, direct toast invocations, or parallel toast notifications must be rejected.
+### Single Shared UI Ownership
+
+- **Single Owner**: Shared UI components (module tabs, breadcrumbs, page headers) must have a single rendering owner at the page layout level.
+- **No Duplication**: Child content components must never re-render these elements.
+- **Hierarchy**: Use `isNested={true}` (or equivalent) in child templates to suppress redundant page-level headers and navigation.
+- **Canonical Structure**: `<PageShell title="Page Title" tabs={<ModuleTabs ... />}><ChildContent isNested={true} /></PageShell>`.
+
+### Engineering and Shared Contracts
+
+- **Backward Compatibility**: All shared API contracts used by multiple modules MUST be backward compatible.
+- **Safe Defaults**: Newly introduced fields must have safe defaults (e.g., `0` for counts, `""` for strings) and MUST NEVER break existing consumers by being mandatory without defaults.
+- **Serialization**: Canonical serializers must normalize data to prevent frontend crashes due to missing or non-numeric fields in shared contracts.
 
 ## 5. Runtime AI Canonical Ownership
 

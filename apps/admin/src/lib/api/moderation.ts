@@ -13,11 +13,13 @@ type ModerationListResult = {
 const toRecord = (value: unknown): UnknownRecord =>
     value && typeof value === "object" ? (value as UnknownRecord) : {};
 
-const ensureNumber = (value: unknown, label: string): number => {
-    if (typeof value !== "number") {
-        throw new Error(`Invalid moderation contract: ${label} must be a number`);
+const ensureNumber = (value: unknown, _label: string): number => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+        const parsed = Number(value);
+        return isNaN(parsed) ? 0 : parsed;
     }
-    return value;
+    return 0;
 };
 
 const normalizePagination = (raw: unknown, page: number, limit: number): ModerationPagination => {
@@ -89,14 +91,14 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
     const data = toRecord(root.data);
 
     return {
-        total: ensureNumber(data.total, 'total'),
+        total: ensureNumber(data.total ?? data.all, 'total'),
         pending: ensureNumber(data.pending, 'pending'),
-        live: ensureNumber(data.live, 'live'),
+        live: ensureNumber(data.live ?? data.approved, 'live'),
         rejected: ensureNumber(data.rejected, 'rejected'),
         expired: ensureNumber(data.expired, 'expired'),
         sold: ensureNumber(data.sold, 'sold'),
         deactivated: ensureNumber(data.deactivated, 'deactivated'),
-        catalogPending: ensureNumber(data.catalogPending, 'catalogPending'),
+        catalogPending: ensureNumber(data.catalogPending ?? data.heldForCatalog ?? 0, 'catalogPending'),
     };
 }
 
