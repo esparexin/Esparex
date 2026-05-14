@@ -12,6 +12,7 @@ import {
     CatalogActiveToggleButton,
     CatalogCheckboxCard,
     CatalogCheckboxGroupField,
+    CatalogCategoryIcon,
     CatalogEntityCell,
     CatalogListingTypeBadges,
     CatalogSearchInput,
@@ -27,6 +28,7 @@ import type { Category } from "@esparex/shared";
 
 type CategoryFormData = {
     name: string;
+    icon?: string;
     isActive: boolean;
     hasScreenSizes: boolean;
     listingType: ListingTypeValue[];
@@ -126,6 +128,7 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
                 }}
                 defaultFormData={{
                     name: "",
+                    icon: "",
                     isActive: true,
                     hasScreenSizes: false,
                     listingType: [LISTING_TYPE.AD],
@@ -149,6 +152,7 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
                     if (item) {
                         setFormData({
                             name: item.name,
+                            icon: item.icon || "",
                             isActive: item.isActive,
                             hasScreenSizes: item.hasScreenSizes || false,
                             listingType: Array.isArray(item.listingType)
@@ -163,7 +167,7 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
                         header: "Category",
                         cell: (category) => (
                             <CatalogEntityCell
-                                icon={getListingTypeIcon(category.listingType?.[0] || LISTING_TYPE.AD, 20)}
+                                icon={<CatalogCategoryIcon icon={category.icon} listingType={category.listingType} size={20} />}
                                 iconClassName="bg-slate-100 text-slate-600"
                                 title={category.name}
                                 subtitle={category.slug}
@@ -256,6 +260,15 @@ function CategoriesPageContent({ initialSearch, initialStatus, initialPage }: Ca
                             value={formData.name}
                             maxLength={50}
                             onChange={(name) => setFormData((prev) => ({ ...prev, name }))}
+                        />
+
+                        <CatalogTextInputField
+                            label="Icon Name"
+                            placeholder="e.g. smartphone, drone, briefcase..."
+                            value={formData.icon || ""}
+                            maxLength={30}
+                            required={false}
+                            onChange={(icon) => setFormData((prev) => ({ ...prev, icon }))}
                         />
 
                         {/* UX Gap 3: Slug preview */}

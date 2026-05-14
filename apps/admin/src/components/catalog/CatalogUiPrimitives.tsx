@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { AlertTriangle, Box, Briefcase, CheckCircle, Edit, Filter, Loader2, Search, Smartphone, Trash2, Wrench as WrenchIcon, XCircle } from "lucide-react";
+import { AlertTriangle, Box, Briefcase, CheckCircle, Edit, Filter, Loader2, Search, Smartphone, Trash2, Wrench as WrenchIcon, XCircle, Drone, Plane } from "lucide-react";
 import { CHAT_STATUS, LIFECYCLE_STATUS, LISTING_TYPE } from "@esparex/shared";
 
 export type SelectOption = {
@@ -490,16 +490,43 @@ export function CatalogRejectSuggestionForm({
  * Standardized icon getter for listing types.
  */
 export function getListingTypeIcon(type: string, size = 16) {
-    switch (type) {
+    const normalizedType = type.toLowerCase();
+    switch (normalizedType) {
         case LISTING_TYPE.AD:
+        case 'smartphone':
             return <Smartphone size={size} />;
         case LISTING_TYPE.SERVICE:
+        case 'service':
             return <Briefcase size={size} />;
         case LISTING_TYPE.SPARE_PART:
+        case 'spare_part':
             return <WrenchIcon size={size} />;
+        case 'drone':
+        case 'drones':
+            return <Drone size={size} />;
+        case 'plane':
+            return <Plane size={size} />;
         default:
             return <Box size={size} />;
     }
+}
+
+/**
+ * Renders a category icon, prioritizing the explicit 'icon' field from the database.
+ */
+export function CatalogCategoryIcon({ 
+    icon, 
+    listingType, 
+    size = 20 
+}: { 
+    icon?: string; 
+    listingType?: string[]; 
+    size?: number 
+}) {
+    if (icon) {
+        return getListingTypeIcon(icon, size);
+    }
+    return getListingTypeIcon(listingType?.[0] || LISTING_TYPE.AD, size);
 }
 
 /**

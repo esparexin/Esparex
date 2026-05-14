@@ -57,11 +57,31 @@ import { getCache, setCache } from '../../../utils/redisCache';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
+const normalizeCacheValue = (value: unknown): string => {
+    if (Array.isArray(value)) return value.map(normalizeCacheValue).join(',');
+    if (value === undefined || value === null || value === '') return 'all';
+    return encodeURIComponent(String(value));
+};
+
 const catalogCacheKey = {
-    brands: (categoryId: string) => `catalog:brands:${categoryId}`,
-    models: (categoryId: string, brandId?: string) => brandId
-        ? `catalog:models:${categoryId}:${brandId}`
-        : `catalog:models:${categoryId}`,
+    brands: (categoryId: string) => `catalog:brands:${normalizeCacheValue(categoryId)}`,
+    models: (params: {
+        categoryId?: unknown;
+        brandId?: unknown;
+        search?: unknown;
+        q?: unknown;
+        page?: unknown;
+        limit?: unknown;
+        sort?: unknown;
+    }) => [
+        'catalog:models',
+        `category=${normalizeCacheValue(params.categoryId)}`,
+        `brand=${normalizeCacheValue(params.brandId)}`,
+        `search=${normalizeCacheValue(params.search ?? params.q)}`,
+        `page=${normalizeCacheValue(params.page ?? 1)}`,
+        `limit=${normalizeCacheValue(params.limit ?? 100)}`,
+        `sort=${normalizeCacheValue(params.sort ?? 'name')}`,
+    ].join(':'),
 };
 
 /** Wraps res.json to write-through to Redis on success (public path only). */
@@ -89,8 +109,9 @@ const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const categoryId = req.query.categoryId as string;
-    let categoryObjectId: string | undefined = categoryId;
-    if (!isAdminView && categoryId) {
+    let categoryObjectId: string | undefined = (categoryId && categoryId !== 'all') ? categoryId : undefined;
+
+    if (!isAdminView && categoryId && categoryId !== 'all') {
         // Public view allows passing slug for categoryId
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
             const cat = await findCategoryBySlugForCatalog(categoryId, ACTIVE_CATEGORY_QUERY);
@@ -448,12 +469,12 @@ export const deleteBrand = async (req: Request, res: Response) => {
 export const getModels = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const { brandId } = req.query;
-    const brandObjectId = typeof brandId === 'string' ? brandId : undefined;
+    const brandObjectId = (typeof brandId === 'string' && brandId !== 'all') ? brandId : undefined;
     const categoryId = req.query.categoryId as string;
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
 
-    let categoryObjectId: string | undefined = categoryId;
-    if (!isAdminView && categoryId) {
+    let categoryObjectId: string | undefined = (categoryId && categoryId !== 'all') ? categoryId : undefined;
+    if (!isAdminView && categoryId && categoryId !== 'all') {
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
             const cat = await findCategoryBySlugForCatalog(categoryId, ACTIVE_CATEGORY_QUERY);
             if (cat) categoryObjectId = cat._id.toString();
@@ -461,7 +482,15 @@ export const getModels = async (req: Request, res: Response) => {
     }
     // ── Redis cache (public path only) ─────────────────────────────────────
     if (!isAdminView) {
-        const cacheKey = catalogCacheKey.models(categoryObjectId ?? 'all', brandObjectId);
+        const cacheKey = catalogCacheKey.models({
+            categoryId: categoryObjectId,
+            brandId: brandObjectId,
+            search: req.query.search,
+            q: req.query.q,
+            page: req.query.page,
+            limit: req.query.limit,
+            sort: req.query.sort,
+        });
         const cached = await getCache<unknown>(cacheKey);
         if (cached) {
             return res.json(cached);
