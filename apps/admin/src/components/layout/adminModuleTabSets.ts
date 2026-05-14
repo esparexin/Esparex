@@ -25,12 +25,13 @@ export const financeTabs: AdminTabItem[] = [
 ];
 
 export const catalogManagementTabs: AdminTabItem[] = [
-    { label: "Device Categories", href: "/categories" },
-    { label: "Brands",            href: "/brands" },
-    { label: "Models",            href: "/models" },
-    { label: "Screen Sizes",      href: "/screen-sizes" },
-    { label: "Service Types",     href: "/service-types" },
-    { label: "Catalog Requests",  href: "/catalog-requests?status=pending" },
+    { label: "Device Categories", href: "/categories?tab=device-categories" },
+    { label: "Brands",            href: "/categories?tab=brands" },
+    { label: "Models",            href: "/categories?tab=models" },
+    { label: "Screen Sizes",      href: "/categories?tab=screen-sizes" },
+    { label: "Service Types",     href: "/categories?tab=service-types" },
+    { label: "Spare Parts",       href: "/categories?tab=spare-parts" },
+    { label: "Catalog Requests",  href: "/categories?tab=catalog-requests" },
 ];
 
 export const sparePartsMasterTabs: AdminTabItem[] = [
