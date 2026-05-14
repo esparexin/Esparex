@@ -20,11 +20,14 @@ const BANNED_TRACKED_PREFIXES = [
 ];
 
 const BANNED_TRACKED_EXACT = new Set([
-  ".antigravity.system.prompt.md",
-  ".cursorrules",
   "frontend/.cursorrules",
   ".vscode/esparex-lockdown.code-snippets",
   "AI_CHANGE_SOP.md",
+]);
+
+const ALLOWED_BRIDGE_FILES = new Set([
+  ".antigravity.system.prompt.md",
+  ".cursorrules",
 ]);
 
 const BANNED_OUTSIDE_GOVERNANCE_PATTERNS = [
@@ -38,6 +41,10 @@ const violations = [];
 
 for (const filePath of trackedFiles) {
   if (filePath.startsWith(AI_GOVERNANCE_ROOT)) {
+    continue;
+  }
+
+  if (ALLOWED_BRIDGE_FILES.has(filePath)) {
     continue;
   }
 

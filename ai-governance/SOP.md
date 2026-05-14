@@ -17,7 +17,8 @@ For every AI-generated change, follow this order:
 1. Read the task and classify the affected layer: docs, shared, backend, frontend, admin, infrastructure, or runtime AI.
 2. Read `ai-governance/SSOT.md`.
 3. Identify the canonical owner module in the active workspace code or guard scripts.
-4. Search for an existing implementation before creating a new file, folder, hook, service, schema, component, or prompt.
+4. If modifying documentation, check `docs/00-index.md` for the canonical file and update it in place.
+5. Search for an existing implementation before creating a new file, folder, hook, service, schema, component, or prompt.
 5. Prefer extending the canonical owner over creating a parallel module.
 6. If behavior, contracts, lifecycle, naming, or architecture changes, update the governing documentation in the same change when safe.
 7. Run the relevant checks before marking the task complete.
@@ -43,44 +44,17 @@ Do not create a new file or folder when:
 - an existing canonical module can absorb the change cleanly
 - the new file would be a duplicate variant of an existing concept
 - the folder would create a second home for the same domain
+- the document would duplicate information already in `docs/` or `ai-governance/`
 
-Placement rules:
+## 2. Reference Governance
 
-- backend logic belongs under canonical `backend/src/*` ownership boundaries
-- user UI belongs under `frontend/src/*`
-- admin UI belongs under `apps/admin/src/*`
-- cross-app contracts and reusable schemas belong under `shared/`
-- AI governance documents belong only under `ai-governance/`
+Before implementing any change, AI agents MUST consult the following canonical sources:
 
-## 3. Modify Rules
+1. **Registry**: `docs/00-index.md` (To identify the correct doc to update).
+2. **Matrix**: `docs/07-enforcement-matrix.md` (To identify the correct guard to run).
+3. **SSOT**: `ai-governance/SSOT.md` (For platform-wide AI behavior rules).
 
-### Backend
-
-- Routes: auth, policy, validation, controller binding only
-- Controllers: transport concerns only
-- Services: business logic, transactions, orchestration, domain rules
-- Models: schema, indexes, hooks, persistence constraints only
-- Middleware: cross-cutting concerns only
-
-### Frontend and Admin Frontend
-
-- Pages stay thin and route-focused
-- Components stay presentation-oriented
-- Hooks own stateful logic and side effects
-- Forms use React Hook Form with Zod-based validation
-- React components must not add direct `fetch` or `axios` data access
-
-### Shared
-
-- shared contracts are defined once
-- frontend and backend must not redefine the same payload shape independently
-
-### Runtime AI
-
-- runtime prompts belong in runtime AI service code, not in IDE tool prompt files
-- runtime provider configuration belongs in runtime settings, not in README claims
-
-## 4. Delete and Cleanup Rules
+## 3. Delete and Cleanup Rules
 
 Before deleting a file:
 

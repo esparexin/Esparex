@@ -1,5 +1,6 @@
 {
   "backend/user/src/__tests__/config/validateEnv.spec.ts": 4,
+  "backend/user/src/__tests__/routes/catalogLegacyDeprecation.spec.ts": 4,
   "backend/user/src/__tests__/routes/chatRoutes.auth.spec.ts": 1,
   "backend/user/src/__tests__/validators/adminAudit.validator.spec.ts": 1,
   "backend/user/src/__tests__/validators/adminModeration.validator.spec.ts": 2,

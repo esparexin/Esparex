@@ -29,6 +29,12 @@ Constraints:
 - Do not invent alternate architecture or contracts.
 - Prefer extending canonical owners over creating parallel modules.
 - Keep changes small, reviewable, and behavior-safe.
+- **Documentation**: Update canonical files in `docs/` or `ai-governance/` only. Never create new standalone docs unless registered in `docs/00-index.md`.
+- **Governance Compliance**: 
+  - Never create duplicate rule files.
+  - Do not repeat rules already defined elsewhere.
+  - Every new rule MUST include an enforcement plan (script/CI).
+  - Every new enforcement script MUST be documented in the registry.
 - Report files changed, checks run, and blockers.
 
 If the task conflicts with canonical governance, stop and explain the conflict.

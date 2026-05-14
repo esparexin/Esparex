@@ -62,3 +62,6 @@ jobs:
 
       - name: Check duplication guard
         run: npm run guard:duplication
+
+      - name: Enforce platform governance
+        run: npm run governance:all
