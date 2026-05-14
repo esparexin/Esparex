@@ -2,10 +2,18 @@ import express from 'express';
 import { requireAdmin } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
 import * as adminCatalog from '@esparex/core/controllers/admin/catalog';
+import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
 
 const router = express.Router();
 
 router.use(requireAdmin);
+router.use(adminLimiter);
+router.use((req, res, next) => {
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
+        return adminMutationLimiter(req, res, next);
+    }
+    return next();
+});
 
 router.get('/categories', adminCatalog.getCategories);
 router.get('/categories/counts', adminCatalog.getCategoryCounts);
@@ -35,7 +43,6 @@ router.put('/models/:id', adminCatalog.updateModel);
 router.patch('/models/:id', adminCatalog.updateModel);
 router.patch('/models/:id/status', adminCatalog.toggleModelStatus);
 router.delete('/models/:id', adminCatalog.deleteModel);
-router.post('/models/ensure', adminCatalog.ensureModel);
 router.patch('/models/:id/approve', adminCatalog.approveModel);
 router.patch('/models/:id/reject', adminCatalog.rejectModel);
 

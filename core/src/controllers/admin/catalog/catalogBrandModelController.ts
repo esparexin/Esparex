@@ -6,11 +6,9 @@
 
 import { Request, Response } from 'express';
 import logger from '../../../utils/logger';
-import { respond, sendSuccessResponse } from "../../../utils/respond";
+import { sendSuccessResponse } from "../../../utils/respond";
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
-import slugify from 'slugify';
-import { nanoid } from 'nanoid';
 import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
 import { getUserConnection } from '../../../config/db';
 import {
@@ -20,22 +18,12 @@ import {
     findBrandByFilter,
     getActiveBrandIds,
     checkBrandInCategories,
-    findActiveBrandByName,
-    findPendingBrandSuggestion,
-    createBrandRecord,
-    findBrandByNameInCategory,
-    findBrandByCanonicalName,
-    findModelByBrandAndCanonicalName,
     checkBrandDependencies,
     findModelByFilter,
-    findModelSuggestion,
-    findModelByNameAndBrand,
-    createModelRecord,
     checkModelDependencies,
     findModelBySlug,
 } from '../../../services/catalog/CatalogBrandModelService';
-import { normalizeCatalogCanonicalName, validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
-import { escapeRegExp } from '../../../utils/stringUtils';
+import { validateBrandIsActive } from '../../../services/catalog/CatalogValidationService';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import {
     sendCatalogError,
@@ -57,9 +45,6 @@ import {
 } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { toOptionalString, toStringArray } from './inputCoercion';
-import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
-import { validateBrandSuggestion, validateModelSuggestion } from '../../../utils/suggestionValidation';
-export { validateBrandSuggestion, validateModelSuggestion };
 import {
     brandCreateSchema,
     brandUpdateSchema,
@@ -69,8 +54,6 @@ import {
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
-import { isDuplicateSuggestion } from '../../../services/catalog/CatalogValidationService';
-import { CatalogNotificationService } from '../../../services/catalog/CatalogNotificationService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
@@ -455,92 +438,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Suggest a new brand (User interaction)
- */
-export const suggestBrand = async (req: Request, res: Response) => {
-    try {
-        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
-        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
-
-        const { name, categoryIds } = req.body as { name?: string; categoryIds?: string };
-        const validation = validateBrandSuggestion(name ?? '');
-        if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
-
-        if (!categoryIds || !mongoose.Types.ObjectId.isValid(categoryIds)) {
-            return sendCatalogError(req, res, 'Valid categoryIds is required', 400);
-        }
-        const { ok: catOk } = await validateCategoryIsActive(categoryIds);
-        if (!catOk) {
-            return sendCatalogError(req, res, 'categoryIds must reference an active category', 400);
-        }
-
-        const cleanName = validation.cleanName;
-
-        // Check for existing active brand (Exact match)
-        const existing = await findActiveBrandByName(new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'));
-
-        if (existing) {
-            const typedExisting = existing as { _id: unknown; categoryIds?: unknown };
-            const alreadyHasCategory = String(typedExisting.categoryIds) === categoryIds;
-
-            if (alreadyHasCategory) {
-                // Brand is active and already covers this category — user should select from dropdown
-                return sendCatalogError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
-            }
-        }
-
-        // Advanced fuzzy duplicate detection (Phase 4)
-        const allBrands = await BrandModel.find({ isDeleted: false }, 'name aliases canonicalName');
-        const duplicateCheck = isDuplicateSuggestion(cleanName, allBrands as any);
-
-        if (duplicateCheck.isDuplicate && duplicateCheck.confidence < 1.0) {
-            return res.status(200).json(respond({
-                success: true,
-                message: `"${cleanName}" is very similar to existing brand "${duplicateCheck.matchedWith}". Please use that instead.`,
-                data: { match: duplicateCheck.matchedWith, confidence: duplicateCheck.confidence }
-            }));
-        }
-
-        // Check for pending from same user
-        const alreadyPending = await findPendingBrandSuggestion(
-            new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'),
-            categoryIds,
-            userId
-        );
-
-        if (alreadyPending) {
-            return sendCatalogError(req, res, 'You already have a pending suggestion for this brand.', 409);
-        }
-
-        const brand = await createBrandRecord({
-            name: cleanName,
-            slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
-            categoryIds: [categoryIds],
-            approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
-            isActive: false,
-            suggestedBy: userId
-        });
-
-        if (brand.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
-            void CatalogNotificationService.notifyAdminsOfSuggestion('brand', cleanName, String(userId));
-        }
-
-        await CatalogOrchestrator.invalidateCatalogCache();
-
-        res.status(201).json(respond({
-            success: true,
-            message: 'Brand suggestion submitted for review.',
-            data: brand
-        }));
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            return sendCatalogError(req, res, new Error(`"${(req.body as { name?: string })?.name ?? 'Brand'}" already exists. Select it from the dropdown.`), { statusCode: 409 });
-        }
-        return sendCatalogError(req, res, error);
-    }
-};
-
 /* ==========================================================
    MODELS
    ========================================================== */
@@ -824,195 +721,3 @@ export const rejectModel = (req: Request, res: Response) =>
         auditAction: 'REJECT_MODEL',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
-
-/**
- * Suggest a new model (User interaction)
- */
-export const suggestModel = async (req: Request, res: Response) => {
-    try {
-        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
-        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
-
-        const { name, brandId } = req.body as { name?: string; brandId?: string };
-        const validation = validateModelSuggestion(name ?? '');
-        if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
-
-        if (!brandId || !mongoose.Types.ObjectId.isValid(brandId)) {
-            return sendCatalogError(req, res, 'Valid brandId is required', 400);
-        }
-
-        const { ok: brandOk } = await validateBrandIsActive(brandId);
-        if (!brandOk) {
-            return sendCatalogError(req, res, 'brandId must reference an active brand', 400);
-        }
-
-        const cleanName = validation.cleanName;
-
-        // Check if model already exists (Exact match)
-        const existing = await findModelSuggestion(
-            new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'),
-            brandId
-        );
-
-        if (existing) {
-            const existingApprovalStatus = (existing as { approvalStatus?: string }).approvalStatus;
-            return res.status(200).json(respond({
-                success: true,
-                message: existingApprovalStatus === CATALOG_APPROVAL_STATUS.APPROVED
-                    ? `"${cleanName}" already exists and is active.` 
-                    : `"${cleanName}" is already suggested and awaiting approval.`,
-                data: existing
-            }));
-        }
-
-        // Advanced fuzzy duplicate detection (Phase 4)
-        const allModels = await CatalogModel.find({ brandId, isDeleted: false }, 'name aliases canonicalName');
-        const duplicateCheck = isDuplicateSuggestion(cleanName, allModels as any);
-
-        if (duplicateCheck.isDuplicate && duplicateCheck.confidence < 1.0) {
-            return res.status(200).json(respond({
-                success: true,
-                message: `"${cleanName}" is very similar to existing model "${duplicateCheck.matchedWith}". Please use that instead.`,
-                data: { match: duplicateCheck.matchedWith, confidence: duplicateCheck.confidence }
-            }));
-        }
-
-        const model = await createModelRecord({
-            name: cleanName,
-            brandId,
-            approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
-            isActive: false,
-            suggestedBy: userId
-        });
-
-        if (model.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
-            void CatalogNotificationService.notifyAdminsOfSuggestion('model', cleanName, String(userId));
-        }
-
-        await CatalogOrchestrator.invalidateCatalogCache();
-
-        res.status(201).json(respond({
-            success: true,
-            message: 'Model suggestion submitted for review.',
-            data: model
-        }));
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            return sendCatalogError(req, res, `"${(req.body as { name?: string })?.name ?? 'Model'}" already exists. Select it from the dropdown.`, 409);
-        }
-        return sendCatalogError(req, res, error);
-    }
-};
-
-/**
- * Ensure model exists (create brand + model if needed)
- */
-export const ensureModel = async (req: Request, res: Response) => {
-    try {
-        const { categoryId, brandName, modelName } = req.body as { categoryId?: string; brandName?: string; modelName?: string };
-        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
-
-        if (!categoryId || !brandName || !modelName) {
-            return sendCatalogError(req, res, 'Missing fields', 400);
-        }
-
-        const { ok: catOk } = await validateCategoryIsActive(categoryId);
-        if (!catOk) {
-            return sendCatalogError(req, res, 'categoryId must reference an active category', 400);
-        }
-
-        const brandCanonical = normalizeCatalogCanonicalName(brandName);
-        const modelCanonical = normalizeCatalogCanonicalName(modelName);
-
-        let brandCreated = false;
-        let modelCreated = false;
-
-        // 1. Brand Stage
-        let brand = await findBrandByCanonicalName(brandCanonical);
-
-        if (brand) {
-            const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
-            if (!brand.categoryIds.some(id => String(id) === categoryId)) {
-                await BrandModel.updateOne(
-                    { _id: brand._id },
-                    { $addToSet: { categoryIds: categoryObjectId } }
-                );
-                brandCreated = true;
-            }
-        } else {
-            const brandVal = validateBrandSuggestion(brandName);
-            const cleanBrandName = brandVal.cleanName || brandName;
-            
-            try {
-                brand = await createBrandRecord({
-                    name: cleanBrandName,
-                    slug: slugify(cleanBrandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
-                    categoryIds: [new mongoose.Types.ObjectId(categoryId)],
-                    isActive: false,
-                    approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
-                    suggestedBy: userId
-                });
-                brandCreated = true;
-            } catch (error) {
-                // Handle Race Condition: If another request created it between our lookup and insert
-                if (isDuplicateKeyError(error)) {
-                    brand = await findBrandByCanonicalName(brandCanonical);
-                    if (!brand) throw error; // Rethrow if it's still missing (unexpected)
-                } else {
-                    throw error;
-                }
-            }
-        }
-
-        const brandId = String(brand._id);
-
-        // 2. Model Stage
-        let model = await findModelByBrandAndCanonicalName(brandId, modelCanonical);
-
-        if (!model) {
-            const modelVal = validateModelSuggestion(modelName);
-            const cleanModelName = modelVal.cleanName || modelName;
-
-            try {
-                model = await createModelRecord({
-                    name: cleanModelName,
-                    brandId: brand._id,
-                    categoryIds: [new mongoose.Types.ObjectId(categoryId)],
-                    isActive: false,
-                    approvalStatus: CATALOG_APPROVAL_STATUS.PENDING,
-                    suggestedBy: userId
-                });
-                modelCreated = true;
-            } catch (error) {
-                // Handle Race Condition
-                if (isDuplicateKeyError(error)) {
-                    model = await findModelByBrandAndCanonicalName(brandId, modelCanonical);
-                    if (!model) throw error;
-                } else {
-                    throw error;
-                }
-            }
-        }
-
-        // 3. Post-Process (Background)
-        if (brandCreated && brand.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
-            void CatalogNotificationService.notifyAdminsOfSuggestion('brand', brandName, String(userId));
-        }
-        if (modelCreated && model.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING) {
-            void CatalogNotificationService.notifyAdminsOfSuggestion('model', modelName, String(userId));
-        }
-        if (brandCreated || modelCreated) {
-            void CatalogOrchestrator.invalidateCatalogCache();
-        }
-
-        res.status(201).json({
-            success: true,
-            data: {
-                brand: { _id: brand._id, name: brand.name, status: brand.approvalStatus },
-                model: { _id: model._id, name: model.name, status: model.approvalStatus }
-            }
-        });
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
-};

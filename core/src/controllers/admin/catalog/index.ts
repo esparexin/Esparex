@@ -38,12 +38,7 @@ export {
     deleteModel,
     approveModel,
     rejectModel,
-    toggleModelStatus,
-    ensureModel,
-    suggestBrand,
-    suggestModel,
-    validateBrandSuggestion,
-    validateModelSuggestion
+    toggleModelStatus
 } from './catalogBrandModelController';
 
 // Export all spare parts functions

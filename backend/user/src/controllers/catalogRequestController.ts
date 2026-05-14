@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import slugify from 'slugify';
 import CatalogRequest, { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
-import { sendSuccessResponse } from '@esparex/core/utils/respond';
+import { sendPaginatedResponse, sendSuccessResponse } from '@esparex/core/utils/respond';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import { AppError } from '@esparex/core/utils/AppError';
 import {
@@ -13,6 +13,10 @@ import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
 import { NOTIFICATION_TYPE } from '@esparex/core/constants/enums/notificationType';
 import { CatalogNotificationService } from '@esparex/core/services/catalog/CatalogNotificationService';
+import {
+    validateBrandBelongsToCategory,
+    validateCategoryIsActive,
+} from '@esparex/core/services/catalog/CatalogValidationService';
 
 const REQUESTED_BY_PUBLIC_FIELDS = 'firstName lastName email mobile';
 
@@ -138,14 +142,38 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
         };
 
         const requestedName = payload.requestedName.trim();
-        const normalizedName = normalizeCatalogCanonicalName(requestedName);
+        const canonicalName = normalizeCatalogCanonicalName(requestedName);
         const slug = slugify(requestedName, { lower: true, strict: true, trim: true }) || `catalog-request-${Date.now()}`;
+
+        const categoryValidation = await validateCategoryIsActive(payload.categoryId);
+        if (!categoryValidation.ok) {
+            throw new AppError(
+                categoryValidation.reason || 'categoryId must reference an active category.',
+                400,
+                'CATALOG_REQUEST_CATEGORY_INVALID'
+            );
+        }
+
+        if (payload.requestType === 'model') {
+            const parentBrandId = payload.parentBrandId ?? '';
+            const parentBrandValidation = await validateBrandBelongsToCategory(parentBrandId, payload.categoryId);
+            if (!parentBrandValidation.ok) {
+                throw new AppError(
+                    parentBrandValidation.reason || 'parentBrandId must reference an active brand in the selected category.',
+                    400,
+                    'CATALOG_REQUEST_PARENT_BRAND_INVALID'
+                );
+            }
+        }
 
         const dedupeQuery = {
             requestType: payload.requestType,
             categoryId: payload.categoryId,
             parentBrandId: payload.requestType === 'model' ? payload.parentBrandId ?? null : null,
-            normalizedName,
+            $or: [
+                { canonicalName },
+                { normalizedName: canonicalName },
+            ],
             requestedBy,
             status: 'pending' as const,
         };
@@ -160,13 +188,15 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             categoryId: payload.categoryId,
             parentBrandId: payload.requestType === 'model' ? payload.parentBrandId : null,
             requestedName,
-            normalizedName,
+            canonicalName,
+            normalizedName: canonicalName,
             slug,
             requestedBy,
             status: 'pending',
-        });
+        } as unknown as Record<string, unknown>);
 
-        void CatalogNotificationService.notifyAdminsOfSuggestion(payload.requestType, requestedName, requestedBy, String(createdRequest._id));
+        const createdRequestId = String((createdRequest as ICatalogRequest)._id);
+        void CatalogNotificationService.notifyAdminsOfSuggestion(payload.requestType, requestedName, requestedBy, createdRequestId);
 
         return sendSuccessResponse(res, createdRequest, 'Catalog request submitted successfully', 201);
     } catch (error) {
@@ -202,6 +232,7 @@ export const getMyCatalogRequests = async (req: Request, res: Response) => {
         if (query.q) {
             filter.$or = [
                 { requestedName: { $regex: query.q, $options: 'i' } },
+                { canonicalName: { $regex: query.q, $options: 'i' } },
                 { normalizedName: { $regex: query.q, $options: 'i' } },
             ];
         }
@@ -214,15 +245,7 @@ export const getMyCatalogRequests = async (req: Request, res: Response) => {
             CatalogRequest.countDocuments(filter),
         ]);
 
-        return sendSuccessResponse(res, {
-            items,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.max(1, Math.ceil(total / limit)),
-            },
-        });
+        return sendPaginatedResponse(res, items, total, page, limit);
     } catch (error) {
         return sendControllerError(req, res, error);
     }
@@ -255,6 +278,7 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
         if (query.q) {
             filter.$or = [
                 { requestedName: { $regex: query.q, $options: 'i' } },
+                { canonicalName: { $regex: query.q, $options: 'i' } },
                 { normalizedName: { $regex: query.q, $options: 'i' } },
             ];
         }
@@ -268,15 +292,7 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
             CatalogRequest.countDocuments(filter),
         ]);
 
-        return sendSuccessResponse(res, {
-            items,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages: Math.max(1, Math.ceil(total / limit)),
-            },
-        });
+        return sendPaginatedResponse(res, items, total, page, limit);
     } catch (error) {
         return sendControllerError(req, res, error);
     }

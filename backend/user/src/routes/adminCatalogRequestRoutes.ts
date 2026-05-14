@@ -2,6 +2,7 @@ import express from 'express';
 import { requireAdmin } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
+import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
 import {
     adminCatalogRequestListQuerySchema,
     adminCatalogRequestStatsQuerySchema,
@@ -27,6 +28,13 @@ import {
 const router = express.Router();
 
 router.use(requireAdmin);
+router.use(adminLimiter);
+router.use((req, res, next) => {
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
+        return adminMutationLimiter(req, res, next);
+    }
+    return next();
+});
 
 router.get('/stats', validateRequest({ query: adminCatalogRequestStatsQuerySchema }), getAdminCatalogRequestStats);
 router.get('/', validateRequest({ query: adminCatalogRequestListQuerySchema }), getAdminCatalogRequests);

@@ -8,16 +8,29 @@ import CatalogRequest, {
 } from '../models/CatalogRequest';
 import Brand from '../models/Brand';
 import CatalogModel from '../models/Model';
+import Category from '../models/Category';
 import Ad from '../models/Ad';
 import { AppError } from '../utils/AppError';
 import { CATALOG_APPROVAL_STATUS } from '../constants/enums/catalogApprovalStatus';
 import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
 import { CatalogNotificationService } from './catalog/CatalogNotificationService';
-import logger from '../utils/logger';
+import CatalogOrchestrator from './catalog/CatalogOrchestrator';
 
 const NON_DELETED_QUERY = {
     isDeleted: { $ne: true },
     deletedAt: null,
+};
+
+const ACTIVE_CATEGORY_QUERY = {
+    ...NON_DELETED_QUERY,
+    isActive: true,
+    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
+};
+
+const ACTIVE_BRAND_APPROVAL_QUERY = {
+    ...NON_DELETED_QUERY,
+    isActive: true,
+    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
 };
 
 export type CatalogRequestStatusValue = (typeof CATALOG_REQUEST_STATUS_VALUES)[number];
@@ -54,10 +67,58 @@ const buildCatalogSlug = (name: string, prefix: 'brand' | 'model'): string => {
 const normalizeCatalogCanonicalName = (value: string): string =>
     value.trim().toLowerCase().replace(/\s+/g, ' ');
 
+const resolveRequestCanonicalName = (request: ICatalogRequest): string => (
+    request.canonicalName
+    || request.normalizedName
+    || normalizeCatalogCanonicalName(request.requestedName)
+);
+
 const assertPendingRequest = (request: ICatalogRequest): void => {
     const isWaiting = ['pending', 'under_review', 'duplicate_review'].includes(request.status);
     if (!isWaiting) {
         throw new AppError('Only pending catalog requests can be reviewed.', 409, 'CATALOG_REQUEST_NOT_PENDING');
+    }
+};
+
+const assertRequestCategoryIsActive = async (
+    request: ICatalogRequest,
+    session: ClientSession
+): Promise<void> => {
+    const activeCategory = await Category.findOne({
+        _id: request.categoryId,
+        ...ACTIVE_CATEGORY_QUERY,
+    }).session(session);
+
+    if (!activeCategory) {
+        throw new AppError(
+            'Catalog request category is inactive or no longer available.',
+            409,
+            'CATALOG_REQUEST_CATEGORY_INACTIVE'
+        );
+    }
+};
+
+const assertParentBrandIsActiveForModelRequest = async (
+    request: ICatalogRequest,
+    session: ClientSession
+): Promise<void> => {
+    if (request.requestType !== 'model') return;
+
+    if (!request.parentBrandId) {
+        throw new AppError('Model requests require a parentBrandId.', 400, 'CATALOG_REQUEST_PARENT_BRAND_REQUIRED');
+    }
+
+    const parentBrand = await Brand.findOne({
+        _id: request.parentBrandId,
+        ...ACTIVE_BRAND_APPROVAL_QUERY,
+    }).session(session);
+
+    if (!parentBrand) {
+        throw new AppError(
+            'Model request parent brand is inactive or no longer available.',
+            409,
+            'CATALOG_REQUEST_PARENT_BRAND_INACTIVE'
+        );
     }
 };
 
@@ -117,8 +178,10 @@ const resolveOrCreateBrand = async (
     request: ICatalogRequest,
     session: ClientSession
 ): Promise<{ entityId: Types.ObjectId; createdCanonicalEntity: boolean }> => {
+    const requestCanonicalName = resolveRequestCanonicalName(request);
+
     let existingBrand = await Brand.findOne({
-        canonicalName: request.normalizedName,
+        canonicalName: requestCanonicalName,
         ...NON_DELETED_QUERY,
         approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
     }).session(session);
@@ -147,8 +210,7 @@ const resolveOrCreateBrand = async (
         return { entityId: existingBrand._id as Types.ObjectId, createdCanonicalEntity: false };
     }
 
-    const normalizedName = normalizeCatalogCanonicalName(request.requestedName);
-    const canonicalName = normalizedName || request.normalizedName;
+    const canonicalName = requestCanonicalName;
 
     try {
         const created = await Brand.create(
@@ -220,9 +282,11 @@ const resolveOrCreateModel = async (
         throw new AppError('Model requests require a parentBrandId.', 400, 'CATALOG_REQUEST_PARENT_BRAND_REQUIRED');
     }
 
+    const requestCanonicalName = resolveRequestCanonicalName(request);
+
     let existingModel = await CatalogModel.findOne({
         brandId: request.parentBrandId,
-        canonicalName: request.normalizedName,
+        canonicalName: requestCanonicalName,
         ...NON_DELETED_QUERY,
         approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
     }).session(session);
@@ -250,8 +314,7 @@ const resolveOrCreateModel = async (
         return { entityId: existingModel._id as Types.ObjectId, createdCanonicalEntity: false };
     }
 
-    const normalizedName = normalizeCatalogCanonicalName(request.requestedName);
-    const canonicalName = normalizedName || request.normalizedName;
+    const canonicalName = requestCanonicalName;
 
     try {
         const created = await CatalogModel.create(
@@ -454,6 +517,8 @@ export async function approveCatalogRequest(params: {
 
         await session.withTransaction(async () => {
             const request = await loadRequestForReview(requestId, session);
+            await assertRequestCategoryIsActive(request, session);
+            await assertParentBrandIsActiveForModelRequest(request, session);
             const resolution = request.requestType === 'brand'
                 ? await resolveOrCreateBrand(request, session)
                 : await resolveOrCreateModel(request, session);
@@ -486,6 +551,7 @@ export async function approveCatalogRequest(params: {
         }
 
         const finalResponse = response as CatalogRequestApprovalResult;
+        await CatalogOrchestrator.invalidateCatalogCache();
 
         // Notify sellers (best-effort, outside transaction)
         if (affectedSellerIds.length > 0) {
@@ -552,6 +618,7 @@ export async function markCatalogRequestDuplicate(params: {
         }
 
         const finalResponse = response as CatalogRequestApprovalResult;
+        await CatalogOrchestrator.invalidateCatalogCache();
 
         // Notify sellers (best-effort, outside transaction)
         if (affectedSellerIds.length > 0) {

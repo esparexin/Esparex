@@ -112,12 +112,6 @@ export const modelUpdateSchema = modelCreateSchema
     .strict()
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
 
-export const ensureModelSchema = z.object({
-    categoryId: requiredObjectIdSchema,
-    brandName: z.string().trim().min(1).max(120),
-    modelName: z.string().trim().min(1).max(120)
-});
-
 // ==========================================
 // SPARE PARTS
 // ==========================================

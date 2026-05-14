@@ -4,9 +4,13 @@ const mockGetUserConnection = jest.fn();
 const mockCatalogRequestFindById = jest.fn();
 const mockBrandFindOne = jest.fn();
 const mockBrandCreate = jest.fn();
+const mockCategoryFindOne = jest.fn();
 const mockModelFindOne = jest.fn();
 const mockModelCreate = jest.fn();
 const mockAdUpdateMany = jest.fn();
+const mockAdDistinct = jest.fn();
+const mockInvalidateCatalogCache = jest.fn();
+const mockNotifySellersOfApproval = jest.fn();
 
 jest.mock('@esparex/core/config/db', () => ({
     getUserConnection: () => mockGetUserConnection(),
@@ -28,6 +32,13 @@ jest.mock('@esparex/core/models/Brand', () => ({
     },
 }));
 
+jest.mock('@esparex/core/models/Category', () => ({
+    __esModule: true,
+    default: {
+        findOne: (...args: unknown[]) => mockCategoryFindOne(...args),
+    },
+}));
+
 jest.mock('@esparex/core/models/Model', () => ({
     __esModule: true,
     default: {
@@ -39,7 +50,22 @@ jest.mock('@esparex/core/models/Model', () => ({
 jest.mock('@esparex/core/models/Ad', () => ({
     __esModule: true,
     default: {
+        distinct: (...args: unknown[]) => mockAdDistinct(...args),
         updateMany: (...args: unknown[]) => mockAdUpdateMany(...args),
+    },
+}));
+
+jest.mock('@esparex/core/services/catalog/CatalogNotificationService', () => ({
+    __esModule: true,
+    CatalogNotificationService: {
+        notifySellersOfApproval: (...args: unknown[]) => mockNotifySellersOfApproval(...args),
+    },
+}));
+
+jest.mock('@esparex/core/services/catalog/CatalogOrchestrator', () => ({
+    __esModule: true,
+    default: {
+        invalidateCatalogCache: (...args: unknown[]) => mockInvalidateCatalogCache(...args),
     },
 }));
 
@@ -69,6 +95,7 @@ const buildRequestDoc = (overrides: Partial<Record<string, unknown>> = {}) => {
         categoryId: new mongoose.Types.ObjectId(),
         parentBrandId: null,
         requestedName: 'Pixel',
+        canonicalName: 'pixel',
         normalizedName: 'pixel',
         requestedBy,
         status: 'pending',
@@ -88,6 +115,8 @@ const buildRequestDoc = (overrides: Partial<Record<string, unknown>> = {}) => {
 describe('catalogRequestApprovalService', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockInvalidateCatalogCache.mockResolvedValue(undefined);
+        mockNotifySellersOfApproval.mockResolvedValue(undefined);
     });
 
     it('approves brand requests and relinks waiting ads', async () => {
@@ -102,8 +131,12 @@ describe('catalogRequestApprovalService', () => {
         mockCatalogRequestFindById.mockReturnValue({
             session: jest.fn().mockResolvedValue(requestDoc),
         });
+        mockCategoryFindOne.mockReturnValue({
+            session: jest.fn().mockResolvedValue({ _id: requestDoc.categoryId }),
+        });
         mockBrandFindOne.mockReturnValue({ session: jest.fn().mockResolvedValue(null) });
         mockBrandCreate.mockResolvedValue([{ _id: createdBrandId }]);
+        mockAdDistinct.mockReturnValue({ session: jest.fn().mockResolvedValue([]) });
         mockAdUpdateMany.mockResolvedValue({ modifiedCount: 2 });
 
         const result = await approveCatalogRequest({
@@ -115,8 +148,19 @@ describe('catalogRequestApprovalService', () => {
         expect(result.resolvedEntityId.toString()).toBe(createdBrandId.toString());
         expect(result.createdCanonicalEntity).toBe(true);
         expect(result.updatedAdsCount).toBe(2);
+        expect(mockBrandCreate).toHaveBeenCalledWith(
+            [
+                expect.objectContaining({
+                    name: 'Pixel',
+                    displayName: 'Pixel',
+                    canonicalName: 'pixel',
+                }),
+            ],
+            expect.any(Object)
+        );
         expect(requestDoc.status).toBe('approved');
         expect(requestDoc.approvedEntityId.toString()).toBe(createdBrandId.toString());
+        expect(mockInvalidateCatalogCache).toHaveBeenCalledTimes(1);
         expect(mockAdUpdateMany).toHaveBeenCalledWith(
             expect.objectContaining({
                 catalogRequestId: requestDoc._id,
@@ -154,6 +198,7 @@ describe('catalogRequestApprovalService', () => {
         mockCatalogRequestFindById.mockReturnValue({
             session: jest.fn().mockResolvedValue(requestDoc),
         });
+        mockAdDistinct.mockReturnValue({ session: jest.fn().mockResolvedValue([]) });
         mockModelFindOne.mockReturnValue({ session: jest.fn().mockResolvedValue(duplicateModelDoc) });
         mockAdUpdateMany.mockResolvedValue({ modifiedCount: 3 });
 
@@ -168,6 +213,7 @@ describe('catalogRequestApprovalService', () => {
         expect(result.updatedAdsCount).toBe(3);
         expect(requestDoc.status).toBe('duplicate');
         expect(requestDoc.duplicateOfEntityId.toString()).toBe(duplicateModelId.toString());
+        expect(mockInvalidateCatalogCache).toHaveBeenCalledTimes(1);
         expect(mockAdUpdateMany).toHaveBeenCalledWith(
             expect.objectContaining({ catalogRequestId: requestDoc._id }),
             {
@@ -203,5 +249,93 @@ describe('catalogRequestApprovalService', () => {
         expect(result.request.status).toBe('rejected');
         expect(result.request.rejectionReason).toBe('Name is ambiguous');
         expect(mockAdUpdateMany).not.toHaveBeenCalled();
+        expect(mockInvalidateCatalogCache).not.toHaveBeenCalled();
+    });
+
+    it('approves model requests and creates canonical model using requested name', async () => {
+        const session = buildSession();
+        mockGetUserConnection.mockReturnValue({
+            startSession: jest.fn(async () => session),
+        });
+
+        const parentBrandId = new mongoose.Types.ObjectId();
+        const createdModelId = new mongoose.Types.ObjectId();
+        const requestDoc = buildRequestDoc({
+            requestType: 'model',
+            parentBrandId,
+            requestedName: 'Galaxy S24 Ultra',
+            normalizedName: 'galaxy s24 ultra',
+            canonicalName: 'galaxy s24 ultra',
+        });
+
+        mockCatalogRequestFindById.mockReturnValue({
+            session: jest.fn().mockResolvedValue(requestDoc),
+        });
+        mockCategoryFindOne.mockReturnValue({
+            session: jest.fn().mockResolvedValue({ _id: requestDoc.categoryId }),
+        });
+        mockBrandFindOne.mockReturnValue({
+            session: jest.fn().mockResolvedValue({ _id: parentBrandId }),
+        });
+        mockModelFindOne.mockReturnValue({
+            session: jest.fn().mockResolvedValue(null),
+        });
+        mockModelCreate.mockResolvedValue([{ _id: createdModelId }]);
+        mockAdDistinct.mockReturnValue({ session: jest.fn().mockResolvedValue([]) });
+        mockAdUpdateMany.mockResolvedValue({ modifiedCount: 1 });
+
+        const result = await approveCatalogRequest({
+            requestId: requestDoc._id.toString(),
+            adminId: new mongoose.Types.ObjectId().toString(),
+        });
+
+        expect(result.resolvedEntityId.toString()).toBe(createdModelId.toString());
+        expect(result.createdCanonicalEntity).toBe(true);
+        expect(mockModelCreate).toHaveBeenCalledWith(
+            [
+                expect.objectContaining({
+                    name: 'Galaxy S24 Ultra',
+                    displayName: 'Galaxy S24 Ultra',
+                    canonicalName: 'galaxy s24 ultra',
+                }),
+            ],
+            expect.any(Object)
+        );
+        expect(mockInvalidateCatalogCache).toHaveBeenCalledTimes(1);
+    });
+
+    it('rejects model approval when parent brand is inactive or missing', async () => {
+        const session = buildSession();
+        mockGetUserConnection.mockReturnValue({
+            startSession: jest.fn(async () => session),
+        });
+
+        const parentBrandId = new mongoose.Types.ObjectId();
+        const requestDoc = buildRequestDoc({
+            requestType: 'model',
+            parentBrandId,
+            requestedName: 'Galaxy S25',
+            normalizedName: 'galaxy s25',
+            canonicalName: 'galaxy s25',
+        });
+
+        mockCatalogRequestFindById.mockReturnValue({
+            session: jest.fn().mockResolvedValue(requestDoc),
+        });
+        mockCategoryFindOne.mockReturnValue({
+            session: jest.fn().mockResolvedValue({ _id: requestDoc.categoryId }),
+        });
+        mockBrandFindOne.mockReturnValue({
+            session: jest.fn().mockResolvedValue(null),
+        });
+
+        await expect(
+            approveCatalogRequest({
+                requestId: requestDoc._id.toString(),
+                adminId: new mongoose.Types.ObjectId().toString(),
+            })
+        ).rejects.toMatchObject({
+            code: 'CATALOG_REQUEST_PARENT_BRAND_INACTIVE',
+        });
     });
 });

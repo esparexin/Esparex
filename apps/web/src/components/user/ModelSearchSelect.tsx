@@ -11,7 +11,7 @@ import { CatalogRequestDialog } from "./CatalogRequestDialog";
 
 interface ModelSearchSelectProps {
     brandId: string;
-    /** Display name of the selected brand — used for ensureModel when brandId is empty (custom brand). */
+    /** Display name of the selected brand, retained for catalog-request linkage UX. */
     brandName?: string;
     categoryId: string;
     /** Currently selected modelId or modelName */
@@ -20,10 +20,7 @@ interface ModelSearchSelectProps {
     modelDisplayName?: string;
     /** Called with (modelId, modelName, requestId) on selection */
     onChange: (modelId: string, modelName: string, requestId?: string) => void;
-    /**
-     * Called after ensureModel creates a new brand record so the parent can
-     * sync the pending brandId back into the form.
-     */
+    /** Reserved callback for parent brand sync in async catalog flows. */
     onBrandResolved?: (brandId: string, brandName: string) => void;
     disabled?: boolean;
     placeholder?: string;

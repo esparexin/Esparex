@@ -48,6 +48,9 @@ jest.mock(
         approveCatalogRequestSchema: z.object({}).passthrough(),
         rejectCatalogRequestSchema: z.object({}).passthrough(),
         markCatalogRequestDuplicateSchema: z.object({}).passthrough(),
+        bulkApproveCatalogRequestSchema: z.object({}).passthrough(),
+        bulkRejectCatalogRequestSchema: z.object({}).passthrough(),
+        bulkMarkCatalogRequestDuplicateSchema: z.object({}).passthrough(),
     }),
     { virtual: true }
 );
@@ -61,6 +64,9 @@ jest.mock('../../controllers/catalogRequestController', () => ({
     rejectCatalogRequestByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     markCatalogRequestDuplicateByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     getAdminCatalogRequestStats: jest.fn((_req, res) => res.status(200).json({ ok: true })),
+    bulkApproveCatalogRequestsByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
+    bulkRejectCatalogRequestsByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
+    bulkMarkCatalogRequestsDuplicateByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
 }));
 
 import catalogRequestRoutes from '../../routes/catalogRequestRoutes';

@@ -64,16 +64,23 @@ BrandSchema.plugin(softDeletePlugin);
 
 BrandSchema.pre('validate', function () {
   const mutableDoc = this as any;
-  
-  if (!mutableDoc.canonicalName && mutableDoc.displayName) {
-    mutableDoc.canonicalName = mutableDoc.displayName;
+
+  const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
+  if (normalizedDisplayName) {
+    mutableDoc.displayName = normalizedDisplayName;
+    mutableDoc.name = normalizedDisplayName;
   }
-  
+
+  if (typeof mutableDoc.canonicalName === 'string') {
+    mutableDoc.canonicalName = mutableDoc.canonicalName.trim();
+  }
+  if (!mutableDoc.canonicalName && normalizedDisplayName) {
+    mutableDoc.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
+  }
+
   if (!mutableDoc.approvalStatus) {
     mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
   }
-
-  mutableDoc.name = mutableDoc.displayName;
 
   // Enforce bidirectional singular/plural category synchronization
   if (mutableDoc.categoryId && (!mutableDoc.categoryIds || mutableDoc.categoryIds.length === 0)) {

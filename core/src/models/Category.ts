@@ -99,16 +99,23 @@ CategorySchema.plugin(softDeletePlugin);
 
 CategorySchema.pre('validate', function () {
     const mutableDoc = this as any;
-    
-    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
-        mutableDoc.canonicalName = mutableDoc.displayName;
+
+    const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
+    if (normalizedDisplayName) {
+        mutableDoc.displayName = normalizedDisplayName;
+        mutableDoc.name = normalizedDisplayName;
     }
-    
+
+    if (typeof mutableDoc.canonicalName === 'string') {
+        mutableDoc.canonicalName = mutableDoc.canonicalName.trim();
+    }
+    if (!mutableDoc.canonicalName && normalizedDisplayName) {
+        mutableDoc.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
+    }
+
     if (!mutableDoc.approvalStatus) {
         mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
     }
-
-    mutableDoc.name = mutableDoc.displayName;
 });
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)

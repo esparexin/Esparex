@@ -20,6 +20,13 @@ export interface CatalogRequest {
     createdAt: string;
 }
 
+interface PaginationMeta {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+}
+
 /**
  * Submit a request for a missing brand or model.
  * This will be reviewed by an admin and, if approved, added to the catalog.
@@ -42,13 +49,39 @@ export async function getMyCatalogRequests(params?: {
     requestType?: string;
     page?: number;
     limit?: number;
-}): Promise<{ items: CatalogRequest[]; total: number }> {
+}): Promise<{ items: CatalogRequest[]; total: number; pagination: PaginationMeta }> {
     try {
         const response = await apiClient.get(API_ROUTES.USER.CATALOG_REQUESTS_MY, { params });
-        const data = unwrapApiPayload<any>(response);
+        const envelope = (response as { data?: unknown })?.data ?? response;
+        const data = unwrapApiPayload<unknown>(response);
+        const meta: Partial<PaginationMeta> = (
+            envelope &&
+            typeof envelope === 'object' &&
+            !Array.isArray(envelope) &&
+            (envelope as { meta?: { pagination?: Partial<PaginationMeta> } }).meta?.pagination
+        ) || {};
+        const items = (
+            data &&
+            typeof data === 'object' &&
+            !Array.isArray(data) &&
+            Array.isArray((data as { items?: CatalogRequest[] }).items)
+        )
+            ? ((data as { items: CatalogRequest[] }).items)
+            : (Array.isArray(data) ? (data as CatalogRequest[]) : []);
+        const page = Number(meta.page ?? params?.page ?? 1);
+        const limit = Number(meta.limit ?? params?.limit ?? 20);
+        const total = Number(meta.total ?? items.length);
+        const pages = Number(meta.pages ?? Math.max(1, Math.ceil(total / Math.max(1, limit))));
+
         return {
-            items: data.items || [],
-            total: data.total || 0
+            items,
+            total,
+            pagination: {
+                page,
+                limit,
+                total,
+                pages,
+            },
         };
     } catch (error) {
         logger.error("[CatalogRequest] getMyCatalogRequests failed:", error);

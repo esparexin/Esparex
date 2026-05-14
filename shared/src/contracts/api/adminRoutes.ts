@@ -99,7 +99,6 @@ export const ADMIN_ROUTES = {
   REJECT_BRAND: (id: string) => `/catalog/brands/${id}/reject`,
   MODELS: "/catalog/models",
   MODEL_BY_ID: (id: string) => `/catalog/models/${id}`,
-  MODEL_ENSURE: "/catalog/models/ensure",
   APPROVE_MODEL: (id: string) => `/catalog/models/${id}/approve`,
   REJECT_MODEL: (id: string) => `/catalog/models/${id}/reject`,
   SPARE_PARTS: "/catalog/spare-parts",

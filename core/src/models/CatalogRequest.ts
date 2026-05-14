@@ -15,6 +15,7 @@ export interface ICatalogRequest extends Document {
     parentBrandId?: Types.ObjectId | null;
 
     requestedName: string;
+    canonicalName: string;
     normalizedName: string;
     slug: string;
 
@@ -52,6 +53,7 @@ const CatalogRequestSchema = new Schema<ICatalogRequest>(
         parentBrandId: { type: Schema.Types.ObjectId, ref: 'Brand', default: null },
 
         requestedName: { type: String, required: true, trim: true, maxlength: 120 },
+        canonicalName: { type: String, required: true, trim: true, lowercase: true, maxlength: 160 },
         normalizedName: { type: String, required: true, trim: true, lowercase: true, maxlength: 160 },
         slug: { type: String, required: true, trim: true, lowercase: true, maxlength: 180 },
 
@@ -84,9 +86,11 @@ const CatalogRequestSchema = new Schema<ICatalogRequest>(
 CatalogRequestSchema.pre('validate', function () {
     const mutableDoc = this as ICatalogRequest;
     const trimmedName = mutableDoc.requestedName?.trim() || '';
+    const normalizedName = normalizeCatalogRequestName(trimmedName);
 
     mutableDoc.requestedName = trimmedName;
-    mutableDoc.normalizedName = normalizeCatalogRequestName(trimmedName);
+    mutableDoc.canonicalName = normalizedName;
+    mutableDoc.normalizedName = normalizedName;
 
     if (!mutableDoc.slug) {
         const computedSlug = slugify(trimmedName, {
@@ -115,6 +119,16 @@ CatalogRequestSchema.index(
 CatalogRequestSchema.index(
     { normalizedName: 1, parentBrandId: 1 },
     { name: 'idx_catalog_requests_normalizedName_parentBrandId' }
+);
+
+CatalogRequestSchema.index(
+    { requestedBy: 1 },
+    { name: 'idx_catalog_requests_requestedBy' }
+);
+
+CatalogRequestSchema.index(
+    { requestedBy: 1, status: 1, createdAt: -1 },
+    { name: 'idx_catalog_requests_requestedBy_status_createdAt' }
 );
 
 applyToJSONTransform(CatalogRequestSchema);

@@ -19,7 +19,8 @@ export interface CatalogRequestItem {
     categoryId: string;
     parentBrandId?: string | null;
     requestedName: string;
-    normalizedName: string;
+    canonicalName: string;
+    normalizedName?: string;
     slug: string;
     requestedBy: string | CatalogRequestUserRef;
     status: CatalogRequestStatus;

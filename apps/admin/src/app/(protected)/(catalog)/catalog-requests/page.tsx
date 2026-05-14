@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { AlertCircle, CheckCircle2, ClipboardList, Loader2, SearchCheck, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ClipboardList, Loader2, Search, SearchCheck, XCircle } from 'lucide-react';
 import { AdminPageShell } from '@/components/layout/AdminPageShell';
 import { AdminModuleTabs } from '@/components/layout/AdminModuleTabs';
 import { catalogManagementTabs } from '@/components/layout/adminModuleTabSets';
 import { AdminFilterToolbar } from '@/components/layout/AdminFilterToolbar';
 import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { StatusChip } from '@/components/ui/StatusChip';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/context/ToastContext';
 import { parseAdminResponse } from '@/lib/api/parseAdminResponse';
 import {
@@ -28,6 +29,7 @@ import {
 } from '@/lib/api/catalogRequests';
 import { getCategories } from '@/lib/api/categories';
 import { getBrands } from '@/lib/api/brands';
+import { getModels } from '@/lib/api/models';
 import { extractAdminApiErrorMessage } from '@/hooks/useAdminCatalogCollection';
 
 type StatusTab = 'all' | CatalogRequestStatus;
@@ -40,6 +42,12 @@ type ListPagination = {
     limit: number;
     total: number;
     totalPages: number;
+};
+
+type DuplicateTargetOption = {
+    id: string;
+    label: string;
+    meta?: string;
 };
 
 const STATUS_TAB_ORDER: StatusTab[] = ['all', 'pending', 'approved', 'rejected', 'duplicate'];
@@ -85,6 +93,129 @@ const normalizeSearch = (value: string | null): string => {
     if (typeof value !== 'string') return '';
     return value.trim();
 };
+
+function DuplicateTargetPicker({
+    requestType,
+    value,
+    onChange,
+    disabled,
+}: {
+    requestType: CatalogRequestType;
+    value: string;
+    onChange: (id: string) => void;
+    disabled?: boolean;
+}) {
+    const [query, setQuery] = useState('');
+    const [options, setOptions] = useState<DuplicateTargetOption[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const normalized = query.trim();
+        if (normalized.length < 2) {
+            setOptions([]);
+            setError(null);
+            return;
+        }
+
+        let active = true;
+        const timer = window.setTimeout(async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = requestType === 'brand'
+                    ? await getBrands({ search: normalized, status: 'active', page: 1, limit: 20 })
+                    : await getModels({ search: normalized, status: 'active', page: 1, limit: 20 });
+
+                if (!active) return;
+                const parsed = parseAdminResponse<Record<string, unknown>>(response);
+                const mapped = parsed.items
+                    .map<DuplicateTargetOption | null>((item) => {
+                        const id = typeof item.id === 'string'
+                            ? item.id
+                            : (typeof item._id === 'string' ? item._id : '');
+                        if (!id) return null;
+                        const label = typeof item.name === 'string'
+                            ? item.name
+                            : (typeof item.displayName === 'string' ? item.displayName : id);
+                        const canonicalName = typeof item.canonicalName === 'string' ? item.canonicalName : undefined;
+                        return {
+                            id,
+                            label,
+                            meta: canonicalName && canonicalName !== label ? canonicalName : undefined,
+                        };
+                    })
+                    .filter((option): option is DuplicateTargetOption => Boolean(option));
+
+                setOptions(mapped);
+            } catch (searchError) {
+                if (!active) return;
+                setOptions([]);
+                setError(extractAdminApiErrorMessage(searchError, 'Failed to search canonical entities'));
+            } finally {
+                if (active) setLoading(false);
+            }
+        }, 250);
+
+        return () => {
+            active = false;
+            window.clearTimeout(timer);
+        };
+    }, [query, requestType]);
+
+    return (
+        <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Search Existing {requestType === 'brand' ? 'Brand' : 'Model'}
+            </label>
+            <div className="relative">
+                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                    placeholder={`Type at least 2 characters to search ${requestType}s`}
+                    disabled={disabled}
+                />
+                {loading && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400" />}
+            </div>
+
+            {value ? (
+                <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
+                    Selected canonical entity: <span className="font-semibold">{value}</span>
+                </p>
+            ) : null}
+
+            {error ? (
+                <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</p>
+            ) : null}
+
+            {options.length > 0 ? (
+                <div className="max-h-52 space-y-1 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2">
+                    {options.map((option) => (
+                        <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => onChange(option.id)}
+                            disabled={disabled}
+                            className={`w-full rounded-lg border px-3 py-2 text-left transition ${value === option.id
+                                ? 'border-sky-300 bg-sky-50 text-sky-900'
+                                : 'border-transparent bg-white text-slate-700 hover:border-slate-200 hover:bg-slate-50'
+                            }`}
+                        >
+                            <p className="text-sm font-semibold">{option.label}</p>
+                            <p className="mt-0.5 text-[11px] text-slate-500">{option.meta || option.id}</p>
+                        </button>
+                    ))}
+                </div>
+            ) : query.trim().length >= 2 && !loading ? (
+                <p className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                    No canonical {requestType} found for this query.
+                </p>
+            ) : null}
+        </div>
+    );
+}
 
 function CatalogRequestDetailDrawer({
     item,
@@ -221,14 +352,15 @@ function CatalogRequestDetailDrawer({
 
                                     <div className="rounded-xl border border-slate-200 p-4">
                                         <p className="text-sm font-semibold text-slate-900">Mark Duplicate</p>
-                                        <p className="text-xs text-slate-500">Provide existing canonical Brand/Model ID to link this request.</p>
-                                        <input
-                                            value={duplicateOfEntityId}
-                                            onChange={(event) => setDuplicateOfEntityId(event.target.value)}
-                                            className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-200"
-                                            placeholder="Existing entity ObjectId"
-                                            disabled={mutating}
-                                        />
+                                        <p className="text-xs text-slate-500">Search and select an existing canonical entity.</p>
+                                        <div className="mt-3">
+                                            <DuplicateTargetPicker
+                                                requestType={item.requestType}
+                                                value={duplicateOfEntityId}
+                                                onChange={setDuplicateOfEntityId}
+                                                disabled={mutating}
+                                            />
+                                        </div>
                                         <button
                                             type="button"
                                             onClick={() => void onMarkDuplicate(duplicateOfEntityId.trim(), adminNotes || undefined)}
@@ -298,9 +430,19 @@ export default function CatalogRequestsPage() {
     const [categoryMap, setCategoryMap] = useState<NameMap>({});
     const [brandMap, setBrandMap] = useState<NameMap>({});
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [bulkRejectOpen, setBulkRejectOpen] = useState(false);
+    const [bulkRejectReason, setBulkRejectReason] = useState('');
+    const [bulkDuplicateOpen, setBulkDuplicateOpen] = useState(false);
+    const [bulkDuplicateTargetId, setBulkDuplicateTargetId] = useState('');
 
     const isAllSelected = items.length > 0 && items.every(item => selectedIds.has(item.id));
     const isSomeSelected = items.some(item => selectedIds.has(item.id)) && !isAllSelected;
+    const selectedRequestType = useMemo<CatalogRequestType | null>(() => {
+        const selectedItems = items.filter((item) => selectedIds.has(item.id));
+        const uniqueTypes = new Set(selectedItems.map((item) => item.requestType));
+        if (uniqueTypes.size !== 1) return null;
+        return selectedItems[0]?.requestType || null;
+    }, [items, selectedIds]);
 
     const status = coerceStatusTab(searchParams.get('status'));
     const requestType = coerceTypeFilter(searchParams.get('requestType'));
@@ -352,14 +494,18 @@ export default function CatalogRequestsPage() {
 
             const parsed = parseAdminResponse<CatalogRequestItem, {
                 items?: CatalogRequestItem[];
-                pagination?: { page: number; limit: number; total: number; totalPages: number };
             }>(response);
 
             setItems(parsed.items);
 
-            const apiPagination = parsed.data?.pagination;
+            const apiPagination = parsed.pagination;
             if (apiPagination) {
-                setPagination(apiPagination);
+                setPagination({
+                    page: apiPagination.page ?? page,
+                    limit: apiPagination.limit ?? 20,
+                    total: apiPagination.total ?? parsed.items.length,
+                    totalPages: apiPagination.totalPages ?? apiPagination.pages ?? Math.max(1, Math.ceil((apiPagination.total ?? parsed.items.length) / Math.max(1, apiPagination.limit ?? 20))),
+                });
             } else {
                 setPagination({
                     page,
@@ -503,8 +649,21 @@ export default function CatalogRequestsPage() {
 
     const handleBulkReject = useCallback(async () => {
         if (selectedIds.size === 0) return;
-        const reason = window.prompt('Please provide a rejection reason for all selected requests:');
-        if (!reason) return;
+        setBulkRejectOpen(true);
+    }, [selectedIds.size]);
+
+    const handleBulkMarkDuplicate = useCallback(async () => {
+        if (selectedIds.size === 0) return;
+        if (!selectedRequestType) {
+            showToast('Bulk duplicate requires selecting requests of one type (all brand or all model).', 'error');
+            return;
+        }
+        setBulkDuplicateOpen(true);
+    }, [selectedIds.size, selectedRequestType, showToast]);
+
+    const confirmBulkReject = useCallback(async () => {
+        const reason = bulkRejectReason.trim();
+        if (!reason || selectedIds.size === 0) return;
 
         const requestIds = Array.from(selectedIds);
         await runMutation(async () => {
@@ -512,22 +671,25 @@ export default function CatalogRequestsPage() {
             const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
             showToast(`Bulk rejected ${successes} requests`, successes > 0 ? 'success' : 'error');
             setSelectedIds(new Set());
+            setBulkRejectOpen(false);
+            setBulkRejectReason('');
         });
-    }, [runMutation, selectedIds, showToast]);
+    }, [bulkRejectReason, runMutation, selectedIds, showToast]);
 
-    const handleBulkMarkDuplicate = useCallback(async () => {
-        if (selectedIds.size === 0) return;
-        const targetId = window.prompt('Please provide the canonical Brand/Model ObjectId to link all selected requests to:');
-        if (!targetId) return;
+    const confirmBulkDuplicate = useCallback(async () => {
+        const duplicateOfId = bulkDuplicateTargetId.trim();
+        if (!duplicateOfId || selectedIds.size === 0) return;
 
         const requestIds = Array.from(selectedIds);
         await runMutation(async () => {
-            const response = await bulkMarkAdminCatalogRequestsDuplicate({ requestIds, duplicateOfId: targetId });
+            const response = await bulkMarkAdminCatalogRequestsDuplicate({ requestIds, duplicateOfId });
             const successes = response.data?.results.filter(r => r.status === 'success').length || 0;
             showToast(`Bulk marked ${successes} requests as duplicate`, successes > 0 ? 'success' : 'error');
             setSelectedIds(new Set());
+            setBulkDuplicateOpen(false);
+            setBulkDuplicateTargetId('');
         });
-    }, [runMutation, selectedIds, showToast]);
+    }, [bulkDuplicateTargetId, runMutation, selectedIds, showToast]);
 
     const toggleSelectAll = useCallback(() => {
         if (isAllSelected) {
@@ -732,7 +894,8 @@ export default function CatalogRequestsPage() {
                                 <button
                                     type="button"
                                     onClick={handleBulkMarkDuplicate}
-                                    disabled={mutating}
+                                    disabled={mutating || (selectedIds.size > 0 && !selectedRequestType)}
+                                    title={selectedIds.size > 0 && !selectedRequestType ? 'Select only brand or only model requests for bulk duplicate.' : undefined}
                                     className="inline-flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-amber-700 disabled:opacity-60"
                                 >
                                     Quick Duplicate
@@ -766,6 +929,115 @@ export default function CatalogRequestsPage() {
                     mutating={mutating}
                 />
             )}
+
+            <Dialog
+                open={bulkRejectOpen}
+                onOpenChange={(open) => {
+                    setBulkRejectOpen(open);
+                    if (!open) {
+                        setBulkRejectReason('');
+                    }
+                }}
+            >
+                <DialogContent className="max-w-xl rounded-2xl p-0 overflow-hidden">
+                    <DialogHeader className="border-b border-slate-100 bg-slate-50 px-6 py-5">
+                        <DialogTitle>Bulk Reject Requests</DialogTitle>
+                        <DialogDescription>
+                            Provide a mandatory rejection reason for all selected catalog requests.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 px-6 py-5">
+                        <label className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            Rejection Reason
+                        </label>
+                        <textarea
+                            value={bulkRejectReason}
+                            onChange={(event) => setBulkRejectReason(event.target.value)}
+                            className="min-h-[120px] w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-200"
+                            placeholder="Explain why these requests are being rejected"
+                            disabled={mutating}
+                            autoFocus
+                        />
+                    </div>
+                    <DialogFooter className="border-t border-slate-100 bg-white px-6 py-4">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setBulkRejectOpen(false);
+                                setBulkRejectReason('');
+                            }}
+                            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            disabled={mutating}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => void confirmBulkReject()}
+                            className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
+                            disabled={mutating || bulkRejectReason.trim().length === 0}
+                        >
+                            {mutating ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
+                            Reject Selected
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog
+                open={bulkDuplicateOpen}
+                onOpenChange={(open) => {
+                    setBulkDuplicateOpen(open);
+                    if (!open) {
+                        setBulkDuplicateTargetId('');
+                    }
+                }}
+            >
+                <DialogContent className="max-w-xl rounded-2xl p-0 overflow-hidden">
+                    <DialogHeader className="border-b border-slate-100 bg-slate-50 px-6 py-5">
+                        <DialogTitle>Bulk Mark As Duplicate</DialogTitle>
+                        <DialogDescription>
+                            Search and select the canonical {selectedRequestType === 'brand' ? 'brand' : 'model'} to link all selected requests.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 px-6 py-5">
+                        {selectedRequestType ? (
+                            <DuplicateTargetPicker
+                                requestType={selectedRequestType}
+                                value={bulkDuplicateTargetId}
+                                onChange={setBulkDuplicateTargetId}
+                                disabled={mutating}
+                            />
+                        ) : (
+                            <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                                Select only one request type to run bulk duplicate.
+                            </p>
+                        )}
+                    </div>
+                    <DialogFooter className="border-t border-slate-100 bg-white px-6 py-4">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setBulkDuplicateOpen(false);
+                                setBulkDuplicateTargetId('');
+                            }}
+                            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            disabled={mutating}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => void confirmBulkDuplicate()}
+                            className="inline-flex items-center gap-2 rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-60"
+                            disabled={mutating || !selectedRequestType || bulkDuplicateTargetId.trim().length === 0}
+                        >
+                            {mutating ? <Loader2 size={14} className="animate-spin" /> : <SearchCheck size={14} />}
+                            Mark Selected
+                        </button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
