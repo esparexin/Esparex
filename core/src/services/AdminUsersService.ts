@@ -21,26 +21,15 @@ export interface UserFilters {
 const ACTIVE_USER_STATUS_QUERY = USER_STATUS.LIVE;
 
 const ADMIN_ROLE_RANK: Record<string, number> = {
-    viewer: 10,
-    editor: 20,
-    content_moderator: 30,
-    moderator: 40,
-    finance_manager: 50,
-    user_manager: 60,
-    admin: 70,
-    super_admin: 100
+    [Role.MODERATOR]: 40,
+    [Role.ADMIN]: 70,
+    [Role.SUPER_ADMIN]: 100
 };
 
 const ALLOWED_ADMIN_ROLES = new Set([
     Role.SUPER_ADMIN,
     Role.ADMIN,
-    Role.MODERATOR,
-    'user_manager',
-    'finance_manager',
-    'content_moderator',
-    'editor',
-    'viewer',
-    'custom'
+    Role.MODERATOR
 ]);
 
 const getRoleRank = (role: string | undefined): number => ADMIN_ROLE_RANK[role || ''] || 0;
@@ -183,9 +172,9 @@ export const getUserManagementOverview = async () => {
             : (cachedTotalUsers !== undefined && cachedUnverifiedUsers !== undefined)
                 ? Promise.resolve(Math.max(cachedTotalUsers - cachedUnverifiedUsers, 0))
                 : User.countDocuments({ userType: 'marketplace', status: { $ne: USER_STATUS.DELETED }, isVerified: true }),
-        User.countDocuments({ userType: 'marketplace', role: { $in: ['user', 'individual', 'seller', 'buyer'] }, status: { $ne: USER_STATUS.DELETED } }),
-        User.countDocuments({ userType: 'marketplace', role: 'business', status: { $ne: USER_STATUS.DELETED } }),
-        User.countDocuments({ userType: 'marketplace', role: 'business', isVerified: true, status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ userType: 'marketplace', role: Role.USER, status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ userType: 'marketplace', role: Role.BUSINESS, status: { $ne: USER_STATUS.DELETED } }),
+        User.countDocuments({ userType: 'marketplace', role: Role.BUSINESS, isVerified: true, status: { $ne: USER_STATUS.DELETED } }),
         User.countDocuments({ userType: 'marketplace', status: { $in: [USER_STATUS.SUSPENDED, USER_STATUS.BANNED] } }),
     ]);
 
@@ -407,7 +396,7 @@ export const createAdminAccount = async (
     }
 
     const normalizedRole =
-        typeof role === 'string' && ALLOWED_ADMIN_ROLES.has(role)
+        typeof role === 'string' && ALLOWED_ADMIN_ROLES.has(role as Role)
             ? role
             : Role.ADMIN;
 
@@ -472,7 +461,7 @@ export const updateAdminById = async (
     if (permissions) updateData.permissions = permissions;
     if (status) updateData.status = status;
     if (role) {
-        if (typeof role !== 'string' || !ALLOWED_ADMIN_ROLES.has(role)) {
+        if (typeof role !== 'string' || !ALLOWED_ADMIN_ROLES.has(role as Role)) {
             throw new AppError('Invalid admin role', 400);
         }
         if (!ensureRoleAssignmentAllowed(actorRole, role)) {

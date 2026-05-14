@@ -2,6 +2,7 @@ import User, { IUser } from '../models/User';
 import Business from '../models/Business';
 import BlockedUser from '../models/BlockedUser';
 import mongoose from 'mongoose';
+import { normalizeRole } from '../utils/roleNormalization';
 
 
 export const updateUser = async (id: string, updates: Partial<IUser>) => {
@@ -18,14 +19,21 @@ export const removeUserFcmToken = async (userId: unknown, token: string): Promis
 };
 
 export const getUserById = async (userId: string) => {
-    return User.findById(userId).lean();
+    const user = await User.findById(userId).lean() as any;
+    if (user && user.role) {
+        user.role = normalizeRole(user.role);
+    }
+    return user;
 };
 
 export const getUserWithBusiness = async (userId: string) => {
     const [user, business] = await Promise.all([
-        User.findById(userId).select('-password -salt').lean(),
+        User.findById(userId).select('-password -salt').lean() as any,
         Business.findOne({ userId }).lean(),
     ]);
+    if (user && user.role) {
+        user.role = normalizeRole(user.role);
+    }
     return { user, business };
 };
 

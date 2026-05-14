@@ -1,6 +1,7 @@
 import NotificationLog from '../models/NotificationLog';
 import ScheduledNotification from '../models/ScheduledNotification';
 import User from '../models/User';
+import { Role } from '../constants/enums/roles';
 
 export const createNotificationLog = async (data: Record<string, unknown>) => {
     return NotificationLog.create(data);
@@ -44,7 +45,7 @@ export const searchNotificationRecipients = async (query: string, limit: number)
     return User.find({
         isDeleted: { $ne: true },
         status: { $nin: ['deleted', 'banned'] },
-        role: { $in: ['user', 'business'] },
+        role: { $in: [Role.USER, Role.BUSINESS] },
         $or: [
             { name: { $regex: searchRegex } },
             { email: { $regex: searchRegex } },

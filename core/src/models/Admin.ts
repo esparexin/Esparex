@@ -3,7 +3,9 @@ import { getAdminConnection } from "../config/db";
 import softDeletePlugin from '../utils/softDeletePlugin';
 import bcrypt from 'bcryptjs';
 import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from "../constants/enums/userStatus";
+import { Role, ROLE_VALUES } from "../constants/enums/roles";
 import { applyToJSONTransform } from '../utils/schemaOptions';
+import { normalizeRole } from '../utils/roleNormalization';
 
 export interface IAdmin extends Document {
     firstName: string;
@@ -11,7 +13,7 @@ export interface IAdmin extends Document {
     email: string;
     mobile?: string;
     password?: string;
-    role: "super_admin" | "admin" | "moderator" | "user_manager" | "finance_manager" | "content_moderator" | "editor" | "viewer" | "custom";
+    role: Role;
     permissions: string[];
     lastLogin?: Date;
     status: UserStatusValue;
@@ -52,18 +54,8 @@ const AdminSchema = new Schema<IAdmin>(
 
         role: {
             type: String,
-            enum: [
-                "super_admin",
-                "admin",
-                "moderator",
-                "user_manager",
-                "finance_manager",
-                "content_moderator",
-                "editor",
-                "viewer",
-                "custom"
-            ],
-            default: "viewer",
+            enum: ROLE_VALUES,
+            default: Role.MODERATOR,
         },
 
         permissions: {
@@ -107,12 +99,41 @@ AdminSchema.index({ status: 1 }, { name: 'idx_admin_status' });
 AdminSchema.index({ role: 1, status: 1 }, { name: 'idx_admin_role_status' });
 AdminSchema.index({ isDeleted: 1 }, { name: 'idx_admin_isDeleted' });
 
-// 🔒 SECURITY: Hash password before saving
+// 🔒 SECURITY & COMPATIBILITY: Normalize roles and hash password
 AdminSchema.pre('save', async function (this: IAdmin) {
-    if (!this.isModified('password')) return;
+    // 🛡️ Normalize legacy roles
+    if (this.role) {
+        this.role = normalizeRole(this.role);
+    }
 
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password!, salt);
+    if (this.isModified('password')) {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password!, salt);
+    }
+});
+
+// 🛡️ COMPATIBILITY: Normalize role when loading from DB
+AdminSchema.post('init', function (doc: IAdmin) {
+    if (doc.role) {
+        doc.role = normalizeRole(doc.role);
+    }
+});
+
+// 🛡️ COMPATIBILITY: Normalize role on updates
+AdminSchema.pre('findOneAndUpdate', function () {
+    const update = this.getUpdate() as Record<string, unknown> | undefined;
+    if (!update || Array.isArray(update)) return;
+
+    if (update.role && typeof update.role === 'string') {
+        update.role = normalizeRole(update.role);
+    }
+
+    if (update.$set && typeof update.$set === 'object' && !Array.isArray(update.$set)) {
+        const setObj = update.$set as Record<string, unknown>;
+        if (setObj.role && typeof setObj.role === 'string') {
+            setObj.role = normalizeRole(setObj.role);
+        }
+    }
 });
 
 AdminSchema.virtual('name').get(function () {

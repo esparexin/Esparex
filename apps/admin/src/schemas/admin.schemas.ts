@@ -40,7 +40,7 @@ export const adminLocationSchema = z.object({
     latitude: z.string().refine(v => !isNaN(parseFloat(v)), 'Invalid latitude'),
 });
 
-const adminRoleSchema = z.enum(['moderator', 'admin', 'super_admin']);
+const adminRoleSchema = z.enum(['moderator', 'admin', 'superAdmin']);
 const adminStatusSchema = z.enum(['live', 'inactive', 'suspended', 'banned']);
 const permissionsTextSchema = z
     .string()

@@ -7,6 +7,9 @@ import {
 import { getUserConnection } from '../config/db';
 import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '../constants/enums/userStatus';
 
+import { Role, ROLE_VALUES } from '../constants/enums/roles';
+import { normalizeRole } from '../utils/roleNormalization';
+
 export interface GeoJSONPoint {
   type: 'Point';
   coordinates: [number, number];
@@ -24,7 +27,7 @@ export interface IUser extends Document {
   isVerified: boolean;
 
   userType: 'marketplace' | 'admin';
-  role: 'user' | 'business' | 'admin' | 'superadmin' | 'super_admin' | 'individual' | 'seller' | 'buyer' | 'moderator' | 'support' | 'finance';
+  role: Role;
   status: UserStatusValue;
   statusChangedAt?: Date;
   statusReason?: string;
@@ -153,8 +156,8 @@ const UserSchema: Schema = new Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'business', 'admin', 'superadmin', 'super_admin', 'individual', 'seller', 'buyer', 'moderator', 'support', 'finance'],
-    default: 'user',
+    enum: ROLE_VALUES,
+    default: Role.USER,
   },
   status: {
     type: String,
@@ -237,8 +240,20 @@ UserSchema.index({ isDeleted: 1 }, { name: 'idx_user_deletedAt_idx' });
 UserSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true, name: 'idx_user_location_coordinates_2dsphere' });
 
 UserSchema.pre('save', function (this: IUser) {
+  // 🛡️ Normalize legacy roles
+  if (this.role) {
+    this.role = normalizeRole(this.role);
+  }
+
   this.location = normalizeUserLocation(this.location) as IUser['location'];
   this.mobileVisibility = normalizeUserMobileVisibility(this.mobileVisibility);
+});
+
+// 🛡️ COMPATIBILITY: Normalize role when loading from DB
+UserSchema.post('init', function (doc: IUser) {
+  if (doc.role) {
+    doc.role = normalizeRole(doc.role);
+  }
 });
 
 UserSchema.pre('findOneAndUpdate', function () {
@@ -251,6 +266,10 @@ UserSchema.pre('findOneAndUpdate', function () {
 
   if ('mobileVisibility' in update) {
     update.mobileVisibility = normalizeUserMobileVisibility(update.mobileVisibility);
+  }
+
+  if (update.role && typeof update.role === 'string') {
+    update.role = normalizeRole(update.role);
   }
 
   if ('location.coordinates' in update) {
@@ -269,6 +288,9 @@ UserSchema.pre('findOneAndUpdate', function () {
     }
     if ('mobileVisibility' in setObj) {
       setObj.mobileVisibility = normalizeUserMobileVisibility(setObj.mobileVisibility);
+    }
+    if (setObj.role && typeof setObj.role === 'string') {
+      setObj.role = normalizeRole(setObj.role);
     }
     if ('location.coordinates' in setObj) {
       const nextGeo = toUserGeoPoint(setObj['location.coordinates']);

@@ -32,7 +32,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
     const hasAccess = useCallback((roles: string[]) => {
         if (!admin) return false;
         if (roles.includes("all")) return true;
-        if (admin.role === "super_admin") return true;
+        if (admin.role === "superAdmin") return true;
         if (admin.role === "admin" && roles.includes("admin")) return true;
         if (admin.role === "moderator" && roles.includes("moderator")) return true;
         return false;

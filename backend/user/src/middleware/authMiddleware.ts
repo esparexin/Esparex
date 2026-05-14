@@ -8,6 +8,7 @@ import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import logger from '@esparex/core/utils/logger';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
+import { Role } from "@esparex/core/constants/enums/roles";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */
@@ -123,7 +124,7 @@ export const protect = async (
     req.user = {
       _id: decoded.id,
       role: decoded.role,
-      isAdmin: decoded.role === "admin" || decoded.role === "super_admin"
+      isAdmin: decoded.role === Role.ADMIN || decoded.role === Role.SUPER_ADMIN
     };
     setReliabilityContext({ userId: decoded.id });
 
@@ -208,7 +209,7 @@ export const extractUser = (
       req.user = {
         _id: decoded.id,
         role: decoded.role,
-        isAdmin: decoded.role === "admin" || decoded.role === "super_admin"
+        isAdmin: decoded.role === Role.ADMIN || decoded.role === Role.SUPER_ADMIN
       };
       setReliabilityContext({ userId: decoded.id });
     }
@@ -261,8 +262,8 @@ export const adminOnly = (
 
   const isAdmin =
     user.isAdmin ||
-    user.role === "admin" ||
-    user.role === "super_admin";
+    user.role === Role.ADMIN ||
+    user.role === Role.SUPER_ADMIN;
 
   if (!isAdmin) {
     sendErrorResponse(req, res, 403, "Admin access required");

@@ -1,15 +1,6 @@
 import { Role } from './enums/roles';
 
-export type AdminRole =
-    | Role.SUPER_ADMIN
-    | Role.ADMIN
-    | Role.MODERATOR
-    | 'user_manager'
-    | 'finance_manager'
-    | 'content_moderator'
-    | 'editor'
-    | 'viewer'
-    | 'custom';
+export type AdminRole = Role;
 
 export const ADMIN_PERMISSION_KEYS = {
     ADS_APPROVE: 'ads:write',
@@ -33,23 +24,23 @@ export const ADMIN_PERMISSION_KEYS = {
 
 
 const PERMISSION_ROLE_ALLOWLIST: Record<string, AdminRole[]> = {
-    'users:read': [Role.ADMIN, 'user_manager', 'viewer', Role.MODERATOR, 'content_moderator'],
-    'users:write': [Role.ADMIN, 'user_manager'],
-    'ads:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
-    'ads:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
-    'business:approve': [Role.ADMIN, 'user_manager'],
-    'catalog:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
-    'catalog:write': [Role.ADMIN, 'content_moderator', 'editor'],
-    'services:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
-    'services:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
-    'parts:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
-    'parts:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
-    'chat:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
-    'chat:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator'],
-    'content:read': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'viewer'],
-    'content:write': [Role.ADMIN, Role.MODERATOR, 'content_moderator', 'editor'],
-    'finance:read': [Role.ADMIN, 'finance_manager'],
-    'finance:manage': [Role.ADMIN, 'finance_manager'],
+    'users:read': [Role.ADMIN, Role.MODERATOR],
+    'users:write': [Role.ADMIN],
+    'ads:read': [Role.ADMIN, Role.MODERATOR],
+    'ads:write': [Role.ADMIN, Role.MODERATOR],
+    'business:approve': [Role.ADMIN],
+    'catalog:read': [Role.ADMIN, Role.MODERATOR],
+    'catalog:write': [Role.ADMIN, Role.MODERATOR],
+    'services:read': [Role.ADMIN, Role.MODERATOR],
+    'services:write': [Role.ADMIN, Role.MODERATOR],
+    'parts:read': [Role.ADMIN, Role.MODERATOR],
+    'parts:write': [Role.ADMIN, Role.MODERATOR],
+    'chat:read': [Role.ADMIN, Role.MODERATOR],
+    'chat:write': [Role.ADMIN, Role.MODERATOR],
+    'content:read': [Role.ADMIN, Role.MODERATOR],
+    'content:write': [Role.ADMIN, Role.MODERATOR],
+    'finance:read': [Role.ADMIN],
+    'finance:manage': [Role.ADMIN],
     'system:logs': [Role.ADMIN],
     'system:config': [Role.ADMIN],
 };

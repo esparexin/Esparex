@@ -46,7 +46,7 @@ type AdminUserFormCardProps =
         onSecondary: () => void;
     };
 
-const ROLE_OPTIONS: AdminRole[] = ["moderator", "admin", "super_admin"];
+const ROLE_OPTIONS: AdminRole[] = ["moderator", "admin", "superAdmin"];
 const STATUS_OPTIONS: AdminStatus[] = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,

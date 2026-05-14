@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { env } from '../config/env';
 import { Types } from 'mongoose';
+import { normalizeRole } from './roleNormalization';
 
 const JWT_SECRET = env.JWT_SECRET;
 const ADMIN_JWT_SECRET = env.ADMIN_JWT_SECRET || env.JWT_SECRET;
@@ -42,7 +43,7 @@ export const generateToken = (payload: { id: Types.ObjectId | string; role: stri
     // Convert ObjectId to string for JWT payload
     const tokenPayload: Record<string, unknown> = {
         id: payload.id.toString(),
-        role: payload.role,
+        role: normalizeRole(payload.role),
         ...(payload.tokenVersion !== undefined && { tokenVersion: payload.tokenVersion })
     };
     const userTokenTtl = env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'];
@@ -58,7 +59,7 @@ export const generateToken = (payload: { id: Types.ObjectId | string; role: stri
 export const generateAdminToken = (payload: { id: Types.ObjectId | string; role: string }) => {
     const tokenPayload = {
         id: payload.id.toString(),
-        role: payload.role
+        role: normalizeRole(payload.role)
     };
     return jwt.sign(tokenPayload, ADMIN_JWT_SECRET, {
         expiresIn: '8h' as jwt.SignOptions['expiresIn'],

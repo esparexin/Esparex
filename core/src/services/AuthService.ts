@@ -14,6 +14,7 @@ import { env } from '../config/env';
 import { 
     USER_STATUS 
 } from '../constants/enums/userStatus';
+import { Role } from '../constants/enums/roles';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
@@ -104,7 +105,7 @@ const getUserAuthFailure = (
     if (!user) return null;
 
     // Admin roles cannot use the user OTP login endpoint
-    if (typeof user.role === 'string' && ['admin', 'moderator', 'super_admin'].includes(user.role)) {
+    if (typeof user.role === 'string' && [Role.ADMIN, Role.MODERATOR, Role.SUPER_ADMIN].includes(user.role as Role)) {
         return createFailure(401, 'Invalid credentials', { code: 'AUTH_FAILED' });
     }
 
@@ -414,7 +415,7 @@ export class AuthService {
             user = await User.create({
                 mobile: canonicalizeToIndian(mobile),
                 name: normalizedName,
-                role: 'user',
+                role: Role.USER,
                 status: USER_STATUS.LIVE,
                 isPhoneVerified: true,
                 isVerified: true,
@@ -428,7 +429,7 @@ export class AuthService {
 
                 if (freePlan) {
                     await UserPlan.findOneAndUpdate(
-                        { userId: user._id, planId: freePlan._id },
+                        { userId: (user as any)._id, planId: (freePlan as any)._id },
                         { $set: { startDate: now, endDate: null, status: 'active' } },
                         { upsert: true, new: true, setDefaultsOnInsert: true }
                     );

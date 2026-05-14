@@ -4,6 +4,7 @@ import User from '../models/User';
 import Business from '../models/Business';
 import { USER_STATUS } from '../constants/enums/userStatus';
 import { BUSINESS_STATUS } from '../constants/enums/businessStatus';
+import { Role } from '../constants/enums/roles';
 
 export const runAdminMetricsJob = async () => {
     logger.info('Starting AdminMetrics cron job...');
@@ -26,7 +27,7 @@ export const runAdminMetricsJob = async () => {
             status: { $ne: USER_STATUS.DELETED },
             createdAt: { $gte: startOfWeek }
         });
-        const businessUsers = await User.countDocuments({ role: 'business', status: { $ne: USER_STATUS.DELETED } });
+        const businessUsers = await User.countDocuments({ role: Role.BUSINESS, status: { $ne: USER_STATUS.DELETED } });
 
         const usersPayload = {
             totalUsers,

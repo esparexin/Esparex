@@ -222,7 +222,7 @@ export default function AdminUsersPage() {
         [isMutating, onToggleStatus, onStartEdit, confirmDelete]
     );
 
-    const superAdmins = admins.filter(a => a.role === 'super_admin').length;
+    const superAdmins = admins.filter(a => a.role === 'superAdmin').length;
     const adminCount = admins.filter(a => a.role === 'admin').length;
     const moderators = admins.filter(a => a.role === 'moderator' || a.role === 'content_moderator').length;
     const support = admins.filter(a => a.role === 'support' || a.role === 'user_manager').length;

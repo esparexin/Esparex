@@ -47,7 +47,7 @@ export const registerToken = async (userId: string, token: string, platform: 'we
                     $push: {
                         fcmTokens: {
                             token,
-                            platform,
+                            platform: platform as string,
                             lastActive: new Date()
                         }
                     }

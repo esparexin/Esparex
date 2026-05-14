@@ -5,6 +5,8 @@ import { USER_STATUS } from '../constants/enums/userStatus';
 import logger from '../utils/logger';
 import { env } from '../config/env';
 import { escapeRegExp } from '../utils/stringUtils';
+import { Role } from '../constants/enums/roles';
+import { normalizeRole } from '../utils/roleNormalization';
 
 export const seedAdmin = async (email: string) => {
     // Explicit local bootstrap only. Never seed defaults in production/CI.
@@ -62,7 +64,7 @@ export const seedAdmin = async (email: string) => {
             lastName: 'Admin',
             email: 'admin@esparex.com',
             password: 'Admin@123',
-            role: 'super_admin',
+            role: Role.SUPER_ADMIN,
             status: USER_STATUS.LIVE
         });
         logger.info(`✅ Seeded new Super Admin: ${email}`);
@@ -165,5 +167,9 @@ export const updateAdminLastLogin = async (id: string | { toString(): string }) 
 };
 
 export const getAdminProfileById = async (adminId: unknown) => {
-    return Admin.findById(adminId).lean();
+    const admin = await Admin.findById(adminId).lean() as any;
+    if (admin && admin.role) {
+        admin.role = normalizeRole(admin.role);
+    }
+    return admin;
 };

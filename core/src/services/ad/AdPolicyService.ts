@@ -4,6 +4,7 @@ import Ad from '../../models/Ad';
 import User from '../../models/User';
 import { LISTING_STATUS } from "../../constants/enums/listingStatus";
 import { LISTING_TYPE, type ListingTypeValue } from '../../constants/enums/listingType';
+import { Role } from '../../constants/enums/roles';
 import { getSystemConfigForRead } from '../SystemConfigService';
 import logger from '../../utils/logger';
 
@@ -38,10 +39,10 @@ export const validateSellerTypeThreshold = async (
 
         // Business accounts have no threshold limits on spare parts
         if (
-            user.role === 'business' || 
-            user.role === 'admin' || 
-            user.role === 'super_admin' || 
-            user.role === 'superadmin'
+            user.role === Role.BUSINESS || 
+            user.role === Role.ADMIN || 
+            user.role === Role.SUPER_ADMIN ||
+            user.role === Role.MODERATOR
         ) {
             return { ok: true };
         }

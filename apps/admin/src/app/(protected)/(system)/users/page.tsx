@@ -35,7 +35,7 @@ const USER_STATUS_OPTIONS = [
 ];
 
 const USER_ROLE_COLORS: Record<string, string> = {
-    super_admin: "bg-purple-100 text-purple-700",
+    superAdmin: "bg-purple-100 text-purple-700",
     admin: "bg-blue-100 text-blue-700",
     business: "bg-amber-100 text-amber-700",
 };
