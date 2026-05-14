@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { ListingCategory } from "@/types/listing";
-import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import type { Brand } from "@/lib/api/user/masterData";
 
 export function useCategoryDependents(
@@ -62,7 +62,7 @@ export function useCategoryDependents(
         form.setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         const brandObj = brandMap[name];
-        const brandId = normalizeOptionalObjectId(brandObj?.id);
+        const brandId = sanitizeMongoObjectId(brandObj?.id || brandObj?._id);
         form.setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
         form.setValue("catalogRequestId", requestId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 

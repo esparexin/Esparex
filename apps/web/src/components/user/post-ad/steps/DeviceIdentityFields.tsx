@@ -1,10 +1,14 @@
 "use client";
 
-import { useCallback, useLayoutEffect } from "react";
+import { useCallback, useEffect, useLayoutEffect } from "react";
+import type { CategoryFilter } from "@shared";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../PostAdContext";
 import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Select,
     SelectContent,
@@ -16,6 +20,7 @@ import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
 import { ModelSearchSelect } from "@/components/user/ModelSearchSelect";
 import { Z_INDEX } from "@/lib/zIndexConfig";
+import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 
 const getNestedFieldMeta = (source: unknown, path: string): unknown =>
     path.split(".").reduce<unknown>((current, segment) => {
@@ -28,14 +33,47 @@ const DEVICE_CONDITION_OPTIONS = [
     { value: "power_off", label: "Power Off", dot: "bg-red-500", active: "bg-red-600 text-white border-red-600 shadow-sm" },
 ] as const;
 
+type ExtendedCategoryFilter = CategoryFilter & {
+    inputType?: string;
+    defaultValue?: unknown;
+    dependsOn?: string;
+    visibleWhen?: unknown;
+    showWhen?: unknown;
+};
+
+const ATTRIBUTE_FIELD_TYPES = new Set(["text", "textarea", "number", "select", "checkbox", "radio", "multi-select", "multiselect"]);
+
+const getFilterType = (filter: ExtendedCategoryFilter): string => {
+    const rawType = filter.inputType || filter.type;
+    if (rawType === "range") return "number";
+    return String(rawType || "text").toLowerCase();
+};
+
+const getAttributeValue = (attributes: unknown, id: string): unknown => {
+    if (!attributes || typeof attributes !== "object") return undefined;
+    return (attributes as Record<string, unknown>)[id];
+};
+
+const isFilterVisible = (filter: ExtendedCategoryFilter, attributes: unknown): boolean => {
+    if (!filter.dependsOn) return true;
+    const dependencyValue = getAttributeValue(attributes, filter.dependsOn);
+    const expected = filter.visibleWhen ?? filter.showWhen;
+    if (expected === undefined) return Boolean(dependencyValue);
+    if (Array.isArray(expected)) return expected.includes(dependencyValue);
+    return dependencyValue === expected;
+};
+
 export default function DeviceIdentityFields() {
     const {
         dynamicCategories,
+        brandMap,
         availableBrands,
+        availableModels,
         availableSizes,
         availableSpareParts,
         isLoadingSpareParts,
         requiresScreenSize,
+        categorySchema,
         brandsError,
         sparePartsError,
         brandIsPending,
@@ -52,6 +90,7 @@ export default function DeviceIdentityFields() {
         toggleSparePart,
         loadSparePartsForCategory,
         loadBrandsForCategory,
+        loadModelsForBrand,
     } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
@@ -59,6 +98,8 @@ export default function DeviceIdentityFields() {
     // context maps names → IDs internally via handleBrandChange
     const brandNameValue = String(watch("brand") || "");
     const brandIdValue = String(watch("brandId") || "");
+    const catalogRequestId = String(watch("catalogRequestId") || "");
+    const attributes = watch("attributes") as Record<string, unknown> | undefined;
     
     // Model state
     const modelId = String(watch("modelId") || "");
@@ -90,21 +131,214 @@ export default function DeviceIdentityFields() {
         : undefined;
     const deviceConditionError = shouldShowFieldError("deviceCondition") ? errors.deviceCondition?.message : undefined;
 
-    // PostAd tracks brand as name string in form "brand" field.
-    // BrandSearchSelect matches by id — use name as id so selection round-trips correctly.
-    const brandMapForSelect = Object.fromEntries(
-        availableBrands.map((name) => [name, { id: name }])
-    );
-
     useLayoutEffect(() => {
         register("category");
         register("brand");
         register("brandId");
         register("model");
         register("modelId");
+        register("catalogRequestId");
+        register("attributes");
         register("screenSize");
         register("deviceCondition");
     }, [register]);
+
+    useEffect(() => {
+        if (!catalogRequestId || !categoryId) return;
+
+        const timer = window.setInterval(() => {
+            void loadBrandsForCategory(categoryId);
+            if (brandIdValue) {
+                void loadModelsForBrand(brandIdValue, categoryId, modelNameValue || undefined);
+            }
+        }, 30_000);
+
+        return () => window.clearInterval(timer);
+    }, [brandIdValue, catalogRequestId, categoryId, loadBrandsForCategory, loadModelsForBrand, modelNameValue]);
+
+    useEffect(() => {
+        if (!catalogRequestId || !brandNameValue || brandIdValue) return;
+        const approvedBrandId = brandMap[brandNameValue]?.id || brandMap[brandNameValue]?._id;
+        if (!approvedBrandId || !/^[0-9a-f]{24}$/i.test(String(approvedBrandId))) return;
+        setValue("brandId", String(approvedBrandId), { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        void loadModelsForBrand(String(approvedBrandId), categoryId);
+    }, [brandIdValue, brandMap, brandNameValue, catalogRequestId, categoryId, loadModelsForBrand, setValue]);
+
+    useEffect(() => {
+        if (!catalogRequestId || !brandIdValue || !modelNameValue || modelId) return;
+        const approvedModel = availableModels.find((model) => model.name.toLowerCase() === modelNameValue.toLowerCase());
+        const approvedModelId = approvedModel?.id || approvedModel?._id;
+        if (!approvedModelId || !/^[0-9a-f]{24}$/i.test(String(approvedModelId))) return;
+        setValue("modelId", String(approvedModelId), { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    }, [availableModels, brandIdValue, catalogRequestId, modelId, modelNameValue, setValue]);
+
+    const updateAttribute = useCallback((id: string, value: unknown) => {
+        const current = form.getValues("attributes") as Record<string, unknown> | undefined;
+        setValue("attributes", {
+            ...(current ?? {}),
+            [id]: value,
+        } as PostAdFormData["attributes"], {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true,
+        });
+    }, [form, setValue]);
+
+    const dynamicAttributeFilters = (categorySchema?.filters ?? [])
+        .map((filter) => filter as ExtendedCategoryFilter)
+        .filter((filter) => ATTRIBUTE_FIELD_TYPES.has(getFilterType(filter)))
+        .filter((filter) => isFilterVisible(filter, attributes));
+
+    const renderAttributeField = (filter: ExtendedCategoryFilter) => {
+        const fieldType = getFilterType(filter);
+        const value = getAttributeValue(attributes, filter.id) ?? filter.defaultValue ?? "";
+        const error = shouldShowFieldError(`attributes.${filter.id}`)
+            ? (getNestedFieldMeta(errors, `attributes.${filter.id}.message`) as string | undefined)
+            : undefined;
+
+        if (fieldType === "textarea") {
+            return (
+                <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                    <Textarea
+                        value={typeof value === "string" ? value : ""}
+                        onChange={(event) => updateAttribute(filter.id, event.target.value)}
+                        className="min-h-24 rounded-xl border-2 border-slate-100 focus:border-primary"
+                    />
+                </Field>
+            );
+        }
+
+        if (fieldType === "number") {
+            return (
+                <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                    <Input
+                        type="number"
+                        min={filter.min}
+                        max={filter.max}
+                        value={typeof value === "number" || typeof value === "string" ? value : ""}
+                        onChange={(event) => updateAttribute(filter.id, event.target.value === "" ? "" : Number(event.target.value))}
+                        className="h-11 rounded-xl border-2 border-slate-100 focus:border-primary"
+                    />
+                </Field>
+            );
+        }
+
+        if (fieldType === "radio" && filter.options?.length) {
+            return (
+                <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                    <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={filter.name}>
+                        {filter.options.map((option) => {
+                            const checked = value === option.value;
+                            return (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    role="radio"
+                                    aria-checked={checked}
+                                    onClick={() => updateAttribute(filter.id, option.value)}
+                                    className={cn(
+                                        "h-9 rounded-full border px-3 text-xs font-bold transition-all",
+                                        checked
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-slate-200 bg-white text-foreground-tertiary hover:border-slate-300"
+                                    )}
+                                >
+                                    {option.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </Field>
+            );
+        }
+
+        if (fieldType === "select" && filter.options?.length) {
+            return (
+                <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                    <Select
+                        value={typeof value === "string" ? value : undefined}
+                        onValueChange={(nextValue) => updateAttribute(filter.id, nextValue)}
+                    >
+                        <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-semibold">
+                            <SelectValue placeholder={`Select ${filter.name.toLowerCase()}`} />
+                        </SelectTrigger>
+                        <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border-2 border-slate-100 shadow-xl">
+                            {filter.options.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </Field>
+            );
+        }
+
+        if (fieldType === "checkbox" && !filter.options?.length) {
+            const checked = value === true;
+            return (
+                <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                    <label className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-foreground-secondary">
+                        <Checkbox
+                            checked={checked}
+                            onCheckedChange={(nextChecked) => updateAttribute(filter.id, nextChecked === true)}
+                        />
+                        {filter.name}
+                    </label>
+                </Field>
+            );
+        }
+
+        if ((fieldType === "checkbox" || fieldType === "multi-select" || fieldType === "multiselect") && filter.options?.length) {
+            const selectedValues = Array.isArray(value) ? value.map(String) : [];
+            return (
+                <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                    <div className="flex flex-wrap gap-2">
+                        {filter.options.map((option) => {
+                            const checked = selectedValues.includes(option.value);
+                            return (
+                                <label
+                                    key={option.value}
+                                    className={cn(
+                                        "flex h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-xs font-bold transition-all",
+                                        checked
+                                            ? "border-primary bg-primary text-primary-foreground"
+                                            : "border-slate-200 bg-white text-foreground-tertiary hover:border-slate-300"
+                                    )}
+                                >
+                                    <Checkbox
+                                        checked={checked}
+                                        onCheckedChange={() => {
+                                            updateAttribute(
+                                                filter.id,
+                                                checked
+                                                    ? selectedValues.filter((item) => item !== option.value)
+                                                    : [...selectedValues, option.value]
+                                            );
+                                        }}
+                                        className="h-3.5 w-3.5"
+                                    />
+                                    {option.label}
+                                </label>
+                            );
+                        })}
+                    </div>
+                </Field>
+            );
+        }
+
+        return (
+            <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+                <Input
+                    value={typeof value === "string" ? value : ""}
+                    onChange={(event) => updateAttribute(filter.id, event.target.value)}
+                    className="h-11 rounded-xl border-2 border-slate-100 focus:border-primary"
+                />
+            </Field>
+        );
+    };
 
     return (
         <div className="space-y-4" data-testid="device-identity-fields">
@@ -149,10 +383,11 @@ export default function DeviceIdentityFields() {
                         ) : (
                             <BrandSearchSelect
                                 brands={availableBrands}
-                                brandMap={brandMapForSelect}
+                                brandMap={brandMap}
                                 categoryId={categoryId}
                                 value={brandNameValue}
                                 onChange={(_id, name, requestId) => handleBrandChange(name, requestId)}
+                                onRequestSuccess={() => loadBrandsForCategory(categoryId)}
                                 disabled={brandIsPending}
                                 placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
                             />
@@ -186,7 +421,6 @@ export default function DeviceIdentityFields() {
                     <Field 
                         label="Model" 
                         error={modelError} 
-                        required
                         className={cn(!brandNameValue && "opacity-60 grayscale-[0.5] pointer-events-none")}
                     >
                         {!brandNameValue ? (
@@ -207,6 +441,7 @@ export default function DeviceIdentityFields() {
                                         setValue("catalogRequestId", requestId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     }
                                 }}
+                                onRequestSuccess={() => loadModelsForBrand(brandIdValue, categoryId, modelNameValue || undefined)}
                                 onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
                                     // A new pending brand was created — sync its ID back into the form
                                     // so the ad payload carries the correct brandId ObjectId.
@@ -215,7 +450,25 @@ export default function DeviceIdentityFields() {
                                 }}
                             />
                         )}
+                        {catalogRequestId ? (
+                            <p className="mt-1 px-1 text-[10px] font-semibold text-amber-700">
+                                Catalog request pending admin approval. We will refresh this selection automatically.
+                            </p>
+                        ) : null}
                     </Field>
+
+                    {dynamicAttributeFilters.length > 0 ? (
+                        <section className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/40 p-3">
+                            <div>
+                                <p className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
+                                    Category Details
+                                </p>
+                            </div>
+                            <div className="space-y-3">
+                                {dynamicAttributeFilters.map(renderAttributeField)}
+                            </div>
+                        </section>
+                    ) : null}
 
                     {/* Screen Size — only for LED-TV / monitor categories */}
                     {requiresScreenSize && (

@@ -20,6 +20,7 @@ interface ModelSearchSelectProps {
     modelDisplayName?: string;
     /** Called with (modelId, modelName, requestId) on selection */
     onChange: (modelId: string, modelName: string, requestId?: string) => void;
+    onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
     /** Reserved callback for parent brand sync in async catalog flows. */
     onBrandResolved?: (brandId: string, brandName: string) => void;
     disabled?: boolean;
@@ -33,6 +34,7 @@ export function ModelSearchSelect({
     value,
     modelDisplayName = "",
     onChange,
+    onRequestSuccess,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
@@ -45,6 +47,7 @@ export function ModelSearchSelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+    const [guidanceMessage, setGuidanceMessage] = useState<string | null>(null);
 
     // Local selection bridges the gap during prop/context sync.
     // Only consulted when selectedModel (from catalog) is not yet available.
@@ -114,35 +117,68 @@ export function ModelSearchSelect({
         onChange(id, name);
         setSearch("");
         setIsEditing(false);
+        setGuidanceMessage(null);
     };
+
+    const hasCanonicalBrandId = /^[0-9a-f]{24}$/i.test(brandId);
+    const canRequestModel = Boolean(categoryId) && hasCanonicalBrandId;
 
     const handleAddNew = () => {
         const trimmed = search.trim();
-        if (!trimmed || !categoryId) return;
+        if (!trimmed) return;
+        if (!categoryId) {
+            setGuidanceMessage("Select a category first.");
+            return;
+        }
+        if (!hasCanonicalBrandId) {
+            setGuidanceMessage("Select an approved brand first.");
+            return;
+        }
+        setGuidanceMessage(null);
         setIsRequestDialogOpen(true);
     };
+
+    const requestDialog = (
+        <CatalogRequestDialog
+            open={isRequestDialogOpen}
+            onOpenChange={setIsRequestDialogOpen}
+            requestType="model"
+            categoryId={categoryId}
+            parentBrandId={brandId}
+            initialName={search}
+            onSuccess={(requestId, name) => {
+                onChange("", name, requestId);
+                void onRequestSuccess?.(requestId, name);
+                setSearch("");
+                setIsEditing(false);
+            }}
+        />
+    );
 
     // ── Selected State ──────────────────────────────────────────────────────
     if (selectedName && !isEditing) {
         return (
-            <div className={cn(
-                "flex h-12 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 transition-all hover:bg-slate-100/50",
-                className
-            )}>
-                <div className="flex items-center gap-2.5 min-w-0">
-                    <Check className="w-4 h-4 text-green-600 shrink-0" />
-                    <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
+            <>
+                <div className={cn(
+                    "flex h-12 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 transition-all hover:bg-slate-100/50",
+                    className
+                )}>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <Check className="w-4 h-4 text-green-600 shrink-0" />
+                        <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
+                    </div>
+                    {!disabled && (
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="ml-2 shrink-0 text-xs font-bold text-primary hover:opacity-80 active:scale-95 transition-all"
+                        >
+                            Edit
+                        </button>
+                    )}
                 </div>
-                {!disabled && (
-                    <button
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                        className="ml-2 shrink-0 text-xs font-bold text-primary hover:opacity-80 active:scale-95 transition-all"
-                    >
-                        Edit
-                    </button>
-                )}
-            </div>
+                {requestDialog}
+            </>
         );
     }
 
@@ -184,6 +220,11 @@ export function ModelSearchSelect({
                     )}
                 />
             </div>
+            {search && !canRequestModel ? (
+                <p className="mt-1 px-1 text-xs font-semibold text-amber-700">
+                    {categoryId ? "Select an approved brand first." : "Select a category first."}
+                </p>
+            ) : null}
 
             {(isEditing || search) && dropdownStyle && (
                 <>
@@ -216,11 +257,15 @@ export function ModelSearchSelect({
                                     {search.length >= 2 && !isLoading && (
                                         <button
                                             type="button"
+                                            disabled={!canRequestModel}
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 handleAddNew();
                                             }}
-                                            className="w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold text-primary hover:bg-slate-50 transition-colors"
+                                            className={cn(
+                                                "w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold transition-colors",
+                                                canRequestModel ? "text-primary hover:bg-slate-50" : "text-slate-400 cursor-not-allowed"
+                                            )}
                                         >
                                             <span>+</span>
                                             Don&apos;t see it? Suggest &ldquo;{search}&rdquo;
@@ -241,11 +286,15 @@ export function ModelSearchSelect({
                                     
                                     <button
                                         type="button"
+                                        disabled={!canRequestModel}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             handleAddNew();
                                         }}
-                                        className="w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold text-primary hover:bg-slate-50 transition-colors"
+                                        className={cn(
+                                            "w-full mt-1 p-3 flex items-center justify-center gap-2 border-t border-slate-50 text-xs font-bold transition-colors",
+                                            canRequestModel ? "text-primary hover:bg-slate-50" : "text-slate-400 cursor-not-allowed"
+                                        )}
                                     >
                                         <span>+</span>
                                         Don&apos;t see it? Suggest &ldquo;{search}&rdquo;
@@ -257,23 +306,16 @@ export function ModelSearchSelect({
                                 </div>
                             ) : null}
                         </div>
+                        {guidanceMessage ? (
+                            <p className="px-4 pb-3 text-xs font-semibold text-amber-700">
+                                {guidanceMessage}
+                            </p>
+                        ) : null}
                     </div>
                 </>
             )}
 
-            <CatalogRequestDialog
-                open={isRequestDialogOpen}
-                onOpenChange={setIsRequestDialogOpen}
-                requestType="model"
-                categoryId={categoryId}
-                parentBrandId={brandId}
-                initialName={search}
-                onSuccess={(requestId, name) => {
-                    onChange("", name, requestId);
-                    setSearch("");
-                    setIsEditing(false);
-                }}
-            />
+            {requestDialog}
         </div>
     );
 }

@@ -11,11 +11,12 @@ import { CatalogRequestDialog } from "./CatalogRequestDialog";
 interface BrandSearchSelectProps {
     brands: string[];
     brandMap: Record<string, { id?: string } | undefined>;
-    /** Currently selected brandId */
+    /** Currently selected brand display name. */
     value: string;
     /** Called with (brandId, brandName, requestId) on selection */
     onChange: (brandId: string, brandName: string, requestId?: string) => void;
     categoryId: string;
+    onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -27,6 +28,7 @@ export function BrandSearchSelect({
     value,
     onChange,
     categoryId,
+    onRequestSuccess,
     disabled = false,
     placeholder = "Search brand...",
     className,
@@ -34,6 +36,7 @@ export function BrandSearchSelect({
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+    const [guidanceMessage, setGuidanceMessage] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
@@ -87,29 +90,60 @@ export function BrandSearchSelect({
         onChange(id, brandName);
         setSearch("");
         setIsEditing(false);
+        setGuidanceMessage(null);
     };
+
+    const canRequestBrand = Boolean(categoryId);
+
+    const handleOpenRequestDialog = () => {
+        if (!canRequestBrand) {
+            setGuidanceMessage("Select a category first.");
+            return;
+        }
+        setGuidanceMessage(null);
+        setIsRequestDialogOpen(true);
+    };
+
+    const requestDialog = (
+        <CatalogRequestDialog
+            open={isRequestDialogOpen}
+            onOpenChange={setIsRequestDialogOpen}
+            requestType="brand"
+            categoryId={categoryId}
+            initialName={search}
+            onSuccess={(requestId, name) => {
+                onChange("", name, requestId);
+                void onRequestSuccess?.(requestId, name);
+                setSearch("");
+                setIsEditing(false);
+            }}
+        />
+    );
 
     // ── Selected state ──────────────────────────────────────────────────────
     if (selectedName && !isEditing) {
         return (
-            <div className={cn(
-                "flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
-                className
-            )}>
-                <div className="flex items-center gap-1.5 min-w-0">
-                    <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                    <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
+            <>
+                <div className={cn(
+                    "flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
+                    className
+                )}>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                        <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                        <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
+                    </div>
+                    {!disabled && (
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="ml-2 shrink-0 text-xs font-semibold text-primary hover:underline"
+                        >
+                            Edit
+                        </button>
+                    )}
                 </div>
-                {!disabled && (
-                    <button
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                        className="ml-2 shrink-0 text-xs font-semibold text-primary hover:underline"
-                    >
-                        Edit
-                    </button>
-                )}
-            </div>
+                {requestDialog}
+            </>
         );
     }
 
@@ -126,6 +160,11 @@ export function BrandSearchSelect({
                     className="pl-9 pr-4"
                 />
             </div>
+            {search && !canRequestBrand ? (
+                <p className="mt-1 px-1 text-xs font-semibold text-amber-700">
+                    Select a category first.
+                </p>
+            ) : null}
 
             {/* Dropdown — only shown once fixed position is calculated */}
             {search && dropdownStyle && (
@@ -153,11 +192,17 @@ export function BrandSearchSelect({
                                 
                                     <button
                                         type="button"
+                                        disabled={!canRequestBrand}
                                         onPointerDown={(e) => {
                                             e.preventDefault();
-                                            setIsRequestDialogOpen(true);
+                                            handleOpenRequestDialog();
                                         }}
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-all active:scale-[0.97] shadow-md shadow-slate-900/10"
+                                        className={cn(
+                                            "w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all active:scale-[0.97] shadow-md shadow-slate-900/10",
+                                            canRequestBrand
+                                                ? "bg-slate-900 text-white hover:bg-slate-800"
+                                                : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                                        )}
                                     >
                                         <span className="text-lg leading-none">+</span>
                                         Suggest &ldquo;{search.trim()}&rdquo;
@@ -181,32 +226,30 @@ export function BrandSearchSelect({
                                 
                                 <button
                                     type="button"
+                                    disabled={!canRequestBrand}
                                     onPointerDown={(e) => {
                                         e.preventDefault();
-                                        setIsRequestDialogOpen(true);
+                                        handleOpenRequestDialog();
                                     }}
-                                    className="w-full p-3 border-t border-slate-50 text-[10px] font-bold text-primary hover:bg-slate-50 transition-colors uppercase tracking-wider text-center"
+                                    className={cn(
+                                        "w-full p-3 border-t border-slate-50 text-[10px] font-bold transition-colors uppercase tracking-wider text-center",
+                                        canRequestBrand ? "text-primary hover:bg-slate-50" : "text-slate-400 cursor-not-allowed"
+                                    )}
                                 >
                                     Don&apos;t see your brand? Suggest it
                                 </button>
                             </>
                         )}
                     </div>
+                    {guidanceMessage ? (
+                        <p className="px-4 pb-3 text-xs font-semibold text-amber-700">
+                            {guidanceMessage}
+                        </p>
+                    ) : null}
                 </>
             )}
 
-            <CatalogRequestDialog
-                open={isRequestDialogOpen}
-                onOpenChange={setIsRequestDialogOpen}
-                requestType="brand"
-                categoryId={categoryId}
-                initialName={search}
-                onSuccess={(requestId, name) => {
-                    onChange("", name, requestId);
-                    setSearch("");
-                    setIsEditing(false);
-                }}
-            />
+            {requestDialog}
         </div>
     );
 }

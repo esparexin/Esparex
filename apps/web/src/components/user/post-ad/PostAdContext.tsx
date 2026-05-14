@@ -9,7 +9,7 @@ import {
     useCallback,
     useMemo
 } from "react";
-import type { SparePart, DeviceModel } from "@/lib/api/user/masterData";
+import type { SparePart, DeviceModel, Brand } from "@/lib/api/user/masterData";
 import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 // FORM imports
@@ -90,6 +90,7 @@ export interface PostAdContextType {
     dynamicCategories: ListingCategory[];
     categoryMap: Record<string, ListingCategory>;
     availableBrands: string[];
+    brandMap: Record<string, Brand>;
     availableModels: DeviceModel[];
     availableSizes: string[];
     availableSpareParts: SparePart[];
@@ -200,6 +201,7 @@ export type PostAdCatalogState = {
     dynamicCategories: ListingCategory[];
     categoryMap: Record<string, ListingCategory>;
     availableBrands: string[];
+    brandMap: Record<string, Brand>;
     availableModels: DeviceModel[];
     availableSizes: string[];
     availableSpareParts: SparePart[];
@@ -443,6 +445,7 @@ export function PostAdProvider({
         setCurrentStep,
         setStepValidationAttempts,
         requiresScreenSize,
+        categoryFilters: categorySchema?.filters ?? [],
         trigger,
     });
 
@@ -468,6 +471,7 @@ export function PostAdProvider({
         dynamicCategories,
         categoryMap,
         availableBrands,
+        brandMap,
         availableModels,
         availableSizes,
         availableSpareParts,
@@ -478,7 +482,7 @@ export function PostAdProvider({
         brandsError,
         brandIsPending,
     }), [
-        dynamicCategories, categoryMap, availableBrands, availableModels, availableSizes,
+        dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes,
         availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize,
         sparePartsError, brandsError, brandIsPending,
     ]);

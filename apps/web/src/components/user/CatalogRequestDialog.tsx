@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/ui/field";
 import { createCatalogRequest } from "@/lib/api/user/catalogRequest";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 import { Loader2, CheckCircle2 } from "@/icons/IconRegistry";
 
 
@@ -39,14 +40,46 @@ export function CatalogRequestDialog({
     const [name, setName] = useState(initialName);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [catalogRequestId, setCatalogRequestId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const timeoutId = window.setTimeout(() => {
+            if (open) {
+                setName(initialName);
+                setErrorMessage(null);
+                setIsSuccess(false);
+                setCatalogRequestId(null);
+                return;
+            }
+
+            setName("");
+            setErrorMessage(null);
+            setIsSuccess(false);
+            setCatalogRequestId(null);
+        }, 0);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [initialName, open]);
 
     const handleSubmit = async () => {
         if (!name.trim()) {
-            console.error("[CatalogRequest]", "Please enter a name");
+            setErrorMessage(`Enter a ${requestType === "brand" ? "brand" : "model"} name.`);
+            return;
+        }
+
+        if (!categoryId) {
+            setErrorMessage("Category is required.");
+            return;
+        }
+
+        if (requestType === "model" && !parentBrandId) {
+            setErrorMessage("Brand must be selected first.");
             return;
         }
 
         setIsSubmitting(true);
+        setErrorMessage(null);
         try {
             const result = await createCatalogRequest({
                 requestType,
@@ -55,16 +88,15 @@ export function CatalogRequestDialog({
                 requestedName: name.trim(),
             });
             
+            setCatalogRequestId(result.id);
             setIsSuccess(true);
             onSuccess?.(result.id, name.trim());
             
             setTimeout(() => {
                 onOpenChange(false);
-                setIsSuccess(false);
-                setName("");
             }, 2000);
         } catch (error) {
-            console.error("[CatalogRequest]", error);
+            setErrorMessage(mapErrorToMessage(error, "Network error. Please try again."));
         } finally {
             setIsSubmitting(false);
         }
@@ -78,8 +110,13 @@ export function CatalogRequestDialog({
                         <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4" />
                         <DialogTitle className="text-xl font-bold text-slate-900 mb-2">Request Submitted!</DialogTitle>
                         <DialogDescription className="text-sm text-slate-500">
-                            Our moderators will review your {requestType} suggestion.
+                            Request submitted for admin approval.
                         </DialogDescription>
+                        {catalogRequestId ? (
+                            <p className="mt-3 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                                Pending review
+                            </p>
+                        ) : null}
                     </div>
                 ) : (
                     <>
@@ -100,6 +137,11 @@ export function CatalogRequestDialog({
                                     autoFocus
                                 />
                             </Field>
+                            {errorMessage ? (
+                                <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                                    {errorMessage}
+                                </p>
+                            ) : null}
                         </div>
                         
                         <DialogFooter>
