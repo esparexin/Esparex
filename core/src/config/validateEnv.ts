@@ -146,6 +146,16 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         );
     }
 
+    const mongodbUri = sourceEnv.MONGODB_URI || '';
+    if (mongodbUri.includes('localhost') || mongodbUri.includes('127.0.0.1')) {
+        throw new Error('MONGODB_URI cannot use localhost in production');
+    }
+
+    const adminMongodbUri = sourceEnv.ADMIN_MONGODB_URI || '';
+    if (adminMongodbUri.includes('localhost') || adminMongodbUri.includes('127.0.0.1')) {
+        throw new Error('ADMIN_MONGODB_URI cannot use localhost in production');
+    }
+
     const redisConfig = resolveRedisConfig({
         REDIS_URL: sourceEnv.REDIS_URL,
         REDIS_HOST: sourceEnv.REDIS_HOST,
@@ -156,7 +166,7 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
     });
 
     if (isLocalRedisHost(redisConfig.host)) {
-        throw new Error('REDIS_URL host is invalid for production');
+        throw new Error('REDIS_URL/REDIS_HOST cannot use localhost in production');
     }
 
     if (!redisConfig.username) {
@@ -170,6 +180,10 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
 
     if (hasWildcardCorsOrigin(corsOrigin as string)) {
         throw new Error('CORS_ORIGIN cannot include wildcard (*) in production');
+    }
+
+    if (corsOrigin?.includes('localhost') || corsOrigin?.includes('127.0.0.1')) {
+        throw new Error('CORS_ORIGIN cannot use localhost in production');
     }
 
     const runtimeOriginEnv = {
