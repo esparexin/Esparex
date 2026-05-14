@@ -42,11 +42,10 @@ export const config = {
     matcher: [
         /*
          * Match all request paths except:
-         * - _next/static (static files)
-         * - _next/image (image optimization)
+         * - _next/* (static assets, image optimizer, HMR websocket)
          * - favicon.ico, public assets
          * - api routes
          */
-        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico|webp|woff2?|css|js)$).*)",
+        "/((?!_next|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico|webp|woff2?|css|js)$).*)",
     ],
 };

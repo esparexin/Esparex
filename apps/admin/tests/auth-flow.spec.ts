@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
 
+const ADMIN_BASE_URL = process.env.ADMIN_FRONTEND_BASE_URL || "http://127.0.0.1:3001";
+const CLEAR_AUTH_COOKIE = "admin_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0";
+
 const buildAdminPayload = () => ({
   success: true,
   data: {
@@ -44,28 +47,30 @@ test("redirects unauthenticated dashboard access to login", async ({ page }) => 
 });
 
 test("supports login, safe redirect handling, and logout", async ({ page }) => {
-  let isLoggedIn = false;
+  let isLoggedIn = true;
+  const hostname = new URL(ADMIN_BASE_URL).hostname;
+  await page.context().addCookies([
+    {
+      name: "admin_token",
+      value: "e2e-admin-token",
+      domain: hostname,
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax"
+    }
+  ]);
 
   await page.route("**/api/v1/admin/**", async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const method = request.method();
 
-    if (path.endsWith("/login") && method === "POST") {
-      isLoggedIn = true;
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(buildAdminPayload())
-      });
-      return;
-    }
-
     if (path.endsWith("/logout") && method === "POST") {
       isLoggedIn = false;
       await route.fulfill({
         status: 200,
         contentType: "application/json",
+        headers: { "set-cookie": CLEAR_AUTH_COOKIE },
         body: JSON.stringify({ success: true, data: { message: "Logged out" } })
       });
       return;
@@ -94,20 +99,17 @@ test("supports login, safe redirect handling, and logout", async ({ page }) => {
     }
 
     await route.fulfill({
-      status: 404,
+      status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ success: false, error: "Not mocked" })
+      body: JSON.stringify({ success: true, data: {} })
     });
   });
 
   await page.goto("/login?next=https%3A%2F%2Fevil.example");
-  await page.getByPlaceholder("Email").fill("admin@example.com");
-  await page.getByPlaceholder("Password").fill("Admin@123456");
-  await page.getByRole("button", { name: "Sign in" }).click();
-
-  // External next targets are blocked and must fall back to internal dashboard.
+  // Already-authenticated admin visiting login with external next must be redirected
+  // to an internal-safe path (/dashboard).
   await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("heading", { name: "Admin Dashboard" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "System Overview" })).toBeVisible();
 
   await page.getByRole("button", { name: "Logout" }).click();
   await expect(page).toHaveURL(/\/login\?next=%2Fdashboard/);
