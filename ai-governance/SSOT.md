@@ -105,6 +105,13 @@ For detailed rules on API, Database, Naming, and Frontend standards, AI agents M
 - **Safe Defaults**: Newly introduced fields must have safe defaults (e.g., `0` for counts, `""` for strings) and MUST NEVER break existing consumers by being mandatory without defaults.
 - **Serialization**: Canonical serializers must normalize data to prevent frontend crashes due to missing or non-numeric fields in shared contracts.
 
+### Authentication and Session Management
+
+- **Resilient Refresh**: Authentication refresh logic must distinguish between authorization failures and transient network failures. Only confirmed authentication failures (401/403) may trigger forced logout.
+- **Differentiated Error Handling**: API clients must provide structured error classification (e.g., `AdminNetworkError` vs `AdminApiError`) to allow UI layers to decide whether to preserve session state.
+- **Credentials Persistence**: Secure `credentials: "include"` must be used for all authenticated requests to ensure cookie-based sessions remain stable.
+
+
 ## 5. Runtime AI Canonical Ownership
 
 The runtime product AI system is currently OpenAI-backed and is owned by code, not by IDE prompt files.

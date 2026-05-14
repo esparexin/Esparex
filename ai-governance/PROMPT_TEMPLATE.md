@@ -39,7 +39,9 @@ Constraints:
   - Ensure shared UI components (tabs, headers) are rendered exactly once at the page layout level.
   - Set `isNested={true}` in child content templates to suppress redundant navigation.
 - **Backward Compatibility**: All shared API contracts MUST be backward compatible with safe defaults. Never break existing modules with new mandatory fields.
+- **Authentication Resilience**: Authentication refresh MUST distinguish between 401/403 failures and transient network errors. Only confirmed auth failures may trigger session logout.
 - Report files changed, checks run, and blockers.
+
 
 If the task conflicts with canonical governance, stop and explain the conflict.
 ```

@@ -19,6 +19,8 @@ This matrix maps every documented governance rule to its corresponding automated
 | **Single SW Strategy** | Low | `docs/02-eng-gov...` | `guard-platform-governance.js` | `guard:platform-governance`| Active | Documented & Enforced | Engineering |
 | **Single Shared UI Ownership** | High | `docs/06-frontend-admin-standards.md` | `apps/admin/tests/ui-composition.spec.ts` | `test:ui` | Active | Documented & Enforced | Frontend |
 | **Contract Compatibility** | Critical | `SSOT.md` | `apps/admin/scripts/moderation-regression.mjs` | `test:moderation-regression` | Active | Documented & Enforced | Engineering |
+| **Resilient Refresh** | High | `SSOT.md` | `apps/admin/tests/auth-resilience.spec.ts` | `test:auth` | Active | Documented & Enforced | Engineering |
+
 
 ## Legend
 

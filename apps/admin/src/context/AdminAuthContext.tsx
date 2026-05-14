@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { AdminApiError, adminFetch, setAdminAccessToken, fetchCsrfToken } from "@/lib/api/adminClient";
+import { AdminApiError, AdminNetworkError, adminFetch, setAdminAccessToken, fetchCsrfToken } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import type { AdminUser } from "@/types/admin";
@@ -15,6 +15,7 @@ type LoginInput = {
 type AdminAuthState = {
   admin: AdminUser | null;
   loading: boolean;
+  error: AdminNetworkError | null;
   login: (input: LoginInput) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -38,40 +39,52 @@ function normalizeAdmin(payload: unknown): AdminUser | null {
 }
 
 export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
-  const [admin, setAdmin] = useState<AdminUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<{
+    admin: AdminUser | null;
+    loading: boolean;
+    error: AdminNetworkError | null;
+  }>({
+    admin: null,
+    loading: true,
+    error: null
+  });
   const authRequestSeq = useRef(0);
 
   const refresh = useCallback(async () => {
     const requestId = ++authRequestSeq.current;
     try {
-      // 1. Force CSRF token pre-fetch first so cookies are initialized & matching on subsequent state-changing requests
       try {
         await fetchCsrfToken();
       } catch {
-        // intentionally ignored to allow graceful auth bootstrap fallback
+        // ignored
       }
 
-      // 2. Safely call the authenticated /me endpoint
       const result = await adminFetch<unknown>(ADMIN_ROUTES.ME);
       const parsed = parseAdminResponse<never, { admin?: AdminUser }>(result);
       const nextAdmin = normalizeAdmin(parsed.data?.admin);
+      
       if (requestId === authRequestSeq.current) {
-        setAdmin(nextAdmin);
+        setState({ admin: nextAdmin, loading: false, error: null });
       }
-    } catch (error) {
-      if (error instanceof AdminApiError && error.status === 401) {
-        setAdminAccessToken(null);
-      }
+    } catch (err: any) {
       if (requestId === authRequestSeq.current) {
-        setAdmin(null);
-      }
-    } finally {
-      if (requestId === authRequestSeq.current) {
-        setLoading(false);
+        const isAuthFailure = (err instanceof AdminApiError && (err.status === 401 || err.status === 403)) ||
+                             (err && typeof err === 'object' && 'status' in err && (err['status'] === 401 || err['status'] === 403));
+        
+        if (isAuthFailure) {
+          setAdminAccessToken(null);
+          setState({ admin: null, loading: false, error: null });
+        } else {
+          const message = err instanceof Error ? err.message : String(err);
+          const networkError = err instanceof AdminNetworkError ? err : new AdminNetworkError(message, err);
+          setState(prev => ({ ...prev, loading: false, error: networkError }));
+          console.warn("[AdminAuth] Refresh failed. Preserving session state.", message);
+        }
       }
     }
   }, []);
+
+
 
   useEffect(() => {
     void (async () => { await refresh(); })();
@@ -79,7 +92,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = useCallback(async (input: LoginInput) => {
     const requestId = ++authRequestSeq.current;
-    setLoading(true);
+    setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const result = await adminFetch<unknown>(ADMIN_ROUTES.LOGIN, {
         method: "POST",
@@ -96,44 +109,45 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
         nextAdmin = normalizeAdmin(meParsed.data?.admin);
       }
 
-      if (!nextAdmin) throw new Error("Login succeeded but admin profile could not be loaded. Please try again.");
+      if (!nextAdmin) throw new Error("Login succeeded but admin profile could not be loaded.");
+      
       if (requestId === authRequestSeq.current) {
-        setAdmin(nextAdmin);
+        setState({ admin: nextAdmin, loading: false, error: null });
       }
     } catch (error) {
       setAdminAccessToken(null);
-      throw error;
-    } finally {
       if (requestId === authRequestSeq.current) {
-        setLoading(false);
+        setState(prev => ({ ...prev, loading: false, error: null }));
       }
+      throw error;
     }
   }, []);
 
   const logout = useCallback(async () => {
     const requestId = ++authRequestSeq.current;
-    setLoading(true);
+    setState(prev => ({ ...prev, loading: true }));
     try {
       await adminFetch<never>(ADMIN_ROUTES.LOGOUT, { method: "POST" });
     } finally {
       setAdminAccessToken(null);
       if (requestId === authRequestSeq.current) {
-        setAdmin(null);
-        setLoading(false);
+        setState({ admin: null, loading: false, error: null });
       }
     }
   }, []);
 
   const value = useMemo<AdminAuthState>(
     () => ({
-      admin,
-      loading,
+      admin: state.admin,
+      loading: state.loading,
+      error: state.error,
       login,
       logout,
       refresh
     }),
-    [admin, loading, login, logout, refresh]
+    [state.admin, state.loading, state.error, login, logout, refresh]
   );
+
 
   return <AdminAuthContext.Provider value={value}>{children}</AdminAuthContext.Provider>;
 }
