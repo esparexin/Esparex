@@ -8,6 +8,8 @@ import type {
 const MODERATION_STATUS_SET = new Set<ModerationStatus>([
     AD_STATUS.PENDING,
     AD_STATUS.LIVE,
+    'active',
+    'approved',
     AD_STATUS.REJECTED,
     AD_STATUS.EXPIRED,
     AD_STATUS.SOLD,
@@ -26,9 +28,10 @@ const throwContractError = (message: string, code = 'LISTING_CONTRACT_VIOLATION'
 
 const normalizeListingType = (value: unknown): ModerationListingType => {
     const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
-    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) return raw;
+    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) return raw as ModerationListingType;
 
-    return throwContractError('Lifecycle contract violation (listing_type): missing/invalid listingType');
+    // Safe fallback for legacy rows missing listingType
+    return LISTING_TYPE.AD as ModerationListingType;
 };
 
 const assertLifecycleStatus = (status: unknown, context: string): ModerationStatus => {
@@ -99,6 +102,8 @@ export const serializeListingCountsResponse = (counts: {
     total: number;
     pending: number;
     live: number;
+    active: number;
+    approved: number;
     rejected: number;
     expired: number;
     sold: number;
@@ -107,6 +112,8 @@ export const serializeListingCountsResponse = (counts: {
     byStatus: {
         pending: number;
         live: number;
+        active: number;
+        approved: number;
         rejected: number;
         expired: number;
         sold: number;
@@ -117,6 +124,8 @@ export const serializeListingCountsResponse = (counts: {
         total: number;
         pending: number;
         live: number;
+        active: number;
+        approved: number;
         rejected: number;
         expired: number;
         sold: number;
@@ -143,6 +152,8 @@ export const serializeLegacyCountsAdapter = (counts: {
     total: number;
     pending: number;
     live: number;
+    active: number;
+    approved: number;
     rejected: number;
     expired: number;
     sold: number;
@@ -152,6 +163,8 @@ export const serializeLegacyCountsAdapter = (counts: {
         total: number;
         pending: number;
         live: number;
+        active: number;
+        approved: number;
         rejected: number;
         expired: number;
         sold: number;

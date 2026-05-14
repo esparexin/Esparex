@@ -9,6 +9,8 @@ import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 export const MODERATION_STATUSES = [
     LISTING_STATUS.PENDING,
     LISTING_STATUS.LIVE,
+    LISTING_STATUS.ACTIVE,
+    'approved',
     LISTING_STATUS.REJECTED,
     LISTING_STATUS.EXPIRED,
     LISTING_STATUS.SOLD,
@@ -113,6 +115,8 @@ type RawAggregationRow = {
 const createEmptyStatusMap = () => ({
     pending: 0,
     live: 0,
+    active: 0,
+    approved: 0,
     rejected: 0,
     expired: 0,
     sold: 0,
