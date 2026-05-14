@@ -112,6 +112,7 @@ export default function BrandsTab() {
     return (
         <>
             <CatalogPageTemplate<Brand, { name: string; categoryIds: string[]; isActive: boolean }>
+                isNested={true}
                 title="Brand Management"
                 description="Manage product brands and their category assignments."
                 createLabel="Add Brand"

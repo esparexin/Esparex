@@ -55,6 +55,7 @@ export default function ServiceTypesTab() {
     return (
         <>
             <CatalogPageTemplate<ServiceType, ServiceTypeMutationPayload>
+                isNested={true}
                 title="Service Types"
                 description="Manage service type master data used in business service listings."
                 createLabel="Add Service Type"

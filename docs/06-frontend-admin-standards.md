@@ -27,3 +27,8 @@ Owner: Frontend Lead
 - Components must stay presentation-focused.
 - Data access must move into hooks or `lib/api` modules.
 - Enforced by: `guard:component-api-boundary`
+## 5. Single Shared UI Ownership
+
+- **Rule**: Shared UI components such as module tabs, breadcrumbs, page headers, and global filters must be rendered only at the page layout level.
+- **Composition**: They must never be re-rendered inside child content components to avoid duplicate rendering and accessibility violations (multiple H1s/tablists).
+- **Enforcement**: Frontend regression tests (`apps/admin/tests/ui-composition.spec.ts`) and automated coverage.

@@ -84,6 +84,7 @@ export default function ModelsTab() {
     return (
         <>
             <CatalogPageTemplate<Model, { name: string; brandId: string; categoryIds: string[]; isActive: boolean }>
+                isNested={true}
                 title="Models Management"
                 description="Manage device models. Note: A model must be 'LIVE' (Approved) AND 'Active' (Visibility) to appear in the 'Post Ad' flow. Pending suggestions must be approved via the 'Check' icon before they become public."
                 createLabel="Add Model"

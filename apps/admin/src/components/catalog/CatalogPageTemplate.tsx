@@ -53,6 +53,7 @@ export interface CatalogPageTemplateProps<TItem extends { id: string }, TFormDat
     createLabel?: string;
     modalTitleConfig?: { create: string; edit: string };
     emptyMessage?: string;
+    isNested?: boolean;
 }
 
 export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
@@ -78,7 +79,8 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
     createLabel = "Add Item",
     tabs,
     modalTitleConfig = { create: "Add New Item", edit: "Edit Item" },
-    emptyMessage = "No items found"
+    emptyMessage = "No items found",
+    isNested = false
 }: CatalogPageTemplateProps<TItem, TFormData>) {
     const { showToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -137,7 +139,8 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
         <CatalogIndexPage
             title={title}
             description={description}
-            tabs={<AdminModuleTabs tabs={tabs || catalogManagementTabs} />}
+            tabs={!isNested && (tabs || catalogManagementTabs) ? <AdminModuleTabs tabs={tabs || catalogManagementTabs} /> : undefined}
+            isNested={isNested}
             actions={
                 <button
                     className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"

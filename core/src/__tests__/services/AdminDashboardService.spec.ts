@@ -37,6 +37,13 @@ jest.mock("@esparex/core/models/ContactSubmission", () => ({
     },
 }));
 
+jest.mock("@esparex/core/models/CatalogRequest", () => ({
+    __esModule: true,
+    default: {
+        aggregate: jest.fn(),
+    },
+}));
+
 jest.mock("@esparex/core/models/AdminLog", () => ({
     __esModule: true,
     default: {
@@ -59,13 +66,15 @@ import User from "../../models/User";
 import Report from "../../models/Report";
 import Business from "../../models/Business";
 import RevenueAnalytics from "../../models/RevenueAnalytics";
+import CatalogRequest from "../../models/CatalogRequest";
 import { getDashboardCardStats } from "../../services/AdminDashboardService";
 
-const mockAd = Ad as unknown as { aggregate: jest.Mock };
+const mockAd = Ad as unknown as { aggregate: jest.Mock; countDocuments: jest.Mock };
 const mockUser = User as unknown as { countDocuments: jest.Mock };
 const mockReport = Report as unknown as { countDocuments: jest.Mock };
 const mockBusiness = Business as unknown as { countDocuments: jest.Mock };
 const mockRevenue = RevenueAnalytics as unknown as { aggregate: jest.Mock };
+const mockCatalogRequest = CatalogRequest as unknown as { aggregate: jest.Mock };
 
 describe("AdminDashboardService", () => {
     beforeEach(() => jest.clearAllMocks());
@@ -82,6 +91,8 @@ describe("AdminDashboardService", () => {
             mockReport.countDocuments.mockResolvedValue(5);
             mockBusiness.countDocuments.mockResolvedValue(12);
             mockRevenue.aggregate.mockResolvedValue([{ _id: null, total: 99999 }]);
+            mockCatalogRequest.aggregate.mockResolvedValue([]);
+            mockAd.countDocuments.mockResolvedValue(0);
 
             const result = await getDashboardCardStats({});
 
@@ -100,6 +111,8 @@ describe("AdminDashboardService", () => {
             mockReport.countDocuments.mockResolvedValue(0);
             mockBusiness.countDocuments.mockResolvedValue(0);
             mockRevenue.aggregate.mockResolvedValue([]);
+            mockCatalogRequest.aggregate.mockResolvedValue([]);
+            mockAd.countDocuments.mockResolvedValue(0);
 
             const result = await getDashboardCardStats({});
 

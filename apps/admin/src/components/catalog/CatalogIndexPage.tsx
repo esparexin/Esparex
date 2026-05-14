@@ -30,6 +30,7 @@ interface CatalogIndexPageProps<T extends { id: string | number }> {
     filterLayoutClassName?: string;
     error?: string | null;
     className?: string;
+    isNested?: boolean;
     children?: ReactNode;
 }
 
@@ -48,6 +49,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
     filterLayoutClassName,
     error,
     className = "",
+    isNested,
     children,
 }: CatalogIndexPageProps<T>) {
     return (
@@ -57,6 +59,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
             tabs={tabs}
             actions={actions}
             className={className}
+            isNested={isNested}
         >
             <>
                 <div className="space-y-6 pb-2">

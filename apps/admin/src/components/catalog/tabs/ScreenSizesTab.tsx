@@ -58,6 +58,7 @@ export default function ScreenSizesTab() {
     return (
         <>
             <CatalogPageTemplate<ScreenSize, ScreenSizeMutationPayload>
+                isNested={true}
                 title="Screen Sizes"
                 description="Manage screen-size master data by category."
                 createLabel="Add Screen Size"

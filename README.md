@@ -18,6 +18,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 - `shared/`: SSOT for types, enums, and interfaces
 - `scripts/`: Repo governance, guardrails, and CI tooling
 - `ai-governance`: Canonical instructions for repo-aware AI agents
+- `docs/`: [Master Documentation Registry](docs/00-index.md)
 
 ## Setup
 

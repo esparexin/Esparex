@@ -18,6 +18,7 @@ type AdminPageShellProps = {
     actions?: ReactNode;
     children: ReactNode;
     className?: string;
+    isNested?: boolean;
 };
 
 export function AdminPageShell({
@@ -29,6 +30,7 @@ export function AdminPageShell({
     actions,
     children,
     className,
+    isNested = false,
 }: AdminPageShellProps) {
     const isCompact = headerVariant === "compact";
     const [floatingSearchOpen, setFloatingSearchOpen] = useState(false);
@@ -38,12 +40,16 @@ export function AdminPageShell({
             <header className="shrink-0 space-y-4">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex-1">
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+                        {isNested ? (
+                            <h2 className="text-xl font-bold tracking-tight text-slate-900">{title}</h2>
+                        ) : (
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+                        )}
                         {!isCompact && description && (
-                            <p className="mt-1 text-sm text-slate-500">{description}</p>
+                            <p className={cn("mt-1 text-sm text-slate-500", isNested && "text-slate-400")}>{description}</p>
                         )}
                     </div>
-                    {!isCompact && (
+                    {!isCompact && !isNested && (
                         <div className="hidden flex-1 md:block max-w-xl mx-4">
                             <AdminGlobalSearch />
                         </div>

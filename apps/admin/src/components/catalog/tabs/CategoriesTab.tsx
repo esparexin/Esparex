@@ -101,6 +101,7 @@ export default function CategoriesTab() {
     return (
         <>
             <CatalogPageTemplate<Category, CategoryFormData>
+                isNested={true}
                 title="Categories"
                 description="Root device categories — the SSOT for Post Ad step 1, search filters, alert matching, and fraud detection. Every brand, model, and spare part is anchored to a category here."
                 createLabel="Add Category"

@@ -106,6 +106,7 @@ export default function SparePartsTab() {
     return (
         <>
             <CatalogPageTemplate<SparePart, SparePartFormData>
+                isNested={true}
                 title="Spare Parts"
                 description="Global master list of spare parts — the SSOT for Post Ad Power-Off flow, spare parts marketplace, and repair service linking."
                 createLabel="Add Master Part"
