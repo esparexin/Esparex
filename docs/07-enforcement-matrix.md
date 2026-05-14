@@ -11,7 +11,8 @@ This matrix maps every documented governance rule to its corresponding automated
 | **No DB Mutation in scripts**| Critical | `SSOT.md` | `guard-platform-governance.js` | `guard:platform-governance`| Active | Documented & Enforced | Architecture |
 | **No sonner/toast** | Low | `SSOT.md` | `enforce-notification-governance.js` | `guard:notification-governance`| Active | Documented & Enforced | Frontend |
 | **Ad Ownership (sellerId)** | Critical | `docs/05-database...` | `enforce-ad-ssot-guard.js` | `guard:ad-ssot` | Active | Documented & Enforced | Engineering |
-| **GeoJSON Coordinates** | Medium | `docs/05-database...` | `enforce-ad-ssot-guard.js` | `guard:ad-ssot` | Active | Documented & Enforced | Engineering |
+| **GeoJSON Coordinates** | Medium | `docs/05-database-schema-ssot.md` | `enforce-ad-ssot-guard.js` | `guard:ad-ssot` | Active | Documented & Enforced | Engineering |
+| **GeoJSON 2dsphere Index** | Critical | `docs/05-database-schema-ssot.md` | `enforce-ad-ssot-guard.js` | `guard:ad-ssot` | Active | Documented & Enforced | Engineering |
 | **API Boundary** | High | `SSOT.md` | `enforce-component-api-boundary.js` | `guard:component-api-boundary`| Active | Documented & Enforced | Architecture |
 | **Compatibility Baseline** | Medium | `docs/02-eng-gov...` | `enforce-compatibility-markers-baseline.js` | `guard:compatibility-markers`| Active | Documented & Enforced | Architecture |
 | **Admin Status Literals** | Low | `docs/06-frontend...` | `enforce-admin-status-literals.js` | `guard:admin-status-literals`| Active | Documented & Enforced | Frontend |
