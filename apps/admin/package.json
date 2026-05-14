@@ -16,7 +16,7 @@
     "test:settings-regression": "node scripts/settings-regression.mjs",
     "test:moderation-regression": "node scripts/moderation-regression.mjs",
     "ci:guardrails": "npm run type-check && npm run guard:admin && npm run guard:ui && npm run test:moderation-regression && npm run test:settings-regression",
-    "e2e": "playwright test",
+    "e2e": "node scripts/run-playwright.mjs",
     "e2e:list": "playwright test --list",
     "lint": "eslint .",
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
