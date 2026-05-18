@@ -1,8 +1,11 @@
+import { useCallback } from "react";
 import {
     listAdminCatalogRequests,
     approveAdminCatalogRequest,
     rejectAdminCatalogRequest,
     markAdminCatalogRequestDuplicate,
+    bulkRejectAdminCatalogRequests,
+    bulkMarkAdminCatalogRequestsDuplicate,
     type CatalogRequestItem,
     type CatalogRequestStatus,
 } from "@/lib/api/catalogRequests";
@@ -12,6 +15,18 @@ export function useAdminCatalogRequests(options?: {
     initialFilters?: { search: string; status: string };
     initialPagination?: { page: number; limit: number };
 }) {
+    const fetchList = useCallback(
+        (query: Record<string, string | number | boolean>) => {
+            return listAdminCatalogRequests({
+                q: query.search as string,
+                status: query.status as "all" | CatalogRequestStatus,
+                page: query.page as number,
+                limit: query.limit as number,
+            });
+        },
+        []
+    );
+
     const {
         items: requests,
         loading,
@@ -31,14 +46,7 @@ export function useAdminCatalogRequests(options?: {
             search: "",
             status: "all",
         },
-        fetchList: (query) => {
-            return listAdminCatalogRequests({
-                q: query.search as string,
-                status: query.status as "all" | CatalogRequestStatus,
-                page: query.page as number,
-                limit: query.limit as number,
-            });
-        },
+        fetchList,
         listErrorMessage: "Failed to fetch catalog requests",
         createItem: async () => ({ success: false, message: "Not implemented" }),
         createSuccessMessage: "",
@@ -82,6 +90,26 @@ export function useAdminCatalogRequests(options?: {
         });
     };
 
+    const handleBulkReject = async (ids: string[], reason: string) => {
+        await runAction(() => bulkRejectAdminCatalogRequests({ requestIds: ids, reason }), {
+            successMessage: "Selected requests rejected",
+            errorMessage: "Failed to reject selected requests",
+            onSuccess: async () => {
+                await refresh();
+            },
+        });
+    };
+
+    const handleBulkMarkDuplicate = async (ids: string[], duplicateOfId: string) => {
+        await runAction(() => bulkMarkAdminCatalogRequestsDuplicate({ requestIds: ids, duplicateOfId }), {
+            successMessage: "Selected requests marked as duplicate",
+            errorMessage: "Failed to mark selected requests as duplicate",
+            onSuccess: async () => {
+                await refresh();
+            },
+        });
+    };
+
     return {
         requests,
         loading,
@@ -94,5 +122,7 @@ export function useAdminCatalogRequests(options?: {
         handleApprove,
         handleReject,
         handleMarkDuplicate,
+        handleBulkReject,
+        handleBulkMarkDuplicate,
     };
 }

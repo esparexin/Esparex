@@ -32,6 +32,8 @@ interface CatalogIndexPageProps<T extends { id: string | number }> {
     className?: string;
     isNested?: boolean;
     children?: ReactNode;
+    selectedCount?: number;
+    bulkActions?: ReactNode;
 }
 
 export function CatalogIndexPage<T extends { id: string | number }>({
@@ -51,6 +53,8 @@ export function CatalogIndexPage<T extends { id: string | number }>({
     className = "",
     isNested,
     children,
+    selectedCount,
+    bulkActions,
 }: CatalogIndexPageProps<T>) {
     return (
         <AdminPageShell
@@ -89,6 +93,8 @@ export function CatalogIndexPage<T extends { id: string | number }>({
                         enableCsvExport
                         csvFileName={csvFileName}
                         pagination={pagination}
+                        selectedCount={selectedCount}
+                        bulkActions={bulkActions}
                     />
                 </div>
                 {children}

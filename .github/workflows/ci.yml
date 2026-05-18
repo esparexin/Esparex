@@ -17,6 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # ── Job 1: Governance, unit tests, and build ─────────────────────────────────
   ci:
     name: Lint, Test, and Build Monorepo
     runs-on: ubuntu-latest
@@ -56,3 +57,65 @@ jobs:
 
       - name: Verify backend artifact
         run: test -f backend/user/dist/index.js
+
+  # ── Job 2: Playwright E2E — Listing Edit regression suite ────────────────────
+  e2e-listing-edit:
+    name: E2E – Listing Edit Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: ci
+    env:
+      NEXT_PUBLIC_APP_ENV: local
+      NEXT_PUBLIC_PROD_RISK_OVERRIDE: "false"
+      SKIP_ENV_VALIDATION: "true"
+      NEXT_PUBLIC_API_URL: http://localhost:5001/api/v1
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+      NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
+      # All API calls are intercepted by Playwright route mocks — no live backend needed
+      NEXT_PUBLIC_LOCAL_DEV_AUTH: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: HUSKY=0 npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - name: Build web app
+        run: npm run build -w @esparex/apps-web
+
+      - name: Start web app
+        run: npm run start -w @esparex/apps-web &
+        env:
+          PORT: 3000
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run Listing Edit E2E suite
+        run: npx playwright test tests/edit-listing.spec.ts --project=chromium --workers=1
+        working-directory: apps/web
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-listing-edit
+          path: apps/web/test-results/
+          retention-days: 7

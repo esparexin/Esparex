@@ -79,7 +79,7 @@ export default function DeviceIdentityFields() {
         brandIsPending,
     } = usePostAdCatalog();
 
-    const { stepValidationAttempts, currentStep, form, errors } = usePostAdFlow();
+    const { stepValidationAttempts, currentStep, form, errors, isEditMode } = usePostAdFlow();
 
     const {
         register,
@@ -355,12 +355,14 @@ export default function DeviceIdentityFields() {
                                     key={cat.id}
                                     type="button"
                                     variant={selected ? "default" : "outline"}
-                                    onClick={() => handleCategoryChange(cat.id)}
+                                    onClick={() => !isEditMode && handleCategoryChange(cat.id)}
+                                    disabled={isEditMode && !selected}
                                     className={cn(
                                         "flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-xl transition-all duration-200 border-2",
                                         selected
                                             ? "bg-primary text-primary-foreground border-primary"
-                                            : "bg-white hover:bg-slate-50 border-slate-100"
+                                            : "bg-white hover:bg-slate-50 border-slate-100",
+                                        isEditMode && "opacity-60 cursor-not-allowed"
                                     )}
                                 >
                                     <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")} />
@@ -386,9 +388,9 @@ export default function DeviceIdentityFields() {
                                 brandMap={brandMap}
                                 categoryId={categoryId}
                                 value={brandNameValue}
-                                onChange={(_id, name, requestId) => handleBrandChange(name, requestId)}
+                                onChange={(_id, name, requestId) => !isEditMode && handleBrandChange(name, requestId)}
                                 onRequestSuccess={() => loadBrandsForCategory(categoryId)}
-                                disabled={brandIsPending}
+                                disabled={brandIsPending || isEditMode}
                                 placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
                             />
                         )}
@@ -421,7 +423,7 @@ export default function DeviceIdentityFields() {
                     <Field 
                         label="Model" 
                         error={modelError} 
-                        className={cn(!brandNameValue && "opacity-60 grayscale-[0.5] pointer-events-none")}
+                        className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] pointer-events-none")}
                     >
                         {!brandNameValue ? (
                             <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
@@ -458,7 +460,7 @@ export default function DeviceIdentityFields() {
                     </Field>
 
                     {dynamicAttributeFilters.length > 0 ? (
-                        <section className="space-y-3 rounded-2xl border border-slate-100 bg-slate-50/40 p-3">
+                        <section className={cn("space-y-3 rounded-2xl border border-slate-100 bg-slate-50/40 p-3", isEditMode && "opacity-60 pointer-events-none")}>
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                                     Category Details
@@ -472,7 +474,7 @@ export default function DeviceIdentityFields() {
 
                     {/* Screen Size — only for LED-TV / monitor categories */}
                     {requiresScreenSize && (
-                        <Field label="Screen Size" error={screenSizeError}>
+                        <Field label="Screen Size" error={screenSizeError} className={cn(isEditMode && "opacity-60 pointer-events-none")}>
                             <Select
                                 value={screenSize || undefined}
                                 onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}

@@ -155,10 +155,10 @@ test('bulk reject modal submits mandatory reason', async ({ page }) => {
   await page.locator('#admin-login-email').fill('admin@example.com');
   await page.locator('#admin-login-password').fill('Admin@123456');
   await page.getByRole('button', { name: /Sign In/i }).click();
-  await expect(page).toHaveURL(/\/catalog-requests/);
+  await expect(page).toHaveURL(/\/categories\?tab=catalog-requests/);
   await expect(page.getByRole('main').getByRole('heading', { name: 'Catalog Requests' })).toBeVisible();
 
-  await page.locator('tbody input[type="checkbox"]').first().check();
+  await page.locator('tbody input[type="checkbox"]').first().check({ force: true });
   const quickRejectButton = page.getByRole('button', { name: 'Quick Reject' });
   await expect(quickRejectButton).toBeEnabled();
   await quickRejectButton.click();
@@ -273,10 +273,10 @@ test('bulk duplicate modal submits selected canonical target', async ({ page }) 
   await page.locator('#admin-login-email').fill('admin@example.com');
   await page.locator('#admin-login-password').fill('Admin@123456');
   await page.getByRole('button', { name: /Sign In/i }).click();
-  await expect(page).toHaveURL(/\/catalog-requests/);
+  await expect(page).toHaveURL(/\/categories\?tab=catalog-requests/);
   await expect(page.getByRole('main').getByRole('heading', { name: 'Catalog Requests' })).toBeVisible();
 
-  await page.locator('tbody input[type="checkbox"]').first().check();
+  await page.locator('tbody input[type="checkbox"]').first().check({ force: true });
   const quickDuplicateButton = page.getByRole('button', { name: 'Quick Duplicate' });
   await expect(quickDuplicateButton).toBeEnabled();
   await quickDuplicateButton.click();

@@ -199,7 +199,7 @@ describe("PaymentProcessingService", () => {
             metadata: {},
         };
 
-        const result = await recoverPendingPayment(tx as unknown as Parameters<typeof recoverPendingPayment>[0]);
+        const result = await recoverPendingPayment(tx as unknown as any);
 
         expect(result.result).toBe("failed");
         expect(Transaction.updateOne).toHaveBeenCalledWith(
@@ -210,5 +210,74 @@ describe("PaymentProcessingService", () => {
                 }),
             })
         );
+    });
+
+    it("fails if payment amount does not match transaction amount (Security Protection)", async () => {
+        const tx = {
+            _id: { toString: () => "tx-4" },
+            amount: 500,
+            status: "INITIATED",
+            applied: false,
+            save: jest.fn().mockResolvedValue(undefined),
+        };
+
+        (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue(tx);
+
+        const result = await processSuccessfulPayment({
+            source: "webhook",
+            gatewayPaymentId: "pay_bad",
+            gatewayOrderId: "order_bad",
+            gatewayAmountPaise: 100, // Fraudulent small amount
+        });
+
+        expect(result.result).toBe("failed");
+        expect(result.reason).toBe("amount_mismatch");
+        expect(tx.status).toBe("FAILED");
+        expect(tx.save).toHaveBeenCalled();
+    });
+
+    it("fails if currency does not match", async () => {
+        const tx = {
+            _id: { toString: () => "tx-5" },
+            amount: 500,
+            currency: "INR",
+            status: "INITIATED",
+            applied: false,
+            save: jest.fn().mockResolvedValue(undefined),
+        };
+
+        (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue(tx);
+
+        const result = await processSuccessfulPayment({
+            source: "webhook",
+            gatewayPaymentId: "pay_currency",
+            gatewayOrderId: "order_currency",
+            gatewayAmountPaise: 50000,
+            gatewayCurrency: "USD", // Mismatch
+        });
+
+        expect(result.result).toBe("failed");
+        expect(result.reason).toBe("currency_mismatch");
+    });
+
+    it("rolls back transaction if credit allocation fails", async () => {
+        const tx = {
+            _id: { toString: () => "tx-6" },
+            userId: "user-6",
+            amount: 500,
+            applied: false,
+            status: "INITIATED",
+        };
+
+        (Transaction.findOneAndUpdate as jest.Mock).mockResolvedValue(tx);
+        (credit as jest.Mock).mockRejectedValue(new Error("WALLET_DOWN"));
+
+        await expect(processSuccessfulPayment({
+            source: "webhook",
+            gatewayPaymentId: "pay_err",
+            gatewayAmountPaise: 50000,
+        })).rejects.toThrow("WALLET_DOWN");
+
+        expect(mockSession.abortTransaction).toHaveBeenCalled();
     });
 });

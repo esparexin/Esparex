@@ -54,6 +54,8 @@
     "lint:changed": "node scripts/run-eslint-changed.js",
     "lint:fix": "eslint . --fix",
     "test": "npm test -w @esparex/backend-user && npm test -w @esparex/core",
+    "e2e:listing-edit": "npm run e2e:listing-edit -w @esparex/apps-web",
+    "e2e:listing-edit:ci": "npm run e2e:listing-edit:ci -w @esparex/apps-web",
     "ci:strict": "npm run lint:ci && npm run type-check && npm run test",
     "ci:governance": "node scripts/lint-baseline-enforcement.js ci-lint-results.json",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",

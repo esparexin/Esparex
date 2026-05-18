@@ -54,6 +54,8 @@ export interface CatalogPageTemplateProps<TItem extends { id: string }, TFormDat
     modalTitleConfig?: { create: string; edit: string };
     emptyMessage?: string;
     isNested?: boolean;
+    selectedCount?: number;
+    bulkActions?: React.ReactNode;
 }
 
 export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
@@ -80,7 +82,9 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
     tabs,
     modalTitleConfig = { create: "Add New Item", edit: "Edit Item" },
     emptyMessage = "No items found",
-    isNested = false
+    isNested = false,
+    selectedCount,
+    bulkActions,
 }: CatalogPageTemplateProps<TItem, TFormData>) {
     const { showToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,6 +162,8 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
             isLoading={loading}
             emptyMessage={emptyMessage}
             csvFileName={csvFileName}
+            selectedCount={selectedCount}
+            bulkActions={bulkActions}
             pagination={{
                 currentPage: pagination.page,
                 totalPages: pagination.totalPages || 1,

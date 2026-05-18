@@ -95,8 +95,6 @@ import { swaggerSpec } from './config/swagger';
 const app = express();
 app.disable("x-powered-by");
 
-// 🛡️ API DEPRECATION LAYER
-registerDeprecationRoutes(app);
 // Trust proxy for rate limiting behind load balancers/proxies
 app.set('trust proxy', 1);
 
@@ -177,6 +175,9 @@ const corsOptions: cors.CorsOptions = {
 
 app.use(cors(corsOptions));
 app.options(/.*/, cors(corsOptions)); // ✅ ENABLE PREFLIGHT for all routes
+
+// 🛡️ API DEPRECATION LAYER
+registerDeprecationRoutes(app);
 
 /* -------------------------------------------------------------------------- */
 /* SECURITY                                                                    */

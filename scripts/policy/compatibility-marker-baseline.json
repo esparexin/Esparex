@@ -12,6 +12,7 @@
   "backend/user/src/__tests__/validators/servicePayload.schema.spec.ts": 2,
   "backend/user/src/__tests__/validators/user.validator.spec.ts": 2,
   "backend/user/src/app.ts": 3,
+  "backend/user/src/middleware/deprecations.ts": 5,
   "backend/user/src/controllers/auth/index.ts": 1,
   "backend/user/src/controllers/business/index.ts": 1,
   "backend/user/src/controllers/catalog/catalogBrandModelController.ts": 2,

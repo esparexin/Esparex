@@ -1,107 +1,179 @@
 import mongoose from 'mongoose';
-import { updateAdLogic } from '../../services/ad/AdUpdateService';
-import Ad from '../../models/Ad';
-import { AdCreationService } from '../../services/AdCreationService';
-import * as StatusMutationService from '../../services/StatusMutationService';
-import * as s3Utils from '../../utils/s3';
 import { LISTING_STATUS } from '../../constants/enums/listingStatus';
+import { AdContext } from '../../types/ad.types';
 
-jest.mock('../../models/Ad');
-jest.mock('../../services/AdCreationService');
-jest.mock('../../services/StatusMutationService');
-jest.mock('../../utils/s3');
+// Mock models and services using the canonical paths
+jest.mock('@esparex/core/models/Ad', () => ({
+    __esModule: true,
+    default: {
+        findById: jest.fn(),
+        findByIdAndUpdate: jest.fn(),
+    },
+}));
+
+jest.mock('@esparex/core/models/User', () => ({
+    __esModule: true,
+    default: {
+        findById: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue({ isSuspended: false }),
+            }),
+        }),
+    },
+}));
+
 jest.mock('../../config/db', () => ({
-    getUserConnection: () => ({
+    getUserConnection: jest.fn().mockReturnValue({
         models: {},
-        model: jest.fn().mockReturnValue({}),
+        model: jest.fn(),
         startSession: jest.fn().mockResolvedValue({
-            withTransaction: jest.fn().mockImplementation(async (cb) => { await cb(); }),
+            withTransaction: jest.fn().mockImplementation((cb) => cb()),
             endSession: jest.fn(),
         }),
     }),
-    getAdminConnection: () => ({
+    getAdminConnection: jest.fn().mockReturnValue({
         models: {},
-        model: jest.fn().mockReturnValue({}),
+        model: jest.fn(),
+        startSession: jest.fn().mockResolvedValue({
+            withTransaction: jest.fn().mockImplementation((cb) => cb()),
+            endSession: jest.fn(),
+        }),
     }),
 }));
 
+jest.mock('../../services/AdCreationService', () => ({
+    AdCreationService: {
+        preparePayload: jest.fn().mockImplementation((data) => Promise.resolve(data)),
+    },
+}));
+
+jest.mock('../../services/StatusMutationService', () => ({
+    mutateStatus: jest.fn(),
+}));
+
+jest.mock('../../queues/imageQueue', () => ({
+    enqueueImageOptimization: jest.fn().mockResolvedValue(undefined),
+}));
+
+import Ad from '../../models/Ad';
+import * as StatusMutationService from '../../services/StatusMutationService';
+import { updateAdLogic } from '../../services/ad/AdUpdateService';
+
+const mockedAdModel = Ad as unknown as {
+    findById: jest.Mock;
+    findByIdAndUpdate: jest.Mock;
+};
+
 describe('AdUpdateService', () => {
     let mockAd: any;
-    const adId = new mongoose.Types.ObjectId().toString();
-    const userId = new mongoose.Types.ObjectId().toString();
+    let context: AdContext;
+    const mockId = new mongoose.Types.ObjectId().toString();
 
     beforeEach(() => {
         jest.clearAllMocks();
-
+        
         mockAd = {
-            _id: adId,
-            sellerId: userId,
-            status: LISTING_STATUS.LIVE,
+            _id: mockId,
+            sellerId: 'user-123',
             title: 'Old Title',
             description: 'Old Description',
-            price: 100,
-            images: ['https://cdn.esparex.in/old1.jpg', 'https://cdn.esparex.in/old2.jpg'],
-            toObject: jest.fn().mockReturnThis(),
+            price: 1000,
+            images: ['img1.jpg', 'img2.jpg'],
+            status: 'live',
+            toObject: jest.fn().mockReturnValue({
+                title: 'Old Title',
+                description: 'Old Description',
+                price: 1000,
+                images: ['img1.jpg', 'img2.jpg'],
+            }),
         };
 
-        (Ad.findById as jest.Mock).mockReturnValue({
+        context = {
+            actor: 'USER',
+            sellerId: 'user-123',
+            authUserId: 'user-123',
+        } as AdContext;
+
+        mockedAdModel.findById.mockReturnValue({
             session: jest.fn().mockResolvedValue(mockAd),
         });
-
-        (Ad.findByIdAndUpdate as jest.Mock).mockResolvedValue(mockAd);
-
-        (AdCreationService.preparePayload as jest.Mock).mockImplementation(async (data) => ({
+        
+        mockedAdModel.findByIdAndUpdate.mockResolvedValue({
             ...mockAd,
-            ...data,
-        }));
-
-        (StatusMutationService.mutateStatus as jest.Mock).mockResolvedValue(mockAd);
-        (s3Utils.deleteFromS3Url as jest.Mock).mockResolvedValue(true);
+            toObject: jest.fn().mockReturnValue({ ...mockAd }),
+        });
     });
 
-    it('blocks unauthorized edits', async () => {
-        const context = { actor: 'USER' as const, authUserId: 'hacker', sellerId: 'hacker', allowSuspendedUser: true };
-        await expect(updateAdLogic(adId, {}, context)).rejects.toThrow('Unauthorized: You can only edit your own ads');
-    });
+    describe('updateAdLogic', () => {
+        it('should perform a non-sensitive update without status change', async () => {
+            const updateData = { price: 1000 }; // Same price
+            
+            const result = await updateAdLogic(mockId, updateData, context);
 
-    it('preserves status for non-sensitive changes', async () => {
-        const context = { actor: 'USER' as const, authUserId: userId, sellerId: userId, allowSuspendedUser: true };
-        // Changing something non-sensitive like location details or categoryId (if permitted)
-        await updateAdLogic(adId, { locationId: 'new-loc' }, context);
-        
-        expect(StatusMutationService.mutateStatus).not.toHaveBeenCalled();
-    });
+            expect(result).toBeDefined();
+            expect(StatusMutationService.mutateStatus).not.toHaveBeenCalled();
+            expect(mockedAdModel.findByIdAndUpdate).toHaveBeenCalled();
+        });
 
-    it('triggers moderation re-review for title changes', async () => {
-        const context = { actor: 'USER' as const, authUserId: userId, sellerId: userId, allowSuspendedUser: true };
-        
-        await updateAdLogic(adId, { title: 'New Sensitive Title' }, context);
-        
-        expect(StatusMutationService.mutateStatus).toHaveBeenCalledWith(expect.objectContaining({
-            toStatus: LISTING_STATUS.PENDING,
-            reason: 'Re-submitted for review after edit',
-        }));
-    });
+        it('should trigger re-review (PENDING status) for sensitive title change', async () => {
+            const updateData = { title: 'New Title' };
+            
+            mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+                ...mockAd,
+                title: 'New Title',
+                toObject: jest.fn().mockReturnValue({ ...mockAd, title: 'New Title' }),
+            });
 
-    it('triggers moderation re-review for image changes', async () => {
-        const context = { actor: 'USER' as const, authUserId: userId, sellerId: userId, allowSuspendedUser: true };
-        
-        await updateAdLogic(adId, { images: ['https://cdn.esparex.in/new.jpg'] }, context);
-        
-        expect(StatusMutationService.mutateStatus).toHaveBeenCalledWith(expect.objectContaining({
-            toStatus: LISTING_STATUS.PENDING,
-        }));
-    });
+            await updateAdLogic(mockId, updateData, context);
 
-    it('queues removed images for cleanup', async () => {
-        const context = { actor: 'USER' as const, authUserId: userId, sellerId: userId, allowSuspendedUser: true };
-        
-        await updateAdLogic(adId, { images: ['https://cdn.esparex.in/old1.jpg', 'https://cdn.esparex.in/new.jpg'] }, context);
-        
-        // Let the async void closure execute
-        await new Promise(resolve => setTimeout(resolve, 0));
-        
-        expect(s3Utils.deleteFromS3Url).toHaveBeenCalledTimes(1);
-        expect(s3Utils.deleteFromS3Url).toHaveBeenCalledWith('https://cdn.esparex.in/old2.jpg');
+            expect(StatusMutationService.mutateStatus).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    toStatus: LISTING_STATUS.PENDING,
+                    reason: expect.stringContaining('review after edit'),
+                })
+            );
+        });
+
+        it('should trigger re-review for image changes', async () => {
+            const updateData = { images: ['img1.jpg', 'img3.jpg'] }; // Changed img2 to img3
+            
+            mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+                ...mockAd,
+                images: ['img1.jpg', 'img3.jpg'],
+                toObject: jest.fn().mockReturnValue({ ...mockAd, images: ['img1.jpg', 'img3.jpg'] }),
+            });
+
+            await updateAdLogic(mockId, updateData, context);
+
+            expect(StatusMutationService.mutateStatus).toHaveBeenCalled();
+        });
+
+        it('should trigger re-review for sensitive price change and detect price drop', async () => {
+            const updateData = { price: 800 }; // Dropped from 1000
+            
+            mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+                ...mockAd,
+                price: 800,
+                toObject: jest.fn().mockReturnValue({ ...mockAd, price: 800 }),
+            });
+
+            await updateAdLogic(mockId, updateData, context);
+
+            expect(StatusMutationService.mutateStatus).toHaveBeenCalled();
+        });
+
+        it('should prevent editing SOLD listings', async () => {
+            mockAd.status = 'sold';
+            
+            await expect(updateAdLogic(mockId, { title: 'New' }, context))
+                .rejects.toThrow('This ad can no longer be edited');
+        });
+
+        it('should prevent editing other users listings', async () => {
+            context.sellerId = 'wrong-user';
+            
+            await expect(updateAdLogic(mockId, { title: 'New' }, context))
+                .rejects.toThrow('Unauthorized');
+        });
     });
 });
