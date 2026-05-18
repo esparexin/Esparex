@@ -22,7 +22,6 @@ async function ensureIndex(collection, key, options) {
         .listCollections({ name: collection.collectionName })
         .hasNext();
     if (!exists) {
-        // eslint-disable-next-line no-console
         console.log(`[migrate] ${collection.collectionName}: collection missing, skipping ${options.name}`);
         return;
     }
@@ -33,7 +32,6 @@ async function ensureIndex(collection, key, options) {
 
     const equivalent = indexes.find((index) => keysEqual(index.key, key));
     if (equivalent) {
-        // eslint-disable-next-line no-console
         console.log(
             `[migrate] ${collection.collectionName}: equivalent index already exists (${equivalent.name}), skipping ${options.name}`
         );

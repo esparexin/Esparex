@@ -181,7 +181,7 @@ class APIClient {
                 if (!ok) {
                     const error = this.createHealthGateError(config);
                     if (!(config as EsparexRequestConfig).silent) {
-                        console.error("[API ERROR]", error);
+                        logger.error("[API ERROR]", error);
                     }
                     return Promise.reject(error);
                 }
@@ -195,7 +195,7 @@ class APIClient {
 
                 const error = this.createHealthGateError(config);
                 if (!(config as EsparexRequestConfig).silent) {
-                    console.error("[API ERROR]", error);
+                    logger.error("[API ERROR]", error);
                 }
                 return Promise.reject(error);
             }
@@ -288,7 +288,7 @@ class APIClient {
                                 endpoint: response.config?.url?.toString()
                             }
                         });
-                    console.error("[API ERROR]", error);
+                    logger.error("[API ERROR]", error);
                     return Promise.reject(error);
                 }
 
@@ -427,7 +427,7 @@ class APIClient {
                     });
 
                 if (!requestConfig?.silent && !shouldSuppressPopupForApiError(apiError.status, requestConfig)) {
-                    console.error("[API ERROR]", apiError);
+                    logger.error("[API ERROR]", apiError);
                 }
 
                 return Promise.reject(apiError);

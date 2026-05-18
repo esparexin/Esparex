@@ -98,6 +98,7 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
 
 CategorySchema.pre('validate', function () {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
     const mutableDoc = this as any;
 
     const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
@@ -126,7 +127,7 @@ CategorySchema.plugin(installSafeSoftDeleteQuery);
 // Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
 CategorySchema.post('init', function(doc) {
     if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
-        doc.type = doc.type.toLowerCase() as any;
+        doc.type = doc.type.toLowerCase() as ICategory['type'];
     }
 });
 

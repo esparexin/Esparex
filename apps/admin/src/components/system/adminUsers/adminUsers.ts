@@ -72,12 +72,13 @@ export const ROLE_COLORS: Record<string, string> = {
 
 export function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {
     const id = String(raw.id || raw._id || "");
+    const rawRole = String(raw.role || "admin");
     return {
         id,
         firstName: String(raw.firstName || ""),
         lastName: String(raw.lastName || ""),
         email: String(raw.email || ""),
-        role: String(raw.role || "admin"),
+        role: rawRole === "super_admin" ? "superAdmin" : rawRole,
         status: String(raw.status || CHAT_STATUS.ACTIVE),
         permissions: Array.isArray(raw.permissions)
             ? raw.permissions.filter((item): item is string => typeof item === "string")

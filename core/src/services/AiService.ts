@@ -209,7 +209,7 @@ const parseValidJsonResult = (
 
     const data = parseJsonFromAi(result.content);
     if (!data) {
-        logger.error('AI JSON Parse Failed. Raw content:', { content: result.content });
+        logger.error('[AiService] JSON Parse Failed. Raw content:', { content: result.content });
         return toServiceFailure({
             ok: false,
             status: 502,
@@ -249,6 +249,7 @@ type GeminiApiResponse = {
         content?: {
             parts?: Array<{ text?: string }>;
         };
+        finishReason?: string;
     }>;
 };
 
@@ -290,7 +291,6 @@ const callGemini = async (
             body: JSON.stringify({
                 contents,
                 generationConfig: {
-                    responseMimeType: 'application/json',
                     maxOutputTokens: maxTokens,
                     temperature
                 }
@@ -306,6 +306,10 @@ const callGemini = async (
         const data = await response.json() as GeminiApiResponse;
         const parts = data.candidates?.[0]?.content?.parts;
         const content = parts?.map(p => p.text || '').join('').trim();
+        
+        if (data.candidates?.[0]?.finishReason && data.candidates[0].finishReason !== 'STOP') {
+            logger.warn('[AiService] Gemini Finish Reason:', { reason: data.candidates[0].finishReason });
+        }
         
         if (!content) {
             return { ok: false, status: 502, error: 'Empty response from Gemini' };
@@ -353,22 +357,19 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     const envAiModel = env.AI_MODEL;
     const envGeminiModel = env.GEMINI_MODEL;
     
-    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-1.5-flash') : 'gpt-4o');
+    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-flash-latest') : 'gpt-4o');
 
-    // Legacy Model Sanitation: If DB or ENV has a known invalid/deprecated model name, force upgrade it.
-    if (model === 'gemini-flash-latest' || model === 'gemini-2.5-flash') {
-        model = 'gemini-1.5-flash';
-    }
+
 
     // Cross-provider safety check: 
     // If we have a Gemini key but the model doesn't look like a Gemini model, 
     // and we DON'T have an OpenAI key, force a Gemini fallback.
     if (geminiKey && !model.toLowerCase().startsWith('gemini') && !openAiKey) {
-        model = envGeminiModel || 'gemini-1.5-flash';
+        model = envGeminiModel || 'gemini-flash-latest';
     }
 
 
-    const maxTokens = typeof aiConfig?.seo?.maxTokens === 'number' ? aiConfig.seo.maxTokens : 1024;
+    const maxTokens = typeof aiConfig?.seo?.maxTokens === 'number' ? aiConfig.seo.maxTokens : 2048;
     const temperature = typeof aiConfig?.seo?.temperature === 'number' ? aiConfig.seo.temperature : 0.7;
 
     if (type === 'identify') {
@@ -415,7 +416,7 @@ Rules:
 2. The Title should be concise (50-70 characters).
 3. The Description should be persuasive, highlighting the brand, model, and condition.
 4. If working spare parts are provided, mention them as a value-add for the buyer.
-5. Do not include placeholders or generic text.`;
+5. Provide a realistic title and description based on the context.`;
 
         const result = geminiKey
             ? await callGemini(geminiKey, model, prompt, undefined, maxTokens, temperature)

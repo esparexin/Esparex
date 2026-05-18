@@ -2,7 +2,7 @@
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { AlertTriangle, Box, Briefcase, CheckCircle, Edit, Filter, Loader2, Search, Smartphone, Trash2, Wrench as WrenchIcon, XCircle, Drone, Plane } from "lucide-react";
-import { CHAT_STATUS, LIFECYCLE_STATUS, LISTING_TYPE } from "@esparex/shared";
+import { LIFECYCLE_STATUS, LISTING_TYPE } from "@esparex/shared";
 
 export type SelectOption = {
     value: string;

@@ -19,6 +19,7 @@ export const removeUserFcmToken = async (userId: unknown, token: string): Promis
 };
 
 export const getUserById = async (userId: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- lean() type is nominal; role normalization requires mutable indexable shape
     const user = await User.findById(userId).lean() as any;
     if (user && user.role) {
         user.role = normalizeRole(user.role);
@@ -28,6 +29,7 @@ export const getUserById = async (userId: string) => {
 
 export const getUserWithBusiness = async (userId: string) => {
     const [user, business] = await Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- lean() type is nominal; role normalization requires mutable indexable shape
         User.findById(userId).select('-password -salt').lean() as any,
         Business.findOne({ userId }).lean(),
     ]);

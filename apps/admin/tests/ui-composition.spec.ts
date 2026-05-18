@@ -1,9 +1,59 @@
 import { test, expect } from '@playwright/test';
 
+const ADMIN_BASE_URL = process.env.ADMIN_FRONTEND_BASE_URL || 'http://127.0.0.1:3001';
+
+const buildAdminPayload = () => ({
+  success: true,
+  data: {
+    admin: {
+      id: 'admin-1',
+      email: 'admin@example.com',
+      role: 'super_admin',
+      name: 'Test Admin',
+      permissions: ['*'],
+    },
+  },
+});
+
 test.describe('UI Composition Standards', () => {
   test.beforeEach(async ({ page }) => {
-    // We assume the admin is already logged in or we use a session
-    // For this environment, we might need to bypass auth or use existing session if available
+    const hostname = new URL(ADMIN_BASE_URL).hostname;
+    await page.context().addCookies([
+      {
+        name: "admin_token",
+        value: "e2e-admin-token",
+        domain: hostname,
+        path: "/",
+        httpOnly: true,
+        sameSite: "Lax"
+      }
+    ]);
+
+    await page.route('**/api/v1/admin/**', async (route) => {
+      const path = new URL(route.request().url()).pathname;
+      if (path.endsWith('/me')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(buildAdminPayload()),
+        });
+        return;
+      }
+      if (path.includes('/categories') || path.includes('/brands') || path.includes('/models') || path.includes('/catalog-requests')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true, data: [] }),
+        });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true, data: {} }),
+      });
+    });
+
     await page.goto('/categories?tab=device-categories');
   });
 
@@ -21,24 +71,24 @@ test.describe('UI Composition Standards', () => {
   test('Shared tab labels appear only once within the tablist', async ({ page }) => {
     const tablist = page.getByRole('tablist');
     
-    // Check for a specific tab label that was duplicated before
-    const categoryTabs = await tablist.getByText('Device Categories', { exact: true });
-    expect(await categoryTabs.count()).toBe(1);
+    // Check for specific tab labels, waiting for them to be visible (auto-waits!)
+    await expect(tablist.getByText('Device Categories', { exact: true })).toBeVisible();
+    await expect(tablist.getByText('Brands', { exact: true })).toBeVisible();
+    await expect(tablist.getByText('Models', { exact: true })).toBeVisible();
 
-    const brandTabs = await tablist.getByText('Brands', { exact: true });
-    expect(await brandTabs.count()).toBe(1);
-
-    const modelTabs = await tablist.getByText('Models', { exact: true });
-    expect(await modelTabs.count()).toBe(1);
+    // Now that they are loaded, assert their exact counts
+    expect(await tablist.getByText('Device Categories', { exact: true }).count()).toBe(1);
+    expect(await tablist.getByText('Brands', { exact: true }).count()).toBe(1);
+    expect(await tablist.getByText('Models', { exact: true }).count()).toBe(1);
   });
 
   test('Active tab content is properly nested under its own section header', async ({ page }) => {
-    // The main page header should be "Device Catalog" (H1)
-    const pageHeader = page.locator('h1');
+    // The main page header should be "Device Catalog" (H1) inside main content
+    const pageHeader = page.getByRole('main').getByRole('heading', { level: 1 });
     await expect(pageHeader).toHaveText('Device Catalog');
 
-    // The active tab content header should be "Categories" (H2)
-    const sectionHeader = page.locator('h2');
+    // The active tab content header should be "Categories" (H2) inside main content
+    const sectionHeader = page.getByRole('main').getByRole('heading', { level: 2 });
     await expect(sectionHeader).toContainText('Categories');
   });
 });

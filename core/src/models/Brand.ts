@@ -63,6 +63,7 @@ const BrandSchema = new Schema<IBrand>({
 BrandSchema.plugin(softDeletePlugin);
 
 BrandSchema.pre('validate', function () {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
   const mutableDoc = this as any;
 
   const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();

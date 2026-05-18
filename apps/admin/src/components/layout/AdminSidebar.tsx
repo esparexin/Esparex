@@ -15,11 +15,14 @@ type AdminSidebarProps = {
 };
 
 function SidebarFooterMeta({ role }: { role?: string }) {
+    const formattedRole = role === "superAdmin" 
+        ? "super admin" 
+        : role?.replace("_", " ") || "";
     return (
         <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">v2.0.0-rc</span>
             <span className="rounded-full bg-slate-800/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                {role?.replace("_", " ")}
+                {formattedRole}
             </span>
         </div>
     );

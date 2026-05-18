@@ -105,6 +105,9 @@ test("supports login, safe redirect handling, and logout", async ({ page }) => {
     });
   });
 
+  page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
+  page.on('pageerror', err => console.log('BROWSER EXCEPTION:', err.message));
+
   await page.goto("/login?next=https%3A%2F%2Fevil.example");
   // Already-authenticated admin visiting login with external next must be redirected
   // to an internal-safe path (/dashboard).

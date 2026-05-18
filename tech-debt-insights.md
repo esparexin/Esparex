@@ -1,39 +1,26 @@
 # 📊 Esparex Technical Debt Insights
 
-**Generated on:** 5/4/2026, 2:08:29 PM
-**Total Violations Locked:** 186
-**Affected Files:** 1436
+**Generated on:** 5/15/2026, 8:31:37 AM
+**Total Violations Locked:** 5
+**Affected Files:** 1464
 
 ## 🏢 Debt by Workspace
 | Workspace | Violations | % of Total |
 | :--- | :--- | :--- |
-| apps | 139 | 74.7% |
-| core | 14 | 7.5% |
-| scratch | 11 | 5.9% |
-| scripts | 9 | 4.8% |
-| backend | 7 | 3.8% |
-| shared | 6 | 3.2% |
+| test-api.js | 3 | 60.0% |
+| apps | 2 | 40.0% |
+| backend | 0 | 0.0% |
+| core | 0 | 0.0% |
 | eslint.config.js | 0 | 0.0% |
-| eslint.config.mjs | 0 | 0.0% |
+| scripts | 0 | 0.0% |
+| shared | 0 | 0.0% |
 
 ## 🚨 Top Violating Rules (The "Burn-down" List)
 | Rule ID | Count | Impact |
 | :--- | :--- | :--- |
-| `react-hooks/set-state-in-effect` | 63 | Runtime Stability |
-| `no-console` | 28 | Maintenance |
-| `@typescript-eslint/no-unused-vars` | 21 | Type Safety |
-| `unused-imports/no-unused-vars` | 15 | Maintenance |
-| `no-useless-escape` | 11 | Maintenance |
-| `null` | 9 | Maintenance |
-| `react/no-unescaped-entities` | 8 | Maintenance |
-| `@typescript-eslint/no-explicit-any` | 7 | Type Safety |
-| `react-hooks/incompatible-library` | 5 | Runtime Stability |
-| `react-hooks/immutability` | 4 | Runtime Stability |
-| `@typescript-eslint/no-empty-object-type` | 4 | Type Safety |
-| `no-empty` | 4 | Maintenance |
-| `no-case-declarations` | 2 | Maintenance |
-| `react-hooks/static-components` | 1 | Runtime Stability |
-| `@typescript-eslint/no-unused-expressions` | 1 | Type Safety |
+| `no-console` | 3 | Maintenance |
+| `@typescript-eslint/no-unused-vars` | 1 | Type Safety |
+| `unused-imports/no-unused-vars` | 1 | Maintenance |
 
 ## 🔥 Hotspots (Fix these first to clear 20% of debt)
 | File Path | Violations | Complexity |

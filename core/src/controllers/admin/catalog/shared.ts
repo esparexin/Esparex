@@ -411,7 +411,7 @@ export async function handleCatalogReview<T extends Document>(
             };
         }
 
-        const adminId = getAdminActorId(req);
+
         const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
         if (!item) {
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);

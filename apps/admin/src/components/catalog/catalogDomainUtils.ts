@@ -68,7 +68,7 @@ export function hasCategoryOverlap(
     return selectedCategoryIds.some((categoryId) => linkedCategoryIds.includes(categoryId));
 }
 
-export function validateRequiredCategoryIds(categoryIds: string[]): string | null {
+export function validateRequiredCategoryIds(_categoryIds: string[]): string | null {
     return null;
 }
 

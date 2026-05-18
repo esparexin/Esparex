@@ -71,6 +71,8 @@ orphans.forEach(o => console.log(`[DELETE] ${o}`));
 
 if (orphans.length > 0) {
     console.log('\n⚠️ ACTION REQUIRED: Verify these files are not used dynamically before deletion.');
+    process.exit(1);
 } else {
     console.log('\n✅ No orphans detected. Repository is lean!');
+    process.exit(0);
 }

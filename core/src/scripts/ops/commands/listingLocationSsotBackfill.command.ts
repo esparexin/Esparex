@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 import { connectOpsDb } from './commandUtils';
-import { closeDB } from '../../../config/db';
 
 export const listingLocationSsotBackfillCommand: OpsCommand = {
     name: 'listing-location-ssot-backfill',
@@ -26,7 +25,7 @@ export const listingLocationSsotBackfillCommand: OpsCommand = {
             locationEvents: { total: 0, backfilled: 0, purged: 0 },
         };
 
-        const backfillCollection = async (coll: mongoose.mongo.Collection, type: 'ads' | 'businesses' | 'services') => {
+        const backfillCollection = async (coll: mongoose.mongo.Collection, type: 'ads' | 'businesses' | 'services' | 'locationEvents') => {
             const query = {
                 $and: [
                     {
@@ -137,7 +136,7 @@ export const listingLocationSsotBackfillCommand: OpsCommand = {
         await backfillCollection(ads, 'ads');
         await backfillCollection(businesses, 'businesses');
         await backfillCollection(services, 'services');
-        await backfillCollection(locationEvents, 'locationEvents' as any);
+        await backfillCollection(locationEvents, 'locationEvents');
 
         context.emit('ops.command.listing-location-ssot-backfill.complete', stats);
 

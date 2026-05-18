@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Monitor, AlertTriangle, Loader2 } from "lucide-react";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminScreenSizes } from "@/hooks/useAdminScreenSizes";

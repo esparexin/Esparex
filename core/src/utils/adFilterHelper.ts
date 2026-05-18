@@ -173,7 +173,11 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
         match.catalogRequestId = new mongoose.Types.ObjectId(criteria.catalogRequestId);
     }
     if (typeof criteria.catalogPending === 'boolean') {
-        match.catalogPending = criteria.catalogPending;
+        if (criteria.catalogPending) {
+            match.catalogPending = true;
+        } else {
+            match.catalogPending = { $ne: true };
+        }
     }
 
     return match;

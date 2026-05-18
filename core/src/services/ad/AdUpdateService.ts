@@ -28,6 +28,7 @@ export const updateAdLogic = async (
     try {
         let updatedAd: IAd | null = null;
         let oldPriceValue: number | undefined;
+        let removedImagesCache: string[] = [];
         
         const executeUpdate = async () => {
             const ad = await Ad.findById(id).session(session);
@@ -51,15 +52,34 @@ export const updateAdLogic = async (
             }
 
             const payload = await AdCreationService.preparePayload(data, context, true, adId.toString(), adId);
-            const requiresReviewTransition = context.actor === 'USER' && ad.status === LISTING_STATUS.LIVE;
+
+            const untypedPayload = payload as Record<string, unknown>;
+            const untypedAd = ad.toObject() as unknown as Record<string, unknown>;
+
+            let sensitiveChange = false;
+            if (context.actor === 'USER') {
+                if (untypedPayload.title && untypedPayload.title !== untypedAd.title) sensitiveChange = true;
+                if (untypedPayload.description && untypedPayload.description !== untypedAd.description) sensitiveChange = true;
+                if (untypedPayload.price !== undefined && untypedPayload.price !== untypedAd.price) sensitiveChange = true;
+                if (Array.isArray(untypedPayload.images)) {
+                    const newImages = untypedPayload.images.join(',');
+                    const oldImages = (Array.isArray(untypedAd.images) ? untypedAd.images : []).join(',');
+                    if (newImages !== oldImages) sensitiveChange = true;
+                }
+            }
+
+            const requiresReviewTransition = context.actor === 'USER' && ad.status === LISTING_STATUS.LIVE && sensitiveChange;
+
+            const oldImagesList = Array.isArray(untypedAd.images) ? untypedAd.images as string[] : [];
+            const newImagesList = Array.isArray(untypedPayload.images) ? untypedPayload.images as string[] : oldImagesList;
+            removedImagesCache = oldImagesList.filter(img => !newImagesList.includes(img));
 
             if (context.actor === 'USER') {
-                const untypedPayload = payload as Record<string, unknown>;
                 untypedPayload.$inc = { ...(untypedPayload.$inc as Record<string, number>), reviewVersion: 1 };
             }
 
             // Status transitions must not be embedded in direct update queries.
-            delete (payload as Record<string, unknown>).status;
+            delete untypedPayload.status;
 
             let slugRetries = 0;
             while (slugRetries < 3) {
@@ -150,6 +170,19 @@ export const updateAdLogic = async (
                     }
                 } catch (err) {
                     logger.error('Failed to dispatch price drop notifications', { error: err, adId });
+                }
+            })();
+        }
+
+        if (removedImagesCache.length > 0) {
+            void (async () => {
+                try {
+                    const { deleteFromS3Url } = await import('../../utils/s3');
+                    for (const url of removedImagesCache) {
+                        await deleteFromS3Url(url).catch(e => logger.error(`Failed to delete orphaned image: ${url}`, e));
+                    }
+                } catch (err) {
+                    logger.error('Failed to execute orphan image cleanup task', err);
                 }
             })();
         }

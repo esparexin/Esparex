@@ -23,7 +23,7 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: useProdServerInCI ? "npm run build && npm run start -- -H 127.0.0.1" : "npm run dev -- -H 127.0.0.1",
+    command: "npm run build && npm run start -- -H 127.0.0.1",
     url: baseURL,
     reuseExistingServer: !isCI,
     timeout: 120000,

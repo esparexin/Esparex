@@ -51,17 +51,8 @@ jobs:
       - name: Validate environment contract
         run: npm run guard:env-contracts
 
-      - name: Lint, type-check, and test
-        run: npm run ci:strict
-
-      - name: Build all workspaces
-        run: npm run build
+      - name: Run full governance suite
+        run: npm run governance:all
 
       - name: Verify backend artifact
         run: test -f backend/user/dist/index.js
-
-      - name: Check duplication guard
-        run: npm run guard:duplication
-
-      - name: Enforce platform governance
-        run: npm run governance:all

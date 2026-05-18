@@ -36,7 +36,6 @@ import {
     handleCatalogToggleStatus,
     handleCatalogDelete,
     handleCatalogReview,
-    isDuplicateKeyError,
     sendEmptyPublicList,
     applyCatalogStatusFilter,
     hasAdminAccess,
@@ -355,7 +354,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
             isActive: false,
         };
 
-        const performDelete = async (txSession: any) => {
+        const performDelete = async (txSession: mongoose.ClientSession | null) => {
             const brand = txSession
                 ? await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true }).session(txSession)
                 : await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
@@ -365,7 +364,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
             }
 
             // Cascade soft-delete all models belonging to this brand and their spare parts
-            const cascadeRes = await CatalogOrchestrator.cascadeBrandDelete(id, txSession);
+            const cascadeRes = await CatalogOrchestrator.cascadeBrandDelete(id, txSession ?? undefined);
             return {
                 deletedModels: cascadeRes.deletedModels,
                 deletedSpareParts: cascadeRes.deletedSpareParts,
@@ -373,9 +372,10 @@ export const deleteBrand = async (req: Request, res: Response) => {
             };
         };
 
-        let session: any = null;
+        let session: mongoose.ClientSession | null = null;
         let deletedModels = 0;
         let deletedSpareParts = 0;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- brand document shape is dynamic
         let brandDoc: any = null;
 
         try {
@@ -386,7 +386,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
             deletedSpareParts = resData.deletedSpareParts;
             brandDoc = resData.brand;
             await session.commitTransaction();
-        } catch (e: any) {
+        } catch (e: unknown) {
             if (session) {
                 try {
                     await session.abortTransaction();

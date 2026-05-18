@@ -23,6 +23,7 @@ export default tseslint.config(
       "**/public/**",
       "**/__tests__/**",
       "**/tests/**",
+      "**/scratch/**",
       "**/*.spec.ts",
       "**/*.test.ts",
       "**/*.d.ts"

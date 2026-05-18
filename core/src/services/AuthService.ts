@@ -429,6 +429,7 @@ export class AuthService {
 
                 if (freePlan) {
                     await UserPlan.findOneAndUpdate(
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- User/Plan are Mongoose Documents; _id is accessible at runtime
                         { userId: (user as any)._id, planId: (freePlan as any)._id },
                         { $set: { startDate: now, endDate: null, status: 'active' } },
                         { upsert: true, new: true, setDefaultsOnInsert: true }

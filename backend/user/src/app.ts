@@ -11,7 +11,7 @@
  */
 import '@esparex/core/config/loadEnv'; // MUST BE FIRST
 import { initSentry } from '@esparex/core/config/sentry'; // Initialize Sentry early
-import express, { type RequestHandler } from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -20,6 +20,7 @@ import cookieParser from 'cookie-parser';
 import '@esparex/core/models/registry';
 import { env } from '@esparex/core/config/env';
 import { validateOtpConfiguration } from './middleware/otpGuard';
+import { registerDeprecationRoutes } from './middleware/deprecations';
 
 // Initialize Sentry for error tracking
 initSentry();
@@ -93,55 +94,9 @@ import { swaggerSpec } from './config/swagger';
 /* -------------------------------------------------------------------------- */
 const app = express();
 app.disable("x-powered-by");
-const ADMIN_API_V1_PREFIX = '/api/v1/admin';
-const ADMIN_API_LEGACY_PREFIX = '/api/admin';
-const CONTACT_API_V1_PREFIX = '/api/v1/contacts';
-const CONTACT_API_LEGACY_PREFIX = '/api/v1/contact';
-const LEGACY_ADMIN_API_SUNSET = 'Wed, 31 Dec 2026 23:59:59 GMT';
 
-const buildSuccessorPath = (req: express.Request, fromPrefix: string, toPrefix: string): string => {
-    const originalPath = req.originalUrl || req.url || fromPrefix;
-    return originalPath.replace(new RegExp(`^${fromPrefix}(?=/|$)`), toPrefix);
-};
-
-const markLegacyAdminApiUsage = (req: express.Request, res: express.Response) => {
-    const canonicalPath = buildSuccessorPath(req, ADMIN_API_LEGACY_PREFIX, ADMIN_API_V1_PREFIX);
-    res.setHeader('Deprecation', 'true');
-    res.setHeader('Sunset', LEGACY_ADMIN_API_SUNSET);
-    res.setHeader('Link', `<${canonicalPath}>; rel="successor-version"`);
-    res.setHeader('X-Esparex-Legacy-Admin-Api', 'true');
-    res.setHeader('X-Deprecated-Endpoint', 'true');
-    logger.warn(`Deprecated API route used: ${req.originalUrl}`, {
-        method: req.method,
-        originalUrl: req.originalUrl,
-        successorPath: canonicalPath,
-        aliasPrefix: ADMIN_API_LEGACY_PREFIX,
-        canonicalPrefix: ADMIN_API_V1_PREFIX,
-    });
-};
-
-const redirectLegacyAdminApi: RequestHandler = (req, res) => {
-    markLegacyAdminApiUsage(req, res);
-    const successorPath = buildSuccessorPath(req, ADMIN_API_LEGACY_PREFIX, ADMIN_API_V1_PREFIX);
-    res.redirect(308, successorPath);
-};
-
-const redirectLegacyContactApi: RequestHandler = (req, res) => {
-    const successorPath = buildSuccessorPath(req, CONTACT_API_LEGACY_PREFIX, CONTACT_API_V1_PREFIX);
-    res.setHeader('Deprecation', 'true');
-    res.setHeader('Sunset', LEGACY_ADMIN_API_SUNSET);
-    res.setHeader('Link', `<${successorPath}>; rel="successor-version"`);
-    res.setHeader('X-Deprecated-Endpoint', 'true');
-    logger.warn(`Deprecated API route used: ${req.originalUrl}`, {
-        method: req.method,
-        originalUrl: req.originalUrl,
-        successorPath,
-        aliasPrefix: CONTACT_API_LEGACY_PREFIX,
-        canonicalPrefix: CONTACT_API_V1_PREFIX,
-    });
-    res.redirect(308, successorPath);
-};
-
+// 🛡️ API DEPRECATION LAYER
+registerDeprecationRoutes(app);
 // Trust proxy for rate limiting behind load balancers/proxies
 app.set('trust proxy', 1);
 
@@ -296,9 +251,7 @@ if (env.NODE_ENV !== 'production') {
 // app.get('/health', healthCheckHandler); // Handled by rootRoutes under /api/v1
 // app.get('/api/v1/health', healthCheckHandler); // Handled by rootRoutes
 
-// Legacy namespace redirects (no parallel API handlers).
-app.use(ADMIN_API_LEGACY_PREFIX, redirectLegacyAdminApi);
-app.use(CONTACT_API_LEGACY_PREFIX, redirectLegacyContactApi);
+// Legacy namespace redirects handled by deprecation layer
 
 app.use('/api/v1', globalLimiter);
 
@@ -467,34 +420,7 @@ app.use('/api/v1/admin/catalog-requests', adminCatalogRequestRoutes);
 app.use('/api/v1/admin/catalog', adminCatalogRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
-/**
- * 🛡️ LEGACY API DEPRECATION LAYER
- * These routes return 410 Gone with a successor link.
- */
-const legacyDeprecationHandler: RequestHandler = (req, res) => {
-    const successor = "/api/v1/listings";
-    const sunsetAt = "2026-06-01";
-    
-    res.setHeader('Deprecation', 'true');
-    // Standard HTTP date format for Sunset header
-    res.setHeader('Sunset', new Date(sunsetAt).toUTCString());
-    res.setHeader('Link', `<${successor}>; rel="successor-version"`);
-    
-    res.status(410).json({
-        success: false,
-        error: "This endpoint is deprecated. Use the unified /api/v1/listings instead.",
-        code: "ENDPOINT_DEPRECATED",
-        deprecated: true,
-        replacement: successor,
-        sunsetAt: sunsetAt,
-        path: req.originalUrl,
-        status: 410
-    });
-};
-
-app.use('/api/v1/ads', legacyDeprecationHandler);
-app.use('/api/v1/services', legacyDeprecationHandler);
-app.use('/api/v1/spare-part-listings', legacyDeprecationHandler);
+// Legacy API deprecation layer handled by registerDeprecationRoutes(app)
 
 /* -------------------------------------------------------------------------- */
 /* 404 & ERROR HANDLERS                                                         */

@@ -39,7 +39,10 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
     });
 
     return (
-        <div className={cn("flex flex-wrap items-center", variant === "pills" ? "gap-2" : "gap-6 border-b border-slate-200 w-full", className)}>
+        <div 
+            role="tablist"
+            className={cn("flex flex-wrap items-center", variant === "pills" ? "gap-2" : "gap-6 border-b border-slate-200 w-full", className)}
+        >
             {parsedTabs.map(({ tab, url: _url, tabParams, pathMatches, paramsMatch }) => {
                 const hasMoreSpecificMatch =
                     tabParams.length === 0 &&
@@ -72,6 +75,8 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                     <Link
                         key={tab.href}
                         href={tab.href}
+                        role="tab"
+                        aria-selected={isActive}
                         className={cn(baseStyles, variant === "pills" ? pillStyles : primaryStyles)}
                     >
                         <span>{tab.label}</span>

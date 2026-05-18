@@ -1,7 +1,7 @@
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 import Brand from '../../../models/Brand';
 import Category from '../../../models/Category';
-import { CATALOG_STATUS } from '../../../constants/enums/catalogStatus';
+import { CATALOG_STATUS, CatalogStatusValue } from '../../../constants/enums/catalogStatus';
 import { connectDB } from '../../../config/db';
 
 export const catalogNormalizationCommand: OpsCommand = {
@@ -27,11 +27,11 @@ export const catalogNormalizationCommand: OpsCommand = {
 
         // 1. Normalize Category Statuses
         emit('ops.info', { message: '📦 Checking Category statuses...' });
-        const categoriesToUpdate = await Category.countDocuments({ status: 'active' as any, isDeleted: false });
+        const categoriesToUpdate = await Category.countDocuments({ status: 'active' as CatalogStatusValue, isDeleted: false });
         
         if (flags.apply && categoriesToUpdate > 0) {
             const result = await Category.updateMany(
-                { status: 'active' as any, isDeleted: false },
+                { status: 'active' as CatalogStatusValue, isDeleted: false },
                 { $set: { status: CATALOG_STATUS.LIVE } }
             );
             summary.categoriesUpdated = result.modifiedCount;
@@ -43,11 +43,11 @@ export const catalogNormalizationCommand: OpsCommand = {
 
         // 2. Normalize Brand Statuses
         emit('ops.info', { message: '📦 Checking Brand statuses...' });
-        const brandsToUpdate = await Brand.countDocuments({ status: 'active' as any, isDeleted: false });
+        const brandsToUpdate = await Brand.countDocuments({ status: 'active' as CatalogStatusValue, isDeleted: false });
 
         if (flags.apply && brandsToUpdate > 0) {
             const result = await Brand.updateMany(
-                { status: 'active' as any, isDeleted: false },
+                { status: 'active' as CatalogStatusValue, isDeleted: false },
                 { $set: { status: CATALOG_STATUS.LIVE } }
             );
             summary.brandsUpdated = result.modifiedCount;
@@ -72,7 +72,7 @@ export const catalogNormalizationCommand: OpsCommand = {
         if (brokenBrands.length > 0) {
             emit('ops.warn', { 
                 message: `⚠️ Found ${brokenBrands.length} brands with missing categoryIds`,
-                brands: brokenBrands.map((b: any) => ({ name: b.name, id: String(b._id) }))
+                brands: brokenBrands.map((b: { name: string; _id: unknown }) => ({ name: b.name, id: String(b._id) }))
             });
         } else {
             emit('ops.info', { message: '✅ No brands with missing categoryIds found.' });

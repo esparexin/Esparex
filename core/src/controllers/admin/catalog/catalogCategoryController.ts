@@ -5,9 +5,10 @@
  */
 
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import slugify from 'slugify';
 import logger from '../../../utils/logger';
-import { getAdminConnection, getUserConnection } from '../../../config/db';
+import { getUserConnection } from '../../../config/db';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
     CategoryModel,
@@ -281,7 +282,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
     const categoryId = req.params.id as string;
 
-    const performDelete = async (txSession: any) => {
+    const performDelete = async (txSession: mongoose.ClientSession | null) => {
         const category = txSession 
             ? await findCategoryByIdWithSession(categoryId, txSession)
             : await findCategoryById(categoryId);
@@ -294,13 +295,13 @@ export const deleteCategory = async (req: Request, res: Response) => {
             await softDeleteCategoryById(category._id, txSession);
             await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), txSession);
         } else {
-            await softDeleteCategoryById(category._id, null as any);
+            await softDeleteCategoryById(category._id, null as unknown as mongoose.ClientSession);
             await CatalogOrchestrator.cascadeCategoryDelete(String(category._id));
         }
         return category;
     };
 
-    let session: any = null;
+    let session: mongoose.ClientSession | null = null;
     try {
         session = await getUserConnection().startSession();
         session.startTransaction();
@@ -308,16 +309,18 @@ export const deleteCategory = async (req: Request, res: Response) => {
         await session.commitTransaction();
         clearCategoryCanonicalCache();
         sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
-    } catch (e: any) {
+    } catch (e: unknown) {
         if (session) {
             try {
                 await session.abortTransaction();
-            } catch (abortErr) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            } catch (_) {
                 // Ignore abort failure
             }
             try {
                 await session.endSession();
-            } catch (endErr) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            } catch (_) {
                 // Ignore end failure
             }
             session = null;
@@ -354,7 +357,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
         if (session) {
             try {
                 await session.endSession();
-            } catch (endErr) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            } catch (_) {
                 // Ignore end failure
             }
         }

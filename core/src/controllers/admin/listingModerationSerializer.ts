@@ -28,10 +28,16 @@ const throwContractError = (message: string, code = 'LISTING_CONTRACT_VIOLATION'
 
 const normalizeListingType = (value: unknown): ModerationListingType => {
     const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
-    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) return raw as ModerationListingType;
+    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) {
+        return raw as ModerationListingType;
+    }
 
-    // Safe fallback for legacy rows missing listingType
-    return LISTING_TYPE.AD as ModerationListingType;
+    if (!raw) {
+        // Safe fallback for legacy rows missing listingType
+        return LISTING_TYPE.AD as ModerationListingType;
+    }
+
+    return throwContractError('missing/invalid listingType');
 };
 
 const assertLifecycleStatus = (status: unknown, context: string): ModerationStatus => {

@@ -40,7 +40,7 @@ const normalizeCategoryStatusParam = (value: string | null) =>
     value && CATEGORY_STATUS_VALUES.has(value) ? value : "all";
 
 const isListingTypeValue = (value: string): value is ListingTypeValue => 
-    [LISTING_TYPE.AD, LISTING_TYPE.SERVICE, LISTING_TYPE.SPARE_PART].includes(value as any);
+    ([LISTING_TYPE.AD, LISTING_TYPE.SERVICE, LISTING_TYPE.SPARE_PART] as string[]).includes(value);
 
 const listingTypeOptions: Array<{ value: ListingTypeValue; label: string }> = [
     { value: LISTING_TYPE.AD, label: "Device Listings" },

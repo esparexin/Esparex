@@ -95,6 +95,8 @@ export const listModerationListings = async (
         pagination,
         {
             trackListingTypeCompatMetrics: false,
+            enforcePublicVisibility: false,
+            disableLocationIntelligence: true,
         }
     );
 };

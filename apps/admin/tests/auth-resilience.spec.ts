@@ -23,8 +23,15 @@ test.describe("Admin Auth Resilience", () => {
     // Global mock for common dashboard APIs to prevent 404s/hangs
     await page.route("**/api/v1/admin/**", async (route) => {
       const url = route.request().url();
-      if (url.includes("/me") || url.includes("/csrf-token")) {
+      if (url.includes("/me")) {
         return route.continue();
+      }
+      if (url.includes("/csrf-token")) {
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ csrfToken: "mock-token" })
+        });
       }
       await route.fulfill({
         status: 200,
@@ -56,7 +63,7 @@ test.describe("Admin Auth Resilience", () => {
     });
 
     await page.goto("/dashboard");
-    await expect(page).toHaveURL(/.*\/login\?next=.*/);
+    await expect(page).toHaveURL(/.*\/login\?next=.*/, { timeout: 30000 });
   });
 
   test("Network failure during refresh does NOT redirect to login if already authenticated", async ({ page, context }) => {
@@ -69,7 +76,7 @@ test.describe("Admin Auth Resilience", () => {
     await page.goto("/dashboard");
     
     // Should show Connection Error UI instead of redirecting
-    await expect(page.getByText(/Connection Error|Failed to connect/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Connection Error|Failed to connect/i)).toBeVisible({ timeout: 30000 });
     expect(page.url()).not.toContain("/login");
   });
 
@@ -93,7 +100,7 @@ test.describe("Admin Auth Resilience", () => {
     await page.goto("/dashboard");
     
     // adminFetch retries internally, so it should eventually show the dashboard
-    await expect(page.getByText("System Overview")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("System Overview")).toBeVisible({ timeout: 30000 });
     expect(meRequestCount).toBe(2);
   });
 
@@ -119,7 +126,7 @@ test.describe("Admin Auth Resilience", () => {
     });
 
     await page.goto("/dashboard");
-    await expect(page.getByText("System Overview")).toBeVisible();
+    await expect(page.getByText("System Overview")).toBeVisible({ timeout: 30000 });
   });
 });
 

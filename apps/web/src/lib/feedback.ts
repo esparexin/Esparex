@@ -1,9 +1,10 @@
 import { mapErrorToMessage } from "@/lib/errorMapper";
+import logger from "@/lib/logger";
 
 export const notify = {
     success(message: string, _options?: { duration?: number; description?: string }) {
         if (typeof window !== "undefined") {
-            console.log("[SUCCESS]", message);
+            logger.info("[SUCCESS]", message);
         }
     },
 
@@ -27,19 +28,19 @@ export const notify = {
         }
 
         if (typeof window !== "undefined") {
-            console.error("[ERROR]", message);
+            logger.error("[ERROR]", message);
         }
     },
 
     info(message: string, _options?: { duration?: number }) {
         if (typeof window !== "undefined") {
-            console.info("[INFO]", message);
+            logger.info("[INFO]", message);
         }
     },
 
     warning(message: string, _options?: { duration?: number }) {
         if (typeof window !== "undefined") {
-            console.warn("[WARNING]", message);
+            logger.warn("[WARNING]", message);
         }
     }
 };

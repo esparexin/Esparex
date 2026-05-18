@@ -84,6 +84,7 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 SparePartSchema.plugin(softDeletePlugin);
 
 SparePartSchema.pre('validate', function () {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
     const mutableDoc = this as any;
     
     if (!mutableDoc.canonicalName && mutableDoc.displayName) {

@@ -225,7 +225,6 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
             SparePart.find({ _id: { $in: missing } }).lean<MetadataEntity[]>()
         ),
         fetchMetadataWithCache<MetadataEntity>(serviceTypeIds, 'servicetype', async (missing) => {
-            const ServiceType = (await import('@esparex/core/models/ServiceType')).default;
             return ServiceType.find({ _id: { $in: missing } }).select('name').lean<MetadataEntity[]>();
         })
     ]);
@@ -259,6 +258,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
         }
         // Preserve 'brand' object if it was already populated, but ensure brandName is set
         if (typeof ad.brand === 'object' && ad.brand !== null && !ad.brandName) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- populated brand object shape is dynamic
             const b = ad.brand as any;
             if (b.name) ad.brandName = b.name;
         }
@@ -274,6 +274,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
         }
         // Preserve 'model' object if it was already populated, but ensure modelName is set
         if (typeof ad.model === 'object' && ad.model !== null && !ad.modelName) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- populated model object shape is dynamic
             const m = ad.model as any;
             if (m.name) ad.modelName = m.name;
         }
@@ -343,7 +344,7 @@ export const getAds = async (
     // e.g. New Delhi should NOT be used when the user selected "India" as country.
     const isRegionLevel = normalizedLevel === 'country' || normalizedLevel === 'state';
     const shouldUseGeo = hasGeo && !isRegionLevel;
-    const shouldSkipExactCount = shouldUseGeo && !isCursorMode;
+    const shouldSkipExactCount = shouldUseGeo && !isCursorMode && options.enforcePublicVisibility !== false;
 
     const shouldUseRankScore = isTrendingSort || (shouldUseGeo && !filters.sortBy);
 

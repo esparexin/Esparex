@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type FieldErrors, UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { ListingImage } from "@/types/listing";
 import logger from "@/lib/logger";
@@ -78,15 +78,15 @@ export function useImageUploadWorkflow<T>(
                 } finally {
                     setIsInternalUploading(false);
                 }
-            }, (errors: any) => {
-                const sanitizedErrors = Object.keys(errors).reduce((acc, key) => {
-                    const err = errors[key];
+            }, (errors: FieldErrors<PostAdFormData>) => {
+                const sanitizedErrors = Object.keys(errors).reduce((acc: Record<string, { message?: string; type?: string }>, key) => {
+                    const err = errors[key as keyof PostAdFormData];
                     acc[key] = {
-                        message: err?.message,
-                        type: err?.type
+                        message: err?.message as string | undefined,
+                        type: err?.type as string | undefined
                     };
                     return acc;
-                }, {} as Record<string, any>);
+                }, {});
 
                 logger.error("[PostAdSubmit] Form validation errors:", sanitizedErrors);
                 

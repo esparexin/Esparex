@@ -131,13 +131,16 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
 
     // Catalog Dependency Mapping
     const catalogDependency = raw.catalogDependency && typeof raw.catalogDependency === "object"
-        ? {
-            isBlocked: Boolean((raw.catalogDependency as any).isBlocked),
-            requestId: asString((raw.catalogDependency as any).requestId),
-            status: asString((raw.catalogDependency as any).status),
-            requestedBrandName: asString((raw.catalogDependency as any).requestedBrandName),
-            requestedModelName: asString((raw.catalogDependency as any).requestedModelName),
-        }
+        ? (() => {
+            const dep = raw.catalogDependency as Record<string, unknown>;
+            return {
+                isBlocked: Boolean(dep.isBlocked),
+                requestId: asString(dep.requestId),
+                status: asString(dep.status),
+                requestedBrandName: asString(dep.requestedBrandName),
+                requestedModelName: asString(dep.requestedModelName),
+            };
+        })()
         : undefined;
 
     return {

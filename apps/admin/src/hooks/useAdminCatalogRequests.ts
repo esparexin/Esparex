@@ -4,6 +4,7 @@ import {
     rejectAdminCatalogRequest,
     markAdminCatalogRequestDuplicate,
     type CatalogRequestItem,
+    type CatalogRequestStatus,
 } from "@/lib/api/catalogRequests";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 
@@ -24,7 +25,7 @@ export function useAdminCatalogRequests(options?: {
     } = useAdminCatalogCollection<
         CatalogRequestItem,
         { search: string; status: string },
-        any
+        Record<string, never>
     >({
         initialFilters: options?.initialFilters || {
             search: "",
@@ -33,7 +34,7 @@ export function useAdminCatalogRequests(options?: {
         fetchList: (query) => {
             return listAdminCatalogRequests({
                 q: query.search as string,
-                status: query.status as any,
+                status: query.status as "all" | CatalogRequestStatus,
                 page: query.page as number,
                 limit: query.limit as number,
             });

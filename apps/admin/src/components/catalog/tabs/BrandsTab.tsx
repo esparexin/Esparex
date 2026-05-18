@@ -74,17 +74,23 @@ export default function BrandsTab() {
                 setDeleteError(null);
                 setIsDeleting(false);
             },
-            onError: (error: any) => {
+            onError: (error: unknown) => {
                 setIsDeleting(false);
                 if (error instanceof AdminApiError) {
                     const payload = error.payload;
                     setDeleteError({
                         message: payload.error || error.message || "Failed to delete brand.",
-                        details: payload.details as any,
+                        details: payload.details as {
+                            models?: number;
+                            listings?: number;
+                            spareParts?: number;
+                            screenSizes?: number;
+                            smartAlerts?: number;
+                        },
                     });
                 } else {
                     setDeleteError({
-                        message: error.message || "An unexpected error occurred.",
+                        message: error instanceof Error ? error.message : "An unexpected error occurred.",
                     });
                 }
             }

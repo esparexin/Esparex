@@ -33,8 +33,8 @@ async function auditCatalog() {
                     return keys.every(k => idxKeys.includes(k)) && idxKeys.length === keys.length;
                 });
                 console.log(`${exists ? '✅' : '❌'} ${collName}: ${keys.join(', ')}`);
-            } catch (e: any) {
-                console.log(`❌ ${collName} (Error: ${e.message})`);
+            } catch (e: unknown) {
+                console.log(`❌ ${collName} (Error: ${e instanceof Error ? e.message : String(e)})`);
             }
         };
         await checkIndex('brands', ['categoryIds', 'slug']);

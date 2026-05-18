@@ -4,7 +4,6 @@ import type { LucideIcon } from "lucide-react";
 import {
     BarChart3,
     Bell,
-    ClipboardList,
     LayoutDashboard,
     Layers,
     MapPin,
@@ -13,7 +12,6 @@ import {
     ShieldCheck,
     ShieldAlert,
     Users,
-    Wrench,
     Tag,
     List,
 } from "lucide-react";

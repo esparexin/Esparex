@@ -31,7 +31,7 @@ function normalizeAdmin(payload: unknown): AdminUser | null {
   return {
     id: String(id),
     email: item.email,
-    role: item.role,
+    role: item.role === "super_admin" ? "superAdmin" : item.role,
     firstName: typeof item.firstName === "string" ? item.firstName : undefined,
     lastName: typeof item.lastName === "string" ? item.lastName : undefined,
     permissions: Array.isArray(item.permissions) ? item.permissions.filter((p): p is string => typeof p === "string") : []
@@ -66,7 +66,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       if (requestId === authRequestSeq.current) {
         setState({ admin: nextAdmin, loading: false, error: null });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (requestId === authRequestSeq.current) {
         const isAuthFailure = (err instanceof AdminApiError && (err.status === 401 || err.status === 403)) ||
                              (err && typeof err === 'object' && 'status' in err && (err['status'] === 401 || err['status'] === 403));
@@ -78,6 +78,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
           const message = err instanceof Error ? err.message : String(err);
           const networkError = err instanceof AdminNetworkError ? err : new AdminNetworkError(message, err);
           setState(prev => ({ ...prev, loading: false, error: networkError }));
+          // eslint-disable-next-line no-console -- diagnostic boundary: transient auth refresh failures are surfaced here
           console.warn("[AdminAuth] Refresh failed. Preserving session state.", message);
         }
       }

@@ -216,6 +216,7 @@ export async function adminFetch<T>(
         // expected business logic and should be handled by the calling hook.
         const isUnexpected = response.status >= 500;
         if (isUnexpected) {
+          // eslint-disable-next-line no-console -- infrastructure boundary: 5xx errors are surfaced for observability
           console.error("[API ERROR]", message);
         }
 
@@ -236,12 +237,14 @@ export async function adminFetch<T>(
       );
 
       if (isNetworkError && retryCount < MAX_RETRIES) {
+        // eslint-disable-next-line no-console -- infrastructure boundary: retry attempts are surfaced for debugging
         console.warn(`[API RETRY] Attempt ${retryCount + 1} for: ${path}`);
         return makeRequest(csrfRetry, retryCount + 1);
       }
 
       const message = err instanceof Error ? err.message : "Unable to connect to server.";
       const networkError = new AdminNetworkError(message, err);
+      // eslint-disable-next-line no-console -- infrastructure boundary: network failures are surfaced for observability
       console.error("[API ERROR]", message);
       throw networkError;
     }

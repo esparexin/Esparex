@@ -167,6 +167,7 @@ export const updateAdminLastLogin = async (id: string | { toString(): string }) 
 };
 
 export const getAdminProfileById = async (adminId: unknown) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- lean() type is nominal; role normalization requires mutable indexable shape
     const admin = await Admin.findById(adminId).lean() as any;
     if (admin && admin.role) {
         admin.role = normalizeRole(admin.role);

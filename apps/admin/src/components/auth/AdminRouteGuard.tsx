@@ -32,7 +32,7 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
       <div style={{ padding: 48, textAlign: "center" }}>
         <h2 style={{ color: "#e11d48", marginBottom: 16 }}>Connection Error</h2>
         <p style={{ marginBottom: 24, color: "#4b5563" }}>
-          We're having trouble connecting to the administration server.
+          We&apos;re having trouble connecting to the administration server.
           <br />
           {error.message}
         </p>

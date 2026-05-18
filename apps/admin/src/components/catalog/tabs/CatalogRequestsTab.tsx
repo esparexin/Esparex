@@ -72,7 +72,7 @@ export default function CatalogRequestsTab() {
 
     return (
         <>
-            <CatalogPageTemplate<CatalogRequestItem, any>
+            <CatalogPageTemplate<CatalogRequestItem, Record<string, never>>
                 isNested={true}
                 title="Catalog Requests"
                 description="Manage user-submitted requests for new brands, models, or categories. Reviewing and approving these maintains the SSOT integrity."
