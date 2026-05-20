@@ -59,6 +59,13 @@ const isLocalOtpLockBypass =
     env.NODE_ENV === 'development' &&
     !env.CI &&
     env.AUTH_BYPASS_OTP_LOCK === 'true';
+const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
+
+const isStaticOtpBypassEnabled = (): boolean =>
+    env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS;
+
+const isStaticOtpBypassMatch = (otp: string): boolean =>
+    isStaticOtpBypassEnabled() && otp === env.DEV_STATIC_OTP;
 
 const createFailure = (
     status: number,
@@ -182,8 +189,7 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
     if (env.NODE_ENV === 'test') return;
 
     // Static OTP bypass: skip SMS dispatch when USE_DEFAULT_OTP is enabled
-    const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
-    if (env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS) {
+    if (isStaticOtpBypassEnabled()) {
         if (env.NODE_ENV === 'production') {
             // Pre-launch testing mode: static OTP (DEV_STATIC_OTP) is active and SMS is not sent.
             // Real users cannot log in without knowing the static OTP.
@@ -316,30 +322,28 @@ export class AuthService {
             return userFailure;
         }
 
+        const staticOtpAccepted = isStaticOtpBypassMatch(otp);
+        if (staticOtpAccepted) {
+            logger.info('Static OTP bypass: accepting configured static code before stored OTP validation');
+            await Otp.deleteMany({ mobile: { $in: mobileVariants } });
+        }
 
-
-        if (!otpRecord) {
-            // Static OTP bypass: allow login without a record if USE_DEFAULT_OTP is enabled
-            const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
-            if ((env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS) && otp === env.DEV_STATIC_OTP) {
-                logger.info('Static OTP bypass: accepting valid test code without database record');
-                // Proceed directly to user resolution/creation since we don't have a record to track attempts
-            } else {
-                recordOtpAbuseSignal({
-                    mobileSuffix: mobileDigits.slice(-4).padStart(4, '*'),
-                    reason: 'invalid_otp',
-                    userId: userFromMobile?._id ? String(userFromMobile._id) : undefined,
-                });
-                return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
-            }
+        if (staticOtpAccepted) {
+            // Continue to the normal user resolution, token issuance, and response path below.
+        } else if (!otpRecord) {
+            recordOtpAbuseSignal({
+                mobileSuffix: mobileDigits.slice(-4).padStart(4, '*'),
+                reason: 'invalid_otp',
+                userId: userFromMobile?._id ? String(userFromMobile._id) : undefined,
+            });
+            return createFailure(400, 'Invalid OTP', { code: 'OTP_INVALID' });
         } else {
             // otpRecord is guaranteed non-null here (the if(!otpRecord) above handles null).
             // Non-null assertions silence TS18047 which cannot narrow across the
             // USE_DEFAULT_OTP early-return branch inside the if-block.
             if (otpRecord.expiresAt < now) {
                 // DEV GRACE: If using default OTP, allow expired records to persist for manual testing
-                const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
-                const isDefaultOtp = (env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS) && otp === env.DEV_STATIC_OTP;
+                const isDefaultOtp = isStaticOtpBypassMatch(otp);
 
                 if (!isDefaultOtp) {
                     await Otp.deleteOne({ _id: otpRecord._id });

@@ -93,6 +93,7 @@ import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
 import Business from '../../models/Business';
 import { generateToken } from '../../utils/auth';
+import { verifyOtpHash } from '../../utils/otpSecurity';
 import { Role } from '../../constants/enums/roles';
 import { USER_STATUS } from '../../constants/enums/userStatus';
 
@@ -105,6 +106,7 @@ const mockPlanModel = Plan as unknown as { findOne: jest.Mock };
 const mockUserPlanModel = UserPlan as unknown as { findOneAndUpdate: jest.Mock };
 const mockBusinessModel = Business as unknown as { findOne: jest.Mock };
 const mockGenerateToken = generateToken as jest.Mock;
+const mockVerifyOtpHash = verifyOtpHash as jest.Mock;
 
 // ── Shared Fixtures ──────────────────────────────────────────────────────────
 
@@ -233,6 +235,29 @@ describe('AuthService', () => {
             expect(mockGenerateToken).toHaveBeenCalledWith(expect.objectContaining({
                 role: Role.USER
             }));
+        });
+
+        it('should accept static OTP bypass before validating a fresh stored OTP record', async () => {
+            const generatedOtpRecord = {
+                ...mockOtpRecord,
+                otpHash: 'hashed-generated-otp'
+            };
+            mockUserModel.findOne.mockResolvedValue(mockUser);
+            mockOtpModel.findOne.mockReturnValue({
+                sort: jest.fn().mockResolvedValue(generatedOtpRecord)
+            });
+            mockBusinessModel.findOne.mockResolvedValue(null);
+
+            const result = await AuthService.verifyLoginOtp(MOBILE, '123456');
+
+            expect(result.success).toBe(true);
+            expect(mockVerifyOtpHash).not.toHaveBeenCalled();
+            expect(generatedOtpRecord.save).not.toHaveBeenCalled();
+            expect(mockOtpModel.deleteMany).toHaveBeenCalled();
+            if (result.success) {
+                expect(result.token).toBe('mock-jwt-token');
+                expect(result.user.mobile).toBe(CANONICAL_MOBILE);
+            }
         });
 
         it('should create new user and assign default plan if user does not exist', async () => {
