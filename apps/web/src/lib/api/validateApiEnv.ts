@@ -58,7 +58,7 @@ export function validateApiEnv() {
     // Must include API base
     if (!url.includes("/api")) {
         throw new Error(
-            `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must include /api (example: https://api.exparex.in/api/v1): ${url}`
+            `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must include /api (example: https://api.esparex.in/api/v1): ${url}`
         );
     }
 

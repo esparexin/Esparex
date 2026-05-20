@@ -53,12 +53,35 @@ const migrateRoles = async () => {
         
         console.log(`⏳ Normalizing roles in 'admins' collection...`);
 
-        // super_admin -> superAdmin
+        // Catch all variations of SUPERADMIN, superadmin, super_admin, SUPER_ADMIN
         const adminSuperResult = await adminsCollection.updateMany(
-            { role: { $in: ['superadmin', 'super_admin'] } },
+            { role: { $regex: /^super_?admin$/i } },
             { $set: { role: 'superAdmin' } }
         );
         console.log(`   ✅ Normalized ${adminSuperResult.modifiedCount} admin superAdmin roles.`);
+
+        // Add MongoDB JSON Schema Validation to enforce role enum at the DB level
+        console.log(`⏳ Applying strict JSON schema validation to 'admins' collection...`);
+        try {
+            await adminConn.db!.command({
+                collMod: 'admins',
+                validator: {
+                    $jsonSchema: {
+                        bsonType: "object",
+                        properties: {
+                            role: {
+                                enum: ["superAdmin", "admin", "moderator"]
+                            }
+                        }
+                    }
+                },
+                validationLevel: "moderate"
+            });
+            console.log(`   ✅ Strict schema validation applied to 'admins' collection.`);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            console.error(`   ⚠️ Could not apply schema validation: ${message}`);
+        }
 
         // specialized roles -> moderator or admin
         const adminSpecializedResult = await adminsCollection.updateMany(

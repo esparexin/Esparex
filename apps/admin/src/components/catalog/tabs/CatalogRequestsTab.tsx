@@ -217,7 +217,7 @@ export default function CatalogRequestsTab() {
                 setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={async () => false}
                 handleUpdate={async () => false}
-                defaultFormData={{}}
+                defaultFormData={{} as Record<string, never>}
                 formRenderer={() => null}
                 generateColumns={() => [
                     {

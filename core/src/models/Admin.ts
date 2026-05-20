@@ -120,7 +120,7 @@ AdminSchema.post('init', function (doc: IAdmin) {
 });
 
 // 🛡️ COMPATIBILITY: Normalize role on updates
-AdminSchema.pre('findOneAndUpdate', function () {
+AdminSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function () {
     const update = this.getUpdate() as Record<string, unknown> | undefined;
     if (!update || Array.isArray(update)) return;
 

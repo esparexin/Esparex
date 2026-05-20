@@ -16,8 +16,8 @@ const getApiHostname = (): string | null => {
 export function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    // Always allow public paths
-    if (PUBLIC_PATHS.has(pathname)) {
+    // Always allow public paths and API requests
+    if (PUBLIC_PATHS.has(pathname) || pathname.startsWith("/api")) {
         return NextResponse.next();
     }
 

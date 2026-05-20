@@ -28,10 +28,23 @@ function normalizeAdmin(payload: unknown): AdminUser | null {
   const item = payload as Record<string, unknown>;
   const id = item.id || item._id;
   if (!id || typeof item.email !== "string" || typeof item.role !== "string") return null;
+
+  const rawRole = item.role.trim().toLowerCase();
+  let normalizedRole = "moderator";
+  if (rawRole === "super_admin" || rawRole === "superadmin") {
+    normalizedRole = "superAdmin";
+  } else if (rawRole === "admin") {
+    normalizedRole = "admin";
+  } else if (rawRole === "moderator") {
+    normalizedRole = "moderator";
+  } else {
+    normalizedRole = item.role;
+  }
+
   return {
     id: String(id),
     email: item.email,
-    role: item.role === "super_admin" ? "superAdmin" : item.role,
+    role: normalizedRole,
     firstName: typeof item.firstName === "string" ? item.firstName : undefined,
     lastName: typeof item.lastName === "string" ? item.lastName : undefined,
     permissions: Array.isArray(item.permissions) ? item.permissions.filter((p): p is string => typeof p === "string") : []

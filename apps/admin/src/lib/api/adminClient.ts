@@ -7,13 +7,20 @@ import { resolveValidatedAdminApiBase } from "@/lib/api/validateAdminApiEnv";
 const ADMIN_API_BASE = resolveValidatedAdminApiBase();
 
 const REQUEST_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_ADMIN_API_TIMEOUT_MS || 20000);
-let inMemoryAdminAccessToken: string | null = null;
+let inMemoryAdminAccessToken: string | null = typeof window !== "undefined" ? window.localStorage.getItem("esparex_admin_token") : null;
 
 export const getAdminApiBase = (): string => ADMIN_API_BASE;
 
 export const setAdminAccessToken = (token: string | null | undefined) => {
   const normalized = typeof token === "string" ? token.trim() : "";
   inMemoryAdminAccessToken = normalized.length > 0 ? normalized : null;
+  if (typeof window !== "undefined") {
+    if (inMemoryAdminAccessToken) {
+      window.localStorage.setItem("esparex_admin_token", inMemoryAdminAccessToken);
+    } else {
+      window.localStorage.removeItem("esparex_admin_token");
+    }
+  }
 };
 
 async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
@@ -186,7 +193,7 @@ export async function adminFetch<T>(
 
       if (!response.ok) {
         if (response.status === 401) {
-          inMemoryAdminAccessToken = null;
+          setAdminAccessToken(null);
         }
 
         const errorText = `${payload.message || ""} ${payload.error || ""}`.toLowerCase();

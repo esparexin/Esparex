@@ -256,7 +256,7 @@ UserSchema.post('init', function (doc: IUser) {
   }
 });
 
-UserSchema.pre('findOneAndUpdate', function () {
+UserSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function () {
   const update = this.getUpdate() as Record<string, unknown> | undefined;
   if (!update || Array.isArray(update)) return;
 
