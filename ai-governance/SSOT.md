@@ -17,13 +17,11 @@ It defines:
 
 ## 1. Authority Model
 
-The authoritative order for AI governance is:
-
-1. `ai-governance/SSOT.md`
-2. `ai-governance/SOP.md`
-3. `ai-governance/AI_CONTEXT.json`
-4. Relevant canonical platform code and root workspace metadata
-5. Runtime AI code ownership in the application codebase
+1. **Layer 1: Master SSOT (Business)** -> `docs/01-business-blueprint.md`
+2. **Layer 2: Engineering SOP** -> `docs/02-engineering-governance.md`
+3. **Layer 3: Developer Standards** -> `docs/03-developer-standards.md` & `docs/06-frontend-admin-standards.md`
+4. **Layer 4: API & Infra** -> `docs/04-api-connectivity-map.md`
+5. **Layer 5: AI Execution** -> `ai-governance/SSOT.md` & `ai-governance/SOP.md`
 
 Anything outside `ai-governance/` that contains AI instructions is non-authoritative unless this file explicitly designates it as canonical.
 
@@ -61,55 +59,17 @@ Tool-specific files may exist only as compatibility layers for local IDEs or ext
 - AI agents must not invent alternate architectures, contracts, or ownership models.
 - If rules conflict, the stricter and more specific rule wins until the conflict is harmonized in canonical docs.
 
-### Documentation Registry Rules
-
-- **Registry Mandatory**: Every new documentation file MUST be added to `docs/00-index.md` before merge.
-- **Update-In-Place**: Always update existing canonical documents registered in `docs/00-index.md`. Never create duplicate `_final`, `_latest`, or `_v2` files.
-- **Archiving**: Move superseded documents to `archive/legacy/YYYY-MM/` according to `docs/10-archive-policy.md`.
-- **Banned Filenames**: Reject any file creation containing `final`, `latest`, `updated`, `copy`, `new`, `definitive`, `consolidated`, `backup`, `old`, `draft`, or `temp`.
-
 ### Platform Architecture Governance
 
-For detailed rules on API, Database, Naming, and Frontend standards, AI agents MUST refer to the following canonical documents:
+For detailed rules on API, Database, Naming, and Frontend standards, AI agents MUST refer to the following canonical documents in the 5-layer hierarchy:
 
-1. **API & Connectivity**: [docs/04-api-connectivity-map.md](../docs/04-api-connectivity-map.md)
-2. **Database & Schema**: [docs/05-database-schema-ssot.md](../docs/05-database-schema-ssot.md)
-3. **Frontend & Admin**: [docs/06-frontend-admin-standards.md](../docs/06-frontend-admin-standards.md)
-4. **Developer Standards**: [docs/03-developer-standards.md](../docs/03-developer-standards.md)
+1. **Layer 1: Business** -> `docs/01-business-blueprint.md`
+2. **Layer 2: Process** -> `docs/02-engineering-governance.md`
+3. **Layer 3: Standards** -> `docs/03-developer-standards.md`, `docs/06-frontend-admin-standards.md`, `docs/11-security-compliance.md`
+4. **Layer 4: Infra** -> `docs/04-api-connectivity-map.md`, `docs/05-database-schema-ssot.md`
+5. **Layer 5: Archive & Registry** -> `docs/10-archive-policy.md`, `docs/00-index.md`
 
-**Mandatory Enforcement**: Every critical rule in these documents is validated by a corresponding script in `scripts/` and enforced in CI/CD via `npm run governance:all`.
-
-### Runtime AI Prompts
-- Runtime AI prompts and provider behavior are code-owned by the runtime AI implementation, not by IDE prompt files.
-
-### Notification and Feedback Rules
-
-- Do not use `toast.*` or the `sonner` package.
-- Do not use legacy `notify.*` from `@/lib/notify`.
-- Do not mount `<Toaster />` or any other toast providers.
-- All client success feedback and error notifications must go through the centralized feedback system:
-  - Canonical State Manager: `FeedbackSystemContext.tsx`
-  - Canonical Event Dispatcher: `feedback.ts`
-  - Canonical UI Rendering Layer: `SystemFeedbackBanners.tsx` (inline banners)
-  - Code Review Checklist: Any new Sonner dependencies, direct toast invocations, or parallel toast notifications must be rejected.
-### Single Shared UI Ownership
-
-- **Single Owner**: Shared UI components (module tabs, breadcrumbs, page headers) must have a single rendering owner at the page layout level.
-- **No Duplication**: Child content components must never re-render these elements.
-- **Hierarchy**: Use `isNested={true}` (or equivalent) in child templates to suppress redundant page-level headers and navigation.
-- **Canonical Structure**: `<PageShell title="Page Title" tabs={<ModuleTabs ... />}><ChildContent isNested={true} /></PageShell>`.
-
-### Engineering and Shared Contracts
-
-- **Backward Compatibility**: All shared API contracts used by multiple modules MUST be backward compatible.
-- **Safe Defaults**: Newly introduced fields must have safe defaults (e.g., `0` for counts, `""` for strings) and MUST NEVER break existing consumers by being mandatory without defaults.
-- **Serialization**: Canonical serializers must normalize data to prevent frontend crashes due to missing or non-numeric fields in shared contracts.
-
-### Authentication and Session Management
-
-- **Resilient Refresh**: Authentication refresh logic must distinguish between authorization failures and transient network failures. Only confirmed authentication failures (401/403) may trigger forced logout.
-- **Differentiated Error Handling**: API clients must provide structured error classification (e.g., `AdminNetworkError` vs `AdminApiError`) to allow UI layers to decide whether to preserve session state.
-- **Credentials Persistence**: Secure `credentials: "include"` must be used for all authenticated requests to ensure cookie-based sessions remain stable.
+**Mandatory Enforcement**: Do not duplicate the rules defined in those files here. Rely on them as the canonical SSOT for those domains.
 
 
 ## 5. Runtime AI Canonical Ownership

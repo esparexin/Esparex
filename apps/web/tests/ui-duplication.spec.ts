@@ -45,4 +45,20 @@ test.describe("UI Duplication Guard — Home Page", () => {
         const headers = await page.locator("header");
         await expect(headers).toHaveCount(1);
     });
+
+    test("Location prompt must be uniquely visible", async ({ page }) => {
+        await page.goto("/");
+        
+        // Wait for the prompt to mount (it's delayed by isMounted hydration)
+        await page.waitForSelector('text=We use location to show nearby listings.', { state: 'attached' });
+
+        // queryAllByText equivalent in Playwright
+        const prompts = page.locator('text=Use Location');
+        const count = await prompts.count();
+        
+        // Count should be exactly 1 visible. Since the mobile one is hidden by 'md:hidden' on desktop,
+        // it might still be in the DOM, so we check for visible elements only.
+        const visiblePrompts = page.locator('text=Use Location').locator('visible=true');
+        await expect(visiblePrompts).toHaveCount(1);
+    });
 });

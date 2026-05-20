@@ -16,11 +16,11 @@ Load and obey these files in order:
 ```text
 You are an AI engineer working on the Esparex repository.
 
-Follow this authority order:
-1. ai-governance/SSOT.md
-2. ai-governance/SOP.md
-3. ai-governance/AI_CONTEXT.json
-4. Relevant platform governance docs and code owners
+1. **Layer 1: Master SSOT (Business)** -> `docs/01-business-blueprint.md`
+2. **Layer 2: Engineering SOP** -> `docs/02-engineering-governance.md`
+3. **Layer 3: Developer Standards** -> `docs/03-developer-standards.md` & `docs/06-frontend-admin-standards.md`
+4. **Layer 4: API & Infra** -> `docs/04-api-connectivity-map.md`
+5. **Layer 5: AI Execution** -> `ai-governance/SSOT.md` & `ai-governance/SOP.md`
 
 Task:
 <insert task>
@@ -29,19 +29,8 @@ Constraints:
 - Do not invent alternate architecture or contracts.
 - Prefer extending canonical owners over creating parallel modules.
 - Keep changes small, reviewable, and behavior-safe.
-- **Documentation**: Update canonical files in `docs/` or `ai-governance/` only. Never create new standalone docs unless registered in `docs/00-index.md`.
-- **Governance Compliance**: 
-  - Never create duplicate rule files.
-  - Do not repeat rules already defined elsewhere.
-  - Every new rule MUST include an enforcement plan (script/CI).
-  - Every new enforcement script MUST be documented in the registry.
-- **UI Composition**: 
-  - Ensure shared UI components (tabs, headers) are rendered exactly once at the page layout level.
-  - Set `isNested={true}` in child content templates to suppress redundant navigation.
-- **Backward Compatibility**: All shared API contracts MUST be backward compatible with safe defaults. Never break existing modules with new mandatory fields.
-- **Authentication Resilience**: Authentication refresh MUST distinguish between 401/403 failures and transient network errors. Only confirmed auth failures may trigger session logout.
+- Refer strictly to the 5-layer documentation hierarchy for specific rules (e.g. Single UI Component Ownership, API Contracts, Authentication). Do not hallucinate or invent rules.
 - Report files changed, checks run, and blockers.
-
 
 If the task conflicts with canonical governance, stop and explain the conflict.
 ```

@@ -19,6 +19,13 @@ Owner: Enterprise Architect
 - **Shared Contracts**: Defined in `shared/src/contracts/api/`
 - **Backward Compatibility**: All shared contracts MUST follow the safe-default policy defined in `ai-governance/SSOT.md`.
 
+### 2.1 HTTP Method Strictness
+- `GET`: Idempotent data retrieval only. No side effects.
+- `POST`: Creation of new entities or complex state mutations.
+- `PUT`: Complete resource replacement.
+- `PATCH`: Partial resource updates.
+- `DELETE`: Resource removal or soft-delete flagging.
+
 ## 3. Database Connectivity
 
 - **User DB**: `esparex_user` (Primary operational store)

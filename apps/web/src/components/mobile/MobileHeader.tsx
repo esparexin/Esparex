@@ -188,10 +188,11 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                 isMounted={isMounted}
                 showLocationSelector={showLocationSelector}
                 setShowLocationSelector={setShowLocationSelector}
-                firstVisitBackdropClassName="fixed inset-0 bg-slate-950/20 backdrop-blur-[1px]"
-                firstVisitWrapperClassName="fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] px-3 pb-3"
+                firstVisitBackdropClassName="md:hidden fixed inset-0 bg-slate-950/20 backdrop-blur-[1px]"
+                firstVisitWrapperClassName="md:hidden fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] px-3 pb-3"
                 firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white shadow-[0_-18px_45px_rgba(15,23,42,0.18)] animate-in fade-in slide-in-from-bottom-4 duration-300"
                 style={{ zIndex: Z_INDEX.mobileHeaderTooltip }}
+                disableBlockedModal={true}
             />
 
         </>

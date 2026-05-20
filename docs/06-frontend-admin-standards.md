@@ -32,3 +32,9 @@ Owner: Frontend Lead
 - **Rule**: Shared UI components such as module tabs, breadcrumbs, page headers, and global filters must be rendered only at the page layout level.
 - **Composition**: They must never be re-rendered inside child content components to avoid duplicate rendering and accessibility violations (multiple H1s/tablists).
 - **Enforcement**: Frontend regression tests (`apps/admin/tests/ui-composition.spec.ts`) and automated coverage.
+
+## 6. SSR vs CSR Strategy (Next.js)
+
+- **Client-Side Rendering (CSR):** Use `'use client'` strictly at the lowest possible leaf node in the component tree where interactivity (hooks, state, events) is required.
+- **Server-Side Rendering (SSR):** Layouts, data-fetching boundaries, and static presentational wrappers must remain Server Components by default to optimize bundle size and SEO.
+- **Data Hydration:** Avoid massive prop drilling from Server to Client components. Pass only necessary scalar identifiers or use dedicated Client-side query fetching where real-time mutation is needed.

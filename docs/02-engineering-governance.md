@@ -29,8 +29,22 @@ The following guards are enforced in CI/CD to prevent architectural drift.
 - Direct access to `/api/admin/` or unversioned routes is deprecated.
 - Enforced by: `guard:api-surface`
 
-## 3. Deployment Discipline
+## 3. Deployment Discipline & PR Reviews
 
-- No direct push to `main`.
-- PR Impact Analysis is mandatory (Header: `## Impact Analysis`).
+- **No direct push** to `main`.
+- **Line-by-Line Review:** A mandatory line-by-line review must be conducted prior to merge, ensuring no duplicate code, no `any` types, and adherence to naming conventions.
+- **PR Impact Analysis** is mandatory (Header: `## Impact Analysis`).
 - Enforced by: `guard:pr-impact-analysis`
+
+## 4. Git Branch Rules
+
+All non-trivial changes must be made on a dedicated branch.
+
+### 4.1 Branch Naming Conventions
+- `fix/<module>-<short-description>` (e.g., `fix/admin-dashboard-blank-screen`)
+- `feat/<module>-<short-description>` (e.g., `feat/smart-alert-renewal`)
+- `refactor/<module>-<short-description>` (e.g., `refactor/location-service`)
+- `docs/<topic>` (e.g., `docs/governance-rules`)
+
+### 4.2 Scope Protection
+- A branch must contain only files required for the current issue. Do not touch unrelated features or mix a `fix` with a `feat`.

@@ -14,6 +14,7 @@ interface HeaderLocationPromptsProps {
     firstVisitWrapperClassName?: string;
     firstVisitPromptClassName?: string;
     style?: React.CSSProperties;
+    disableBlockedModal?: boolean;
 }
 
 export function HeaderLocationPrompts({
@@ -25,6 +26,7 @@ export function HeaderLocationPrompts({
     firstVisitWrapperClassName,
     firstVisitPromptClassName,
     style,
+    disableBlockedModal = false,
 }: HeaderLocationPromptsProps) {
     const { shouldShowFirstVisitPrompt, showPermissionBlockedModal } = useLocationStatus();
     const { detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal } = useLocationDispatch();
@@ -57,17 +59,19 @@ export function HeaderLocationPrompts({
                 </>
             )}
 
-            <LocationPermissionBlockedModal
-                isOpen={showPermissionBlockedModal}
-                onDismiss={dismissPermissionBlockedModal}
-                onUseManualLocation={() => {
-                    setShowLocationSelector(true);
-                    setShowSearchDropdown?.(false);
-                }}
-                onOpenBrowserSettings={() => {
-                    dismissPermissionBlockedModal();
-                }}
-            />
+            {!disableBlockedModal && (
+                <LocationPermissionBlockedModal
+                    isOpen={showPermissionBlockedModal}
+                    onDismiss={dismissPermissionBlockedModal}
+                    onUseManualLocation={() => {
+                        setShowLocationSelector(true);
+                        setShowSearchDropdown?.(false);
+                    }}
+                    onOpenBrowserSettings={() => {
+                        dismissPermissionBlockedModal();
+                    }}
+                />
+            )}
         </>
     );
 }
