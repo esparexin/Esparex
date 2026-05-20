@@ -59,6 +59,8 @@ export interface AdminListingsQuery {
     expiringWithinDays?: unknown;
     spotlightWarningStatus?: unknown;
     spotlightExpiringWithinDays?: unknown;
+    search?: unknown;
+    catalogPending?: unknown;
 }
 
 type DuplicateBypassBody = {
@@ -153,7 +155,7 @@ export const adminListListings = async (query: AdminListingsQuery) => {
             brandId: asString(query.brandId),
             modelId: asString(query.modelId),
             locationId: asString(query.locationId),
-            q: asString(query.q),
+            q: asString(query.q || query.search),
             minPrice: asNumber(query.minPrice),
             maxPrice: asNumber(query.maxPrice),
             createdAfter: asString(query.createdAfter),
@@ -164,6 +166,7 @@ export const adminListListings = async (query: AdminListingsQuery) => {
             expiringWithinDays: asNumber(query.expiringWithinDays),
             spotlightWarningStatus: asString(query.spotlightWarningStatus) as ListingModerationFilters['spotlightWarningStatus'],
             spotlightExpiringWithinDays: asNumber(query.spotlightExpiringWithinDays),
+            catalogPending: query.catalogPending === 'true' || query.catalogPending === true
         },
         { page, limit }
     );
@@ -298,6 +301,10 @@ export const adminApproveListing = async (
         && reviewVersion !== listing.reviewVersion
     ) {
         throw new AppError('Conflict: listing was edited while under review', 409);
+    }
+
+    if (listing.catalogPending) {
+        throw new AppError('Cannot approve listing with pending catalog request. Please approve the brand/model request first.', 400);
     }
 
     const approvedAt = new Date();

@@ -46,6 +46,7 @@
     "migrate:spare-part-needs-review-cleanup": "ts-node -r tsconfig-paths/register src/scripts/migrations/remove_spare_part_needs_review.ts",
     "migrate:lifecycle-integrity-sweep": "ts-node -r tsconfig-paths/register src/scripts/migrations/migrate_listing_lifecycle_integrity.ts",
     "scan:master-data-integrity": "node scripts/master-data-integrity-scan.js",
+    "validate:master-catalog-health": "node scripts/validate-master-catalog-health.js",
     "ops:indexes:apply": "ts-node scripts/syncUserIndexes.ts && ts-node scripts/sync_ad_indexes.ts",
     "ops:indexes:rename-prefix:dry": "ts-node -r tsconfig-paths/register scripts/rename_index_names_to_idx_prefix.ts",
     "ops:indexes:rename-prefix:apply": "ts-node -r tsconfig-paths/register scripts/rename_index_names_to_idx_prefix.ts --apply",

@@ -96,4 +96,5 @@ export const ADMIN_UI_ROUTES = {
     businesses: (query?: QueryShape) => toRoute("/businesses", query),
     finance: (query?: QueryShape) => toRoute("/finance", query),
     chat: (query?: QueryShape) => toRoute("/chat", query),
+    catalogRequests: (query?: QueryShape) => toRoute("/catalog-requests", query),
 } as const;

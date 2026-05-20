@@ -61,44 +61,56 @@ Tool-specific files may exist only as compatibility layers for local IDEs or ext
 - AI agents must not invent alternate architectures, contracts, or ownership models.
 - If rules conflict, the stricter and more specific rule wins until the conflict is harmonized in canonical docs.
 
-### API Rules
+### Documentation Registry Rules
 
-- User application requests must go through the canonical user API client layer.
-- Admin application requests must go through `adminFetch` or the canonical admin API client layer.
-- React components must not introduce direct `fetch` or `axios` calls for app data access.
-- Admin endpoints must never be called from user UI flows.
-- API contract changes require explicit approval and versioning discipline.
+- **Registry Mandatory**: Every new documentation file MUST be added to `docs/00-index.md` before merge.
+- **Update-In-Place**: Always update existing canonical documents registered in `docs/00-index.md`. Never create duplicate `_final`, `_latest`, or `_v2` files.
+- **Archiving**: Move superseded documents to `archive/legacy/YYYY-MM/` according to `docs/10-archive-policy.md`.
+- **Banned Filenames**: Reject any file creation containing `final`, `latest`, `updated`, `copy`, `new`, `definitive`, `consolidated`, `backup`, `old`, `draft`, or `temp`.
 
-### Database Rules
+### Platform Architecture Governance
 
-- Controllers must not own business logic that belongs in services.
-- Controllers must not directly own database access when the service layer is the canonical owner.
-- Raw `req.query` and privileged `req.body` objects must not be passed directly into database operations.
-- Incoming ObjectIds must be validated before database access.
-- Hard deletes are disallowed for governed domain data unless explicitly approved.
+For detailed rules on API, Database, Naming, and Frontend standards, AI agents MUST refer to the following canonical documents:
 
-### Naming Rules
+1. **API & Connectivity**: [docs/04-api-connectivity-map.md](../docs/04-api-connectivity-map.md)
+2. **Database & Schema**: [docs/05-database-schema-ssot.md](../docs/05-database-schema-ssot.md)
+3. **Frontend & Admin**: [docs/06-frontend-admin-standards.md](../docs/06-frontend-admin-standards.md)
+4. **Developer Standards**: [docs/03-developer-standards.md](../docs/03-developer-standards.md)
 
-- New fields use `camelCase`.
-- String identifiers end with `Id`.
-- React component filenames use `PascalCase`.
-- Service, controller, validator, utility, and helper files use `camelCase`.
-- Model files use singular `PascalCase`.
-- Container directories remain lowercase and typically plural.
-- Admin UI lives in `apps/admin`, not `frontend`.
+**Mandatory Enforcement**: Every critical rule in these documents is validated by a corresponding script in `scripts/` and enforced in CI/CD via `npm run governance:all`.
 
-### Enum and Contract Rules
-
-- Shared enums, cross-app contracts, and reusable schemas belong in `shared/`.
-- Frontend must mirror canonical payload and response contracts.
-- AI tools must not introduce parallel enums, duplicate DTOs, or alternate field names.
-
-### Business Logic Rules
-
-- Business logic belongs in services.
-- UI can change presentation, but must not silently change behavior.
-- AI agents must not make speculative business-rule changes.
+### Runtime AI Prompts
 - Runtime AI prompts and provider behavior are code-owned by the runtime AI implementation, not by IDE prompt files.
+
+### Notification and Feedback Rules
+
+- Do not use `toast.*` or the `sonner` package.
+- Do not use legacy `notify.*` from `@/lib/notify`.
+- Do not mount `<Toaster />` or any other toast providers.
+- All client success feedback and error notifications must go through the centralized feedback system:
+  - Canonical State Manager: `FeedbackSystemContext.tsx`
+  - Canonical Event Dispatcher: `feedback.ts`
+  - Canonical UI Rendering Layer: `SystemFeedbackBanners.tsx` (inline banners)
+  - Code Review Checklist: Any new Sonner dependencies, direct toast invocations, or parallel toast notifications must be rejected.
+### Single Shared UI Ownership
+
+- **Single Owner**: Shared UI components (module tabs, breadcrumbs, page headers) must have a single rendering owner at the page layout level.
+- **No Duplication**: Child content components must never re-render these elements.
+- **Hierarchy**: Use `isNested={true}` (or equivalent) in child templates to suppress redundant page-level headers and navigation.
+- **Canonical Structure**: `<PageShell title="Page Title" tabs={<ModuleTabs ... />}><ChildContent isNested={true} /></PageShell>`.
+
+### Engineering and Shared Contracts
+
+- **Backward Compatibility**: All shared API contracts used by multiple modules MUST be backward compatible.
+- **Safe Defaults**: Newly introduced fields must have safe defaults (e.g., `0` for counts, `""` for strings) and MUST NEVER break existing consumers by being mandatory without defaults.
+- **Serialization**: Canonical serializers must normalize data to prevent frontend crashes due to missing or non-numeric fields in shared contracts.
+
+### Authentication and Session Management
+
+- **Resilient Refresh**: Authentication refresh logic must distinguish between authorization failures and transient network failures. Only confirmed authentication failures (401/403) may trigger forced logout.
+- **Differentiated Error Handling**: API clients must provide structured error classification (e.g., `AdminNetworkError` vs `AdminApiError`) to allow UI layers to decide whether to preserve session state.
+- **Credentials Persistence**: Secure `credentials: "include"` must be used for all authenticated requests to ensure cookie-based sessions remain stable.
+
 
 ## 5. Runtime AI Canonical Ownership
 

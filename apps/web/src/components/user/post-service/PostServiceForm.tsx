@@ -174,6 +174,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                         brands={availableBrands}
                         brandMap={brandMap}
                         value={brandId || ""}
+                        categoryId={categoryId}
                         onChange={(id) => setValue("brandId", id || "", { shouldValidate: true, shouldDirty: true })}
                         disabled={isEditMode}
                     />

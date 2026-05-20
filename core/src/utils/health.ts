@@ -44,7 +44,6 @@ export const getHealthCheckData = async (deep = false) => {
             latencyMs: null
         }
     });
-
     let queueHealth;
     let workerHealth;
 

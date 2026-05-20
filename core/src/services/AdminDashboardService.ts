@@ -1,5 +1,6 @@
 import User from '../models/User';
 import Ad from '../models/Ad';
+import CatalogRequest from '../models/CatalogRequest';
 
 interface CountResult { count: number }
 interface MonthlyCountResult { _id: { month: number; year: number }; count: number }
@@ -48,7 +49,8 @@ import {
 export const getDashboardOverviewStats = async (publicAdFilter: Record<string, unknown>) => {
     const [
         totalUsers, unifiedStats,
-        pendingModels, openReports, pendingBusinesses, totalRevenueAgg
+        pendingModels, openReports, pendingBusinesses, totalRevenueAgg,
+        catalogHealth
     ] = await Promise.all([
         User.countDocuments(),
         Ad.aggregate<OverviewFacetResult>([
@@ -70,10 +72,66 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
         CatalogModel.countDocuments({ status: CATALOG_STATUS.PENDING }),
         Report.countDocuments({ status: REPORT_STATUS.OPEN }),
         Business.countDocuments({ status: BUSINESS_STATUS.PENDING }),
-        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
+        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }]),
+        getCatalogHealthMetrics()
     ]);
 
-    return { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg };
+    return { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth };
+};
+
+export const getCatalogHealthMetrics = async () => {
+    const [counts, resolutionAgg, heldListings] = await Promise.all([
+        CatalogRequest.aggregate<{ _id: string; count: number }>([
+            {
+                $match: {
+                    status: { $in: ['pending', 'under_review', 'duplicate_review', 'duplicate'] }
+                }
+            },
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]),
+        CatalogRequest.aggregate<{ _id: null; avgTimeMs: number }>([
+            {
+                $match: {
+                    status: { $in: ['approved', 'rejected', 'duplicate'] },
+                    $or: [
+                        { approvedAt: { $ne: null } },
+                        { rejectedAt: { $ne: null } }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    resolutionTimeMs: {
+                        $subtract: [
+                            { $ifNull: ['$approvedAt', '$rejectedAt'] },
+                            '$createdAt'
+                        ]
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    avgTimeMs: { $avg: '$resolutionTimeMs' }
+                }
+            }
+        ]),
+        Ad.countDocuments({ catalogPending: true, isDeleted: { $ne: true } })
+    ]);
+
+    const findCount = (status: string) => counts.find(c => c._id === status)?.count || 0;
+
+    const pendingRequests = findCount('pending') + findCount('under_review') + findCount('duplicate_review');
+    const duplicateRequests = findCount('duplicate');
+    const avgTimeMs = resolutionAgg[0]?.avgTimeMs || 0;
+    const averageResolutionHours = Number((avgTimeMs / (1000 * 60 * 60)).toFixed(1));
+
+    return {
+        pendingRequests,
+        heldListings,
+        averageResolutionHours,
+        duplicateRequests
+    };
 };
 
 export const getDashboardCardStats = async (publicAdFilter: Record<string, unknown>) => {
@@ -81,7 +139,8 @@ export const getDashboardCardStats = async (publicAdFilter: Record<string, unkno
         totalUsers, adStats,
         totalReports,
         totalBusinesses,
-        totalRevenueAgg
+        totalRevenueAgg,
+        catalogHealth
     ] = await Promise.all([
         User.countDocuments(),
         Ad.aggregate<CardFacetResult>([
@@ -94,10 +153,11 @@ export const getDashboardCardStats = async (publicAdFilter: Record<string, unkno
         ]),
         Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] } }),
         Business.countDocuments({ isDeleted: { $ne: true } }),
-        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }])
+        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }]),
+        getCatalogHealthMetrics()
     ]);
 
-    return { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg };
+    return { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth };
 };
 
 export const getRecentAdminLogs = async (limit: number) => {

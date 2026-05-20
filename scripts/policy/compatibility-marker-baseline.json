@@ -1,5 +1,6 @@
 {
   "backend/user/src/__tests__/config/validateEnv.spec.ts": 4,
+  "backend/user/src/__tests__/routes/catalogLegacyDeprecation.spec.ts": 4,
   "backend/user/src/__tests__/routes/chatRoutes.auth.spec.ts": 1,
   "backend/user/src/__tests__/validators/adminAudit.validator.spec.ts": 1,
   "backend/user/src/__tests__/validators/adminModeration.validator.spec.ts": 2,
@@ -11,6 +12,7 @@
   "backend/user/src/__tests__/validators/servicePayload.schema.spec.ts": 2,
   "backend/user/src/__tests__/validators/user.validator.spec.ts": 2,
   "backend/user/src/app.ts": 3,
+  "backend/user/src/middleware/deprecations.ts": 5,
   "backend/user/src/controllers/auth/index.ts": 1,
   "backend/user/src/controllers/business/index.ts": 1,
   "backend/user/src/controllers/catalog/catalogBrandModelController.ts": 2,
@@ -32,6 +34,7 @@
   "backend/user/src/middleware/validateIdOrSlug.ts": 4,
   "backend/user/src/models/Ad.ts": 3,
   "backend/user/src/routes/adRoutes.ts": 2,
+  "backend/user/src/routes/adminRoutes.ts": 1,
   "backend/user/src/routes/serviceRoutes.ts": 2,
   "backend/user/src/routes/sparePartRoutes.ts": 2,
   "apps/web/src/__tests__/ad-report-payload.spec.ts": 2,

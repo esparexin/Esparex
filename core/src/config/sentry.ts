@@ -8,9 +8,18 @@
  */
 
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { env, isProduction, isDevelopment } from './env';
 import logger from '../utils/logger';
+
+let nodeProfilingIntegration: any = null;
+try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    nodeProfilingIntegration = require('@sentry/profiling-node').nodeProfilingIntegration;
+} catch (error) {
+    logger.warn('Failed to load @sentry/profiling-node native binary. Sentry profiling is disabled.', {
+        error: error instanceof Error ? error.message : String(error),
+    });
+}
 
 /**
  * Initialize Sentry error tracking
@@ -39,9 +48,7 @@ export function initSentry() {
 
             // Profiling
             profilesSampleRate: isProduction ? 0.1 : 1.0,
-            integrations: [
-                nodeProfilingIntegration(),
-            ],
+            integrations: nodeProfilingIntegration ? [nodeProfilingIntegration()] : [],
 
             // Release tracking
             release: process.env.npm_package_version,

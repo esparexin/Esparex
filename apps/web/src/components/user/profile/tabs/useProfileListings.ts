@@ -32,7 +32,7 @@ export function useProfileListings(
     type: ProfileListingType,
     activeSubTab: string,
     user: User | null,
-    statusFilter: ListingStatus = "active"
+    statusFilter: ListingStatus = "live"
 ) {
     const isActive = activeSubTab === type;
 

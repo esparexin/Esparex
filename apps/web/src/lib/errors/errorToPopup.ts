@@ -1,5 +1,5 @@
 import type { APIError } from "@/lib/api/APIError";
-import type { PopupAction, PopupType } from "@/lib/popup/popupEvents";
+import type { PopupAction, PopupType } from "@shared";
 
 function fallbackPopupTitle(error: APIError, type: PopupType): string {
   const normalizedMessage = error.message.trim().toLowerCase();

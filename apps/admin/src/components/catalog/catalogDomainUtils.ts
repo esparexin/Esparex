@@ -1,23 +1,34 @@
-import { CATALOG_STATUS } from "@shared";
-
 type CategoryLinkedEntity = {
     categoryIds?: string[] | null;
-    categoryId?: string | null;
+    approvalStatus?: string | null;
+    isActive?: boolean;
+    isDeleted?: boolean;
 };
 
 type NamedCategory = {
     id?: string | null;
     name?: string | null;
     isActive?: boolean;
-    status?: string | null;
+    approvalStatus?: string | null;
 };
+
+export type CatalogLifecycleStatus = "live" | "inactive" | "pending" | "rejected";
+
+export function deriveCatalogLifecycleStatus(entity: {
+    approvalStatus?: string | null;
+    isActive?: boolean;
+    isDeleted?: boolean;
+}): CatalogLifecycleStatus {
+    const approvalStatus = (entity.approvalStatus || "").toLowerCase();
+    if (approvalStatus === "pending") return "pending";
+    if (approvalStatus === "rejected") return "rejected";
+    if (entity.isDeleted || entity.isActive === false) return "inactive";
+    return "live";
+}
 
 export function getEntityCategoryIds(entity: CategoryLinkedEntity): string[] {
     if (Array.isArray(entity.categoryIds) && entity.categoryIds.length > 0) {
         return entity.categoryIds.filter(Boolean);
-    }
-    if (entity.categoryId) {
-        return [entity.categoryId];
     }
     return [];
 }
@@ -57,15 +68,14 @@ export function hasCategoryOverlap(
     return selectedCategoryIds.some((categoryId) => linkedCategoryIds.includes(categoryId));
 }
 
-export function validateRequiredCategoryIds(categoryIds: string[]): string | null {
-    if (categoryIds.length === 0) return "At least one category is required";
+export function validateRequiredCategoryIds(_categoryIds: string[]): string | null {
     return null;
 }
 
 function getInvalidCategoryHint(category: NamedCategory | undefined): string {
     if (!category) return " (Missing)";
-    if (!category.isActive || category.status === CATALOG_STATUS.INACTIVE) return " (Inactive)";
-    if (category.status === CATALOG_STATUS.REJECTED) return " (Rejected)";
+    if (!category.isActive) return " (Inactive)";
+    if ((category.approvalStatus || "").toLowerCase() === "rejected") return " (Rejected)";
     return " (Invalid Type)";
 }
 

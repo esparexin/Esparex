@@ -15,11 +15,14 @@ type AdminSidebarProps = {
 };
 
 function SidebarFooterMeta({ role }: { role?: string }) {
+    const formattedRole = role === "superAdmin" 
+        ? "super admin" 
+        : role?.replace("_", " ") || "";
     return (
         <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-slate-500">v2.0.0-rc</span>
             <span className="rounded-full bg-slate-800/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                {role?.replace("_", " ")}
+                {formattedRole}
             </span>
         </div>
     );
@@ -32,7 +35,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
     const hasAccess = useCallback((roles: string[]) => {
         if (!admin) return false;
         if (roles.includes("all")) return true;
-        if (admin.role === "super_admin") return true;
+        if (admin.role === "superAdmin") return true;
         if (admin.role === "admin" && roles.includes("admin")) return true;
         if (admin.role === "moderator" && roles.includes("moderator")) return true;
         return false;

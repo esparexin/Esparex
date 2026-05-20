@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { ListingCategory } from "@/types/listing";
-import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import type { Brand } from "@/lib/api/user/masterData";
 
 export function useCategoryDependents(
@@ -42,6 +42,7 @@ export function useCategoryDependents(
         form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
@@ -53,7 +54,7 @@ export function useCategoryDependents(
         ]);
     }, [form, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
 
-    const handleBrandChange = useCallback(async (name: string) => {
+    const handleBrandChange = useCallback(async (name: string, requestId?: string) => {
         const currentBrand = form.getValues("brand");
         const brandChanged = currentBrand !== name;
 
@@ -61,13 +62,17 @@ export function useCategoryDependents(
         form.setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         const brandObj = brandMap[name];
-        const brandId = normalizeOptionalObjectId(brandObj?.id);
+        const brandId = sanitizeMongoObjectId(brandObj?.id || brandObj?._id);
         form.setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("catalogRequestId", requestId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         if (brandChanged) {
             form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
             form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
             form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
+            if (!requestId) {
+                form.setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true });
+            }
         }
         
         setBrandIsPending(false);

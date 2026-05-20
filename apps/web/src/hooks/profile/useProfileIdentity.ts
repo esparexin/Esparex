@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { updateProfile } from "@/lib/api/user/users";
 import {
   isAllowedProfilePhotoType,

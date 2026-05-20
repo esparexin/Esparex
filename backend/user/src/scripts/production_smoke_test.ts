@@ -17,6 +17,7 @@ import Location from '@esparex/core/models/Location';
 import { connectDB } from '@esparex/core/config/db';
 import redis from '@esparex/core/config/redis';
 import logger from '@esparex/core/utils/logger';
+import { Role } from '@esparex/core/constants/enums/roles';
 
 // 🧪 MOCK: Override logger to capture smoke test output
 const logs: string[] = [];
@@ -69,7 +70,7 @@ async function runScenarioA(verifiedLocation: SmokeEntityWithId, validCategory: 
         _id: userId,
         mobile,
         name: 'Scenario A User',
-        role: 'user',
+        role: Role.USER,
         status: 'live',
         isVerified: true,
         createdAt: new Date(Date.now() - 48 * 3600000) // 48h old to avoid low-age penalty
@@ -134,7 +135,7 @@ async function runScenarioB(verifiedLocation: SmokeEntityWithId, validCategory: 
         _id: userId,
         mobile,
         name: 'Scenario B User',
-        role: 'user',
+        role: Role.USER,
         status: 'live',
         isVerified: true
     });
@@ -176,7 +177,7 @@ async function runScenarioC(verifiedLocation: SmokeEntityWithId, validCategory: 
         _id: adminId,
         mobile: adminMobile,
         name: 'Admin User',
-        role: 'admin',
+        role: Role.ADMIN,
         status: 'live',
         isVerified: true
     });
@@ -208,7 +209,7 @@ async function runScenarioC(verifiedLocation: SmokeEntityWithId, validCategory: 
     // 2. Negative Test: Privilege Escalation
     const userId = new mongoose.Types.ObjectId();
     const fakeMobile = `6${Math.floor(Math.random() * 1000000000)}`;
-    await User.create({ _id: userId, mobile: fakeMobile, name: 'Fake Admin', role: 'user', status: 'live', isVerified: true });
+    await User.create({ _id: userId, mobile: fakeMobile, name: 'Fake Admin', role: Role.USER, status: 'live', isVerified: true });
 
     logger.info('[SMOKE_TEST] scenario=C Attempting privilege escalation...');
     try {

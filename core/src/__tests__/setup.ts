@@ -10,3 +10,7 @@ process.env.HMAC_SECRET = 'test_hmac_secret_at_least_32_characters_long';
 process.env.RAZORPAY_KEY_ID = 'rzp_test_id';
 process.env.RAZORPAY_KEY_SECRET = 'rzp_test_secret';
 process.env.RAZORPAY_WEBHOOK_SECRET = 'test_webhook_secret';
+
+jest.mock('@sentry/profiling-node', () => ({
+    nodeProfilingIntegration: jest.fn(() => ({})),
+}));

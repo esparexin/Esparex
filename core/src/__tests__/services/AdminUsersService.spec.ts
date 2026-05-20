@@ -89,7 +89,7 @@ describe("AdminUsersService", () => {
             mockAdmin.findById.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     lean: jest.fn().mockResolvedValue({
-                        role: "super_admin",
+                        role: "superAdmin",
                         status: "live",
                     }),
                 }),
@@ -104,7 +104,7 @@ describe("AdminUsersService", () => {
             mockAdmin.findById.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     lean: jest.fn().mockResolvedValue({
-                        role: "super_admin",
+                        role: "superAdmin",
                         status: "live",
                     }),
                 }),
@@ -146,7 +146,7 @@ describe("AdminUsersService", () => {
             mockAdmin.findById.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     lean: jest.fn().mockResolvedValue({
-                        role: "super_admin",
+                        role: "superAdmin",
                         status: "suspended",  // Not 'live' → not active
                     }),
                 }),

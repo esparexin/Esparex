@@ -10,7 +10,7 @@ export const getMyListings = async (type?: string, status?: string, page = 1, li
     const params = new URLSearchParams();
     if (type) params.append('listingType', type);
     
-    const tab = status || 'active';
+    const tab = status || 'live';
     params.append('tab', tab);
 
     params.append('page', String(page));
@@ -50,17 +50,17 @@ export const getMyListingsStats = async (): Promise<ListingStatsResponse> => {
 
         return {
             ad: {
-                active: adRes.data?.live || 0,
+                live: adRes.data?.live || 0,
                 pending: adRes.data?.pending || 0,
                 expired: adRes.data?.expired || 0,
             },
             service: {
-                active: serviceRes.data?.live || 0,
+                live: serviceRes.data?.live || 0,
                 pending: serviceRes.data?.pending || 0,
                 expired: serviceRes.data?.expired || 0,
             },
             "spare_part": {
-                active: spareRes.data?.live || 0,
+                live: spareRes.data?.live || 0,
                 pending: spareRes.data?.pending || 0,
                 expired: spareRes.data?.expired || 0,
             },

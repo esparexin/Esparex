@@ -1,7 +1,7 @@
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { CATALOG_APPROVAL_STATUS, type CatalogApprovalStatusValue } from '../../constants/enums/catalogApprovalStatus';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';
 
@@ -11,17 +11,23 @@ import { validateObjectIdOrThrow } from '../../utils/idUtils';
 export const ACTIVE_CATEGORY_QUERY = {
     isActive: true,
     isDeleted: { $ne: true } as Record<string, unknown>,
-    status: CATALOG_STATUS.ACTIVE,
+    deletedAt: null,
+    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
 };
 
-/** Reusable filter for active, non-deleted brands */
 export const ACTIVE_BRAND_QUERY = {
-    isActive: true,
     isDeleted: { $ne: true } as Record<string, unknown>,
-    $or: [
-        { status: CATALOG_STATUS.ACTIVE },
-        { status: { $exists: false } },
-    ] as Record<string, unknown>[],
+    deletedAt: null,
+    isActive: true,
+    approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
+};
+
+/** Filter for publicly visible catalog records (Strict SSOT) */
+export const CATALOG_PUBLIC_VISIBILITY_QUERY = {
+    isDeleted: { $ne: true } as Record<string, unknown>,
+    deletedAt: null,
+    isActive: true,
+    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,7 +83,7 @@ export async function validateBrandBelongsToCategory(
     const brand = await Brand.findOne({
         _id: brandId,
         ...ACTIVE_BRAND_QUERY,
-        ...CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build(),
+        ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build(),
     }).select('_id').lean();
 
     if (!brand) {
@@ -112,12 +118,10 @@ export async function validateModelBelongsToBrand(
 
     const model = await Model.findOne({
         _id: modelId,
-        isActive: true,
         isDeleted: { $ne: true },
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE },
-            { status: { $exists: false } },
-        ],
+        deletedAt: null,
+        isActive: true,
+        approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
     }).select('brandId').lean();
 
     if (!model) {
@@ -311,7 +315,7 @@ export async function validateScreenSizeRelations(
     const brand = await Brand.findOne({
         _id: brandId,
         ...ACTIVE_BRAND_QUERY,
-        ...CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build(),
+        ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build(),
     }).select('_id').lean();
 
     if (!brand) {
@@ -336,4 +340,54 @@ export async function validateCategoryIsActive(categoryId: string): Promise<Vali
     return exists
         ? { ok: true }
         : { ok: false, reason: 'categoryId refers to an invalid or inactive category.' };
+}
+
+/**
+ * Normalizes a catalog name to its canonical form (lowercase, single-spaced).
+ */
+export function normalizeCatalogCanonicalName(name: string): string {
+    return (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+/**
+ * Applies standard catalog naming defaults (canonical name normalization).
+ */
+export function applyCatalogNamingDefaults(doc: { name: string; canonicalName?: string }): void {
+    if (doc.name) {
+        doc.canonicalName = normalizeCatalogCanonicalName(doc.name);
+    }
+}
+
+/**
+ * Simple duplicate suggestion check based on canonical name match.
+ */
+export function isDuplicateSuggestion(name: string, existing: Array<{ name: string }>) {
+    const normalized = normalizeCatalogCanonicalName(name);
+    const match = existing.find(e => normalizeCatalogCanonicalName(e.name) === normalized);
+    return {
+        isDuplicate: !!match,
+        confidence: match ? 1.0 : 0,
+        matchedWith: match?.name
+    };
+}
+
+/**
+ * Derives the target approval status for a catalog record based on its current state and intent.
+ */
+export function deriveApprovalStatus(options: {
+    approvalStatus?: unknown;
+    isActive?: boolean | null;
+    fallback?: CatalogApprovalStatusValue;
+}): CatalogApprovalStatusValue {
+    const { approvalStatus, isActive, fallback = CATALOG_APPROVAL_STATUS.APPROVED } = options;
+
+    if (approvalStatus === CATALOG_APPROVAL_STATUS.APPROVED || approvalStatus === CATALOG_APPROVAL_STATUS.REJECTED) {
+        return approvalStatus as CatalogApprovalStatusValue;
+    }
+
+    if (approvalStatus === CATALOG_APPROVAL_STATUS.PENDING && isActive === true) {
+        return CATALOG_APPROVAL_STATUS.APPROVED;
+    }
+
+    return ((approvalStatus as string) || fallback) as CatalogApprovalStatusValue;
 }

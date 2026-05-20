@@ -6,12 +6,11 @@
 
 import { Request, Response } from 'express';
 import logger from '../../../utils/logger';
-import { respond, sendSuccessResponse } from "../../../utils/respond";
+import { sendSuccessResponse } from "../../../utils/respond";
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
-import slugify from 'slugify';
-import { nanoid } from 'nanoid';
-import { CATALOG_STATUS } from "@esparex/shared";
+import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
+import { getUserConnection } from '../../../config/db';
 import {
     BrandModel,
     CatalogModel,
@@ -19,20 +18,12 @@ import {
     findBrandByFilter,
     getActiveBrandIds,
     checkBrandInCategories,
-    findActiveBrandByName,
-    findPendingBrandSuggestion,
-    createBrandRecord,
-    findBrandByNameInCategory,
     checkBrandDependencies,
     findModelByFilter,
-    findModelsByPattern,
-    findModelSuggestion,
-    findModelByNameAndBrand,
-    createModelRecord,
     checkModelDependencies,
+    findModelBySlug,
 } from '../../../services/catalog/CatalogBrandModelService';
-import { validateBrandIsActive, validateCategoryIsActive } from '../../../services/catalog/CatalogValidationService';
-import { escapeRegExp } from '../../../utils/stringUtils';
+import { validateBrandIsActive } from '../../../services/catalog/CatalogValidationService';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import {
     sendCatalogError,
@@ -45,11 +36,14 @@ import {
     handleCatalogToggleStatus,
     handleCatalogDelete,
     handleCatalogReview,
-    isDuplicateKeyError,
-    sendEmptyPublicList
+    sendEmptyPublicList,
+    applyCatalogStatusFilter,
+    hasAdminAccess,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
+    deriveApprovalStatus
 } from './shared';
-import { sendErrorResponse as sendContractErrorResponse } from "../../../utils/errorResponse";
-import { validateBrandSuggestion, validateModelSuggestion } from '../../../utils/suggestionValidation';
+import { logAdminAction } from '../../../utils/adminLogger';
+import { toOptionalString, toStringArray } from './inputCoercion';
 import {
     brandCreateSchema,
     brandUpdateSchema,
@@ -62,31 +56,31 @@ import { getCache, setCache } from '../../../utils/redisCache';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
+const normalizeCacheValue = (value: unknown): string => {
+    if (Array.isArray(value)) return value.map(normalizeCacheValue).join(',');
+    if (value === undefined || value === null || value === '') return 'all';
+    return encodeURIComponent(String(value));
+};
+
 const catalogCacheKey = {
-    brands: (categoryId: string) => `catalog:brands:${categoryId}`,
-    models: (categoryId: string, brandId?: string) => brandId
-        ? `catalog:models:${categoryId}:${brandId}`
-        : `catalog:models:${categoryId}`,
-};
-
-const toOptionalString = (value: unknown): string | undefined => {
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed || undefined;
-    }
-    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
-        const stringValue = (value as { toString: () => string }).toString().trim();
-        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
-    }
-    return undefined;
-};
-
-const toStringArray = (value: unknown): string[] | undefined => {
-    if (!Array.isArray(value)) return undefined;
-    const normalized = value
-        .map((entry) => toOptionalString(entry))
-        .filter((entry): entry is string => Boolean(entry));
-    return normalized.length > 0 ? normalized : undefined;
+    brands: (categoryId: string) => `catalog:brands:${normalizeCacheValue(categoryId)}`,
+    models: (params: {
+        categoryId?: unknown;
+        brandId?: unknown;
+        search?: unknown;
+        q?: unknown;
+        page?: unknown;
+        limit?: unknown;
+        sort?: unknown;
+    }) => [
+        'catalog:models',
+        `category=${normalizeCacheValue(params.categoryId)}`,
+        `brand=${normalizeCacheValue(params.brandId)}`,
+        `search=${normalizeCacheValue(params.search ?? params.q)}`,
+        `page=${normalizeCacheValue(params.page ?? 1)}`,
+        `limit=${normalizeCacheValue(params.limit ?? 100)}`,
+        `sort=${normalizeCacheValue(params.sort ?? 'name')}`,
+    ].join(':'),
 };
 
 /** Wraps res.json to write-through to Redis on success (public path only). */
@@ -113,9 +107,10 @@ const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
  */
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
-    const categoryId = (req.query.categoryId || req.query.categoryIds) as string;
-    let categoryObjectId: string | undefined = categoryId;
-    if (!isAdminView && categoryId) {
+    const categoryId = req.query.categoryId as string;
+    let categoryObjectId: string | undefined = (categoryId && categoryId !== 'all') ? categoryId : undefined;
+
+    if (!isAdminView && categoryId && categoryId !== 'all') {
         // Public view allows passing slug for categoryId
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
             const cat = await findCategoryBySlugForCatalog(categoryId, ACTIVE_CATEGORY_QUERY);
@@ -150,18 +145,17 @@ export const getBrands = async (req: Request, res: Response) => {
     const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
     delete queryParams.categoryId;
     delete queryParams.categoryIds;
+    delete queryParams.status;
 
     const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+    const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
+    applyCatalogStatusFilter(adminCategoryFilter, rawStatus);
 
     return handlePaginatedContent(req, res, BrandModel, {
+        searchFields: ['name', 'canonicalName', 'aliases'],
         publicQuery: {
-            isActive: true,
-            isDeleted: { $ne: true },
-            $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
-            ],
+            ...CATALOG_PUBLIC_VISIBILITY_QUERY,
             ...categoryFilter
         },
         adminQuery: adminCategoryFilter,
@@ -180,12 +174,7 @@ export const getBrandById = async (req: Request, res: Response) => {
             ...(isAdminView
                 ? {}
                 : {
-                    isActive: true,
-                    isDeleted: { $ne: true },
-                    $or: [
-                        { status: CATALOG_STATUS.ACTIVE },
-                        { status: { $exists: false } }
-                    ]
+                    ...CATALOG_PUBLIC_VISIBILITY_QUERY,
                 })
         });
         if (!brand) return sendCatalogError(req, res, 'Brand not found', 404);
@@ -205,13 +194,13 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'Brand slug is required', 400);
         }
 
+        const slugAlias = slug.replace(/-/g, ' ');
         const brand = await findBrandByFilter({
-            slug,
-            isActive: true,
-            isDeleted: { $ne: true },
+            ...CATALOG_PUBLIC_VISIBILITY_QUERY,
             $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
+                { slug },
+                { canonicalName: slugAlias },
+                { aliases: { $in: [slugAlias, slug] } },
             ]
         });
 
@@ -233,13 +222,23 @@ export const createBrand = async (req: Request, res: Response) => {
         auditAction: 'BRAND_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
-            // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
-            }
-            delete payload.categoryId;
+            const categoryIds = Array.isArray(payload.categoryIds)
+                ? (payload.categoryIds as string[]).map(String)
+                : [];
+            payload.categoryIds = categoryIds;
 
-            const categoryValidation = await validateActiveCategories((payload.categoryIds as string[]).map(String));
+            if (categoryIds.length === 0) {
+                payload.isActive = false;
+            }
+
+            const approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
+            payload.approvalStatus = approvalStatus;
+
+            const categoryValidation = await validateActiveCategories(categoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
             }
@@ -256,13 +255,24 @@ export const updateBrand = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, BrandModel, brandUpdateSchema, {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
-            // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
-            }
-            delete payload.categoryId;
+            const typedOldBrand = oldBrand as { categoryIds?: unknown[]; approvalStatus?: unknown; isActive?: boolean };
+            
+            const nextCategoryIds = payload.categoryIds
+                ? (payload.categoryIds as string[]).map(String)
+                : (typedOldBrand.categoryIds || []).map(String);
+            
+            payload.categoryIds = nextCategoryIds;
 
-            const nextCategoryIds = payload.categoryIds ? (payload.categoryIds as string[]).map(String) : ((oldBrand as { categoryIds?: unknown[] }).categoryIds || []).map(String);
+            if (nextCategoryIds.length === 0) {
+                payload.isActive = false;
+            }
+
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus ?? typedOldBrand.approvalStatus,
+                isActive: (payload.isActive ?? typedOldBrand.isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
+
             const categoryValidation = await validateActiveCategories(nextCategoryIds);
             if (!categoryValidation.ok) {
                 throw new Error(`Invalid or inactive categories: ${categoryValidation.invalidCategoryIds.join(', ')}`);
@@ -283,88 +293,169 @@ export const toggleBrandStatus = async (req: Request, res: Response) => {
     });
 };
 
-/**
- * Delete brand (soft delete with dependency check)
- */
 export const deleteBrand = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, BrandModel, checkBrandDependencies, {
-        auditAction: 'BRAND_DELETE',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
-    });
-};
-
-/**
- * Suggest a new brand (User interaction)
- */
-export const suggestBrand = async (req: Request, res: Response) => {
     try {
-        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
-        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
-
-        const { name, categoryIds } = req.body as { name?: string; categoryIds?: string };
-        const validation = validateBrandSuggestion(name ?? '');
-        if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
-
-        if (!categoryIds || !mongoose.Types.ObjectId.isValid(categoryIds)) {
-            return sendCatalogError(req, res, 'Valid categoryIds is required', 400);
-        }
-        const { ok: catOk } = await validateCategoryIsActive(categoryIds);
-        if (!catOk) {
-            return sendCatalogError(req, res, 'categoryIds must reference an active category', 400);
+        if (!hasAdminAccess(req)) {
+            return res.status(403).json({
+                success: false,
+                error: 'Admin access required',
+                path: req.originalUrl || req.path,
+                status: 403
+            });
         }
 
-        const cleanName = validation.cleanName;
+        const id = String(req.params.id);
 
-        // Check for existing active brand
-        const existing = await findActiveBrandByName(new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'));
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid Brand ID format',
+                path: req.originalUrl || req.path,
+                status: 400
+            });
+        }
 
-        if (existing) {
-            const typedExisting = existing as { _id: unknown; categoryIds?: unknown };
-            const alreadyHasCategory = String(typedExisting.categoryIds) === categoryIds;
+        // Treat already deleted brands as a successful idempotent operation.
+        const existingBrand = await BrandModel.findOne({ _id: id }).setOptions({ withDeleted: true });
+        if (!existingBrand || existingBrand.isDeleted) {
+            return res.status(200).json({
+                success: true,
+                message: 'Brand and dependent models and spare parts soft-deleted successfully',
+                data: {
+                    brandId: id,
+                    deletedModels: 0,
+                    deletedSpareParts: 0,
+                    alreadyDeleted: true
+                }
+            });
+        }
 
-            if (alreadyHasCategory) {
-                // Brand is active and already covers this category — user should select from dropdown
-                return sendCatalogError(req, res, `"${cleanName}" already exists in this category. Select it from the dropdown.`, 409);
+        const deps = await checkBrandDependencies(id);
+        
+        // If there are any dependencies (models, listings, etc.), prevent deletion to maintain integrity.
+        if (deps.count > 0) {
+            return res.status(409).json({
+                success: false,
+                error: 'Brand cannot be deleted because dependencies exist',
+                status: 409,
+                details: {
+                    models: deps.details.models,
+                    listings: deps.details.listings,
+                    spareParts: deps.details.spareParts,
+                    screenSizes: deps.details.screenSizes,
+                    smartAlerts: deps.details.smartAlerts
+                }
+            });
+        }
+
+        const softDeleteUpdate: Record<string, unknown> = {
+            isDeleted: true,
+            deletedAt: new Date(),
+            isActive: false,
+        };
+
+        const performDelete = async (txSession: mongoose.ClientSession | null) => {
+            const brand = txSession
+                ? await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true }).session(txSession)
+                : await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
+
+            if (!brand) {
+                return { deletedModels: 0, deletedSpareParts: 0, brand };
             }
 
-            // Brand is already admin-approved in another category.
-            // Under the new taxonomy model, a Brand strictly belongs to ONE category.
-            // If they suggest the same name in a different category, we must create a new record.
-            // Let it fall through to create a new Brand record.
+            // Cascade soft-delete all models belonging to this brand and their spare parts
+            const cascadeRes = await CatalogOrchestrator.cascadeBrandDelete(id, txSession ?? undefined);
+            return {
+                deletedModels: cascadeRes.deletedModels,
+                deletedSpareParts: cascadeRes.deletedSpareParts,
+                brand
+            };
+        };
+
+        let session: mongoose.ClientSession | null = null;
+        let deletedModels = 0;
+        let deletedSpareParts = 0;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- brand document shape is dynamic
+        let brandDoc: any = null;
+
+        try {
+            session = await getUserConnection().startSession();
+            session.startTransaction();
+            const resData = await performDelete(session);
+            deletedModels = resData.deletedModels;
+            deletedSpareParts = resData.deletedSpareParts;
+            brandDoc = resData.brand;
+            await session.commitTransaction();
+        } catch (e: unknown) {
+            if (session) {
+                try {
+                    await session.abortTransaction();
+                } catch (abortErr) {
+                    logger.debug(`Failed to abort transaction: ${abortErr}`);
+                }
+                try {
+                    await session.endSession();
+                } catch (endErr) {
+                    logger.debug(`Failed to end session: ${endErr}`);
+                }
+                session = null;
+            }
+
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
+
+            if (isSessionError) {
+                logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
+                const resData = await performDelete(null);
+                deletedModels = resData.deletedModels;
+                deletedSpareParts = resData.deletedSpareParts;
+                brandDoc = resData.brand;
+            } else {
+                throw e;
+            }
+        } finally {
+            if (session) {
+                try {
+                    await session.endSession();
+                } catch (endErr) {
+                    logger.debug(`Failed to end session in finally: ${endErr}`);
+                }
+            }
         }
 
-        // Check for pending from same user
-        const alreadyPending = await findPendingBrandSuggestion(
-            new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'),
-            categoryIds,
-            userId
-        );
-
-        if (alreadyPending) {
-            return sendCatalogError(req, res, 'You already have a pending suggestion for this brand.', 409);
+        if (!brandDoc) {
+            return res.status(200).json({
+                success: true,
+                message: 'Brand and dependent models and spare parts soft-deleted successfully',
+                data: {
+                    brandId: id,
+                    deletedModels: 0,
+                    deletedSpareParts: 0,
+                    alreadyDeleted: true
+                }
+            });
         }
 
-        const brand = await createBrandRecord({
-            name: cleanName,
-            slug: slugify(cleanName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
-            categoryIds: [categoryIds],
-            status: CATALOG_STATUS.PENDING,
-            isActive: false,
-            suggestedBy: userId
-        });
+        void logAdminAction(req, 'BRAND_DELETE', 'Brand', brandDoc._id);
 
-        await CatalogOrchestrator.invalidateCatalogCache();
-
-        res.status(201).json(respond({
+        return res.status(200).json({
             success: true,
-            message: 'Brand suggestion submitted for review.',
-            data: brand
-        }));
+            message: 'Brand and dependent models and spare parts soft-deleted successfully',
+            data: {
+                brandId: id,
+                deletedModels,
+                deletedSpareParts,
+                alreadyDeleted: false
+            }
+        });
     } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            return sendCatalogError(req, res, new Error(`"${(req.body as { name?: string })?.name ?? 'Brand'}" already exists. Select it from the dropdown.`), { statusCode: 409 });
-        }
-        return sendCatalogError(req, res, error);
+        const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+        return res.status(500).json({
+            success: false,
+            error: message,
+            path: req.originalUrl || req.path,
+            status: 500
+        });
     }
 };
 
@@ -378,11 +469,12 @@ export const suggestBrand = async (req: Request, res: Response) => {
 export const getModels = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const { brandId } = req.query;
-    const brandObjectId = typeof brandId === 'string' ? brandId : undefined;
+    const brandObjectId = (typeof brandId === 'string' && brandId !== 'all') ? brandId : undefined;
     const categoryId = req.query.categoryId as string;
+    const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
 
-    let categoryObjectId: string | undefined = categoryId;
-    if (!isAdminView && categoryId) {
+    let categoryObjectId: string | undefined = (categoryId && categoryId !== 'all') ? categoryId : undefined;
+    if (!isAdminView && categoryId && categoryId !== 'all') {
         if (!mongoose.Types.ObjectId.isValid(categoryId)) {
             const cat = await findCategoryBySlugForCatalog(categoryId, ACTIVE_CATEGORY_QUERY);
             if (cat) categoryObjectId = cat._id.toString();
@@ -390,7 +482,15 @@ export const getModels = async (req: Request, res: Response) => {
     }
     // ── Redis cache (public path only) ─────────────────────────────────────
     if (!isAdminView) {
-        const cacheKey = catalogCacheKey.models(categoryObjectId ?? 'all', brandObjectId);
+        const cacheKey = catalogCacheKey.models({
+            categoryId: categoryObjectId,
+            brandId: brandObjectId,
+            search: req.query.search,
+            q: req.query.q,
+            page: req.query.page,
+            limit: req.query.limit,
+            sort: req.query.sort,
+        });
         const cached = await getCache<unknown>(cacheKey);
         if (cached) {
             return res.json(cached);
@@ -422,23 +522,20 @@ export const getModels = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = {};
     if (brandId) adminQuery.brandId = brandObjectId;
     if (categoryId) {
-        Object.assign(adminQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId }).build());
+        Object.assign(adminQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build());
     }
+    applyCatalogStatusFilter(adminQuery, rawStatus);
 
     const publicQuery: QueryRecord = {
-        isDeleted: { $ne: true },
-        $or: [
-            { status: CATALOG_STATUS.ACTIVE, isActive: true },
-            { status: CATALOG_STATUS.PENDING }
-        ]
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
     };
     if (!isAdminView) {
-        publicQuery.categoryId = { $in: activeCategoryIds };
+        Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build());
         publicQuery.brandId = { $in: activeBrandIds };
     }
     if (brandObjectId) publicQuery.brandId = brandObjectId;
     if (categoryObjectId) {
-        Object.assign(publicQuery, CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryObjectId }).build());
+        Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryObjectId] }).build());
     }
 
     if (!isAdminView && brandObjectId) {
@@ -447,12 +544,15 @@ export const getModels = async (req: Request, res: Response) => {
             return sendEmptyPublicList(res);
         }
     }
+    const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
+    delete queryParams.status;
 
     return handlePaginatedContent(req, res, CatalogModel, {
         populate: isAdminView ? undefined : 'brandId categoryIds',
         adminQuery,
         publicQuery,
-        searchFields: ['name']
+        searchFields: ['name', 'canonicalName', 'aliases'],
+        queryParams,
     });
 };
 
@@ -467,12 +567,7 @@ export const getModelById = async (req: Request, res: Response) => {
             ...(isAdminView
                 ? {}
                 : {
-                    isActive: true,
-                    isDeleted: { $ne: true },
-                    $or: [
-                        { status: CATALOG_STATUS.ACTIVE },
-                        { status: { $exists: false } }
-                    ]
+                    ...CATALOG_PUBLIC_VISIBILITY_QUERY,
                 })
         });
         if (!model) return sendCatalogError(req, res, 'Model not found', 404);
@@ -482,10 +577,7 @@ export const getModelById = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * Get single public model by slug.
- * Models do not persist a dedicated slug, so we resolve against the canonicalized name.
- */
+/** Get single public model by canonical slug (with alias fallback). */
 export const getModelBySlug = async (req: Request, res: Response) => {
     try {
         const slug = String(req.params.slug || '').trim().toLowerCase();
@@ -493,34 +585,21 @@ export const getModelBySlug = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'Model slug is required', 400);
         }
 
-        const humanizedSlug = slug.replace(/-/g, ' ');
-        const slugPattern = new RegExp(
-            `^${escapeRegExp(humanizedSlug).replace(/\s+/g, '[-\\s]+')}$`,
-            'i'
-        );
+        const slugAlias = slug.replace(/-/g, ' ');
+        const baseFilter = { ...CATALOG_PUBLIC_VISIBILITY_QUERY };
 
-        const candidates = await findModelsByPattern(slugPattern, {
-            isActive: true,
-            isDeleted: { $ne: true },
+        const model = await findModelBySlug(slug, baseFilter) || await findModelByFilter({
+            ...baseFilter,
             $or: [
-                { status: CATALOG_STATUS.ACTIVE },
-                { status: { $exists: false } }
+                { canonicalName: slugAlias },
+                { aliases: { $in: [slugAlias, slug] } },
             ]
         });
 
-        const matches = candidates.filter((candidate) =>
-            slugify(candidate.name || '', { lower: true, strict: true, trim: true }) === slug
-        );
-
-        if (matches.length === 0) {
+        if (!model) {
             return sendCatalogError(req, res, 'Model not found', 404);
         }
-
-        if (matches.length > 1) {
-            return sendCatalogError(req, res, 'Model slug is ambiguous', 409);
-        }
-
-        sendSuccessResponse(res, matches[0]);
+        sendSuccessResponse(res, model);
     } catch (error) {
         sendCatalogError(req, res, error);
     }
@@ -534,31 +613,36 @@ export const createModel = async (req: Request, res: Response) => {
         auditAction: 'MODEL_CREATE',
         preOp: async (payload) => {
             const brandId = toOptionalString(payload.brandId);
-            const categoryId = toOptionalString(payload.categoryId);
             const categoryIds = toStringArray(payload.categoryIds);
 
-            // Auto-derive categoryId if missing
-            if (!categoryId) {
+            // Auto-derive categoryIds if missing
+            if (!categoryIds || categoryIds.length === 0) {
                 if (!brandId) throw new Error('brandId is required');
-                const derivedId = await CatalogOrchestrator.resolveCategoryIdFromBrand(brandId);
-                if (!derivedId) throw new Error('Invalid brandId: cannot resolve parent category');
-                payload.categoryId = derivedId.toString();
+                const derivedId = await CatalogOrchestrator.resolvePrimaryCategoryIdFromBrand(brandId);
+                if (derivedId) {
+                    payload.categoryIds = [derivedId.toString()];
+                } else {
+                    payload.categoryIds = [];
+                    payload.isActive = false;
+                }
             } else {
-                payload.categoryId = categoryId;
-            }
-
-            // Sync categoryId <-> categoryIds
-            if (payload.categoryId && (!categoryIds || categoryIds.length === 0)) {
-                payload.categoryIds = [String(payload.categoryId)];
-            } else if (categoryIds && categoryIds.length > 0 && !payload.categoryId) {
                 payload.categoryIds = categoryIds;
-                payload.categoryId = categoryIds[0];
             }
 
             if (!brandId) throw new Error('brandId is required');
             payload.brandId = brandId;
             const { ok, reason } = await validateBrandIsActive(brandId);
             if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
+
+            if (!payload.categoryIds || (payload.categoryIds as unknown[]).length === 0) {
+                payload.isActive = false;
+            }
+
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             
             return payload;
         },
@@ -572,9 +656,8 @@ export const createModel = async (req: Request, res: Response) => {
 export const updateModel = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, CatalogModel, modelUpdateSchema, {
         auditAction: 'MODEL_RENAME',
-        preUpdate: async (_id, payload) => {
+        preUpdate: async (_id, payload, existingModel) => {
             const brandId = toOptionalString(payload.brandId);
-            const categoryId = toOptionalString(payload.categoryId);
             const categoryIds = toStringArray(payload.categoryIds);
 
             if (payload.brandId !== undefined && !brandId) {
@@ -585,16 +668,27 @@ export const updateModel = async (req: Request, res: Response) => {
                 const { ok, reason } = await validateBrandIsActive(brandId);
                 if (!ok) throw new Error(reason || 'brandId must reference an active, non-deleted brand');
             }
-            // Sync categoryId <-> categoryIds
-            if (categoryId) {
-                payload.categoryId = categoryId;
-            }
-            if (payload.categoryId && (!categoryIds || categoryIds.length === 0)) {
-                payload.categoryIds = [String(payload.categoryId)];
-            } else if (categoryIds && categoryIds.length > 0) {
+            
+            // Normalize to canonical categoryIds array
+            if (categoryIds && categoryIds.length > 0) {
                 payload.categoryIds = categoryIds;
-                payload.categoryId = categoryIds[0];
+            } else if (payload.categoryIds !== undefined) {
+                payload.categoryIds = [];
+                payload.isActive = false;
+            } else if ((existingModel as { categoryIds?: unknown[] }).categoryIds) {
+                payload.categoryIds = ((existingModel as { categoryIds?: unknown[] }).categoryIds || []).map(String);
             }
+
+            if (!payload.categoryIds || (payload.categoryIds as unknown[]).length === 0) {
+                payload.isActive = false;
+            }
+
+            const typedExisting = existingModel as { approvalStatus?: unknown; isActive?: boolean };
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus ?? typedExisting.approvalStatus,
+                isActive: (payload.isActive ?? typedExisting.isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             return payload;
         },
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
@@ -656,121 +750,3 @@ export const rejectModel = (req: Request, res: Response) =>
         auditAction: 'REJECT_MODEL',
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
     });
-
-/**
- * Suggest a new model (User interaction)
- */
-export const suggestModel = async (req: Request, res: Response) => {
-    try {
-        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
-        if (!userId) { return sendContractErrorResponse(req, res, 401, 'Authentication required'); }
-
-        const { name, brandId } = req.body as { name?: string; brandId?: string };
-        const validation = validateModelSuggestion(name ?? '');
-        if (!validation.isValid) return sendCatalogError(req, res, validation.error || 'Invalid name', 400);
-
-        if (!brandId || !mongoose.Types.ObjectId.isValid(brandId)) {
-            return sendCatalogError(req, res, 'Valid brandId is required', 400);
-        }
-
-        const { ok: brandOk } = await validateBrandIsActive(brandId);
-        if (!brandOk) {
-            return sendCatalogError(req, res, 'brandId must reference an active brand', 400);
-        }
-
-        const cleanName = validation.cleanName;
-
-        // Check if model already exists (Active or Pending) regardless of who suggested it
-        const existing = await findModelSuggestion(
-            new RegExp(`^${escapeRegExp(cleanName)}$`, 'i'),
-            brandId
-        );
-
-        if (existing) {
-            return res.status(200).json(respond({
-                success: true,
-                message: existing.status === CATALOG_STATUS.ACTIVE 
-                    ? `"${cleanName}" already exists and is active.` 
-                    : `"${cleanName}" is already suggested and awaiting approval.`,
-                data: existing
-            }));
-        }
-
-        const model = await createModelRecord({
-            name: cleanName,
-            brandId,
-            status: CATALOG_STATUS.PENDING,
-            isActive: false,
-            suggestedBy: userId
-        });
-
-        await CatalogOrchestrator.invalidateCatalogCache();
-
-        res.status(201).json(respond({
-            success: true,
-            message: 'Model suggestion submitted for review.',
-            data: model
-        }));
-    } catch (error) {
-        if (isDuplicateKeyError(error)) {
-            return sendCatalogError(req, res, `"${(req.body as { name?: string })?.name ?? 'Model'}" already exists. Select it from the dropdown.`, 409);
-        }
-        return sendCatalogError(req, res, error);
-    }
-};
-
-/**
- * Ensure model exists (create brand + model if needed)
- */
-export const ensureModel = async (req: Request, res: Response) => {
-    try {
-        const { categoryId, brandName, modelName } = req.body as { categoryId?: string; brandName?: string; modelName?: string };
-        const userId = (req as { user?: { id?: string; _id?: string } }).user?.id || (req as { user?: { id?: string; _id?: string } }).user?._id;
-
-        if (!categoryId || !brandName || !modelName) {
-            return sendCatalogError(req, res, 'Missing fields', 400);
-        }
-        const { ok: catOk } = await validateCategoryIsActive(categoryId);
-        if (!catOk) {
-            return sendCatalogError(req, res, 'categoryId must reference an active category', 400);
-        }
-
-        // Optimistically search for Brand and any Model with that name under it
-        const brandRegex = new RegExp(`^${escapeRegExp(brandName)}$`, 'i');
-        const modelRegex = new RegExp(`^${escapeRegExp(modelName)}$`, 'i');
-
-        let brand = await findBrandByNameInCategory(brandRegex, categoryId);
-        if (!brand) {
-            const brandVal = validateBrandSuggestion(brandName);
-            brand = await createBrandRecord({
-                name: brandVal.cleanName || brandName,
-                slug: slugify(brandVal.cleanName || brandName, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
-                categoryIds: [categoryId],
-                isActive: false,
-                status: CATALOG_STATUS.PENDING,
-                suggestedBy: userId
-            });
-        }
-
-        const brandId = String(brand._id);
-        let model = await findModelByNameAndBrand(modelRegex, brandId);
-
-        if (!model) {
-            const modelVal = validateModelSuggestion(modelName);
-            model = await createModelRecord({
-                name: modelVal.cleanName || modelName,
-                brandId: brand._id,
-                categoryIds: [categoryId],
-                isActive: false,
-                status: CATALOG_STATUS.PENDING,
-                suggestedBy: userId
-            });
-        }
-
-        await CatalogOrchestrator.invalidateCatalogCache();
-
-        res.status(201).json(respond({ success: true, data: model }));
-    } catch (error) {
-        sendCatalogError(req, res, error);
-    }
-};

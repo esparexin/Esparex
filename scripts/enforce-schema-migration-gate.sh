@@ -55,19 +55,22 @@ else
   echo "[governance] Schema migration gate diff base: HEAD~1"
 fi
 
+UNTRACKED_FILES="$(git ls-files --others --exclude-standard || true)"
+CHANGED_FILES="$(printf '%s\n%s\n' "$CHANGED_FILES" "$UNTRACKED_FILES" | sed '/^$/d' | sort -u)"
+
 if [ -z "$CHANGED_FILES" ]; then
   echo "[governance] No changed files detected for schema migration gate."
   exit 0
 fi
 
-SCHEMA_CHANGES="$(echo "$CHANGED_FILES" | grep -E '^core/src/models/.*\.(ts|js)$' || true)"
+SCHEMA_CHANGES="$(echo "$CHANGED_FILES" | grep -E '^(core/src/models/.*\.(ts|js)|shared/src/schemas/.*\.(ts|js)|shared/src/types/catalogHierarchy\.ts|shared/src/enums/taxonomyApprovalStatus\.ts|core/src/constants/enums/taxonomyApprovalStatus\.ts)$' || true)"
 
 if [ -z "$SCHEMA_CHANGES" ]; then
   echo "[governance] No core model changes detected; migration gate passed."
   exit 0
 fi
 
-MIGRATION_EVIDENCE="$(echo "$CHANGED_FILES" | grep -E '^backend/migrations/|^docs/schema-changelog\.md$' || true)"
+MIGRATION_EVIDENCE="$(echo "$CHANGED_FILES" | grep -E '^backend/user/migrations/|^docs/schema-changelog\.md$|^docs/migrations/.*\.md$|^docs/operations/.*\.md$' || true)"
 
 if [ -n "$MIGRATION_EVIDENCE" ]; then
   echo "[governance] Schema change detected with migration evidence."
@@ -79,6 +82,7 @@ echo "Changed schema/model files:"
 echo "$SCHEMA_CHANGES"
 echo ""
 echo "Required with core model changes (pick at least one):"
-echo "  1) Add/update a migration under backend/migrations/"
+echo "  1) Add/update a migration under backend/user/migrations/"
 echo "  2) Update docs/schema-changelog.md"
+echo "  3) Add/update migration or rollout runbook under docs/migrations/ or docs/operations/"
 exit 1

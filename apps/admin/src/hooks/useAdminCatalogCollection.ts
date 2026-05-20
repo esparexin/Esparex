@@ -157,12 +157,15 @@ export function useAdminCatalogCollection<
     const runAction = useCallback(
         async (
             operation: () => Promise<AdminResponseLike>,
-            { successMessage, errorMessage, onSuccess }: MutationOptions
+            { successMessage, errorMessage, onSuccess, onError }: MutationOptions & { onError?: (error: unknown) => void | Promise<void> }
         ) => {
             try {
                 const response = await operation();
                 if (!response.success) {
                     showToast(response.message || errorMessage, "error");
+                    if (onError) {
+                        await onError(new Error(response.message || errorMessage));
+                    }
                     return false;
                 }
 
@@ -173,6 +176,9 @@ export function useAdminCatalogCollection<
                 return true;
             } catch (error) {
                 showToast(extractAdminApiErrorMessage(error, errorMessage), "error");
+                if (onError) {
+                    await onError(error);
+                }
                 return false;
             }
         },
@@ -180,18 +186,21 @@ export function useAdminCatalogCollection<
     );
 
     const handleDelete = useCallback(
-        async (id: string) => {
+        async (id: string, options?: { onError?: (error: unknown) => void | Promise<void>; onSuccess?: () => void | Promise<void> }) => {
             return runAction(() => deleteItem(id), {
                 successMessage: deleteSuccessMessage,
                 errorMessage: deleteErrorMessage,
                 onSuccess: async () => {
                     if (deleteStrategy === "filter") {
                         setItems((prev) => prev.filter((item) => item.id !== id));
-                        return;
+                    } else {
+                        await refresh();
                     }
-
-                    await refresh();
+                    if (options?.onSuccess) {
+                        await options.onSuccess();
+                    }
                 },
+                onError: options?.onError,
             });
         },
         [

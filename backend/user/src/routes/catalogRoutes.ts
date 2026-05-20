@@ -1,10 +1,7 @@
 import express from 'express';
 import * as catalogController from '../controllers/catalog';
-import { protect } from '../middleware/authMiddleware';
-import { mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
+import { searchLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
-import { validateRequest } from '../middleware/validateRequest';
-import * as Validators from '@esparex/core/validators/catalog.validator';
 
 const router = express.Router();
 
@@ -40,13 +37,6 @@ router.get('/brands/:id', searchLimiter, validateObjectId, catalogController.get
 router.get('/models', searchLimiter, catalogController.getModels);
 router.get('/models/slug/:slug', searchLimiter, catalogController.getModelBySlug);
 router.get('/models/:id', searchLimiter, validateObjectId, catalogController.getModelById);
-router.post(
-   '/models/ensure',
-   protect,
-   mutationLimiter,
-   validateRequest(Validators.ensureModelSchema),
-   catalogController.ensureModel
-);
 
 /* ==========================================================
    4. SPARE PARTS

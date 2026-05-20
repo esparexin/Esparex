@@ -36,6 +36,10 @@ export function validateApiEnv() {
     const appEnv = process.env.NEXT_PUBLIC_APP_ENV || 'local';
     const riskOverride = process.env.NEXT_PUBLIC_PROD_RISK_OVERRIDE === 'true';
 
+    if (nodeEnv === "test" && !url) {
+        return;
+    }
+
     if (!url) {
         throw new Error(
             "[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL is missing"
@@ -54,7 +58,7 @@ export function validateApiEnv() {
     // Must include API base
     if (!url.includes("/api")) {
         throw new Error(
-            `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must include /api (example: https://api.exparex.in/api/v1): ${url}`
+            `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL must include /api (example: https://api.esparex.in/api/v1): ${url}`
         );
     }
 

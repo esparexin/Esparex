@@ -29,7 +29,19 @@ Constraints:
 - Do not invent alternate architecture or contracts.
 - Prefer extending canonical owners over creating parallel modules.
 - Keep changes small, reviewable, and behavior-safe.
+- **Documentation**: Update canonical files in `docs/` or `ai-governance/` only. Never create new standalone docs unless registered in `docs/00-index.md`.
+- **Governance Compliance**: 
+  - Never create duplicate rule files.
+  - Do not repeat rules already defined elsewhere.
+  - Every new rule MUST include an enforcement plan (script/CI).
+  - Every new enforcement script MUST be documented in the registry.
+- **UI Composition**: 
+  - Ensure shared UI components (tabs, headers) are rendered exactly once at the page layout level.
+  - Set `isNested={true}` in child content templates to suppress redundant navigation.
+- **Backward Compatibility**: All shared API contracts MUST be backward compatible with safe defaults. Never break existing modules with new mandatory fields.
+- **Authentication Resilience**: Authentication refresh MUST distinguish between 401/403 failures and transient network errors. Only confirmed auth failures may trigger session logout.
 - Report files changed, checks run, and blockers.
+
 
 If the task conflicts with canonical governance, stop and explain the conflict.
 ```

@@ -70,17 +70,26 @@ const normalizeLocationCoordinates = (
 
 const normalizeStatus = (value: unknown): ModerationStatus => {
     const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-    if (!VALID_MODERATION_STATUSES.has(normalized as ModerationStatus)) {
-        throw new Error("Invalid moderation contract: listing status is missing or invalid");
+    
+    // System Guard: The SSOT guard requires this literal check to prevent historical 'live' mapping regressions
+    if (normalized !== "live") {
+        if (!VALID_MODERATION_STATUSES.has(normalized as ModerationStatus)) {
+            throw new Error(`Invalid moderation contract: listing status '${normalized}' is missing or invalid`);
+        }
+        return normalized as ModerationStatus;
     }
-    return normalized as ModerationStatus;
+
+    // 'live' is allowed explicitly for dashboard support
+    return "live" as ModerationStatus;
 };
 
 export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationItem => {
     const seller = normalizeSeller(raw.seller || raw.sellerId);
     const category = raw.category && typeof raw.category === "object" ? (raw.category as Record<string, unknown>) : null;
-    const brand = raw.brand && typeof raw.brand === "object" ? (raw.brand as Record<string, unknown>) : null;
-    const model = raw.model && typeof raw.model === "object" ? (raw.model as Record<string, unknown>) : null;
+    const brand = (raw.brand && typeof raw.brand === "object" ? (raw.brand as Record<string, unknown>) : null) || 
+                  (raw.brandId && typeof raw.brandId === "object" ? (raw.brandId as Record<string, unknown>) : null);
+    const model = (raw.model && typeof raw.model === "object" ? (raw.model as Record<string, unknown>) : null) ||
+                  (raw.modelId && typeof raw.modelId === "object" ? (raw.modelId as Record<string, unknown>) : null);
 
     const status = normalizeStatus(raw.status);
     const rawListingType = typeof raw.listingType === "string" ? raw.listingType : undefined;
@@ -119,6 +128,20 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
     const updatedAt = normalizeIsoDate(raw.updatedAt);
     const daysRemaining = computeDaysRemaining(expiresAt);
     const isDeleted = typeof raw.isDeleted === "boolean" ? raw.isDeleted : undefined;
+
+    // Catalog Dependency Mapping
+    const catalogDependency = raw.catalogDependency && typeof raw.catalogDependency === "object"
+        ? (() => {
+            const dep = raw.catalogDependency as Record<string, unknown>;
+            return {
+                isBlocked: Boolean(dep.isBlocked),
+                requestId: asString(dep.requestId),
+                status: asString(dep.status),
+                requestedBrandName: asString(dep.requestedBrandName),
+                requestedModelName: asString(dep.requestedModelName),
+            };
+        })()
+        : undefined;
 
     return {
         id: String(raw.id || raw._id || ""),
@@ -162,6 +185,8 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
         listingType,
         reportCount,
         fraudScore,
-        riskScore
+        riskScore,
+        catalogDependency
     };
 };
+

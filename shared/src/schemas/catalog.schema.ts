@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from "../enums/listingType";
+import { CATALOG_APPROVAL_STATUS } from "../enums/catalogApprovalStatus";
 
 // Base Validations
 export const ObjectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, "Invalid ObjectId");
@@ -29,7 +30,11 @@ export type CategoryType = z.infer<typeof CategoryTypeEnum>;
 
 export const CreateCategorySchema = z.object({
     name: z.string().min(1).max(50),
+    displayName: z.string().min(1).max(50).optional(),
+    canonicalName: z.string().min(1).max(80).optional(),
     slug: SlugSchema,
+    aliases: z.array(z.string().min(1).max(80)).optional(),
+    synonyms: z.array(z.string().min(1).max(80)).optional(),
     type: CategoryTypeEnum.default('AD'),
     icon: z.string().optional(),
     description: z.string().optional(),
@@ -40,7 +45,8 @@ export const CreateCategorySchema = z.object({
     // supportsSpareParts: z.boolean().default(false),
     serviceSelectionMode: z.enum(['single', 'multi']).default('multi'),
     hasScreenSizes: z.boolean().default(false),
-    filters: z.array(CategoryFilterSchema).optional()
+    filters: z.array(CategoryFilterSchema).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateCategorySchema = CreateCategorySchema.partial();
@@ -57,16 +63,21 @@ export const CategorySchema = CreateCategorySchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateBrandSchema = z.object({
     name: z.string().min(2),
-    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    displayName: z.string().min(2).optional(),
+    canonicalName: z.string().min(2).max(120).optional(),
+    slug: SlugSchema.optional(),
+    aliases: z.array(z.string().min(1).max(120)).optional(),
+    synonyms: z.array(z.string().min(1).max(120)).optional(),
+        categoryIds: z.array(ObjectIdSchema),
     isActive: z.boolean().default(true),
-    status: z.enum(['live', 'pending', 'rejected', 'inactive']).default('live')
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateBrandSchema = CreateBrandSchema.partial();
 
 export const BrandSchema = CreateBrandSchema.extend({
     id: z.string(),
-    isDeleted: z.boolean()
+    isDeleted: z.boolean(),
 });
 
 /* ────────────────────────────────────────────── */
@@ -74,17 +85,22 @@ export const BrandSchema = CreateBrandSchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateModelSchema = z.object({
     name: z.string().min(1),
+    displayName: z.string().min(1).optional(),
+    canonicalName: z.string().min(1).max(120).optional(),
+    slug: SlugSchema.optional(),
+    aliases: z.array(z.string().min(1).max(120)).optional(),
+    synonyms: z.array(z.string().min(1).max(120)).optional(),
     brandId: ObjectIdSchema,
-    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    categoryIds: z.array(ObjectIdSchema),
     isActive: z.boolean().default(true),
-    status: z.enum(['live', 'pending', 'rejected', 'inactive']).default('live')
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateModelSchema = CreateModelSchema.partial();
 
 export const ModelSchema = CreateModelSchema.extend({
     id: z.string(),
-    isDeleted: z.boolean()
+    isDeleted: z.boolean(),
 });
 
 /* ────────────────────────────────────────────── */
@@ -92,13 +108,18 @@ export const ModelSchema = CreateModelSchema.extend({
 /* ────────────────────────────────────────────── */
 export const CreateSparePartSchema = z.object({
     name: z.string().min(2),
+    displayName: z.string().min(2).optional(),
+    canonicalName: z.string().min(2).max(120).optional(),
     slug: SlugSchema.optional(),
+    aliases: z.array(z.string().min(1).max(120)).optional(),
+    synonyms: z.array(z.string().min(1).max(120)).optional(),
     listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
-    categoryIds: z.array(ObjectIdSchema).min(1, "At least one category is required"),
+    categoryIds: z.array(ObjectIdSchema),
     brandId: ObjectIdSchema.optional(),
     modelId: ObjectIdSchema.optional(),
     sortOrder: z.number().default(0),
-    isActive: z.boolean().default(true)
+    isActive: z.boolean().default(true),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const UpdateSparePartSchema = CreateSparePartSchema.partial();

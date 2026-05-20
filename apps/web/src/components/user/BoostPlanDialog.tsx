@@ -21,7 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { formatPrice } from "@/lib/formatters";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { getPlans, type Plan as ApiPlan } from "@/lib/api/user/plans";
 import { applySpotlightPromotion } from "@/lib/api/user/listings";
 import { mapErrorToMessage } from "@/lib/errorMapper";

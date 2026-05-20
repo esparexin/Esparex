@@ -16,6 +16,7 @@ import {
     seedAdmin,
 } from '../../../services/AdminService';
 import { getSystemConfigDoc } from '../../../utils/systemConfigHelper';
+import { normalizeRole } from '../../../utils/roleNormalization';
 import { getAdminCookieOptions } from '../../../utils/cookieHelper';
 import logger from '../../../utils/logger';
 import { getAdminAppUrl } from '../../../utils/appUrl';
@@ -195,7 +196,7 @@ export const adminLogin = async (req: Request, res: Response) => {
         }
 
         if (admin.status !== USER_STATUS.LIVE) {
-            logger.warn('Admin login failed: Account status is not LIVE', {
+            logger.warn('Admin login failed: Account status not LIVE', {
                 email,
                 status: admin.status,
                 ip: req.ip
@@ -216,6 +217,9 @@ export const adminLogin = async (req: Request, res: Response) => {
         await updateAdminLastLogin(admin._id);
 
         const adminData = admin.toObject({ virtuals: true }) as Partial<IAdmin>;
+        if (adminData.role) {
+            adminData.role = normalizeRole(adminData.role);
+        }
         delete (adminData as Record<string, unknown>).password;
         delete (adminData as Record<string, unknown>).twoFactorSecret;
         const adminDataWithId = adminData as Partial<IAdmin> & {

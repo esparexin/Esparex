@@ -8,7 +8,8 @@ import axios, {
 import logger from "@/lib/logger";
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
-import { emitErrorPopup } from '@/lib/popup/popupEvents';
+
+// error event dispatch logic removed
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
@@ -180,7 +181,7 @@ class APIClient {
                 if (!ok) {
                     const error = this.createHealthGateError(config);
                     if (!(config as EsparexRequestConfig).silent) {
-                        emitErrorPopup(error);
+                        logger.error("[API ERROR]", error);
                     }
                     return Promise.reject(error);
                 }
@@ -194,7 +195,7 @@ class APIClient {
 
                 const error = this.createHealthGateError(config);
                 if (!(config as EsparexRequestConfig).silent) {
-                    emitErrorPopup(error);
+                    logger.error("[API ERROR]", error);
                 }
                 return Promise.reject(error);
             }
@@ -287,7 +288,7 @@ class APIClient {
                                 endpoint: response.config?.url?.toString()
                             }
                         });
-                    emitErrorPopup(error);
+                    logger.error("[API ERROR]", error);
                     return Promise.reject(error);
                 }
 
@@ -426,13 +427,7 @@ class APIClient {
                     });
 
                 if (!requestConfig?.silent && !shouldSuppressPopupForApiError(apiError.status, requestConfig)) {
-                    // For retryable errors that exhausted automatic retries or are not candidate for auto-retry, offer manual retry action.
-                    const isManualRetryable = isTransientError;
-                    const onRetry =
-                        isManualRetryable && requestConfig
-                            ? () => { void this.client.request({ ...requestConfig, _retryCount: 0 } as EsparexRequestConfig); }
-                            : undefined;
-                    emitErrorPopup(apiError, onRetry);
+                    logger.error("[API ERROR]", apiError);
                 }
 
                 return Promise.reject(apiError);

@@ -20,8 +20,8 @@ const baseProductionEnv: NodeJS.ProcessEnv = {
     OTP_HASH_SECRET: 'otp_hash_secret',
     JWT_SECRET: 'jwt_secret_value_long_enough_for_tests',
     REDIS_URL: 'rediss://redis-user:redis-pass@redis.example.com:6379/0',
-    MONGODB_URI: 'mongodb://localhost:27017/esparex_test',
-    ADMIN_MONGODB_URI: 'mongodb://localhost:27017/esparex_admin',
+    MONGODB_URI: 'mongodb://db.example.com:27017/esparex_test',
+    ADMIN_MONGODB_URI: 'mongodb://admin-db.example.com:27017/esparex_admin',
     AWS_ACCESS_KEY_ID: VALID_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY: VALID_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: 'esparex-test-bucket',
@@ -67,7 +67,7 @@ describe('validateProductionEnvOrThrow', () => {
         const env = { ...baseProductionEnv, REDIS_URL: 'redis://localhost:6379' };
 
         expect(() => validateProductionEnvOrThrow(env)).toThrow(
-            /REDIS_URL host is invalid for production/
+            /REDIS_URL\/REDIS_HOST cannot use localhost in production/
         );
     });
 

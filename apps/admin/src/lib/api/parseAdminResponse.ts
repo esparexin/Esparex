@@ -35,6 +35,7 @@ export function parseAdminResponse<T, DataType = Record<string, unknown>>(payloa
     const root = asRecord(payload);
     const rootData = root?.data;
     const dataRecord = asRecord(rootData);
+    const rootMeta = asRecord(root?.meta);
 
     const items =
         asArray<T>(dataRecord?.items) ??
@@ -45,10 +46,13 @@ export function parseAdminResponse<T, DataType = Record<string, unknown>>(payloa
         asArray<T>(root?.data) ??
         [];
 
-    const pagination =
-        asPagination(dataRecord?.pagination) ??
-        asPagination(root?.pagination) ??
-        null;
+    const metaPagination = asPagination(rootMeta?.pagination);
+    const pagination = metaPagination
+        ? {
+            ...metaPagination,
+            totalPages: metaPagination.totalPages ?? metaPagination.pages,
+        }
+        : null;
 
     const data = (dataRecord as DataType | null) ?? null;
 
@@ -63,9 +67,9 @@ export function parseAdminResponse<T, DataType = Record<string, unknown>>(payloa
     })();
 
     const meta =
+        rootMeta ??
         asRecord(dataRecord?.meta) ??
         inferredMeta ??
-        asRecord(root?.meta) ??
         null;
 
     return {

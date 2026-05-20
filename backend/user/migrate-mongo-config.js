@@ -6,11 +6,11 @@ dotenv.config();
 
 const config = {
   mongodb: {
-    // Prefer ADMIN_MONGODB_URI (Atlas admin DB); fall back to legacy MONGO_URI or local default.
-    url: process.env.ADMIN_MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/esparex_admin_db",
+    // User-service migrations must target the user database.
+    url: process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/esparex_user",
 
-    // Defaults to admin DB for backward compatibility; override in CI/local via MONGO_DB_NAME.
-    databaseName: process.env.MONGO_DB_NAME || "esparex_admin",
+    // Keep override support for CI/local, defaulting to user DB.
+    databaseName: process.env.MONGO_DB_NAME || "esparex_user",
 
     options: {
       // useNewUrlParser: true, // (not needed anymore in mongodb driver 4.x+)

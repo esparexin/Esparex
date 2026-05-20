@@ -52,7 +52,7 @@ export function resolveValidatedAdminApiBase(): string {
 
   if (!normalizedUrl.includes(ADMIN_API_V1_BASE_PATH)) {
     throw new Error(
-      `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_ADMIN_API_URL must include ${ADMIN_API_V1_BASE_PATH} (example: https://api.exparex.in${ADMIN_API_V1_BASE_PATH}): ${configuredUrl}`
+      `[ESPAREX CONFIG ERROR] NEXT_PUBLIC_ADMIN_API_URL must include ${ADMIN_API_V1_BASE_PATH} (example: https://api.esparex.in${ADMIN_API_V1_BASE_PATH}): ${configuredUrl}`
     );
   }
 
@@ -65,7 +65,7 @@ export function resolveValidatedAdminApiBase(): string {
   if (
     nodeEnv === "development" &&
     isAbsoluteHttpUrl &&
-    normalizedUrl.includes("api.exparex.in") &&
+    normalizedUrl.includes("api.esparex.in") &&
     !riskOverride
   ) {
     throw new Error(

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
+import { CATALOG_APPROVAL_STATUS } from '../constants/enums/catalogApprovalStatus';
 import { CATEGORY_TYPES } from "@esparex/shared";
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from '../constants/enums/listingType';
 import { normalizeObjectIdLike } from '../utils/idUtils';
@@ -25,14 +25,16 @@ export const rejectionSchema = z.object({
 
 // Centralized Category Logic
 const categoryFields = {
-    categoryIds: z.array(requiredObjectIdSchema).min(1).optional(),
-    categoryId: optionalObjectIdSchema
+    categoryIds: z.array(requiredObjectIdSchema)
 };
 
-const categoryRefine = (data: Record<string, unknown>) => data.categoryIds || data.categoryId;
-const categoryRefineMsg = {
-    message: "At least one category is required",
-    path: ["categoryIds"]
+const catalogTextFields = {
+    name: z.string().trim().min(1).max(120),
+    displayName: z.string().trim().min(1).max(120).optional(),
+    canonicalName: z.string().trim().min(1).max(160).optional(),
+    slug: z.string().trim().min(1).max(160).optional(),
+    aliases: z.array(z.string().trim().min(1).max(120)).optional(),
+    synonyms: z.array(z.string().trim().min(1).max(120)).optional(),
 };
 
 
@@ -40,8 +42,7 @@ const categoryRefineMsg = {
 // CATEGORIES
 // ==========================================
 const categoryBaseSchema = z.object({
-    name: z.string().trim().min(1).max(120),
-    slug: z.string().trim().min(1).max(160).optional(),
+    ...catalogTextFields,
     type: z.enum(CATEGORY_TYPES).optional(),
     icon: z.string().trim().max(255).optional(),
     description: z.string().trim().max(2000).optional(),
@@ -81,15 +82,15 @@ export const toggleCategoryStatusSchema = z.object({}).strict();
 // BRANDS & MODELS
 // ==========================================
 const brandBaseSchema = z.object({
-    name: z.string().trim().min(1).max(120),
+    ...catalogTextFields,
     ...categoryFields,
     isActive: z.boolean().optional(),
-    status: z.enum([CATALOG_STATUS.ACTIVE, CATALOG_STATUS.INACTIVE, CATALOG_STATUS.PENDING, CATALOG_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
     suggestedBy: optionalObjectIdSchema,
     rejectionReason: z.string().trim().max(500).optional()
 }).strict();
 
-export const brandCreateSchema = brandBaseSchema.refine(categoryRefine, categoryRefineMsg);
+export const brandCreateSchema = brandBaseSchema;
 
 export const brandUpdateSchema = brandBaseSchema
     .partial()
@@ -97,12 +98,11 @@ export const brandUpdateSchema = brandBaseSchema
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
 
 export const modelCreateSchema = z.object({
-    name: z.string().trim().min(1).max(120),
+    ...catalogTextFields,
     brandId: requiredObjectIdSchema,
-    categoryId: optionalObjectIdSchema,
-    categoryIds: z.array(requiredObjectIdSchema).min(1).optional(),
+    categoryIds: z.array(requiredObjectIdSchema),
     isActive: z.boolean().optional(),
-    status: z.enum([CATALOG_STATUS.ACTIVE, CATALOG_STATUS.INACTIVE, CATALOG_STATUS.PENDING, CATALOG_STATUS.REJECTED]).optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
     suggestedBy: optionalObjectIdSchema,
     rejectionReason: z.string().trim().max(500).optional()
 }).strict();
@@ -112,30 +112,24 @@ export const modelUpdateSchema = modelCreateSchema
     .strict()
     .refine((payload) => Object.keys(payload).length > 0, 'At least one field is required');
 
-export const ensureModelSchema = z.object({
-    categoryId: requiredObjectIdSchema,
-    brandName: z.string().trim().min(1).max(120),
-    modelName: z.string().trim().min(1).max(120)
-});
-
 // ==========================================
 // SPARE PARTS
 // ==========================================
 const sparePartBaseSchema = z.object({
-    name: z.string().trim().min(1).max(120),
-    slug: z.string().trim().min(1).max(160).optional(),
+    ...catalogTextFields,
     // type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
     listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
     ...categoryFields,
     sortOrder: z.number().int().min(0).optional(),
     filters: z.array(z.unknown()).optional(),
     isActive: z.boolean().optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
     rejectionReason: z.string().trim().max(500).optional(),
     brandId: objectIdSchema.optional(),
     modelId: objectIdSchema.optional()
 }).strict();
 
-export const sparePartCreateSchema = sparePartBaseSchema.refine(categoryRefine, categoryRefineMsg);
+export const sparePartCreateSchema = sparePartBaseSchema;
 
 export const sparePartUpdateSchema = sparePartBaseSchema
     .partial()
@@ -146,12 +140,13 @@ export const sparePartUpdateSchema = sparePartBaseSchema
 // REFERENCE DATA
 // ==========================================
 const serviceTypeBaseSchema = z.object({
-    name: z.string().trim().min(1).max(120),
+    ...catalogTextFields,
     ...categoryFields,
-    isActive: z.boolean().optional()
+    isActive: z.boolean().optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
-export const serviceTypeCreateSchema = serviceTypeBaseSchema.refine(categoryRefine, categoryRefineMsg);
+export const serviceTypeCreateSchema = serviceTypeBaseSchema;
 
 export const serviceTypeUpdateSchema = serviceTypeBaseSchema
     .partial()
@@ -160,11 +155,17 @@ export const serviceTypeUpdateSchema = serviceTypeBaseSchema
 
 export const screenSizeCreateSchema = z.object({
     size: z.string().trim().min(1).max(20),
-    name: z.string().trim().min(1).max(120).optional(),
+    displayName: catalogTextFields.displayName,
+    canonicalName: catalogTextFields.canonicalName,
+    slug: catalogTextFields.slug,
+    aliases: catalogTextFields.aliases,
+    synonyms: catalogTextFields.synonyms,
+    name: catalogTextFields.name.optional(),
     value: z.number().int().min(1).max(500),
     categoryId: objectIdSchema,
     brandId: objectIdSchema.optional(),
-    isActive: z.boolean().optional()
+    isActive: z.boolean().optional(),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();
 
 export const screenSizeUpdateSchema = screenSizeCreateSchema

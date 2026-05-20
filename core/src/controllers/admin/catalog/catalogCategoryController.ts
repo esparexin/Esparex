@@ -5,8 +5,10 @@
  */
 
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import slugify from 'slugify';
-import { getAdminConnection } from '../../../config/db';
+import logger from '../../../utils/logger';
+import { getUserConnection } from '../../../config/db';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
     CategoryModel,
@@ -34,10 +36,12 @@ import {
     sendCatalogError,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,
-    sendValidationError,
-    handleCatalogToggleStatus
+    handleCatalogToggleStatus,
+    applyCatalogStatusFilter,
+    deriveApprovalStatus,
+    sendValidationError
 } from './shared';
-import { CATALOG_STATUS } from "@esparex/shared";
+import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
 import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
@@ -49,15 +53,15 @@ import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
 export const getCategories = async (req: Request, res: Response) => {
     const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
-    if (rawStatus === CATALOG_STATUS.ACTIVE || rawStatus === CATALOG_STATUS.INACTIVE) {
-        queryParams.isActive = rawStatus === CATALOG_STATUS.ACTIVE;
-        delete queryParams.status;
-    }
+    delete queryParams.status;
+    const adminQuery: QueryRecord = {};
+    applyCatalogStatusFilter(adminQuery, rawStatus);
 
     return handlePaginatedContent(req, res, CategoryModel, {
         searchFields: ['name', 'slug'],
         defaultSort: { name: 1 },
         publicQuery: { ...ACTIVE_CATEGORY_QUERY },
+        adminQuery,
         queryParams
     });
 };
@@ -89,8 +93,8 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
  */
 export const getCategoryById = async (req: Request, res: Response) => {
     try {
-        // Admin route always uses validateObjectId middleware — ObjectId lookup only.
-        const category = await findCategoryById(req.params.id as string);
+        const isAdminView = req.originalUrl.includes('/admin');
+        const category = await findCategoryById(req.params.id as string, isAdminView ? {} : ACTIVE_CATEGORY_QUERY);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -106,7 +110,8 @@ export const getCategoryById = async (req: Request, res: Response) => {
 export const getCategorySchema = async (req: Request, res: Response) => {
     try {
         const id = req.params.id as string;
-        const category = await findCategoryById(id);
+        const isAdminView = req.originalUrl.includes('/admin');
+        const category = await findCategoryById(id, isAdminView ? {} : ACTIVE_CATEGORY_QUERY);
         if (!category) {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
@@ -178,7 +183,11 @@ export const createCategory = async (req: Request, res: Response) => {
 
         const category = await CatalogOrchestrator.createCategory({
             ...payload,
-            status: payload.isActive === false ? CATALOG_STATUS.INACTIVE : CATALOG_STATUS.ACTIVE
+            approvalStatus: deriveApprovalStatus({
+                approvalStatus: (payload as Record<string, unknown>).approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            }),
         } as Partial<import('@esparex/core/models/Category').ICategory>);
 
         clearCategoryCanonicalCache();
@@ -224,7 +233,14 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
 
         const payloadWithStatus = payload.isActive !== undefined
-            ? { ...payload, status: payload.isActive ? CATALOG_STATUS.ACTIVE : CATALOG_STATUS.INACTIVE }
+            ? {
+                ...payload,
+                approvalStatus: deriveApprovalStatus({
+                    approvalStatus: (payload as Record<string, unknown>).approvalStatus,
+                    isActive: payload.isActive as boolean | undefined,
+                    fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+                }),
+            }
             : payload;
 
         const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<import('@esparex/core/models/Category').ICategory>);
@@ -260,32 +276,76 @@ export const toggleCategoryStatus = async (req: Request, res: Response) => {
  * Delete category (soft delete with dependency check)
  */
 export const deleteCategory = async (req: Request, res: Response) => {
-    const session = await getAdminConnection().startSession();
-    session.startTransaction();
+    if (!hasAdminAccess(req)) {
+        return sendCatalogError(req, res, 'Admin access required', 403);
+    }
 
-    try {
-        if (!hasAdminAccess(req)) {
-            throw new AppError('Admin access required', 403, 'FORBIDDEN');
-        }
+    const categoryId = req.params.id as string;
 
-        const categoryId = req.params.id as string;
-        const category = await findCategoryByIdWithSession(categoryId, session);
+    const performDelete = async (txSession: mongoose.ClientSession | null) => {
+        const category = txSession 
+            ? await findCategoryByIdWithSession(categoryId, txSession)
+            : await findCategoryById(categoryId);
+
         if (!category) {
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
         }
 
-        // Soft-delete the category itself, then cascade to children.
-        // Single write here; cascadeCategoryDelete handles brands/models/parts/sizes.
-        await softDeleteCategoryById(category._id, session);
+        if (txSession) {
+            await softDeleteCategoryById(category._id, txSession);
+            await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), txSession);
+        } else {
+            await softDeleteCategoryById(category._id, null as unknown as mongoose.ClientSession);
+            await CatalogOrchestrator.cascadeCategoryDelete(String(category._id));
+        }
+        return category;
+    };
 
-        await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), session);
-
+    let session: mongoose.ClientSession | null = null;
+    try {
+        session = await getUserConnection().startSession();
+        session.startTransaction();
+        await performDelete(session);
         await session.commitTransaction();
         clearCategoryCanonicalCache();
-
         sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
     } catch (e: unknown) {
-        await session.abortTransaction();
+        if (session) {
+            try {
+                await session.abortTransaction();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            } catch (_) {
+                // Ignore abort failure
+            }
+            try {
+                await session.endSession();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            } catch (_) {
+                // Ignore end failure
+            }
+            session = null;
+        }
+
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
+
+        if (isSessionError) {
+            logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
+            try {
+                await performDelete(null);
+                clearCategoryCanonicalCache();
+                return sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
+            } catch (fallbackError) {
+                const err = fallbackError instanceof AppError ? fallbackError : null;
+                if (err?.code === 'FORBIDDEN') {
+                    return sendCatalogError(req, res, err.message, 403);
+                } else if (err?.code === 'CATEGORY_NOT_FOUND') {
+                    return sendCatalogError(req, res, err.message, 404);
+                }
+                return sendCatalogError(req, res, fallbackError);
+            }
+        }
+
         const err = e instanceof AppError ? e : null;
         if (err?.code === 'FORBIDDEN') {
             return sendCatalogError(req, res, err.message, 403);
@@ -294,6 +354,14 @@ export const deleteCategory = async (req: Request, res: Response) => {
         }
         return sendCatalogError(req, res, e);
     } finally {
-        await session.endSession();
+        if (session) {
+            try {
+                await session.endSession();
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            } catch (_) {
+                // Ignore end failure
+            }
+        }
     }
 };
+

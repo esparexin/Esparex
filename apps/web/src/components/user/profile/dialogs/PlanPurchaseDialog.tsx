@@ -13,7 +13,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Crown, AlertCircle } from "@/components/ui/icons";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
 

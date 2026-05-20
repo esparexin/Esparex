@@ -23,15 +23,13 @@ export const adminServiceModerationSchema = z.object({
 
 export const adminBrandSchema = z.object({
     name: z.string().min(1, 'Brand name is required').max(100, 'Brand name too long'),
-    categoryIds: z.array(ObjectIdSchema).min(1, 'At least one category is required'),
+    categoryIds: z.array(ObjectIdSchema),
 });
 
 export const adminModelSchema = z.object({
     name: z.string().min(1, 'Model name is required').max(100, 'Model name too long'),
     brandId: ObjectIdSchema,
-    categoryId: ObjectIdSchema.optional(),
-    categoryIds: z.array(ObjectIdSchema).min(1, 'At least one category is required'),
-    status: z.enum(['live', 'pending', 'rejected']).optional()
+    categoryIds: z.array(ObjectIdSchema),
 });
 
 export const adminLocationSchema = z.object({
@@ -42,7 +40,7 @@ export const adminLocationSchema = z.object({
     latitude: z.string().refine(v => !isNaN(parseFloat(v)), 'Invalid latitude'),
 });
 
-const adminRoleSchema = z.enum(['moderator', 'admin', 'super_admin']);
+const adminRoleSchema = z.enum(['moderator', 'admin', 'superAdmin']);
 const adminStatusSchema = z.enum(['live', 'inactive', 'suspended', 'banned']);
 const permissionsTextSchema = z
     .string()

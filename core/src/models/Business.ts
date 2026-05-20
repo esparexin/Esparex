@@ -217,9 +217,11 @@ BusinessSchema.index({ status: 1, createdAt: -1 }, { name: 'idx_business_status_
 
 const activeBusinessPartialFilter = { isDeleted: false };
 
-// Partial index mapping purely active working records
+// Freshness index for active records (partial)
+// Note: Consolidating with idx_business_status_createdAt by adding isDeleted to key pattern
+// to satisfy Index Governance SSOT requirements while maintaining partial optimization.
 BusinessSchema.index(
-    { status: 1, createdAt: -1 }, 
+    { status: 1, isDeleted: 1, createdAt: -1 }, 
     { 
         name: 'idx_business_active_freshness_partial',
         partialFilterExpression: activeBusinessPartialFilter 

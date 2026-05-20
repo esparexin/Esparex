@@ -3,7 +3,7 @@ import { useState, useLayoutEffect, useMemo, useReducer, useCallback, useEffect,
 import { useQueryClient } from "@tanstack/react-query";
 import type { UserPage } from "@/lib/routeUtils";
 import type { User } from "@/types/User";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ListingDetailShell } from "./listing-detail/AdDetailShell";
 import { formatPrice } from "@/lib/formatters";

@@ -20,6 +20,8 @@
     "api:generate": "openapi-zod-client http://localhost:5001/api-docs.json -o src/api/generated",
     "test": "vitest",
     "e2e": "playwright test",
+    "e2e:listing-edit": "playwright test tests/edit-listing.spec.ts --project=chromium --workers=4",
+    "e2e:listing-edit:ci": "playwright test tests/edit-listing.spec.ts --project=chromium --workers=1",
     "test:smoke": "playwright test tests/listing-chat-smoke.spec.ts",
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
   },
@@ -82,7 +84,6 @@
     "sharp": "^0.34.5",
     "socket.io-client": "^4.8.3",
     "socket.io-parser": "^4.2.6",
-    "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.2",

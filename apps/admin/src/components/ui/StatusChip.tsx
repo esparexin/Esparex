@@ -47,6 +47,8 @@ const STATUS_MAP: Record<string, ChipStyle> = {
     refurbished: { dot: "bg-sky-400",     text: "text-sky-700",     label: "Refurbished" },
     used:        { dot: "bg-orange-400",  text: "text-orange-700",  label: "Used" },
     revoked:     { dot: "bg-red-400",     text: "text-red-700",     label: "Revoked" },
+    approved:    { dot: "bg-emerald-500", text: "text-emerald-700", label: "Approved" },
+    duplicate:   { dot: "bg-amber-600",   text: "text-amber-800",   label: "Duplicate" },
 };
 
 const FALLBACK: ChipStyle = {

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, FileText, Crown } from "lucide-react";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import type { Transaction } from "@/lib/api/user/transactions";
 
 interface PurchasesTabProps {

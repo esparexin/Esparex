@@ -18,7 +18,9 @@ import {
     handleCatalogDelete,
     sendEmptyPublicList,
     sendSuccessResponse,
-    handlePaginatedContent
+    handlePaginatedContent,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
+    deriveApprovalStatus
 } from './shared';
 import { validateScreenSizeRelations } from '../../../services/catalog/CatalogValidationService';
 import {
@@ -38,18 +40,8 @@ import {
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
 } from '../../../services/catalog/CatalogReferenceService';
-
-const toOptionalString = (value: unknown): string | undefined => {
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed || undefined;
-    }
-    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
-        const stringValue = (value as { toString: () => string }).toString().trim();
-        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
-    }
-    return undefined;
-};
+import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
+import { toOptionalString } from './inputCoercion';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Reference data CRUD now delegated to shared.ts generic handlers.
@@ -73,16 +65,21 @@ export const getServiceTypes = async (req: Request, res: Response) => {
         }
     }
 
-    const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryId }).build();
+    const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural()
+        .withFilters({ categoryIds: categoryId ? [categoryId] : null })
+        .build();
     const publicQuery: QueryRecord = { 
-        isActive: true,
-        ...CategoryQueryBuilder.forPlural().withFilters({ categoryId: categoryObjectId }).build()
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
+        ...CategoryQueryBuilder.forPlural()
+            .withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : null })
+            .build()
     };
 
     return handlePaginatedContent(req, res, ServiceTypeModel, {
         populate: isAdminView ? undefined : 'categoryIds',
         adminQuery,
-        publicQuery
+        publicQuery,
+        searchFields: ['name', 'canonicalName', 'aliases']
     });
 };
 
@@ -91,8 +88,20 @@ export const getServiceTypes = async (req: Request, res: Response) => {
  */
 export const getServiceTypeById = async (req: Request, res: Response) => {
     try {
+        const isAdminView = req.originalUrl.includes('/admin');
         const serviceType = await findServiceTypeById(req.params.id as string);
         if (!serviceType) return sendCatalogError(req, res, 'Service type not found', 404);
+        if (!isAdminView) {
+            const typed = serviceType as { approvalStatus?: string; isActive?: boolean; isDeleted?: boolean; deletedAt?: Date | null };
+            if (
+                typed.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED ||
+                typed.isActive !== true ||
+                typed.isDeleted === true ||
+                typed.deletedAt
+            ) {
+                return sendCatalogError(req, res, 'Service type not found', 404);
+            }
+        }
         sendSuccessResponse(res, serviceType);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -106,10 +115,11 @@ export const createServiceType = async (req: Request, res: Response) => {
     return handleCatalogCreate(req, res, ServiceTypeModel, serviceTypeCreateSchema, {
         auditAction: 'SERVICE_TYPE_CREATE',
         preOp: (payload) => {
-            // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
-            }
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             return Promise.resolve(payload);
         },
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
@@ -123,11 +133,11 @@ export const updateServiceType = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, ServiceTypeModel, serviceTypeUpdateSchema, {
         auditAction: 'SERVICE_TYPE_UPDATE',
         preUpdate: (id, payload) => {
-            // Backward compatibility mapping
-            if (!payload.categoryIds && payload.categoryId) {
-                payload.categoryIds = [payload.categoryId];
-            }
-            delete payload.categoryId;
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             return Promise.resolve(payload);
         },
         postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
@@ -193,7 +203,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryId as string }).build();
 
     const publicQuery: QueryRecord = { 
-        isActive: true,
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forSingular().withFilters({ 
             categoryId: categoryObjectId ? String(categoryObjectId) : undefined, 
             categoryIds: activeCategoryIds 
@@ -217,8 +227,20 @@ export const getScreenSizes = async (req: Request, res: Response) => {
  */
 export const getScreenSizeById = async (req: Request, res: Response) => {
     try {
+        const isAdminView = req.originalUrl.includes('/admin');
         const size = await findScreenSizeById(req.params.id as string);
         if (!size) return sendCatalogError(req, res, 'Screen size not found', 404);
+        if (!isAdminView) {
+            const typed = size as { approvalStatus?: string; isActive?: boolean; isDeleted?: boolean; deletedAt?: Date | null };
+            if (
+                typed.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED ||
+                typed.isActive !== true ||
+                typed.isDeleted === true ||
+                typed.deletedAt
+            ) {
+                return sendCatalogError(req, res, 'Screen size not found', 404);
+            }
+        }
         sendSuccessResponse(res, size);
     } catch (error) {
         sendCatalogError(req, res, error);
@@ -238,6 +260,11 @@ export const createScreenSize = async (req: Request, res: Response) => {
             if (!categoryId) throw new Error('categoryId is required');
             payload.categoryId = categoryId;
             if (brandId) payload.brandId = brandId;
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             const relation = await validateScreenSizeRelations({ categoryId, brandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
@@ -260,6 +287,11 @@ export const updateScreenSize = async (req: Request, res: Response) => {
             if (!nextCategoryId) throw new Error('categoryId is required');
             if (payload.categoryId !== undefined) payload.categoryId = nextCategoryId;
             if (payload.brandId !== undefined && nextBrandId) payload.brandId = nextBrandId;
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus ?? (existingSize as { approvalStatus?: unknown }).approvalStatus,
+                isActive: (payload.isActive ?? (existingSize as { isActive?: boolean }).isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             const relation = await validateScreenSizeRelations({ categoryId: nextCategoryId, brandId: nextBrandId });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;

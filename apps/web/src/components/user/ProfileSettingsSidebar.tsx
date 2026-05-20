@@ -182,7 +182,7 @@ export function ProfileSettingsSidebar({
       "user",
       "business",
       "admin",
-      "super_admin",
+      "superAdmin",
       "moderator",
       "editor",
       "viewer",

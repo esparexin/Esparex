@@ -98,7 +98,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         const adminUser: IAuthUser = {
             _id: admin._id,
             id: admin._id?.toString() || '',
-            role: admin.role || 'admin',
+            role: admin.role || Role.ADMIN,
             isAdmin: true,
             permissions: admin.permissions || [],
             firstName: admin.firstName || '',
@@ -133,9 +133,9 @@ export const requireSuperAdmin = (req: Request, res: Response, next: NextFunctio
     next();
 };
 
-export const requireRole = (roles: string[]) => {
+export const requireRole = (roles: Role[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        const userRole = req.user?.role;
+        const userRole = req.user?.role as Role | undefined;
         if (!userRole) {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }

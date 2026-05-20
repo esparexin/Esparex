@@ -7,6 +7,9 @@ import {
 import { getUserConnection } from '../config/db';
 import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '../constants/enums/userStatus';
 
+import { Role, ROLE_VALUES } from '../constants/enums/roles';
+import { normalizeRole } from '../utils/roleNormalization';
+
 export interface GeoJSONPoint {
   type: 'Point';
   coordinates: [number, number];
@@ -23,7 +26,8 @@ export interface IUser extends Document {
   isEmailVerified: boolean;
   isVerified: boolean;
 
-  role: 'user' | 'business' | 'admin' | 'superadmin' | 'super_admin';
+  userType: 'marketplace' | 'admin';
+  role: Role;
   status: UserStatusValue;
   statusChangedAt?: Date;
   statusReason?: string;
@@ -144,10 +148,16 @@ const UserSchema: Schema = new Schema({
   isEmailVerified: { type: Boolean, default: false },
   isVerified: { type: Boolean, default: false },
 
+  userType: {
+    type: String,
+    enum: ['marketplace', 'admin'],
+    required: true,
+    default: 'marketplace',
+  },
   role: {
     type: String,
-    enum: ['user', 'business', 'admin', 'superadmin', 'super_admin'],
-    default: 'user',
+    enum: ROLE_VALUES,
+    default: Role.USER,
   },
   status: {
     type: String,
@@ -221,6 +231,8 @@ const UserSchema: Schema = new Schema({
 });
 
 // Indexes
+UserSchema.index({ userType: 1, role: 1, isDeleted: 1 }, { name: 'idx_user_type_role_deleted' });
+UserSchema.index({ userType: 1, createdAt: -1 }, { name: 'idx_user_type_createdAt' });
 UserSchema.index({ mobile: 1 }, { unique: true, name: 'idx_user_mobile_unique_idx' });
 UserSchema.index({ email: 1 }, { unique: true, sparse: true, name: 'idx_user_email_unique_idx' });
 UserSchema.index({ role: 1, status: 1 }, { name: 'idx_user_role_status_idx' });
@@ -228,11 +240,23 @@ UserSchema.index({ isDeleted: 1 }, { name: 'idx_user_deletedAt_idx' });
 UserSchema.index({ 'location.coordinates': '2dsphere' }, { sparse: true, name: 'idx_user_location_coordinates_2dsphere' });
 
 UserSchema.pre('save', function (this: IUser) {
+  // 🛡️ Normalize legacy roles
+  if (this.role) {
+    this.role = normalizeRole(this.role);
+  }
+
   this.location = normalizeUserLocation(this.location) as IUser['location'];
   this.mobileVisibility = normalizeUserMobileVisibility(this.mobileVisibility);
 });
 
-UserSchema.pre('findOneAndUpdate', function () {
+// 🛡️ COMPATIBILITY: Normalize role when loading from DB
+UserSchema.post('init', function (doc: IUser) {
+  if (doc.role) {
+    doc.role = normalizeRole(doc.role);
+  }
+});
+
+UserSchema.pre(['findOneAndUpdate', 'updateOne', 'updateMany'], function () {
   const update = this.getUpdate() as Record<string, unknown> | undefined;
   if (!update || Array.isArray(update)) return;
 
@@ -242,6 +266,10 @@ UserSchema.pre('findOneAndUpdate', function () {
 
   if ('mobileVisibility' in update) {
     update.mobileVisibility = normalizeUserMobileVisibility(update.mobileVisibility);
+  }
+
+  if (update.role && typeof update.role === 'string') {
+    update.role = normalizeRole(update.role);
   }
 
   if ('location.coordinates' in update) {
@@ -260,6 +288,9 @@ UserSchema.pre('findOneAndUpdate', function () {
     }
     if ('mobileVisibility' in setObj) {
       setObj.mobileVisibility = normalizeUserMobileVisibility(setObj.mobileVisibility);
+    }
+    if (setObj.role && typeof setObj.role === 'string') {
+      setObj.role = normalizeRole(setObj.role);
     }
     if ('location.coordinates' in setObj) {
       const nextGeo = toUserGeoPoint(setObj['location.coordinates']);

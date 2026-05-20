@@ -3,32 +3,41 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent } from "@/lib/api/user/ai";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
+import { SparePart } from "@/lib/api/user/masterData";
 
 export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
     categoryMap: Record<string, ListingCategory>,
+    availableSpareParts: SparePart[],
     setIsLoading: (isLoading: boolean) => void,
     setFormError: (error: string | null) => void
 ) {
     const generateDescription = useCallback(async (targetField: 'title' | 'description') => {
-        const { brand, screenSize, category, categoryId } = form.getValues();
+        const { brand, model, screenSize, category, categoryId, deviceCondition, spareParts } = form.getValues();
+        
         const selectedCategoryId = resolveCatalogEntityId(categoryId, category);
         const categoryName = categoryMap[selectedCategoryId]?.name || "device";
+        
         const resolvedBrand = String(brand || "").trim() || categoryName;
-        const resolvedDescriptor = String(screenSize || "").trim() || categoryName;
+        const resolvedModel = String(model || "").trim() || String(screenSize || "").trim() || categoryName;
         
-        if (!resolvedBrand || !resolvedDescriptor) return;
-        
+        // Map spare part IDs to names for AI context
+        const selectedSparePartNames = (spareParts || [])
+            .map(id => availableSpareParts.find(p => p.id === id || p._id === id)?.name)
+            .filter((name): name is string => Boolean(name));
+
         setIsLoading(true);
         try {
             const output = await generateAIContent({
                 type: 'generate',
                 context: {
                     brand: resolvedBrand,
-                    model: resolvedDescriptor,
-                    condition: "device",
+                    model: resolvedModel,
+                    category: categoryName,
+                    condition: deviceCondition || "device",
+                    workingParts: selectedSparePartNames.join(", "),
                     targetField
                 }
             });
@@ -49,7 +58,7 @@ export function usePostAdAiGeneration(
         } finally {
             setIsLoading(false);
         }
-    }, [categoryMap, form, setFormError, setIsLoading]);
+    }, [categoryMap, availableSpareParts, form, setFormError, setIsLoading]);
 
     return { generateDescription };
 }

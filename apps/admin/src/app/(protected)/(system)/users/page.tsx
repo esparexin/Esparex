@@ -35,7 +35,7 @@ const USER_STATUS_OPTIONS = [
 ];
 
 const USER_ROLE_COLORS: Record<string, string> = {
-    super_admin: "bg-purple-100 text-purple-700",
+    superAdmin: "bg-purple-100 text-purple-700",
     admin: "bg-blue-100 text-blue-700",
     business: "bg-amber-100 text-amber-700",
 };
@@ -259,21 +259,21 @@ export default function UsersPage() {
                             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Users</p>
                             <p className="mt-2 text-2xl font-bold text-slate-900">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "live" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Active Users</p>
-                            <p className="mt-2 text-2xl font-bold text-emerald-700">{overview.activeUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Individuals</p>
+                            <p className="mt-2 text-2xl font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-xl border border-amber-200 bg-amber-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Suspended Users</p>
-                            <p className="mt-2 text-2xl font-bold text-amber-700">{overview.suspendedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Businesses</p>
+                            <p className="mt-2 text-2xl font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "banned" })} className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Banned Users</p>
-                            <p className="mt-2 text-2xl font-bold text-red-700">{overview.bannedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Verified Businesses</p>
+                            <p className="mt-2 text-2xl font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ isVerified: "true" })} className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Verified Users</p>
-                            <p className="mt-2 text-2xl font-bold text-blue-700">{overview.verifiedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Blocked Users</p>
+                            <p className="mt-2 text-2xl font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
                         </Link>
                     </div>
 

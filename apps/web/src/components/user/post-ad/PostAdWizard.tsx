@@ -5,6 +5,7 @@ import ListingDetailsFields from "./steps/ListingDetailsFields";
 import { PostAdShell } from "./PostAdShell";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "@/components/user/shared/ListingModalLayout";
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
+import { EditAdWrapper } from "./EditAdWrapper";
 import { cn } from "@/components/ui/utils";
 import { Button } from "@/components/ui/button";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
@@ -117,7 +118,13 @@ export function PostAdWizard({ navigateTo, editAdId }: PostAdWizardProps) {
         formHook={formHook}
         editAdId={editAdId}
       >
-        <PostAdWizardContent navigateTo={navigateTo} />
+        {editAdId ? (
+          <EditAdWrapper>
+            <PostAdWizardContent navigateTo={navigateTo} />
+          </EditAdWrapper>
+        ) : (
+          <PostAdWizardContent navigateTo={navigateTo} />
+        )}
       </PostAdProvider>
     </FormProvider>
   )

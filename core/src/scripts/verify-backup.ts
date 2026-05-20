@@ -28,6 +28,8 @@ interface VerificationResult {
     error?: string;
 }
 
+const shellQuote = (value: string): string => `'${value.replace(/'/g, `'\\''`)}'`;
+
 /**
  * Verify a single backup file
  */
@@ -55,20 +57,15 @@ function verifyBackup(backupFile: string): VerificationResult {
             return result;
         }
 
-        // Try to list archive contents
+        // Validate gzip archive integrity without requiring a live MongoDB connection.
         try {
-            const output = execSync(`mongorestore --archive=${backupFile} --gzip --dryRun 2>&1`, {
-                encoding: 'utf-8',
+            execSync(`gzip -t ${shellQuote(backupFile)}`, {
                 stdio: 'pipe',
             });
-
-            // Count collections in output
-            const collectionMatches = output.match(/restoring/g);
-            result.collections = collectionMatches ? collectionMatches.length : 0;
-
+            result.collections = 0;
             result.valid = true;
         } catch {
-            result.error = 'Failed to read archive (corrupted?)';
+            result.error = 'Failed gzip integrity check (archive is corrupted)';
             return result;
         }
 

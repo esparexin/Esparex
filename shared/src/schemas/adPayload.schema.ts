@@ -44,6 +44,8 @@ export const BaseAdPayloadSchema = z.object({
     serviceTypeIds: z.array(optionalObjectId).optional(), // Unified support for service types
     brandId: optionalObjectId, // Canonical
     modelId: optionalObjectId, // Canonical
+    catalogRequestId: optionalObjectId,
+    catalogPending: z.boolean().optional(),
 
     screenSize: optionalTrimmedString,
     listingType: z.enum(LISTING_TYPE_VALUES).optional(),
@@ -71,7 +73,10 @@ export const BaseAdPayloadSchema = z.object({
         checkQuality: true
     }),
 
-    price: z.number().min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore'),
+    price: z.preprocess(
+        (val) => (typeof val === 'string' ? parseFloat(val) : val),
+        z.number().min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore')
+    ),
     images: z
         .array(z.string())
         .min(MIN_AD_IMAGES, `At least ${MIN_AD_IMAGES} image is required`)

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
+import { AlertTriangle, Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
 import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
@@ -251,13 +251,50 @@ export function ViewAdModal({
                                 </div>
                             </div>
 
+                            {ad.catalogDependency?.isBlocked && (
+                                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                                    <div className="flex gap-3">
+                                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-600" />
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-bold text-amber-900">This listing is waiting for catalog approval.</h4>
+                                            <div className="text-sm text-amber-800">
+                                                {ad.catalogDependency.requestedBrandName && (
+                                                    <p><span className="font-semibold">Requested Brand:</span> {ad.catalogDependency.requestedBrandName}</p>
+                                                )}
+                                                {ad.catalogDependency.requestedModelName && (
+                                                    <p><span className="font-semibold">Requested Model:</span> {ad.catalogDependency.requestedModelName}</p>
+                                                )}
+                                                <p className="mt-1">The listing cannot be approved until the catalog request is reviewed.</p>
+                                            </div>
+                                            {ad.catalogDependency.requestId && (
+                                                <Link
+                                                    href={`/catalog-requests?q=${ad.catalogDependency.requestId}`}
+                                                    className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-900 underline underline-offset-2"
+                                                >
+                                                    Open Catalog Request <ExternalLink size={12} />
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
                                 {ad.status === LIFECYCLE_STATUS.PENDING && (
                                     <>
                                         <button
                                             type="button"
-                                            onClick={() => void onApprove(ad.id)}
-                                            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
+                                            disabled={ad.catalogDependency?.isBlocked}
+                                            onClick={() => {
+                                                if (ad.catalogDependency?.isBlocked) return;
+                                                void onApprove(ad.id);
+                                            }}
+                                            title={ad.catalogDependency?.isBlocked ? "This listing cannot be approved until the related catalog request is approved." : undefined}
+                                            className={`inline-flex h-10 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white transition-colors ${
+                                                ad.catalogDependency?.isBlocked 
+                                                    ? "bg-slate-300 cursor-not-allowed" 
+                                                    : "bg-emerald-600 hover:bg-emerald-700"
+                                            }`}
                                         >
                                             <Check size={15} /> Approve
                                         </button>

@@ -6,7 +6,7 @@ import { useAdminAuth } from "@/context/AdminAuthContext";
 
 /**
  * System-level routes (admin-users, api-keys, audit-logs, settings, etc.)
- * are restricted to super_admin and admin roles only.
+ * are restricted to superAdmin and admin roles only.
  * Moderators are redirected to /dashboard.
  */
 export default function SystemLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,7 @@ export default function SystemLayout({ children }: { children: React.ReactNode }
         if (loading) return;
         if (!admin) return; // AdminRouteGuard in parent layout handles unauthenticated redirect
 
-        const isAllowed = admin.role === "super_admin" || admin.role === "admin";
+        const isAllowed = admin.role === "superAdmin" || admin.role === "admin";
         if (!isAllowed) {
             router.replace("/dashboard");
         }
@@ -26,7 +26,7 @@ export default function SystemLayout({ children }: { children: React.ReactNode }
     if (loading) return null;
     if (!admin) return null;
 
-    const isAllowed = admin.role === "super_admin" || admin.role === "admin";
+    const isAllowed = admin.role === "superAdmin" || admin.role === "admin";
     if (!isAllowed) return null;
 
     return <>{children}</>;

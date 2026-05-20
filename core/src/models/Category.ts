@@ -1,14 +1,24 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../constants/enums/catalogStatus';
+import {
+    CATALOG_APPROVAL_STATUS,
+    CATALOG_APPROVAL_STATUS_VALUES,
+    CatalogApprovalStatusValue,
+} from '../constants/enums/catalogApprovalStatus';
 
 export interface ICategory extends Document {
     name: string;
+    displayName: string;
+    canonicalName: string;
     slug: string;
+    aliases: string[];
+    synonyms: string[];
     type?: 'ad' | 'spare_part' | 'service' | 'other';
     icon?: string;
     description?: string;
     parentId?: mongoose.Types.ObjectId;
     isActive: boolean;
+    approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
     isDeleted: boolean;
     deletedAt?: Date;
@@ -23,12 +33,21 @@ export interface ICategory extends Document {
 
 const CategorySchema = new Schema<ICategory>({
     name: { type: String, required: true },
+    displayName: { type: String, required: true },
+    canonicalName: { type: String, required: true },
     slug: { type: String, required: true },
+    aliases: { type: [String], default: [] },
+    synonyms: { type: [String], default: [] },
     type: { type: String, enum: ['ad', 'spare_part', 'service', 'other'], default: 'ad', required: false },
     icon: { type: String },
     description: { type: String },
     parentId: { type: Schema.Types.ObjectId, ref: 'Category' },
     isActive: { type: Boolean, default: true },
+    approvalStatus: {
+        type: String,
+        enum: CATALOG_APPROVAL_STATUS_VALUES,
+        default: CATALOG_APPROVAL_STATUS.APPROVED,
+    },
     status: { type: String, enum: CATALOG_STATUS_VALUES, default: CATALOG_STATUS.ACTIVE },
     filters: { type: [Schema.Types.Mixed], default: [] },
     // Metadata-driven fields
@@ -40,12 +59,6 @@ const CategorySchema = new Schema<ICategory>({
     toJSON: {
         virtuals: true,
         versionKey: false,
-        transform: function (_doc: unknown, ret: unknown) {
-            const json = ret as Record<string, unknown>;
-            json.id = String(json._id);
-            delete json._id;
-            return json;
-        }
     },
     toObject: { virtuals: true, versionKey: false }
 });
@@ -65,14 +78,16 @@ CategorySchema.index({ slug: 1 }, {
 CategorySchema.index({ parentId: 1 }, { name: 'idx_category_parent' });
 CategorySchema.index({ type: 1, isActive: 1 }, { name: 'idx_category_type_active' });
 CategorySchema.index({ status: 1 }, { name: 'idx_category_status' });
+CategorySchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_category_approval_active' });
 CategorySchema.index({ isDeleted: 1, isActive: 1 }, { name: 'idx_category_isDeleted_isActive' });
+CategorySchema.index({ name: 1 }, { name: 'idx_category_name', collation: { locale: 'en', strength: 2 } });
 CategorySchema.index({ isDeleted: 1 }, { name: 'idx_category_isDeleted' });
 
 CategorySchema.index({ listingType: 1 }, { name: 'idx_category_listingType' });
 CategorySchema.index(
-    { name: 1 },
+    { canonicalName: 1 },
     {
-        name: 'idx_category_name_unique_ci',
+        name: 'idx_category_canonicalName_unique_ci',
         unique: true,
         collation: { locale: 'en', strength: 2 },
         partialFilterExpression: { isDeleted: false }
@@ -82,6 +97,28 @@ CategorySchema.index(
 import softDeletePlugin from '../utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
 
+CategorySchema.pre('validate', function () {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
+    const mutableDoc = this as any;
+
+    const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
+    if (normalizedDisplayName) {
+        mutableDoc.displayName = normalizedDisplayName;
+        mutableDoc.name = normalizedDisplayName;
+    }
+
+    if (typeof mutableDoc.canonicalName === 'string') {
+        mutableDoc.canonicalName = mutableDoc.canonicalName.trim();
+    }
+    if (!mutableDoc.canonicalName && normalizedDisplayName) {
+        mutableDoc.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    if (!mutableDoc.approvalStatus) {
+        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    }
+});
+
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 CategorySchema.plugin(installSafeSoftDeleteQuery);
@@ -90,7 +127,7 @@ CategorySchema.plugin(installSafeSoftDeleteQuery);
 // Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
 CategorySchema.post('init', function(doc) {
     if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
-        doc.type = doc.type.toLowerCase() as typeof doc.type;
+        doc.type = doc.type.toLowerCase() as ICategory['type'];
     }
 });
 

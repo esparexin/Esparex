@@ -239,7 +239,8 @@ export default function ListingDetailsFields() {
                                 {isLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Suggest"}
                             </Button>
                         </div>
-                        <div className="flex justify-end">
+                        <div className="flex justify-between items-center">
+
                             <TitleCharCounter />
                         </div>
                     </div>
@@ -296,6 +297,7 @@ export default function ListingDetailsFields() {
                                 <button
                                     type="button"
                                     onClick={() => removeImage(idx)}
+                                    aria-label="Remove image"
                                     className="absolute top-2 right-2 p-2 bg-black/60 text-white rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                                 >
                                     <X className="w-3 h-3" />

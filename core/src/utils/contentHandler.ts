@@ -122,8 +122,9 @@ export async function handlePaginatedContent<T extends Document>(
 
         if (isAdmin && isUrlAdmin) {
             const { page, limit, skip } = getPaginationParams(req);
-            const rawSearch = Array.isArray(effectiveQuery.q) ? (effectiveQuery.q as unknown[])[0] : effectiveQuery.q;
-            const search = typeof rawSearch === 'string' ? rawSearch.trim() : '';
+            const rawSearch = effectiveQuery.q || effectiveQuery.search;
+            const searchVal = Array.isArray(rawSearch) ? (rawSearch as unknown[])[0] : rawSearch;
+            const search = typeof searchVal === 'string' ? searchVal.trim() : '';
             const includeDeleted = effectiveQuery.includeDeleted === 'true';
 
             const query: Record<string, unknown> = { ...adminQuery };
@@ -215,7 +216,8 @@ export async function handlePaginatedContent<T extends Document>(
         // Public View
         const rawPage = effectiveQuery.page;
         const rawLimit = effectiveQuery.limit;
-        const rawSearch = Array.isArray(effectiveQuery.q) ? (effectiveQuery.q as unknown[])[0] : effectiveQuery.q;
+        const rawSearchVal = effectiveQuery.q || effectiveQuery.search;
+        const rawSearch = Array.isArray(rawSearchVal) ? (rawSearchVal as unknown[])[0] : rawSearchVal;
         const rawSort = Array.isArray(effectiveQuery.sort) ? (effectiveQuery.sort as unknown[])[0] : effectiveQuery.sort;
         const page = parseInt(String(rawPage || '1'));
         const limit = parseInt(String(rawLimit || '100'));

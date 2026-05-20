@@ -5,7 +5,7 @@ import Category, { ICategory } from '../../models/Category';
 import Brand from '../../models/Brand';
 import ProductModel from '../../models/Model';
 import CatalogOrchestrator from '../catalog/CatalogOrchestrator';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
 
 interface ImportResult {
     success: number;
@@ -81,16 +81,18 @@ export class CatalogImportService {
 
                 const existingBrand = brandMap.get(item.name.toLowerCase());
                 if (existingBrand) {
+                    const mergedCategoryIds = dedupeObjectIds([...(existingBrand.categoryIds || []), ...categoryIds]);
                     ops.push({
                         updateOne: {
                             filter: { _id: existingBrand._id },
                             update: {
                                 $set: {
-                                    categoryIds: dedupeObjectIds([...(existingBrand.categoryIds || []), ...categoryIds]),
+                                    categoryId: mergedCategoryIds[0],
+                                    categoryIds: mergedCategoryIds,
                                     isDeleted: false,
                                     deletedAt: undefined,
                                     isActive: true,
-                                    status: CATALOG_STATUS.ACTIVE
+                                    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                                 }
                             }
                         }
@@ -101,9 +103,10 @@ export class CatalogImportService {
                             document: {
                                 name: item.name,
                                 slug: slugify(item.name, { lower: true, strict: true, trim: true }) + '-' + nanoid(5),
+                                categoryId: categoryIds[0],
                                 categoryIds: dedupeObjectIds(categoryIds),
                                 isActive: true,
-                                status: CATALOG_STATUS.ACTIVE
+                                approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                             }
                         }
                     });
@@ -163,7 +166,7 @@ export class CatalogImportService {
                                 categoryId: categoryId,
                                 categoryIds: [categoryId],
                                 isActive: true,
-                                status: CATALOG_STATUS.ACTIVE
+                                approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                             }
                         },
                         upsert: true
@@ -226,7 +229,16 @@ export class CatalogImportService {
                  const brand = await Brand.findOneAndUpdate(
                     { name: { $regex: new RegExp(`^${device.brand}$`, 'i') } },
                     {
-                        $setOnInsert: { name: device.brand, slug: brandSlug, isActive: true, status: CATALOG_STATUS.ACTIVE },
+                        $setOnInsert: {
+                            name: device.brand,
+                            slug: brandSlug,
+                            isActive: true,
+                            approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
+                            categoryId: catId
+                        },
+                        $set: {
+                            categoryId: catId
+                        },
                         $addToSet: { categoryIds: catId }
                     },
                     { upsert: true, new: true }
@@ -239,7 +251,7 @@ export class CatalogImportService {
                         categoryId: catId,
                         categoryIds: [catId],
                         isActive: true,
-                        status: CATALOG_STATUS.ACTIVE,
+                        approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
                         specifications: device.specs || {}
                     },
                     { upsert: true, new: true }

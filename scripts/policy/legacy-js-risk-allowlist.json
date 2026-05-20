@@ -15,7 +15,9 @@
     "backend/user/scripts/migrate_indexes.js",
     "backend/user/scripts/remap-null-category-models.js",
     "backend/user/scripts/remediate-location-data.js",
-    "backend/user/scripts/remediate-master-data.js"
+    "backend/user/scripts/remediate-master-data.js",
+    "backend/user/taxonomy-alias-synonym-seed.js",
+    "backend/user/taxonomy-cleanup-execution.js"
   ],
   "lifecycleBypassScripts": [
     "backend/user/seed.js",
@@ -29,7 +31,8 @@
     "backend/user/scripts/migrate_indexes.js",
     "backend/user/scripts/remap-null-category-models.js",
     "backend/user/scripts/remediate_india_guntur_hierarchy.mongosh.js",
-    "backend/user/scripts/remediate-master-data.js"
+    "backend/user/scripts/remediate-master-data.js",
+    "backend/user/taxonomy-cleanup-execution.js"
   ],
   "migrationShadowScripts": [
     "backend/user/scripts/backfill-brand-categoryId.js",

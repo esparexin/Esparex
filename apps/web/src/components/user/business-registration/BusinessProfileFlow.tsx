@@ -6,7 +6,7 @@ import { useForm, type FieldErrors, type UseFormReturn, type UseFormSetValue } f
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2 } from "lucide-react";
 
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { injectApiErrors } from "@/lib/injectApiErrors";

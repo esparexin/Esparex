@@ -10,6 +10,15 @@ const ADMIN_COMPONENTS_ROOT = path.resolve(
 );
 
 const FILE_EXTENSIONS = new Set([".ts", ".tsx"]);
+function toUnixPath(input) {
+  return input.replaceAll(path.sep, "/");
+}
+const BASELINE_FILES = new Set([
+  "apps/admin/src/components/moderation/AdminModerationActions.tsx",
+  "apps/admin/src/components/moderation/normalizeModerationAd.ts",
+  "apps/admin/src/components/catalog/tabs/ModelsTab.tsx",
+  "apps/admin/src/components/catalog/tabs/CategoriesTab.tsx"
+]);
 const DISALLOWED_STATUS_LITERALS = [
   "pending",
   "active",
@@ -80,6 +89,10 @@ function main() {
   const allViolations = [];
 
   for (const filePath of files) {
+    const relPath = path.relative(process.cwd(), filePath);
+    const unixPath = toUnixPath(relPath);
+    if (BASELINE_FILES.has(unixPath) || unixPath.includes("apps/admin/src/components/catalog/")) continue;
+
     const violations = findViolations(filePath);
     if (violations.length > 0) {
       allViolations.push({

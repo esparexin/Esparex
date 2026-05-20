@@ -225,7 +225,6 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
             SparePart.find({ _id: { $in: missing } }).lean<MetadataEntity[]>()
         ),
         fetchMetadataWithCache<MetadataEntity>(serviceTypeIds, 'servicetype', async (missing) => {
-            const ServiceType = (await import('@esparex/core/models/ServiceType')).default;
             return ServiceType.find({ _id: { $in: missing } }).select('name').lean<MetadataEntity[]>();
         })
     ]);
@@ -248,6 +247,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
         }
         delete ad.category;
 
+        // ── Brand Hydration ──────────────────────────────────────────
         const bId = extractId(ad.brandId || ad.brand);
         if (bId) {
             ad.brandId = bId;
@@ -256,8 +256,14 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
                 if (brand.name) ad.brandName = brand.name;
             }
         }
-        delete ad.brand;
+        // Preserve 'brand' object if it was already populated, but ensure brandName is set
+        if (typeof ad.brand === 'object' && ad.brand !== null && !ad.brandName) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- populated brand object shape is dynamic
+            const b = ad.brand as any;
+            if (b.name) ad.brandName = b.name;
+        }
 
+        // ── Model Hydration ──────────────────────────────────────────
         const mId = extractId(ad.modelId || ad.model);
         if (mId) {
             ad.modelId = mId;
@@ -266,7 +272,12 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
                 if (model.name) ad.modelName = model.name;
             }
         }
-        delete ad.model;
+        // Preserve 'model' object if it was already populated, but ensure modelName is set
+        if (typeof ad.model === 'object' && ad.model !== null && !ad.modelName) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- populated model object shape is dynamic
+            const m = ad.model as any;
+            if (m.name) ad.modelName = m.name;
+        }
 
         const spId = extractId(ad.sparePartId || ad.sparePart);
         if (spId) {
@@ -333,7 +344,7 @@ export const getAds = async (
     // e.g. New Delhi should NOT be used when the user selected "India" as country.
     const isRegionLevel = normalizedLevel === 'country' || normalizedLevel === 'state';
     const shouldUseGeo = hasGeo && !isRegionLevel;
-    const shouldSkipExactCount = shouldUseGeo && !isCursorMode;
+    const shouldSkipExactCount = shouldUseGeo && !isCursorMode && options.enforcePublicVisibility !== false;
 
     const shouldUseRankScore = isTrendingSort || (shouldUseGeo && !filters.sortBy);
 
@@ -640,6 +651,8 @@ export const getAds = async (
             deviceCondition: 1,
             sparePartsSnapshot: 1,
             sparePartIds: 1,
+            catalogRequestId: 1,
+            catalogPending: 1,
             // Include populated fields (if lookups were performed)
             category: 1,
             brand: 1,

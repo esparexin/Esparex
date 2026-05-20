@@ -30,7 +30,10 @@ interface CatalogIndexPageProps<T extends { id: string | number }> {
     filterLayoutClassName?: string;
     error?: string | null;
     className?: string;
+    isNested?: boolean;
     children?: ReactNode;
+    selectedCount?: number;
+    bulkActions?: ReactNode;
 }
 
 export function CatalogIndexPage<T extends { id: string | number }>({
@@ -48,7 +51,10 @@ export function CatalogIndexPage<T extends { id: string | number }>({
     filterLayoutClassName,
     error,
     className = "",
+    isNested,
     children,
+    selectedCount,
+    bulkActions,
 }: CatalogIndexPageProps<T>) {
     return (
         <AdminPageShell
@@ -57,6 +63,7 @@ export function CatalogIndexPage<T extends { id: string | number }>({
             tabs={tabs}
             actions={actions}
             className={className}
+            isNested={isNested}
         >
             <>
                 <div className="space-y-6 pb-2">
@@ -86,6 +93,8 @@ export function CatalogIndexPage<T extends { id: string | number }>({
                         enableCsvExport
                         csvFileName={csvFileName}
                         pagination={pagination}
+                        selectedCount={selectedCount}
+                        bulkActions={bulkActions}
                     />
                 </div>
                 {children}

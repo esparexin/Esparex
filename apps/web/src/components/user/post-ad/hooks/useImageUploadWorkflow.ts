@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
-import { UseFormReturn } from "react-hook-form";
+import { type FieldErrors, UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { ListingImage } from "@/types/listing";
 import logger from "@/lib/logger";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { apiClient } from "@/lib/api/client";
 
 export function useImageUploadWorkflow<T>(
@@ -78,12 +78,19 @@ export function useImageUploadWorkflow<T>(
                 } finally {
                     setIsInternalUploading(false);
                 }
-            }, (errors: unknown) => {
-                logger.error("[PostAdSubmit] Form validation errors:", errors);
-                const errorRecord = errors && typeof errors === "object"
-                    ? (errors as Record<string, unknown>)
-                    : {};
-                const firstErrorKey = Object.keys(errorRecord)[0];
+            }, (errors: FieldErrors<PostAdFormData>) => {
+                const sanitizedErrors = Object.keys(errors).reduce((acc: Record<string, { message?: string; type?: string }>, key) => {
+                    const err = errors[key as keyof PostAdFormData];
+                    acc[key] = {
+                        message: err?.message as string | undefined,
+                        type: err?.type as string | undefined
+                    };
+                    return acc;
+                }, {});
+
+                logger.error("[PostAdSubmit] Form validation errors:", sanitizedErrors);
+                
+                const firstErrorKey = Object.keys(errors)[0];
                 if (typeof document !== "undefined" && firstErrorKey) {
                     if (firstErrorKey === "images") {
                         document.querySelector("input[type='file']")?.scrollIntoView({ behavior: "smooth", block: "center" });

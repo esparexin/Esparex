@@ -6,7 +6,7 @@ import { useAdminAuth } from "@/context/AdminAuthContext";
 
 /**
  * Finance routes (invoices, plans, revenue) are restricted to
- * super_admin and admin roles. Moderators are redirected to /dashboard.
+ * superAdmin and admin roles. Moderators are redirected to /dashboard.
  */
 export default function FinanceLayout({ children }: { children: React.ReactNode }) {
     const { admin, loading } = useAdminAuth();
@@ -16,7 +16,7 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
         if (loading) return;
         if (!admin) return;
 
-        const isAllowed = admin.role === "super_admin" || admin.role === "admin";
+        const isAllowed = admin.role === "superAdmin" || admin.role === "admin";
         if (!isAllowed) {
             router.replace("/dashboard");
         }
@@ -25,7 +25,7 @@ export default function FinanceLayout({ children }: { children: React.ReactNode 
     if (loading) return null;
     if (!admin) return null;
 
-    const isAllowed = admin.role === "super_admin" || admin.role === "admin";
+    const isAllowed = admin.role === "superAdmin" || admin.role === "admin";
     if (!isAllowed) return null;
 
     return <>{children}</>;

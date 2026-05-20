@@ -37,7 +37,7 @@ export class CategoryQueryBuilder {
         return new CategoryQueryBuilder(CategoryFieldType.PLURAL);
     }
 
-    /** Set input filters (handles both singular and plural inputs from API) */
+    /** Set input filters for query construction. */
     withFilters(input: CategoryQueryInput): this {
         this.input = { ...this.input, ...input };
         return this;
@@ -70,15 +70,24 @@ export class CategoryQueryBuilder {
         const { categoryId, categoryIds } = this.input;
         const idSet = new Set<string>();
 
-        if (typeof categoryId === 'string' && mongoose.Types.ObjectId.isValid(categoryId)) {
-            idSet.add(categoryId);
+        const addIfValid = (value: unknown) => {
+            if (typeof value === 'string' && mongoose.Types.ObjectId.isValid(value)) {
+                idSet.add(value);
+            }
+        };
+
+        if (this.field === CategoryFieldType.PLURAL) {
+            // SSOT: plural entities only accept canonical categoryIds input.
+            if (Array.isArray(categoryIds)) {
+                categoryIds.forEach(addIfValid);
+            }
+            return Array.from(idSet);
         }
+
+        // Singular entities can accept one or many filter IDs for categoryId lookups.
+        addIfValid(categoryId);
         if (Array.isArray(categoryIds)) {
-            categoryIds.forEach(id => {
-                if (typeof id === 'string' && mongoose.Types.ObjectId.isValid(id)) {
-                    idSet.add(id);
-                }
-            });
+            categoryIds.forEach(addIfValid);
         }
         return Array.from(idSet);
     }

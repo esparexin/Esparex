@@ -36,7 +36,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
                 limit: pagination.limit
             };
             if (filters.search) query.search = filters.search;
-            if (filters.status !== 'all') query.isActive = filters.status === 'active';
+            if (filters.status !== 'all') query.isActive = (filters.status === 'active' || filters.status === 'live');
 
             const response = await getCategories(query);
             if (response.success) {

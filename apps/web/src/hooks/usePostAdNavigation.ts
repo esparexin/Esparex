@@ -1,5 +1,5 @@
 import { useBackendStatus } from '@/context/BackendStatusContext';
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { useRouter } from 'next/navigation';
 import { getPageRoute, type UserPage } from '@/lib/routeUtils';
 import { useCallback } from 'react';

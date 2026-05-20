@@ -9,7 +9,7 @@ import type { Types } from "mongoose";
 export interface IAuthUser {
     _id: Types.ObjectId | string;
     id?: string;
-    role: "user" | "admin" | "moderator" | "super_admin" | string;
+    role: "user" | "admin" | "moderator" | "superAdmin" | string;
     isAdmin?: boolean; // Explicit flag to distinguish Admin context
     permissions?: string[];
     firstName?: string;

@@ -2,14 +2,14 @@ export interface HierarchyTreeModelNode {
     id: string;
     name: string;
     isActive: boolean;
-    status?: string;
+    approvalStatus?: 'pending' | 'approved' | 'rejected';
 }
 
 export interface HierarchyTreeBrandNode {
     id: string;
     name: string;
     isActive: boolean;
-    status?: string;
+    approvalStatus?: 'pending' | 'approved' | 'rejected';
     models: HierarchyTreeModelNode[];
 }
 

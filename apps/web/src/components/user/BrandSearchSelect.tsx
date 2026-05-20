@@ -6,13 +6,17 @@ import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 
+import { CatalogRequestDialog } from "./CatalogRequestDialog";
+
 interface BrandSearchSelectProps {
     brands: string[];
     brandMap: Record<string, { id?: string } | undefined>;
-    /** Currently selected brandId */
+    /** Currently selected brand display name. */
     value: string;
-    /** Called with (brandId, brandName) on selection */
-    onChange: (brandId: string, brandName: string) => void;
+    /** Called with (brandId, brandName, requestId) on selection */
+    onChange: (brandId: string, brandName: string, requestId?: string) => void;
+    categoryId: string;
+    onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -23,12 +27,16 @@ export function BrandSearchSelect({
     brandMap,
     value,
     onChange,
+    categoryId,
+    onRequestSuccess,
     disabled = false,
     placeholder = "Search brand...",
     className,
 }: BrandSearchSelectProps) {
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
+    const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+    const [guidanceMessage, setGuidanceMessage] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
@@ -82,29 +90,60 @@ export function BrandSearchSelect({
         onChange(id, brandName);
         setSearch("");
         setIsEditing(false);
+        setGuidanceMessage(null);
     };
+
+    const canRequestBrand = Boolean(categoryId);
+
+    const handleOpenRequestDialog = () => {
+        if (!canRequestBrand) {
+            setGuidanceMessage("Select a category first.");
+            return;
+        }
+        setGuidanceMessage(null);
+        setIsRequestDialogOpen(true);
+    };
+
+    const requestDialog = (
+        <CatalogRequestDialog
+            open={isRequestDialogOpen}
+            onOpenChange={setIsRequestDialogOpen}
+            requestType="brand"
+            categoryId={categoryId}
+            initialName={search}
+            onSuccess={(requestId, name) => {
+                onChange("", name, requestId);
+                void onRequestSuccess?.(requestId, name);
+                setSearch("");
+                setIsEditing(false);
+            }}
+        />
+    );
 
     // ── Selected state ──────────────────────────────────────────────────────
     if (selectedName && !isEditing) {
         return (
-            <div className={cn(
-                "flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
-                className
-            )}>
-                <div className="flex items-center gap-1.5 min-w-0">
-                    <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                    <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
+            <>
+                <div className={cn(
+                    "flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
+                    className
+                )}>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                        <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                        <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
+                    </div>
+                    {!disabled && (
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(true)}
+                            className="ml-2 shrink-0 text-xs font-semibold text-primary hover:underline"
+                        >
+                            Edit
+                        </button>
+                    )}
                 </div>
-                {!disabled && (
-                    <button
-                        type="button"
-                        onClick={() => setIsEditing(true)}
-                        className="ml-2 shrink-0 text-xs font-semibold text-primary hover:underline"
-                    >
-                        Edit
-                    </button>
-                )}
-            </div>
+                {requestDialog}
+            </>
         );
     }
 
@@ -121,6 +160,11 @@ export function BrandSearchSelect({
                     className="pl-9 pr-4"
                 />
             </div>
+            {search && !canRequestBrand ? (
+                <p className="mt-1 px-1 text-xs font-semibold text-amber-700">
+                    Select a category first.
+                </p>
+            ) : null}
 
             {/* Dropdown — only shown once fixed position is calculated */}
             {search && dropdownStyle && (
@@ -146,40 +190,66 @@ export function BrandSearchSelect({
                                     We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
                                 </p>
                                 
-                                {search.trim().length >= 2 && (
                                     <button
+                                        type="button"
+                                        disabled={!canRequestBrand}
+                                        onPointerDown={(e) => {
+                                            e.preventDefault();
+                                            handleOpenRequestDialog();
+                                        }}
+                                        className={cn(
+                                            "w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all active:scale-[0.97] shadow-md shadow-slate-900/10",
+                                            canRequestBrand
+                                                ? "bg-slate-900 text-white hover:bg-slate-800"
+                                                : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                                        )}
+                                    >
+                                        <span className="text-lg leading-none">+</span>
+                                        Suggest &ldquo;{search.trim()}&rdquo;
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                {filtered.slice(0, 10).map((b) => (
+                                    <button
+                                        key={b}
                                         type="button"
                                         onPointerDown={(e) => {
                                             e.preventDefault();
-                                            onChange("", search.trim());
-                                            setSearch("");
-                                            setIsEditing(false);
+                                            handleSelect(b);
                                         }}
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all active:scale-[0.97] shadow-md shadow-primary/20"
+                                        className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
                                     >
-                                        <span className="text-lg leading-none">+</span>
-                                        Use &ldquo;{search.trim()}&rdquo;
+                                        {b}
                                     </button>
-                                )}
-                            </div>
-                        ) : (
-                            filtered.slice(0, 10).map((b) => (
+                                ))}
+                                
                                 <button
-                                    key={b}
                                     type="button"
+                                    disabled={!canRequestBrand}
                                     onPointerDown={(e) => {
                                         e.preventDefault();
-                                        handleSelect(b);
+                                        handleOpenRequestDialog();
                                     }}
-                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
+                                    className={cn(
+                                        "w-full p-3 border-t border-slate-50 text-[10px] font-bold transition-colors uppercase tracking-wider text-center",
+                                        canRequestBrand ? "text-primary hover:bg-slate-50" : "text-slate-400 cursor-not-allowed"
+                                    )}
                                 >
-                                    {b}
+                                    Don&apos;t see your brand? Suggest it
                                 </button>
-                            ))
+                            </>
                         )}
                     </div>
+                    {guidanceMessage ? (
+                        <p className="px-4 pb-3 text-xs font-semibold text-amber-700">
+                            {guidanceMessage}
+                        </p>
+                    ) : null}
                 </>
             )}
+
+            {requestDialog}
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS } from "@shared";
 
-export type AdminRole = "super_admin" | "admin" | "moderator";
+export type AdminRole = "superAdmin" | "admin" | "moderator";
 export const ADMIN_STATUS_OPTIONS = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,
@@ -60,7 +60,7 @@ export const DEFAULT_EDIT_FORM: AdminEditFormState = {
 };
 
 export const ROLE_COLORS: Record<string, string> = {
-    super_admin: "bg-purple-100 text-purple-700",
+    superAdmin: "bg-purple-100 text-purple-700",
     admin: "bg-blue-100 text-blue-700",
     moderator: "bg-amber-100 text-amber-700",
     user_manager: "bg-teal-100 text-teal-700",
@@ -72,12 +72,13 @@ export const ROLE_COLORS: Record<string, string> = {
 
 export function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {
     const id = String(raw.id || raw._id || "");
+    const rawRole = String(raw.role || "admin");
     return {
         id,
         firstName: String(raw.firstName || ""),
         lastName: String(raw.lastName || ""),
         email: String(raw.email || ""),
-        role: String(raw.role || "admin"),
+        role: rawRole === "super_admin" ? "superAdmin" : rawRole,
         status: String(raw.status || CHAT_STATUS.ACTIVE),
         permissions: Array.isArray(raw.permissions)
             ? raw.permissions.filter((item): item is string => typeof item === "string")
@@ -118,7 +119,7 @@ export function toEditableAdminFormState(admin: ManagedAdmin): AdminEditFormStat
         firstName: admin.firstName,
         lastName: admin.lastName,
         email: admin.email,
-        role: (["super_admin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
+        role: (["superAdmin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
         status: ADMIN_STATUS_OPTIONS.includes(normalizedStatus) ? normalizedStatus : USER_STATUS.LIVE,
         permissionsText: admin.permissions.join(", "),
     };

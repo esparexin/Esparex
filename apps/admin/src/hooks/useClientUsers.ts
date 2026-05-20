@@ -24,6 +24,10 @@ type UsersOverview = {
     suspendedUsers?: number;
     bannedUsers?: number;
     verifiedUsers?: number;
+    individuals?: number;
+    businesses?: number;
+    verifiedBusinesses?: number;
+    blockedUsers?: number;
 };
 
 export function useClientUsers() {
@@ -43,6 +47,10 @@ export function useClientUsers() {
         suspendedUsers: 0,
         bannedUsers: 0,
         verifiedUsers: 0,
+        individuals: 0,
+        businesses: 0,
+        verifiedBusinesses: 0,
+        blockedUsers: 0,
     });
 
     const fetchUsers = useCallback(async (filters: UserFilters = {}) => {
@@ -80,6 +88,10 @@ export function useClientUsers() {
                 suspendedUsers: Number(ov.suspendedUsers || 0),
                 bannedUsers: Number(ov.bannedUsers || 0),
                 verifiedUsers: Number(ov.verifiedUsers || 0),
+                individuals: Number(ov.individuals || 0),
+                businesses: Number(ov.businesses || 0),
+                verifiedBusinesses: Number(ov.verifiedBusinesses || 0),
+                blockedUsers: Number(ov.blockedUsers || 0),
             });
 
             return { success: true };

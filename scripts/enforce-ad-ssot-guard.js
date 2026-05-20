@@ -92,12 +92,22 @@ function checkAdSchemaGuard() {
       "Ad schema coordinates must remain GeoJSON Point with [longitude, latitude] array."
     );
   }
+
+  // 2dsphere index check — must exist on location.coordinates
+  const has2dsphereIndex =
+    /\.index\s*\(\s*\{\s*['"]location\.coordinates['"]\s*:\s*['"]2dsphere['"]\s*\}/s.test(source);
+
+  if (!has2dsphereIndex) {
+    failures.push(
+      "Ad model must define a 2dsphere index on location.coordinates (e.g. AdSchema.index({ 'location.coordinates': '2dsphere' }))."
+    );
+  }
 }
 
 function main() {
   checkModerationApiSsot();
   checkModerationNormalizer();
-  checkAdSchemaGuard();
+  checkAdSchemaGuard(); // includes 2dsphere index verification
 
   if (failures.length === 0) {
     console.log("✅ Ad SSOT guard passed.");
@@ -111,7 +121,8 @@ function main() {
   console.error("\n[HINT] Ad schema and moderation routes must follow canonical SSOT standards.");
   console.error("1. Ensure 'sellerId' is used for listing ownership, NOT 'userId'.");
   console.error("2. Moderation API MUST use ADMIN_ROUTES constants from @shared/contracts.");
-  console.error("3. Coordinates MUST be GeoJSON Point [longitude, latitude].\n");
+  console.error("3. Coordinates MUST be GeoJSON Point [longitude, latitude].");
+  console.error("4. Ad model MUST define AdSchema.index({ 'location.coordinates': '2dsphere' }).\n");
   process.exit(1);
 }
 

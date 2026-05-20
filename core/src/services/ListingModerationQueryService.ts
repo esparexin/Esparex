@@ -9,6 +9,8 @@ import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 export const MODERATION_STATUSES = [
     LISTING_STATUS.PENDING,
     LISTING_STATUS.LIVE,
+    LISTING_STATUS.ACTIVE,
+    'approved',
     LISTING_STATUS.REJECTED,
     LISTING_STATUS.EXPIRED,
     LISTING_STATUS.SOLD,
@@ -37,6 +39,7 @@ export type ListingModerationFilters = {
     expiringWithinDays?: number;
     spotlightWarningStatus?: 'sent' | 'not_sent';
     spotlightExpiringWithinDays?: number;
+    catalogPending?: boolean;
 };
 
 export type ModerationPagination = {
@@ -87,10 +90,13 @@ export const listModerationListings = async (
             expiringWithinDays: filters.expiringWithinDays,
             spotlightWarningStatus: filters.spotlightWarningStatus,
             spotlightExpiringWithinDays: filters.spotlightExpiringWithinDays,
+            catalogPending: filters.catalogPending,
         },
         pagination,
         {
             trackListingTypeCompatMetrics: false,
+            enforcePublicVisibility: false,
+            disableLocationIntelligence: true,
         }
     );
 };
@@ -103,6 +109,7 @@ type RawAggregationRow = {
     _id: {
         listingType: ModerationListingType;
         status: ModerationStatus;
+        catalogPending: boolean;
     };
     count: number;
 };
@@ -110,10 +117,13 @@ type RawAggregationRow = {
 const createEmptyStatusMap = () => ({
     pending: 0,
     live: 0,
+    active: 0,
+    approved: 0,
     rejected: 0,
     expired: 0,
     sold: 0,
     deactivated: 0,
+    catalogPending: 0,
 });
 
 const createEmptyCounts = () => ({
@@ -158,6 +168,7 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
                     _id: {
                         listingType: { $ifNull: ['$listingType', 'ad'] },
                         status: '$status',
+                        catalogPending: { $ifNull: ['$catalogPending', false] },
                     },
                     count: { $sum: 1 },
                 },
@@ -180,14 +191,19 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
         const status = row._id.status;
 
         if (!LISTING_TYPE_VALUES.includes(type)) return;
-    if (!isModerationStatus(status)) return;
+        if (!isModerationStatus(status)) return;
 
-    byListingType[type][status] += row.count;
-    byListingType[type].total += row.count;
+        byListingType[type][status] += row.count;
+        byListingType[type].total += row.count;
 
-    byStatus[status] += row.count;
-    total += row.count;
-});
+        if (row._id.catalogPending) {
+            byListingType[type].catalogPending += row.count;
+            byStatus.catalogPending += row.count;
+        }
+
+        byStatus[status] += row.count;
+        total += row.count;
+    });
 
 byStatus.live = publicLiveCounts.total;
 for (const type of LISTING_TYPE_VALUES) {

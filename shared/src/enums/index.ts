@@ -15,3 +15,4 @@ export * from './planStatus';
 export * from './apiKeyStatus';
 export * from './chatStatus';
 export * from './moderationStatus';
+export * from './catalogApprovalStatus';

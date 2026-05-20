@@ -185,8 +185,8 @@ export const initializeDatabaseMonitoring = () => {
     type QueryContext = { _startTime?: number; mongooseCollection?: { name?: string }; op?: string; _conditions?: unknown };
     type AggregateContext = { _startTime?: number; _model?: { collection?: { name?: string } }; pipeline?: () => unknown[] };
     type MonitoringSchema = mongoose.Schema & {
-        pre: (method: string, fn: (this: any, next: () => void) => void) => void;
-        post: (method: string, fn: (this: any, docs: unknown, next: () => void) => void) => void;
+        pre: (method: string, fn: (this: MongoosePreHookContext, next: () => void) => void) => void;
+        post: (method: string, fn: (this: MongoosePreHookContext, docs: unknown, next: () => void) => void) => void;
     };
 
     type MongoosePreHookContext = { _startTime?: number };

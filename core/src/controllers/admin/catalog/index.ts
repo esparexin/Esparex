@@ -38,8 +38,7 @@ export {
     deleteModel,
     approveModel,
     rejectModel,
-    toggleModelStatus,
-    ensureModel
+    toggleModelStatus
 } from './catalogBrandModelController';
 
 // Export all spare parts functions
@@ -67,14 +66,6 @@ export {
     toggleScreenSizeStatus,
     deleteScreenSize
 } from './catalogReferenceController';
-
-// Export governance functions
-export {
-    getHierarchyReport,
-    getHierarchyTree,
-    runHierarchyRepair,
-    getCategoryHealth
-} from './catalogGovernanceController';
 
 // Export shared utilities
 export { hasAdminAccess, getAdminActorId, asModel, sendCatalogError } from './shared';

@@ -18,9 +18,9 @@ export interface CategoryData {
     name: string;
     slug?: string;
     type?: string;
-    status?: string;
     isActive?: boolean;
     isDeleted?: boolean;
+    approvalStatus?: "pending" | "approved" | "rejected";
     listingType?: ListingTypeValue[];
     hasScreenSizes?: boolean;
     parentId?: string;

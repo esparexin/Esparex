@@ -93,6 +93,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
         const expiringWithinDaysFromQuery = searchParams.get("expiringWithinDays");
         const spotlightWarningStatusFromQuery = searchParams.get("spotlightWarningStatus");
         const spotlightExpiringWithinDaysFromQuery = searchParams.get("spotlightExpiringWithinDays");
+        const catalogPendingFromQuery = searchParams.get("catalogPending");
 
         const normalizedExpiryWarningStatus: ModerationFilters['expiryWarningStatus'] = (expiryWarningStatusFromQuery === 'sent' || expiryWarningStatusFromQuery === 'not_sent') 
             ? (expiryWarningStatusFromQuery as 'sent' | 'not_sent') 
@@ -121,6 +122,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
                 expiringWithinDays: normalizedExpiringWithinDays,
                 spotlightWarningStatus: normalizedSpotlightWarningStatus,
                 spotlightExpiringWithinDays: normalizedSpotlightExpiringWithinDays,
+                catalogPending: catalogPendingFromQuery === "true" || undefined,
             },
             page: normalizedPage,
             pageSize: normalizedLimit,
@@ -136,6 +138,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
                 expiringWithinDays: normalizedExpiringWithinDays || undefined,
                 spotlightWarningStatus: normalizedSpotlightWarningStatus !== 'all' ? normalizedSpotlightWarningStatus : undefined,
                 spotlightExpiringWithinDays: normalizedSpotlightExpiringWithinDays || undefined,
+                catalogPending: catalogPendingFromQuery === "true" ? true : undefined,
                 page: normalizedPage > 1 ? normalizedPage : undefined,
                 limit: normalizedLimit !== 20 ? normalizedLimit : undefined,
             }),
@@ -169,6 +172,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
             expiringWithinDays: nextFilters.expiringWithinDays || undefined,
             spotlightWarningStatus: nextFilters.spotlightWarningStatus !== 'all' ? nextFilters.spotlightWarningStatus : undefined,
             spotlightExpiringWithinDays: nextFilters.spotlightExpiringWithinDays || undefined,
+            catalogPending: nextFilters.catalogPending === true ? true : undefined,
             page: nextPage > 1 ? nextPage : undefined,
             limit: nextLimit !== 20 ? nextLimit : undefined,
         });
@@ -201,6 +205,7 @@ export function useAdFilters(listingType: ModerationFilters["listingType"]) {
             expiringWithinDays: "",
             spotlightWarningStatus: "all",
             spotlightExpiringWithinDays: "",
+            catalogPending: undefined,
             page: 1,
             limit: 20,
         });

@@ -73,9 +73,9 @@ export function MyListingsTab({
         subTab as AccountListingSection,
         searchParams.get("status")
     ) as ListingStatus;
-    const adsStatus: ListingStatus = subTab === "ads" ? selectedStatus : "active";
-    const servicesStatus: ListingStatus = subTab === "services" ? selectedStatus : "active";
-    const spareStatus: ListingStatus = subTab === "spare-parts" ? selectedStatus : "active";
+    const adsStatus: ListingStatus = subTab === "ads" ? selectedStatus : "live";
+    const servicesStatus: ListingStatus = subTab === "services" ? selectedStatus : "live";
+    const spareStatus: ListingStatus = subTab === "spare-parts" ? selectedStatus : "live";
 
     // Sync state back to URL if normalized state differs from current params
     useEffect(() => {

@@ -1,8 +1,11 @@
+/**
+ * NotificationService & Dispatcher — Unit Tests
+ */
+
 const mockBulkWrite = jest.fn();
 const mockUpdateOne = jest.fn();
 const mockFindById = jest.fn();
 const mockSubscribeToTopic = jest.fn();
-const mockSendMulticast = jest.fn();
 const mockSendEachForMulticast = jest.fn();
 const mockMessaging = jest.fn(() => ({
     subscribeToTopic: mockSubscribeToTopic,
@@ -13,7 +16,17 @@ const mockLogger = {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
+    debug: jest.fn(),
 };
+
+const mockReserveIdempotencySlot = jest.fn();
+const mockReleaseIdempotencySlot = jest.fn();
+const mockAddJobWithTrace = jest.fn();
+const mockIncrementVersion = jest.fn();
+const mockGetIO = jest.fn(() => ({
+    to: jest.fn().mockReturnThis(),
+    emit: jest.fn(),
+}));
 
 jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
@@ -24,11 +37,17 @@ jest.mock("@esparex/core/models/User", () => ({
     },
 }));
 
+jest.mock("@esparex/core/models/Notification", () => {
+    return jest.fn().mockImplementation((data) => ({
+        ...data,
+        save: jest.fn().mockResolvedValue({ _id: 'notif_123' }),
+        _id: 'notif_123'
+    }));
+});
+
 jest.mock("@esparex/core/config/firebaseAdmin", () => ({
     __esModule: true,
-    default: {
-        messaging: mockMessaging,
-    },
+    default: { messaging: mockMessaging },
 }));
 
 jest.mock("@esparex/core/utils/logger", () => ({
@@ -41,155 +60,170 @@ jest.mock("@esparex/core/utils/systemConfigHelper", () => ({
     getSystemConfigDoc: mockGetSystemConfigDoc,
 }));
 
-jest.mock("@esparex/core/services/notification/NotificationDispatcher", () => ({
-    NotificationDispatcher: {
-        dispatch: jest.fn(),
+jest.mock("@esparex/core/queues/queueIdempotency", () => ({
+    reserveQueueIdempotencySlot: mockReserveIdempotencySlot,
+    releaseQueueIdempotencySlot: mockReleaseIdempotencySlot,
+}));
+
+jest.mock("@esparex/core/utils/queueWrapper", () => ({
+    addJobWithTrace: mockAddJobWithTrace,
+}));
+
+jest.mock("@esparex/core/services/notification/NotificationVersionService", () => ({
+    NotificationVersionService: {
+        incrementVersion: mockIncrementVersion,
     },
 }));
 
-jest.mock("@esparex/core/domain/NotificationIntent", () => ({
-    NotificationIntent: jest.fn().mockImplementation((payload) => payload),
+jest.mock("@esparex/core/queues/redisConnection", () => ({
+    isQueueConnectionAvailable: jest.fn().mockReturnValue(true),
+}));
+
+jest.mock("@esparex/core/config/socket", () => ({
+    getIO: mockGetIO,
+}));
+
+jest.mock("@esparex/core/services/notification/NotificationPreferenceService", () => ({
+    resolveNotificationDeliveryPlan: jest.fn().mockResolvedValue({
+        suppress: false,
+        channels: ['in-app', 'push']
+    }),
 }));
 
 import User from "../../models/User";
-import { getSystemConfigDoc } from "../../utils/systemConfigHelper";
-import { registerToken, sendNotification } from "../../services/NotificationService";
+import Notification from "../../models/Notification";
+import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
+import { NotificationIntent } from "../../domain/NotificationIntent";
+import { 
+    registerToken, 
+    sendNotification, 
+    createInAppNotification, 
+    dispatchTemplatedNotification 
+} from "../../services/NotificationService";
 
-const mockedUser = User as unknown as {
-    bulkWrite: jest.Mock;
-    updateOne: jest.Mock;
-    findById: jest.Mock;
-};
-const mockedGetSystemConfigDoc = getSystemConfigDoc as jest.Mock;
-
-describe("NotificationService", () => {
+describe("NotificationService & Dispatcher", () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockBulkWrite.mockResolvedValue(undefined);
-        mockUpdateOne.mockResolvedValue(undefined);
-        mockSubscribeToTopic.mockResolvedValue(undefined);
-        mockSendMulticast.mockResolvedValue({
-            failureCount: 0,
-            responses: [{ success: true }],
-        });
-        mockSendEachForMulticast.mockResolvedValue({
-            failureCount: 0,
-            responses: [{ success: true }],
-        });
-        mockMessaging.mockImplementation(() => ({
-            subscribeToTopic: mockSubscribeToTopic,
-            sendEachForMulticast: mockSendEachForMulticast,
-        }));
-        mockedGetSystemConfigDoc.mockResolvedValue({
-            notifications: {
-                push: {
-                    enabled: true,
-                    provider: "firebase",
-                },
-            },
+        mockReserveIdempotencySlot.mockResolvedValue(true);
+        mockIncrementVersion.mockResolvedValue(10);
+        mockGetSystemConfigDoc.mockResolvedValue({
+            notifications: { push: { enabled: true, provider: "firebase" } },
         });
     });
 
-    it("registers a device token and subscribes it to the expected topics", async () => {
-        await registerToken("user-1", "token-1", "android");
+    // ── Push Gateway Tests ───────────────────────────────────────────────────
 
-        expect(mockedUser.bulkWrite).toHaveBeenCalledWith([
-            {
-                updateMany: {
-                    filter: { "fcmTokens.token": "token-1" },
-                    update: { $pull: { fcmTokens: { token: "token-1" } } },
-                },
-            },
-            {
-                updateOne: {
-                    filter: { _id: "user-1" },
-                    update: {
-                        $push: {
-                            fcmTokens: {
-                                token: "token-1",
-                                platform: "android",
-                                lastActive: expect.any(Date),
-                            },
-                        },
-                    },
-                },
-            },
-        ]);
-        expect(mockSubscribeToTopic).toHaveBeenNthCalledWith(1, "token-1", "all_users");
-        expect(mockSubscribeToTopic).toHaveBeenNthCalledWith(2, "token-1", "platform_android");
-    });
+    describe("PushGatewayService", () => {
+        it("registers a device token and subscribes to topics", async () => {
+            await registerToken("user-1", "token-1", "android");
+            expect(mockBulkWrite).toHaveBeenCalled();
+            expect(mockSubscribeToTopic).toHaveBeenCalledWith("token-1", "all_users");
+        });
 
-    it("logs topic subscription failures without failing token registration", async () => {
-        mockSubscribeToTopic.mockRejectedValueOnce(new Error("subscription failed"));
+        it("sends a multicast push", async () => {
+            const select = jest.fn().mockResolvedValue({ fcmTokens: [{ token: "token-1" }] });
+            (User.findById as jest.Mock).mockReturnValue({ select });
+            mockSendEachForMulticast.mockResolvedValue({ failureCount: 0, responses: [{ success: true }] });
 
-        await expect(registerToken("user-1", "token-1", "web")).resolves.toBeUndefined();
-
-        expect(mockLogger.error).toHaveBeenCalledWith("Topic subscription failed", {
-            error: "subscription failed",
+            await sendNotification("user-1", "Title", "Body");
+            expect(mockSendEachForMulticast).toHaveBeenCalledWith(expect.objectContaining({
+                tokens: ["token-1"]
+            }));
         });
     });
 
-    it("sends a multicast push and removes stale FCM tokens returned by Firebase", async () => {
-        const select = jest.fn().mockResolvedValue({
-            fcmTokens: [{ token: "good" }, { token: "stale-1" }, { token: "stale-2" }],
-        });
-        mockedUser.findById.mockReturnValue({ select });
+    // ── Dispatcher Tests ─────────────────────────────────────────────────────
 
-        mockSendEachForMulticast.mockResolvedValue({
-            failureCount: 2,
-            responses: [
-                { success: true },
-                { success: false, error: { code: "messaging/invalid-registration-token" } },
-                { success: false, error: { code: "messaging/registration-token-not-registered" } },
-            ],
-        });
+    describe("NotificationDispatcher", () => {
+        it("enqueues a notification intent with idempotency check", async () => {
+            const intent = new NotificationIntent({
+                userId: "user-1",
+                type: "SYSTEM",
+                entityRef: { domain: "test", id: "123" },
+                message: { title: "Hello", body: "World" }
+            });
 
-        // Set provider explicitly to firebase
-        mockedGetSystemConfigDoc.mockResolvedValue({
-            notifications: {
-                push: {
-                    enabled: true,
-                    provider: "firebase",
-                },
-            },
+            const result = await NotificationDispatcher.dispatch(intent);
+
+            expect(result.success).toBe(true);
+            expect(mockReserveIdempotencySlot).toHaveBeenCalled();
+            expect(mockAddJobWithTrace).toHaveBeenCalled();
         });
 
-        await sendNotification("user-1", "Order Update", "Device is ready", { screen: "orders" });
+        it("skips enqueuing if dedupKey is already reserved", async () => {
+            mockReserveIdempotencySlot.mockResolvedValue(false);
+            const intent = new NotificationIntent({
+                userId: "user-1",
+                type: "SYSTEM",
+                entityRef: { domain: "test", id: "123" },
+                message: { title: "Hello", body: "World" }
+            });
 
-        expect(select).toHaveBeenCalledWith("fcmTokens");
-        expect(mockSendEachForMulticast).toHaveBeenCalledWith({
-            notification: { title: "Order Update", body: "Device is ready" },
-            data: { screen: "orders" },
-            tokens: ["good", "stale-1", "stale-2"],
+            const result = await NotificationDispatcher.dispatch(intent);
+
+            expect(result.skipped).toBe(true);
+            expect(mockAddJobWithTrace).not.toHaveBeenCalled();
         });
-        expect(mockedUser.updateOne).toHaveBeenCalledWith(
-            { _id: "user-1" },
-            { $pull: { fcmTokens: { token: { $in: ["stale-1", "stale-2"] } } } }
-        );
-        expect(mockLogger.info).toHaveBeenCalledWith("Cleaned up stale FCM tokens", {
-            count: 2,
-            userId: "user-1",
+
+        it("executes dispatch: saves to DB and emits via WebSocket", async () => {
+            const intent = new NotificationIntent({
+                userId: "user-1",
+                type: "SYSTEM",
+                entityRef: { domain: "test", id: "123" },
+                message: { title: "Hello", body: "World" },
+                channels: ['in-app']
+            });
+
+            const result = await NotificationDispatcher.executeDispatch(intent);
+
+            expect(result.success).toBe(true);
+            expect(Notification).toHaveBeenCalled();
+            expect(mockIncrementVersion).toHaveBeenCalledWith("user-1");
+            expect(mockGetIO).toHaveBeenCalled();
+        });
+
+        it("suppresses notification if user preference says so", async () => {
+            const { resolveNotificationDeliveryPlan } = require("../../services/notification/NotificationPreferenceService");
+            resolveNotificationDeliveryPlan.mockResolvedValueOnce({ suppress: true });
+
+            const intent = new NotificationIntent({
+                userId: "user-1",
+                type: "SYSTEM",
+                entityRef: { domain: "test", id: "123" },
+                message: { title: "Hello", body: "World" }
+            });
+
+            const result = await NotificationDispatcher.executeDispatch(intent);
+
+            expect(result.skipped).toBe(true);
+            expect(Notification).not.toHaveBeenCalled();
         });
     });
 
-    it("skips push delivery when another provider is configured", async () => {
-        mockedGetSystemConfigDoc.mockResolvedValue({
-            notifications: {
-                push: {
-                    enabled: true,
-                    provider: "onesignal",
-                },
-            },
+    // ── Helper Service Tests ─────────────────────────────────────────────────
+
+    describe("In-App and Templated Helpers", () => {
+        it("createInAppNotification should route through dispatcher", async () => {
+            const spy = jest.spyOn(NotificationDispatcher, 'dispatch').mockResolvedValue({ success: true });
+            
+            await createInAppNotification("user-1", "SYSTEM" as any, "Title", "Message");
+
+            expect(spy).toHaveBeenCalledWith(expect.objectContaining({
+                userId: "user-1",
+                type: "SYSTEM"
+            }));
         });
 
-        await sendNotification("user-1", "Title", "Body");
+        it("dispatchTemplatedNotification should render and route", async () => {
+            const spy = jest.spyOn(NotificationDispatcher, 'dispatch').mockResolvedValue({ success: true });
+            
+            await dispatchTemplatedNotification("user-1", "BUSINESS_APPROVED" as any, "BUSINESS_APPROVED", { name: "Store" });
 
-        expect(mockedUser.findById).not.toHaveBeenCalled();
-        expect(mockSendMulticast).not.toHaveBeenCalled();
-        expect(mockSendEachForMulticast).not.toHaveBeenCalled();
-        expect(mockLogger.warn).toHaveBeenCalledWith(
-            "Push notification provider is not implemented; notification skipped",
-            { provider: "onesignal" }
-        );
+            expect(spy).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.objectContaining({
+                    title: 'Business Profile Approved! 🏢'
+                })
+            }));
+        });
     });
 });

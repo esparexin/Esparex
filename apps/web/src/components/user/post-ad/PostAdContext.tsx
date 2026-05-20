@@ -9,7 +9,7 @@ import {
     useCallback,
     useMemo
 } from "react";
-import type { SparePart, DeviceModel } from "@/lib/api/user/masterData";
+import type { SparePart, DeviceModel, Brand } from "@/lib/api/user/masterData";
 import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 // FORM imports
@@ -28,7 +28,7 @@ import { useListingCategories } from "@/hooks/listings/useListingCategories";
 import { useListingImages } from "@/hooks/listings/useListingImages";
 import { useListingLocation } from "@/hooks/listings/useListingLocation";
 import { useSparePartCatalog } from "@/hooks/listings/useSparePartCatalog";
-import { usePostAdPreload } from "@/hooks/usePostAdPreload";
+
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { usePostAdValidation } from "@/hooks/usePostAdValidation";
 import { usePostAdAiGeneration } from "./hooks/usePostAdAiGeneration";
@@ -63,7 +63,7 @@ export interface PostAdContextType {
 
     // Logic Wrappers
     handleCategoryChange: (id: string) => Promise<void>;
-    handleBrandChange: (name: string) => Promise<void>;
+    handleBrandChange: (name: string, requestId?: string) => Promise<void>;
 
     brandIsPending: boolean;
 
@@ -90,6 +90,7 @@ export interface PostAdContextType {
     dynamicCategories: ListingCategory[];
     categoryMap: Record<string, ListingCategory>;
     availableBrands: string[];
+    brandMap: Record<string, Brand>;
     availableModels: DeviceModel[];
     availableSizes: string[];
     availableSpareParts: SparePart[];
@@ -129,6 +130,12 @@ export interface PostAdContextType {
 
     submittedAd: Listing | null;
     setSubmittedAd: (ad: Listing | null) => void;
+
+    // Explicit Edit Mode Hydration
+    mode: 'create' | 'edit';
+    listingId?: string;
+    initializeFromListing: (data: Listing) => void;
+    resetToCreateMode: () => void;
 }
 
 export type PostAdStateContextType = Omit<
@@ -158,6 +165,8 @@ export type PostAdStateContextType = Omit<
     | "setValue"
     | "register"
     | "watch"
+    | "initializeFromListing"
+    | "resetToCreateMode"
 >;
 
 export type PostAdActionContextType = Pick<
@@ -187,6 +196,8 @@ export type PostAdActionContextType = Pick<
     | "setValue"
     | "register"
     | "watch"
+    | "initializeFromListing"
+    | "resetToCreateMode"
 >;
 
 const PostAdStateContext = createContext<PostAdStateContextType | undefined>(undefined);
@@ -200,6 +211,7 @@ export type PostAdCatalogState = {
     dynamicCategories: ListingCategory[];
     categoryMap: Record<string, ListingCategory>;
     availableBrands: string[];
+    brandMap: Record<string, Brand>;
     availableModels: DeviceModel[];
     availableSizes: string[];
     availableSpareParts: SparePart[];
@@ -237,6 +249,8 @@ export type PostAdFlowState = {
     form: UseFormReturn<PostAdFormData>;
     control: Control<PostAdFormData>;
     errors: FieldErrors<PostAdFormData>;
+    mode: 'create' | 'edit';
+    listingId?: string;
 };
 
 const PostAdCatalogContext = createContext<PostAdCatalogState | undefined>(undefined);
@@ -336,6 +350,8 @@ export function PostAdProvider({
 
     // Navigation State for 9-Step Flow
     const isEditMode = !!editAdId;
+    const [mode, setMode] = useState<'create' | 'edit'>(isEditMode ? 'edit' : 'create');
+    const [listingId, setListingId] = useState<string | undefined>(editAdId);
     const [currentStep, setCurrentStep] = useState(isEditMode ? 2 : 1);
 
     // Track the original ad status loaded during edit preload
@@ -409,27 +425,72 @@ export function PostAdProvider({
         }
     }, [availableSpareParts, isLoadingSpareParts, form]);
 
-    /* ---------- EDIT MODE PRELOADING ---------- */
-    usePostAdPreload({
-        editAdId,
-        isEditMode,
-        setIsLoading,
-        setLoadError,
-        setOriginalAdStatus,
-        setValue,
-        setAdImages: setListingImages,
-        setLocation,
-        loadBrandsForCategory,
-        loadSparePartsForCategory,
-    });
+    /* ---------- EDIT MODE PRELOADING DELEGATED TO EditAdWrapper ---------- */
 
+    const initializeFromListing = useCallback(async (data: Listing) => {
+        setMode('edit');
+        setListingId(String(data.id || (data as any)._id || ""));
+        setCurrentStep(2);
 
+        if (setOriginalAdStatus && data.status) {
+            setOriginalAdStatus(data.status);
+        }
 
+        const categoryId = data.categoryId || data.category;
+        setValue("categoryId", categoryId);
+        setValue("category", categoryId);
+        setValue("brand", typeof data.brandName === "string" ? data.brandName : "");
+        setValue("title", data.title || "");
+        setValue("description", data.description || "");
+        setValue("price", Number(data.price) || 0);
+        setValue("screenSize", data.screenSize || "");
 
+        if (categoryId) {
+            await Promise.all([
+                loadBrandsForCategory(categoryId),
+                loadSparePartsForCategory(categoryId),
+            ]);
+        }
+
+        if (data.location) {
+            setValue("location", {
+                city: data.location.city,
+                state: data.location.state,
+                display: data.location.display,
+                coordinates: data.location.coordinates,
+                locationId: (data.location.locationId as string) || (data.location as any).id || undefined,
+            });
+        }
+
+        if (Array.isArray(data.images)) {
+            const mappedImages: ListingImage[] = data.images.map((url: string) => ({
+                id: crypto.randomUUID(),
+                preview: url,
+                isRemote: true,
+            }));
+            // Use the stable setter ref — NOT imagesHook (object ref changes on listingImages state update)
+            setListingImages(mappedImages);
+            setValue("images", mappedImages.map((image) => image.preview));
+        }
+
+        setIsLoading(false);
+        // ⚠️  DO NOT include imagesHook (the whole object) here — its reference changes
+        //     every time listingImages state updates, which would create a new callback ref
+        //     every time initializeFromListing sets images, causing EditAdWrapper's useEffect
+        //     to re-fire and start an infinite listing-fetch loop.
+    }, [setValue, loadBrandsForCategory, loadSparePartsForCategory, setListingImages]);
+
+    const resetToCreateMode = useCallback(() => {
+        setMode('create');
+        setListingId(undefined);
+        setCurrentStep(1);
+        form.reset();
+        imagesHook.setListingImages([]);
+    }, [form, imagesHook]);
 
     /* ---------- SPARE PARTS ---------- */
     /* ---------- GENERATE AI ---------- */
-    const { generateDescription } = usePostAdAiGeneration(form, categoryMap, setIsLoading, setFormError);
+    const { generateDescription } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setIsLoading, setFormError);
 
 
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(
@@ -443,6 +504,7 @@ export function PostAdProvider({
         setCurrentStep,
         setStepValidationAttempts,
         requiresScreenSize,
+        categoryFilters: categorySchema?.filters ?? [],
         trigger,
     });
 
@@ -468,6 +530,7 @@ export function PostAdProvider({
         dynamicCategories,
         categoryMap,
         availableBrands,
+        brandMap,
         availableModels,
         availableSizes,
         availableSpareParts,
@@ -478,7 +541,7 @@ export function PostAdProvider({
         brandsError,
         brandIsPending,
     }), [
-        dynamicCategories, categoryMap, availableBrands, availableModels, availableSizes,
+        dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes,
         availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize,
         sparePartsError, brandsError, brandIsPending,
     ]);
@@ -509,10 +572,12 @@ export function PostAdProvider({
         form,
         control,
         errors,
+        mode,
+        listingId,
     }), [
         currentStep, stepValidationAttempts, isLoading, isSubmitting, isInternalUploading,
         isEditMode, userHasInteracted, loadError, formError, submittedAd,
-        form, control, errors,
+        form, control, errors, mode, listingId
     ]);
 
     // Backward-compat: components still on usePostAd() / usePostAdState() get a
@@ -550,6 +615,8 @@ export function PostAdProvider({
         setValue,
         register,
         watch,
+        initializeFromListing,
+        resetToCreateMode,
     }), [
         setCurrentStep,
         nextStep,
@@ -576,6 +643,8 @@ export function PostAdProvider({
         setValue,
         register,
         watch,
+        initializeFromListing,
+        resetToCreateMode,
     ]);
 
     return (

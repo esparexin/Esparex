@@ -6,11 +6,14 @@ import { AppPopup } from "@/components/system/AppPopup";
 import { recordNotificationEvent } from "@/lib/analytics/notificationAnalytics";
 import { usePopupQueue } from "@/components/ui/popup/usePopupQueue";
 import {
-  PopupState,
-  showPopup as emitPopupEvent,
-  hidePopup as hidePopupEvent,
-  subscribePopupEvents,
-} from "@/lib/popup/popupEvents";
+  createUnifiedPopupBus,
+  type PopupState,
+} from "@shared";
+
+const popupBus = createUnifiedPopupBus();
+const subscribePopupEvents = popupBus.subscribe;
+const emitPopupEvent = popupBus.show;
+const hidePopupEvent = popupBus.hide;
 
 interface PopupContextValue {
   popup: PopupState | null;

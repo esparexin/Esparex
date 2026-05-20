@@ -1,11 +1,11 @@
 import { useCallback } from "react";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 
-export type ListingStatus = "active" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
+export type ListingStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
 export type ListingType = "ads" | "spare-parts" | "services";
 export type ListingSoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 
@@ -54,7 +54,7 @@ export function useUserListingManagement<T extends { id: string; status: string 
         queryFn: async () => {
             const all = await fetchApi();
             // Grouped status filtering logic to match backend tab groupings
-            if (statusFilter === "active") {
+            if (statusFilter === "live") {
                 return all.filter((l) => ["active", "live", "deactivated"].includes(l.status));
             }
             if (statusFilter === "expired") {

@@ -30,7 +30,10 @@ import {
     handleCatalogToggleStatus,
     handleCatalogDelete,
     sendEmptyPublicList,
-    getAdminActorId
+    getAdminActorId,
+    applyCatalogStatusFilter,
+    CATALOG_PUBLIC_VISIBILITY_QUERY,
+    deriveApprovalStatus
 } from './shared';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import { validateSparePartRelations } from '../../../services/catalog/CatalogValidationService';
@@ -39,33 +42,15 @@ import {
     sparePartUpdateSchema
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
-import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared";
+import { LISTING_TYPE, type ListingTypeValue } from "../../../constants/enums/listingType";
 import { getCache, setCache } from '../../../utils/redisCache';
+import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
+import { toOptionalString, toStringArray } from './inputCoercion';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
 const sparePartsCacheKey = (categoryId: string, listingType?: string) =>
     `catalog:spare-parts:${categoryId}:${listingType ?? 'all'}`;
-
-const toOptionalString = (value: unknown): string | undefined => {
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        return trimmed || undefined;
-    }
-    if (value && typeof value === 'object' && typeof (value as { toString?: () => string }).toString === 'function') {
-        const stringValue = (value as { toString: () => string }).toString().trim();
-        return stringValue && stringValue !== '[object Object]' ? stringValue : undefined;
-    }
-    return undefined;
-};
-
-const toStringArray = (value: unknown): string[] | undefined => {
-    if (!Array.isArray(value)) return undefined;
-    const normalized = value
-        .map((entry) => toOptionalString(entry))
-        .filter((entry): entry is string => Boolean(entry));
-    return normalized.length > 0 ? normalized : undefined;
-};
 
 // ── Helper: Normalize listing type from query params ──────────────────────
 const normalizeListingTypeFromQuery = (listingTypeParam?: unknown): ListingTypeValue | undefined => {
@@ -126,7 +111,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
 
     // Build public query
     const publicQuery: QueryRecord = {
-        isActive: true,
+        ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forPlural().withFilters({ categoryIds: activeCategoryIds }).build()
     };
     publicQuery.$and = [
@@ -182,6 +167,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     return handlePaginatedContent(req, res, SparePartModel, {
         publicQuery,
         queryParams: cleanQuery,
+        searchFields: ['name', 'canonicalName', 'aliases'],
         defaultSort: { sortOrder: 1 }
     });
 };
@@ -208,7 +194,7 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
 
     // Build admin query
     const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
-    if (status) adminQuery.status = status;
+    applyCatalogStatusFilter(adminQuery, status);
     if (requestedListingType) {
         adminQuery.listingType = requestedListingType;
     }
@@ -225,10 +211,12 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
     delete cleanQuery.category;
     delete cleanQuery.listingType;
     delete cleanQuery.placement;
+    delete cleanQuery.status;
 
     return handlePaginatedContent(req, res, SparePartModel, {
         adminQuery,
         queryParams: cleanQuery,
+        searchFields: ['name', 'canonicalName', 'aliases'],
         defaultSort: { sortOrder: 1 }
     });
 };
@@ -249,13 +237,6 @@ export const createSparePart = async (req: Request, res: Response) => {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
-            // Backward compatibility mapping
-            const categoryId = toOptionalString(payload.categoryId);
-            if (!payload.categoryIds && categoryId) {
-                payload.categoryIds = [categoryId];
-            }
-            delete payload.categoryId;
-
             const categoryIds = toStringArray(payload.categoryIds);
             const validatedCategoryIds = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryIds ?? null }).getRawIds();
             const brandId = toOptionalString(payload.brandId);
@@ -270,6 +251,11 @@ export const createSparePart = async (req: Request, res: Response) => {
             const listingType = toStringArray(payload.listingType);
             payload.listingType = listingType?.length ? listingType : [LISTING_TYPE.SPARE_PART];
             payload.usageCount = 0;
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus,
+                isActive: payload.isActive as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
             
             return payload;
         },
@@ -284,12 +270,6 @@ export const updateSparePart = async (req: Request, res: Response) => {
     return handleCatalogUpdate(req, res, SparePartModel, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
-            // Backward compatibility mapping
-            const categoryId = toOptionalString(payload.categoryId);
-            if (!payload.categoryIds && categoryId) {
-                payload.categoryIds = [categoryId];
-            }
-            delete payload.categoryId;
             if (payload.name) payload.slug = slugify(payload.name as string, { lower: true, strict: true });
 
             // Use renamed categoryIds from and to payload
@@ -306,6 +286,12 @@ export const updateSparePart = async (req: Request, res: Response) => {
                 modelId: nextModelId
             });
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
+
+            payload.approvalStatus = deriveApprovalStatus({
+                approvalStatus: payload.approvalStatus ?? (existingPart as { approvalStatus?: unknown }).approvalStatus,
+                isActive: (payload.isActive ?? (existingPart as { isActive?: boolean }).isActive) as boolean | undefined,
+                fallback: CATALOG_APPROVAL_STATUS.APPROVED,
+            });
 
             return payload;
         },
@@ -338,8 +324,20 @@ export const deleteSparePart = async (req: Request, res: Response) => {
  */
 export const getSparePartById = async (req: Request, res: Response) => {
     try {
+        const isAdminView = req.originalUrl.includes('/admin');
         const sparePart = await findSparePartById(req.params.id as string);
         if (!sparePart) return sendCatalogError(req, res, 'Spare part not found', 404);
+        if (!isAdminView) {
+            const typed = sparePart as { approvalStatus?: string; isActive?: boolean; isDeleted?: boolean; deletedAt?: Date | null };
+            if (
+                typed.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED ||
+                typed.isActive !== true ||
+                typed.isDeleted === true ||
+                typed.deletedAt
+            ) {
+                return sendCatalogError(req, res, 'Spare part not found', 404);
+            }
+        }
         sendSuccessResponse(res, sparePart);
     } catch (error) {
         sendCatalogError(req, res, error);

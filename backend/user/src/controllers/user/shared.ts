@@ -1,5 +1,6 @@
 import { Request } from 'express';
 import { User as SharedUser, UserRole, BusinessStatus } from "@shared/types/user";
+import { Role } from '@esparex/core/constants/enums/roles';
 import { normalizeMobileVisibility } from "@shared/constants/mobileVisibility";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 
@@ -72,11 +73,11 @@ export const toSharedUser = (
   businessStatus?: BusinessStatus,
   businessId?: string
 ): SharedUser => {
-  const normalizedRole: UserRole = safeUser.role === 'admin'
-    || safeUser.role === 'moderator'
-    || safeUser.role === 'super_admin'
-    || safeUser.role === 'business'
-    ? safeUser.role
+  const normalizedRole: UserRole = safeUser.role === Role.ADMIN
+    || safeUser.role === Role.MODERATOR
+    || safeUser.role === Role.SUPER_ADMIN
+    || safeUser.role === Role.BUSINESS
+    ? safeUser.role as UserRole
     : 'user';
 
   const location = safeUser.location;

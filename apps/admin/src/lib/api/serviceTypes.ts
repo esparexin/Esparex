@@ -1,11 +1,10 @@
 export interface ServiceTypeDTO {
     id: string;
     name: string;
-    categoryId?: string;
     categoryIds?: string[];
     isActive?: boolean;
     description?: string;
-    status?: string;
+    approvalStatus?: "pending" | "approved" | "rejected";
 }
 export interface ServiceTypeMutationPayload {
     name: string;

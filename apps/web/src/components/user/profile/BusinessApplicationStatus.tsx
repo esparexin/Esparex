@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { AlertTriangle, Clock, AlertCircle, Edit2, XCircle, CheckCircle2, Trash2, type LucideIcon } from "lucide-react";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { type Business, withdrawBusiness } from "@/lib/api/user/businesses";
-import { notify } from "@/lib/notify";
+import { notify } from "@/lib/feedback";
 import { useState } from "react";
 
 interface BusinessApplicationStatusProps {

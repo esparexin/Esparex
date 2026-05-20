@@ -22,55 +22,57 @@ const createNoopWorker = <T>() => ({
     close: async () => undefined,
 } as unknown as Worker<T>);
 
+export const notificationDeliveryProcessor = async (job: any) => {
+    const traceId = (job.data as { _trace?: { requestId?: string } } | undefined)?._trace?.requestId || `job-${String(job.id || 'unknown')}`;
+    const traceUserId = (job.data as { _trace?: { userId?: string } } | undefined)?._trace?.userId;
+    TraceContext.setCorrelationId(traceId);
+    setReliabilityContext({
+        traceId,
+        userId: traceUserId,
+        queueName: 'notification.delivery.queue',
+        jobId: job.id ? String(job.id) : undefined,
+        jobName: job.name,
+        requestPath: `queue://notification.delivery.queue/${job.name}`,
+        method: 'QUEUE',
+    });
+    const { intent, options } = job.data as {
+        intent: ConstructorParameters<typeof NotificationIntent>[0];
+        options: { shadowDispatch?: boolean }
+    };
+
+    logger.info(`[NotificationDeliveryWorker] Processing ${job.name} for User ${intent.userId}`, {
+        jobId: job.id,
+        type: intent.type
+    });
+
+    try {
+        // Reconstruct the intent object to ensure all defaults are applied 
+        // and any internal logic runs (though executeDispatch uses properties mostly).
+        const notificationIntent = new NotificationIntent(intent);
+        
+        await NotificationDispatcher.executeDispatch(notificationIntent, options);
+        
+        logger.info(`[NotificationDeliveryWorker] Completed delivery for User ${intent.userId}`, {
+            jobId: job.id
+        });
+    } catch (error) {
+        logger.error(`[NotificationDeliveryWorker] Failed delivery for User ${intent.userId}`, {
+            jobId: job.id,
+            error: error instanceof Error ? error.message : String(error)
+        });
+        // Propagate error to BullMQ for retry (configured in adQueue.ts defaultJobOptions)
+        throw error;
+    } finally {
+        TraceContext.clear();
+        clearReliabilityContext();
+    }
+};
+
 export const notificationDeliveryWorker = shouldDisableQueueConnection
     ? createNoopWorker()
     : new Worker(
         'notification.delivery.queue',
-        async (job) => {
-            const traceId = (job.data as { _trace?: { requestId?: string } } | undefined)?._trace?.requestId || `job-${String(job.id || 'unknown')}`;
-            const traceUserId = (job.data as { _trace?: { userId?: string } } | undefined)?._trace?.userId;
-            TraceContext.setCorrelationId(traceId);
-            setReliabilityContext({
-                traceId,
-                userId: traceUserId,
-                queueName: 'notification.delivery.queue',
-                jobId: job.id ? String(job.id) : undefined,
-                jobName: job.name,
-                requestPath: `queue://notification.delivery.queue/${job.name}`,
-                method: 'QUEUE',
-            });
-            const { intent, options } = job.data as {
-                intent: ConstructorParameters<typeof NotificationIntent>[0];
-                options: { shadowDispatch?: boolean }
-            };
-
-            logger.info(`[NotificationDeliveryWorker] Processing ${job.name} for User ${intent.userId}`, {
-                jobId: job.id,
-                type: intent.type
-            });
-
-            try {
-                // Reconstruct the intent object to ensure all defaults are applied 
-                // and any internal logic runs (though executeDispatch uses properties mostly).
-                const notificationIntent = new NotificationIntent(intent);
-                
-                await NotificationDispatcher.executeDispatch(notificationIntent, options);
-                
-                logger.info(`[NotificationDeliveryWorker] Completed delivery for User ${intent.userId}`, {
-                    jobId: job.id
-                });
-            } catch (error) {
-                logger.error(`[NotificationDeliveryWorker] Failed delivery for User ${intent.userId}`, {
-                    jobId: job.id,
-                    error: error instanceof Error ? error.message : String(error)
-                });
-                // Propagate error to BullMQ for retry (configured in adQueue.ts defaultJobOptions)
-                throw error;
-            } finally {
-                TraceContext.clear();
-                clearReliabilityContext();
-            }
-        },
+        notificationDeliveryProcessor,
         {
             connection: redisConnection,
             concurrency: 50, // High concurrency for network-bound tasks (FCM, WebSocket)

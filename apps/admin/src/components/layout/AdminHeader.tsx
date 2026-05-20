@@ -61,24 +61,28 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
         subtitle: "Manage geographic data, hot zones, and location analytics.",
     },
     categories: {
-        title: "Device Taxonomy",
+        title: "Device Catalog",
         subtitle: "Manage device categories, brands, models, and screen sizes.",
     },
     brands: {
-        title: "Device Taxonomy",
+        title: "Device Catalog",
         subtitle: "Manage device categories, brands, models, and screen sizes.",
     },
     models: {
-        title: "Device Taxonomy",
+        title: "Device Catalog",
         subtitle: "Manage device categories, brands, models, and screen sizes.",
     },
-    taxonomy: {
-        title: "Device Taxonomy",
+    catalog: {
+        title: "Device Catalog",
         subtitle: "Manage device categories, brands, models, and screen sizes.",
     },
     "spare-parts-catalog": {
         title: "Spare Parts Master",
         subtitle: "Manage the spare parts catalog and compatibility matrix.",
+    },
+    "catalog-requests": {
+        title: "Catalog Requests",
+        subtitle: "Review user-submitted brand and model requests, then approve, reject, or mark duplicates.",
     },
     "admin-users": {
         title: "Administration",

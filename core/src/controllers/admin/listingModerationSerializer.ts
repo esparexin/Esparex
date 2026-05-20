@@ -8,6 +8,8 @@ import type {
 const MODERATION_STATUS_SET = new Set<ModerationStatus>([
     AD_STATUS.PENDING,
     AD_STATUS.LIVE,
+    'active',
+    'approved',
     AD_STATUS.REJECTED,
     AD_STATUS.EXPIRED,
     AD_STATUS.SOLD,
@@ -26,9 +28,16 @@ const throwContractError = (message: string, code = 'LISTING_CONTRACT_VIOLATION'
 
 const normalizeListingType = (value: unknown): ModerationListingType => {
     const raw = typeof value === 'string' ? value.trim().toLowerCase() : '';
-    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) return raw;
+    if (raw === LISTING_TYPE.AD || raw === LISTING_TYPE.SERVICE || raw === LISTING_TYPE.SPARE_PART) {
+        return raw as ModerationListingType;
+    }
 
-    return throwContractError('Lifecycle contract violation (listing_type): missing/invalid listingType');
+    if (!raw) {
+        // Safe fallback for legacy rows missing listingType
+        return LISTING_TYPE.AD as ModerationListingType;
+    }
+
+    return throwContractError('missing/invalid listingType');
 };
 
 const assertLifecycleStatus = (status: unknown, context: string): ModerationStatus => {
@@ -99,35 +108,48 @@ export const serializeListingCountsResponse = (counts: {
     total: number;
     pending: number;
     live: number;
+    active: number;
+    approved: number;
     rejected: number;
     expired: number;
     sold: number;
     deactivated: number;
+    catalogPending?: number;
     byStatus: {
         pending: number;
         live: number;
+        active: number;
+        approved: number;
         rejected: number;
         expired: number;
         sold: number;
         deactivated: number;
+        catalogPending?: number;
     };
     byListingType: Record<ModerationListingType, {
         total: number;
         pending: number;
         live: number;
+        active: number;
+        approved: number;
         rejected: number;
         expired: number;
         sold: number;
         deactivated: number;
+        catalogPending?: number;
     }>;
 }) => ({
     total: counts.total,
+    all: counts.total,
     pending: counts.pending,
     live: counts.live,
+    approved: counts.live,
     rejected: counts.rejected,
     expired: counts.expired,
     sold: counts.sold,
     deactivated: counts.deactivated,
+    catalogPending: counts.catalogPending ?? 0,
+    heldForCatalog: counts.catalogPending ?? 0,
     byStatus: counts.byStatus,
     byListingType: counts.byListingType,
 });
@@ -136,27 +158,37 @@ export const serializeLegacyCountsAdapter = (counts: {
     total: number;
     pending: number;
     live: number;
+    active: number;
+    approved: number;
     rejected: number;
     expired: number;
     sold: number;
     deactivated: number;
+    catalogPending?: number;
     byListingType: Record<ModerationListingType, {
         total: number;
         pending: number;
         live: number;
+        active: number;
+        approved: number;
         rejected: number;
         expired: number;
         sold: number;
         deactivated: number;
+        catalogPending?: number;
     }>;
 }) => ({
     total: counts.total,
+    all: counts.total,
     pending: counts.pending,
     live: counts.live,
+    approved: counts.live,
     rejected: counts.rejected,
     expired: counts.expired,
     sold: counts.sold,
     deactivated: counts.deactivated,
+    catalogPending: counts.catalogPending ?? 0,
+    heldForCatalog: counts.catalogPending ?? 0,
     ad: counts.byListingType.ad,
     service: counts.byListingType.service,
     spare_part: counts.byListingType.spare_part,
