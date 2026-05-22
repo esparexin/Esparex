@@ -62,11 +62,11 @@ jest.mock('../../controllers/catalogRequestController', () => ({
     getAdminCatalogRequestById: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     approveCatalogRequestByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     rejectCatalogRequestByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
-    markCatalogRequestDuplicateByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
+    markCatalogRequestMergedByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     getAdminCatalogRequestStats: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     bulkApproveCatalogRequestsByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
     bulkRejectCatalogRequestsByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
-    bulkMarkCatalogRequestsDuplicateByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
+    bulkMarkCatalogRequestsMergedByAdmin: jest.fn((_req, res) => res.status(200).json({ ok: true })),
 }));
 
 import catalogRequestRoutes from '../../routes/catalogRequestRoutes';

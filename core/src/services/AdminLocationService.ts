@@ -30,7 +30,7 @@ import slugify from 'slugify';
 import { escapeRegExp } from '../utils/stringUtils';
 import logger from '../utils/logger';
 import { delCache, getCache, setCache, invalidateLocationCaches } from '../utils/redisCache';
-import { LOCATION_STATUS } from '../constants/enums/locationStatus';
+import { LOCATION_STATUS } from '@esparex/shared';
 import {
     normalizeLocationResponse,
     normalizeCoordinates

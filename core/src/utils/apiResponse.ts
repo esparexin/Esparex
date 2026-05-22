@@ -16,6 +16,7 @@ export interface ApiResponseEnvelope<T = unknown> {
             total: number;
             pages: number;
             totalPages: number;
+            hasMore: boolean;
         };
     };
 }
@@ -89,7 +90,8 @@ export class ApiResponse {
                     limit,
                     total,
                     pages: Math.ceil(total / limit),
-                    totalPages: Math.ceil(total / limit)
+                    totalPages: Math.ceil(total / limit),
+                    hasMore: page * limit < total
                 }
             }
         };

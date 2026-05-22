@@ -87,9 +87,8 @@ describe('stats.controller - Analytics & Stats', () => {
                 _id: 'listing-456',
                 views: { total: 100, unique: 80 }
             };
-            mockGetAndVerifyOwnedListing.mockResolvedValue(mockListing);
 
-            const req = { params: { id: 'listing-456' } } as unknown as Request;
+            const req = { params: { id: 'listing-456' }, listing: mockListing } as unknown as Request;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
@@ -97,7 +96,6 @@ describe('stats.controller - Analytics & Stats', () => {
 
             await statsController.getListingAnalytics(req, res);
 
-            expect(mockGetAndVerifyOwnedListing).toHaveBeenCalledWith(req, res, { select: 'views' });
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
                 data: {
@@ -108,9 +106,12 @@ describe('stats.controller - Analytics & Stats', () => {
         });
 
         it('returns 500 if analytics retrieval fails', async () => {
-            mockGetAndVerifyOwnedListing.mockRejectedValue(new Error('Verification failed'));
-
-            const req = { params: { id: 'listing-456' } } as unknown as Request;
+            const req = {
+                params: { id: 'listing-456' },
+                get listing() {
+                    throw new Error('Verification failed');
+                }
+            } as unknown as Request;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()

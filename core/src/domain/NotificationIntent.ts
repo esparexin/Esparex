@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-import { NOTIFICATION_TYPE, type NotificationTypeValue } from '../constants/enums/notificationType';
+import { NOTIFICATION_TYPE, type NotificationTypeValue } from '@esparex/shared';
 
 export interface EntityRef {
     domain: string;

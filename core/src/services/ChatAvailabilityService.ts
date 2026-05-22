@@ -1,5 +1,5 @@
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import type { LifecycleStatus } from "../constants/enums/lifecycle";
+import { LISTING_STATUS } from '@esparex/shared';
+import type { LifecycleStatus } from '@esparex/shared';
 import type { ClientSession } from 'mongoose';
 import { Conversation } from '../models/Conversation';
 import logger from '../utils/logger';

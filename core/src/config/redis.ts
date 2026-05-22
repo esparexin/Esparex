@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import Redis, { type RedisOptions } from 'ioredis';
 import logger from '../utils/logger';
 import { env } from './env';
 import {
@@ -26,6 +26,13 @@ const REDIS_INITIAL_RETRY_DELAY_MS = 250;
 const REDIS_RETRY_LOG_INTERVAL = 5;
 const REDIS_READY_TIMEOUT_MS = env.RELIABILITY_STARTUP_READINESS_TIMEOUT_MS ?? 12_000;
 
+type RedisClientRole = 'app' | 'pub' | 'sub' | 'bull' | 'worker' | 'health';
+
+const roleClientRegistry = new Map<RedisClientRole, Redis>();
+const roleReconnectCounts = new Map<RedisClientRole, number>();
+const roleLastReadyAt = new Map<RedisClientRole, string | null>();
+const roleLastError = new Map<RedisClientRole, string | null>();
+
 const getRetryDelay = (attempt: number): number =>
     Math.min(
         REDIS_INITIAL_RETRY_DELAY_MS * Math.pow(2, Math.max(0, attempt - 1)),
@@ -41,11 +48,136 @@ const validateRedisUrl = (urlValue: string): void => {
     }
 };
 
+const baseRoleOptions = (role: RedisClientRole): RedisOptions => ({
+    ...redisConnectionOptions,
+    maxRetriesPerRequest: role === 'app' && env.NODE_ENV !== 'production' ? 0 : null,
+    enableOfflineQueue: false,
+    enableReadyCheck: true,
+    connectTimeout: REDIS_CONNECT_TIMEOUT_MS,
+    commandTimeout: REDIS_COMMAND_TIMEOUT_MS,
+    lazyConnect: false,
+    keepAlive: 10000,
+    maxLoadingRetryTime: REDIS_MAX_RETRY_DELAY_MS,
+    tls: redisUrl.startsWith('rediss://') ? {} : undefined,
+    retryStrategy(times) {
+        const delay = getRetryDelay(times);
+        if (times === 1 || times % REDIS_RETRY_LOG_INTERVAL === 0) {
+            logger.warn('[REDIS_RETRY] Reconnecting to Redis', {
+                role,
+                attempt: times,
+                delayMs: delay
+            });
+        }
+        roleReconnectCounts.set(role, (roleReconnectCounts.get(role) || 0) + 1);
+        return delay;
+    },
+    reconnectOnError(err) {
+        const code = (err as NodeJS.ErrnoException).code;
+        if (code === 'EPERM' || code === 'EACCES') {
+            logger.error('[REDIS_RECONNECT] Permission error from Redis socket', {
+                role,
+                code,
+                message: err.message,
+            });
+            return true;
+        }
+        if (code === 'ETIMEDOUT' || code === 'ECONNRESET') {
+            logger.warn('[REDIS_RECONNECT] Transient Redis network failure', {
+                role,
+                code,
+                message: err.message
+            });
+            return true;
+        }
+        return false;
+    }
+});
+
+const attachRoleTelemetry = (role: RedisClientRole, client: Redis): Redis => {
+    roleLastReadyAt.set(role, null);
+    roleLastError.set(role, null);
+
+    client.on('connect', () => {
+        logger.info('Redis connected', {
+            role,
+            host: redisHost,
+            port: redisPort,
+            db: redisDb,
+        });
+    });
+
+    client.on('error', (err) => {
+        const message = err.message;
+        roleLastError.set(role, message);
+        logger.error('Redis connection error', {
+            role,
+            code: (err as NodeJS.ErrnoException).code,
+            error: message
+        });
+    });
+
+    client.on('close', () => {
+        logger.warn('Redis connection closed', { role });
+    });
+
+    client.on('ready', () => {
+        const now = new Date().toISOString();
+        roleLastReadyAt.set(role, now);
+        roleLastError.set(role, null);
+        logger.info('Redis client ready', { role });
+    });
+
+    return client;
+};
+
+const createNoopRedisClient = (): Redis => ({
+    call: () => Promise.resolve(null),
+    get: () => Promise.resolve(null),
+    mget: (...keys: string[]) => Promise.resolve(keys.map(() => null)),
+    set: () => Promise.resolve('OK'),
+    setex: () => Promise.resolve('OK'),
+    del: () => Promise.resolve(0),
+    exists: () => Promise.resolve(0),
+    keys: () => Promise.resolve([]),
+    scan: () => Promise.resolve(['0', []]),
+    ttl: () => Promise.resolve(-2),
+    ping: () => Promise.resolve('PONG'),
+    incr: () => Promise.resolve(0),
+    expire: () => Promise.resolve(0),
+    eval: () => Promise.resolve(0),
+    dbsize: () => Promise.resolve(0),
+    info: () => Promise.resolve(''),
+    pipeline: () => {
+        const chain = {
+            set: () => chain,
+            exec: async () => ([]),
+        };
+        return chain;
+    },
+    quit: () => Promise.resolve('OK'),
+    disconnect: () => undefined,
+    status: 'end',
+    on: () => undefined,
+    off: () => undefined,
+} as unknown as Redis);
+
+const createRedisClient = (role: RedisClientRole): Redis => {
+    if (shouldDisableRedis) return createNoopRedisClient();
+    return attachRoleTelemetry(role, new Redis(baseRoleOptions(role)));
+};
+
+const getOrCreateRoleClient = (role: RedisClientRole): Redis => {
+    const existing = roleClientRegistry.get(role);
+    if (existing) return existing;
+    const created = createRedisClient(role);
+    roleClientRegistry.set(role, created);
+    return created;
+};
+
 if (!shouldDisableRedis) {
     validateRedisUrl(redisUrl);
 }
 
-// 🔍 STARTUP AUDIT: Log the connection protocol and host (obfuscated)
 const auditUrl = sanitizeRedisUrl(redisUrl || '');
 if (!shouldDisableRedis) {
     logger.info('[REDIS_BOOT] Redis runtime configuration loaded', {
@@ -63,101 +195,7 @@ if (env.NODE_ENV === 'production') {
     }
 }
 
-const redis: Redis = shouldDisableRedis
-    ? ({
-        call: () => Promise.resolve(null),
-        get: () => Promise.resolve(null),
-        mget: (...keys: string[]) => Promise.resolve(keys.map(() => null)),
-        set: () => Promise.resolve('OK'),
-        setex: () => Promise.resolve('OK'),
-        del: () => Promise.resolve(0),
-        exists: () => Promise.resolve(0),
-        keys: () => Promise.resolve([]),
-        scan: () => Promise.resolve(['0', []]),
-        ttl: () => Promise.resolve(-2),
-        ping: () => Promise.resolve('PONG'),
-        incr: () => Promise.resolve(0),
-        expire: () => Promise.resolve(0),
-        eval: () => Promise.resolve(0),
-        dbsize: () => Promise.resolve(0),
-        info: () => Promise.resolve(''),
-        pipeline: () => {
-            const chain = {
-                set: () => chain,
-                exec: async () => ([]),
-            };
-            return chain;
-        },
-        quit: () => Promise.resolve('OK'),
-        disconnect: () => undefined,
-        status: 'end',
-        on: () => undefined,
-    } as unknown as Redis)
-    : new Redis({
-        ...redisConnectionOptions,
-        maxRetriesPerRequest: env.NODE_ENV === 'production' ? null : 0,
-        enableOfflineQueue: false,
-        enableReadyCheck: true,
-        connectTimeout: REDIS_CONNECT_TIMEOUT_MS,
-        commandTimeout: REDIS_COMMAND_TIMEOUT_MS,
-        lazyConnect: false,
-        keepAlive: 10000,
-        maxLoadingRetryTime: REDIS_MAX_RETRY_DELAY_MS,
-        tls: redisUrl.startsWith('rediss://') ? {} : undefined,
-        retryStrategy(times) {
-            const delay = getRetryDelay(times);
-            if (times === 1 || times % REDIS_RETRY_LOG_INTERVAL === 0) {
-                logger.warn('[REDIS_RETRY] Reconnecting to Redis', {
-                    attempt: times,
-                    delayMs: delay
-                });
-            }
-            return delay;
-        },
-        reconnectOnError(err) {
-            const code = (err as NodeJS.ErrnoException).code;
-            if (code === 'EPERM' || code === 'EACCES') {
-                logger.error('[REDIS_RECONNECT] Permission error from Redis socket', {
-                    code,
-                    message: err.message,
-                });
-                return true;
-            }
-            if (code === 'ETIMEDOUT' || code === 'ECONNRESET') {
-                logger.warn('[REDIS_RECONNECT] Transient Redis network failure', {
-                    code,
-                    message: err.message
-                });
-                return true;
-            }
-            return false;
-        }
-    });
-
-if (!shouldDisableRedis) {
-    redis.on('connect', () => {
-        logger.info('Redis connected', {
-            host: redisHost,
-            port: redisPort,
-            db: redisDb,
-        });
-    });
-
-    redis.on('error', (err) => {
-        logger.error('Redis connection error', {
-            code: (err as NodeJS.ErrnoException).code,
-            error: err.message
-        });
-    });
-
-    redis.on('close', () => {
-        logger.warn('Redis connection closed');
-    });
-
-    redis.on('ready', () => {
-        logger.info('Redis client ready');
-    });
-}
+const redis = getOrCreateRoleClient('app');
 
 const getRedisStatus = (): string => (redis as unknown as { status?: string }).status ?? 'unknown';
 
@@ -238,17 +276,82 @@ export const waitForRedisReady = async (
         });
     } catch (error) {
         const isProduction = env.NODE_ENV === 'production';
-        const redisRequired = isProduction && env.ALLOW_REDIS === true;
+        const redisRequired = isProduction;
         if (redisRequired) {
             throw error;
-        } else {
-            logger.warn('Redis unavailable during API bootstrap; continuing with in-memory cache and rate limiter fallbacks.', {
-                context,
-                error: error instanceof Error ? error.message : String(error)
-            });
         }
+        logger.warn('Redis unavailable during API bootstrap; continuing with in-memory cache and rate limiter fallbacks.', {
+            context,
+            error: error instanceof Error ? error.message : String(error)
+        });
     }
 };
 
+export const getRedisClientByRole = (role: RedisClientRole): Redis => getOrCreateRoleClient(role);
+
+export const getRedisOperationalObservabilityReport = (): {
+    redisConnected: boolean;
+    cacheBackend: 'redis' | 'in-memory-fallback';
+    queueBackend: 'redis' | 'in-memory-fallback';
+    pubSubBackend: 'redis' | 'in-memory-fallback';
+    reconnects: Record<RedisClientRole, number>;
+    fallbackState: 'active' | 'inactive';
+    runtimeWarnings: string[];
+    timestamp: string;
+} => {
+    const appStatus = (getOrCreateRoleClient('app') as unknown as { status?: string }).status;
+    const queueStatus = (getOrCreateRoleClient('bull') as unknown as { status?: string }).status;
+    const subStatus = (getOrCreateRoleClient('sub') as unknown as { status?: string }).status;
+    const isReady = (status?: string): boolean => status === 'ready' || status === 'connect';
+    const runtimeWarnings: string[] = [];
+
+    if (shouldDisableRedis) {
+        runtimeWarnings.push('redis_disabled_by_runtime_flags');
+    }
+    if (!isReady(appStatus)) runtimeWarnings.push('app_redis_not_ready');
+    if (!isReady(queueStatus)) runtimeWarnings.push('queue_redis_not_ready');
+    if (!isReady(subStatus)) runtimeWarnings.push('pubsub_redis_not_ready');
+
+    return {
+        redisConnected: isReady(appStatus),
+        cacheBackend: shouldDisableRedis ? 'in-memory-fallback' : 'redis',
+        queueBackend: shouldDisableRedis ? 'in-memory-fallback' : 'redis',
+        pubSubBackend: shouldDisableRedis ? 'in-memory-fallback' : 'redis',
+        reconnects: {
+            app: roleReconnectCounts.get('app') || 0,
+            pub: roleReconnectCounts.get('pub') || 0,
+            sub: roleReconnectCounts.get('sub') || 0,
+            bull: roleReconnectCounts.get('bull') || 0,
+            worker: roleReconnectCounts.get('worker') || 0,
+            health: roleReconnectCounts.get('health') || 0,
+        },
+        fallbackState: shouldDisableRedis ? 'active' : 'inactive',
+        runtimeWarnings,
+        timestamp: new Date().toISOString(),
+    };
+};
+
+export const closeRedisClients = async (): Promise<void> => {
+    const closers = Array.from(roleClientRegistry.entries()).map(async ([role, client]) => {
+        try {
+            await client.quit();
+        } catch (error) {
+            logger.warn('[REDIS_SHUTDOWN] Failed to close redis client', {
+                role,
+                error: error instanceof Error ? error.message : String(error),
+            });
+            try {
+                client.disconnect();
+            } catch {
+                // no-op
+            }
+        }
+    });
+
+    await Promise.allSettled(closers);
+    roleClientRegistry.clear();
+};
+
 export { shouldDisableRedis };
+export type { RedisClientRole };
 export default redis;

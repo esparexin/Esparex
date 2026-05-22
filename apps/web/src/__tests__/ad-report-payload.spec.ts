@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_REASON } from "@shared/enums/reportReason";
+import { REPORT_REASON } from '@esparex/shared';
 
 import { buildAdReportPayload, normalizeReportTargetId } from "@/lib/listings/adReportPayload";
 

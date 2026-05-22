@@ -1,4 +1,4 @@
-import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 
 type CategoryCapabilityInput = string[] | null | undefined;
 

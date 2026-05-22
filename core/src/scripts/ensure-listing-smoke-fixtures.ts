@@ -7,9 +7,9 @@ import Ad from '../models/Ad';
 import Category from '../models/Category';
 import ServiceType from '../models/ServiceType';
 import SparePart from '../models/SparePart';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import { LISTING_TYPE } from '../constants/enums/listingType';
-import { MODERATION_STATUS } from '../constants/enums/moderationStatus';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/shared';
+import { MODERATION_STATUS } from '@esparex/shared';
 import { MOBILE_VISIBILITY } from "@esparex/shared";
 import logger from '../utils/logger';
 

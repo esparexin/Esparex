@@ -5,7 +5,7 @@ import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import * as AdEngagementService from '@esparex/core/services/AdEngagementService';
 import { getSellerPhone } from '@esparex/core/services/ContactRevealService';
-import { LISTING_TYPE } from "@esparex/core/constants/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 
 /**
  * GET /api/v1/listings/:id/view

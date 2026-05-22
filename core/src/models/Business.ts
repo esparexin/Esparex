@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Business as SharedBusiness } from "@esparex/shared";
 import { hasValidCoordinateArray, sanitizeGeoPoint } from '@esparex/shared';
-import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '../constants/enums/businessStatus';
-import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '../constants/enums/idProofType';
+import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '@esparex/shared';
+import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@esparex/shared';
 
 export interface IBusinessDocument {
     type: 'id_proof' | 'business_proof' | 'certificate';

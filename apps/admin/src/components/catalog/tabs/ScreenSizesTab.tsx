@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Monitor, AlertTriangle, Loader2 } from "lucide-react";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminScreenSizes } from "@/hooks/useAdminScreenSizes";
@@ -8,6 +9,8 @@ import { type ScreenSize } from "@/types/screenSize";
 import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
+import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import {
     CatalogActiveCheckboxField,
     CatalogActiveStatusFilter,
@@ -17,25 +20,41 @@ import {
     CatalogSelectField,
     CatalogSelectFilter,
     CatalogTextInputField,
+    CatalogSearchInput,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { toCategoryOptions } from "@/components/catalog/catalogDomainUtils";
 import type { ScreenSizeMutationPayload } from "@/lib/api/screenSizes";
 
 export default function ScreenSizesTab() {
+    const searchParams = useSearchParams();
+    const initialSearch = normalizeSearchParamValue(searchParams.get("q") ?? searchParams.get("search"));
+    const initialCategoryId = normalizeSearchParamValue(searchParams.get("categoryId")) || "all";
+    const initialStatus = normalizeSearchParamValue(searchParams.get("status")) || "all";
+    const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
+
+    const [searchInput, setSearchInput] = useState(initialSearch);
+
     const { categories } = useAdminCategories();
     const {
         screenSizes,
         loading,
         error,
         pagination,
-        filters,
-        setFilters,
-        setPage,
         handleDelete,
         handleCreate,
         handleUpdate,
         handleToggleStatus
-    } = useAdminScreenSizes();
+    } = useAdminScreenSizes({
+        initialFilters: {
+            search: initialSearch,
+            categoryId: initialCategoryId,
+            status: initialStatus,
+        },
+        initialPagination: {
+            page: initialPage,
+            limit: 20,
+        },
+    });
 
     const [deletingScreenSize, setDeletingScreenSize] = useState<ScreenSize | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -54,6 +73,14 @@ export default function ScreenSizesTab() {
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
 
+    const { replaceQueryState } = useCatalogQueryStateSync({
+        searchInput,
+        initialSearch,
+        loading,
+        initialPage,
+        totalPages: pagination.totalPages,
+    });
+
     return (
         <>
             <CatalogPageTemplate<ScreenSize, ScreenSizeMutationPayload>
@@ -66,7 +93,7 @@ export default function ScreenSizesTab() {
                 loading={loading}
                 error={error}
                 pagination={pagination}
-                setPage={setPage}
+                setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={handleCreate}
                 handleUpdate={handleUpdate}
                 defaultFormData={{ size: "", name: "", value: 1, categoryId: "", isActive: true }}
@@ -128,25 +155,37 @@ export default function ScreenSizesTab() {
                         ),
                     },
                 ]}
-                filterLayoutClassName="md:grid-cols-2"
+                filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <div className="flex flex-col md:flex-row gap-4 flex-1">
-                            <CatalogSelectFilter
-                                className="flex-1"
-                                value={filters.categoryId}
-                                onChange={(categoryId) => setFilters((prev) => ({ ...prev, categoryId }))}
-                                options={[
-                                    { value: "all", label: "All Categories" },
-                                    ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
-                                ]}
-                                withFilterIcon
-                            />
-                            <CatalogActiveStatusFilter
-                                value="all"
-                                onChange={() => {}}
-                            />
-                        </div>
+                        <CatalogSearchInput
+                            value={searchInput}
+                            placeholder="Search screen sizes..."
+                            onChange={setSearchInput}
+                        />
+                        <CatalogSelectFilter
+                            value={initialCategoryId}
+                            onChange={(categoryId) =>
+                                replaceQueryState({
+                                    categoryId: categoryId !== "all" ? categoryId : null,
+                                    page: null,
+                                })
+                            }
+                            options={[
+                                { value: "all", label: "All Categories" },
+                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
+                            ]}
+                            withFilterIcon
+                        />
+                        <CatalogActiveStatusFilter
+                            value={initialStatus}
+                            onChange={(status) =>
+                                replaceQueryState({
+                                    status: status !== "all" ? status : null,
+                                    page: null,
+                                })
+                            }
+                        />
                     </>
                 }
                 formRenderer={(formData, setFormData) => (

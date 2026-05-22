@@ -10,7 +10,7 @@ import Ad, { type IAd } from '../models/Ad';
 import logger from '../utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING

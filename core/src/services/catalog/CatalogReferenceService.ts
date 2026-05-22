@@ -9,8 +9,8 @@ import ScreenSizeModelImport from '../../models/ScreenSize';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import AdModel from '../../models/Ad';
-import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 // Re-export model instances for generic handler calls in the controller layer
 export const ServiceTypeModel = ServiceTypeModelImport;

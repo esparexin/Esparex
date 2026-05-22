@@ -6,6 +6,7 @@ jest.mock('../../middleware/adminAuth', () => ({
         req.admin = { _id: '65fa29c9d2c1f2e165fa29cb' } as never;
         next();
     },
+    requirePermission: () => (req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
 }));
 
 jest.mock('../../middleware/rateLimiter', () => ({

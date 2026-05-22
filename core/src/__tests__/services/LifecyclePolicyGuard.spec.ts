@@ -1,4 +1,4 @@
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import { ACTOR_TYPE } from "@esparex/shared";
 import { enforceLifecycleMutationPolicy } from '../../services/LifecyclePolicyGuard';
 

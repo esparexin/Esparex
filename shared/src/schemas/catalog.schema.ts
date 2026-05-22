@@ -24,9 +24,6 @@ export const CategoryFilterSchema = z.object({
 /* ────────────────────────────────────────────── */
 /* CATEGORY                                       */
 /* ────────────────────────────────────────────── */
-export const CATEGORY_TYPES = ['AD', 'SPARE_PART', 'SERVICE', 'OTHER'] as const;
-export const CategoryTypeEnum = z.enum(CATEGORY_TYPES);
-export type CategoryType = z.infer<typeof CategoryTypeEnum>;
 
 export const CreateCategorySchema = z.object({
     name: z.string().min(1).max(50),
@@ -35,14 +32,12 @@ export const CreateCategorySchema = z.object({
     slug: SlugSchema,
     aliases: z.array(z.string().min(1).max(80)).optional(),
     synonyms: z.array(z.string().min(1).max(80)).optional(),
-    type: CategoryTypeEnum.default('AD'),
+
     icon: z.string().optional(),
     description: z.string().optional(),
     parentId: ObjectIdSchema.optional(),
     isActive: z.boolean().default(true),
     listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
-    // Deprecated: Use listingType.includes('spare_part')
-    // supportsSpareParts: z.boolean().default(false),
     serviceSelectionMode: z.enum(['single', 'multi']).default('multi'),
     hasScreenSizes: z.boolean().default(false),
     filters: z.array(CategoryFilterSchema).optional(),
@@ -92,6 +87,12 @@ export const CreateModelSchema = z.object({
     synonyms: z.array(z.string().min(1).max(120)).optional(),
     brandId: ObjectIdSchema,
     categoryIds: z.array(ObjectIdSchema),
+    parentModelId: ObjectIdSchema.nullable().optional(),
+    variantOfModelId: ObjectIdSchema.nullable().optional(),
+    hierarchyPath: z.array(z.string()).optional(),
+    treeDepth: z.number().int().min(0).optional(),
+    variantType: z.string().min(1).max(80).optional(),
+    isParentModel: z.boolean().optional(),
     isActive: z.boolean().default(true),
     approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
 }).strict();

@@ -5,9 +5,9 @@ import {
   normalizeMobileVisibility,
 } from "@esparex/shared";
 import { getUserConnection } from '../config/db';
-import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '../constants/enums/userStatus';
+import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@esparex/shared';
 
-import { Role, ROLE_VALUES } from '../constants/enums/roles';
+import { Role, ROLE_VALUES } from '@esparex/shared';
 import { normalizeRole } from '../utils/roleNormalization';
 
 export interface GeoJSONPoint {

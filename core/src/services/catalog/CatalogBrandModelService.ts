@@ -9,11 +9,12 @@
 import BrandModelImport from '../../models/Brand';
 import CatalogModelImport from '../../models/Model';
 import AdModel from '../../models/Ad';
-import SparePartModel from '../../models/SparePart';
+import SparePart from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
 import ScreenSizeModel from '../../models/ScreenSize';
 import SmartAlertModel from '../../models/SmartAlert';
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
+import { getModelDeletionImpact } from './CatalogHierarchyService';
 
 // Re-export model instances for generic handler calls in the controller layer
 export const BrandModel = BrandModelImport;
@@ -61,7 +62,7 @@ export const checkBrandDependencies = async (id: string) => {
     const [modelsCount, listingsCount, sparePartsCount, screenSizesCount, smartAlertsCount] = await Promise.all([
         CatalogModelImport.countDocuments({ brandId: id }),
         AdModel.countDocuments({ brandId: id }),
-        SparePartModel.countDocuments({ brandId: id }),
+        SparePart.countDocuments({ brandId: id }),
         ScreenSizeModel.countDocuments({ brandId: id }),
         SmartAlertModel.countDocuments({ brandId: id })
     ]);
@@ -91,12 +92,16 @@ export const findModelBySlug = async (slug: string, baseFilter: Record<string, u
 
 /** Dependency check for model deletion — counts linked listings and spare parts. */
 export const checkModelDependencies = async (id: string) => {
-    const [listingsCount, sparePartsCount] = await Promise.all([
-        AdModel.countDocuments({ modelId: id }),
-        SparePartModel.countDocuments({ modelId: id })
-    ]);
+    const impact = await getModelDeletionImpact(id);
     return {
-        count: listingsCount + sparePartsCount,
-        details: { listings: listingsCount, spareParts: sparePartsCount }
+        count: impact.totalBlocked,
+        details: {
+            listings: impact.listings,
+            spareParts: impact.spareParts,
+            variants: impact.variants,
+            childModels: impact.childModels,
+            descendantModels: impact.descendantModels,
+            activeHierarchyRoots: impact.activeHierarchyRoots,
+        }
     };
 };

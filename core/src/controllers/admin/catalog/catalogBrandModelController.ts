@@ -9,7 +9,7 @@ import logger from '../../../utils/logger';
 import { sendSuccessResponse } from "../../../utils/respond";
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
-import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { getUserConnection } from '../../../config/db';
 import {
     BrandModel,
@@ -53,6 +53,14 @@ import {
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
+import VariantModel from '../../../models/Variant';
+import {
+    MAX_MODEL_TREE_DEPTH,
+    type ModelHierarchyDoc,
+    updateModelHierarchyTransactionally,
+    validateModelHierarchyMutation,
+} from '../../../services/catalog/CatalogHierarchyService';
+import { detectDuplicateCandidates } from '../../../services/catalog/CatalogSearchGovernanceService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
@@ -67,6 +75,10 @@ const catalogCacheKey = {
     models: (params: {
         categoryId?: unknown;
         brandId?: unknown;
+        parentModelId?: unknown;
+        variantModelId?: unknown;
+        includeVariants?: unknown;
+        treeView?: unknown;
         search?: unknown;
         q?: unknown;
         page?: unknown;
@@ -76,11 +88,124 @@ const catalogCacheKey = {
         'catalog:models',
         `category=${normalizeCacheValue(params.categoryId)}`,
         `brand=${normalizeCacheValue(params.brandId)}`,
+        `parent=${normalizeCacheValue(params.parentModelId)}`,
+        `variant=${normalizeCacheValue(params.variantModelId)}`,
+        `includeVariants=${normalizeCacheValue(params.includeVariants)}`,
+        `treeView=${normalizeCacheValue(params.treeView)}`,
         `search=${normalizeCacheValue(params.search ?? params.q)}`,
         `page=${normalizeCacheValue(params.page ?? 1)}`,
         `limit=${normalizeCacheValue(params.limit ?? 100)}`,
         `sort=${normalizeCacheValue(params.sort ?? 'name')}`,
     ].join(':'),
+};
+
+const normalizeOptionalObjectIdQuery = (value: unknown): string | undefined => {
+    const raw = Array.isArray(value) ? value[0] : value;
+    if (typeof raw !== 'string') return undefined;
+    const normalized = raw.trim();
+    if (!normalized || normalized === 'all') return undefined;
+    return mongoose.Types.ObjectId.isValid(normalized) ? normalized : undefined;
+};
+
+const normalizeBooleanQuery = (value: unknown): boolean => {
+    const raw = Array.isArray(value) ? value[0] : value;
+    return raw === true || raw === 'true' || raw === '1';
+};
+
+const populateModelVariants = async (items: unknown[]) => {
+    const modelIds = items
+        .map((item) => {
+            const model = item as { _id?: unknown; id?: unknown };
+            return model._id ?? model.id;
+        })
+        .filter(Boolean)
+        .map(String);
+
+    if (modelIds.length === 0) return items;
+
+    const [variantDocs, variantModelDocs] = await Promise.all([
+        VariantModel.find({
+            modelId: { $in: modelIds },
+            isDeleted: { $ne: true },
+        }).sort({ name: 1 }).lean(),
+        CatalogModel.find({
+            variantOfModelId: { $in: modelIds },
+            isDeleted: { $ne: true },
+        }).sort({ name: 1 }).lean(),
+    ]);
+
+    const variantsByModelId = new Map<string, unknown[]>();
+    for (const variant of variantDocs) {
+        const modelId = String((variant as { modelId?: unknown }).modelId ?? '');
+        if (!modelId) continue;
+        const existing = variantsByModelId.get(modelId) ?? [];
+        existing.push(variant);
+        variantsByModelId.set(modelId, existing);
+    }
+
+    const variantModelsByParentId = new Map<string, unknown[]>();
+    for (const variantModel of variantModelDocs) {
+        const parentId = String((variantModel as { variantOfModelId?: unknown }).variantOfModelId ?? '');
+        if (!parentId) continue;
+        const existing = variantModelsByParentId.get(parentId) ?? [];
+        existing.push(variantModel);
+        variantModelsByParentId.set(parentId, existing);
+    }
+
+    return items.map((item) => {
+        const plain = typeof (item as { toObject?: () => unknown }).toObject === 'function'
+            ? (item as { toObject: () => Record<string, unknown> }).toObject()
+            : { ...(item as Record<string, unknown>) };
+        const id = String(plain._id ?? plain.id ?? '');
+        return {
+            ...plain,
+            variants: variantsByModelId.get(id) ?? [],
+            variantModels: variantModelsByParentId.get(id) ?? [],
+        };
+    });
+};
+
+const applyModelHierarchyPayload = async (
+    payload: Record<string, unknown>,
+    options: { existingModel?: unknown } = {}
+) => {
+    const normalizedPayload = {
+        ...payload,
+        brandId: toOptionalString(payload.brandId) ?? payload.brandId,
+        parentModelId: payload.parentModelId === null ? null : toOptionalString(payload.parentModelId) ?? payload.parentModelId,
+        variantOfModelId: payload.variantOfModelId === null ? null : toOptionalString(payload.variantOfModelId) ?? payload.variantOfModelId,
+    };
+    return validateModelHierarchyMutation(normalizedPayload, {
+        existingModel: options.existingModel as ModelHierarchyDoc | null | undefined,
+    });
+};
+
+const logModelDuplicateCandidates = async (
+    req: Request,
+    payload: Record<string, unknown>,
+    options: { excludeId?: string } = {}
+) => {
+    const name = String(payload.displayName ?? payload.name ?? payload.canonicalName ?? '').trim();
+    const brandId = toOptionalString(payload.brandId);
+    if (!name || !brandId) return;
+
+    const candidates = await CatalogModel.find({
+        brandId,
+        isDeleted: { $ne: true },
+        ...(options.excludeId ? { _id: { $ne: options.excludeId } } : {}),
+    })
+        .select('_id name displayName canonicalName slug aliases synonyms parentModelId variantOfModelId')
+        .limit(100)
+        .lean();
+    const duplicateCandidates = detectDuplicateCandidates(name, candidates as unknown as Record<string, unknown>[]);
+    if (duplicateCandidates.length > 0) {
+        logger.warn('[CatalogSearch] Potential model duplicate candidates detected', {
+            requestPath: req.originalUrl || req.path,
+            candidateCount: duplicateCandidates.length,
+            input: name,
+            candidates: duplicateCandidates,
+        });
+    }
 };
 
 /** Wraps res.json to write-through to Redis on success (public path only). */
@@ -244,7 +369,7 @@ export const createBrand = async (req: Request, res: Response) => {
             }
             return payload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -279,7 +404,7 @@ export const updateBrand = async (req: Request, res: Response) => {
             }
             return payload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -289,7 +414,7 @@ export const updateBrand = async (req: Request, res: Response) => {
 export const toggleBrandStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, BrandModel, {
         auditAction: 'TOGGLE_BRAND_STATUS',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -470,6 +595,10 @@ export const getModels = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const { brandId } = req.query;
     const brandObjectId = (typeof brandId === 'string' && brandId !== 'all') ? brandId : undefined;
+    const parentModelId = normalizeOptionalObjectIdQuery(req.query.parentModelId);
+    const variantModelId = normalizeOptionalObjectIdQuery(req.query.variantModelId);
+    const includeVariants = normalizeBooleanQuery(req.query.includeVariants);
+    const treeView = normalizeBooleanQuery(req.query.treeView);
     const categoryId = req.query.categoryId as string;
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
 
@@ -485,6 +614,10 @@ export const getModels = async (req: Request, res: Response) => {
         const cacheKey = catalogCacheKey.models({
             categoryId: categoryObjectId,
             brandId: brandObjectId,
+            parentModelId,
+            variantModelId,
+            includeVariants: req.query.includeVariants,
+            treeView: req.query.treeView,
             search: req.query.search,
             q: req.query.q,
             page: req.query.page,
@@ -520,7 +653,17 @@ export const getModels = async (req: Request, res: Response) => {
     }
 
     const adminQuery: QueryRecord = {};
-    if (brandId) adminQuery.brandId = brandObjectId;
+    if (brandObjectId) adminQuery.brandId = brandObjectId;
+    if (parentModelId) {
+        adminQuery.parentModelId = parentModelId;
+    }
+    if (variantModelId) {
+        adminQuery.variantOfModelId = variantModelId;
+    }
+    if (treeView && !parentModelId && !variantModelId) {
+        adminQuery.variantOfModelId = { $in: [null] };
+        adminQuery.treeDepth = { $lte: MAX_MODEL_TREE_DEPTH };
+    }
     if (categoryId) {
         Object.assign(adminQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryId] }).build());
     }
@@ -534,6 +677,16 @@ export const getModels = async (req: Request, res: Response) => {
         publicQuery.brandId = { $in: activeBrandIds };
     }
     if (brandObjectId) publicQuery.brandId = brandObjectId;
+    if (parentModelId) {
+        publicQuery.parentModelId = parentModelId;
+    }
+    if (variantModelId) {
+        publicQuery.variantOfModelId = variantModelId;
+    }
+    if (treeView && !parentModelId && !variantModelId) {
+        publicQuery.variantOfModelId = { $in: [null] };
+        publicQuery.treeDepth = { $lte: MAX_MODEL_TREE_DEPTH };
+    }
     if (categoryObjectId) {
         Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryObjectId] }).build());
     }
@@ -545,14 +698,14 @@ export const getModels = async (req: Request, res: Response) => {
         }
     }
     const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
-    delete queryParams.status;
 
     return handlePaginatedContent(req, res, CatalogModel, {
-        populate: isAdminView ? undefined : 'brandId categoryIds',
+        populate: isAdminView ? undefined : 'brandId categoryIds parentModelId variantOfModelId',
         adminQuery,
         publicQuery,
-        searchFields: ['name', 'canonicalName', 'aliases'],
+        searchFields: ['name', 'displayName', 'canonicalName', 'slug', 'aliases', 'synonyms'],
         queryParams,
+        transformResponse: includeVariants ? populateModelVariants : undefined,
     });
 };
 
@@ -643,10 +796,14 @@ export const createModel = async (req: Request, res: Response) => {
                 isActive: payload.isActive as boolean | undefined,
                 fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
-            
-            return payload;
+
+            const hierarchyPayload = await applyModelHierarchyPayload(payload);
+            void logModelDuplicateCandidates(req, hierarchyPayload).catch((error) => {
+                logger.debug('[CatalogSearch] Duplicate candidate check skipped', { error: error instanceof Error ? error.message : String(error) });
+            });
+            return hierarchyPayload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -689,9 +846,23 @@ export const updateModel = async (req: Request, res: Response) => {
                 isActive: (payload.isActive ?? typedExisting.isActive) as boolean | undefined,
                 fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             });
-            return payload;
+            const hierarchyPayload = await applyModelHierarchyPayload(payload, { existingModel });
+            void logModelDuplicateCandidates(req, hierarchyPayload, { excludeId: _id }).catch((error) => {
+                logger.debug('[CatalogSearch] Duplicate candidate check skipped', { error: error instanceof Error ? error.message : String(error) });
+            });
+            return hierarchyPayload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        updateOp: async (id, data) => {
+            const result = await updateModelHierarchyTransactionally(id, data);
+            logger.info('[CatalogHierarchy] Model hierarchy mutation committed', {
+                modelId: id,
+                durationMs: result.metrics.durationMs,
+                descendantScanCount: result.metrics.descendantScanCount,
+                cascadeUpdateCount: result.metrics.cascadeUpdateCount,
+            });
+            return result.item;
+        },
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -701,7 +872,7 @@ export const updateModel = async (req: Request, res: Response) => {
 export const toggleModelStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, CatalogModel, {
         auditAction: 'TOGGLE_MODEL_STATUS',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -711,7 +882,7 @@ export const toggleModelStatus = async (req: Request, res: Response) => {
 export const deleteModel = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, CatalogModel, checkModelDependencies, {
         auditAction: 'MODEL_DELETE',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -721,7 +892,7 @@ export const deleteModel = async (req: Request, res: Response) => {
 export const approveBrand = (req: Request, res: Response) =>
     handleCatalogReview(req, res, BrandModel, 'APPROVE', undefined, {
         auditAction: 'APPROVE_BRAND',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 
 /**
@@ -730,7 +901,7 @@ export const approveBrand = (req: Request, res: Response) =>
 export const rejectBrand = (req: Request, res: Response) =>
     handleCatalogReview(req, res, BrandModel, 'REJECT', rejectionSchema, {
         auditAction: 'REJECT_BRAND',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 
 /**
@@ -739,7 +910,7 @@ export const rejectBrand = (req: Request, res: Response) =>
 export const approveModel = (req: Request, res: Response) =>
     handleCatalogReview(req, res, CatalogModel, 'APPROVE', undefined, {
         auditAction: 'APPROVE_MODEL',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 
 /**
@@ -748,5 +919,5 @@ export const approveModel = (req: Request, res: Response) =>
 export const rejectModel = (req: Request, res: Response) =>
     handleCatalogReview(req, res, CatalogModel, 'REJECT', rejectionSchema, {
         auditAction: 'REJECT_MODEL',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });

@@ -1,4 +1,4 @@
-import { CATALOG_APPROVAL_STATUS } from '../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { deriveApprovalStatus } from '../services/catalog/CatalogValidationService';
 
 /**

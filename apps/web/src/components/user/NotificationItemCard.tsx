@@ -10,7 +10,7 @@ import {
     type LucideIcon,
 } from "lucide-react";
 
-import type { NotificationTypeValue } from "@shared/enums/notificationType";
+import type { NotificationTypeValue } from '@esparex/shared';
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
 import type { Notification } from "@/lib/api/user/notifications";
 import { cn } from "@/lib/utils";

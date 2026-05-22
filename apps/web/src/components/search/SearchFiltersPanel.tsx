@@ -12,7 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { formatStableNumber } from "@/lib/formatters";
-import { MapPin, Tag, Smartphone, IndianRupee } from "lucide-react";
+import { getCategoryIcon } from "@/utils/getCategoryIcon";
+import { MapPin, Tag, IndianRupee } from "lucide-react";
 
 type SpecificFilterOption = {
   value: string;
@@ -95,11 +96,13 @@ export function SearchFiltersPanel({
   const renderSpecificFilters = () => {
     if (!selectedCategory || dynamicSpecificFilters.length === 0) return null;
 
+    const CategoryIcon = getCategoryIcon(selectedCategory);
+
     return (
       <AccordionItem value="specs" className="border-none">
         <AccordionTrigger className="hover:no-underline py-3">
           <div className="flex items-center gap-2">
-            <Smartphone className="size-4 text-blue-500" />
+            <CategoryIcon className="size-4 text-blue-500" aria-hidden="true" focusable="false" />
             <span className="font-semibold text-sm">{selectedCategory} Specs</span>
           </div>
         </AccordionTrigger>

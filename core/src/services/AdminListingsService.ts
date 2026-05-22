@@ -4,10 +4,10 @@ import { extendListingExpiry } from './AdMutationService';
 import { bulkResolveReports } from './ReportService';
 import type { AdminLogTargetType } from '../utils/adminLogger';
 import { mutateStatus } from './StatusMutationService';
-import { ACTOR_TYPE } from '../constants/enums/actor';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { ACTOR_TYPE } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
 import { computeActiveExpiry } from './AdStatusService';
-import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { updateAdTransactional } from './AdMutationService';
 import { createAd } from './AdOrchestrator';
 import {
@@ -18,7 +18,7 @@ import {
     normalizeModerationStatusFilter,
     type ListingModerationFilters,
 } from './ListingModerationQueryService';
-import { REPORT_STATUS } from '../constants/enums/reportStatus';
+import { REPORT_STATUS } from '@esparex/shared';
 import { AppError } from '../utils/AppError';
 import Ad from '../models/Ad';
 import { dispatchTemplatedNotification } from './NotificationService';
@@ -60,7 +60,6 @@ export interface AdminListingsQuery {
     spotlightWarningStatus?: unknown;
     spotlightExpiringWithinDays?: unknown;
     search?: unknown;
-    catalogPending?: unknown;
 }
 
 type DuplicateBypassBody = {
@@ -166,7 +165,6 @@ export const adminListListings = async (query: AdminListingsQuery) => {
             expiringWithinDays: asNumber(query.expiringWithinDays),
             spotlightWarningStatus: asString(query.spotlightWarningStatus) as ListingModerationFilters['spotlightWarningStatus'],
             spotlightExpiringWithinDays: asNumber(query.spotlightExpiringWithinDays),
-            catalogPending: query.catalogPending === 'true' || query.catalogPending === true
         },
         { page, limit }
     );
@@ -301,10 +299,6 @@ export const adminApproveListing = async (
         && reviewVersion !== listing.reviewVersion
     ) {
         throw new AppError('Conflict: listing was edited while under review', 409);
-    }
-
-    if (listing.catalogPending) {
-        throw new AppError('Cannot approve listing with pending catalog request. Please approve the brand/model request first.', 400);
     }
 
     const approvedAt = new Date();
@@ -618,10 +612,10 @@ export const adminGetListingCounts = async (listingTypeRaw?: unknown) => {
 
 // ─── Bulk Moderation ─────────────────────────────────────────────────────────
 
-export const adminBulkApproveListings = async (
+const executeAdminListingsBulkOperation = async (
     ids: string[],
-    actorId: string,
-    logFn: AdminLogFn
+    actionFn: (id: string) => Promise<any>,
+    includeResults: boolean = true
 ) => {
     if (!Array.isArray(ids) || ids.length === 0) {
         throw new AppError('A non-empty list of listing IDs is required', 400);
@@ -630,8 +624,8 @@ export const adminBulkApproveListings = async (
     const results = [];
     for (const id of ids) {
         try {
-            const updated = await adminApproveListing(id, actorId, logFn);
-            results.push({ id, success: true, listing: updated });
+            const updated = await actionFn(id);
+            results.push({ id, success: true, listing: updated?.listing || updated });
         } catch (error) {
             results.push({ 
                 id, 
@@ -642,12 +636,25 @@ export const adminBulkApproveListings = async (
         }
     }
 
-    return {
+    const response: any = {
         processedCount: ids.length,
         successCount: results.filter(r => r.success).length,
         errorCount: results.filter(r => !r.success).length,
-        results
     };
+    
+    if (includeResults) {
+        response.results = results;
+    }
+    
+    return response;
+};
+
+export const adminBulkApproveListings = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn
+) => {
+    return executeAdminListingsBulkOperation(ids, id => adminApproveListing(id, actorId, logFn), true);
 };
 
 export const adminBulkRejectListings = async (
@@ -656,34 +663,10 @@ export const adminBulkRejectListings = async (
     rejectionReason: string,
     logFn: AdminLogFn
 ) => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('A non-empty list of listing IDs is required', 400);
-    }
     if (!rejectionReason || !rejectionReason.trim()) {
         throw new AppError('Rejection reason is required for bulk rejection', 400);
     }
-
-    const results = [];
-    for (const id of ids) {
-        try {
-            const updated = await adminRejectListing(id, actorId, rejectionReason, logFn);
-            results.push({ id, success: true, listing: updated });
-        } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error),
-                statusCode: (error as { statusCode?: number }).statusCode || 500
-            });
-        }
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-        results
-    };
+    return executeAdminListingsBulkOperation(ids, id => adminRejectListing(id, actorId, rejectionReason, logFn), true);
 };
 
 export const adminBulkDeactivateListings = async (
@@ -691,29 +674,7 @@ export const adminBulkDeactivateListings = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('A non-empty list of listing IDs is required', 400);
-    }
-
-    const results = [];
-    for (const id of ids) {
-        try {
-            const updated = await adminDeactivateListing(id, actorId, logFn);
-            results.push({ id, success: true, listing: updated.listing });
-        } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error)
-            });
-        }
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-    };
+    return executeAdminListingsBulkOperation(ids, id => adminDeactivateListing(id, actorId, logFn), false);
 };
 
 export const adminBulkExpireListings = async (
@@ -721,29 +682,7 @@ export const adminBulkExpireListings = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('A non-empty list of listing IDs is required', 400);
-    }
-
-    const results = [];
-    for (const id of ids) {
-        try {
-            const updated = await adminExpireListing(id, actorId, logFn);
-            results.push({ id, success: true, listing: updated });
-        } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error)
-            });
-        }
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-    };
+    return executeAdminListingsBulkOperation(ids, id => adminExpireListing(id, actorId, logFn), false);
 };
 
 export const adminBulkExtendListings = async (
@@ -751,29 +690,7 @@ export const adminBulkExtendListings = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('A non-empty list of listing IDs is required', 400);
-    }
-
-    const results = [];
-    for (const id of ids) {
-        try {
-            const updated = await adminExtendListing(id, actorId, logFn);
-            results.push({ id, success: true, listing: updated });
-        } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error)
-            });
-        }
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-    };
+    return executeAdminListingsBulkOperation(ids, id => adminExtendListing(id, actorId, logFn), false);
 };
 
 export const adminBulkResendListingWarnings = async (
@@ -781,54 +698,31 @@ export const adminBulkResendListingWarnings = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('A non-empty list of listing IDs is required', 400);
-    }
+    return executeAdminListingsBulkOperation(ids, async (id) => {
+        validateListingId(id);
+        const ad = await Ad.findById(id);
+        if (!ad) throw new AppError('Listing not found', 404);
 
-    const results = [];
-    for (const id of ids) {
-        try {
-            validateListingId(id);
-            const ad = await Ad.findById(id);
-            if (!ad) throw new AppError('Listing not found', 404);
+        await dispatchTemplatedNotification(
+            ad.sellerId.toString(),
+            'SYSTEM',
+            'LISTING_EXPIRY_WARNING_3D',
+            { title: ad.title, date: ad.expiresAt?.toLocaleDateString() || 'N/A' },
+            { adId: ad._id.toString() }
+        );
 
-            await dispatchTemplatedNotification(
-                ad.sellerId.toString(),
-                'SYSTEM',
-                'LISTING_EXPIRY_WARNING_3D',
-                { 
-                    title: ad.title, 
-                    date: ad.expiresAt?.toLocaleDateString() || 'N/A' 
-                },
-                { adId: ad._id.toString() }
-            );
+        ad.expiryWarningSentAt = new Date();
+        ad.expiryWarningCount = (ad.expiryWarningCount || 0) + 1;
+        ad.lastExpiryWarningChannel = 'in-app';
+        await ad.save();
 
-            ad.expiryWarningSentAt = new Date();
-            ad.expiryWarningCount = (ad.expiryWarningCount || 0) + 1;
-            ad.lastExpiryWarningChannel = 'in-app';
-            await ad.save();
-
-            await logFn('expiry_warning_resent', 'ExpiryWarning', id, {
-                entityType: 'Ad',
-                adminId: actorId
-            });
-
-            results.push({ id, success: true });
-        } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error)
-            });
-        }
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-        results
-    };
+        await logFn('expiry_warning_resent', 'ExpiryWarning', id, {
+            entityType: 'Ad',
+            adminId: actorId
+        });
+        
+        return null;
+    }, true);
 };
 
 export const adminBulkResendSpotlightWarnings = async (
@@ -836,52 +730,29 @@ export const adminBulkResendSpotlightWarnings = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!Array.isArray(ids) || ids.length === 0) {
-        throw new AppError('A non-empty list of listing IDs is required', 400);
-    }
+    return executeAdminListingsBulkOperation(ids, async (id) => {
+        validateListingId(id);
+        const ad = await Ad.findById(id);
+        if (!ad) throw new AppError('Listing not found', 404);
+        if (!ad.isSpotlight) throw new AppError('Listing is not in spotlight', 400);
 
-    const results = [];
-    for (const id of ids) {
-        try {
-            validateListingId(id);
-            const ad = await Ad.findById(id);
-            if (!ad) throw new AppError('Listing not found', 404);
-            if (!ad.isSpotlight) throw new AppError('Listing is not in spotlight', 400);
+        await dispatchTemplatedNotification(
+            ad.sellerId.toString(),
+            'SYSTEM',
+            'SPOTLIGHT_EXPIRY_WARNING_3D',
+            { title: ad.title, date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' },
+            { adId: ad._id.toString(), type: 'spotlight' }
+        );
 
-            await dispatchTemplatedNotification(
-                ad.sellerId.toString(),
-                'SYSTEM',
-                'SPOTLIGHT_EXPIRY_WARNING_3D',
-                { 
-                    title: ad.title, 
-                    date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' 
-                },
-                { adId: ad._id.toString(), type: 'spotlight' }
-            );
+        ad.spotlightWarningSentAt = new Date();
+        ad.spotlightWarningCount = (ad.spotlightWarningCount || 0) + 1;
+        await ad.save();
 
-            ad.spotlightWarningSentAt = new Date();
-            ad.spotlightWarningCount = (ad.spotlightWarningCount || 0) + 1;
-            await ad.save();
-
-            await logFn('expiry_warning_resent', 'SpotlightPromotion', id, {
-                type: 'spotlight',
-                adminId: actorId
-            });
-
-            results.push({ id, success: true });
-        } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error)
-            });
-        }
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-        results
-    };
+        await logFn('expiry_warning_resent', 'SpotlightPromotion', id, {
+            type: 'spotlight',
+            adminId: actorId
+        });
+        
+        return null;
+    }, true);
 };

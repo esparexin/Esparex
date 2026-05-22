@@ -19,20 +19,23 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
-jest.mock('@shared/enums/listingStatus', () => ({
-    LISTING_STATUS: {
-        LIVE: 'live',
-        PENDING: 'pending',
-        DRAFT: 'draft',
-        REJECTED: 'rejected',
-        EXPIRED: 'expired',
-        SOLD: 'sold',
-        DEACTIVATED: 'deactivated',
-        DELETED: 'deleted',
-    },
+const mockListingStatus = {
+    LIVE: 'live',
+    PENDING: 'pending',
+    DRAFT: 'draft',
+    REJECTED: 'rejected',
+    EXPIRED: 'expired',
+    SOLD: 'sold',
+    DEACTIVATED: 'deactivated',
+    DELETED: 'deleted',
+};
+
+jest.mock('@esparex/shared/enums/listingStatus', () => ({
+    LISTING_STATUS: mockListingStatus,
+    LISTING_STATUS_VALUES: Object.values(mockListingStatus),
 }));
 
-jest.mock('@shared/enums/actor', () => ({
+jest.mock('@esparex/shared/enums/actor', () => ({
     ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
 }));
 
@@ -42,11 +45,12 @@ import { markListingStatusSold } from '../../controllers/listing/lifecycle.contr
 const LISTING_ID = '65f0a1b2c3d4e5f6a7b8c9d0';
 const USER_ID    = '65f0a1b2c3d4e5f6a7b8c9d1';
 
-const makeReq = (overrides: Partial<{ user: unknown; body: Record<string, unknown>; params: Record<string, string> }> = {}): Request =>
+const makeReq = (overrides: Partial<{ user: unknown; body: Record<string, unknown>; params: Record<string, string>; listing: unknown }> = {}): Request =>
     ({
         user: { _id: USER_ID, role: 'user' },
         body: {},
         params: { id: LISTING_ID },
+        listing: { _id: LISTING_ID, status: 'expired', isSold: false, listingType: 'ad' },
         ...overrides,
     } as unknown as Request);
 
@@ -57,8 +61,7 @@ describe('lifecycle.controller — markListingStatusSold', () => {
     });
 
     it('returns early when listing not found or not owned', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue(null);
-        const req = makeReq();
+        const req = makeReq({ listing: null });
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
@@ -69,8 +72,7 @@ describe('lifecycle.controller — markListingStatusSold', () => {
     });
 
     it('returns 400 when listing is not expired', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'live', isSold: false });
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'live', isSold: false } });
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
@@ -84,8 +86,7 @@ describe('lifecycle.controller — markListingStatusSold', () => {
     });
 
     it('returns 400 when listing is already marked as sold', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'expired', isSold: true });
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'expired', isSold: true } });
         const res = {} as Response;
         const next = jest.fn() as NextFunction;
 
@@ -98,8 +99,6 @@ describe('lifecycle.controller — markListingStatusSold', () => {
     });
 
     it('delegates to mutateStatus and responds with success', async () => {
-        const listing = { _id: LISTING_ID, status: 'expired', isSold: false, listingType: 'ad' };
-        mockGetAndVerifyOwnedListing.mockResolvedValue(listing);
         const result = { _id: LISTING_ID, status: 'sold', isSold: true };
         mockMutateStatus.mockResolvedValue(result);
         const req = makeReq();
@@ -124,8 +123,6 @@ describe('lifecycle.controller — markListingStatusSold', () => {
     });
 
     it('passes errors to next() middleware on failure', async () => {
-        const listing = { _id: LISTING_ID, status: 'expired', isSold: false, listingType: 'ad' };
-        mockGetAndVerifyOwnedListing.mockResolvedValue(listing);
         const dbError = new Error('Database save failure');
         mockMutateStatus.mockRejectedValue(dbError);
         const req = makeReq();

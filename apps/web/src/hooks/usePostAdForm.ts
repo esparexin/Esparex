@@ -17,6 +17,8 @@ export function usePostAdForm(isEditMode: boolean = false) {
             categoryId: "",
             brand: "",
             brandId: "",
+            model: "",
+            modelId: "",
             screenSize: "",
 
             title: "",

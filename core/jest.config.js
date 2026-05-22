@@ -7,8 +7,10 @@ module.exports = {
     '^uuid$': '<rootDir>/__mocks__/uuid.js',
     '^@core/(.*)$': '<rootDir>/src/$1',
     '^@esparex/core/(.*)$': '<rootDir>/src/$1',
-    '^@shared/(.*)$': '<rootDir>/../shared/$1',
-    '^@shared$': '<rootDir>/../shared/index.ts'
+    '^@shared/(.*)$': '<rootDir>/../shared/src/$1',
+    '^@shared$': '<rootDir>/../shared/src/index.ts',
+    '^@esparex/shared/(.*)$': '<rootDir>/../shared/src/$1',
+    '^@esparex/shared$': '<rootDir>/../shared/src/index.ts'
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {

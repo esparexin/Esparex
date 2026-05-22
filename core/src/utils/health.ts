@@ -3,6 +3,7 @@ import { getDatabaseHealthProbe, isDbReady } from '../config/db';
 import { getQueueHealthProbe } from '../queues/queueHealth';
 import type { QueueHealth } from '../queues/queueHealth';
 import { getRedisHealthProbe, isConnected as redisConnected } from './redisCache';
+import { getRedisOperationalObservabilityReport } from '../config/redisFactory';
 import logger from './logger';
 import { getWorkerStatusProbe } from './workerStatus';
 import type { WorkerStatusEntry } from './workerStatus';
@@ -63,6 +64,7 @@ export const getHealthCheckData = async (deep = false) => {
     }
 
     const isRedisOperational = Boolean(redisConnected && redisHealth && redisHealth.pingOk && redisHealth.roundTripOk);
+    const redisOperationalReport = getRedisOperationalObservabilityReport();
 
     const overallStatus: 'ok' | 'degraded' | 'error' =
         databaseHealth.overall === 'up' && isRedisOperational && queueHealth.status === 'up'
@@ -84,6 +86,13 @@ export const getHealthCheckData = async (deep = false) => {
             redis: isRedisOperational
         },
         redisConnected: isRedisOperational,
+        cacheBackend: redisOperationalReport.cacheBackend,
+        queueBackend: redisOperationalReport.queueBackend,
+        pubSubBackend: redisOperationalReport.pubSubBackend,
+        reconnects: redisOperationalReport.reconnects,
+        fallbackState: redisOperationalReport.fallbackState,
+        runtimeWarnings: redisOperationalReport.runtimeWarnings,
+        timestamp: redisOperationalReport.timestamp,
         redisPingLatencyMs: redisHealth?.latencyMs || 0,
         redisHealth,
         mongoConnected: isDbReady(),

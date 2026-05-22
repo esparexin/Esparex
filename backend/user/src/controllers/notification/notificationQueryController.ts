@@ -14,21 +14,13 @@ export const getNotifications = async (req: Request, res: Response) => {
         const userId = getUserId(req);
         if (!userId) return sendErrorResponse(req, res, 401, "Unauthorized");
 
-        const {
-            page = 1,
-            limit = 20,
-            filter = "all",
-            type = "all",
-            q,
-        } = req.query as unknown as {
-            page: number;
-            limit: number;
-            filter: "all" | "unread";
-            type: string;
-            q?: string;
-        };
+        const page = Math.min(1000, Math.max(1, Number(req.query.page) || 1));
+        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const filter = req.query.filter === "unread" ? "unread" : "all";
+        const type = typeof req.query.type === "string" ? req.query.type : "all";
+        const q = typeof req.query.q === "string" ? req.query.q : undefined;
 
-        const skip = (Number(page) - 1) * Number(limit);
+        const skip = (page - 1) * limit;
         const now = new Date();
         // Must cast to ObjectId — MongoDB aggregation $match does NOT auto-coerce
         // strings to ObjectId the way Mongoose find/update helpers do.
@@ -57,9 +49,7 @@ export const getNotifications = async (req: Request, res: Response) => {
         const query: Record<string, unknown> =
             queryClauses.length === 1 ? (queryClauses[0] ?? {}) : { $and: queryClauses };
 
-        const safeLimit = Number(limit);
-        const safePage = Number(page);
-        const { notifications, total, unreadCount } = await queryNotificationsForUser(query, userId, skip, safeLimit);
+        const { notifications, total, unreadCount } = await queryNotificationsForUser(query, userId, skip, limit);
 
         return res.json(
             respond({
@@ -67,10 +57,12 @@ export const getNotifications = async (req: Request, res: Response) => {
                 data: {
                     notifications,
                     pagination: {
-                        page: safePage,
-                        limit: safeLimit,
+                        page,
+                        limit,
                         total,
-                        pages: Math.ceil(total / safeLimit),
+                        pages: Math.ceil(total / limit),
+                        totalPages: Math.ceil(total / limit),
+                        hasMore: skip + notifications.length < total,
                     },
                     unreadCount,
                 },

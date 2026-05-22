@@ -1,4 +1,5 @@
 import logger from '@esparex/core/utils/logger';
+import { z } from 'zod';
 import { Request, Response } from 'express';
 import { createContactSubmission } from '@esparex/core/services/ContactService';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
@@ -6,32 +7,33 @@ import { respond } from "@esparex/core/utils/respond";
 
 /**
  * CONTACT US CONTROLLER
- * 
+ *
  * Handles contact form submissions with full backend validation.
  * Rate-limited to prevent spam (configured in routes).
+ * validateContactSubmission middleware runs upstream and normalises req.body.
+ * This schema provides a second-layer typed extraction — never trust raw casts.
  */
+const contactBodySchema = z.object({
+    name:     z.string().min(2).max(100),
+    email:    z.string().email(),
+    mobile:   z.string().optional(),
+    subject:  z.string().max(200).optional(),
+    category: z.string().optional(),
+    message:  z.string().min(20).max(1000),
+});
 
 export const submitContactForm = async (req: Request, res: Response) => {
     try {
-        const { name, email, mobile, subject, category, message } = req.body as {
-            name?: string; email?: string; mobile?: string;
-            subject?: string; category?: string; message?: string;
-        };
+        const parsed = contactBodySchema.parse(req.body);
 
-        if (!name || !email || !message) {
-            return sendErrorResponse(req, res, 400, 'Name, email, and message are required.');
-        }
-
-        // Create contact submission
         const submission = await createContactSubmission({
-            name,
-            email,
-            mobile,
-            subject,
-            category,
-            message
+            name:     parsed.name,
+            email:    parsed.email,
+            mobile:   parsed.mobile,
+            subject:  parsed.subject,
+            category: parsed.category,
+            message:  parsed.message,
         });
-
 
         res.status(201).json(respond({
             success: true,
@@ -47,3 +49,4 @@ export const submitContactForm = async (req: Request, res: Response) => {
         sendErrorResponse(req, res, 500, 'Failed to submit contact form. Please try again later.');
     }
 };
+

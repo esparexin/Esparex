@@ -25,8 +25,8 @@ import {
  */
 export const getAllInvoices = async (req: Request, res: Response) => {
     try {
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 10;
+        const page = Math.min(1000, Math.max(1, parseInt(req.query.page as string) || 1));
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
         const skip = (page - 1) * limit;
 
         const { status, q } = req.query;

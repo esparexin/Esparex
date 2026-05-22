@@ -1,16 +1,17 @@
-import { Redis } from 'ioredis';
 import { env } from '../config/env';
-import { getRedisConnectionOptions } from '../config/redisRuntime';
+import { redisFactory, shouldDisableRedis } from '../config/redisFactory';
+import type { Redis } from 'ioredis';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 
 export const shouldDisableQueueConnection =
-    (env.NODE_ENV === 'test' || isJestRuntime) &&
-    !env.ALLOW_SCHEDULER_QUEUE;
+    shouldDisableRedis ||
+    ((env.NODE_ENV === 'test' || isJestRuntime) &&
+    !env.ALLOW_SCHEDULER_QUEUE);
 
 export const redisConnection = shouldDisableQueueConnection
     ? ({} as Redis)
-    : new Redis(getRedisConnectionOptions());
+    : redisFactory.bull();
 
 export const isQueueConnectionAvailable = (): boolean => {
     if (shouldDisableQueueConnection) return false;

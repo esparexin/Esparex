@@ -19,9 +19,8 @@ import type { AdminLog } from "@/types/audit";
 
 interface CatalogHealthMetrics {
   pendingRequests: number;
-  heldListings: number;
   averageResolutionHours: number;
-  duplicateRequests: number;
+  mergedRequests: number;
 }
 
 type DashboardStats = {
@@ -210,7 +209,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <DashboardCard
           title="Pending Requests"
           value={catalogHealth?.pendingRequests ?? 0}
@@ -220,14 +219,6 @@ export default function DashboardPage() {
           href={ADMIN_UI_ROUTES.catalogRequests({ status: 'pending' })}
         />
         <DashboardCard
-          title="Held Listings"
-          value={catalogHealth?.heldListings ?? 0}
-          icon={AlertCircle}
-          className="border-orange-100 bg-orange-50/5"
-          description="Listings blocked by catalog dependency"
-          href={ADMIN_UI_ROUTES.ads({ catalogPending: 'true' })}
-        />
-        <DashboardCard
           title="Avg Resolution (hrs)"
           value={catalogHealth?.averageResolutionHours ?? 0}
           icon={TrendingUp}
@@ -235,12 +226,12 @@ export default function DashboardPage() {
           description="Average turnaround for requests"
         />
         <DashboardCard
-          title="Duplicates"
-          value={catalogHealth?.duplicateRequests ?? 0}
-          icon={AlertCircle}
+          title="Merged Requests"
+          value={catalogHealth?.mergedRequests ?? 0}
+          icon={CheckCircle}
           className="border-slate-100 bg-slate-50/5"
-          description="Requests marked as duplicates"
-          href={ADMIN_UI_ROUTES.catalogRequests({ status: 'duplicate' })}
+          description="Requests successfully merged"
+          href={ADMIN_UI_ROUTES.catalogRequests({ status: 'merged' })}
         />
       </div>
 

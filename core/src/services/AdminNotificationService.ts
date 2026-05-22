@@ -1,7 +1,7 @@
 import NotificationLog from '../models/NotificationLog';
 import ScheduledNotification from '../models/ScheduledNotification';
 import User from '../models/User';
-import { Role } from '../constants/enums/roles';
+import { Role } from '@esparex/shared';
 
 export const createNotificationLog = async (data: Record<string, unknown>) => {
     return NotificationLog.create(data);

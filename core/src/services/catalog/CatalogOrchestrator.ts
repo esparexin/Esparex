@@ -6,6 +6,7 @@ import SparePart from '../../models/SparePart';
 import ScreenSize from '../../models/ScreenSize';
 import { clearCachePattern } from '../../utils/redisCache';
 import logger from '../../utils/logger';
+import { isDuplicateKeyError } from '../../utils/errorHelpers';
 
 type CascadeDoc = {
     _id: mongoose.Types.ObjectId;
@@ -13,10 +14,7 @@ type CascadeDoc = {
     brandId?: mongoose.Types.ObjectId;
 };
 
-const isDuplicateKeyError = (error: unknown): boolean => {
-    const err = error as { code?: number };
-    return err?.code === 11000;
-};
+// isDuplicateKeyError imported from errorHelpers (SSOT)
 
 const toUniqueCategoryObjectIds = (
     categoryIds: mongoose.Types.ObjectId[] | undefined,
@@ -42,15 +40,43 @@ const toUniqueCategoryObjectIds = (
  */
 export class CatalogOrchestrator {
     /**
-     * Invalidate all catalog-swapped caches
+     * Invalidate catalog caches, optionally scoped by category or brand
      */
-    static async invalidateCatalogCache() {
+    static async invalidateCatalogCache(opts?: { categoryIds?: (string | mongoose.Types.ObjectId)[], brandIds?: (string | mongoose.Types.ObjectId)[] }) {
         try {
-            await Promise.all([
-                clearCachePattern('catalog:*'),
-                clearCachePattern('master:*'),
-            ]);
-            logger.info('Catalog cache invalidated (Unified)');
+            if (!opts || (!opts.categoryIds?.length && !opts.brandIds?.length)) {
+                await Promise.all([
+                    clearCachePattern('catalog:*'),
+                    clearCachePattern('master:*'),
+                ]);
+            } else {
+                const patterns = new Set<string>();
+                
+                if (opts.categoryIds) {
+                    opts.categoryIds.forEach(id => {
+                        const idStr = id.toString();
+                        patterns.add(`catalog:brands:${idStr}`);
+                        patterns.add(`catalog:models:*category=${idStr}*`);
+                        patterns.add(`catalog:spare-parts:${idStr}:*`);
+                    });
+                }
+                
+                if (opts.brandIds) {
+                    opts.brandIds.forEach(id => {
+                        const idStr = id.toString();
+                        patterns.add(`catalog:models:*brand=${idStr}*`);
+                    });
+                }
+
+                // ALWAYS clear "all" caches, because adding a brand/model affects the global unfiltered views
+                patterns.add('catalog:brands:all');
+                patterns.add('catalog:models:*category=all*');
+                patterns.add('catalog:spare-parts:all:*');
+                patterns.add('catalog:counts:*');
+
+                await Promise.all(Array.from(patterns).map(p => clearCachePattern(p)));
+            }
+            logger.info('Catalog cache invalidated', { opts });
         } catch (error) {
             logger.error('Failed to invalidate catalog cache', { 
                 error: error instanceof Error ? error.message : String(error) 
@@ -190,7 +216,7 @@ export class CatalogOrchestrator {
             { $set: { isDeleted: true, isActive: false, deletedAt: now } }
         ).session(txSession);
 
-        await this.invalidateCatalogCache();
+        await this.invalidateCatalogCache({ categoryIds: [categoryId], brandIds: brandIdsToDelete });
         logger.info('Cascaded category delete completed', {
             categoryId,
             brandsArchived: brandIdsToDelete.length,
@@ -236,7 +262,7 @@ export class CatalogOrchestrator {
         ).session(txSession);
         deletedSpareParts += spRes2.modifiedCount || 0;
 
-        await this.invalidateCatalogCache();
+        await this.invalidateCatalogCache({ brandIds: [brandId] });
         logger.info(`Cascaded soft-delete for brand: ${brandId}`);
 
         return {
@@ -251,7 +277,7 @@ export class CatalogOrchestrator {
     static async createCategory(data: Partial<ICategory>): Promise<ICategory> {
         const category = new Category(data);
         const result = await category.save();
-        await this.invalidateCatalogCache();
+        await this.invalidateCatalogCache({ categoryIds: [category._id] });
         return result;
     }
 
@@ -260,7 +286,7 @@ export class CatalogOrchestrator {
      */
     static async updateCategory(id: string, data: Partial<ICategory>): Promise<ICategory | null> {
         const result = await Category.findByIdAndUpdate(id, data, { new: true });
-        if (result) await this.invalidateCatalogCache();
+        if (result) await this.invalidateCatalogCache({ categoryIds: [id] });
         return result;
     }
 

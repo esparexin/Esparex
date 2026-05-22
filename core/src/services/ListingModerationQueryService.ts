@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { getAds } from './ad/AdAggregationService';
 import { getAnyAdById } from './ad/AdDetailService';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import { LISTING_TYPE_VALUES, ListingTypeValue } from '../constants/enums/listingType';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/shared';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 
 export const MODERATION_STATUSES = [
@@ -39,7 +39,6 @@ export type ListingModerationFilters = {
     expiringWithinDays?: number;
     spotlightWarningStatus?: 'sent' | 'not_sent';
     spotlightExpiringWithinDays?: number;
-    catalogPending?: boolean;
 };
 
 export type ModerationPagination = {
@@ -90,7 +89,6 @@ export const listModerationListings = async (
             expiringWithinDays: filters.expiringWithinDays,
             spotlightWarningStatus: filters.spotlightWarningStatus,
             spotlightExpiringWithinDays: filters.spotlightExpiringWithinDays,
-            catalogPending: filters.catalogPending,
         },
         pagination,
         {
@@ -109,7 +107,6 @@ type RawAggregationRow = {
     _id: {
         listingType: ModerationListingType;
         status: ModerationStatus;
-        catalogPending: boolean;
     };
     count: number;
 };
@@ -123,7 +120,6 @@ const createEmptyStatusMap = () => ({
     expired: 0,
     sold: 0,
     deactivated: 0,
-    catalogPending: 0,
 });
 
 const createEmptyCounts = () => ({
@@ -168,7 +164,6 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
                     _id: {
                         listingType: { $ifNull: ['$listingType', 'ad'] },
                         status: '$status',
-                        catalogPending: { $ifNull: ['$catalogPending', false] },
                     },
                     count: { $sum: 1 },
                 },
@@ -195,11 +190,6 @@ export const getModerationCounts = async (listingType?: ModerationListingType) =
 
         byListingType[type][status] += row.count;
         byListingType[type].total += row.count;
-
-        if (row._id.catalogPending) {
-            byListingType[type].catalogPending += row.count;
-            byStatus.catalogPending += row.count;
-        }
 
         byStatus[status] += row.count;
         total += row.count;

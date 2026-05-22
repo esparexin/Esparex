@@ -4,15 +4,15 @@
  * Re-exports the Mongoose model instance for generic handler calls.
  */
 
-import SparePartModelImport from '../../models/SparePart';
+import SparePartImport from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import CatalogModel from '../../models/Model';
 import AdModel from '../../models/Ad';
-import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
 // Re-export model instance for generic handler calls in the controller layer
-export const SparePartModel = SparePartModelImport;
+export const SparePartModel = SparePartImport;
 
 // ─── Category slug resolution ─────────────────────────────────────────────────
 
@@ -55,7 +55,7 @@ export const getActiveModelIdsForCategories = async (activeCategoryIds: string[]
 
 export const findSparePartById = async (id: string | undefined) => {
     if (!id) return null;
-    return SparePartModelImport.findById(id);
+    return SparePartImport.findById(id);
 };
 
 // ─── Dependency checks ────────────────────────────────────────────────────────

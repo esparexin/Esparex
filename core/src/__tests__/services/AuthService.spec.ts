@@ -86,6 +86,7 @@ jest.mock('../../utils/securityMonitoring', () => ({
 // ── Imports ──────────────────────────────────────────────────────────────────
 
 import axios from 'axios';
+import { env } from '../../config/env';
 import { AuthService } from '../../services/AuthService';
 import User from '../../models/User';
 import Otp from '../../models/Otp';
@@ -94,8 +95,8 @@ import UserPlan from '../../models/UserPlan';
 import Business from '../../models/Business';
 import { generateToken } from '../../utils/auth';
 import { verifyOtpHash } from '../../utils/otpSecurity';
-import { Role } from '../../constants/enums/roles';
-import { USER_STATUS } from '../../constants/enums/userStatus';
+import { Role } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/shared';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 
@@ -248,15 +249,20 @@ describe('AuthService', () => {
             });
             mockBusinessModel.findOne.mockResolvedValue(null);
 
-            const result = await AuthService.verifyLoginOtp(MOBILE, '123456');
+            env.USE_DEFAULT_OTP = true;
+            try {
+                const result = await AuthService.verifyLoginOtp(MOBILE, '123456');
 
-            expect(result.success).toBe(true);
-            expect(mockVerifyOtpHash).not.toHaveBeenCalled();
-            expect(generatedOtpRecord.save).not.toHaveBeenCalled();
-            expect(mockOtpModel.deleteMany).toHaveBeenCalled();
-            if (result.success) {
-                expect(result.token).toBe('mock-jwt-token');
-                expect(result.user.mobile).toBe(CANONICAL_MOBILE);
+                expect(result.success).toBe(true);
+                expect(mockVerifyOtpHash).not.toHaveBeenCalled();
+                expect(generatedOtpRecord.save).not.toHaveBeenCalled();
+                expect(mockOtpModel.deleteMany).toHaveBeenCalled();
+                if (result.success) {
+                    expect(result.token).toBe('mock-jwt-token');
+                    expect(result.user.mobile).toBe(CANONICAL_MOBILE);
+                }
+            } finally {
+                env.USE_DEFAULT_OTP = false;
             }
         });
 

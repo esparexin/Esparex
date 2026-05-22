@@ -13,7 +13,7 @@ import {
 import {
     LISTING_TYPE,
     type ListingTypeValue,
-} from "@shared/enums/listingType";
+} from '@esparex/shared';
 
 interface UseSparePartCatalogProps {
     listingType: ListingTypeValue;

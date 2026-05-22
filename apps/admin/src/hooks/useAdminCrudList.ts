@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export type AdminListPagination = {
@@ -18,6 +19,7 @@ interface UseAdminCrudListOptions<T, F extends object> {
     fetchPage: (params: {
         filters: F;
         pagination: AdminListPagination;
+        signal?: AbortSignal;
     }) => Promise<AdminListResult<T>>;
     initialPagination?: Partial<AdminListPagination>;
 }
@@ -43,6 +45,32 @@ export function useAdminCrudList<T, F extends object>({
     });
     const [filters, setFiltersState] = useState<F>(initialFilters);
     const isFirstMount = useRef(true);
+    const requestSeq = useRef(0);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const serializedFilters = JSON.stringify(initialFilters);
+    const serializedPagination = JSON.stringify(initialPagination);
+
+    useEffect(() => {
+        setFiltersState(initialFilters);
+    }, [serializedFilters]);
+
+    useEffect(() => {
+        if (initialPagination) {
+            setPagination(prev => {
+                const nextPag = { ...prev, ...initialPagination };
+                if (
+                    prev.page === nextPag.page &&
+                    prev.limit === nextPag.limit &&
+                    prev.total === nextPag.total &&
+                    prev.totalPages === nextPag.totalPages
+                ) {
+                    return prev;
+                }
+                return nextPag;
+            });
+        }
+    }, [serializedPagination]);
 
     // Reset to page 1 whenever filters change (skip the initial mount)
     const setFilters = useCallback((updater: React.SetStateAction<F>) => {
@@ -60,13 +88,22 @@ export function useAdminCrudList<T, F extends object>({
     const limit = pagination.limit;
 
     const refresh = useCallback(async () => {
+        abortControllerRef.current?.abort();
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+        const seq = requestSeq.current + 1;
+        requestSeq.current = seq;
         setLoading(true);
         setError(null);
         try {
             const result = await fetchPage({
                 filters: filters,
                 pagination: { page, limit, total: 0, totalPages: 0 },
+                signal: controller.signal,
             });
+            if (controller.signal.aborted || seq !== requestSeq.current) {
+                return;
+            }
             
             setItems(result.items);
 
@@ -106,14 +143,23 @@ export function useAdminCrudList<T, F extends object>({
                 setError(result.error);
             }
         } catch (err) {
+            if (err instanceof Error && err.name === "AbortError") {
+                return;
+            }
+            if (seq !== requestSeq.current) {
+                return;
+            }
             setError(err instanceof Error ? err.message : "An unexpected error occurred");
         } finally {
-            setLoading(false);
+            if (seq === requestSeq.current) {
+                setLoading(false);
+            }
         }
     }, [fetchPage, filters, page, limit]);
 
     useEffect(() => {
         void (async () => { await refresh(); })();
+        return () => abortControllerRef.current?.abort();
     }, [refresh]);
 
     return {

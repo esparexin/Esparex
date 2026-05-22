@@ -3,7 +3,7 @@ import Location from '../../models/Location';
 import type { ILocation } from '../../models/Location';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
-import { LOCATION_STATUS } from '../../constants/enums/locationStatus';
+import { LOCATION_STATUS } from '@esparex/shared';
 import logger from '../../utils/logger';
 
 const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;

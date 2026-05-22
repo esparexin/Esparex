@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { commonSchemas } from './common';
-import { LISTING_TYPE_VALUES } from '../constants/enums/listingType';
+import { LISTING_TYPE_VALUES } from '@esparex/shared';
 
 const LEGACY_ADMIN_MODERATION_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin listing moderation filters. Use `q` instead.';
 const LEGACY_ADMIN_MODERATION_LOCATION_ALIAS_MESSAGE = '`location` is no longer accepted in admin listing moderation filters. Use `locationId` instead.';

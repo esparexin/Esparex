@@ -15,8 +15,8 @@ type NotificationTargetParams = {
     userIds?: string[];
 };
 
-import { USER_STATUS } from "../../constants/enums/userStatus";
-import { Role } from "../../constants/enums/roles";
+import { USER_STATUS } from '@esparex/shared';
+import { Role } from '@esparex/shared';
 
 const ACTIVE_USER_QUERY: Record<string, unknown> = {
     isDeleted: { $ne: true },

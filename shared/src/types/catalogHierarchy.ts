@@ -3,6 +3,7 @@ export interface HierarchyTreeModelNode {
     name: string;
     isActive: boolean;
     approvalStatus?: 'pending' | 'approved' | 'rejected';
+    variants?: HierarchyTreeModelNode[];
 }
 
 export interface HierarchyTreeBrandNode {
@@ -28,6 +29,7 @@ export interface HierarchyTreeResponse {
         categories: number;
         brands: number;
         models: number;
+        variants?: number;
     };
     categories: HierarchyTreeCategoryNode[];
 }

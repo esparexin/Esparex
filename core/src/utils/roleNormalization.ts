@@ -1,4 +1,4 @@
-import { Role } from '../constants/enums/roles';
+import { Role } from '@esparex/shared';
 
 /**
  * Normalizes legacy role strings to canonical Role enum values.

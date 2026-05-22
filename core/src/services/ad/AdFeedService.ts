@@ -59,14 +59,13 @@ export const buildHomeFeedPipeline = (
         {
             $facet: {
                 spotlight: [
-                    { $match: { ...visibilityMatch, ...effectiveSpotlightMatch } },
+                    { $match: effectiveSpotlightMatch },
                     { $limit: limit * 2 }
                 ],
                 boosted: [
                     {
                         $match: {
                             _id: { $in: boostedIds },
-                            ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
                         }
                     },
@@ -76,7 +75,6 @@ export const buildHomeFeedPipeline = (
                     {
                         $match: {
                             _id: { $nin: boostedIds },
-                            ...visibilityMatch,
                             ...nonSpotlightFallbackMatch
                         }
                     },

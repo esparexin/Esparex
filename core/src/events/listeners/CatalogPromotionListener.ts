@@ -2,7 +2,7 @@ import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import Ad from '../../models/Ad';
 import Model from '../../models/Model';
 import Brand from '../../models/Brand';
-import { CATALOG_STATUS } from '../../constants/enums/catalogStatus';
+import { CATALOG_STATUS } from '@esparex/shared';
 import logger from '../../utils/logger';
 import { clearCachePattern } from '../../utils/redisCache';
 

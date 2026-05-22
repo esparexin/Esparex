@@ -1,4 +1,4 @@
-import { redisConnection } from '../../queues/redisConnection';
+import redisClient from '../../config/redis';
 import logger from '../../utils/logger';
 
 export class NotificationVersionService {
@@ -10,10 +10,10 @@ export class NotificationVersionService {
         try {
             const cacheKey = `inbox_version:${userId}`;
             // Atomic increment
-            const newVersion = await redisConnection.incr(cacheKey);
+            const newVersion = await redisClient.incr(cacheKey);
             
             // Maintain TTL (30 days) to prevent memory leaks from stale/deleted user IDs.
-            await redisConnection.expire(cacheKey, 60 * 60 * 24 * 30);
+            await redisClient.expire(cacheKey, 60 * 60 * 24 * 30);
             
             return newVersion;
         } catch (error: unknown) {
@@ -28,7 +28,7 @@ export class NotificationVersionService {
      */
     static async getVersion(userId: string): Promise<number> {
         try {
-            const val = await redisConnection.get(`inbox_version:${userId}`);
+            const val = await redisClient.get(`inbox_version:${userId}`);
             return val ? parseInt(val, 10) : 0;
         } catch {
             return 0;

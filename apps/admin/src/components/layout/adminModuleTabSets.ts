@@ -25,7 +25,7 @@ export const financeTabs: AdminTabItem[] = [
 ];
 
 export const catalogManagementTabs: AdminTabItem[] = [
-    { label: "Device Categories", href: "/categories?tab=device-categories" },
+    { label: "Device Categories", href: "/categories?tab=categories" },
     { label: "Brands",            href: "/categories?tab=brands" },
     { label: "Models",            href: "/categories?tab=models" },
     { label: "Screen Sizes",      href: "/categories?tab=screen-sizes" },
@@ -46,7 +46,6 @@ export const moderationTabs: AdminTabItem[] = [
 
 export const serviceLifecycleTabs: AdminTabItem[] = [
     { label: "Pending",     href: "/services?status=pending" },
-    { label: "Held for Catalog", href: "/services?status=pending&catalogPending=true" },
     { label: "Live",        href: "/services?status=live" },
     { label: "Rejected",    href: "/services?status=rejected" },
     { label: "Expired",     href: "/services?status=expired" },
@@ -56,7 +55,6 @@ export const serviceLifecycleTabs: AdminTabItem[] = [
 
 export const partLifecycleTabs: AdminTabItem[] = [
     { label: 'Pending',     href: '/spare-parts?status=pending' },
-    { label: 'Held for Catalog', href: '/spare-parts?status=pending&catalogPending=true' },
     { label: 'Live',        href: '/spare-parts?status=live' },
     { label: 'Rejected',    href: '/spare-parts?status=rejected' },
     { label: 'Sold',        href: '/spare-parts?status=sold' },
@@ -68,7 +66,6 @@ export const partLifecycleTabs: AdminTabItem[] = [
 
 export const adLifecycleTabs: AdminTabItem[] = [
     { label: "Pending", href: "/ads?status=pending" },
-    { label: "Held for Catalog", href: "/ads?status=pending&catalogPending=true" },
     { label: "Live", href: "/ads?status=live" },
     { label: "Rejected", href: "/ads?status=rejected" },
     { label: "Sold", href: "/ads?status=sold" },

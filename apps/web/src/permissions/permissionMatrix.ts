@@ -1,5 +1,5 @@
 export type Role = "user" | "business";
-import { BusinessStatusValue as BusinessStatus } from "@shared/enums/businessStatus";
+import { BusinessStatusValue as BusinessStatus } from '@esparex/shared';
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 export const PERMISSIONS = {

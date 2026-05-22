@@ -233,14 +233,16 @@ export async function adminFetch<T>(
       return payload;
     } catch (err) {
       if (err instanceof AdminApiError) throw err;
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw err;
+      }
       
       // Handle fetch network failures or timeouts
       const isNetworkError = err instanceof Error && (
         err.name === 'TypeError' || 
         err.message.includes('failed to fetch') || 
         err.message.includes('timeout') ||
-        err.message.includes('NetworkError') ||
-        err.name === 'AbortError'
+        err.message.includes('NetworkError')
       );
 
       if (isNetworkError && retryCount < MAX_RETRIES) {
@@ -259,4 +261,3 @@ export async function adminFetch<T>(
 
   return makeRequest(false);
 }
-

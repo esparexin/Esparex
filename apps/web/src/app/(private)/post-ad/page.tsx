@@ -54,6 +54,11 @@ async function fetchPostingBalance(cookieHeader: string): Promise<{ balance: Pos
 }
 
 export default async function PostAdPage() {
+    const bypassQuotaCheck = process.env.BYPASS_POST_AD_QUOTA_CHECK === "true";
+    if (bypassQuotaCheck) {
+        return <PostAdPageClient />;
+    }
+
     const cookieStore = await cookies();
     const cookieHeader = cookieStore.toString();
     const { balance, status } = await fetchPostingBalance(cookieHeader);
@@ -62,9 +67,8 @@ export default async function PostAdPage() {
         redirect(loginRedirectUrl);
     }
 
-    const bypassQuotaCheck = process.env.BYPASS_POST_AD_QUOTA_CHECK === "true";
     const totalRemaining = balance?.totalRemaining ?? 0;
-    if (!bypassQuotaCheck && (!balance || totalRemaining <= 0)) {
+    if (!balance || totalRemaining <= 0) {
         return (
             <div className="min-h-screen bg-white flex items-center justify-center px-4">
                 <div className="max-w-lg w-full rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-4">

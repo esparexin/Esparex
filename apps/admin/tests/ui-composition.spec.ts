@@ -54,7 +54,7 @@ test.describe('UI Composition Standards', () => {
       });
     });
 
-    await page.goto('/categories?tab=device-categories');
+    await page.goto('/categories?tab=categories');
   });
 
   test('Device Catalog page renders tab navigation exactly once', async ({ page }) => {

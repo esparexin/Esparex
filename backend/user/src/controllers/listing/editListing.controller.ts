@@ -2,9 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { getSingleParam } from '@esparex/core/utils/requestParams';
-import { LISTING_STATUS } from "@shared/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import * as AdMutationService from '@esparex/core/services/AdMutationService';
-import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
 import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core/utils/immutableFieldErrors';
 import type { AuthUser } from '../../types/auth.types';
 
@@ -12,8 +11,6 @@ const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
     categoryId: 'Category cannot be changed while editing a listing.',
     brandId: 'Brand cannot be changed while editing a listing.',
     modelId: 'Model cannot be changed while editing a listing.',
-    catalogRequestId: 'Catalog request reference cannot be changed while editing a listing.',
-    catalogPending: 'Catalog pending state cannot be changed while editing a listing.',
     screenSize: 'Screen size cannot be changed while editing a listing.',
     spareParts: 'Spare-part mapping cannot be changed while editing a listing.',
     deviceCondition: 'Device condition cannot be changed while editing a listing.',
@@ -38,10 +35,7 @@ export const editListing = async (req: Request, res: Response, next: NextFunctio
         if (!id) return;
 
         const user = req.user as AuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res, {
-            errorMessage: 'Listing not found or access denied',
-            select: 'status listingType',
-        });
+        const listing = req.listing;
         if (!listing) return;
 
         const body = req.body as Record<string, unknown>;

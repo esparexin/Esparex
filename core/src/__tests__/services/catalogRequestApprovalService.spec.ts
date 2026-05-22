@@ -7,8 +7,6 @@ const mockBrandCreate = jest.fn();
 const mockCategoryFindOne = jest.fn();
 const mockModelFindOne = jest.fn();
 const mockModelCreate = jest.fn();
-const mockAdUpdateMany = jest.fn();
-const mockAdDistinct = jest.fn();
 const mockInvalidateCatalogCache = jest.fn();
 const mockNotifySellersOfApproval = jest.fn();
 
@@ -44,14 +42,6 @@ jest.mock('@esparex/core/models/Model', () => ({
     default: {
         findOne: (...args: unknown[]) => mockModelFindOne(...args),
         create: (...args: unknown[]) => mockModelCreate(...args),
-    },
-}));
-
-jest.mock('@esparex/core/models/Ad', () => ({
-    __esModule: true,
-    default: {
-        distinct: (...args: unknown[]) => mockAdDistinct(...args),
-        updateMany: (...args: unknown[]) => mockAdUpdateMany(...args),
     },
 }));
 
@@ -119,7 +109,7 @@ describe('catalogRequestApprovalService', () => {
         mockNotifySellersOfApproval.mockResolvedValue(undefined);
     });
 
-    it('approves brand requests and relinks waiting ads', async () => {
+    it('approves brand requests without mutating ads', async () => {
         const session = buildSession();
         mockGetUserConnection.mockReturnValue({
             startSession: jest.fn(async () => session),
@@ -136,8 +126,6 @@ describe('catalogRequestApprovalService', () => {
         });
         mockBrandFindOne.mockReturnValue({ session: jest.fn().mockResolvedValue(null) });
         mockBrandCreate.mockResolvedValue([{ _id: createdBrandId }]);
-        mockAdDistinct.mockReturnValue({ session: jest.fn().mockResolvedValue([]) });
-        mockAdUpdateMany.mockResolvedValue({ modifiedCount: 2 });
 
         const result = await approveCatalogRequest({
             requestId: requestDoc._id.toString(),
@@ -147,31 +135,31 @@ describe('catalogRequestApprovalService', () => {
 
         expect(result.resolvedEntityId.toString()).toBe(createdBrandId.toString());
         expect(result.createdCanonicalEntity).toBe(true);
-        expect(result.updatedAdsCount).toBe(2);
         expect(mockBrandCreate).toHaveBeenCalledWith(
             [
                 expect.objectContaining({
                     name: 'Pixel',
                     displayName: 'Pixel',
                     canonicalName: 'pixel',
+                    marketplaceTrust: expect.objectContaining({
+                        catalogTrustScore: expect.any(Number),
+                        canonicalCertaintyScore: expect.any(Number),
+                        aliasApprovalConfidence: expect.any(Number),
+                    }),
                 }),
             ],
             expect.any(Object)
         );
         expect(requestDoc.status).toBe('approved');
         expect(requestDoc.approvedEntityId.toString()).toBe(createdBrandId.toString());
+        expect(requestDoc.moderationIntelligence).toEqual(expect.objectContaining({
+            moderatorTrustScore: expect.any(Number),
+            canonicalCertaintyScore: expect.any(Number),
+        }));
         expect(mockInvalidateCatalogCache).toHaveBeenCalledTimes(1);
-        expect(mockAdUpdateMany).toHaveBeenCalledWith(
-            expect.objectContaining({
-                catalogRequestId: requestDoc._id,
-                catalogPending: true,
-            }),
-            { $set: expect.objectContaining({ brandId: createdBrandId, catalogPending: false }) },
-            expect.objectContaining({ session })
-        );
     });
 
-    it('marks model requests as duplicate and relinks waiting ads to existing canonical model', async () => {
+    it('marks model requests as merged with existing canonical model', async () => {
         const session = buildSession();
         mockGetUserConnection.mockReturnValue({
             startSession: jest.fn(async () => session),
@@ -198,9 +186,7 @@ describe('catalogRequestApprovalService', () => {
         mockCatalogRequestFindById.mockReturnValue({
             session: jest.fn().mockResolvedValue(requestDoc),
         });
-        mockAdDistinct.mockReturnValue({ session: jest.fn().mockResolvedValue([]) });
         mockModelFindOne.mockReturnValue({ session: jest.fn().mockResolvedValue(duplicateModelDoc) });
-        mockAdUpdateMany.mockResolvedValue({ modifiedCount: 3 });
 
         const result = await markCatalogRequestDuplicate({
             requestId: requestDoc._id.toString(),
@@ -210,24 +196,20 @@ describe('catalogRequestApprovalService', () => {
         });
 
         expect(result.createdCanonicalEntity).toBe(false);
-        expect(result.updatedAdsCount).toBe(3);
-        expect(requestDoc.status).toBe('duplicate');
-        expect(requestDoc.duplicateOfEntityId.toString()).toBe(duplicateModelId.toString());
+        expect(requestDoc.status).toBe('merged');
+        expect(requestDoc.mergedIntoEntityId.toString()).toBe(duplicateModelId.toString());
+        expect((duplicateModelDoc as Record<string, unknown>).marketplaceTrust).toEqual(expect.objectContaining({
+            duplicateConfidenceScore: 0.92,
+            canonicalCertaintyScore: expect.any(Number),
+        }));
+        expect(requestDoc.moderationIntelligence).toEqual(expect.objectContaining({
+            duplicateConfidenceScore: 0.92,
+            canonicalCertaintyScore: expect.any(Number),
+        }));
         expect(mockInvalidateCatalogCache).toHaveBeenCalledTimes(1);
-        expect(mockAdUpdateMany).toHaveBeenCalledWith(
-            expect.objectContaining({ catalogRequestId: requestDoc._id }),
-            {
-                $set: expect.objectContaining({
-                    modelId: duplicateModelId,
-                    brandId: parentBrandId,
-                    catalogPending: false,
-                }),
-            },
-            expect.objectContaining({ session })
-        );
     });
 
-    it('rejects pending requests without mutating waiting ads', async () => {
+    it('rejects pending requests without mutating ads', async () => {
         const session = buildSession();
         mockGetUserConnection.mockReturnValue({
             startSession: jest.fn(async () => session),
@@ -248,7 +230,6 @@ describe('catalogRequestApprovalService', () => {
 
         expect(result.request.status).toBe('rejected');
         expect(result.request.rejectionReason).toBe('Name is ambiguous');
-        expect(mockAdUpdateMany).not.toHaveBeenCalled();
         expect(mockInvalidateCatalogCache).not.toHaveBeenCalled();
     });
 
@@ -281,8 +262,6 @@ describe('catalogRequestApprovalService', () => {
             session: jest.fn().mockResolvedValue(null),
         });
         mockModelCreate.mockResolvedValue([{ _id: createdModelId }]);
-        mockAdDistinct.mockReturnValue({ session: jest.fn().mockResolvedValue([]) });
-        mockAdUpdateMany.mockResolvedValue({ modifiedCount: 1 });
 
         const result = await approveCatalogRequest({
             requestId: requestDoc._id.toString(),
@@ -297,6 +276,10 @@ describe('catalogRequestApprovalService', () => {
                     name: 'Galaxy S24 Ultra',
                     displayName: 'Galaxy S24 Ultra',
                     canonicalName: 'galaxy s24 ultra',
+                    marketplaceTrust: expect.objectContaining({
+                        catalogTrustScore: expect.any(Number),
+                        seoQualityScore: expect.any(Number),
+                    }),
                 }),
             ],
             expect.any(Object)

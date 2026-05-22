@@ -54,7 +54,7 @@ import {
 } from '../../services/catalog/CatalogValidationService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import { resolveServiceTypes } from '../../utils/serviceTypeResolver';
-import { BUSINESS_STATUS } from '../../constants/enums/businessStatus';
+import { BUSINESS_STATUS } from '@esparex/shared';
 import {
     createServiceMutation,
     type ServiceBusinessContext,

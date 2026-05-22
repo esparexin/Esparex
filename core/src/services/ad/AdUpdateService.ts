@@ -3,9 +3,9 @@ import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import Ad, { type IAd } from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
-import { LIFECYCLE_STATUS } from '../../constants/enums/lifecycle';
-import { NOTIFICATION_TYPE } from '../../constants/enums/notificationType';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LIFECYCLE_STATUS } from '@esparex/shared';
+import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { AdContext } from '../../types/ad.types';
 import { generateUniqueSlug } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
@@ -51,7 +51,17 @@ export const updateAdLogic = async (
                     throw Object.assign(new Error('Account suspended'), { statusCode: 403, code: 'ACCOUNT_SUSPENDED' });
             }
 
-            const payload = await AdCreationService.preparePayload(data, context, true, adId.toString(), adId);
+            const payload = await AdCreationService.preparePayload(
+                {
+                    listingType: ad.listingType,
+                    categoryId: ad.categoryId?.toString(),
+                    ...(data as Record<string, unknown>),
+                },
+                context,
+                true,
+                ad.categoryId?.toString(),
+                adId
+            );
 
             const untypedPayload = payload as Record<string, unknown>;
             const untypedAd = ad.toObject() as unknown as Record<string, unknown>;
@@ -68,7 +78,8 @@ export const updateAdLogic = async (
                 }
             }
 
-            const requiresReviewTransition = context.actor === 'USER' && ad.status === LISTING_STATUS.LIVE && sensitiveChange;
+            const requiresReviewTransition = context.actor === 'USER' && 
+                ((ad.status === LISTING_STATUS.LIVE && sensitiveChange) || (ad.status as string) === 'rejected');
 
             const oldImagesList = Array.isArray(untypedAd.images) ? untypedAd.images as string[] : [];
             const newImagesList = Array.isArray(untypedPayload.images) ? untypedPayload.images as string[] : oldImagesList;
@@ -105,7 +116,7 @@ export const updateAdLogic = async (
 
             if (updatedAd && requiresReviewTransition) {
                 updatedAd = await mutateStatus({
-                    domain: 'ad',
+                    domain: ad.listingType === 'service' ? 'service' : 'ad',
                     entityId: id,
                     toStatus: LISTING_STATUS.PENDING,
                     actor: {

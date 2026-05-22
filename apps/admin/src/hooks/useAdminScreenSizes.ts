@@ -10,7 +10,12 @@ import { useCallback } from "react";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import { ScreenSize } from "@/types/screenSize";
 
-export function useAdminScreenSizes() {
+import { type AdminListPagination } from "@/hooks/useAdminCrudList";
+
+export function useAdminScreenSizes(options?: {
+    initialFilters?: Partial<{ search: string; categoryId: string; status: string }>;
+    initialPagination?: Partial<AdminListPagination>;
+}) {
     const {
         items: screenSizes,
         loading,
@@ -27,10 +32,10 @@ export function useAdminScreenSizes() {
         setItems
     } = useAdminCatalogCollection<
         ScreenSize,
-        { search: string; categoryId: string },
+        { search: string; categoryId: string; status: string },
         ScreenSizeMutationPayload
     >({
-        initialFilters: { search: "", categoryId: "all" },
+        initialFilters: { search: "", categoryId: "all", status: "all" },
         fetchList: getScreenSizes,
         listErrorMessage: "Failed to fetch screen sizes",
         createItem: createScreenSize,
@@ -42,7 +47,7 @@ export function useAdminScreenSizes() {
         deleteItem: deleteScreenSize,
         deleteSuccessMessage: "Screen size deleted successfully",
         deleteErrorMessage: "Failed to delete screen size",
-    });
+    }, options);
 
     const handleToggleStatus = useCallback(async (id: string) => {
         await runAction(() => toggleScreenSizeStatus(id), {

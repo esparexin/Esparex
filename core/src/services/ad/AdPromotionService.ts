@@ -3,9 +3,9 @@ import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import Ad from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
-import { LISTING_TYPE } from '../../constants/enums/listingType';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
-import { LIFECYCLE_STATUS } from '../../constants/enums/lifecycle';
+import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { consumeCredit } from '../WalletService';
 import { invalidateAdFeedCaches } from '../../utils/redisCache';
 

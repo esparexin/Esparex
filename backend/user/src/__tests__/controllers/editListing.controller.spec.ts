@@ -48,8 +48,11 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
-jest.mock('@shared/enums/listingStatus', () => ({
-    LISTING_STATUS: { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected', EXPIRED: 'expired' },
+const mockListingStatus = { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected', EXPIRED: 'expired' };
+
+jest.mock('@esparex/shared/enums/listingStatus', () => ({
+    LISTING_STATUS: mockListingStatus,
+    LISTING_STATUS_VALUES: Object.values(mockListingStatus),
 }));
 
 // ─── Imports ──────────────────────────────────────────────────────────────────
@@ -66,10 +69,12 @@ const makeReq = (overrides: Partial<{
     user: unknown;
     body: Record<string, unknown>;
     params: Record<string, string>;
+    listing: unknown;
 }> = {}): Request => ({
     user: { _id: USER_ID, role: 'user' },
     body: { title: 'Updated title', price: 45000 },
     params: { id: LISTING_ID },
+    listing: { _id: LISTING_ID, status: 'draft', listingType: 'ad' },
     ...overrides,
 } as unknown as Request);
 
@@ -89,8 +94,6 @@ describe('editListing.controller', () => {
         jest.clearAllMocks();
         // Default: valid ID returned
         mockGetSingleParam.mockReturnValue(LISTING_ID);
-        // Default: listing found and owned, status = draft
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'draft', listingType: 'ad' });
         // Default: no immutable field violations
         mockCollectImmutableFieldErrors.mockReturnValue([]);
         // Default: hasOwnField returns false (no location fields)
@@ -110,17 +113,14 @@ describe('editListing.controller', () => {
 
         await editListing(req, res, next);
 
-        expect(mockGetAndVerifyOwnedListing).not.toHaveBeenCalled();
         expect(mockUpdateAd).not.toHaveBeenCalled();
         expect(next).not.toHaveBeenCalled();
     });
 
     // ── 2. Listing not owned / not found ────────────────────────────────────
 
-    it('returns early when getAndVerifyOwnedListing returns null', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue(null);
-
-        const req = makeReq();
+    it('returns early when req.listing is null', async () => {
+        const req = makeReq({ listing: null });
         const res = makeRes();
         const next = makeNext();
 
@@ -152,9 +152,7 @@ describe('editListing.controller', () => {
     // ── 4. Status blocks ────────────────────────────────────────────────────
 
     it('blocks edits when listing status is EXPIRED', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'expired' });
-
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'expired' } });
         const res = makeRes();
         const next = makeNext();
 
@@ -167,9 +165,7 @@ describe('editListing.controller', () => {
     });
 
     it('blocks edits when listing status is REJECTED', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'rejected' });
-
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'rejected' } });
         const res = makeRes();
         const next = makeNext();
 
@@ -182,9 +178,7 @@ describe('editListing.controller', () => {
     });
 
     it('blocks edits when listing status is PENDING', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'pending' });
-
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'pending' } });
         const res = makeRes();
         const next = makeNext();
 
@@ -199,7 +193,6 @@ describe('editListing.controller', () => {
     // ── 6. Location allowed when DRAFT ───────────────────────────────────────
 
     it('allows location change when listing status is DRAFT', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'draft' });
         // hasOwnField returns true for location, but status is draft so guard skips
         mockHasOwnField.mockImplementation((_obj: unknown, field: string) => field === 'location');
         const updatedListing = { _id: LISTING_ID, location: { city: 'Delhi' } };

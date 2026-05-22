@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../constants/enums/catalogStatus';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '@esparex/shared';
 import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
     CatalogApprovalStatusValue,
-} from '../constants/enums/catalogApprovalStatus';
+} from '@esparex/shared';
 
 export interface ICategory extends Document {
     name: string;
@@ -13,7 +13,25 @@ export interface ICategory extends Document {
     slug: string;
     aliases: string[];
     synonyms: string[];
-    type?: 'ad' | 'spare_part' | 'service' | 'other';
+    marketplaceTrust?: {
+        catalogTrustScore?: number;
+        variantTrustScore?: number;
+        aliasTrustScore?: number;
+        synonymTrustScore?: number;
+        transliterationTrustScore?: number;
+        moderatorTrustScore?: number;
+        moderationReliabilityScore?: number;
+        aliasApprovalConfidence?: number;
+        synonymApprovalConfidence?: number;
+        popularityConfidenceScore?: number;
+        canonicalCertaintyScore?: number;
+        duplicateConfidenceScore?: number;
+        seoQualityScore?: number;
+        crawlDepthLimit?: number;
+        indexable?: boolean;
+        lastAuditAt?: Date;
+    };
+
     icon?: string;
     description?: string;
     parentId?: mongoose.Types.ObjectId;
@@ -38,7 +56,25 @@ const CategorySchema = new Schema<ICategory>({
     slug: { type: String, required: true },
     aliases: { type: [String], default: [] },
     synonyms: { type: [String], default: [] },
-    type: { type: String, enum: ['ad', 'spare_part', 'service', 'other'], default: 'ad', required: false },
+    marketplaceTrust: {
+        catalogTrustScore: { type: Number, default: 0.72, min: 0, max: 1 },
+        variantTrustScore: { type: Number, default: 0.66, min: 0, max: 1 },
+        aliasTrustScore: { type: Number, default: 0.62, min: 0, max: 1 },
+        synonymTrustScore: { type: Number, default: 0.58, min: 0, max: 1 },
+        transliterationTrustScore: { type: Number, default: 0.64, min: 0, max: 1 },
+        moderatorTrustScore: { type: Number, default: 0.7, min: 0, max: 1 },
+        moderationReliabilityScore: { type: Number, default: 0.7, min: 0, max: 1 },
+        aliasApprovalConfidence: { type: Number, default: 0.6, min: 0, max: 1 },
+        synonymApprovalConfidence: { type: Number, default: 0.55, min: 0, max: 1 },
+        popularityConfidenceScore: { type: Number, default: 0.65, min: 0, max: 1 },
+        canonicalCertaintyScore: { type: Number, default: 0.72, min: 0, max: 1 },
+        duplicateConfidenceScore: { type: Number, default: 0.5, min: 0, max: 1 },
+        seoQualityScore: { type: Number, default: 0.6, min: 0, max: 1 },
+        crawlDepthLimit: { type: Number, default: 4, min: 1, max: 8 },
+        indexable: { type: Boolean, default: true },
+        lastAuditAt: { type: Date },
+    },
+
     icon: { type: String },
     description: { type: String },
     parentId: { type: Schema.Types.ObjectId, ref: 'Category' },
@@ -76,7 +112,7 @@ CategorySchema.index({ slug: 1 }, {
     partialFilterExpression: { isDeleted: false }
 });
 CategorySchema.index({ parentId: 1 }, { name: 'idx_category_parent' });
-CategorySchema.index({ type: 1, isActive: 1 }, { name: 'idx_category_type_active' });
+
 CategorySchema.index({ status: 1 }, { name: 'idx_category_status' });
 CategorySchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_category_approval_active' });
 CategorySchema.index({ isDeleted: 1, isActive: 1 }, { name: 'idx_category_isDeleted_isActive' });
@@ -84,6 +120,8 @@ CategorySchema.index({ name: 1 }, { name: 'idx_category_name', collation: { loca
 CategorySchema.index({ isDeleted: 1 }, { name: 'idx_category_isDeleted' });
 
 CategorySchema.index({ listingType: 1 }, { name: 'idx_category_listingType' });
+CategorySchema.index({ 'marketplaceTrust.catalogTrustScore': -1 }, { name: 'idx_category_marketplaceTrust_catalog' });
+CategorySchema.index({ 'marketplaceTrust.seoQualityScore': -1, 'marketplaceTrust.indexable': 1 }, { name: 'idx_category_marketplaceTrust_seo' });
 CategorySchema.index(
     { canonicalName: 1 },
     {
@@ -91,6 +129,13 @@ CategorySchema.index(
         unique: true,
         collation: { locale: 'en', strength: 2 },
         partialFilterExpression: { isDeleted: false }
+    }
+);
+CategorySchema.index(
+    { name: 'text', displayName: 'text', canonicalName: 'text', slug: 'text', aliases: 'text', synonyms: 'text' },
+    {
+        name: 'idx_category_search_text_readiness',
+        weights: { canonicalName: 10, displayName: 8, name: 8, slug: 6, aliases: 4, synonyms: 3 },
     }
 );
 
@@ -123,13 +168,7 @@ CategorySchema.pre('validate', function () {
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 CategorySchema.plugin(installSafeSoftDeleteQuery);
 
-// ON-THE-FLY NORMALIZATION (Safe Migration)
-// Ensures legacy uppercase types and 'post' prefixes are mapped to the new standard at runtime.
-CategorySchema.post('init', function(doc) {
-    if (doc.type && ['AD', 'SERVICE', 'SPARE_PART'].includes(doc.type)) {
-        doc.type = doc.type.toLowerCase() as ICategory['type'];
-    }
-});
+
 
 import { getUserConnection } from '../config/db';
 const Category: Model<ICategory> = (getUserConnection().models.Category as Model<ICategory> | undefined) || getUserConnection().model<ICategory>('Category', CategorySchema);

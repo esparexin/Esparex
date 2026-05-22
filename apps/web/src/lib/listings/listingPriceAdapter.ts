@@ -2,7 +2,7 @@
  * 💰 Listing Price Adapter
  * Resolves drift between Ads (price) and Services (priceMin).
  */
-import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 
 export const adaptListingPrice = (
     data: Record<string, unknown>,

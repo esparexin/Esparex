@@ -5,7 +5,7 @@ import { computeListingQualityScore } from '../utils/adQualityScorer';
 
 type BackfillAd = Pick<IAd, '_id' | 'title' | 'description' | 'images' | 'brandId' | 'price' | 'location'>;
 
-import { LIFECYCLE_STATUS, type LifecycleStatus } from '../constants/enums/lifecycle';
+import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/shared';
 
 /**
  * Lazy Quality Score Backfill Worker

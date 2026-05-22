@@ -13,8 +13,8 @@ import { mutateStatus } from './StatusMutationService';
 import { computeActiveExpiry } from './AdStatusService';
 import { enqueueImageOptimization } from '../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
-import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
 import type { AdContext } from '../types/ad.types';
 
 export interface AdOrchestrationContext {

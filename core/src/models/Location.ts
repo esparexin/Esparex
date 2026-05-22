@@ -3,7 +3,7 @@ import { getUserConnection } from "../config/db";
 import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
 import { hasValidCoordinateArray, sanitizeGeoPoint } from "@esparex/shared";
 import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationPrimitives";
-import { LOCATION_STATUS, LOCATION_STATUS_VALUES, type LocationStatusValue } from "../constants/enums/locationStatus";
+import { LOCATION_STATUS, LOCATION_STATUS_VALUES, type LocationStatusValue } from '@esparex/shared';
 
 /* -------------------------------------------------------------------------- */
 /* TYPES                                                                      */

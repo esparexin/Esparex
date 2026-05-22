@@ -14,7 +14,8 @@ import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
 import { sendAdminError } from '../../../utils/adminBaseController';
-import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { isDuplicateKeyError } from '../../../utils/errorHelpers';
 
 // Re-export SSOT validation helpers so controllers import from one place.
 import {
@@ -148,14 +149,8 @@ export const sendEmptyPublicList = (res: Response) => {
     }));
 };
 
-/**
- * Check if a mongo error is a duplicate key error
- */
-export const isDuplicateKeyError = (error: unknown): boolean => {
-    if (!error || typeof error !== 'object') return false;
-    const candidate = error as { code?: unknown; message?: unknown };
-    return candidate.code === 11000 || (typeof candidate.message === 'string' && candidate.message.includes('E11000'));
-};
+// isDuplicateKeyError imported from errorHelpers (SSOT)
+export { isDuplicateKeyError };
 
 /* ======================================================
    GENERIC CATALOG CRUD HANDLERS
@@ -173,7 +168,7 @@ export async function handleCatalogCreate<T extends Document>(
         auditAction?: string;
         slugifyName?: boolean;
         preOp?: (payload: Record<string, unknown>) => Promise<Record<string, unknown>>;
-        postOp?: () => void;
+        postOp?: (item: T) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -198,7 +193,7 @@ export async function handleCatalogCreate<T extends Document>(
 
         const item = await model.create(data as unknown as Partial<T>);
 
-        if (options.postOp) options.postOp();
+        if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
             void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { data });
@@ -225,7 +220,8 @@ export async function handleCatalogUpdate<T extends Document>(
         auditAction?: string;
         slugifyName?: boolean;
         preUpdate?: (id: string, payload: Record<string, unknown>, existing: T) => Promise<Record<string, unknown>>;
-        postOp?: () => void;
+        updateOp?: (id: string, data: Record<string, unknown>, existing: T) => Promise<T | unknown>;
+        postOp?: (item: T) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -254,12 +250,15 @@ export async function handleCatalogUpdate<T extends Document>(
             data.slug = slugify(data.name as string, { lower: true, strict: true });
         }
 
-        const item = await model.findByIdAndUpdate(id, data as unknown as Partial<T>, { new: true });
+        const item = options.updateOp
+            ? await options.updateOp(id, data, existing)
+            : await model.findByIdAndUpdate(id, data as unknown as Partial<T>, { new: true });
         
-        if (options.postOp) options.postOp();
+        if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item!._id, { updates: data });
+            const auditItem = item as { _id?: string | { toString: () => string } } | null;
+            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], auditItem?._id, { updates: data });
         }
 
         return sendSuccessResponse(res, item, `${model.modelName} updated successfully`);
@@ -280,7 +279,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
     model: MongooseModel<T>,
     options: { 
         auditAction?: string;
-        postOp?: () => void;
+        postOp?: (item: T) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -312,7 +311,7 @@ export async function handleCatalogToggleStatus<T extends Document>(
 
         await model.findByIdAndUpdate(req.params.id, nextState);
         
-        if (options.postOp) options.postOp();
+        if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
             void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, approvalStatus });
@@ -334,7 +333,7 @@ export async function handleCatalogDelete<T extends Document>(
     checkDependencies?: (id: string) => Promise<{ count: number; details: unknown }>,
     options: { 
         auditAction?: string;
-        postOp?: () => void;
+        postOp?: (item: T) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -362,7 +361,7 @@ export async function handleCatalogDelete<T extends Document>(
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
 
-        if (options.postOp) options.postOp();
+        if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
             void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id);
@@ -385,7 +384,7 @@ export async function handleCatalogReview<T extends Document>(
     schema?: z.ZodTypeAny,
     options: { 
         auditAction?: string;
-        postOp?: () => void;
+        postOp?: (item: T) => void | Promise<void>;
     } = {}
 ) {
     try {
@@ -417,7 +416,7 @@ export async function handleCatalogReview<T extends Document>(
             return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
         }
 
-        if (options.postOp) options.postOp();
+        if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
             void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { updates });

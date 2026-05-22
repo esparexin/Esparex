@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { REPORT_REASON, type ReportReasonValue } from "@shared/enums/reportReason";
+import { REPORT_REASON, type ReportReasonValue } from '@esparex/shared';
 import { submitAdReport } from "@/lib/api/user/reports";
 import { buildAdReportPayload } from "@/lib/listings/adReportPayload";
 import { Button } from "../ui/button";

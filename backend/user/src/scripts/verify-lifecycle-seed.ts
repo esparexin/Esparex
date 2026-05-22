@@ -14,8 +14,8 @@ import User from "@esparex/core/models/User";
 import Business from "@esparex/core/models/Business";
 import Ad from "@esparex/core/models/Ad";
 import Category from "@esparex/core/models/Category";
-import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
-import { CATALOG_STATUS } from "@esparex/core/constants/enums/catalogStatus";
+import { USER_STATUS } from '@esparex/shared';
+import { CATALOG_STATUS } from '@esparex/shared';
 
 async function run(): Promise<void> {
     console.info("[seed] Connecting to MongoDB...");

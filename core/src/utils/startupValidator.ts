@@ -1,7 +1,7 @@
 import logger from './logger';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
-import ProductModel from '../models/Model';
+import Model from '../models/Model';
 import type { Model as MongooseModel } from 'mongoose';
 import { getDatabaseHealthProbe } from '../config/db';
 import { getQueueHealthProbe } from '../queues/queueHealth';
@@ -38,7 +38,7 @@ export async function validateMetadataHealth() {
         const [categoryCount, brandCount, modelCount] = await Promise.all([
             getFastCollectionCount(Category),
             getFastCollectionCount(Brand),
-            getFastCollectionCount(ProductModel)
+            getFastCollectionCount(Model)
         ]);
 
         if (categoryCount === 0 || brandCount === 0) {
@@ -78,7 +78,7 @@ export const assertCriticalStartupReadiness = async (): Promise<void> => {
 
     const redisConnected = redisHealth.connected && redisHealth.pingOk && redisHealth.roundTripOk;
     const isProduction = env.NODE_ENV === 'production';
-    const redisRequired = isProduction && env.ALLOW_REDIS === true;
+    const redisRequired = isProduction;
 
     if (!redisConnected) {
         if (redisRequired) {

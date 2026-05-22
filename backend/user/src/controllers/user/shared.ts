@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import { User as SharedUser, UserRole, BusinessStatus } from "@shared/types/user";
-import { Role } from '@esparex/core/constants/enums/roles';
+import { Role } from '@esparex/shared';
 import { normalizeMobileVisibility } from "@shared/constants/mobileVisibility";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 

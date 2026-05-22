@@ -4,8 +4,8 @@ import Ad from '../../models/Ad';
 import { normalizeLocationResponse } from "../location/LocationNormalizer";
 import { serializeDoc } from '../../utils/serialize';
 import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
-import { LISTING_TYPE } from '../../constants/enums/listingType';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/shared';
 
 type BusinessCandidate = {
     _id?: mongoose.Types.ObjectId | string;

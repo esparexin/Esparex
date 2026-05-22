@@ -42,6 +42,40 @@ const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     expire_smart_alerts: runExpireSmartAlertsJob,
 };
 
+/**
+ * Wraps a scheduler job runner with execution duration telemetry.
+ * Logs jobName, durationMs, and outcome on every execution without
+ * modifying retry logic or error propagation.
+ */
+const withJobTelemetry = (
+    jobName: string,
+    run: () => Promise<unknown>
+): ((job: Job) => Promise<unknown>) => {
+    return async (job: Job): Promise<unknown> => {
+        void job;
+        const startedAt = Date.now();
+        try {
+            const result = await run();
+            const durationMs = Date.now() - startedAt;
+            logger.info(`[Scheduler] Job completed`, {
+                jobName,
+                durationMs,
+                outcome: 'success',
+            });
+            return result;
+        } catch (error) {
+            const durationMs = Date.now() - startedAt;
+            logger.error(`[Scheduler] Job failed`, {
+                jobName,
+                durationMs,
+                outcome: 'failure',
+                error: error instanceof Error ? error.message : String(error),
+            });
+            throw error;
+        }
+    };
+};
+
 let schedulerQueueEngineStarted = false;
 
 export const startSchedulerQueueEngine = async () => {
@@ -51,10 +85,7 @@ export const startSchedulerQueueEngine = async () => {
         Object.fromEntries(
             Object.entries(schedulerProcessors).map(([jobName, run]) => [
                 jobName,
-                async (job: Job) => {
-                    void job;
-                    return run();
-                },
+                withJobTelemetry(jobName, run),
             ])
         ) as Record<SchedulerJobName, (job: Job) => Promise<unknown>>
     );

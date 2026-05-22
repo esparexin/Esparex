@@ -7,7 +7,7 @@
 
 import mongoose, { PipelineStage } from 'mongoose';
 import BlockedUser from '../../../models/BlockedUser';
-import { type ListingTypeValue } from '../../../constants/enums/listingType';
+import { type ListingTypeValue } from '@esparex/shared';
 import logger from '../../../utils/logger';
 
 
@@ -62,8 +62,6 @@ export interface AdFilters {
     expiringWithinDays?: number;
     spotlightWarningStatus?: 'sent' | 'not_sent';
     spotlightExpiringWithinDays?: number;
-    catalogRequestId?: string | mongoose.Types.ObjectId;
-    catalogPending?: boolean;
 }
 
 export interface PaginationOptions {

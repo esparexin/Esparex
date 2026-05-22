@@ -10,13 +10,30 @@ export const getInvoices = async (req: Request, res: Response) => {
         if (!req.user) return sendErrorResponse(req, res, 401, 'Unauthorized');
         const { q, status } = req.query;
 
-        const invoices = await invoiceService.getInvoices({
-            userId: (req.user)._id.toString(),
-            search: typeof q === 'string' ? q : undefined,
-            status: typeof status === 'string' ? status : undefined
-        });
+        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const page = Math.min(1000, Math.max(1, Number(req.query.page) || 1));
+        const skip = (page - 1) * limit;
 
-        res.json(respond({ success: true, data: invoices }));
+        const { items, total } = await invoiceService.getInvoices(
+            {
+                userId: (req.user)._id.toString(),
+                search: typeof q === 'string' ? q : undefined,
+                status: typeof status === 'string' ? status : undefined
+            },
+            { limit, skip }
+        );
+
+        res.json(respond({
+            success: true,
+            data: items,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasMore: skip + items.length < total
+            }
+        }));
     } catch (error: unknown) {
         logger.error('Get invoices error:', getErrorMessage(error));
         sendErrorResponse(req, res, 500, 'Failed to fetch invoices');

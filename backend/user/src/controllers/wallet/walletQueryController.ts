@@ -38,11 +38,26 @@ export const getTransactionHistory = async (req: Request, res: Response) => {
         const userId = req.user?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
-        const limit = Number(req.query.limit) || 10;
-        const skip = Number(req.query.skip) || 0;
+        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 10));
+        const skip = Math.min(10000, Math.max(0, Number(req.query.skip) || 0));
         const history = await getTransactionHistoryByUserId(userId.toString(), { limit, skip });
 
-        res.json(respond({ success: true, data: history }));
+        const page = Math.floor(skip / limit) + 1;
+        const totalPages = Math.ceil(history.pagination.total / limit);
+        const hasMore = skip + history.transactions.length < history.pagination.total;
+
+        res.json(respond({
+            success: true,
+            data: {
+                transactions: history.transactions,
+                pagination: {
+                    ...history.pagination,
+                    page,
+                    totalPages,
+                    hasMore
+                }
+            }
+        }));
     } catch (error: unknown) {
         sendErrorResponse(req, res, 500, getErrorMessage(error));
     }

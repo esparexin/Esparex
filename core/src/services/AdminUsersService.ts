@@ -2,8 +2,8 @@ import User from '../models/User';
 import Admin, { IAdmin } from '../models/Admin';
 import Ad from '../models/Ad';
 import AdminMetrics from '../models/AdminMetrics';
-import { USER_STATUS } from '../constants/enums/userStatus';
-import { Role } from '../constants/enums/roles';
+import { USER_STATUS } from '@esparex/shared';
+import { Role } from '@esparex/shared';
 import { normalizeUserStatus } from "@esparex/shared";
 import { hashPassword } from '../utils/auth';
 import { AppError } from '../utils/AppError';
@@ -349,6 +349,12 @@ export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> 
     return superAdminCount <= 1;
 };
 
+const ensureNotLastActiveSuperAdmin = async (adminId: string, action: string) => {
+    if (await isLastActiveSuperAdmin(adminId)) {
+        throw new AppError(`Cannot ${action} the last active Super Admin`, 400);
+    }
+};
+
 export const findAdminByEmail = async (email: string) => {
     return Admin.findOne({ email });
 };
@@ -449,8 +455,8 @@ export const updateAdminById = async (
         throw new AppError('You cannot change your own role', 400);
     }
 
-    if (status && await isLastActiveSuperAdmin(id) && [USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string, USER_STATUS.INACTIVE as string].includes(status)) {
-        throw new AppError('Cannot suspend/deactivate the last active Super Admin', 400);
+    if (status && [USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string, USER_STATUS.INACTIVE as string].includes(status)) {
+        await ensureNotLastActiveSuperAdmin(id, 'suspend/deactivate');
     }
 
     const updateData: Record<string, unknown> = {};
@@ -501,9 +507,7 @@ export const softDeleteAdminById = async (
         throw new AppError('You cannot delete yourself', 400);
     }
 
-    if (await isLastActiveSuperAdmin(id)) {
-        throw new AppError('Cannot delete the last active Super Admin', 400);
-    }
+    await ensureNotLastActiveSuperAdmin(id, 'delete');
 
     const admin = await Admin.findById(id);
     if (!admin) throw new AppError('Admin not found', 404);
@@ -524,9 +528,7 @@ export const deactivateAdminById = async (
         throw new AppError('You cannot deactivate yourself', 400);
     }
 
-    if (await isLastActiveSuperAdmin(id)) {
-        throw new AppError('Cannot deactivate the last active Super Admin', 400);
-    }
+    await ensureNotLastActiveSuperAdmin(id, 'deactivate');
 
     // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
     const admin = await Admin.findByIdAndUpdate(id, { status: USER_STATUS.INACTIVE }, { new: true }).select('-password');
@@ -557,8 +559,8 @@ export const toggleAdminStatus = async (
         }
     }
 
-    if (isCurrentlyActive && await isLastActiveSuperAdmin(id)) {
-        throw new AppError('Cannot deactivate the last active Super Admin', 400);
+    if (isCurrentlyActive) {
+        await ensureNotLastActiveSuperAdmin(id, 'deactivate');
     }
 
     admin.status = nextStatus;

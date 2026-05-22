@@ -17,7 +17,12 @@ export interface ServiceType {
     createdAt?: string;
 }
 
-export function useAdminServiceTypes() {
+import { type AdminListPagination } from "@/hooks/useAdminCrudList";
+
+export function useAdminServiceTypes(options?: {
+    initialFilters?: Partial<{ search: string; categoryId: string; status: string }>;
+    initialPagination?: Partial<AdminListPagination>;
+}) {
     const {
         items: serviceTypes,
         setItems: setServiceTypes,
@@ -34,10 +39,10 @@ export function useAdminServiceTypes() {
         handleUpdate,
     } = useAdminCatalogCollection<
         ServiceType,
-        { search: string; categoryId: string },
+        { search: string; categoryId: string; status: string },
         ServiceTypeMutationPayload
     >({
-        initialFilters: { search: "", categoryId: "all" },
+        initialFilters: { search: "", categoryId: "all", status: "all" },
         fetchList: getServiceTypes,
         listErrorMessage: "Failed to fetch service types",
         createItem: createServiceType,
@@ -49,7 +54,7 @@ export function useAdminServiceTypes() {
         deleteItem: deleteServiceType,
         deleteSuccessMessage: "Service type deleted",
         deleteErrorMessage: "Failed to delete service type",
-    });
+    }, options);
 
     const handleToggleStatus = async (serviceType: ServiceType) => {
         await runAction(() => toggleServiceTypeStatus(serviceType.id), {

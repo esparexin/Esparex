@@ -51,7 +51,7 @@ import { repostAdLogic } from '../../services/ad/AdRepostService';
 import Ad from '../../models/Ad';
 import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy';
 import * as StatusMutationService from '../../services/StatusMutationService';
-import { LISTING_STATUS } from '../../constants/enums/listingStatus';
+import { LISTING_STATUS } from '@esparex/shared';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 

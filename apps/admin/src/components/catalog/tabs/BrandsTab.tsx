@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
@@ -10,6 +11,8 @@ import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogName
 import { adminBrandSchema } from "@/schemas/admin.schemas";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { AdminApiError } from "@/lib/api/adminClient";
+import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import {
     deriveCatalogLifecycleStatus,
     getEntityCategoryIds,
@@ -22,31 +25,46 @@ import {
     CatalogActiveCheckboxField,
     CatalogActiveToggleButton,
     CatalogArchivedCategoryNotice,
-    CatalogBoundSearchCategoryFilters,
     CatalogCategoryTags,
     CatalogEntityCell,
     CatalogEditDeleteActionPair,
     CatalogSelectFilter,
     CatalogRejectSuggestionForm,
+    CatalogSearchInput,
 } from "@/components/catalog/CatalogUiPrimitives";
 import type { Brand } from "@esparex/shared";
 
 export default function BrandsTab() {
+    const searchParams = useSearchParams();
+    const initialSearch = normalizeSearchParamValue(searchParams.get("q") ?? searchParams.get("search"));
+    const initialCategoryId = normalizeSearchParamValue(searchParams.get("categoryId")) || "all";
+    const initialStatus = normalizeSearchParamValue(searchParams.get("status")) || "all";
+    const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
+
+    const [searchInput, setSearchInput] = useState(initialSearch);
+
     const {
         brands,
         loading,
         error,
-        filters,
-        setFilters,
         handleDelete,
         handleCreate,
         handleUpdate,
         pagination,
-        setPage,
         handleToggleStatus,
         handleApprove,
         handleReject
-    } = useAdminBrands();
+    } = useAdminBrands({
+        initialFilters: {
+            search: initialSearch,
+            categoryId: initialCategoryId,
+            status: initialStatus,
+        },
+        initialPagination: {
+            page: initialPage,
+            limit: 50,
+        },
+    });
 
     const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
     const [rejectingBrand, setRejectingBrand] = useState<Brand | null>(null);
@@ -113,6 +131,14 @@ export default function BrandsTab() {
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
 
+    const { replaceQueryState } = useCatalogQueryStateSync({
+        searchInput,
+        initialSearch,
+        loading,
+        initialPage,
+        totalPages: pagination.totalPages,
+    });
+
     const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
 
     return (
@@ -127,7 +153,7 @@ export default function BrandsTab() {
                 loading={loading}
                 error={error}
                 pagination={pagination}
-                setPage={setPage}
+                setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={handleCreate}
                 handleUpdate={handleUpdate}
                 defaultFormData={{ name: "", categoryIds: [], isActive: true }}
@@ -176,7 +202,7 @@ export default function BrandsTab() {
                                     <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700">
                                         Deleted
                                     </span>
-                                );
+                               );
                             }
                             return (
                                 <CatalogActiveToggleButton
@@ -231,16 +257,32 @@ export default function BrandsTab() {
                 filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <CatalogBoundSearchCategoryFilters
-                            filters={filters}
-                            setFilters={setFilters}
-                            searchPlaceholder="Search brands..."
-                            withCategoryFilterIcon
-                            categories={categories}
+                        <CatalogSearchInput
+                            value={searchInput}
+                            placeholder="Search brands..."
+                            onChange={setSearchInput}
                         />
                         <CatalogSelectFilter
-                            value={filters.status}
-                            onChange={(status) => setFilters((prev) => ({ ...prev, status }))}
+                            value={initialCategoryId}
+                            onChange={(categoryId) =>
+                                replaceQueryState({
+                                    categoryId: categoryId !== "all" ? categoryId : null,
+                                    page: null,
+                                })
+                            }
+                            options={[
+                                { value: "all", label: "All Categories" },
+                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
+                            ]}
+                        />
+                        <CatalogSelectFilter
+                            value={initialStatus}
+                            onChange={(status) =>
+                                replaceQueryState({
+                                    status: status !== "all" ? status : null,
+                                    page: null,
+                                })
+                            }
                             options={[
                                 { value: "all", label: "All Status" },
                                 { value: "live", label: "Live Only" },

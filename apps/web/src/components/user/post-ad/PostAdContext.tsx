@@ -19,7 +19,7 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { CategoryFilter } from "@shared";
 import { Listing } from "@/lib/api/user/listings/normalizer";
 import { GeoJSONPoint } from "@/types/location";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 
 // Custom hooks
 import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
@@ -106,11 +106,12 @@ export interface PostAdContextType {
     loadModelsForBrand: (brandId?: string, categoryId?: string, search?: string) => Promise<void>;
     loadSparePartsForCategory: (categoryId: string) => Promise<void>;
     loadCategorySchema: (categoryId: string) => Promise<void>;
-    setAvailableModels: (models: DeviceModel[]) => void;
+    setAvailableModels: (updater: DeviceModel[] | ((prev: DeviceModel[]) => DeviceModel[])) => void;
+    refreshBrands: () => Promise<void>;
 
     sparePartsError: string | null;
     brandsError: string | null;
-
+    
     generateDescription: (targetField: 'title' | 'description') => Promise<void>;
     submitAd: () => Promise<void>;
 
@@ -155,6 +156,7 @@ export type PostAdStateContextType = Omit<
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
     | "setAvailableModels"
+    | "refreshBrands"
     | "generateDescription"
     | "submitAd"
     | "setUserHasInteracted"
@@ -186,6 +188,7 @@ export type PostAdActionContextType = Pick<
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
     | "setAvailableModels"
+    | "refreshBrands"
     | "generateDescription"
     | "submitAd"
     | "setUserHasInteracted"
@@ -299,6 +302,7 @@ export function PostAdProvider({
         loadBrandsForCategory,
         loadModelsForBrand,
         setAvailableModels,
+        refreshBrands,
         brandsError,
     } = brandCatalog;
     const {
@@ -379,7 +383,8 @@ export function PostAdProvider({
     const { requiresScreenSize, handleCategoryChange, handleBrandChange } = useCategoryDependents(
         form, categoryMap, brandMap,
         setFormError, setBrandIsPending,
-        loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema
+        loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema,
+        loadModelsForBrand
     );
 
     // Submission logic in dedicated hook
@@ -440,16 +445,23 @@ export function PostAdProvider({
         setValue("categoryId", categoryId);
         setValue("category", categoryId);
         setValue("brand", typeof data.brandName === "string" ? data.brandName : "");
+        setValue("brandId", data.brandId || "");
+        setValue("model", typeof data.modelName === "string" ? data.modelName : "");
+        setValue("modelId", data.modelId || "");
         setValue("title", data.title || "");
         setValue("description", data.description || "");
         setValue("price", Number(data.price) || 0);
         setValue("screenSize", data.screenSize || "");
 
         if (categoryId) {
-            await Promise.all([
+            const promises: Promise<any>[] = [
                 loadBrandsForCategory(categoryId),
                 loadSparePartsForCategory(categoryId),
-            ]);
+            ];
+            if (data.brandId) {
+                promises.push(loadModelsForBrand(data.brandId, categoryId));
+            }
+            await Promise.all(promises);
         }
 
         if (data.location) {
@@ -478,7 +490,7 @@ export function PostAdProvider({
         //     every time listingImages state updates, which would create a new callback ref
         //     every time initializeFromListing sets images, causing EditAdWrapper's useEffect
         //     to re-fire and start an infinite listing-fetch loop.
-    }, [setValue, loadBrandsForCategory, loadSparePartsForCategory, setListingImages]);
+    }, [setValue, loadBrandsForCategory, loadSparePartsForCategory, loadModelsForBrand, setListingImages]);
 
     const resetToCreateMode = useCallback(() => {
         setMode('create');
@@ -605,6 +617,7 @@ export function PostAdProvider({
         loadSparePartsForCategory,
         loadCategorySchema,
         setAvailableModels,
+        refreshBrands,
         generateDescription,
         submitAd,
         setUserHasInteracted,
@@ -633,6 +646,7 @@ export function PostAdProvider({
         loadSparePartsForCategory,
         loadCategorySchema,
         setAvailableModels,
+        refreshBrands,
         generateDescription,
         submitAd,
         setUserHasInteracted,

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { isDbReady } from "@esparex/core/config/db";
-import logger from '@esparex/core/utils/logger';
+import logger from "@esparex/core/utils/logger";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 
 /**
@@ -33,23 +33,47 @@ export function requireDb(
         return next();
     }
 
+    /**
+     * ✅ CRITICAL: Never block health endpoint.
+     *
+     * The health endpoint must always execute so it can return
+     * structured degraded JSON (HTTP 200) when MongoDB is down.
+     *
+     * Supported paths:
+     * - /api/v1/health
+     * - /health
+     * - /api/v1/admin/health (future-safe)
+     */
+    const path = req.path || "";
+    const originalUrl = req.originalUrl || "";
+
+    const isHealthRequest =
+        path === "/health" ||
+        path.endsWith("/health") ||
+        originalUrl === "/health" ||
+        originalUrl.endsWith("/health");
+
+    if (isHealthRequest) {
+        return next();
+    }
+
     // ✅ Fail fast if DB is not ready
     if (!isDbReady()) {
-        const isUrlAdmin = req.originalUrl.includes('/admin');
-        const dbType = isUrlAdmin ? 'Admin DB' : 'User DB';
+        const isUrlAdmin = originalUrl.includes("/admin");
+        const dbType = isUrlAdmin ? "Admin DB" : "User DB";
 
         logger.warn(
-            `🚨 [DB-GUARD] ${dbType} unavailable or connection lost → ${req.method} ${req.originalUrl}`
+            `🚨 [DB-GUARD] ${dbType} unavailable or connection lost → ${req.method} ${originalUrl}`
         );
 
-        return sendErrorResponse(req, res, 503, 'Database unavailable', {
+        return sendErrorResponse(req, res, 503, "Database unavailable", {
             code: "DATABASE_UNAVAILABLE",
             details: {
                 message:
                     "Service temporarily unavailable due to database connectivity issues. Please try again shortly.",
                 level: "CRITICAL",
                 service: "MongoDB",
-                context: dbType
+                context: dbType,
             },
         });
     }

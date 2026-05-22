@@ -3,12 +3,12 @@ import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import Ad from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
 import { mutateStatus } from '../StatusMutationService';
 import { normalizeAdStatus } from "../AdStatusService";
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
-import { type ListingTypeValue } from '../../constants/enums/listingType';
+import { type ListingTypeValue } from '@esparex/shared';
 
 export const repostAdLogic = async (
     id: string,

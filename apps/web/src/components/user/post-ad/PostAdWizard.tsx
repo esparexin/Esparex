@@ -13,7 +13,7 @@ import { FormProvider } from "react-hook-form";
 import { useNavigation } from "@/context/NavigationContext";
 import type { PostAdWizardProps } from "./types";
 
-const STEP_LABELS = ["Device Details", "Listing Details"];
+const STEP_LABELS = ["Category", "Brand & Model", "Details & Condition", "Listing Information"];
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
   const { currentStep, isEditMode, isSubmitting, formError, submittedAd } = usePostAdFlow();
@@ -43,7 +43,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     );
   }
 
-    const stepSubtitle = `Step ${currentStep} of 2: ${STEP_LABELS[currentStep - 1]}`;
+    const stepSubtitle = `Step ${currentStep} of 4: ${STEP_LABELS[currentStep - 1]}`;
 
   return (
     <PostAdShell>
@@ -63,10 +63,10 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             </div>
           ) : null}
 
-          <div className={cn(currentStep > 1 && "hidden")}>
-            <DeviceIdentityFields />
+          <div className={cn(currentStep > 3 && "hidden")}>
+            <DeviceIdentityFields currentStep={currentStep} />
           </div>
-          <div className={cn(currentStep <= 1 && "hidden")}>
+          <div className={cn(currentStep !== 4 && "hidden")}>
             <ListingDetailsFields />
           </div>
 
@@ -87,7 +87,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         <ListingModalFooter>
           <Button
             type="button"
-            onClick={currentStep === 2 ? submitAd : nextStep}
+            onClick={currentStep === 4 ? submitAd : nextStep}
             disabled={isButtonDisabled}
             className={cn(
               "w-full rounded-xl font-semibold transition-all active:scale-[0.98]",
@@ -101,7 +101,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 <span>Processing...</span>
               </div>
             ) : (
-              currentStep === 2 ? (isEditMode ? "Save Changes" : "Confirm & Post Ad") : "Continue"
+              currentStep === 4 ? (isEditMode ? "Save Changes" : "Confirm & Post Ad") : "Continue"
             )}
           </Button>
         </ListingModalFooter>

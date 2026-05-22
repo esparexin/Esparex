@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { REQUEST_STATUS, REQUEST_STATUS_VALUES } from '../constants/enums/requestStatus';
+import { REQUEST_STATUS, REQUEST_STATUS_VALUES } from '@esparex/shared';
 
 export interface IPhoneRequest extends Document {
     buyerId: mongoose.Types.ObjectId;

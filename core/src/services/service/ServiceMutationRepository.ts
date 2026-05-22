@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
-import { ListingTypeValue } from '../../constants/enums/listingType';
+import { ListingTypeValue } from '@esparex/shared';
 
 export const findServiceForUpdate = async (
     id: string,

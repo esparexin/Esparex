@@ -82,6 +82,7 @@ export {
    Devices (Esparex Core)
 ======================= */
 export {
+    Drone,
     Smartphone,
     Tablet,
     Laptop,
@@ -214,6 +215,7 @@ export {
 ======================= */
 import type { LucideIcon } from "lucide-react";
 import {
+    Drone as RegistryDrone,
     Smartphone as RegistrySmartphone,
     Tablet as RegistryTablet,
     Laptop as RegistryLaptop,
@@ -245,6 +247,7 @@ import {
 } from "lucide-react";
 
 export const IconRegistry: Record<string, LucideIcon> = {
+    Drone: RegistryDrone,
     Smartphone: RegistrySmartphone,
     Tablet: RegistryTablet,
     Laptop: RegistryLaptop,

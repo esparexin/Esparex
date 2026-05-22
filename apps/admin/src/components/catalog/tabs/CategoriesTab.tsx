@@ -169,15 +169,7 @@ export default function CategoriesTab() {
                             />
                         ),
                     },
-                    {
-                        header: "Type",
-                        cell: (category) => (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                                <AlignJustify size={11} />
-                                {category.type ?? "ad"}
-                            </span>
-                        ),
-                    },
+
                     {
                         header: "Listing Types",
                         cell: (category) => <CatalogListingTypeBadges types={category.listingType} />,
@@ -187,7 +179,7 @@ export default function CategoriesTab() {
                         cell: (category) =>
                             category.hasScreenSizes ? (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
-                                    <Monitor size={11} /> Yes
+                                    <Monitor size={11} aria-hidden="true" focusable="false" /> Yes
                                 </span>
                             ) : (
                                 <span className="text-[11px] text-slate-400">—</span>
@@ -213,13 +205,13 @@ export default function CategoriesTab() {
                                     onClick={() => openEditModal(category)}
                                     className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                                     title="Edit"
-                                    icon={<Edit size={18} />}
+                                    icon={<Edit size={18} aria-hidden="true" focusable="false" />}
                                 />
                                 <CatalogActionIconButton
                                     onClick={() => setDeletingCategory(category)}
                                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                     title="Delete"
-                                    icon={<Trash2 size={18} />}
+                                    icon={<Trash2 size={18} aria-hidden="true" focusable="false" />}
                                 />
                             </CatalogActionsRow>
                         ),
@@ -313,7 +305,7 @@ export default function CategoriesTab() {
             >
                 <div className="p-6 space-y-4">
                     <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" aria-hidden="true" focusable="false" />
                         <div>
                             <p className="text-sm font-semibold text-red-700">
                                 Cascade delete — this cannot be undone

@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 import { connectDB } from "@esparex/core/config/db";
 import User from "@esparex/core/models/User";
 import SmartAlert from "@esparex/core/models/SmartAlert";
-import { USER_STATUS } from "@esparex/core/constants/enums/userStatus";
+import { USER_STATUS } from '@esparex/shared';
 
 async function run(): Promise<void> {
     console.info("[seed] Connecting to MongoDB...");

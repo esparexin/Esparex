@@ -32,12 +32,13 @@ import ContactSubmission from '../models/ContactSubmission';
 import Location from '../models/Location';
 import LocationAnalytics from '../models/LocationAnalytics';
 import AdminLog from '../models/AdminLog';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import { LISTING_TYPE } from '../constants/enums/listingType';
-import { BUSINESS_STATUS } from '../constants/enums/businessStatus';
-import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
-import { REPORT_STATUS } from '../constants/enums/reportStatus';
-import { USER_STATUS } from '../constants/enums/userStatus';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/shared';
+import { BUSINESS_STATUS } from '@esparex/shared';
+import { CATALOG_STATUS } from '@esparex/shared';
+import { REPORT_STATUS } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/shared';
+import type { CatalogRequestStatusValue } from '../models/CatalogRequest';
 import { escapeRegExp } from '../utils/stringUtils';
 import {
     buildLocationSummary,
@@ -56,16 +57,17 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
         Ad.aggregate<OverviewFacetResult>([
             {
                 $facet: {
-                    totalAds:        [{ $match: { listingType: LISTING_TYPE.AD } }, { $count: "count" }],
-                    activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,      ...publicAdFilter } }, { $count: "count" }],
-                    pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,      status: LISTING_STATUS.PENDING } }, { $count: "count" }],
-                    totalServices:    [{ $match: { listingType: LISTING_TYPE.SERVICE } }, { $count: "count" }],
-                    activeServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE, ...publicAdFilter } }, { $count: "count" }],
-                    pendingServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE, status: LISTING_STATUS.PENDING } }, { $count: "count" }],
-                    rejectedServices: [{ $match: { listingType: LISTING_TYPE.SERVICE, status: LISTING_STATUS.REJECTED } }, { $count: "count" }],
-                    totalSpareParts:  [{ $match: { listingType: LISTING_TYPE.SPARE_PART } }, { $count: "count" }],
-                    activeSpareParts: [{ $match: { listingType: LISTING_TYPE.SPARE_PART, ...publicAdFilter } }, { $count: "count" }],
-                    pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: LISTING_STATUS.PENDING } }, { $count: "count" }]
+                    // isDeleted guard on total counts prevents soft-deleted listings inflating admin stats
+                    totalAds:        [{ $match: { listingType: LISTING_TYPE.AD,       isDeleted: { $ne: true } } }, { $count: "count" }],
+                    activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,       ...publicAdFilter } }, { $count: "count" }],
+                    pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,       status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: "count" }],
+                    totalServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE,  isDeleted: { $ne: true } } }, { $count: "count" }],
+                    activeServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE,  ...publicAdFilter } }, { $count: "count" }],
+                    pendingServices: [{ $match: { listingType: LISTING_TYPE.SERVICE,  status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: "count" }],
+                    rejectedServices:[{ $match: { listingType: LISTING_TYPE.SERVICE,  status: LISTING_STATUS.REJECTED, isDeleted: { $ne: true } } }, { $count: "count" }],
+                    totalSpareParts: [{ $match: { listingType: LISTING_TYPE.SPARE_PART, isDeleted: { $ne: true } } }, { $count: "count" }],
+                    activeSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, ...publicAdFilter } }, { $count: "count" }],
+                    pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: "count" }]
                 }
             }
         ]),
@@ -79,12 +81,18 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
     return { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth };
 };
 
+// Typed status constants derived from CatalogRequestStatusValue — type-safe without
+// runtime tuple indexing that would fail when the model is mocked in tests.
+const CATALOG_REQUEST_PENDING_STATUS = 'pending' satisfies CatalogRequestStatusValue;
+const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged'];
+const CATALOG_REQUEST_MERGED_STATUS = 'merged' satisfies CatalogRequestStatusValue;
+
 export const getCatalogHealthMetrics = async () => {
-    const [counts, resolutionAgg, heldListings] = await Promise.all([
+    const [counts, resolutionAgg] = await Promise.all([
         CatalogRequest.aggregate<{ _id: string; count: number }>([
             {
                 $match: {
-                    status: { $in: ['pending', 'under_review', 'duplicate_review', 'duplicate'] }
+                    status: { $in: [CATALOG_REQUEST_PENDING_STATUS] }
                 }
             },
             { $group: { _id: '$status', count: { $sum: 1 } } }
@@ -92,7 +100,7 @@ export const getCatalogHealthMetrics = async () => {
         CatalogRequest.aggregate<{ _id: null; avgTimeMs: number }>([
             {
                 $match: {
-                    status: { $in: ['approved', 'rejected', 'duplicate'] },
+                    status: { $in: CATALOG_REQUEST_RESOLVED_STATUSES },
                     $or: [
                         { approvedAt: { $ne: null } },
                         { rejectedAt: { $ne: null } }
@@ -116,21 +124,19 @@ export const getCatalogHealthMetrics = async () => {
                 }
             }
         ]),
-        Ad.countDocuments({ catalogPending: true, isDeleted: { $ne: true } })
     ]);
 
     const findCount = (status: string) => counts.find(c => c._id === status)?.count || 0;
 
-    const pendingRequests = findCount('pending') + findCount('under_review') + findCount('duplicate_review');
-    const duplicateRequests = findCount('duplicate');
+    const pendingRequests = findCount(CATALOG_REQUEST_PENDING_STATUS);
+    const mergedRequests = findCount(CATALOG_REQUEST_MERGED_STATUS);
     const avgTimeMs = resolutionAgg[0]?.avgTimeMs || 0;
     const averageResolutionHours = Number((avgTimeMs / (1000 * 60 * 60)).toFixed(1));
 
     return {
         pendingRequests,
-        heldListings,
         averageResolutionHours,
-        duplicateRequests
+        mergedRequests,
     };
 };
 

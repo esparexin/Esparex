@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { SparePartModel } from "@esparex/core/models/SparePart";
+import SparePart from "@esparex/core/models/SparePart";
 import Category from "@esparex/core/models/Category";
 import slugify from "slugify";
 import logger from '@esparex/core/utils/logger';
 import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 
 type SparePartSeed = {
     name: string;
@@ -69,7 +69,7 @@ export async function seedSpareParts() {
         }
 
         try {
-            await SparePartModel.findOneAndUpdate(
+            await SparePart.findOneAndUpdate(
                 { slug },
                 {
                     $set: {

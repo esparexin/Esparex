@@ -11,6 +11,7 @@ import type { HomeFeedResponse } from "@esparex/shared";
 import logger from '../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
+import { LISTING_TYPE } from '@esparex/shared';
 import { 
     filterBeforeCursor, 
     mergeRankedFeed, 
@@ -29,8 +30,6 @@ export const buildHomeFeed = async (
     limit: number,
     cursor: ParsedHomeFeedCursor | null
 ): Promise<HomeFeedResponse> => {
-    const { LISTING_TYPE } = await import('@esparex/core/constants/enums/listingType');
-
     const startedAt = Date.now();
     
     // 1. Resolve Match Criteria

@@ -2,10 +2,10 @@ import Business from '../models/Business';
 import Ad from '../models/Ad';
 import { GOVERNANCE, MS_IN_DAY } from '../config/constants';
 import { publishedBusinessStatusQuery } from '../utils/businessStatus';
-import { BUSINESS_STATUS } from '../constants/enums/businessStatus';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import { LISTING_TYPE } from '../constants/enums/listingType';
-import { ACTOR_TYPE, type ActorMetadata } from '../constants/enums/actor';
+import { BUSINESS_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/shared';
+import { ACTOR_TYPE, type ActorMetadata } from '@esparex/shared';
 import { serializeBusinessForAdmin } from '../utils/businessSerializer';
 import { mutateStatuses, mutateStatus } from './StatusMutationService';
 import { AppError } from '../utils/AppError';
@@ -447,24 +447,31 @@ export const expireAdminBusiness = async (
     return Business.findById(id).lean();
 };
 
+const executeAdminBulkOperation = async (
+    ids: string[],
+    actionName: string,
+    actionFn: (id: string) => Promise<unknown>
+): Promise<number> => {
+    if (!Array.isArray(ids) || !ids.length) return 0;
+    
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await actionFn(id);
+            count++;
+        } catch (err) {
+            logger.error(`Bulk ${actionName} failed for business ${id}:`, err);
+        }
+    }
+    return count;
+};
+
 export const adminBulkApproveBusinesses = async (
     ids: string[],
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!ids.length) return 0;
-    
-    // Process each to ensure full validation and notifications
-    let count = 0;
-    for (const id of ids) {
-        try {
-            await approveAdminBusiness(id, actorId, logFn);
-            count++;
-        } catch (err) {
-            logger.error(`Bulk approve failed for business ${id}:`, err);
-        }
-    }
-    return count;
+    return executeAdminBulkOperation(ids, 'approve', id => approveAdminBusiness(id, actorId, logFn));
 };
 
 export const adminBulkRejectBusinesses = async (
@@ -473,18 +480,7 @@ export const adminBulkRejectBusinesses = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!ids.length) return 0;
-    
-    let count = 0;
-    for (const id of ids) {
-        try {
-            await rejectAdminBusiness(id, reason, actorId, logFn);
-            count++;
-        } catch (err) {
-            logger.error(`Bulk reject failed for business ${id}:`, err);
-        }
-    }
-    return count;
+    return executeAdminBulkOperation(ids, 'reject', id => rejectAdminBusiness(id, reason, actorId, logFn));
 };
 
 export const adminBulkDeactivateBusinesses = async (
@@ -492,18 +488,7 @@ export const adminBulkDeactivateBusinesses = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!ids.length) return 0;
-    
-    let count = 0;
-    for (const id of ids) {
-        try {
-            await suspendAdminBusiness(id, 'Deactivated by admin', actorId, logFn);
-            count++;
-        } catch (err) {
-            logger.error(`Bulk deactivate failed for business ${id}:`, err);
-        }
-    }
-    return count;
+    return executeAdminBulkOperation(ids, 'deactivate', id => suspendAdminBusiness(id, 'Deactivated by admin', actorId, logFn));
 };
 
 export const adminBulkExpireBusinesses = async (
@@ -511,18 +496,7 @@ export const adminBulkExpireBusinesses = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!ids.length) return 0;
-    
-    let count = 0;
-    for (const id of ids) {
-        try {
-            await expireAdminBusiness(id, actorId, logFn);
-            count++;
-        } catch (err) {
-            logger.error(`Bulk expire failed for business ${id}:`, err);
-        }
-    }
-    return count;
+    return executeAdminBulkOperation(ids, 'expire', id => expireAdminBusiness(id, actorId, logFn));
 };
 
 export const adminBulkRenewBusinesses = async (
@@ -530,18 +504,7 @@ export const adminBulkRenewBusinesses = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    if (!ids.length) return 0;
-    
-    let count = 0;
-    for (const id of ids) {
-        try {
-            await renewAdminBusiness(id, actorId, logFn);
-            count++;
-        } catch (err) {
-            logger.error(`Bulk renew failed for business ${id}:`, err);
-        }
-    }
-    return count;
+    return executeAdminBulkOperation(ids, 'renew', id => renewAdminBusiness(id, actorId, logFn));
 };
 
 export const adminBulkResendBusinessWarnings = async (

@@ -1,10 +1,10 @@
 import { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '../constants/enums/catalogStatus';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '@esparex/shared';
 import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
     CatalogApprovalStatusValue,
-} from '../constants/enums/catalogApprovalStatus';
+} from '@esparex/shared';
 import {
     applyCatalogNamingDefaults,
 } from '../services/catalog/CatalogValidationService';
@@ -18,6 +18,23 @@ export interface IScreenSize extends Document {
     slug: string;
     aliases: string[];
     synonyms: string[];
+    marketplaceTrust?: {
+        catalogTrustScore?: number;
+        aliasTrustScore?: number;
+        synonymTrustScore?: number;
+        transliterationTrustScore?: number;
+        moderatorTrustScore?: number;
+        moderationReliabilityScore?: number;
+        aliasApprovalConfidence?: number;
+        synonymApprovalConfidence?: number;
+        popularityConfidenceScore?: number;
+        canonicalCertaintyScore?: number;
+        duplicateConfidenceScore?: number;
+        seoQualityScore?: number;
+        crawlDepthLimit?: number;
+        indexable?: boolean;
+        lastAuditAt?: Date;
+    };
     value: number;
     categoryId: Document['_id'];
     brandId?: Document['_id'];
@@ -38,6 +55,23 @@ const ScreenSizeSchema: Schema = new Schema({
     slug: { type: String, required: true, trim: true, lowercase: true },
     aliases: { type: [String], default: [] },
     synonyms: { type: [String], default: [] },
+    marketplaceTrust: {
+        catalogTrustScore: { type: Number, default: 0.72, min: 0, max: 1 },
+        aliasTrustScore: { type: Number, default: 0.62, min: 0, max: 1 },
+        synonymTrustScore: { type: Number, default: 0.58, min: 0, max: 1 },
+        transliterationTrustScore: { type: Number, default: 0.64, min: 0, max: 1 },
+        moderatorTrustScore: { type: Number, default: 0.7, min: 0, max: 1 },
+        moderationReliabilityScore: { type: Number, default: 0.7, min: 0, max: 1 },
+        aliasApprovalConfidence: { type: Number, default: 0.6, min: 0, max: 1 },
+        synonymApprovalConfidence: { type: Number, default: 0.55, min: 0, max: 1 },
+        popularityConfidenceScore: { type: Number, default: 0.65, min: 0, max: 1 },
+        canonicalCertaintyScore: { type: Number, default: 0.72, min: 0, max: 1 },
+        duplicateConfidenceScore: { type: Number, default: 0.5, min: 0, max: 1 },
+        seoQualityScore: { type: Number, default: 0.6, min: 0, max: 1 },
+        crawlDepthLimit: { type: Number, default: 4, min: 1, max: 8 },
+        indexable: { type: Boolean, default: true },
+        lastAuditAt: { type: Date },
+    },
     value: { type: Number, required: true },
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand' },
@@ -72,6 +106,8 @@ ScreenSizeSchema.index({ brandId: 1 }, { name: 'idx_screensize_brandId' });
 ScreenSizeSchema.index({ isActive: 1 }, { name: 'idx_screensize_isActive' });
 ScreenSizeSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_screensize_approval_active' });
 ScreenSizeSchema.index({ isDeleted: 1 }, { name: 'idx_screensize_isDeleted' });
+ScreenSizeSchema.index({ 'marketplaceTrust.catalogTrustScore': -1 }, { name: 'idx_screensize_marketplaceTrust_catalog' });
+ScreenSizeSchema.index({ 'marketplaceTrust.seoQualityScore': -1, 'marketplaceTrust.indexable': 1 }, { name: 'idx_screensize_marketplaceTrust_seo' });
 ScreenSizeSchema.index({ name: 1 }, { name: 'idx_screensize_name', collation: { locale: 'en', strength: 2 } });
 ScreenSizeSchema.index(
     { categoryId: 1, slug: 1, brandId: 1 },

@@ -70,7 +70,6 @@ export const buildAdMatchStage = async (
         categoryId: resolvedCategoryId,
         keywords: filters.search, // Map 'search' to 'keywords' for the helper
         location: filters.location,
-        catalogRequestId: filters.catalogRequestId ? String(filters.catalogRequestId) : undefined,
         status: statusQuery
     });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import type { CategoryFilter } from "@shared";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../PostAdContext";
 import { CircuitBoard } from "@/icons/IconRegistry";
@@ -63,12 +63,11 @@ const isFilterVisible = (filter: ExtendedCategoryFilter, attributes: unknown): b
     return dependencyValue === expected;
 };
 
-export default function DeviceIdentityFields() {
+export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?: number }) {
     const {
         dynamicCategories,
         brandMap,
         availableBrands,
-        availableModels,
         availableSizes,
         availableSpareParts,
         isLoadingSpareParts,
@@ -79,7 +78,7 @@ export default function DeviceIdentityFields() {
         brandIsPending,
     } = usePostAdCatalog();
 
-    const { stepValidationAttempts, currentStep, form, errors, isEditMode } = usePostAdFlow();
+    const { stepValidationAttempts, form, errors, isEditMode } = usePostAdFlow();
 
     const {
         register,
@@ -91,19 +90,20 @@ export default function DeviceIdentityFields() {
         loadSparePartsForCategory,
         loadBrandsForCategory,
         loadModelsForBrand,
+        setAvailableModels,
+        refreshBrands,
     } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     // Use brand name (not ID) as value for BrandSearchSelect since PostAd
     // context maps names → IDs internally via handleBrandChange
-    const brandNameValue = String(watch("brand") || "");
-    const brandIdValue = String(watch("brandId") || "");
-    const catalogRequestId = String(watch("catalogRequestId") || "");
+    const brandNameValue = String(watch("brand") ?? "");
+    const brandIdValue = String(watch("brandId") ?? "");
     const attributes = watch("attributes") as Record<string, unknown> | undefined;
     
     // Model state
-    const modelId = String(watch("modelId") || "");
-    const modelNameValue = String(watch("model") || "");
+    const modelId = String(watch("modelId") ?? "");
+    const modelNameValue = String(watch("model") ?? "");
 
     const screenSize = String(watch("screenSize") || "");
     const spareParts = watch("spareParts") || [];
@@ -137,42 +137,12 @@ export default function DeviceIdentityFields() {
         register("brandId");
         register("model");
         register("modelId");
-        register("catalogRequestId");
         register("attributes");
         register("screenSize");
         register("deviceCondition");
     }, [register]);
 
-    useEffect(() => {
-        if (!catalogRequestId || !categoryId) return;
 
-        const timer = window.setInterval(() => {
-            void loadBrandsForCategory(categoryId);
-            if (brandIdValue) {
-                void loadModelsForBrand(brandIdValue, categoryId, modelNameValue || undefined);
-            }
-        }, 30_000);
-
-        return () => window.clearInterval(timer);
-    }, [brandIdValue, catalogRequestId, categoryId, loadBrandsForCategory, loadModelsForBrand, modelNameValue]);
-
-    useEffect(() => {
-        if (!catalogRequestId || !brandNameValue || brandIdValue) return;
-        const approvedBrandId = brandMap[brandNameValue]?.id || brandMap[brandNameValue]?._id;
-        if (!approvedBrandId || !/^[0-9a-f]{24}$/i.test(String(approvedBrandId))) return;
-        setValue("brandId", String(approvedBrandId), { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        void loadModelsForBrand(String(approvedBrandId), categoryId);
-    }, [brandIdValue, brandMap, brandNameValue, catalogRequestId, categoryId, loadModelsForBrand, setValue]);
-
-    useEffect(() => {
-        if (!catalogRequestId || !brandIdValue || !modelNameValue || modelId) return;
-        const approvedModel = availableModels.find((model) => model.name.toLowerCase() === modelNameValue.toLowerCase());
-        const approvedModelId = approvedModel?.id || approvedModel?._id;
-        if (!approvedModelId || !/^[0-9a-f]{24}$/i.test(String(approvedModelId))) return;
-        setValue("modelId", String(approvedModelId), { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-    }, [availableModels, brandIdValue, catalogRequestId, modelId, modelNameValue, setValue]);
 
     const updateAttribute = useCallback((id: string, value: unknown) => {
         const current = form.getValues("attributes") as Record<string, unknown> | undefined;
@@ -344,7 +314,7 @@ export default function DeviceIdentityFields() {
         <div className="space-y-4" data-testid="device-identity-fields">
 
             {/* Category */}
-            <section className="space-y-3">
+            <section className={cn("space-y-3", currentStep !== 1 && "hidden")}>
                 <Field error={categoryError} label="Select Category" required>
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                         {dynamicCategories.map((cat) => {
@@ -365,7 +335,11 @@ export default function DeviceIdentityFields() {
                                         isEditMode && "opacity-60 cursor-not-allowed"
                                     )}
                                 >
-                                    <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")} />
+                                    <Icon
+                                        className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")}
+                                        aria-hidden="true"
+                                        focusable="false"
+                                    />
                                     <span className={cn("text-xs font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary")}>
                                         {cat.name}
                                     </span>
@@ -376,89 +350,110 @@ export default function DeviceIdentityFields() {
                 </Field>
             </section>
 
-            {/* Brand & Screen Size */}
-            <section className="space-y-3">
-                <div className="flex flex-col gap-3">
-                    <Field label="Brand" error={brandError} required>
-                        {brandIsPending && availableBrands.length === 0 ? (
-                            <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
-                        ) : (
-                            <BrandSearchSelect
-                                brands={availableBrands}
-                                brandMap={brandMap}
-                                categoryId={categoryId}
-                                value={brandNameValue}
-                                onChange={(_id, name, requestId) => !isEditMode && handleBrandChange(name, requestId)}
-                                onRequestSuccess={() => loadBrandsForCategory(categoryId)}
-                                disabled={brandIsPending || isEditMode}
-                                placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
-                            />
-                        )}
-                        {brandIsPending && availableBrands.length > 0 && (
-                            <p className="text-[10px] text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
-                                <span className="inline-block h-2 h-2 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                                Updating brands…
-                            </p>
-                        )}
-                    </Field>
-                    
-                    {brandsError && (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                            <p className="text-xs text-red-700 text-center mb-2">
-                                {brandsError}
-                            </p>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => loadBrandsForCategory(categoryId)}
-                                className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
-                            >
-                                Try Again
-                            </Button>
-                        </div>
-                    )}
-
-                    {/* Model — server-side search enabled */}
-                    <Field 
-                        label="Model" 
-                        error={modelError} 
-                        className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] pointer-events-none")}
-                    >
-                        {!brandNameValue ? (
-                            <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
-                                Select brand first...
+            {/* Brand & Model Selection */}
+            <section className={cn("space-y-3", currentStep !== 2 && "hidden")}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Brand Wrapper */}
+                    <div className="space-y-3">
+                        <Field label="Brand" error={brandError} required>
+                            {brandIsPending && availableBrands.length === 0 ? (
+                                <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
+                            ) : (
+                                <BrandSearchSelect
+                                    brands={availableBrands}
+                                    brandMap={brandMap}
+                                    categoryId={categoryId}
+                                    value={brandNameValue}
+                                    onChange={(_id, name, rId) => !isEditMode && handleBrandChange(name, rId)}
+                                    onRequestSuccess={() => refreshBrands()}
+                                    disabled={brandIsPending || isEditMode}
+                                    placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
+                                />
+                            )}
+                            {brandIsPending && availableBrands.length > 0 && (
+                                <p className="text-[10px] text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
+                                    <span className="inline-block h-2 w-2 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                                    Updating brands…
+                                </p>
+                            )}
+                        </Field>
+                        
+                        {brandsError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                                <p className="text-xs text-red-700 text-center mb-2">
+                                    {brandsError}
+                                </p>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => loadBrandsForCategory(categoryId)}
+                                    className="w-full text-xs font-semibold text-red-600 border-red-200 hover:bg-red-50"
+                                >
+                                    Try Again
+                                </Button>
                             </div>
-                        ) : (
-                            <ModelSearchSelect
-                                brandId={brandIdValue}
-                                brandName={brandNameValue}
-                                categoryId={categoryId}
-                                value={modelId || modelNameValue}
-                                modelDisplayName={modelNameValue}
-                                onChange={(mId, mName, requestId) => {
-                                    setValue("modelId", mId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-                                    setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-                                    if (requestId) {
-                                        setValue("catalogRequestId", requestId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-                                    }
-                                }}
-                                onRequestSuccess={() => loadModelsForBrand(brandIdValue, categoryId, modelNameValue || undefined)}
-                                onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
-                                    // A new pending brand was created — sync its ID back into the form
-                                    // so the ad payload carries the correct brandId ObjectId.
-                                    setValue("brandId", resolvedBrandId, { shouldDirty: true });
-                                    setValue("brand", resolvedBrandName, { shouldDirty: true });
-                                }}
-                            />
                         )}
-                        {catalogRequestId ? (
-                            <p className="mt-1 px-1 text-[10px] font-semibold text-amber-700">
-                                Catalog request pending admin approval. We will refresh this selection automatically.
-                            </p>
-                        ) : null}
-                    </Field>
+                    </div>
 
+                    {/* Model Wrapper — hidden for TV/Monitor categories (Brand → Screen Size hierarchy) */}
+                    {!requiresScreenSize && (
+                    <div className="space-y-3">
+                        {/* Model — server-side search enabled */}
+                        <Field 
+                             label="Model" 
+                            error={modelError} 
+                            className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] pointer-events-none")}
+                        >
+                            {!brandNameValue ? (
+                                <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
+                                    Select brand first...
+                                </div>
+                            ) : (
+                                <ModelSearchSelect
+                                    brandId={brandIdValue}
+                                    brandName={brandNameValue}
+                                    categoryId={categoryId}
+                                    value={modelId || modelNameValue}
+                                    modelDisplayName={modelNameValue}
+                                    onChange={(mId, mName, rId) => {
+                                        const actualId = mId || rId || "";
+                                        setValue("modelId", actualId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                        setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+                                    }}
+                                    onRequestSuccess={(requestId, name) => {
+                                        // 1. Inject pending model into cache so it can be selected immediately
+                                        if (setAvailableModels) {
+                                            setAvailableModels((prev) => [
+                                                ...prev,
+                                                {
+                                                    _id: requestId,
+                                                    id: requestId,
+                                                    name: name,
+                                                    brandId: brandIdValue,
+                                                    categoryId: categoryId,
+                                                    status: "pending",
+                                                } as any
+                                            ]);
+                                        }
+                                        // 2. Fetch the latest from server under the empty query key to keep cache keys synchronized
+                                        loadModelsForBrand(brandIdValue, categoryId, "");
+                                    }}
+                                    onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
+                                        // A new pending brand was created — sync its ID back into the form
+                                        // so the ad payload carries the correct brandId ObjectId.
+                                        setValue("brandId", resolvedBrandId, { shouldDirty: true });
+                                        setValue("brand", resolvedBrandName, { shouldDirty: true });
+                                    }}
+                                />
+                            )}
+                        </Field>
+                    </div>
+                    )}
+                </div>
+
+                {/* Additional fields underneath */}
+                <div className="flex flex-col gap-3">
                     {dynamicAttributeFilters.length > 0 ? (
                         <section className={cn("space-y-3 rounded-2xl border border-slate-100 bg-slate-50/40 p-3", isEditMode && "opacity-60 pointer-events-none")}>
                             <div>
@@ -495,7 +490,9 @@ export default function DeviceIdentityFields() {
                 </div>
             </section>
 
-            {/* Spare Parts — compact pill row, only when category selected */}
+            {/* Condition & Extras (Step 3) */}
+            <div className={cn("space-y-4", currentStep !== 3 && "hidden")}>
+                {/* Spare Parts — compact pill row, only when category selected */}
             {categoryId && (
                 <section className="space-y-1.5">
                     <label className="text-[10px] font-bold text-foreground-tertiary uppercase tracking-wider block ml-1">
@@ -568,6 +565,7 @@ export default function DeviceIdentityFields() {
                     </div>
                 </Field>
             </section>
+            </div>
 
         </div>
     );

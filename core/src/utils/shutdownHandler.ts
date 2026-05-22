@@ -1,5 +1,6 @@
 import logger from './logger';
 import { closeIO } from '../config/socket';
+import { closeRedisClients } from '../config/redisFactory';
 
 interface ShutdownDependencies {
     server?: import('http').Server;
@@ -44,10 +45,9 @@ export const gracefulShutdown = async ({ server, worker, workers, redisClient, m
             logger.info("BullMQ worker closed.", { count: workerList.length });
         }
 
-        if (redisClient) {
-            await redisClient.quit();
-            logger.info("Redis connection closed.");
-        }
+        void redisClient;
+        await closeRedisClients();
+        logger.info("Redis connections closed.");
 
         if (mongooseConnection) {
             await mongooseConnection.close();

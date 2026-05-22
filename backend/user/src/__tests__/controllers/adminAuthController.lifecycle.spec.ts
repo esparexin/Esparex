@@ -99,7 +99,7 @@ import Admin from "@esparex/core/models/Admin";
 
 import {
     USER_STATUS,
-} from "@esparex/core/constants/enums/userStatus";
+} from '@esparex/shared';
 
 import {
     revokeAdminSessionsForAdmin,

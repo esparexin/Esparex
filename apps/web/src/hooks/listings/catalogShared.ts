@@ -1,11 +1,10 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
-import { IconRegistry } from "@/icons/IconRegistry";
+import { getCategoryIcon } from "@/utils/getCategoryIcon";
 import type { ScreenSize } from "@/lib/api/user/masterData";
 import type { Category } from "@/lib/api/user/categories";
 import type { ListingCategory } from "@/types/listing";
-import { LISTING_TYPE, type ListingTypeValue } from "@shared/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import type { CategoryFilter } from "@shared";
 
 export interface CategorySchemaType {
@@ -17,14 +16,6 @@ export interface CategorySchemaType {
 const screenSizeSortValue = (raw: string): number => {
     const numeric = Number(raw.replace(/[^\d.]/g, ""));
     return Number.isFinite(numeric) ? numeric : Number.POSITIVE_INFINITY;
-};
-
-const getCategoryIcon = (iconName?: string) => {
-    const registry = IconRegistry as unknown as Record<string, LucideIcon>;
-    if (iconName && registry[iconName]) {
-        return registry[iconName];
-    }
-    return registry.Smartphone;
 };
 
 export const normalizeScreenSizeOptions = (sizes: ScreenSize[]): string[] => {
@@ -54,7 +45,7 @@ export const buildDynamicCategories = (
             id: String(category.id || ""),
             name: category.name,
             slug: category.slug || "",
-            icon: getCategoryIcon(category.icon),
+            icon: getCategoryIcon(category.icon || category.name || category.slug),
             hasScreenSizes: Boolean(category.hasScreenSizes),
             supportsSpareParts: Boolean(category.listingType?.includes(LISTING_TYPE.SPARE_PART)),
             listingType: category.listingType || [],

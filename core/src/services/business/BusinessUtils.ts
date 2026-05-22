@@ -5,7 +5,7 @@ import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../utils/s3';
 import { normalizeLocation } from "../location/LocationNormalizer";
 import { toGeoPoint } from '@esparex/shared';
 import { IBusinessDocument } from '../../models/Business';
-import { type IdProofTypeValue } from '../../constants/enums/idProofType';
+import { type IdProofTypeValue } from '@esparex/shared';
 
 export const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
 export const ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;

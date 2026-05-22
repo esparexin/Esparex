@@ -28,7 +28,7 @@ interface UseAdminCatalogCollectionOptions<
     UpdatePayload = CreatePayload,
 > {
     initialFilters: F;
-    fetchList: (query: Record<string, string | number | boolean>) => Promise<AdminResponseLike>;
+    fetchList: (query: Record<string, string | number | boolean>, options?: { signal?: AbortSignal }) => Promise<AdminResponseLike>;
     listErrorMessage: string;
     createItem: (data: CreatePayload) => Promise<AdminResponseLike>;
     createSuccessMessage: string;
@@ -75,13 +75,15 @@ export async function fetchAdminCatalogPage<T, F extends AdminCollectionFilters>
     pagination,
     fetchList,
     errorMessage,
+    signal,
 }: {
     filters: F;
     pagination: { page: number; limit: number };
-    fetchList: (query: Record<string, string | number | boolean>) => Promise<AdminResponseLike>;
+    fetchList: (query: Record<string, string | number | boolean>, options?: { signal?: AbortSignal }) => Promise<AdminResponseLike>;
     errorMessage: string;
+    signal?: AbortSignal;
 }) {
-    const response = await fetchList(buildAdminListQuery(filters, pagination));
+    const response = await fetchList(buildAdminListQuery(filters, pagination), { signal });
     if (!response.success) {
         return {
             items: [] as T[],
@@ -124,16 +126,17 @@ export function useAdminCatalogCollection<
     _deleteConfirmMessage,
     deleteStrategy = "filter",
     initialPagination,
-}: UseAdminCatalogCollectionOptions<F, CreatePayload, UpdatePayload>) {
+}: UseAdminCatalogCollectionOptions<F, CreatePayload, UpdatePayload>, options?: { initialFilters?: Partial<F>; initialPagination?: Partial<AdminListPagination> }) {
     const { showToast } = useToast();
 
     const fetchPage = useCallback(
-        (params: { filters: F; pagination: AdminListPagination }) =>
+        (params: { filters: F; pagination: AdminListPagination; signal?: AbortSignal }) =>
             fetchAdminCatalogPage<T, F>({
                 filters: params.filters,
                 pagination: params.pagination,
                 fetchList,
                 errorMessage: listErrorMessage,
+                signal: params.signal,
             }),
         [fetchList, listErrorMessage]
     );
@@ -149,9 +152,15 @@ export function useAdminCatalogCollection<
         setPage,
         refresh,
     } = useAdminCrudList<T, F>({
-        initialFilters,
+        initialFilters: {
+            ...initialFilters,
+            ...options?.initialFilters,
+        } as F,
         fetchPage,
-        initialPagination,
+        initialPagination: {
+            ...initialPagination,
+            ...options?.initialPagination,
+        },
     });
 
     const runAction = useCallback(

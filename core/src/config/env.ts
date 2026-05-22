@@ -114,6 +114,7 @@ const envSchema = z.object({
 
     // 12. Search & Feed
     ATLAS_LOCATION_SEARCH_INDEX: z.string().default('location_autocomplete'),
+    ATLAS_CATALOG_SEARCH_INDEX: z.string().default('catalog_search'),
     FEED_DEBUG: z.string().transform(val => val === 'true').default('false'),
     HOME_FEED_WARM_LOCATIONS: z.string().optional(),
     ENABLE_STRICT_DUPLICATE_INDEX: z.string().transform(val => val === 'true').default('false'),

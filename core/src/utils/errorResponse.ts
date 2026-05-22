@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
+import { isDuplicateKeyError } from './errorHelpers';
 
 type ErrorResponseOptions = {
     code?: string;
@@ -91,11 +92,7 @@ export function sendCatalogError(
     return sendErrorResponse(req, res, statusCode, message);
 }
 
-function isDuplicateKeyError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') return false;
-    const candidate = error as { code?: unknown; message?: unknown };
-    return candidate.code === 11000 || (typeof candidate.message === 'string' && candidate.message.includes('E11000'));
-}
+// isDuplicateKeyError imported from errorHelpers (SSOT)
 
 type ZodIssueLike = { path: Array<string | number>; message: string; };
 

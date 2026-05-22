@@ -2,10 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { getSingleParam } from '@esparex/core/utils/requestParams';
-import { LISTING_STATUS } from "@shared/enums/listingStatus";
-import { ACTOR_TYPE } from "@shared/enums/actor";
+import { LISTING_STATUS } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/shared';
 import { mutateStatus } from '@esparex/core/services/StatusMutationService';
-import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
 import * as AdMutationService from '@esparex/core/services/AdMutationService';
 import { PromotionPolicyService } from '@esparex/core/services/PromotionPolicyService';
 import type { AuthUser } from '../../types/auth.types';
@@ -17,7 +16,7 @@ import type { AuthUser } from '../../types/auth.types';
 export const markListingSold = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res);
+        const listing = req.listing;
         if (!listing) return;
 
         if (listing.status !== LISTING_STATUS.LIVE) {
@@ -66,9 +65,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
 export const deactivateListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        // Fetch listingType so StatusMutationService resolves the correct lifecycle domain
-        // (ad vs service vs spare_part_listing) for transition validation.
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
+        const listing = req.listing;
         if (!listing) return;
 
         const updatedListing = await mutateStatus({
@@ -101,7 +98,7 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
 export const activateListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
+        const listing = req.listing;
         if (!listing) return;
 
         if (listing.status !== LISTING_STATUS.DEACTIVATED) {
@@ -145,8 +142,7 @@ export const activateListing = async (req: Request, res: Response, next: NextFun
 export const deleteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        // Fetch listingType so the lifecycle domain resolves correctly across all listing types
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
+        const listing = req.listing;
         if (!listing) return;
 
         // Use DELETED status so the LifecycleGuard transition map correctly validates
@@ -188,7 +184,7 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
         if (!id) return;
         const userId = (req.user as AuthUser)._id.toString();
 
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status' });
+        const listing = req.listing;
         if (!listing) return;
 
         if (listing.status !== 'expired' && listing.status !== 'rejected') {
@@ -220,7 +216,7 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
  */
 export const promoteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType' });
+        const listing = req.listing;
         if (!listing) return;
 
         const policyResult = PromotionPolicyService.canPromote({
@@ -254,7 +250,7 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
 export const markListingStatusSold = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'status listingType isSold' });
+        const listing = req.listing;
         if (!listing) return;
 
         if (listing.status !== LISTING_STATUS.EXPIRED) {

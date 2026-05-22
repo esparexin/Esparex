@@ -7,7 +7,7 @@ jest.mock('@esparex/core/models/Ad', () => ({
 }));
 
 import Ad from '../../models/Ad';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import { getModerationCounts, MODERATION_STATUSES } from '../../services/ListingModerationQueryService';
 import { HIDDEN_MODERATION_STATUSES } from '../../utils/FeedVisibilityGuard';
 import { getLiveStatusCriteria } from '../../utils/statusQueryMapper';

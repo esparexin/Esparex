@@ -316,62 +316,74 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
 };
 
 /**
- * Automaticaly deactivate Smart Alerts that have passed their expiresAt date.
+ * Automatically deactivate Smart Alerts that have passed their expiresAt date.
+ *
+ * Performance: uses bulkWrite + insertMany instead of N×alert.save() + N×AdminLog.create()
+ * to eliminate N+1 write patterns.
  */
 export const expireSmartAlerts = async () => {
     const now = new Date();
     const expiring = await SmartAlert.find({
         isActive: true,
         expiresAt: { $lt: now }
-    });
+    }).lean();
 
     if (!expiring.length) return [];
 
-    const processed = [];
-    for (const alert of expiring) {
-        try {
-            alert.isActive = false;
-            alert.status = 'expired';
-            alert.expiredAt = now;
-            
-            if (!alert.timeline) alert.timeline = [];
-            alert.timeline.push({
-                status: 'expired',
-                timestamp: now,
-                reason: 'Automated search alert expiry'
-            });
+    // Batch update all expired alerts in a single bulkWrite
+    const bulkOps = expiring.map(alert => ({
+        updateOne: {
+            filter: { _id: alert._id },
+            update: {
+                $set: {
+                    isActive: false,
+                    status: 'expired',
+                    expiredAt: now,
+                },
+                $push: {
+                    timeline: {
+                        status: 'expired',
+                        timestamp: now,
+                        reason: 'Automated search alert expiry',
+                    },
+                },
+            },
+        },
+    }));
 
-            await alert.save();
-            processed.push(alert);
-            
-            // Log to AdminLog for audit visibility
-            const AdminLog = (await import('../models/AdminLog')).default;
-            await AdminLog.create({
+    await SmartAlert.bulkWrite(bulkOps);
+
+    // Single AdminLog.insertMany for the entire batch (was N×AdminLog.create)
+    try {
+        const AdminLog = (await import('../models/AdminLog')).default;
+        await AdminLog.insertMany(
+            expiring.map(alert => ({
                 action: 'automated_expiry',
                 targetType: 'SmartAlert',
                 targetId: alert._id,
                 metadata: {
                     userId: alert.userId,
                     expiresAt: alert.expiresAt,
-                    reason: 'Automated search alert expiry'
-                }
-            });
-
-            logger.info('[SmartAlertCleanup] Deactivated expired alert', { 
-                alertId: alert._id, 
-                userId: alert.userId,
-                expiresAt: alert.expiresAt 
-            });
-        } catch (err) {
-            logger.error('[SmartAlertCleanup] Failed to expire alert', {
-                alertId: alert._id,
-                error: err instanceof Error ? err.message : String(err)
-            });
-        }
+                    reason: 'Automated search alert expiry',
+                },
+            }))
+        );
+    } catch (logErr) {
+        // AdminLog write failure must not block the expiry job
+        logger.error('[SmartAlertCleanup] Failed to write AdminLog batch', {
+            error: logErr instanceof Error ? logErr.message : String(logErr),
+            count: expiring.length,
+        });
     }
 
-    return processed;
+    logger.info('[SmartAlertCleanup] Expired alerts batch complete', {
+        count: expiring.length,
+        alertIds: expiring.map(a => a._id),
+    });
+
+    return expiring;
 };
+
 
 export const getAlertDeliveryLogs = async (skip: number, limit: number) => {
     const [logs, total] = await Promise.all([
@@ -418,10 +430,17 @@ export const adminBulkResendAlertWarnings = async (
         throw new AppError('A non-empty list of alert IDs is required', 400);
     }
 
+    // Batch-fetch all alerts in a single query (was N×SmartAlert.findById)
+    const alerts = await SmartAlert.find({ _id: { $in: ids } }).lean();
+    const alertMap = new Map(alerts.map(a => [String(a._id), a]));
+
+    const now = new Date();
     const results = [];
+    const bulkOps: Parameters<typeof SmartAlert.bulkWrite>[0] = [];
+
     for (const id of ids) {
+        const alert = alertMap.get(id);
         try {
-            const alert = await SmartAlert.findById(id);
             if (!alert) throw new AppError('Alert not found', 404);
 
             await dispatchTemplatedNotification(
@@ -429,20 +448,29 @@ export const adminBulkResendAlertWarnings = async (
                 'SYSTEM',
                 'SMART_ALERT_EXPIRY_WARNING_3D',
                 { 
-                    name: alert.name || 'Saved Search', 
-                    date: alert.expiresAt?.toLocaleDateString() || 'N/A' 
+                    name: (alert.name as string) || 'Saved Search', 
+                    date: (alert.expiresAt as Date | undefined)?.toLocaleDateString() || 'N/A' 
                 },
-                { alertId: alert._id.toString() }
+                { alertId: String(alert._id) }
             );
 
-            alert.expiryWarningSentAt = new Date();
-            alert.expiryWarningCount = (alert.expiryWarningCount || 0) + 1;
-            alert.lastExpiryWarningChannel = 'in-app';
-            await alert.save();
+            // Queue the save op — will be executed in a single bulkWrite below
+            bulkOps.push({
+                updateOne: {
+                    filter: { _id: alert._id },
+                    update: {
+                        $set: {
+                            expiryWarningSentAt: now,
+                            expiryWarningCount: ((alert.expiryWarningCount as number) || 0) + 1,
+                            lastExpiryWarningChannel: 'in-app',
+                        },
+                    },
+                },
+            });
 
             await logFn('expiry_warning_resent', 'SmartAlert', id, {
                 subType: 'SmartAlert',
-                adminId: actorId
+                adminId: actorId,
             });
 
             results.push({ id, success: true });
@@ -450,15 +478,20 @@ export const adminBulkResendAlertWarnings = async (
             results.push({ 
                 id, 
                 success: false, 
-                message: error instanceof Error ? error.message : String(error)
+                message: error instanceof Error ? error.message : String(error),
             });
         }
+    }
+
+    // Single bulkWrite for all successful saves (was N×alert.save())
+    if (bulkOps.length > 0) {
+        await SmartAlert.bulkWrite(bulkOps);
     }
 
     return {
         processedCount: ids.length,
         successCount: results.filter(r => r.success).length,
         errorCount: results.filter(r => !r.success).length,
-        results
+        results,
     };
 };

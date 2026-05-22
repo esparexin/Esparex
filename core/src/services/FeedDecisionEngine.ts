@@ -127,19 +127,33 @@ export class FeedDecisionEngine {
         // Stage 2 fallback: City string regex (anchored + escaped, uses ad_city_status_freshness_idx)
         else if (input.city && mergedAds.length < limitNeeded) {
             currentStage = 'CITY';
+            const countBefore = mergedAds.length;
             await fetchBatch(
-                { ...baseMatch, 'location.city': new RegExp(`^${escapeRegex(input.city)}$`, 'i') },
+                { ...baseMatch, 'location.city': input.city },
                 'CITY'
             );
+            if (mergedAds.length === countBefore) {
+                await fetchBatch(
+                    { ...baseMatch, 'location.city': new RegExp(`^${escapeRegex(input.city)}$`, 'i') },
+                    'CITY'
+                );
+            }
         }
 
         // Stage 3: State string regex (anchored + escaped, uses ad_state_status_freshness_idx)
         if (input.state && mergedAds.length < limitNeeded) {
             currentStage = 'STATE';
+            const countBefore = mergedAds.length;
             await fetchBatch(
-                { ...baseMatch, 'location.state': new RegExp(`^${escapeRegex(input.state)}$`, 'i') },
+                { ...baseMatch, 'location.state': input.state },
                 'STATE'
             );
+            if (mergedAds.length === countBefore) {
+                await fetchBatch(
+                    { ...baseMatch, 'location.state': new RegExp(`^${escapeRegex(input.state)}$`, 'i') },
+                    'STATE'
+                );
+            }
         }
 
         // Stage 4: Regional (neighboring states)
@@ -147,10 +161,17 @@ export class FeedDecisionEngine {
             const neighbors = REGIONAL_MAP[input.state] || [];
             if (neighbors.length > 0) {
                 currentStage = 'REGIONAL';
+                const countBefore = mergedAds.length;
                 await fetchBatch(
-                    { ...baseMatch, 'location.state': { $in: neighbors.map(n => new RegExp(`^${escapeRegex(n)}$`, 'i')) } },
+                    { ...baseMatch, 'location.state': { $in: neighbors } },
                     'REGIONAL'
                 );
+                if (mergedAds.length === countBefore) {
+                    await fetchBatch(
+                        { ...baseMatch, 'location.state': { $in: neighbors.map(n => new RegExp(`^${escapeRegex(n)}$`, 'i')) } },
+                        'REGIONAL'
+                    );
+                }
             }
         }
 

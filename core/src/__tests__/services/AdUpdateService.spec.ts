@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { LISTING_STATUS } from '../../constants/enums/listingStatus';
+import { LISTING_STATUS } from '@esparex/shared';
 import { AdContext } from '../../types/ad.types';
 
 // Mock models and services using the canonical paths

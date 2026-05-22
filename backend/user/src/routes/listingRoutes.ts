@@ -13,6 +13,8 @@ import { searchLimiter, mutationLimiter } from "../middleware/rateLimiter";
 import { validateRequest } from "../middleware/validateRequest";
 import { updateAdSchema } from "@esparex/core/validators/ad.validator";
 import { idempotencyMiddleware } from "../middleware/idempotency";
+import { requireListingOwner } from "../middleware/ownershipGuard";
+import { requireVerifiedBusinessForServiceParts } from "../middleware/businessMiddleware";
 import type { ZodTypeAny } from "zod";
 
 const router = Router();
@@ -44,7 +46,7 @@ router.get("/", extractUser, searchLimiter, getListingsController.getListings);
 
 // POST /api/v1/listings
 // Unified creation entry point
-router.post("/", protect, mutationLimiter, idempotencyMiddleware, createListingController.createListing);
+router.post("/", protect, mutationLimiter, idempotencyMiddleware, requireVerifiedBusinessForServiceParts, createListingController.createListing);
 
 // POST /api/v1/listings/upload-image
 router.post("/upload-image", protect, mutationLimiter, createListingController.uploadImage);
@@ -84,37 +86,37 @@ router.get("/:id/phone", validateObjectId, extractUser, searchLimiter, engagemen
 
 // PUT /api/v1/listings/:id/edit
 // Strict edit with ownership validation
-router.put("/:id/edit", protect, validateObjectId, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
+router.put("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
 
 // PATCH /api/v1/listings/:id/sold
 // SSOT: Required terminal state transition
-router.patch("/:id/sold", protect, validateObjectId, mutationLimiter, lifecycleController.markListingSold);
+router.patch("/:id/sold", protect, validateObjectId, requireListingOwner, mutationLimiter, lifecycleController.markListingSold);
 
 // PATCH /api/v1/listings/:id/mark-sold
-router.patch("/:id/mark-sold", protect, validateObjectId, mutationLimiter, lifecycleController.markListingStatusSold);
+router.patch("/:id/mark-sold", protect, validateObjectId, requireListingOwner, mutationLimiter, lifecycleController.markListingStatusSold);
 
 // PATCH /api/v1/listings/:id/deactivate
 // Lifecycle: LIVE -> DEACTIVATED
-router.patch("/:id/deactivate", protect, validateObjectId, mutationLimiter, lifecycleController.deactivateListing);
+router.patch("/:id/deactivate", protect, validateObjectId, requireListingOwner, mutationLimiter, lifecycleController.deactivateListing);
 
 // PATCH /api/v1/listings/:id/activate
 // Lifecycle: DEACTIVATED -> LIVE (immediate)
-router.patch("/:id/activate", protect, validateObjectId, mutationLimiter, lifecycleController.activateListing);
+router.patch("/:id/activate", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, lifecycleController.activateListing);
 
 // DELETE /api/v1/listings/:id
 // Lifecycle: Soft delete
-router.delete("/:id", protect, validateObjectId, mutationLimiter, lifecycleController.deleteListing);
+router.delete("/:id", protect, validateObjectId, requireListingOwner, mutationLimiter, lifecycleController.deleteListing);
 
 // POST /api/v1/listings/:id/repost
 // Lifecycle: Repost expired/rejected listing
-router.post("/:id/repost", protect, validateObjectId, mutationLimiter, idempotencyMiddleware, lifecycleController.repostListing);
+router.post("/:id/repost", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, idempotencyMiddleware, lifecycleController.repostListing);
 
 // POST /api/v1/listings/:id/promote
 // Promotion entry point
-router.post("/:id/promote", protect, validateObjectId, mutationLimiter, lifecycleController.promoteListing);
+router.post("/:id/promote", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, lifecycleController.promoteListing);
 
 // GET /api/v1/listings/:id/analytics
 // Performance tracking
-router.get("/:id/analytics", protect, validateObjectId, statsController.getListingAnalytics);
+router.get("/:id/analytics", protect, validateObjectId, requireListingOwner, statsController.getListingAnalytics);
 
 export default router;

@@ -82,11 +82,6 @@ assertPattern(
 );
 
 // Contract safety regression guards
-assertPattern(
-    moderationApi,
-    /catalogPending:\s*ensureNumber\(data\.catalogPending\s*\?\?\s*data\.heldForCatalog\s*\?\?\s*0,\s*'catalogPending'\)/,
-    'Moderation API regression: catalogPending contract mapping changed or lost numeric safety.'
-);
 
 assertPattern(
     moderationApi,

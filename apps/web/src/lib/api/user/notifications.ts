@@ -1,4 +1,4 @@
-import type { NotificationTypeValue } from "@shared/enums/notificationType";
+import type { NotificationTypeValue } from '@esparex/shared';
 
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";

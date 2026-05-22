@@ -13,6 +13,7 @@ declare global {
             riskState?: string;
             idempotencyKey?: string;
             requestId?: string;
+            listing?: any;
         }
     }
 }

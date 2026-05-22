@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
 import { unwrapApiPayload } from "@/lib/api/result";
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from '@esparex/shared';
 
 /**
  * Category Data API

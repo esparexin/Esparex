@@ -1,6 +1,6 @@
 "use client";
 
-import type { ListingTypeValue } from "@shared/enums/listingType";
+import type { ListingTypeValue } from '@esparex/shared';
 import { useBrandCatalog } from "./useBrandCatalog";
 import { useCategorySchemaCatalog } from "./useCategorySchemaCatalog";
 import { useListingCategories } from "./useListingCategories";

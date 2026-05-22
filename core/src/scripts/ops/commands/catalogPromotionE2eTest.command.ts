@@ -22,8 +22,8 @@
 
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
-import { CATALOG_STATUS } from "../../../constants/enums/catalogStatus";
-import { USER_STATUS } from "../../../constants/enums/userStatus";
+import { CATALOG_STATUS } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/shared';
 import { connectOpsDb } from './commandUtils';
 import { closeDB } from '../../../config/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';

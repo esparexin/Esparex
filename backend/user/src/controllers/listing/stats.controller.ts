@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import logger from '@esparex/core/utils/logger';
-import { LISTING_TYPE } from "@esparex/core/constants/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
 import * as AdMetricsService from '@esparex/core/services/ad/AdMetricsService';
-import { getAndVerifyOwnedListing } from "@esparex/core/utils/controllerUtils";
 
 /**
  * GET /api/v1/listings/mine/stats
@@ -79,7 +78,7 @@ export const getMyListings = async (req: Request, res: Response) => {
  */
 export const getListingAnalytics = async (req: Request, res: Response) => {
     try {
-        const listing = await getAndVerifyOwnedListing(req, res, { select: 'views' });
+        const listing = req.listing;
         if (!listing) return;
 
         return sendSuccessResponse(res, {

@@ -527,3 +527,23 @@ export const chatReportLimiter = createLimiter({
         return buildHybridRateLimitKey(req, userId);
     }
 });
+
+/**
+ * Contact Form Limiter
+ *
+ * Stricter than the generic mutationLimiter because the contact form is:
+ *  - Publicly accessible (no auth required)
+ *  - A common spam/flood vector
+ *  - Never legitimately submitted more than a few times per hour
+ *
+ * 3 submissions per hour per IP. Uses an isolated Redis key prefix so it
+ * does not consume quota from other mutation buckets.
+ */
+export const contactFormLimiter = createLimiter({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: env.NODE_ENV === 'production' ? 3 : 30,
+    keyPrefix: 'contact:form:',
+    keyGenerator: (req: Request) => resolveRequestIp(req),
+    errorCode: 'CONTACT_FORM_RATE_LIMIT',
+});
+

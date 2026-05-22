@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import * as businessService from '@esparex/core/services/BusinessService';
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
 import {
     BusinessStatsPayload,
@@ -53,7 +53,7 @@ export const getBusinesses = async (req: Request, res: Response) => {
         } = req.query;
         const rawServiceOnly = req.query.serviceOnly as unknown;
         const businesses = await businessService.getBusinesses({
-            limit: typeof limit === 'number' ? limit : limit ? parseInt(limit as string, 10) : 20,
+            limit: Math.min(50, Math.max(1, typeof limit === 'number' ? limit : limit ? parseInt(limit as string, 10) : 20)),
             latitude: typeof latitude === 'number' ? latitude : latitude ? Number(latitude) : undefined,
             longitude: typeof longitude === 'number' ? longitude : longitude ? Number(longitude) : undefined,
             radiusKm: typeof radiusKm === 'number' ? radiusKm : radiusKm ? Number(radiusKm) : undefined,

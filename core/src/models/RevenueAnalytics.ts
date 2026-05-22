@@ -54,6 +54,8 @@ const RevenueAnalyticsSchema = new Schema<IRevenueAnalytics>(
 /* -------------------------------------------------------------------------- */
 
 RevenueAnalyticsSchema.index({ date: 1 }, { name: 'idx_revenueanalytics_date_unique_idx', unique: true });
+// Compound index for date-range revenue analytics (admin dashboard queries scan recent dates descending)
+RevenueAnalyticsSchema.index({ date: -1, totalRevenue: 1 }, { name: 'idx_revenueanalytics_date_desc_revenue_idx' });
 
 const connection = getAdminConnection();
 export const RevenueAnalytics: Model<IRevenueAnalytics> =

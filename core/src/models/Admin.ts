@@ -2,8 +2,8 @@ import { Schema, Document, Model } from "mongoose";
 import { getAdminConnection } from "../config/db";
 import softDeletePlugin from '../utils/softDeletePlugin';
 import bcrypt from 'bcryptjs';
-import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from "../constants/enums/userStatus";
-import { Role, ROLE_VALUES } from "../constants/enums/roles";
+import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from '@esparex/shared';
+import { Role, ROLE_VALUES } from '@esparex/shared';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 import { normalizeRole } from '../utils/roleNormalization';
 

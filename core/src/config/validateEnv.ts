@@ -35,7 +35,6 @@ const BLOCKED_PRODUCTION_FLAGS = [
     'AUTH_LOCAL_RELAXED',
     'ALLOW_DEFAULT_ADMIN_SEED',
     'ALLOW_DB_CONNECT',
-    'ALLOW_REDIS',
     'ALLOW_SCHEDULER_QUEUE',
     'ALLOW_BOOT_AUTO_INDEX',
     'SENTRY_ENABLE_DEV',
@@ -167,6 +166,10 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
 
     if (isLocalRedisHost(redisConfig.host)) {
         throw new Error('REDIS_URL/REDIS_HOST cannot use localhost in production');
+    }
+
+    if (!isEnabledFlag(sourceEnv.ALLOW_REDIS)) {
+        throw new Error('ALLOW_REDIS must be true in production');
     }
 
     if (!redisConfig.username) {

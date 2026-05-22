@@ -12,13 +12,11 @@ import { Server, Socket as BaseSocket } from 'socket.io';
 type Socket = BaseSocket & { userId?: string };
 import { Server as HttpServer } from 'http';
 import { createAdapter } from '@socket.io/redis-adapter';
-import Redis from 'ioredis';
 import logger from '../utils/logger';
 import { verifyToken } from '../utils/auth';
-import redisClient from '../utils/redisCache';
 import { getAllowedOriginList } from '../utils/originConfig';
 import { env } from './env';
-import { getRedisConnectionOptions } from './redisRuntime';
+import { redisFactory, shouldDisableRedis } from './redisFactory';
 
 let io: Server | null = null;
 
@@ -50,19 +48,21 @@ export function initIO(httpServer: HttpServer): Server {
     });
 
     // ── Redis adapter for horizontal scaling ─────────────────────────────────
-    try {
-        // socket.io redis adapter needs a *second* dedicated client for subscribe.
-        const pubClient = redisClient;
-
-        const subClient = new Redis({
-            ...getRedisConnectionOptions(),
-        });
-        io.adapter(createAdapter(pubClient, subClient));
-        logger.info('[Socket] Redis adapter attached');
-    } catch (err) {
+    if (shouldDisableRedis) {
         logger.warn('[Socket] Redis adapter unavailable — falling back to in-memory', {
-            error: err instanceof Error ? err.message : String(err),
+            error: 'redis disabled in this runtime',
         });
+    } else {
+        try {
+            const pubClient = redisFactory.pub();
+            const subClient = redisFactory.sub();
+            io.adapter(createAdapter(pubClient, subClient));
+            logger.info('[Socket] Redis adapter attached');
+        } catch (err) {
+            logger.warn('[Socket] Redis adapter unavailable — falling back to in-memory', {
+                error: err instanceof Error ? err.message : String(err),
+            });
+        }
     }
 
     // ── Auth middleware ───────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { fulfillJson } from "./fixtures/authenticatedUserSession";
 
 // =============================================================================
 // CONFIGURATION: Critical Routes to Protect
@@ -14,6 +15,32 @@ const publicPages = [
 // =============================================================================
 
 test.describe("🛡️ UI GOVERNANCE GUARDS", () => {
+    test.beforeEach(async ({ page }) => {
+        await page.route(/\/api\/v1\/health\/?$/, (route) =>
+            fulfillJson(route, { success: true, status: "ok", mode: "ui-governance" })
+        );
+        await page.route(/\/api\/v1\/catalog\/categories(\?.*)?$/, (route) =>
+            fulfillJson(route, {
+                success: true,
+                data: [
+                    {
+                        id: "64b000000000000000000001",
+                        _id: "64b000000000000000000001",
+                        name: "Smartphones",
+                        slug: "smartphones",
+                        icon: "smartphone",
+                        status: "live",
+                    },
+                ],
+            })
+        );
+        await page.route(/\/api\/v1\/listings\/home(\?.*)?$/, (route) =>
+            fulfillJson(route, { success: true, data: { featured: [], recent: [], promoted: [] } })
+        );
+        await page.route(/\/api\/v1\/listings(\?.*)?$/, (route) =>
+            fulfillJson(route, { success: true, data: { items: [], total: 0 } })
+        );
+    });
 
     // -------------------------------------------------------------------------
     // 1. PUBLIC PAGES (No Auth Required)

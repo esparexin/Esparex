@@ -1,12 +1,13 @@
 import { Schema, Document, Types, Model } from 'mongoose'
 import { ISoftDeleteDocument } from '../utils/softDeletePlugin'
 import softDeletePlugin from '../utils/softDeletePlugin'
-import { CATALOG_STATUS } from '../constants/enums/catalogStatus'
+import { CATALOG_STATUS } from '@esparex/shared'
+import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance'
 import {
   CATALOG_APPROVAL_STATUS,
   CATALOG_APPROVAL_STATUS_VALUES,
   CatalogApprovalStatusValue,
-} from '../constants/enums/catalogApprovalStatus'
+} from '@esparex/shared'
 
 export interface IBrand extends Document, ISoftDeleteDocument {
   name: string
@@ -15,7 +16,24 @@ export interface IBrand extends Document, ISoftDeleteDocument {
   slug: string
   aliases: string[]
   synonyms: string[]
-  categoryId?: Types.ObjectId
+  marketplaceTrust?: {
+    catalogTrustScore?: number
+    variantTrustScore?: number
+    aliasTrustScore?: number
+    synonymTrustScore?: number
+    transliterationTrustScore?: number
+    moderatorTrustScore?: number
+    moderationReliabilityScore?: number
+    aliasApprovalConfidence?: number
+    synonymApprovalConfidence?: number
+    popularityConfidenceScore?: number
+    canonicalCertaintyScore?: number
+    duplicateConfidenceScore?: number
+    seoQualityScore?: number
+    crawlDepthLimit?: number
+    indexable?: boolean
+    lastAuditAt?: Date
+  }
   categoryIds: Types.ObjectId[]
   isActive: boolean
   approvalStatus: CatalogApprovalStatusValue
@@ -37,7 +55,24 @@ const BrandSchema = new Schema<IBrand>({
   slug: { type: String, required: true, trim: true, lowercase: true },
   aliases: { type: [String], default: [] },
   synonyms: { type: [String], default: [] },
-  categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
+  marketplaceTrust: {
+    catalogTrustScore: { type: Number, default: 0.72, min: 0, max: 1 },
+    variantTrustScore: { type: Number, default: 0.66, min: 0, max: 1 },
+    aliasTrustScore: { type: Number, default: 0.62, min: 0, max: 1 },
+    synonymTrustScore: { type: Number, default: 0.58, min: 0, max: 1 },
+    transliterationTrustScore: { type: Number, default: 0.64, min: 0, max: 1 },
+    moderatorTrustScore: { type: Number, default: 0.7, min: 0, max: 1 },
+    moderationReliabilityScore: { type: Number, default: 0.7, min: 0, max: 1 },
+    aliasApprovalConfidence: { type: Number, default: 0.6, min: 0, max: 1 },
+    synonymApprovalConfidence: { type: Number, default: 0.55, min: 0, max: 1 },
+    popularityConfidenceScore: { type: Number, default: 0.65, min: 0, max: 1 },
+    canonicalCertaintyScore: { type: Number, default: 0.72, min: 0, max: 1 },
+    duplicateConfidenceScore: { type: Number, default: 0.5, min: 0, max: 1 },
+    seoQualityScore: { type: Number, default: 0.6, min: 0, max: 1 },
+    crawlDepthLimit: { type: Number, default: 4, min: 1, max: 8 },
+    indexable: { type: Boolean, default: true },
+    lastAuditAt: { type: Date },
+  },
   categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
   isActive: { type: Boolean, default: true },
   approvalStatus: {
@@ -65,29 +100,10 @@ BrandSchema.plugin(softDeletePlugin);
 BrandSchema.pre('validate', function () {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
   const mutableDoc = this as any;
-
-  const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
-  if (normalizedDisplayName) {
-    mutableDoc.displayName = normalizedDisplayName;
-    mutableDoc.name = normalizedDisplayName;
-  }
-
-  if (typeof mutableDoc.canonicalName === 'string') {
-    mutableDoc.canonicalName = mutableDoc.canonicalName.trim();
-  }
-  if (!mutableDoc.canonicalName && normalizedDisplayName) {
-    mutableDoc.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
-  }
+  applyCatalogGovernanceDefaults(mutableDoc);
 
   if (!mutableDoc.approvalStatus) {
     mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
-  }
-
-  // Enforce bidirectional singular/plural category synchronization
-  if (mutableDoc.categoryId && (!mutableDoc.categoryIds || mutableDoc.categoryIds.length === 0)) {
-    mutableDoc.categoryIds = [mutableDoc.categoryId];
-  } else if ((!mutableDoc.categoryId || mutableDoc.categoryId === null) && mutableDoc.categoryIds && mutableDoc.categoryIds.length > 0) {
-    mutableDoc.categoryId = mutableDoc.categoryIds[0];
   }
 });
 
@@ -101,6 +117,8 @@ BrandSchema.index({ status: 1 }, { name: 'idx_brand_status_idx' })
 BrandSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_brand_approval_active_idx' })
 BrandSchema.index({ name: 1 }, { name: 'idx_brand_name', collation: { locale: 'en', strength: 2 } })
 BrandSchema.index({ isDeleted: 1 }, { name: 'idx_brand_isDeleted_idx' })
+BrandSchema.index({ 'marketplaceTrust.catalogTrustScore': -1 }, { name: 'idx_brand_marketplaceTrust_catalog' })
+BrandSchema.index({ 'marketplaceTrust.seoQualityScore': -1, 'marketplaceTrust.indexable': 1 }, { name: 'idx_brand_marketplaceTrust_seo' })
 
 BrandSchema.index(
   { canonicalName: 1 },
@@ -127,11 +145,17 @@ BrandSchema.index(
   }
 )
 
-/**
- * ATLAS-ONLY INDEXES (Drift)
- * The following indexes exist in Atlas but are not strictly enforced by Mongoose:
- * - brand_name_categoryId_text_idx: { name: 1, categoryId: 1 } (Collation: {locale: 'en', strength: 2})
- */
+BrandSchema.index(
+  { name: 1, categoryIds: 1 },
+  { name: 'brand_name_categoryIds_text_idx', collation: { locale: 'en', strength: 2 } }
+)
+BrandSchema.index(
+  { name: 'text', displayName: 'text', canonicalName: 'text', slug: 'text', aliases: 'text', synonyms: 'text' },
+  {
+    name: 'idx_brand_search_text_readiness',
+    weights: { canonicalName: 10, displayName: 8, name: 8, slug: 6, aliases: 4, synonyms: 3 },
+  }
+)
 
 import { getUserConnection } from '../config/db'
 

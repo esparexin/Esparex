@@ -1,4 +1,4 @@
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 import {
     getListingTypeCapability,
     getListingTypeRemediation,

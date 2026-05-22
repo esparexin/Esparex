@@ -6,15 +6,25 @@ export interface ModelFilters {
     search?: string;
     brandId?: string;
     categoryId?: string;
+    parentModelId?: string;
+    variantModelId?: string;
+    includeVariants?: string | boolean;
+    treeView?: string | boolean;
     status?: string;
     page?: string | number;
     limit?: string | number;
     [key: string]: string | number | boolean | undefined;
 }
 
-export async function getModels(filters?: ModelFilters) {
-    const query = new URLSearchParams(filters as Record<string, string>).toString();
-    return adminFetch<{ items: Model[], total: number } | Model[]>(`${ADMIN_ROUTES.MODELS}?${query}`);
+export async function getModels(filters?: ModelFilters, options?: { signal?: AbortSignal }) {
+    const query = new URLSearchParams();
+    Object.entries(filters || {}).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "" || value === "all") return;
+        query.set(key, String(value));
+    });
+    return adminFetch<{ items: Model[], total: number } | Model[]>(`${ADMIN_ROUTES.MODELS}?${query}`, {
+        signal: options?.signal,
+    });
 }
 
 export async function deleteModel(id: string) {

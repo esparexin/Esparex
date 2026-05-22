@@ -3,9 +3,9 @@ import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import Category, { ICategory } from '../../models/Category';
 import Brand from '../../models/Brand';
-import ProductModel from '../../models/Model';
+import Model from '../../models/Model';
 import CatalogOrchestrator from '../catalog/CatalogOrchestrator';
-import { CATALOG_APPROVAL_STATUS } from '../../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
 interface ImportResult {
     success: number;
@@ -176,7 +176,7 @@ export class CatalogImportService {
 
             if (ops.length > 0) {
                  
-                const bulkRes = await ProductModel.bulkWrite(ops as Parameters<typeof ProductModel.bulkWrite>[0]);
+                const bulkRes = await Model.bulkWrite(ops as Parameters<typeof Model.bulkWrite>[0]);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             }
             await CatalogOrchestrator.invalidateCatalogCache();
@@ -243,7 +243,7 @@ export class CatalogImportService {
                     },
                     { upsert: true, new: true }
                 );
-                await ProductModel.findOneAndUpdate(
+                await Model.findOneAndUpdate(
                     { name: device.name, brandId: brand._id },
                     {
                         name: device.name,

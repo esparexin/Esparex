@@ -44,17 +44,6 @@ jest.mock('../../models/Brand', () => ({
 }));
 
 // Dynamic Import Mocks
-jest.mock('../../models/CatalogRequest', () => ({
-    __esModule: true,
-    default: {
-        findById: jest.fn().mockReturnValue({
-            select: jest.fn().mockReturnValue({
-                lean: jest.fn(),
-            }),
-        }),
-    },
-}), { virtual: true });
-
 jest.mock('../../services/SparePartListingService', () => ({
     generateUniqueSparePartSlug: jest.fn().mockResolvedValue('unique-spare-part-slug'),
 }), { virtual: true });
@@ -68,9 +57,16 @@ jest.mock('../../services/location/LocationNormalizer', () => ({
     normalizeLocation: jest.fn(),
 }));
 
-jest.mock('@esparex/shared', () => ({
-    toGeoPoint: jest.fn((coords) => coords),
-}));
+jest.mock('@esparex/shared', () => {
+    const originalModule = jest.requireActual('@esparex/shared');
+    return {
+        ...originalModule,
+        toGeoPoint: jest.fn((coords) => coords),
+        TraceContext: {
+            getCorrelationId: jest.fn().mockReturnValue('mock-correlation-id'),
+        },
+    };
+});
 
 jest.mock('../../utils/categoryCanonical', () => ({
     resolveEquivalentActiveCategoryIds: jest.fn().mockResolvedValue([]),
@@ -109,6 +105,13 @@ jest.mock('../../services/catalog/CatalogValidationService', () => ({
     validateBrandBelongsToCategory: jest.fn().mockResolvedValue({ ok: true }),
     validateModelBelongsToBrand: jest.fn().mockResolvedValue({ ok: true }),
     validateListingCategoryCapability: jest.fn().mockResolvedValue({ ok: true }),
+    getCategorySelectionMode: jest.fn().mockResolvedValue('multi'),
+}));
+
+jest.mock('../../utils/serviceTypeResolver', () => ({
+    resolveServiceTypes: jest.fn().mockResolvedValue({
+        serviceTypeIds: ['60b9b0b9b0b9b0b9b0b9b0b5']
+    }),
 }));
 
 // ── Imports ──────────────────────────────────────────────────────────────────
@@ -120,8 +123,8 @@ import { generateUniqueSlug } from '../../utils/slugGenerator';
 import { processImages } from '../../utils/imageProcessor';
 import { validateListingCategoryCapability } from '../../services/catalog/CatalogValidationService';
 import { AdContext } from '../../types/ad.types';
-import { LIFECYCLE_STATUS } from '../../constants/enums/lifecycle';
-import { LISTING_TYPE } from '../../constants/enums/listingType';
+import { LIFECYCLE_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/shared';
 import SparePart from '../../models/SparePart';
 import Brand from '../../models/Brand';
 
@@ -255,37 +258,6 @@ describe('AdCreationService.preparePayload', () => {
     });
 
     // =========================================================================
-    // BRANCH: Catalog Request Integration
-    // =========================================================================
-    it('should handle catalog request linkage', async () => {
-        const reqId = new mongoose.Types.ObjectId().toString();
-        const data = makeData({ catalogRequestId: reqId });
-        const context = makeContext();
-
-        const CatalogRequest = (await import('../../models/CatalogRequest')).default;
-        (CatalogRequest.findById as jest.Mock).mockReturnValue({
-            select: jest.fn().mockReturnValue({
-                lean: jest.fn().mockResolvedValue({
-                    status: 'pending',
-                    requestType: 'model',
-                    categoryId: new mongoose.Types.ObjectId(CATEGORY_ID),
-                    parentBrandId: new mongoose.Types.ObjectId(BRAND_ID),
-                    requestedBy: new mongoose.Types.ObjectId(SELLER_ID)
-                })
-            })
-        });
-
-        const payload = await AdCreationService.preparePayload(data, context);
-
-        expect(payload.catalogPending).toBe(true);
-        expect(payload.catalogRequestId).toBe(reqId);
-        // Held for review even for Admin if catalog is pending
-        const adminContext = makeContext({ actor: 'ADMIN' });
-        const adminPayload = await AdCreationService.preparePayload(data, adminContext);
-        expect(adminPayload.status).toBe(LIFECYCLE_STATUS.PENDING);
-    });
-
-    // =========================================================================
     // BRANCH: Spare Parts Snapshots
     // =========================================================================
     it('should generate spare parts snapshot when feature is enabled', async () => {
@@ -325,7 +297,15 @@ describe('AdCreationService.preparePayload', () => {
     it('should handle image processing for service listings', async () => {
         const data = makeData({ 
             listingType: LISTING_TYPE.SERVICE,
-            images: ['service-img.jpg'] 
+            images: ['service-img.jpg'],
+            business: {
+                status: 'live',
+                locationId: new mongoose.Types.ObjectId().toString(),
+                location: {
+                    address: 'Test Address',
+                    locationId: new mongoose.Types.ObjectId().toString(),
+                }
+            }
         });
         const context = makeContext();
 
@@ -342,7 +322,17 @@ describe('AdCreationService.preparePayload', () => {
     // SERVICE QUALITY: Specific Calculation
     // =========================================================================
     it('should use calculateServiceQuality for service listings', async () => {
-        const data = makeData({ listingType: LISTING_TYPE.SERVICE });
+        const data = makeData({ 
+            listingType: LISTING_TYPE.SERVICE,
+            business: {
+                status: 'live',
+                locationId: new mongoose.Types.ObjectId().toString(),
+                location: {
+                    address: 'Test Address',
+                    locationId: new mongoose.Types.ObjectId().toString(),
+                }
+            }
+        });
         const context = makeContext();
 
         const payload = await AdCreationService.preparePayload(data, context);

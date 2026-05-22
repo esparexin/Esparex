@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, type CSSProperties } from "react";
-import { Check, Search } from "@/icons/IconRegistry";
+import { Check, Search, Plus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -36,7 +36,6 @@ export function BrandSearchSelect({
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
-    const [guidanceMessage, setGuidanceMessage] = useState<string | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
 
@@ -73,10 +72,6 @@ export function BrandSearchSelect({
         };
     }, [search]);
 
-
-
-
-
     const filtered = useMemo(
         () =>
             search
@@ -90,17 +85,25 @@ export function BrandSearchSelect({
         onChange(id, brandName);
         setSearch("");
         setIsEditing(false);
-        setGuidanceMessage(null);
     };
 
     const canRequestBrand = Boolean(categoryId);
 
+    const trimmedSearch = search.trim();
+    const hasExactApprovedMatch = useMemo(() => {
+        return brands.some((b) => b.toLowerCase() === trimmedSearch.toLowerCase());
+    }, [brands, trimmedSearch]);
+
+    const showSuggestButton =
+        trimmedSearch.length >= 2 &&
+        !hasExactApprovedMatch &&
+        !disabled &&
+        canRequestBrand;
+
     const handleOpenRequestDialog = () => {
         if (!canRequestBrand) {
-            setGuidanceMessage("Select a category first.");
             return;
         }
-        setGuidanceMessage(null);
         setIsRequestDialogOpen(true);
     };
 
@@ -157,8 +160,23 @@ export function BrandSearchSelect({
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={placeholder}
                     disabled={disabled}
-                    className="pl-9 pr-4"
+                    className={cn("pl-9", showSuggestButton ? "pr-10" : "pr-4")}
                 />
+                {showSuggestButton && (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleOpenRequestDialog();
+                        }}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:text-primary transition-all"
+                        aria-label="Suggest brand"
+                        title="Suggest brand"
+                    >
+                        <Plus className="w-[18px] h-[18px]" />
+                    </button>
+                )}
             </div>
             {search && !canRequestBrand ? (
                 <p className="mt-1 px-1 text-xs font-semibold text-amber-700">
@@ -167,7 +185,7 @@ export function BrandSearchSelect({
             ) : null}
 
             {/* Dropdown — only shown once fixed position is calculated */}
-            {search && dropdownStyle && (
+            {search && filtered.length > 0 && dropdownStyle && (
                 <>
                     <div
                         style={{ zIndex: Z_INDEX.brandSearchBackdrop }}
@@ -178,74 +196,20 @@ export function BrandSearchSelect({
                         style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent, position: "fixed" }}
                         className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
                     >
-                        {filtered.length === 0 ? (
-                            <div className="py-8 px-6 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-300">
-                                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-sm">
-                                    <Search className="w-5 h-5 text-slate-300" />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-700 mb-1">
-                                    Brand Not Found
-                                </h3>
-                                <p className="text-xs text-slate-400 font-medium leading-relaxed mb-6 max-w-[200px]">
-                                    We couldn&apos;t find &ldquo;{search}&rdquo; in our catalog.
-                                </p>
-                                
-                                    <button
-                                        type="button"
-                                        disabled={!canRequestBrand}
-                                        onPointerDown={(e) => {
-                                            e.preventDefault();
-                                            handleOpenRequestDialog();
-                                        }}
-                                        className={cn(
-                                            "w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-bold transition-all active:scale-[0.97] shadow-md shadow-slate-900/10",
-                                            canRequestBrand
-                                                ? "bg-slate-900 text-white hover:bg-slate-800"
-                                                : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
-                                        )}
-                                    >
-                                        <span className="text-lg leading-none">+</span>
-                                        Suggest &ldquo;{search.trim()}&rdquo;
-                                    </button>
-                                </div>
-                            ) : (
-                                <>
-                                {filtered.slice(0, 10).map((b) => (
-                                    <button
-                                        key={b}
-                                        type="button"
-                                        onPointerDown={(e) => {
-                                            e.preventDefault();
-                                            handleSelect(b);
-                                        }}
-                                        className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
-                                    >
-                                        {b}
-                                    </button>
-                                ))}
-                                
-                                <button
-                                    type="button"
-                                    disabled={!canRequestBrand}
-                                    onPointerDown={(e) => {
-                                        e.preventDefault();
-                                        handleOpenRequestDialog();
-                                    }}
-                                    className={cn(
-                                        "w-full p-3 border-t border-slate-50 text-[10px] font-bold transition-colors uppercase tracking-wider text-center",
-                                        canRequestBrand ? "text-primary hover:bg-slate-50" : "text-slate-400 cursor-not-allowed"
-                                    )}
-                                >
-                                    Don&apos;t see your brand? Suggest it
-                                </button>
-                            </>
-                        )}
+                        {filtered.slice(0, 10).map((b) => (
+                            <button
+                                key={b}
+                                type="button"
+                                onPointerDown={(e) => {
+                                    e.preventDefault();
+                                    handleSelect(b);
+                                }}
+                                className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
+                            >
+                                {b}
+                            </button>
+                        ))}
                     </div>
-                    {guidanceMessage ? (
-                        <p className="px-4 pb-3 text-xs font-semibold text-amber-700">
-                            {guidanceMessage}
-                        </p>
-                    ) : null}
                 </>
             )}
 

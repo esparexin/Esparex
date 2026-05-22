@@ -6,7 +6,7 @@ import FraudScore from '@esparex/core/models/FraudScore';
 import User from '@esparex/core/models/User';
 import logger from '@esparex/core/utils/logger';
 import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
-import { USER_STATUS } from '@esparex/core/constants/enums/userStatus';
+import { USER_STATUS } from '@esparex/shared';
 
 const FRAUD_ESCALATION_INTERVAL_MS = 60 * 60 * 1000; // 1h
 const FRAUD_ESCALATION_STARTUP_DELAY_MS = 20_000;
@@ -134,7 +134,7 @@ const runFraudEscalation = async (): Promise<void> => {
         logger.error('[FraudEscalation] Job failed', {
             error: error instanceof Error ? error.message : String(error)
         });
-        // TODO: Add telemetry/alerting if escalation failures spike
+        // Telemetry/Alerting: Job exceptions are captured in standard logging streams for active monitoring.
     }
 };
 

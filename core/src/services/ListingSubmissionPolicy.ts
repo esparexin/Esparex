@@ -1,6 +1,6 @@
 import type { ClientSession } from 'mongoose';
 import { AdSlotService, type AdPostingSlotSource } from './AdSlotService';
-import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { checkPostLimit } from './PlanService';
 
 /** @deprecated Use ListingTypeValue from shared/enums/listingType */

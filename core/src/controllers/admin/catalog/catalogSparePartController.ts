@@ -42,9 +42,9 @@ import {
     sparePartUpdateSchema
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
-import { LISTING_TYPE, type ListingTypeValue } from "../../../constants/enums/listingType";
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { getCache, setCache } from '../../../utils/redisCache';
-import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
@@ -259,7 +259,7 @@ export const createSparePart = async (req: Request, res: Response) => {
             
             return payload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -295,7 +295,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
 
             return payload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -305,7 +305,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
 export const toggleSparePartStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, SparePartModel, {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -315,7 +315,7 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
 export const deleteSparePart = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, SparePartModel, checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 

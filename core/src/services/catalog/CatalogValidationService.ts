@@ -1,9 +1,13 @@
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
-import { CATALOG_APPROVAL_STATUS, type CatalogApprovalStatusValue } from '../../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS, type CatalogApprovalStatusValue } from '@esparex/shared';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';
+import {
+    applyCatalogGovernanceDefaults,
+    normalizeCatalogCanonicalName as normalizeCatalogCanonicalNameGoverned,
+} from '../../utils/catalogGovernance';
 
 // ─── Shared Mongo query fragments ────────────────────────────────────────────
 
@@ -346,16 +350,14 @@ export async function validateCategoryIsActive(categoryId: string): Promise<Vali
  * Normalizes a catalog name to its canonical form (lowercase, single-spaced).
  */
 export function normalizeCatalogCanonicalName(name: string): string {
-    return (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return normalizeCatalogCanonicalNameGoverned(name);
 }
 
 /**
  * Applies standard catalog naming defaults (canonical name normalization).
  */
 export function applyCatalogNamingDefaults(doc: { name: string; canonicalName?: string }): void {
-    if (doc.name) {
-        doc.canonicalName = normalizeCatalogCanonicalName(doc.name);
-    }
+    applyCatalogGovernanceDefaults(doc as Record<string, unknown>);
 }
 
 /**

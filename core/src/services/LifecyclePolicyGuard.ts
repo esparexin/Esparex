@@ -1,5 +1,5 @@
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import { ACTOR_TYPE, type ActorMetadata } from '../constants/enums/actor';
+import { LISTING_STATUS } from '@esparex/shared';
+import { ACTOR_TYPE, type ActorMetadata } from '@esparex/shared';
 
 type ListingDomain = 'ad' | 'service' | 'spare_part_listing';
 

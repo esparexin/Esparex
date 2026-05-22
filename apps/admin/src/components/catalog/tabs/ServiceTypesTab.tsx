@@ -1,39 +1,59 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import {
     CatalogActiveCheckboxField,
-    CatalogBoundSearchCategoryFilters,
     CatalogCategoryTags,
     CatalogEntityCell,
     CatalogActiveToggleButton,
     CatalogEditDeleteActions,
+    CatalogActiveStatusFilter,
+    CatalogSelectFilter,
+    CatalogSearchInput,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminServiceTypes, type ServiceType } from "@/hooks/useAdminServiceTypes";
 import { categorySupportsServices, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
+import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
 import type { ServiceTypeMutationPayload } from "@/lib/api/serviceTypes";
 
 export default function ServiceTypesTab() {
+    const searchParams = useSearchParams();
+    const initialSearch = normalizeSearchParamValue(searchParams.get("q") ?? searchParams.get("search"));
+    const initialCategoryId = normalizeSearchParamValue(searchParams.get("categoryId")) || "all";
+    const initialStatus = normalizeSearchParamValue(searchParams.get("status")) || "all";
+    const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
+
+    const [searchInput, setSearchInput] = useState(initialSearch);
+
     const { categories } = useAdminCategories();
     const {
         serviceTypes,
         loading,
         error,
         pagination,
-        filters,
-        setFilters,
-        setPage,
         handleToggleStatus,
         handleDelete,
         handleCreate,
         handleUpdate,
-    } = useAdminServiceTypes();
+    } = useAdminServiceTypes({
+        initialFilters: {
+            search: initialSearch,
+            categoryId: initialCategoryId,
+            status: initialStatus,
+        },
+        initialPagination: {
+            page: initialPage,
+            limit: 20,
+        },
+    });
 
     const [deletingServiceType, setDeletingServiceType] = useState<ServiceType | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -52,6 +72,14 @@ export default function ServiceTypesTab() {
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
 
+    const { replaceQueryState } = useCatalogQueryStateSync({
+        searchInput,
+        initialSearch,
+        loading,
+        initialPage,
+        totalPages: pagination.totalPages,
+    });
+
     return (
         <>
             <CatalogPageTemplate<ServiceType, ServiceTypeMutationPayload>
@@ -64,7 +92,7 @@ export default function ServiceTypesTab() {
                 loading={loading}
                 error={error}
                 pagination={pagination}
-                setPage={setPage}
+                setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={handleCreate}
                 handleUpdate={handleUpdate}
                 defaultFormData={{ name: "", categoryIds: [], isActive: true }}
@@ -120,14 +148,36 @@ export default function ServiceTypesTab() {
                         ),
                     },
                 ]}
-                filterLayoutClassName="md:grid-cols-2"
+                filterLayoutClassName="md:grid-cols-3"
                 filtersRenderer={
                     <>
-                        <CatalogBoundSearchCategoryFilters
-                            filters={filters}
-                            setFilters={setFilters}
-                            searchPlaceholder="Search service types..."
-                            categories={categories}
+                        <CatalogSearchInput
+                            value={searchInput}
+                            placeholder="Search service types..."
+                            onChange={setSearchInput}
+                        />
+                        <CatalogSelectFilter
+                            value={initialCategoryId}
+                            onChange={(categoryId) =>
+                                replaceQueryState({
+                                    categoryId: categoryId !== "all" ? categoryId : null,
+                                    page: null,
+                                })
+                            }
+                            options={[
+                                { value: "all", label: "All Categories" },
+                                ...categoryOptions.map((opt) => ({ value: opt.id, label: opt.name })),
+                            ]}
+                            withFilterIcon
+                        />
+                        <CatalogActiveStatusFilter
+                            value={initialStatus}
+                            onChange={(status) =>
+                                replaceQueryState({
+                                    status: status !== "all" ? status : null,
+                                    page: null,
+                                })
+                            }
                         />
                     </>
                 }

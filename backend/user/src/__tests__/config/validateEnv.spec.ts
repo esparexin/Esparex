@@ -26,6 +26,7 @@ const baseProductionEnv: NodeJS.ProcessEnv = {
     AWS_SECRET_ACCESS_KEY: VALID_SECRET_ACCESS_KEY,
     S3_BUCKET_NAME: 'esparex-test-bucket',
     CORS_ORIGIN: 'https://esparex.in',
+    ALLOW_REDIS: 'true',
 };
 
 describe('validateProductionEnvOrThrow', () => {

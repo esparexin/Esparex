@@ -41,12 +41,8 @@ export function useAdTableData({ filters, page, pageSize, refreshKey }: UseAdTab
         return baseTabs.map(tab => {
             const params = new URLSearchParams(tab.href.split('?')[1]);
             const status = params.get('status');
-            const catalogPending = params.get('catalogPending') === 'true';
-            
             let count: number | undefined;
-            if (catalogPending) {
-                count = summary.catalogPending;
-            } else if (status === 'all') {
+            if (status === 'all') {
                 count = summary.total;
             } else {
                 count = summary[status as keyof typeof summary] as number;

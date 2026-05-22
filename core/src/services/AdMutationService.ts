@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Ad from '../models/Ad';
-import { ListingTypeValue } from '../constants/enums/listingType';
+import { ListingTypeValue } from '@esparex/shared';
 import { getUserConnection } from '../config/db';
 import { AdContext } from '../types/ad.types';
 import { mutateStatus } from './StatusMutationService';

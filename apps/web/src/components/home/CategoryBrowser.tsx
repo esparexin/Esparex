@@ -87,10 +87,14 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                             "group-hover:scale-105"
                                         )}
                                     >
-                                        <Icon className={cn(
-                                            "h-4 w-4 md:h-6 md:w-6 transition-transform duration-500 group-hover:rotate-6",
-                                            config.color || "text-slate-500"
-                                        )} />
+                                        <Icon
+                                            className={cn(
+                                                "h-4 w-4 md:h-6 md:w-6 transition-transform duration-500 group-hover:rotate-6",
+                                                config.color || "text-slate-500"
+                                            )}
+                                            aria-hidden="true"
+                                            focusable="false"
+                                        />
                                     </div>
                                     <span className="w-full truncate text-[10px] md:text-[13px] font-bold text-slate-700 text-center group-hover:text-blue-600 transition-colors">
                                         {cat.name}

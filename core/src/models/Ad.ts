@@ -1,10 +1,10 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import softDeletePlugin, { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 import { sanitizeGeoPoint } from '@esparex/shared';
-import { LISTING_STATUS, LISTING_STATUS_VALUES } from '../constants/enums/listingStatus';
-import { type AdStatusValue } from '../constants/enums/adStatus';
-import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '../constants/enums/listingType';
-import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '../constants/enums/moderationStatus';
+import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@esparex/shared';
+import { type AdStatusValue } from '@esparex/shared';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/shared';
+import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/shared';
 import { getUserConnection } from '../config/db';
 import Location from './Location';
 import logger from '../utils/logger';
@@ -20,8 +20,6 @@ export interface IAd extends Document, ISoftDeleteDocument {
     categoryId: Types.ObjectId;
     brandId?: Types.ObjectId;
     modelId?: Types.ObjectId;
-    catalogRequestId?: Types.ObjectId;
-    catalogPending?: boolean;
     screenSize?: string;
     sparePartIds?: Types.ObjectId[];
     sparePartsSnapshot?: Array<{
@@ -122,8 +120,6 @@ const AdSchema: Schema = new Schema({
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true }, // Now Required
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand' },
     modelId: { type: Schema.Types.ObjectId, ref: 'Model' },
-    catalogRequestId: { type: Schema.Types.ObjectId, ref: 'CatalogRequest' },
-    catalogPending: { type: Boolean, default: false },
     screenSize: { type: String },
     sparePartIds: {
         type: [{ type: Schema.Types.ObjectId, ref: 'SparePart' }],

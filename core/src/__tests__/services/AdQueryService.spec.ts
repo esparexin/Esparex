@@ -166,7 +166,6 @@ describe('buildHomeFeedPipeline', () => {
 
         expect(facetStage.$facet.spotlight[0]).toEqual({
             $match: {
-                ...visibilityMatch,
                 isSpotlight: true,
                 spotlightExpiresAt: { $gt: expect.any(Date) }
             }
@@ -174,7 +173,6 @@ describe('buildHomeFeedPipeline', () => {
         expect(facetStage.$facet.boosted[0]).toEqual({
             $match: {
                 _id: { $in: [boostedId] },
-                ...visibilityMatch,
                 $or: [
                     { isSpotlight: { $ne: true } },
                     { spotlightExpiresAt: { $exists: false } },
@@ -186,7 +184,6 @@ describe('buildHomeFeedPipeline', () => {
         expect(facetStage.$facet.organic[0]).toEqual({
             $match: {
                 _id: { $nin: [boostedId] },
-                ...visibilityMatch,
                 $or: [
                     { isSpotlight: { $ne: true } },
                     { spotlightExpiresAt: { $exists: false } },

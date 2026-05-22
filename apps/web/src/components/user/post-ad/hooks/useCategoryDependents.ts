@@ -14,7 +14,8 @@ export function useCategoryDependents(
     setBrandIsPending: (isPending: boolean) => void,
     loadBrandsForCategory: (id: string) => Promise<void>,
     loadSparePartsForCategory: (id: string) => Promise<void>,
-    loadCategorySchema: (id: string) => Promise<void>
+    loadCategorySchema: (id: string) => Promise<void>,
+    loadModelsForBrand: (brandId?: string, categoryId?: string, search?: string) => Promise<void>
 ) {
     const selectedCategoryId = resolveCatalogEntityId(
         form.watch("categoryId"),
@@ -24,13 +25,7 @@ export function useCategoryDependents(
     const requiresScreenSize = useMemo(() => {
         const category = categoryMap[selectedCategoryId];
         if (!category) return false;
-        const name = category.name?.toLowerCase() || "";
-        const slug = category.slug?.toLowerCase() || "";
-        return Boolean(category.hasScreenSizes) ||
-               slug.includes("tv") ||
-               slug.includes("monitor") ||
-               name.includes("tv") ||
-               name.includes("monitor");
+        return Boolean(category.hasScreenSizes);
     }, [selectedCategoryId, categoryMap]);
 
     const handleCategoryChange = useCallback(async (id: string) => {
@@ -42,7 +37,6 @@ export function useCategoryDependents(
         form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
@@ -62,21 +56,23 @@ export function useCategoryDependents(
         form.setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         const brandObj = brandMap[name];
-        const brandId = sanitizeMongoObjectId(brandObj?.id || brandObj?._id);
+        const brandId = sanitizeMongoObjectId(brandObj?.id || brandObj?._id) || requestId;
         form.setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        form.setValue("catalogRequestId", requestId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         if (brandChanged) {
             form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
             form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
             form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
-            if (!requestId) {
-                form.setValue("catalogRequestId", "", { shouldValidate: true, shouldDirty: true });
-            }
+        }
+
+        if (brandId) {
+            await loadModelsForBrand(brandId, selectedCategoryId);
+        } else {
+            await loadModelsForBrand("", selectedCategoryId);
         }
         
         setBrandIsPending(false);
-    }, [form, brandMap, setFormError, setBrandIsPending]);
+    }, [form, brandMap, setFormError, setBrandIsPending, selectedCategoryId, loadModelsForBrand]);
 
     return { requiresScreenSize, handleCategoryChange, handleBrandChange };
 }

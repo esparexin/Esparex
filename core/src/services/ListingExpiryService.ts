@@ -1,6 +1,6 @@
 import Ad from '../models/Ad';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
-import { ACTOR_TYPE } from '../constants/enums/actor';
+import { LISTING_STATUS } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/shared';
 import { mutateStatusesBulk } from './StatusMutationService';
 import { lifecycleEvents } from '../events';
 import logger from '../utils/logger';

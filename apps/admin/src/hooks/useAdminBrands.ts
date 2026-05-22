@@ -11,7 +11,12 @@ import { CreateBrandDTO, UpdateBrandDTO } from "@shared";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 import type { Brand } from "@shared/types";
 
-export function useAdminBrands() {
+import { type AdminListPagination } from "@/hooks/useAdminCrudList";
+
+export function useAdminBrands(options?: {
+    initialFilters?: Partial<{ search: string; categoryId: string; status: string }>;
+    initialPagination?: Partial<AdminListPagination>;
+}) {
     const {
         items: brands,
         loading,
@@ -49,7 +54,7 @@ export function useAdminBrands() {
         deleteErrorMessage: "Failed to delete brand",
         deleteStrategy: "refresh",
         initialPagination: { limit: 50 },
-    });
+    }, options);
 
     const handleApprove = async (id: string) => {
         await runAction(() => approveBrand(id), {

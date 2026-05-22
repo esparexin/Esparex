@@ -13,8 +13,8 @@ import { hashOtp, verifyOtpHash } from '../utils/otpSecurity';
 import { env } from '../config/env';
 import { 
     USER_STATUS 
-} from '../constants/enums/userStatus';
-import { Role } from '../constants/enums/roles';
+} from '@esparex/shared';
+import { Role } from '@esparex/shared';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
@@ -59,10 +59,8 @@ const isLocalOtpLockBypass =
     env.NODE_ENV === 'development' &&
     !env.CI &&
     env.AUTH_BYPASS_OTP_LOCK === 'true';
-const IS_DLT_PENDING_BYPASS = true; // TODO: Remove after DLT registration
-
 const isStaticOtpBypassEnabled = (): boolean =>
-    env.USE_DEFAULT_OTP || IS_DLT_PENDING_BYPASS;
+    env.USE_DEFAULT_OTP === true;
 
 const isStaticOtpBypassMatch = (otp: string): boolean =>
     isStaticOtpBypassEnabled() && otp === env.DEV_STATIC_OTP;

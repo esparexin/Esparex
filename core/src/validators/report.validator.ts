@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
-import { REPORT_REASON_VALUES } from '../constants/enums/reportReason';
+import { REPORT_REASON_VALUES } from '@esparex/shared';
 import { REPORT_TARGET_TYPE_VALUES } from '../models/Report';
 
 const optionalTrimmed = (max: number) =>

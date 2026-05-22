@@ -8,7 +8,7 @@ import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
 import { getUserPhoneVerification } from '@esparex/core/services/UserService';
-import { type ActorTypeValue } from '@esparex/core/constants/enums/actor';
+import { type ActorTypeValue } from '@esparex/shared';
 
 export const registerBusiness = async (req: Request, res: Response) => {
     try {

@@ -6,6 +6,7 @@ declare module 'express-serve-static-core' {
     user?: IAuthUser;
     admin?: IAdmin;
     business?: unknown;
+    listing?: any;
   }
 }
 
@@ -15,6 +16,7 @@ declare global { // Fallback for some configurations
       user?: IAuthUser;
       admin?: IAdmin;
       business?: unknown;
+      listing?: any;
     }
   }
 }

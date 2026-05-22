@@ -5,7 +5,12 @@ import { useCallback } from "react";
 import { CreateModelDTO, UpdateModelDTO } from "@shared";
 
 
-export function useAdminModels() {
+import { type AdminListPagination } from "@/hooks/useAdminCrudList";
+
+export function useAdminModels(options?: {
+    initialFilters?: Partial<{ search: string; brandId: string; categoryId: string; parentModelId: string; variantModelId: string; status: string }>;
+    initialPagination?: Partial<AdminListPagination>;
+}) {
     const {
         items: models,
         loading,
@@ -22,7 +27,7 @@ export function useAdminModels() {
         setItems
     } = useAdminCatalogCollection<
         Model,
-        { search: string; brandId: string; categoryId: string; status: string },
+        { search: string; brandId: string; categoryId: string; parentModelId: string; variantModelId: string; status: string },
         CreateModelDTO,
         UpdateModelDTO
     >({
@@ -30,6 +35,8 @@ export function useAdminModels() {
             search: "",
             brandId: "all",
             categoryId: "all",
+            parentModelId: "all",
+            variantModelId: "all",
             status: "all",
         },
         fetchList: getModels,
@@ -43,7 +50,7 @@ export function useAdminModels() {
         deleteItem: deleteModel,
         deleteSuccessMessage: "Model deleted successfully",
         deleteErrorMessage: "Failed to delete model",
-    });
+    }, options);
 
     const handleToggleStatus = useCallback(async (id: string) => {
         await runAction(() => toggleModelStatus(id), {

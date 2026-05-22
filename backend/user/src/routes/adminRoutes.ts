@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { requireAdmin } from '../middleware/adminAuth';
+import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
 
 import * as adminSystem from '@esparex/core/controllers/admin/system';
@@ -43,52 +43,52 @@ router.get('/analytics', adminSystem.getAnalytics);
 router.get('/analytics/revenue/summary', adminAnalytics.getRevenueSummary);
 router.get('/analytics/revenue/categories', adminAnalytics.getRevenueByCategory);
 router.get('/activity', adminSystem.getRecentActivity);
-router.get('/security/audit', adminAudit.getAuditLogs);
+router.get('/security/audit', requirePermission('system:logs'), adminAudit.getAuditLogs);
 
 // Users and sessions
 router.get('/users', adminUsers.getUsers);
 router.get('/users/:id', adminUsers.getUserById);
-router.patch('/users/:id/status', adminUsers.updateUserStatus);
-router.patch('/users/:id/verify', adminUsers.verifyUser);
+router.patch('/users/:id/status', requirePermission('users:write'), adminUsers.updateUserStatus);
+router.patch('/users/:id/verify', requirePermission('users:write'), adminUsers.verifyUser);
 router.get('/user-management/overview', adminUsers.getUserManagementOverview);
 
 router.get('/admin-users', adminUsers.getAdmins);
-router.post('/admin-users', adminUsers.createAdmin);
+router.post('/admin-users', requirePermission('system:config'), adminUsers.createAdmin);
 router.get('/admin-users/:id', adminUsers.getAdminById);
-router.patch('/admin-users/:id', adminUsers.updateAdmin);
-router.delete('/admin-users/:id', adminUsers.deleteAdmin);
-router.patch('/admin-users/:id/deactivate', adminUsers.deactivateAdmin);
+router.patch('/admin-users/:id', requirePermission('system:config'), adminUsers.updateAdmin);
+router.delete('/admin-users/:id', requirePermission('system:config'), adminUsers.deleteAdmin);
+router.patch('/admin-users/:id/deactivate', requirePermission('system:config'), adminUsers.deactivateAdmin);
 
 router.get('/admin-sessions', adminSessions.getAdminSessions);
-router.post('/admin-sessions/:id/revoke', adminSessions.revokeAdminSessionById);
+router.post('/admin-sessions/:id/revoke', requirePermission('system:config'), adminSessions.revokeAdminSessionById);
 
 // Plans
 router.get('/plans', adminPlans.getPlans);
-router.post('/plans', adminPlans.createPlan);
+router.post('/plans', requirePermission('system:config'), adminPlans.createPlan);
 router.get('/plans/:id', adminPlans.getPlans);
-router.patch('/plans/:id', adminPlans.updatePlan);
-router.patch('/plans/:id/toggle', adminPlans.togglePlan);
+router.patch('/plans/:id', requirePermission('system:config'), adminPlans.updatePlan);
+router.patch('/plans/:id/toggle', requirePermission('system:config'), adminPlans.togglePlan);
 
 // Businesses
 router.get('/businesses/accounts', adminBusiness.getBusinessAccounts);
 router.get('/businesses/overview', adminBusiness.getBusinessOverview);
 router.get('/businesses/:id', adminBusiness.getBusinessAccountById);
-router.patch('/businesses/:id/approve', adminBusiness.approveBusinessAccount);
-router.patch('/businesses/:id/reject', adminBusiness.rejectBusinessAccount);
-router.patch('/businesses/:id/status', adminBusiness.updateBusinessStatus);
-router.patch('/businesses/:id/renew', adminBusiness.renewBusinessAccount);
-router.patch('/businesses/:id/expire', adminBusiness.expireBusinessAccount);
-router.patch('/businesses/:id', adminBusiness.updateBusinessByAdmin);
+router.patch('/businesses/:id/approve', requirePermission('business:approve'), adminBusiness.approveBusinessAccount);
+router.patch('/businesses/:id/reject', requirePermission('business:approve'), adminBusiness.rejectBusinessAccount);
+router.patch('/businesses/:id/status', requirePermission('business:approve'), adminBusiness.updateBusinessStatus);
+router.patch('/businesses/:id/renew', requirePermission('business:approve'), adminBusiness.renewBusinessAccount);
+router.patch('/businesses/:id/expire', requirePermission('business:approve'), adminBusiness.expireBusinessAccount);
+router.patch('/businesses/:id', requirePermission('business:approve'), adminBusiness.updateBusinessByAdmin);
 
-router.delete('/businesses/:id', adminBusiness.deleteBusinessAccount);
+router.delete('/businesses/:id', requirePermission('business:approve'), adminBusiness.deleteBusinessAccount);
 
 // Bulk Operations
-router.post('/businesses/bulk/approve', adminBusiness.adminBulkApproveBusinesses);
-router.post('/businesses/bulk/reject', adminBusiness.adminBulkRejectBusinesses);
-router.post('/businesses/bulk/deactivate', adminBusiness.adminBulkDeactivateBusinesses);
-router.post('/businesses/bulk/expire', adminBusiness.adminBulkExpireBusinesses);
-router.post('/businesses/bulk/renew', adminBusiness.adminBulkRenewBusinesses);
-router.post('/businesses/bulk/resend-warnings', adminBusiness.adminBulkResendBusinessWarnings);
+router.post('/businesses/bulk/approve', requirePermission('business:approve'), adminBusiness.adminBulkApproveBusinesses);
+router.post('/businesses/bulk/reject', requirePermission('business:approve'), adminBusiness.adminBulkRejectBusinesses);
+router.post('/businesses/bulk/deactivate', requirePermission('business:approve'), adminBusiness.adminBulkDeactivateBusinesses);
+router.post('/businesses/bulk/expire', requirePermission('business:approve'), adminBusiness.adminBulkExpireBusinesses);
+router.post('/businesses/bulk/renew', requirePermission('business:approve'), adminBusiness.adminBulkRenewBusinesses);
+router.post('/businesses/bulk/resend-warnings', requirePermission('business:approve'), adminBusiness.adminBulkResendBusinessWarnings);
 
 
 // Listings and reports
@@ -97,38 +97,38 @@ router.get('/listings/counts', adminListings.adminGetListingCounts);
 router.get('/listings/:id', adminListings.adminGetListingById);
 
 // Moderation Actions (Support both POST and PATCH for compatibility)
-router.patch('/listings/:id/approve', adminListings.adminApproveListing);
-router.post('/listings/:id/approve', adminListings.adminApproveListing);
+router.patch('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
+router.post('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
 
-router.patch('/listings/:id/reject', adminListings.adminRejectListing);
-router.post('/listings/:id/reject', adminListings.adminRejectListing);
+router.patch('/listings/:id/reject', requirePermission('ads:write'), adminListings.adminRejectListing);
+router.post('/listings/:id/reject', requirePermission('ads:write'), adminListings.adminRejectListing);
 
-router.patch('/listings/:id/deactivate', adminListings.adminDeactivateListing);
-router.post('/listings/:id/deactivate', adminListings.adminDeactivateListing);
+router.patch('/listings/:id/deactivate', requirePermission('ads:write'), adminListings.adminDeactivateListing);
+router.post('/listings/:id/deactivate', requirePermission('ads:write'), adminListings.adminDeactivateListing);
 
-router.patch('/listings/:id/expire', adminListings.adminExpireListing);
-router.post('/listings/:id/expire', adminListings.adminExpireListing);
+router.patch('/listings/:id/expire', requirePermission('ads:write'), adminListings.adminExpireListing);
+router.post('/listings/:id/expire', requirePermission('ads:write'), adminListings.adminExpireListing);
 
-router.patch('/listings/:id/extend', adminListings.adminExtendListing);
-router.post('/listings/:id/extend', adminListings.adminExtendListing);
+router.patch('/listings/:id/extend', requirePermission('ads:write'), adminListings.adminExtendListing);
+router.post('/listings/:id/extend', requirePermission('ads:write'), adminListings.adminExtendListing);
 
-router.patch('/listings/:id/report-resolve', adminListings.adminResolveListingReport);
-router.post('/listings/:id/report-resolve', adminListings.adminResolveListingReport);
-router.delete('/listings/:id', adminListings.adminSoftDeleteListing);
+router.patch('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
+router.post('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
+router.delete('/listings/:id', requirePermission('ads:write'), adminListings.adminSoftDeleteListing);
 
 // Bulk Operations
-router.post('/listings/bulk/approve', adminListings.adminBulkApproveListings);
-router.post('/listings/bulk/reject', adminListings.adminBulkRejectListings);
-router.post('/listings/bulk/deactivate', adminListings.adminBulkDeactivateListings);
-router.post('/listings/bulk/expire', adminListings.adminBulkExpireListings);
-router.post('/listings/bulk/extend', adminListings.adminBulkExtendListings);
-router.post('/listings/bulk/resend-warnings', adminListings.adminBulkResendListingWarnings);
-router.post('/listings/bulk/resend-spotlight-warnings', adminListings.adminBulkResendSpotlightWarnings);
+router.post('/listings/bulk/approve', requirePermission('ads:write'), adminListings.adminBulkApproveListings);
+router.post('/listings/bulk/reject', requirePermission('ads:write'), adminListings.adminBulkRejectListings);
+router.post('/listings/bulk/deactivate', requirePermission('ads:write'), adminListings.adminBulkDeactivateListings);
+router.post('/listings/bulk/expire', requirePermission('ads:write'), adminListings.adminBulkExpireListings);
+router.post('/listings/bulk/extend', requirePermission('ads:write'), adminListings.adminBulkExtendListings);
+router.post('/listings/bulk/resend-warnings', requirePermission('ads:write'), adminListings.adminBulkResendListingWarnings);
+router.post('/listings/bulk/resend-spotlight-warnings', requirePermission('ads:write'), adminListings.adminBulkResendSpotlightWarnings);
 
 router.get('/reports', adminReports.getReportedAds);
 router.get('/reports/:id', adminReports.getReportedAdById);
-router.patch('/reports/:id/resolve', adminReports.resolveReport);
-router.patch('/reports/:id/status', adminReports.updateReportStatus);
+router.patch('/reports/:id/resolve', requirePermission('ads:write'), adminReports.resolveReport);
+router.patch('/reports/:id/status', requirePermission('ads:write'), adminReports.updateReportStatus);
 
 // Finance
 router.get('/finance/transactions', adminTransactions.getAllTransactions);
@@ -146,8 +146,8 @@ router.get('/notifications/recipients', adminNotifications.getRecipients);
 router.post('/ai/generate', adminAi.generate);
 
 router.get('/api-keys', adminApiKeys.getApiKeys);
-router.post('/api-keys', adminApiKeys.createApiKey);
-router.patch('/api-keys/:id/revoke', adminApiKeys.revokeApiKey);
+router.post('/api-keys', requirePermission('system:config'), adminApiKeys.createApiKey);
+router.patch('/api-keys/:id/revoke', requirePermission('system:config'), adminApiKeys.revokeApiKey);
 
 // Locations and geofences
 router.get('/locations', adminLocations.getAllLocations);
@@ -169,12 +169,12 @@ router.delete('/geofences/:id', adminLocations.deleteGeofence);
 
 // System
 router.get('/system/health', adminSystem.getSystemHealth);
-router.get('/system/scan', adminSystem.runSystemScan);
-router.post('/system/fix', adminSystem.applySystemFix);
+router.get('/system/scan', requirePermission('system:config'), adminSystem.runSystemScan);
+router.post('/system/fix', requirePermission('system:config'), adminSystem.applySystemFix);
 router.get('/cache/health', adminSystem.getCacheHealth);
 
 router.get('/system/config', adminSystemConfig.getSystemConfig);
-router.patch('/system/config', adminSystemConfig.updateSystemConfig);
+router.patch('/system/config', requirePermission('system:config'), adminSystemConfig.updateSystemConfig);
 
 router.get('/support/contact', adminSystem.getContactSubmissions);
 router.patch('/support/contact/:id/status', adminSystem.updateContactSubmissionStatus);
@@ -185,8 +185,8 @@ router.post('/import/seed-devices', adminImportContent.seedDevices);
 
 router.get('/smart-alerts', adminSmartAlerts.getAllSmartAlerts);
 router.get('/smart-alerts/logs', adminSmartAlerts.getSmartAlertLogs);
-router.delete('/smart-alerts/:id', adminSmartAlerts.deleteSmartAlertById);
-router.post('/smart-alerts/bulk/resend-warnings', adminSmartAlerts.adminBulkResendAlertWarnings);
+router.delete('/smart-alerts/:id', requirePermission('ads:write'), adminSmartAlerts.deleteSmartAlertById);
+router.post('/smart-alerts/bulk/resend-warnings', requirePermission('ads:write'), adminSmartAlerts.adminBulkResendAlertWarnings);
 
 // Add these to respective sections if needed, but I'll add them near their bulk operations
 // For clarity, I'll place them exactly where the other bulk operations are.

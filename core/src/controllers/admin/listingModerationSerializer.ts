@@ -114,7 +114,6 @@ export const serializeListingCountsResponse = (counts: {
     expired: number;
     sold: number;
     deactivated: number;
-    catalogPending?: number;
     byStatus: {
         pending: number;
         live: number;
@@ -124,7 +123,6 @@ export const serializeListingCountsResponse = (counts: {
         expired: number;
         sold: number;
         deactivated: number;
-        catalogPending?: number;
     };
     byListingType: Record<ModerationListingType, {
         total: number;
@@ -136,7 +134,6 @@ export const serializeListingCountsResponse = (counts: {
         expired: number;
         sold: number;
         deactivated: number;
-        catalogPending?: number;
     }>;
 }) => ({
     total: counts.total,
@@ -148,8 +145,6 @@ export const serializeListingCountsResponse = (counts: {
     expired: counts.expired,
     sold: counts.sold,
     deactivated: counts.deactivated,
-    catalogPending: counts.catalogPending ?? 0,
-    heldForCatalog: counts.catalogPending ?? 0,
     byStatus: counts.byStatus,
     byListingType: counts.byListingType,
 });
@@ -164,7 +159,6 @@ export const serializeLegacyCountsAdapter = (counts: {
     expired: number;
     sold: number;
     deactivated: number;
-    catalogPending?: number;
     byListingType: Record<ModerationListingType, {
         total: number;
         pending: number;
@@ -175,7 +169,6 @@ export const serializeLegacyCountsAdapter = (counts: {
         expired: number;
         sold: number;
         deactivated: number;
-        catalogPending?: number;
     }>;
 }) => ({
     total: counts.total,
@@ -187,8 +180,6 @@ export const serializeLegacyCountsAdapter = (counts: {
     expired: counts.expired,
     sold: counts.sold,
     deactivated: counts.deactivated,
-    catalogPending: counts.catalogPending ?? 0,
-    heldForCatalog: counts.catalogPending ?? 0,
     ad: counts.byListingType.ad,
     service: counts.byListingType.service,
     spare_part: counts.byListingType.spare_part,

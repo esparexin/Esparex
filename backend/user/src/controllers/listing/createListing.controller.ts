@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
 import * as adImageService from '@esparex/core/services/AdImageService';
@@ -77,11 +78,30 @@ export const uploadImage = async (req: Request, res: Response, next: NextFunctio
 /**
  * POST /api/v1/listings/upload-presign
  */
+/**
+ * Allowed MIME types for ad image uploads.
+ * Must stay in sync with the S3 bucket policy.
+ */
+const presignBodySchema = z.object({
+    fileName: z.string().min(1).max(255).regex(/^[\w.-]+$/, 'Invalid file name'),
+    fileType: z.enum([
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+    ]),
+});
+
 export const getUploadPresignedUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user as AuthUser;
-        const { fileName, fileType } = req.body as { fileName: string; fileType: string };
-        const result = await adImageService.getUploadPresignedUrl(user._id.toString(), fileName, fileType);
+        const parsed = presignBodySchema.parse(req.body);
+        const result = await adImageService.getUploadPresignedUrl(
+            user._id.toString(),
+            parsed.fileName,
+            parsed.fileType
+        );
         return sendSuccessResponse(res, result);
     } catch (error) {
         next(error);

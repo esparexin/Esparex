@@ -13,7 +13,6 @@ import logger from '../utils/logger';
 
 let nodeProfilingIntegration: any = null;
 try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     nodeProfilingIntegration = require('@sentry/profiling-node').nodeProfilingIntegration;
 } catch (error) {
     logger.warn('Failed to load @sentry/profiling-node native binary. Sentry profiling is disabled.', {

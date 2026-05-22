@@ -45,8 +45,11 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
-jest.mock('@shared/enums/listingStatus', () => ({
-    LISTING_STATUS: { LIVE: 'live', SOLD: 'sold', PENDING: 'pending', DRAFT: 'draft', DELETED: 'deleted' },
+const mockListingStatus = { LIVE: 'live', SOLD: 'sold', PENDING: 'pending', DRAFT: 'draft', DELETED: 'deleted' };
+
+jest.mock('@esparex/shared/enums/listingStatus', () => ({
+    LISTING_STATUS: mockListingStatus,
+    LISTING_STATUS_VALUES: Object.values(mockListingStatus),
 }));
 
 jest.mock('@shared/enums/actor', () => ({
@@ -77,12 +80,14 @@ const makeReq = (overrides: Partial<{
     params: Record<string, string>;
     headers: Record<string, string>;
     ip: string;
+    listing: unknown;
 }> = {}): Request => ({
     user: { _id: USER_ID, role: 'user' },
     body: {},
     params: { id: LISTING_ID },
     headers: { 'user-agent': 'TestAgent/1.0' },
     ip: '127.0.0.1',
+    listing: { _id: LISTING_ID, status: 'live', listingType: 'ad' },
     ...overrides,
 } as unknown as Request);
 
@@ -103,13 +108,11 @@ const liveListing = () => ({ _id: LISTING_ID, status: 'live', listingType: 'ad' 
 describe('lifecycle.controller — markListingSold', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockGetAndVerifyOwnedListing.mockResolvedValue(liveListing());
         mockMutateStatus.mockResolvedValue({ _id: LISTING_ID, status: 'sold' });
     });
 
     it('returns early when listing not found or not owned', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue(null);
-        const req = makeReq();
+        const req = makeReq({ listing: null });
         const res = makeRes();
         const next = makeNext();
 
@@ -120,8 +123,7 @@ describe('lifecycle.controller — markListingSold', () => {
     });
 
     it('returns 400 when listing is not LIVE', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'draft' });
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'draft' } });
         const res = makeRes();
         const next = makeNext();
 
@@ -174,13 +176,11 @@ describe('lifecycle.controller — markListingSold', () => {
 describe('lifecycle.controller — deleteListing', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockGetAndVerifyOwnedListing.mockResolvedValue(liveListing());
         mockMutateStatus.mockResolvedValue({ _id: LISTING_ID, isDeleted: true });
     });
 
     it('returns early when listing not found or not owned', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue(null);
-        const req = makeReq();
+        const req = makeReq({ listing: null });
         const res = makeRes();
         const next = makeNext();
 
@@ -226,13 +226,11 @@ describe('lifecycle.controller — deleteListing', () => {
 describe('lifecycle.controller — promoteListing', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockGetAndVerifyOwnedListing.mockResolvedValue(liveListing());
         mockCanPromote.mockReturnValue({ allowed: true });
     });
 
     it('returns early when listing not found or not owned', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue(null);
-        const req = makeReq();
+        const req = makeReq({ listing: null });
         const res = makeRes();
         const next = makeNext();
 
@@ -263,9 +261,8 @@ describe('lifecycle.controller — promoteListing', () => {
     });
 
     it('returns 400 when listing is not LIVE (even if policy allows)', async () => {
-        mockGetAndVerifyOwnedListing.mockResolvedValue({ _id: LISTING_ID, status: 'draft', listingType: 'ad' });
         mockCanPromote.mockReturnValue({ allowed: true });
-        const req = makeReq();
+        const req = makeReq({ listing: { _id: LISTING_ID, status: 'draft', listingType: 'ad' } });
         const res = makeRes();
         const next = makeNext();
 
@@ -295,7 +292,7 @@ describe('lifecycle.controller — promoteListing', () => {
 
     it('forwards errors to next()', async () => {
         const error = new Error('Unexpected');
-        mockGetAndVerifyOwnedListing.mockRejectedValue(error);
+        mockCanPromote.mockImplementation(() => { throw error; });
         const req = makeReq();
         const res = makeRes();
         const next = makeNext();

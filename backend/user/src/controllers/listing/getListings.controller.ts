@@ -9,13 +9,14 @@ import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
 import * as feedService from '@esparex/core/services/FeedService';
 import * as trendingService from '@esparex/core/services/TrendingService';
 
+import { z } from 'zod';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
-import { LISTING_STATUS } from "@shared/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import { respond } from "@esparex/core/utils/respond";
 import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/api";
 import type { Ad } from "@shared";
 import type { AuthUser } from '../../types/auth.types';
-import type { ListingTypeValue } from "@esparex/core/constants/enums/listingType";
+import type { ListingTypeValue } from '@esparex/shared';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -350,7 +351,10 @@ export const getTrending = async (req: Request, res: Response, next: NextFunctio
  */
 export const getListingSuggestions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const q = String(req.query.q || '');
+        const rawQ = req.query.q;
+        const q = z.string().min(1).max(100).optional().parse(
+            typeof rawQ === 'string' ? rawQ.trim() || undefined : undefined
+        ) ?? '';
         const data = await AdAggregationService.getListingSuggestions(q);
         return sendSuccessResponse(res, data);
     } catch (error) {

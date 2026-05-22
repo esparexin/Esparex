@@ -1,10 +1,11 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '../constants/enums/catalogStatus';
+import mongoose, { Schema, Document, Model as MongooseModel } from 'mongoose';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, CatalogStatusValue } from '@esparex/shared';
 import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
     CatalogApprovalStatusValue,
-} from '../constants/enums/catalogApprovalStatus';
+} from '@esparex/shared';
+import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance';
 
 export interface IModel extends Document {
     name: string;
@@ -13,9 +14,32 @@ export interface IModel extends Document {
     slug: string;
     aliases: string[];
     synonyms: string[];
+    marketplaceTrust?: {
+        catalogTrustScore?: number;
+        variantTrustScore?: number;
+        aliasTrustScore?: number;
+        synonymTrustScore?: number;
+        transliterationTrustScore?: number;
+        moderatorTrustScore?: number;
+        moderationReliabilityScore?: number;
+        aliasApprovalConfidence?: number;
+        synonymApprovalConfidence?: number;
+        popularityConfidenceScore?: number;
+        canonicalCertaintyScore?: number;
+        duplicateConfidenceScore?: number;
+        seoQualityScore?: number;
+        crawlDepthLimit?: number;
+        indexable?: boolean;
+        lastAuditAt?: Date;
+    };
     brandId: mongoose.Types.ObjectId;
-    categoryId?: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
+    parentModelId?: mongoose.Types.ObjectId | null;
+    variantOfModelId?: mongoose.Types.ObjectId | null;
+    hierarchyPath?: string[];
+    treeDepth?: number;
+    variantType?: string;
+    isParentModel?: boolean;
     isActive: boolean;
     approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
@@ -34,9 +58,32 @@ const ModelSchema: Schema = new Schema({
     slug: { type: String, required: true, trim: true, lowercase: true },
     aliases: { type: [String], default: [] },
     synonyms: { type: [String], default: [] },
+    marketplaceTrust: {
+        catalogTrustScore: { type: Number, default: 0.72, min: 0, max: 1 },
+        variantTrustScore: { type: Number, default: 0.66, min: 0, max: 1 },
+        aliasTrustScore: { type: Number, default: 0.62, min: 0, max: 1 },
+        synonymTrustScore: { type: Number, default: 0.58, min: 0, max: 1 },
+        transliterationTrustScore: { type: Number, default: 0.64, min: 0, max: 1 },
+        moderatorTrustScore: { type: Number, default: 0.7, min: 0, max: 1 },
+        moderationReliabilityScore: { type: Number, default: 0.7, min: 0, max: 1 },
+        aliasApprovalConfidence: { type: Number, default: 0.6, min: 0, max: 1 },
+        synonymApprovalConfidence: { type: Number, default: 0.55, min: 0, max: 1 },
+        popularityConfidenceScore: { type: Number, default: 0.65, min: 0, max: 1 },
+        canonicalCertaintyScore: { type: Number, default: 0.72, min: 0, max: 1 },
+        duplicateConfidenceScore: { type: Number, default: 0.5, min: 0, max: 1 },
+        seoQualityScore: { type: Number, default: 0.6, min: 0, max: 1 },
+        crawlDepthLimit: { type: Number, default: 4, min: 1, max: 8 },
+        indexable: { type: Boolean, default: true },
+        lastAuditAt: { type: Date },
+    },
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
-    categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
     categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
+    parentModelId: { type: Schema.Types.ObjectId, ref: 'Model', default: null },
+    variantOfModelId: { type: Schema.Types.ObjectId, ref: 'Model', default: null },
+    hierarchyPath: { type: [String], default: [] },
+    treeDepth: { type: Number, default: 0, min: 0 },
+    variantType: { type: String, trim: true, default: null },
+    isParentModel: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     approvalStatus: {
         type: String,
@@ -95,12 +142,24 @@ ModelSchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_model_approva
 ModelSchema.index({ name: 1 }, { name: 'idx_model_name', collation: { locale: 'en', strength: 2 } });
 ModelSchema.index({ isDeleted: 1 }, { name: 'idx_model_isDeleted' });
 ModelSchema.index({ brandId: 1 }, { name: 'idx_model_brandId' });
+ModelSchema.index({ parentModelId: 1 }, { name: 'idx_model_parentModelId' });
+ModelSchema.index({ variantOfModelId: 1 }, { name: 'idx_model_variantOfModelId' });
+ModelSchema.index({ hierarchyPath: 1 }, { name: 'idx_model_hierarchyPath' });
+ModelSchema.index({ brandId: 1, parentModelId: 1 }, { name: 'idx_model_brand_parentModelId' });
+ModelSchema.index({ brandId: 1, variantOfModelId: 1, slug: 1 }, { name: 'idx_model_brand_variant_slug' });
+ModelSchema.index({ brandId: 1, parentModelId: 1, slug: 1 }, { name: 'idx_model_brand_parent_slug' });
+ModelSchema.index({ treeDepth: 1, isDeleted: 1 }, { name: 'idx_model_treeDepth_isDeleted' });
+ModelSchema.index({ 'marketplaceTrust.catalogTrustScore': -1 }, { name: 'idx_model_marketplaceTrust_catalog' });
+ModelSchema.index({ 'marketplaceTrust.seoQualityScore': -1, 'marketplaceTrust.indexable': 1 }, { name: 'idx_model_marketplaceTrust_seo' });
+ModelSchema.index(
+    { name: 'text', displayName: 'text', canonicalName: 'text', slug: 'text', aliases: 'text', synonyms: 'text' },
+    {
+        name: 'idx_model_search_text_readiness',
+        weights: { canonicalName: 10, displayName: 8, name: 8, slug: 6, aliases: 4, synonyms: 3 },
+    }
+);
 
-/**
- * ATLAS-ONLY INDEXES (Drift)
- * The following indexes exist in Atlas but are not strictly enforced by Mongoose:
- * - model_brand_category_idx: { brandId: 1, categoryId: 1 }
- */
+ModelSchema.index({ brandId: 1, categoryIds: 1 }, { name: 'model_brand_categoryIds_idx' });
 
 import softDeletePlugin from '../utils/softDeletePlugin';
 ModelSchema.plugin(softDeletePlugin);
@@ -108,29 +167,10 @@ ModelSchema.plugin(softDeletePlugin);
 ModelSchema.pre('validate', function () {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
     const mutableDoc = this as any;
-
-    const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
-    if (normalizedDisplayName) {
-        mutableDoc.displayName = normalizedDisplayName;
-        mutableDoc.name = normalizedDisplayName;
-    }
-
-    if (typeof mutableDoc.canonicalName === 'string') {
-        mutableDoc.canonicalName = mutableDoc.canonicalName.trim();
-    }
-    if (!mutableDoc.canonicalName && normalizedDisplayName) {
-        mutableDoc.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
-    }
+    applyCatalogGovernanceDefaults(mutableDoc);
 
     if (!mutableDoc.approvalStatus) {
         mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
-    }
-
-    // Enforce bidirectional singular/plural category synchronization
-    if (mutableDoc.categoryId && (!mutableDoc.categoryIds || mutableDoc.categoryIds.length === 0)) {
-        mutableDoc.categoryIds = [mutableDoc.categoryId];
-    } else if ((!mutableDoc.categoryId || mutableDoc.categoryId === null) && mutableDoc.categoryIds && mutableDoc.categoryIds.length > 0) {
-        mutableDoc.categoryId = mutableDoc.categoryIds[0];
     }
 });
 
@@ -139,6 +179,6 @@ import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 ModelSchema.plugin(installSafeSoftDeleteQuery);
 
 import { getUserConnection } from '../config/db';
-const ProductModel: Model<IModel> = (getUserConnection().models.Model as Model<IModel> | undefined) || getUserConnection().model<IModel>('Model', ModelSchema);
+export const Model: MongooseModel<IModel> = (getUserConnection().models.Model as MongooseModel<IModel> | undefined) || getUserConnection().model<IModel>('Model', ModelSchema);
 
-export default ProductModel;
+export default Model;

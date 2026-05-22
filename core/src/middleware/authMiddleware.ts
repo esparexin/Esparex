@@ -6,8 +6,9 @@ import User from "../models/User";
 import { isTokenBlacklisted } from "../utils/redisCache";
 import { sendErrorResponse } from "../utils/errorResponse";
 import logger from '../utils/logger';
-import { Role } from "../constants/enums/roles";
+import { Role } from '@esparex/shared';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
+import { setReliabilityContext } from '../utils/reliabilityContext';
 
 /**
  * ESPAREX — CANONICAL END-USER AUTH MIDDLEWARE (SSOT)
@@ -16,6 +17,18 @@ import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../uti
  * - backend/user (Public App)
  * - backend/admin (Admin masked/masquerade actions)
  */
+
+const isStaticAsset = (path: string | undefined): boolean => {
+  if (!path || typeof path !== 'string') return false;
+  const cleanPath = path.split('?')[0];
+  return (
+    cleanPath === '/manifest.json' ||
+    cleanPath === '/sw.js' ||
+    cleanPath === '/favicon.ico' ||
+    cleanPath === '/robots.txt' ||
+    cleanPath.startsWith('/icons/')
+  );
+};
 
 const extractToken = (req: Request): { token: string } | null => {
   // 1️⃣ Authorization Header
@@ -67,6 +80,10 @@ export const protect = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    if (isStaticAsset(req.path)) {
+      return next();
+    }
+
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
@@ -106,6 +123,8 @@ export const protect = async (
       role: decoded.role,
       isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
     };
+
+    setReliabilityContext({ userId: decoded.id });
 
     const cacheKey = `user:status:${req.user.id}`;
     const cachedUserStatus = parseCachedUserStatus(await redis.get(cacheKey));
@@ -165,6 +184,10 @@ export const extractUser = (
   res: Response,
   next: NextFunction
 ): void => {
+  if (isStaticAsset(req.path)) {
+    return next();
+  }
+
   const tokenData = extractToken(req);
   if (!tokenData) return next();
 
@@ -179,6 +202,7 @@ export const extractUser = (
         role: decoded.role,
         isAdmin: (decoded.role as Role) === Role.ADMIN || (decoded.role as Role) === Role.SUPER_ADMIN
       };
+      setReliabilityContext({ userId: decoded.id });
     }
   } catch {
     // Ignore invalid tokens for optional auth

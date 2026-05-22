@@ -22,17 +22,16 @@ export function usePostAdStepNavigation({
     requiresScreenSize,
     categoryFilters = [],
     trigger,
-    maxStep = 2,
+    maxStep = 4,
 }: UsePostAdStepNavigationProps) {
     const nextStep = useCallback(async () => {
         setStepValidationAttempts((prev) =>
             prev[currentStep] ? prev : { ...prev, [currentStep]: true }
         );
+        let hasErrors = false;
 
         if (currentStep === 1) {
-            const { categoryId: catId, brand: brandName, deviceCondition: dc } = form.getValues();
-            let hasErrors = false;
-
+            const { categoryId: catId } = form.getValues();
             if (!catId) {
                 form.setError("categoryId" as Path<PostAdFormData>, {
                     type: "manual",
@@ -40,6 +39,10 @@ export function usePostAdStepNavigation({
                 });
                 hasErrors = true;
             }
+        }
+        
+        if (currentStep === 2) {
+            const { brand: brandName, screenSize: sz } = form.getValues();
             if (!brandName) {
                 form.setError("brand" as Path<PostAdFormData>, {
                     type: "manual",
@@ -47,10 +50,11 @@ export function usePostAdStepNavigation({
                 });
                 hasErrors = true;
             }
-            if (!dc) {
-                form.setError("deviceCondition" as Path<PostAdFormData>, {
+
+            if (requiresScreenSize && !sz) {
+                form.setError("screenSize" as Path<PostAdFormData>, {
                     type: "manual",
-                    message: "Please select device condition",
+                    message: "Please select a screen size",
                 });
                 hasErrors = true;
             }
@@ -70,29 +74,45 @@ export function usePostAdStepNavigation({
                 });
                 hasErrors = true;
             });
+        }
 
-            if (hasErrors) {
-                requestAnimationFrame(() => {
-                    const firstError = document.querySelector(".text-destructive");
-                    const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
-                    if (scrollTarget) {
-                        scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
+        if (currentStep === 3) {
+            const { deviceCondition: dc } = form.getValues();
+            if (!dc) {
+                form.setError("deviceCondition" as Path<PostAdFormData>, {
+                    type: "manual",
+                    message: "Please select device condition",
                 });
-                return;
+                hasErrors = true;
             }
+        }
+
+        if (hasErrors) {
+            requestAnimationFrame(() => {
+                const firstError = document.querySelector(".text-destructive");
+                const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
+                if (scrollTarget) {
+                    scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            });
+            return;
         }
 
         let fieldsToValidate: Path<PostAdFormData>[] = [];
 
         switch (currentStep) {
             case 1:
-                fieldsToValidate = ["categoryId", "brand", "model", "deviceCondition"] as Path<PostAdFormData>[];
-                if (requiresScreenSize) {
-                    fieldsToValidate.push("screenSize" as Path<PostAdFormData>);
-                }
+                fieldsToValidate = ["categoryId", "category"] as Path<PostAdFormData>[];
                 break;
             case 2:
+                fieldsToValidate = requiresScreenSize
+                    ? ["brand", "screenSize"] as Path<PostAdFormData>[]
+                    : ["brand", "model"] as Path<PostAdFormData>[];
+                break;
+            case 3:
+                fieldsToValidate = ["deviceCondition"] as Path<PostAdFormData>[];
+                break;
+            case 4:
                 fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[];
                 break;
             default:

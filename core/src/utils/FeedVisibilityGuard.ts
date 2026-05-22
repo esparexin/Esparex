@@ -1,4 +1,4 @@
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import { getStatusMatchCriteria } from './statusQueryMapper';
 
 /**

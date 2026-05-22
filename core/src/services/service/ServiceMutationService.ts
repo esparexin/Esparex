@@ -1,8 +1,5 @@
 import mongoose from 'mongoose';
-import { LISTING_TYPE } from '../../constants/enums/listingType';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
-import { SERVICE_STATUS } from '../../constants/enums/serviceStatus';
-import { ACTOR_TYPE } from '../../constants/enums/actor';
+import { LISTING_TYPE } from '@esparex/shared';
 import { resolveCategoryId } from "@esparex/shared";
 import type { IBusiness } from '../../models/Business';
 import type { IAuthUser } from '../../types/auth';
@@ -11,15 +8,10 @@ import logger from '../../utils/logger';
 import { isBusinessPublishedStatus } from '../../utils/businessStatus';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import { resolveServiceTypes } from '../../utils/serviceTypeResolver';
-import { calculateServiceQuality } from '../../utils/serviceQuality';
 import { collectImmutableFieldErrors } from '../../utils/immutableFieldErrors';
-import { mutateStatus } from '../StatusMutationService';
-import { ListingMutationService } from '../ListingMutationService';
 import * as AdOrchestrator from '../AdOrchestrator';
-import {
-    findServiceForUpdate,
-    updateServiceByOwner,
-} from './ServiceMutationRepository';
+import { updateAd } from '../AdMutationService';
+import { findServiceForUpdate } from './ServiceMutationRepository';
 import {
     getCategorySelectionMode,
     validateBrandBelongsToCategory,
@@ -220,12 +212,6 @@ const validateServiceBrandCategoryIntegrity = async (
     }
 };
 
-const processServiceImages = async (images: unknown, folderTarget: string) =>
-    ListingMutationService.processIncomingImages({
-        images,
-        s3FolderTarget: folderTarget,
-    });
-
 export const createServiceMutation = async ({
     user,
     business,
@@ -308,8 +294,6 @@ export const createServiceMutation = async ({
             actor: user.role === 'admin' ? 'ADMIN' : 'USER',
             authUserId: user._id.toString(),
             sellerId: user._id.toString(),
-            // Note: ip and deviceFingerprint are not available in this service, 
-            // but can be added to context if passed from controller.
         }
     );
 };
@@ -385,54 +369,21 @@ export const updateServiceMutation = async ({
         }
     }
 
-    if (updates.images !== undefined) {
-        updates.images = await processServiceImages(updates.images, `services/${serviceId}`);
-    }
+    const context = {
+        actor: user.role === 'admin' ? 'ADMIN' as const : 'USER' as const,
+        authUserId: user._id.toString(),
+        sellerId: user._id.toString(),
+    };
 
-    const mergedForQuality = { ...existingService, ...updates };
-    updates.listingQualityScore = calculateServiceQuality(
-        mergedForQuality,
-        business
-    );
+    const updateData = {
+        ...updates,
+        business, // Pass business context for scoring and validation
+    };
 
-    if (updates.priceMin !== undefined) {
-        updates.price = updates.priceMin;
-    }
-
-    const service = await updateServiceByOwner(
-        serviceId,
-        user._id,
-        business?._id,
-        LISTING_TYPE.SERVICE,
-        updates
-    );
+    const service = await updateAd(serviceId, updateData, context);
 
     if (!service) {
         throw new AppError('Service not found or unauthorized', 404, 'SERVICE_NOT_FOUND');
-    }
-
-    await ListingMutationService.cleanupRemovedImages(
-        existingService.images,
-        updates.images,
-        serviceId
-    );
-
-    const prevStatus = existingService.status;
-    if (prevStatus === LISTING_STATUS.LIVE || prevStatus === SERVICE_STATUS.REJECTED) {
-        try {
-            return await mutateStatus({
-                domain: 'service',
-                entityId: serviceId,
-                toStatus: SERVICE_STATUS.PENDING,
-                actor: { type: ACTOR_TYPE.USER, id: user._id.toString() },
-                reason: 'Seller edited service — re-review required',
-            });
-        } catch (statusError) {
-            logger.error('Service status transition failed after update', {
-                serviceId,
-                error: statusError instanceof Error ? statusError.message : String(statusError),
-            });
-        }
     }
 
     return service;

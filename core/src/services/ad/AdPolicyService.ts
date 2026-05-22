@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
-import { LISTING_STATUS } from "../../constants/enums/listingStatus";
-import { LISTING_TYPE, type ListingTypeValue } from '../../constants/enums/listingType';
-import { Role } from '../../constants/enums/roles';
+import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { Role } from '@esparex/shared';
 import { getSystemConfigForRead } from '../SystemConfigService';
 import logger from '../../utils/logger';
 

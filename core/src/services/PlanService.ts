@@ -1,9 +1,9 @@
 import UserPlan from '../models/UserPlan';
 import Plan, { type IPlan } from '../models/Plan';
 import { type AdPostingSlotSource } from './AdSlotService';
-import { SERVICE_STATUS } from '../constants/enums/serviceStatus';
-import { LISTING_TYPE } from '../constants/enums/listingType';
-import { INVENTORY_STATUS } from '../constants/enums/inventoryStatus';
+import { SERVICE_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/shared';
+import { INVENTORY_STATUS } from '@esparex/shared';
 import AdModel from '../models/Ad';
 import { 
     AdSlotService, 

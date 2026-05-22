@@ -4,7 +4,7 @@ import { ChatMessage } from '../../models/ChatMessage';
 import Ad from '../../models/Ad';
 import { isListingChatClosed } from '../ChatAvailabilityService';
 import logger from '../../utils/logger';
-import { NOTIFICATION_TYPE } from '../../constants/enums/notificationType';
+import { NOTIFICATION_TYPE } from '@esparex/shared';
 import type { IChatAttachment } from '../../models/ChatMessage';
 import {
     PAGE_SIZE_MESSAGES,

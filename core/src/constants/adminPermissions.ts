@@ -1,4 +1,4 @@
-import { Role } from './enums/roles';
+import { Role } from '@esparex/shared';
 
 export type AdminRole = Role;
 

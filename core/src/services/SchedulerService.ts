@@ -2,7 +2,7 @@ import type { Types } from "mongoose";
 
 import ScheduledNotification from "../models/ScheduledNotification";
 import NotificationLog from "../models/NotificationLog";
-import { NOTIFICATION_TYPE } from "../constants/enums/notificationType";
+import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { NotificationIntent } from "../domain/NotificationIntent";
 import { NotificationDispatcher } from "./notification/NotificationDispatcher";
 import logger from "../utils/logger";

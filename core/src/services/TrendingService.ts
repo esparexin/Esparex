@@ -3,11 +3,11 @@ import Ad from '../models/Ad';
 import AdAnalytics from '../models/AdAnalytics';
 import Category from '../models/Category';
 import { getCache, setCache } from '../utils/redisCache';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
 import { toObjectId } from '../utils/idUtils';
-import { LISTING_TYPE } from '../constants/enums/listingType';
+import { LISTING_TYPE } from '@esparex/shared';
 
 type AnalyticsEventType = 'view' | 'favorite';
 

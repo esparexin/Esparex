@@ -9,23 +9,22 @@ import CatalogRequest, {
 import Brand from '../models/Brand';
 import CatalogModel from '../models/Model';
 import Category from '../models/Category';
-import Ad from '../models/Ad';
 import { AppError } from '../utils/AppError';
-import { CATALOG_APPROVAL_STATUS } from '../constants/enums/catalogApprovalStatus';
-import { CATALOG_STATUS } from '../constants/enums/catalogStatus';
-import { CatalogNotificationService } from './catalog/CatalogNotificationService';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_STATUS } from '@esparex/shared';
 import CatalogOrchestrator from './catalog/CatalogOrchestrator';
+import {
+    ACTIVE_CATEGORY_QUERY,
+    normalizeCatalogCanonicalName,
+} from './catalog/CatalogValidationService';
+import { scoreModeratorTrust } from './catalog/CatalogSearchGovernanceService';
 
 const NON_DELETED_QUERY = {
     isDeleted: { $ne: true },
     deletedAt: null,
 };
 
-const ACTIVE_CATEGORY_QUERY = {
-    ...NON_DELETED_QUERY,
-    isActive: true,
-    approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
-};
+// ACTIVE_CATEGORY_QUERY imported from CatalogValidationService (SSOT)
 
 const ACTIVE_BRAND_APPROVAL_QUERY = {
     ...NON_DELETED_QUERY,
@@ -39,7 +38,6 @@ export interface CatalogRequestApprovalResult {
     request: ICatalogRequest;
     resolvedEntityId: Types.ObjectId;
     createdCanonicalEntity: boolean;
-    updatedAdsCount: number;
 }
 
 export interface CatalogRequestRejectionResult {
@@ -64,8 +62,7 @@ const buildCatalogSlug = (name: string, prefix: 'brand' | 'model'): string => {
     return `${baseSlug}-${nanoid(5)}`;
 };
 
-const normalizeCatalogCanonicalName = (value: string): string =>
-    value.trim().toLowerCase().replace(/\s+/g, ' ');
+// normalizeCatalogCanonicalName imported from CatalogValidationService (SSOT)
 
 const resolveRequestCanonicalName = (request: ICatalogRequest): string => (
     request.canonicalName
@@ -174,6 +171,78 @@ const ensureCatalogActivationFlags = (entity: {
     return changed;
 };
 
+const buildApprovalTrustMetadata = (params: {
+    requestCount?: number;
+    createdCanonicalEntity?: boolean;
+    duplicateResolution?: boolean;
+}): Record<string, unknown> => {
+    const requestCount = Math.max(1, Number(params.requestCount ?? 1));
+    const moderatorTrustScore = scoreModeratorTrust({
+        approvedActions: requestCount,
+        duplicateApprovals: params.duplicateResolution ? requestCount : 0,
+        aliasApprovals: params.createdCanonicalEntity ? 1 : 0,
+    });
+    const duplicateConfidenceScore = params.duplicateResolution
+        ? 0.92
+        : Math.max(0.18, 0.52 - Math.min(0.22, requestCount / 200));
+    const canonicalCertaintyScore = params.duplicateResolution
+        ? 0.88
+        : Math.min(0.94, 0.72 + Math.min(0.16, requestCount / 100));
+
+    return {
+        catalogTrustScore: Math.min(0.95, (moderatorTrustScore * 0.45) + (canonicalCertaintyScore * 0.45) + 0.08),
+        variantTrustScore: 0.68,
+        aliasTrustScore: params.createdCanonicalEntity ? 0.58 : 0.64,
+        synonymTrustScore: params.createdCanonicalEntity ? 0.54 : 0.6,
+        transliterationTrustScore: 0.64,
+        moderatorTrustScore,
+        moderationReliabilityScore: moderatorTrustScore,
+        aliasApprovalConfidence: params.createdCanonicalEntity ? 0.56 : 0.66,
+        synonymApprovalConfidence: params.createdCanonicalEntity ? 0.52 : 0.62,
+        popularityConfidenceScore: 0.58,
+        canonicalCertaintyScore,
+        duplicateConfidenceScore,
+        seoQualityScore: params.createdCanonicalEntity ? 0.58 : 0.64,
+        crawlDepthLimit: 4,
+        indexable: true,
+        lastAuditAt: new Date(),
+    };
+};
+
+const applyMarketplaceTrustMetadata = (
+    entity: Record<string, unknown>,
+    metadata: Record<string, unknown>
+): void => {
+    setEntityField(entity, 'marketplaceTrust', {
+        ...(entity.marketplaceTrust && typeof entity.marketplaceTrust === 'object' ? entity.marketplaceTrust : {}),
+        ...metadata,
+    });
+};
+
+const ensureEntityActiveAndTrusted = async (
+    entity: any,
+    request: ICatalogRequest,
+    session: ClientSession,
+    trustParams: { createdCanonicalEntity?: boolean; duplicateResolution?: boolean }
+): Promise<void> => {
+    let needsSave = ensureCatalogActivationFlags(entity);
+
+    if (!hasObjectId(entity.categoryIds, request.categoryId)) {
+        entity.categoryIds = [...(entity.categoryIds ?? []), request.categoryId];
+        needsSave = true;
+    }
+    
+    applyMarketplaceTrustMetadata(entity, buildApprovalTrustMetadata({
+        requestCount: request.requestCount,
+        ...trustParams,
+    }));
+    needsSave = true;
+
+    if (needsSave) {
+        await entity.save({ session });
+    }
+};
+
 const resolveOrCreateBrand = async (
     request: ICatalogRequest,
     session: ClientSession
@@ -187,26 +256,9 @@ const resolveOrCreateBrand = async (
     }).session(session);
 
     if (existingBrand) {
-        let needsSave = ensureCatalogActivationFlags(existingBrand as unknown as {
-            approvalStatus?: string;
-            isActive?: boolean;
-            status?: string;
-            rejectionReason?: string | null;
-            needsReview?: boolean;
+        await ensureEntityActiveAndTrusted(existingBrand, request, session, {
+            createdCanonicalEntity: false,
         });
-
-        if (!hasObjectId(existingBrand.categoryIds, request.categoryId)) {
-            existingBrand.categoryIds = [...(existingBrand.categoryIds ?? []), request.categoryId];
-            needsSave = true;
-        }
-        if (!existingBrand.categoryId) {
-            existingBrand.categoryId = request.categoryId;
-            needsSave = true;
-        }
-
-        if (needsSave) {
-            await existingBrand.save({ session });
-        }
         return { entityId: existingBrand._id as Types.ObjectId, createdCanonicalEntity: false };
     }
 
@@ -220,12 +272,15 @@ const resolveOrCreateBrand = async (
                     displayName: request.requestedName,
                     canonicalName,
                     slug: buildCatalogSlug(request.requestedName, 'brand'),
-                    categoryId: request.categoryId,
                     categoryIds: [request.categoryId],
                     isActive: true,
                     approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
                     status: CATALOG_STATUS.ACTIVE,
                     suggestedBy: request.requestedBy,
+                    marketplaceTrust: buildApprovalTrustMetadata({
+                        requestCount: request.requestCount,
+                        createdCanonicalEntity: true,
+                    }),
                 },
             ],
             { session }
@@ -249,26 +304,9 @@ const resolveOrCreateBrand = async (
             throw error;
         }
 
-        let needsSave = ensureCatalogActivationFlags(existingBrand as unknown as {
-            approvalStatus?: string;
-            isActive?: boolean;
-            status?: string;
-            rejectionReason?: string | null;
-            needsReview?: boolean;
+        await ensureEntityActiveAndTrusted(existingBrand, request, session, {
+            createdCanonicalEntity: false,
         });
-
-        if (!hasObjectId(existingBrand.categoryIds, request.categoryId)) {
-            existingBrand.categoryIds = [...(existingBrand.categoryIds ?? []), request.categoryId];
-            needsSave = true;
-        }
-        if (!existingBrand.categoryId) {
-            existingBrand.categoryId = request.categoryId;
-            needsSave = true;
-        }
-
-        if (needsSave) {
-            await existingBrand.save({ session });
-        }
 
         return { entityId: existingBrand._id as Types.ObjectId, createdCanonicalEntity: false };
     }
@@ -292,25 +330,9 @@ const resolveOrCreateModel = async (
     }).session(session);
 
     if (existingModel) {
-        let needsSave = ensureCatalogActivationFlags(existingModel as unknown as {
-            approvalStatus?: string;
-            isActive?: boolean;
-            status?: string;
-            rejectionReason?: string | null;
+        await ensureEntityActiveAndTrusted(existingModel, request, session, {
+            createdCanonicalEntity: false,
         });
-
-        if (!hasObjectId(existingModel.categoryIds, request.categoryId)) {
-            existingModel.categoryIds = [...(existingModel.categoryIds ?? []), request.categoryId];
-            needsSave = true;
-        }
-        if (!existingModel.categoryId) {
-            existingModel.categoryId = request.categoryId;
-            needsSave = true;
-        }
-
-        if (needsSave) {
-            await existingModel.save({ session });
-        }
         return { entityId: existingModel._id as Types.ObjectId, createdCanonicalEntity: false };
     }
 
@@ -325,12 +347,15 @@ const resolveOrCreateModel = async (
                     canonicalName,
                     slug: buildCatalogSlug(request.requestedName, 'model'),
                     brandId: request.parentBrandId,
-                    categoryId: request.categoryId,
                     categoryIds: [request.categoryId],
                     isActive: true,
                     approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
                     status: CATALOG_STATUS.ACTIVE,
                     suggestedBy: request.requestedBy,
+                    marketplaceTrust: buildApprovalTrustMetadata({
+                        requestCount: request.requestCount,
+                        createdCanonicalEntity: true,
+                    }),
                 },
             ],
             { session }
@@ -355,25 +380,9 @@ const resolveOrCreateModel = async (
             throw error;
         }
 
-        let needsSave = ensureCatalogActivationFlags(existingModel as unknown as {
-            approvalStatus?: string;
-            isActive?: boolean;
-            status?: string;
-            rejectionReason?: string | null;
+        await ensureEntityActiveAndTrusted(existingModel, request, session, {
+            createdCanonicalEntity: false,
         });
-
-        if (!hasObjectId(existingModel.categoryIds, request.categoryId)) {
-            existingModel.categoryIds = [...(existingModel.categoryIds ?? []), request.categoryId];
-            needsSave = true;
-        }
-        if (!existingModel.categoryId) {
-            existingModel.categoryId = request.categoryId;
-            needsSave = true;
-        }
-
-        if (needsSave) {
-            await existingModel.save({ session });
-        }
 
         return { entityId: existingModel._id as Types.ObjectId, createdCanonicalEntity: false };
     }
@@ -390,26 +399,9 @@ const resolveDuplicateEntity = async (
             throw new AppError('Duplicate target brand was not found.', 404, 'DUPLICATE_ENTITY_NOT_FOUND');
         }
 
-        let needsSave = ensureCatalogActivationFlags(brand as unknown as {
-            approvalStatus?: string;
-            isActive?: boolean;
-            status?: string;
-            rejectionReason?: string | null;
-            needsReview?: boolean;
+        await ensureEntityActiveAndTrusted(brand, request, session, {
+            duplicateResolution: true,
         });
-
-        if (!hasObjectId(brand.categoryIds, request.categoryId)) {
-            brand.categoryIds = [...(brand.categoryIds ?? []), request.categoryId];
-            needsSave = true;
-        }
-        if (!brand.categoryId) {
-            brand.categoryId = request.categoryId;
-            needsSave = true;
-        }
-
-        if (needsSave) {
-            await brand.save({ session });
-        }
 
         return brand._id as Types.ObjectId;
     }
@@ -423,68 +415,11 @@ const resolveDuplicateEntity = async (
         throw new AppError('Duplicate model must belong to the requested parent brand.', 400, 'DUPLICATE_ENTITY_BRAND_MISMATCH');
     }
 
-    let needsSave = ensureCatalogActivationFlags(model as unknown as {
-        approvalStatus?: string;
-        isActive?: boolean;
-        status?: string;
-        rejectionReason?: string | null;
+    await ensureEntityActiveAndTrusted(model, request, session, {
+        duplicateResolution: true,
     });
 
-    if (!hasObjectId(model.categoryIds, request.categoryId)) {
-        model.categoryIds = [...(model.categoryIds ?? []), request.categoryId];
-        needsSave = true;
-    }
-    if (!model.categoryId) {
-        model.categoryId = request.categoryId;
-        needsSave = true;
-    }
-
-    if (needsSave) {
-        await model.save({ session });
-    }
-
     return model._id as Types.ObjectId;
-};
-
-const resolveWaitingAds = async (
-    request: ICatalogRequest,
-    resolvedEntityId: Types.ObjectId,
-    session: ClientSession
-): Promise<{ modifiedCount: number; sellerIds: string[] }> => {
-    // 1. Identify affected sellers before update
-    const sellerIds = await Ad.distinct('sellerId', {
-        catalogRequestId: request._id,
-        catalogPending: true,
-        isDeleted: { $ne: true },
-    }).session(session);
-
-    const adPatch: Record<string, unknown> = {
-        catalogPending: false,
-    };
-
-    if (request.requestType === 'brand') {
-        adPatch.brandId = resolvedEntityId;
-    } else {
-        adPatch.modelId = resolvedEntityId;
-        if (request.parentBrandId) {
-            adPatch.brandId = request.parentBrandId;
-        }
-    }
-
-    const result = await Ad.updateMany(
-        {
-            catalogRequestId: request._id,
-            catalogPending: true,
-            isDeleted: { $ne: true },
-        },
-        { $set: adPatch },
-        { session }
-    );
-
-    return {
-        modifiedCount: Number((result as { modifiedCount?: number }).modifiedCount ?? 0),
-        sellerIds: sellerIds.map(id => id.toString()),
-    };
 };
 
 const loadRequestForReview = async (
@@ -513,7 +448,6 @@ export async function approveCatalogRequest(params: {
 
     try {
         let response: CatalogRequestApprovalResult | null = null;
-        let affectedSellerIds: string[] = [];
 
         await session.withTransaction(async () => {
             const request = await loadRequestForReview(requestId, session);
@@ -526,23 +460,29 @@ export async function approveCatalogRequest(params: {
             const now = new Date();
             request.status = 'approved';
             request.approvedEntityId = resolution.entityId;
-            request.duplicateOfEntityId = null;
+            request.mergedIntoEntityId = null;
             request.rejectionReason = null;
             request.adminNotes = adminNotes;
             request.approvedBy = adminId;
             request.approvedAt = now;
             request.rejectedBy = null;
             request.rejectedAt = null;
+            request.moderationIntelligence = {
+                ...request.moderationIntelligence,
+                moderatorTrustScore: scoreModeratorTrust({ approvedActions: request.requestCount }),
+                moderationReliabilityScore: scoreModeratorTrust({ approvedActions: request.requestCount }),
+                aliasApprovalConfidence: resolution.createdCanonicalEntity ? 0.56 : 0.66,
+                synonymApprovalConfidence: resolution.createdCanonicalEntity ? 0.52 : 0.62,
+                duplicateConfidenceScore: resolution.createdCanonicalEntity ? 0.3 : 0.58,
+                canonicalCertaintyScore: resolution.createdCanonicalEntity ? 0.76 : 0.84,
+                lastEvaluatedAt: now,
+            };
             await request.save({ session });
-
-            const { modifiedCount, sellerIds } = await resolveWaitingAds(request, resolution.entityId, session);
-            affectedSellerIds = sellerIds;
 
             response = {
                 request,
                 resolvedEntityId: resolution.entityId,
                 createdCanonicalEntity: resolution.createdCanonicalEntity,
-                updatedAdsCount: modifiedCount,
             };
         });
 
@@ -552,15 +492,6 @@ export async function approveCatalogRequest(params: {
 
         const finalResponse = response as CatalogRequestApprovalResult;
         await CatalogOrchestrator.invalidateCatalogCache();
-
-        // Notify sellers (best-effort, outside transaction)
-        if (affectedSellerIds.length > 0) {
-            void CatalogNotificationService.notifySellersOfApproval(
-                affectedSellerIds,
-                finalResponse.request._id.toString(),
-                finalResponse.request.requestedName
-            );
-        }
 
         return finalResponse;
     } finally {
@@ -584,50 +515,52 @@ export async function markCatalogRequestDuplicate(params: {
 
     try {
         let response: CatalogRequestApprovalResult | null = null;
-        let affectedSellerIds: string[] = [];
 
         await session.withTransaction(async () => {
             const request = await loadRequestForReview(requestId, session);
             const resolvedEntityId = await resolveDuplicateEntity(request, duplicateOfEntityId, session);
 
             const now = new Date();
-            request.status = 'duplicate';
+            request.status = 'merged';
             request.approvedEntityId = null;
-            request.duplicateOfEntityId = resolvedEntityId;
+            request.mergedIntoEntityId = resolvedEntityId;
             request.rejectionReason = null;
             request.adminNotes = adminNotes;
             request.approvedBy = adminId;
             request.approvedAt = now;
             request.rejectedBy = null;
             request.rejectedAt = null;
+            request.moderationIntelligence = {
+                ...request.moderationIntelligence,
+                moderatorTrustScore: scoreModeratorTrust({
+                    approvedActions: request.requestCount,
+                    duplicateApprovals: request.requestCount,
+                }),
+                moderationReliabilityScore: scoreModeratorTrust({
+                    approvedActions: request.requestCount,
+                    duplicateApprovals: request.requestCount,
+                }),
+                aliasApprovalConfidence: 0.68,
+                synonymApprovalConfidence: 0.64,
+                duplicateConfidenceScore: 0.92,
+                canonicalCertaintyScore: 0.88,
+                lastEvaluatedAt: now,
+            };
             await request.save({ session });
-
-            const { modifiedCount, sellerIds } = await resolveWaitingAds(request, resolvedEntityId, session);
-            affectedSellerIds = sellerIds;
 
             response = {
                 request,
                 resolvedEntityId,
                 createdCanonicalEntity: false,
-                updatedAdsCount: modifiedCount,
             };
         });
 
         if (!response) {
-            throw new AppError('Failed to mark catalog request as duplicate.', 500, 'CATALOG_REQUEST_DUPLICATE_FAILED');
+            throw new AppError('Failed to mark catalog request as merged.', 500, 'CATALOG_REQUEST_DUPLICATE_FAILED');
         }
 
         const finalResponse = response as CatalogRequestApprovalResult;
         await CatalogOrchestrator.invalidateCatalogCache();
-
-        // Notify sellers (best-effort, outside transaction)
-        if (affectedSellerIds.length > 0) {
-            void CatalogNotificationService.notifySellersOfApproval(
-                affectedSellerIds,
-                finalResponse.request._id.toString(),
-                finalResponse.request.requestedName
-            );
-        }
 
         return finalResponse;
     } finally {
@@ -661,7 +594,7 @@ export async function rejectCatalogRequest(params: {
 
             request.status = 'rejected';
             request.approvedEntityId = null;
-            request.duplicateOfEntityId = null;
+            request.mergedIntoEntityId = null;
             request.rejectionReason = rejectionReason;
             request.adminNotes = adminNotes;
             request.approvedBy = null;

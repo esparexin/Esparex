@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ObjectIdSchema } from "@shared";
-import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
+import { LISTING_TYPE_VALUES } from '@esparex/shared';
 
 /**
  * Common Admin Validation Schemas
@@ -30,6 +30,9 @@ export const adminModelSchema = z.object({
     name: z.string().min(1, 'Model name is required').max(100, 'Model name too long'),
     brandId: ObjectIdSchema,
     categoryIds: z.array(ObjectIdSchema),
+    parentModelId: ObjectIdSchema.optional().nullable(),
+    variantOfModelId: ObjectIdSchema.optional().nullable(),
+    isParentModel: z.boolean().optional(),
 });
 
 export const adminLocationSchema = z.object({

@@ -1,5 +1,5 @@
 import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
-import { NOTIFICATION_TYPE } from "@esparex/core/constants/enums/notificationType";
+import { NOTIFICATION_TYPE } from '@esparex/shared';
 
 describe("NotificationIntent", () => {
     it("uses medium priority for admin broadcasts", () => {

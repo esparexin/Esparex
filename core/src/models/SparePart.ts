@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '../constants/enums/listingType';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '../constants/enums/catalogStatus';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '@esparex/shared';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '@esparex/shared';
 import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
     CatalogApprovalStatusValue,
-} from '../constants/enums/catalogApprovalStatus';
+} from '@esparex/shared';
+import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance';
 
 export interface ISparePart extends Document {
     name: string;
@@ -86,16 +87,11 @@ SparePartSchema.plugin(softDeletePlugin);
 SparePartSchema.pre('validate', function () {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
     const mutableDoc = this as any;
-    
-    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
-        mutableDoc.canonicalName = mutableDoc.displayName;
-    }
+    applyCatalogGovernanceDefaults(mutableDoc);
     
     if (!mutableDoc.approvalStatus) {
         mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
     }
-
-    mutableDoc.name = mutableDoc.displayName;
 });
 
 // Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
@@ -117,11 +113,18 @@ SparePartSchema.index({ sortOrder: 1 }, { name: 'idx_sparepart_sortOrder' });
 SparePartSchema.index({ createdBy: 1 }, { name: 'idx_sparepart_createdBy' });
 SparePartSchema.index({ name: 1 }, { name: 'idx_sparepart_name', collation: { locale: 'en', strength: 2 } });
 SparePartSchema.index({ isDeleted: 1 }, { name: 'idx_sparepart_isDeleted' });
+SparePartSchema.index(
+    { name: 'text', displayName: 'text', canonicalName: 'text', slug: 'text', aliases: 'text', synonyms: 'text' },
+    {
+        name: 'idx_sparepart_search_text_readiness',
+        weights: { canonicalName: 10, displayName: 8, name: 8, slug: 6, aliases: 4, synonyms: 3 },
+    }
+);
 
 import { getUserConnection } from '../config/db';
 
-export const SparePartModel: Model<ISparePart> =
+export const SparePart: Model<ISparePart> =
     (getUserConnection().models.SparePart as Model<ISparePart> | undefined) ||
     getUserConnection().model<ISparePart>('SparePart', SparePartSchema);
 
-export default SparePartModel;
+export default SparePart;

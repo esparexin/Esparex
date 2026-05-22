@@ -7,13 +7,13 @@ import { normalizeLocation } from './location/LocationNormalizer';
 import { toGeoPoint } from '@esparex/shared';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import { generateUniqueSlug } from '../utils/slugGenerator';
-import { LIFECYCLE_STATUS } from '../constants/enums/lifecycle';
+import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '../utils/s3';
 import { AdContext } from '../types/ad.types';
 import { computeActiveExpiry } from './AdStatusService';
-import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import { computeListingQualityScore } from '../utils/adQualityScorer';
 import { 
@@ -21,13 +21,12 @@ import {
     validateModelBelongsToBrand,
     validateListingCategoryCapability
 } from './catalog/CatalogValidationService';
+import { isBusinessPublishedStatus } from '../utils/businessStatus';
 
 export interface PreparedPayload {
     categoryId?: string;
     brandId?: string;
     modelId?: string;
-    catalogRequestId?: string;
-    catalogPending?: boolean;
     screenSize?: string;
     title?: string;
     description?: string;
@@ -61,6 +60,16 @@ export interface PreparedPayload {
             reason: string;
         };
     };
+    
+    // Service & Spare Part extensions
+    priceMin?: number;
+    priceMax?: number;
+    diagnosticFee?: number;
+    deviceType?: string;
+    serviceTypeIds?: string[];
+    businessId?: unknown;
+    sellerType?: 'user' | 'business';
+    attributes?: Record<string, unknown>;
 }
 
 const toObjectIdString = (value: unknown): string | undefined => {
@@ -74,6 +83,22 @@ const toObjectIdString = (value: unknown): string | undefined => {
         if (typeof candidate === 'number') return String(candidate);
     }
     return undefined;
+};
+
+const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined => {
+    if (value instanceof mongoose.Types.ObjectId) return value;
+    if (typeof value !== 'string' || !mongoose.Types.ObjectId.isValid(value)) return undefined;
+    return new mongoose.Types.ObjectId(value);
+};
+
+const extractBusinessLocationId = (business: any): mongoose.Types.ObjectId | undefined => {
+    const rawBusinessLocationId =
+        business.locationId
+        || (typeof business.location === 'object' && business.location
+            ? (business.location as { locationId?: unknown }).locationId
+            : undefined);
+
+    return normalizeObjectId(rawBusinessLocationId);
 };
 
 export const validateSparePartsForCategory = async (
@@ -118,12 +143,21 @@ export class AdCreationService {
         const source = (data && typeof data === 'object') ? (data as Record<string, unknown>) : {};
         const listingType = (source.listingType as ListingTypeValue) || LISTING_TYPE.AD;
 
+        // Reject legacy serviceTypes field immediately
+        if (Object.prototype.hasOwnProperty.call(source, 'serviceTypes')) {
+            throw new AppError(
+                'serviceTypes is no longer supported; use serviceTypeIds instead',
+                400,
+                'LEGACY_SERVICE_TYPES_ALIAS',
+                [{ field: 'serviceTypes', message: 'serviceTypes is no longer supported; use serviceTypeIds instead' }]
+            );
+        }
+
         const payload: PreparedPayload & Record<string, unknown> = {
             listingType,
             categoryId: typeof source.categoryId === 'string' ? source.categoryId : undefined,
             brandId: typeof source.brandId === 'string' ? source.brandId : undefined,
             modelId: typeof source.modelId === 'string' ? source.modelId : undefined,
-            catalogRequestId: typeof source.catalogRequestId === 'string' ? source.catalogRequestId : undefined,
             screenSize: typeof source.screenSize === 'string' ? source.screenSize : undefined,
             title: typeof source.title === 'string' ? source.title : undefined,
             description: typeof source.description === 'string' ? source.description : undefined,
@@ -139,58 +173,22 @@ export class AdCreationService {
             sparePartId: typeof source.sparePartId === 'string' ? source.sparePartId : undefined,
             serviceTypeIds: Array.isArray(source.serviceTypeIds) ? source.serviceTypeIds : undefined,
             businessId: source.businessId,
-            sellerType: typeof source.sellerType === 'string' ? source.sellerType : undefined,
-            attributes: source.attributes && typeof source.attributes === 'object' ? source.attributes : undefined,
+            sellerType: (source.sellerType === 'user' || source.sellerType === 'business') ? source.sellerType : undefined,
+            attributes: source.attributes && typeof source.attributes === 'object' ? (source.attributes as Record<string, unknown>) : undefined,
         };
 
-        if (payload.catalogRequestId) {
-            if (!mongoose.Types.ObjectId.isValid(payload.catalogRequestId)) {
-                throw new AppError('catalogRequestId must be a valid ObjectId.', 400);
+        // Service specific fields normalization and extraction
+        if (listingType === LISTING_TYPE.SERVICE) {
+            if (typeof source.price === 'number' && source.priceMin === undefined) {
+                source.priceMin = source.price;
             }
-
-            const CatalogRequest = (await import('../models/CatalogRequest')).default;
-            const catalogRequest = await CatalogRequest.findById(payload.catalogRequestId)
-                .select('requestType categoryId parentBrandId status requestedBy')
-                .lean<{
-                    requestType?: 'brand' | 'model';
-                    categoryId?: mongoose.Types.ObjectId;
-                    parentBrandId?: mongoose.Types.ObjectId | null;
-                    status?: 'pending' | 'approved' | 'rejected' | 'duplicate';
-                    requestedBy?: mongoose.Types.ObjectId;
-                } | null>();
-
-            if (!catalogRequest) {
-                throw new AppError('Referenced catalog request was not found.', 404, 'CATALOG_REQUEST_NOT_FOUND');
+            if (typeof source.priceMin === 'number' && source.price === undefined) {
+                source.price = source.priceMin;
             }
-
-            if (catalogRequest.status !== 'pending') {
-                throw new AppError('Only pending catalog requests can be linked to ads.', 400, 'CATALOG_REQUEST_NOT_PENDING');
-            }
-
-            if (context.actor === 'USER' && String(catalogRequest.requestedBy) !== context.sellerId) {
-                throw new AppError('You can only link your own pending catalog requests.', 403, 'CATALOG_REQUEST_OWNERSHIP_MISMATCH');
-            }
-
-            if (payload.categoryId && String(catalogRequest.categoryId) !== payload.categoryId) {
-                throw new AppError('catalogRequestId category does not match the listing category.', 400, 'CATALOG_REQUEST_CATEGORY_MISMATCH');
-            }
-
-            if (!payload.categoryId) {
-                payload.categoryId = String(catalogRequest.categoryId);
-            }
-
-            if (catalogRequest.requestType === 'model') {
-                const parentBrandId = catalogRequest.parentBrandId ? String(catalogRequest.parentBrandId) : null;
-                if (!parentBrandId) {
-                    throw new AppError('Model catalog requests must include a valid parent brand.', 400, 'CATALOG_REQUEST_PARENT_BRAND_MISSING');
-                }
-                if (payload.brandId && payload.brandId !== parentBrandId) {
-                    throw new AppError('Listing brand does not match the model request parent brand.', 400, 'CATALOG_REQUEST_BRAND_MISMATCH');
-                }
-                payload.brandId = parentBrandId;
-            }
-
-            payload.catalogPending = true;
+            payload.priceMin = typeof source.priceMin === 'number' ? source.priceMin : undefined;
+            payload.priceMax = typeof source.priceMax === 'number' ? source.priceMax : undefined;
+            payload.diagnosticFee = typeof source.diagnosticFee === 'number' ? source.diagnosticFee : undefined;
+            payload.deviceType = typeof source.deviceType === 'string' ? source.deviceType : undefined;
         }
 
         if (payload.title) payload.title = payload.title.replace(/<[^>]*>?/gm, '').trim();
@@ -199,19 +197,116 @@ export class AdCreationService {
             if (payload.description.length < 20) throw new AppError('Description must be at least 20 characters.', 400);
         }
 
+        // 🛡️ GOVERNANCE: Locked fields check for service updates
+        if (listingType === LISTING_TYPE.SERVICE && partial) {
+            const { collectImmutableFieldErrors } = await import('../utils/immutableFieldErrors');
+            const SERVICE_EDIT_LOCK_MESSAGES: Record<string, string> = {
+                categoryId: 'Category cannot be changed while editing a service.',
+                brandId: 'Brand cannot be changed while editing a service.',
+                modelId: 'Model cannot be changed while editing a service.',
+                deviceType: 'Device type cannot be changed while editing a service.',
+                deviceModel: 'Device model cannot be changed while editing a service.',
+                location: 'Location is fixed to the business profile for services.',
+                locationId: 'Location is fixed to the business profile for services.',
+                listingType: 'Listing type cannot be changed while editing a service.',
+                sellerId: 'Seller cannot be changed while editing a service.',
+                businessId: 'Business cannot be changed while editing a service.',
+                status: 'Status cannot be changed while editing a service.',
+                moderationStatus: 'Moderation status cannot be changed while editing a service.',
+                approvedAt: 'Approval metadata cannot be changed while editing a service.',
+                approvedBy: 'Approval metadata cannot be changed while editing a service.',
+                isDeleted: 'Deletion state cannot be changed while editing a service.',
+                deletedAt: 'Deletion state cannot be changed while editing a service.',
+                expiresAt: 'Expiry cannot be changed while editing a service.',
+            };
+            const lockErrors = collectImmutableFieldErrors(source, SERVICE_EDIT_LOCK_MESSAGES);
+            if (lockErrors.length > 0) {
+                throw new AppError('Validation failed', 400, 'LOCKED_FIELDS', lockErrors);
+            }
+        }
+
         // 🛡️ GOVERNANCE: Category capability guard (Type-aware)
         if (payload.categoryId) {
             const catValidation = await validateListingCategoryCapability(payload.categoryId, listingType);
             if (!catValidation.ok) {
+                if (listingType === LISTING_TYPE.SERVICE) {
+                    throw new AppError(
+                        catValidation.reason || 'Category does not support services',
+                        400,
+                        'SERVICE_CATEGORY_UNSUPPORTED',
+                        [{ field: 'categoryId', message: catValidation.reason || 'Category does not support services' }]
+                    );
+                }
                 throw new AppError(catValidation.reason || `Invalid category for ${listingType}.`, 400);
             }
         }
 
-        // 🛡️ GOVERNANCE: Unified Relation Validation
-        if (listingType === LISTING_TYPE.SERVICE && Array.isArray(payload.serviceTypeIds) && payload.serviceTypeIds.length > 0) {
-            const serviceTypeIds = payload.serviceTypeIds.filter(Boolean) as string[];
-            if (serviceTypeIds.length === 0) {
-                throw new AppError('At least one service type is required for service listings.', 400);
+        // 🛡️ GOVERNANCE: Business account & location validation and locking
+        if (listingType === LISTING_TYPE.SERVICE) {
+            const business = (source.business ?? (context as any).business);
+            if (!partial && (!business || !isBusinessPublishedStatus(business.status))) {
+                throw new AppError('Approved Business Account Required', 403, 'BUSINESS_APPROVAL_REQUIRED');
+            }
+
+            if (business) {
+                const locId = extractBusinessLocationId(business);
+                if (!locId) {
+                    throw new AppError(
+                        'Complete your business profile location before posting a service.',
+                        400,
+                        'BUSINESS_LOCATION_REQUIRED',
+                        [{ field: 'location', message: 'Complete your business profile location before posting a service.' }]
+                    );
+                }
+                payload.locationId = locId;
+                if (business.location && typeof business.location === 'object') {
+                    payload.location = business.location as Record<string, unknown>;
+                }
+            } else if (!partial) {
+                throw new AppError(
+                    'Complete your business profile location before posting a service.',
+                    400,
+                    'BUSINESS_LOCATION_REQUIRED',
+                    [{ field: 'location', message: 'Complete your business profile location before posting a service.' }]
+                );
+            }
+        }
+
+        // 🛡️ GOVERNANCE: Service type resolution & Selection Mode checks
+        if (listingType === LISTING_TYPE.SERVICE) {
+            const rawServiceTypes = payload.serviceTypeIds ?? source.serviceTypeIds;
+            
+            if (!partial || rawServiceTypes !== undefined) {
+                const catId = payload.categoryId || fallbackCategoryId;
+                if (!catId) {
+                    throw new AppError('Valid category is required', 400, 'CATEGORY_REQUIRED', [{ field: 'categoryId', message: 'Valid category is required' }]);
+                }
+
+                const { resolveServiceTypes } = await import('../utils/serviceTypeResolver');
+                const { getCategorySelectionMode } = await import('./catalog/CatalogValidationService');
+
+                const resolvedServiceTypes = await resolveServiceTypes(rawServiceTypes, catId);
+                const selectionMode = await getCategorySelectionMode(catId);
+
+                if (selectionMode === 'single' && resolvedServiceTypes.serviceTypeIds.length > 1) {
+                    throw new AppError(
+                        'This category only allows selecting a single service type',
+                        400,
+                        'SERVICE_TYPE_SELECTION_MODE',
+                        [{ field: 'serviceTypeIds', message: 'This category only allows selecting a single service type' }]
+                    );
+                }
+
+                if (resolvedServiceTypes.serviceTypeIds.length === 0) {
+                    throw new AppError(
+                        'At least one valid service type is required for this category',
+                        400,
+                        'SERVICE_TYPE_REQUIRED',
+                        [{ field: 'serviceTypeIds', message: 'At least one valid service type is required for this category' }]
+                    );
+                }
+
+                payload.serviceTypeIds = resolvedServiceTypes.serviceTypeIds.map((id: any) => id.toString());
             }
         }
 
@@ -222,6 +317,10 @@ export class AdCreationService {
         if (payload.categoryId && payload.brandId) {
             const brandValidation = await validateBrandBelongsToCategory(payload.brandId, payload.categoryId);
             if (!brandValidation.ok) {
+                const message = brandValidation.reason || 'Brand does not belong to the selected category';
+                if (listingType === LISTING_TYPE.SERVICE) {
+                    throw new AppError(message, 400, 'INVALID_BRAND_CATEGORY_COMBO', [{ field: 'brandId', message }]);
+                }
                 throw new AppError(brandValidation.reason || 'Invalid brand for category.', 400);
             }
         }
@@ -307,20 +406,29 @@ export class AdCreationService {
         if (!partial) {
             payload.sellerId = context.sellerId;
             payload.createdAt = payload.updatedAt = new Date();
-            
-            const isHeldForCatalog = payload.catalogPending === true;
-            
-            payload.status = (context.actor === 'ADMIN' && !isHeldForCatalog) ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
-            payload.moderationStatus = (context.actor === 'ADMIN' && !isHeldForCatalog) ? 'auto_approved' : 'held_for_review';
-            
+
+            // All listings enter the standard pending → moderation flow.
+            payload.status = context.actor === 'ADMIN' ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
+            payload.moderationStatus = context.actor === 'ADMIN' ? 'auto_approved' : 'held_for_review';
+
             payload.isFree = payload.price === 0 || payload.isFree === true;
-            payload.expiresAt = (context.actor === 'ADMIN' && !isHeldForCatalog) ? await computeActiveExpiry(listingType) : undefined;
+            payload.expiresAt = context.actor === 'ADMIN' ? await computeActiveExpiry(listingType) : undefined;
         }
 
         // --- Compute Lightweight Listing Quality Score ---
         if (listingType === LISTING_TYPE.SERVICE) {
             const { calculateServiceQuality } = await import('../utils/serviceQuality');
-            payload.listingQualityScore = calculateServiceQuality(payload, (data as { business?: Record<string, unknown> })?.business);
+            let merged: any = { ...payload };
+            if (partial && adId) {
+                const existing = await Ad.findById(adId).select('images priceMin price title description').lean();
+                if (existing) {
+                    merged = {
+                        ...existing,
+                        ...payload,
+                    };
+                }
+            }
+            payload.listingQualityScore = calculateServiceQuality(merged, (source.business ?? (context as any).business));
         } else {
             payload.listingQualityScore = computeListingQualityScore(payload);
         }
@@ -328,3 +436,4 @@ export class AdCreationService {
         return payload;
     }
 }
+

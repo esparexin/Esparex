@@ -24,7 +24,7 @@ import { PlaceholderImage } from "@/components/common/PlaceholderImage";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { Business, Service } from "@/lib/api/user/businesses";
 import type { Ad } from "@/schemas/ad.schema";
-import { LISTING_TYPE } from "@shared/enums/listingType";
+import { LISTING_TYPE } from '@esparex/shared';
 
 type ListingTab = "ads" | "services" | "spare-parts";
 

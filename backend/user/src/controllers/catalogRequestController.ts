@@ -11,7 +11,7 @@ import {
 } from '@esparex/core/services/catalogRequestApprovalService';
 import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
-import { NOTIFICATION_TYPE } from '@esparex/core/constants/enums/notificationType';
+import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { CatalogNotificationService } from '@esparex/core/services/catalog/CatalogNotificationService';
 import {
     validateBrandBelongsToCategory,
@@ -60,7 +60,7 @@ const sendControllerError = (req: Request, res: Response, error: unknown) => {
 
 const buildStatusUpdateMessage = (
     request: ICatalogRequest,
-    status: 'approved' | 'rejected' | 'duplicate',
+    status: 'approved' | 'rejected' | 'duplicate' | 'merged',
     details?: Record<string, unknown>
 ): { title: string; body: string; data: Record<string, unknown> } => {
     const subject = request.requestType === 'brand' ? 'brand' : 'model';
@@ -79,7 +79,7 @@ const buildStatusUpdateMessage = (
         };
     }
 
-    if (status === 'duplicate') {
+    if (status === 'duplicate' || status === 'merged') {
         return {
             title: 'Catalog request linked to existing entry',
             body: `Your ${subject} request "${request.requestedName}" matched an existing catalog entry.`,
@@ -106,26 +106,42 @@ const buildStatusUpdateMessage = (
     };
 };
 
+/**
+ * Notify ALL users who submitted this suggestion (requestedByUsers[]).
+ * Falls back to requestedBy if the array is empty.
+ */
 const notifyRequesterReviewOutcome = async (
     request: ICatalogRequest,
-    status: 'approved' | 'rejected' | 'duplicate',
+    status: 'approved' | 'rejected' | 'merged',
     details?: Record<string, unknown>
 ): Promise<void> => {
     try {
-        const message = buildStatusUpdateMessage(request, status, details);
-        const intent = new NotificationIntent({
-            userId: String(request.requestedBy),
-            type: NOTIFICATION_TYPE.SYSTEM,
-            entityRef: {
-                domain: 'catalog_request',
-                id: String(request._id),
-            },
-            message,
-            priority: 'medium',
-            channels: ['in-app'],
-        });
+        const message = buildStatusUpdateMessage(request, status as 'approved' | 'rejected' | 'duplicate', details);
 
-        await NotificationDispatcher.dispatch(intent);
+        const userIds: string[] = Array.isArray(request.requestedByUsers) && request.requestedByUsers.length > 0
+            ? request.requestedByUsers.map(id => String(id))
+            : [String(request.requestedBy)];
+
+        // Deduplicate in case requestedBy appears twice
+        const uniqueIds = Array.from(new Set(userIds));
+
+        await Promise.allSettled(
+            uniqueIds.map(userId =>
+                NotificationDispatcher.dispatch(
+                    new NotificationIntent({
+                        userId,
+                        type: NOTIFICATION_TYPE.SYSTEM,
+                        entityRef: {
+                            domain: 'catalog_request',
+                            id: String(request._id),
+                        },
+                        message,
+                        priority: 'medium',
+                        channels: ['in-app'],
+                    })
+                )
+            )
+        );
     } catch {
         // Best effort notification only; review flow should not fail.
     }
@@ -166,6 +182,11 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             }
         }
 
+        /**
+         * GLOBAL DEDUPLICATION
+         * Dedup key: (requestType, canonicalName, categoryId, parentBrandId, status='pending')
+         * requestedBy is intentionally excluded so all users share one pending record.
+         */
         const dedupeQuery = {
             requestType: payload.requestType,
             categoryId: payload.categoryId,
@@ -174,11 +195,18 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
                 { canonicalName },
                 { normalizedName: canonicalName },
             ],
-            requestedBy,
             status: 'pending' as const,
         };
 
-        const existingPending = await CatalogRequest.findOne(dedupeQuery).sort({ createdAt: -1 });
+        const existingPending = await CatalogRequest.findOneAndUpdate(
+            dedupeQuery,
+            {
+                $addToSet: { requestedByUsers: requestedBy },
+                $inc: { requestCount: 1 },
+            },
+            { new: true, sort: { createdAt: -1 } }
+        );
+
         if (existingPending) {
             return sendSuccessResponse(res, existingPending, 'Existing pending catalog request found');
         }
@@ -192,6 +220,8 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             normalizedName: canonicalName,
             slug,
             requestedBy,
+            requestedByUsers: [requestedBy],
+            requestCount: 1,
             status: 'pending',
         } as unknown as Record<string, unknown>);
 
@@ -215,8 +245,8 @@ export const getMyCatalogRequests = async (req: Request, res: Response) => {
             limit?: number;
         };
 
-        const page = Number(query.page ?? 1);
-        const limit = Number(query.limit ?? 20);
+        const page = Math.min(1000, Math.max(1, Number(query.page ?? 1)));
+        const limit = Math.min(50, Math.max(1, Number(query.limit ?? 20)));
         const skip = (page - 1) * limit;
 
         const filter: Record<string, unknown> = { requestedBy };
@@ -261,8 +291,8 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
             limit?: number;
         };
 
-        const page = Number(query.page ?? 1);
-        const limit = Number(query.limit ?? 20);
+        const page = Math.min(1000, Math.max(1, Number(query.page ?? 1)));
+        const limit = Math.min(50, Math.max(1, Number(query.limit ?? 20)));
         const skip = (page - 1) * limit;
 
         const filter: Record<string, unknown> = {};
@@ -326,14 +356,12 @@ export const approveCatalogRequestByAdmin = async (req: Request, res: Response) 
 
         void notifyRequesterReviewOutcome(result.request, 'approved', {
             approvedEntityId: String(result.resolvedEntityId),
-            updatedAdsCount: result.updatedAdsCount,
         });
 
         return sendSuccessResponse(res, {
             request: result.request,
             approvedEntityId: result.resolvedEntityId,
             createdCanonicalEntity: result.createdCanonicalEntity,
-            updatedAdsCount: result.updatedAdsCount,
         }, 'Catalog request approved successfully');
     } catch (error) {
         return sendControllerError(req, res, error);
@@ -364,28 +392,26 @@ export const rejectCatalogRequestByAdmin = async (req: Request, res: Response) =
     }
 };
 
-export const markCatalogRequestDuplicateByAdmin = async (req: Request, res: Response) => {
+export const markCatalogRequestMergedByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const body = req.body as { duplicateOfEntityId: string; adminNotes?: string };
+        const body = req.body as { mergedIntoEntityId: string; adminNotes?: string };
 
         const result = await markCatalogRequestDuplicate({
             requestId: getParamId(req),
             adminId,
-            duplicateOfEntityId: body.duplicateOfEntityId,
+            duplicateOfEntityId: body.mergedIntoEntityId,
             adminNotes: body.adminNotes,
         });
 
-        void notifyRequesterReviewOutcome(result.request, 'duplicate', {
-            duplicateOfEntityId: String(result.resolvedEntityId),
-            updatedAdsCount: result.updatedAdsCount,
+        void notifyRequesterReviewOutcome(result.request, 'merged', {
+            mergedIntoEntityId: String(result.resolvedEntityId),
         });
 
         return sendSuccessResponse(res, {
             request: result.request,
-            duplicateOfEntityId: result.resolvedEntityId,
-            updatedAdsCount: result.updatedAdsCount,
-        }, 'Catalog request marked as duplicate successfully');
+            mergedIntoEntityId: result.resolvedEntityId,
+        }, 'Catalog request merged into existing entity successfully');
     } catch (error) {
         return sendControllerError(req, res, error);
     }
@@ -463,9 +489,8 @@ export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Respo
                 const result = await approveCatalogRequest({ requestId, adminId });
                 void notifyRequesterReviewOutcome(result.request, 'approved', {
                     approvedEntityId: String(result.resolvedEntityId),
-                    updatedAdsCount: result.updatedAdsCount,
                 });
-                results.push({ id: requestId, status: 'success', updatedAdsCount: result.updatedAdsCount });
+                results.push({ id: requestId, status: 'success' });
             } catch (err) {
                 results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
             }
@@ -501,20 +526,19 @@ export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Respon
     }
 };
 
-export const bulkMarkCatalogRequestsDuplicateByAdmin = async (req: Request, res: Response) => {
+export const bulkMarkCatalogRequestsMergedByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
-        const { requestIds, duplicateOfId } = req.body as { requestIds: string[]; duplicateOfId: string };
+        const { requestIds, mergedIntoEntityId } = req.body as { requestIds: string[]; mergedIntoEntityId: string };
         const results = [];
 
         for (const requestId of requestIds) {
             try {
-                const result = await markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: duplicateOfId });
-                void notifyRequesterReviewOutcome(result.request, 'duplicate', {
-                    duplicateOfEntityId: String(result.resolvedEntityId),
-                    updatedAdsCount: result.updatedAdsCount,
+                const result = await markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: mergedIntoEntityId });
+                void notifyRequesterReviewOutcome(result.request, 'merged', {
+                    mergedIntoEntityId: String(result.resolvedEntityId),
                 });
-                results.push({ id: requestId, status: 'success', updatedAdsCount: result.updatedAdsCount });
+                results.push({ id: requestId, status: 'success' });
             } catch (err) {
                 results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
             }

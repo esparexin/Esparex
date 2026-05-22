@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-export const SparePartSchema = z.object({
+export const LegacySparePartSchema = z.object({
     id: z.string().optional(),
     name: z.string().min(1),
     type: z.enum(["PRIMARY", "SECONDARY"]).optional(),
 });
 
-export type SparePart = z.infer<typeof SparePartSchema>;
+export type LegacySparePart = z.infer<typeof LegacySparePartSchema>;

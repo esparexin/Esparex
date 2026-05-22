@@ -1,5 +1,5 @@
 import { Schema, Document, Model, Types } from 'mongoose';
-import { NOTIFICATION_TYPE_VALUES, NotificationTypeValue } from '../constants/enums/notificationType';
+import { NOTIFICATION_TYPE_VALUES, NotificationTypeValue } from '@esparex/shared';
 
 export interface INotification extends Document {
     userId: Types.ObjectId;

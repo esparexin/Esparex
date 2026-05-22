@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAdmin } from '../middleware/adminAuth';
+import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
@@ -18,11 +18,11 @@ import {
     getAdminCatalogRequestById,
     approveCatalogRequestByAdmin,
     rejectCatalogRequestByAdmin,
-    markCatalogRequestDuplicateByAdmin,
+    markCatalogRequestMergedByAdmin,
     getAdminCatalogRequestStats,
     bulkApproveCatalogRequestsByAdmin,
     bulkRejectCatalogRequestsByAdmin,
-    bulkMarkCatalogRequestsDuplicateByAdmin,
+    bulkMarkCatalogRequestsMergedByAdmin,
 } from '../controllers/catalogRequestController';
 
 const router = express.Router();
@@ -31,7 +31,9 @@ router.use(requireAdmin);
 router.use(adminLimiter);
 router.use((req, res, next) => {
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
-        return adminMutationLimiter(req, res, next);
+        return adminMutationLimiter(req, res, () => {
+            requirePermission('catalog:write')(req, res, next);
+        });
     }
     return next();
 });
@@ -53,7 +55,7 @@ router.post(
 router.post(
     '/bulk/mark-duplicate',
     validateRequest(bulkMarkCatalogRequestDuplicateSchema),
-    bulkMarkCatalogRequestsDuplicateByAdmin
+    bulkMarkCatalogRequestsMergedByAdmin
 );
 
 router.get('/:id', validateObjectId, getAdminCatalogRequestById);
@@ -73,7 +75,7 @@ router.post(
     '/:id/mark-duplicate',
     validateObjectId,
     validateRequest(markCatalogRequestDuplicateSchema),
-    markCatalogRequestDuplicateByAdmin
+    markCatalogRequestMergedByAdmin
 );
 
 export default router;

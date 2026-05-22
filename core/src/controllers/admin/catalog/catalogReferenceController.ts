@@ -20,7 +20,8 @@ import {
     sendSuccessResponse,
     handlePaginatedContent,
     CATALOG_PUBLIC_VISIBILITY_QUERY,
-    deriveApprovalStatus
+    deriveApprovalStatus,
+    applyCatalogStatusFilter
 } from './shared';
 import { validateScreenSizeRelations } from '../../../services/catalog/CatalogValidationService';
 import {
@@ -40,7 +41,7 @@ import {
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
 } from '../../../services/catalog/CatalogReferenceService';
-import { CATALOG_APPROVAL_STATUS } from '../../../constants/enums/catalogApprovalStatus';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { toOptionalString } from './inputCoercion';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
@@ -56,6 +57,7 @@ import { toOptionalString } from './inputCoercion';
 export const getServiceTypes = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
     const categoryId = req.query.categoryId as string;
+    const status = req.query.status as string | undefined;
 
     let categoryObjectId: string | undefined = categoryId;
     if (!isAdminView && categoryId) {
@@ -68,6 +70,8 @@ export const getServiceTypes = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = CategoryQueryBuilder.forPlural()
         .withFilters({ categoryIds: categoryId ? [categoryId] : null })
         .build();
+    applyCatalogStatusFilter(adminQuery, status);
+
     const publicQuery: QueryRecord = { 
         ...CATALOG_PUBLIC_VISIBILITY_QUERY,
         ...CategoryQueryBuilder.forPlural()
@@ -75,11 +79,17 @@ export const getServiceTypes = async (req: Request, res: Response) => {
             .build()
     };
 
+    const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
+    delete queryParams.status;
+    delete queryParams.categoryId;
+    delete queryParams.categoryIds;
+
     return handlePaginatedContent(req, res, ServiceTypeModel, {
         populate: isAdminView ? undefined : 'categoryIds',
         adminQuery,
         publicQuery,
-        searchFields: ['name', 'canonicalName', 'aliases']
+        searchFields: ['name', 'canonicalName', 'aliases'],
+        queryParams
     });
 };
 
@@ -122,7 +132,7 @@ export const createServiceType = async (req: Request, res: Response) => {
             });
             return Promise.resolve(payload);
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -140,7 +150,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
             });
             return Promise.resolve(payload);
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -150,7 +160,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, ServiceTypeModel, {
         auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -160,7 +170,7 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
 export const deleteServiceType = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, ServiceTypeModel, checkServiceTypeDependencies, {
         auditAction: 'SERVICE_TYPE_DELETE',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -173,7 +183,7 @@ export const deleteServiceType = async (req: Request, res: Response) => {
  */
 export const getScreenSizes = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
-    const { categoryId } = req.query;
+    const { categoryId, brandId, status } = req.query;
 
     let categoryObjectId: string | mongoose.Types.ObjectId | undefined = categoryId as string | undefined;
     if (!isAdminView && categoryId) {
@@ -201,6 +211,10 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     const activeBrandIds = activeBrandDocs.map((brand) => String(brand._id));
 
     const adminQuery: QueryRecord = CategoryQueryBuilder.forSingular().withFilters({ categoryId: categoryId as string }).build();
+    if (brandId && brandId !== 'all') {
+        adminQuery.brandId = brandId;
+    }
+    applyCatalogStatusFilter(adminQuery, status);
 
     const publicQuery: QueryRecord = { 
         ...CATALOG_PUBLIC_VISIBILITY_QUERY,
@@ -215,10 +229,17 @@ export const getScreenSizes = async (req: Request, res: Response) => {
         ]
     };
 
+    const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
+    delete queryParams.status;
+    delete queryParams.categoryId;
+    delete queryParams.categoryIds;
+    delete queryParams.brandId;
+
     return handlePaginatedContent(req, res, ScreenSizeModel, {
         adminQuery,
         publicQuery,
-        searchFields: ['name', 'size']
+        searchFields: ['name', 'size'],
+        queryParams
     });
 };
 
@@ -269,7 +290,7 @@ export const createScreenSize = async (req: Request, res: Response) => {
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -296,7 +317,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
         },
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -306,7 +327,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
 export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, ScreenSizeModel, {
         auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };
 
@@ -316,6 +337,6 @@ export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
 export const deleteScreenSize = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, ScreenSizeModel, undefined, {
         auditAction: 'SCREEN_SIZE_DELETE',
-        postOp: () => void CatalogOrchestrator.invalidateCatalogCache()
+        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
 };

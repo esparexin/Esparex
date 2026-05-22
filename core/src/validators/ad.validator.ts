@@ -74,11 +74,17 @@ export const updateAdSchema = SharedPartialAdPayloadSchema.passthrough();
 import { normalizeStatus } from "@esparex/shared";
 
 /**
+ * Safe sort fields — must match canonical values in AdQueryHelpers.buildAdSortStage.
+ * Any value outside this list is rejected at the schema boundary.
+ */
+export const SAFE_SORT_FIELDS = ['newest', 'price-low', 'price-high', 'distance', 'trending'] as const;
+export type SafeSortField = (typeof SAFE_SORT_FIELDS)[number];
+
+/**
  * Get Ads Query Schema
  * Canonical ownership query key is sellerId.
  */
 const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
-    ...commonSchemas.sort.shape,
     ...commonSchemas.search.shape,
     status: z.preprocess((val) => normalizeStatus(val), z.string()).optional(),
     
@@ -100,13 +106,18 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     isSpotlight: z.boolean().or(z.string().transform(val => val === 'true')).optional(),
     listingType: z.string().optional(),
 
-    // 📍 New Location Filters
+    // Whitelisted sort — matches buildAdSortStage in AdQueryHelpers.ts
+    sortBy: z.enum(SAFE_SORT_FIELDS).optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
+
+    // 📍 Location Filters
     radiusKm: z.string().transform(Number).pipe(z.number().min(0).max(500)).optional(),
     lat: z.string().transform(Number).pipe(z.number().min(-90).max(90)).optional(),
     lng: z.string().transform(Number).pipe(z.number().min(-180).max(180)).optional(),
     coordinates: coordinatesSchema.optional(),
     cursor: commonSchemas.objectId.optional(),
 });
+
 
 export const getAdsQuerySchema = z.preprocess((raw) => {
     throwIfLegacyAdQueryAliasesPresent(raw);

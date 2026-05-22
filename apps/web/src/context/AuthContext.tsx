@@ -317,7 +317,6 @@ export function AuthProvider({
 
   useEffect(() => {
     let mounted = true;
-    const RETRY_DELAY_MS = 2_000;
 
     if (
       process.env.NEXT_PUBLIC_LOCAL_DEV_AUTH ===
@@ -328,18 +327,47 @@ export function AuthProvider({
       return;
     }
 
+    /**
+     * Exponential backoff with jitter.
+     *
+     * Schedule:
+     *   Attempt 0 →  2 s  + jitter (0–1 s)
+     *   Attempt 1 →  4 s  + jitter
+     *   Attempt 2 →  8 s  + jitter
+     *   Attempt 3 → 16 s  + jitter
+     *   Attempt 4+→ 30 s  + jitter (cap)
+     *
+     * During a sustained outage this reduces health-check traffic from
+     * ~30 req/min (fixed 2 s loop) to ≤2 req/min once fully backed off.
+     * Counter resets to 0 immediately on a successful health response.
+     */
+    const BASE_DELAY_MS = 2_000;
+    const MAX_DELAY_MS = 30_000;
+    let retryAttempt = 0;
+
     const waitForBackend = async () => {
       try {
         const ok = await apiClient.checkHealth();
 
         if (mounted && ok) {
+          retryAttempt = 0;
           setBackendReady(true);
         } else if (mounted) {
-          setTimeout(waitForBackend, RETRY_DELAY_MS);
+          const jitter = Math.random() * 1_000;
+          const delay =
+            Math.min(BASE_DELAY_MS * Math.pow(2, retryAttempt), MAX_DELAY_MS) +
+            jitter;
+          retryAttempt += 1;
+          setTimeout(waitForBackend, delay);
         }
       } catch {
         if (mounted) {
-          setTimeout(waitForBackend, RETRY_DELAY_MS);
+          const jitter = Math.random() * 1_000;
+          const delay =
+            Math.min(BASE_DELAY_MS * Math.pow(2, retryAttempt), MAX_DELAY_MS) +
+            jitter;
+          retryAttempt += 1;
+          setTimeout(waitForBackend, delay);
         }
       }
     };

@@ -1,6 +1,6 @@
 import { MODERATION_STATUS_VALUES, type ModerationItem, type ModerationStatus } from "./moderationTypes";
-import type { ListingTypeValue } from "@shared/enums/listingType";
-import { LISTING_TYPE_VALUES } from "@shared/enums/listingType";
+import type { ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE_VALUES } from '@esparex/shared';
 import { toGeoPoint } from "@/lib/location/display";
 
 const asString = (value: unknown): string | undefined =>
@@ -129,20 +129,6 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
     const daysRemaining = computeDaysRemaining(expiresAt);
     const isDeleted = typeof raw.isDeleted === "boolean" ? raw.isDeleted : undefined;
 
-    // Catalog Dependency Mapping
-    const catalogDependency = raw.catalogDependency && typeof raw.catalogDependency === "object"
-        ? (() => {
-            const dep = raw.catalogDependency as Record<string, unknown>;
-            return {
-                isBlocked: Boolean(dep.isBlocked),
-                requestId: asString(dep.requestId),
-                status: asString(dep.status),
-                requestedBrandName: asString(dep.requestedBrandName),
-                requestedModelName: asString(dep.requestedModelName),
-            };
-        })()
-        : undefined;
-
     return {
         id: String(raw.id || raw._id || ""),
         title: asString(raw.title) || "Untitled listing",
@@ -185,8 +171,7 @@ export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationI
         listingType,
         reportCount,
         fraudScore,
-        riskScore,
-        catalogDependency
+        riskScore
     };
 };
 

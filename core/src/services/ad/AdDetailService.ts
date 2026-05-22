@@ -3,7 +3,6 @@ import {
     Ad,
     Business,
     Report,
-    CatalogRequest,
     LISTING_STATUS,
     isBusinessPublishedStatus
 } from './_shared/adServiceBase';
@@ -94,25 +93,6 @@ export const getAnyAdById = async (
         delete result.otp;
         delete result.otpExpiry;
 
-        // Catalog Dependency Enrichment
-        if (ad.catalogRequestId) {
-            const catalogRequest = await CatalogRequest.findById(ad.catalogRequestId).lean();
-            if (catalogRequest) {
-                const isBlocked = ['pending', 'under_review', 'duplicate_review'].includes(catalogRequest.status);
-                result.catalogDependency = {
-                    isBlocked,
-                    requestId: catalogRequest._id.toString(),
-                    status: catalogRequest.status,
-                    requestedBrandName: catalogRequest.requestType === 'brand' ? catalogRequest.requestedName : undefined,
-                    requestedModelName: catalogRequest.requestType === 'model' ? catalogRequest.requestedName : undefined,
-                };
-            } else {
-                result.catalogDependency = { isBlocked: false };
-            }
-        } else {
-            result.catalogDependency = { isBlocked: false };
-        }
-
         return canonicalizeListingContract(result);
     } catch (error) {
         logger.error('Failed to get ad by ID', {
@@ -129,8 +109,8 @@ export const getAnyAdById = async (
 export const getAdForModerationById = async (id: string) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return null;
     return Ad.findById(id)
-        .select('status reviewVersion listingType isDeleted catalogPending catalogRequestId')
-        .lean<{ status: string; reviewVersion?: number; listingType?: string; isDeleted?: boolean; catalogPending?: boolean; catalogRequestId?: mongoose.Types.ObjectId } | null>();
+        .select('status reviewVersion listingType isDeleted')
+        .lean<{ status: string; reviewVersion?: number; listingType?: string; isDeleted?: boolean } | null>();
 };
 
 export const getListingDetailById = async (adId: string) => {
@@ -203,25 +183,6 @@ export const getListingDetailById = async (adId: string) => {
             detail.verified =
                 businessRecord.isVerified === true || isBusinessPublishedStatus(businessRecord.status);
         }
-    }
-
-    // Catalog Dependency Enrichment
-    if (ad.catalogRequestId) {
-        const catalogRequest = await CatalogRequest.findById(ad.catalogRequestId).lean();
-        if (catalogRequest) {
-            const isBlocked = ['pending', 'under_review', 'duplicate_review'].includes(catalogRequest.status);
-            detail.catalogDependency = {
-                isBlocked,
-                requestId: catalogRequest._id.toString(),
-                status: catalogRequest.status,
-                requestedBrandName: catalogRequest.requestType === 'brand' ? catalogRequest.requestedName : undefined,
-                requestedModelName: catalogRequest.requestType === 'model' ? catalogRequest.requestedName : undefined,
-            };
-        } else {
-            detail.catalogDependency = { isBlocked: false };
-        }
-    } else {
-        detail.catalogDependency = { isBlocked: false };
     }
 
     return detail;

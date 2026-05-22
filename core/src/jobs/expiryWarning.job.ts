@@ -5,10 +5,10 @@ import logger from '../utils/logger';
 import Business from '../models/Business';
 import Ad from '../models/Ad';
 import SmartAlert from '../models/SmartAlert';
-import { BUSINESS_STATUS } from '../constants/enums/businessStatus';
-import { LISTING_STATUS } from '../constants/enums/listingStatus';
+import { BUSINESS_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
 import { dispatchTemplatedNotification } from '../services/NotificationService';
-import { ACTOR_TYPE } from '../constants/enums/actor';
+import { ACTOR_TYPE } from '@esparex/shared';
 import AdminLog from '../models/AdminLog';
 
 const expiryWarningQueue = new Queue('expiry_warning_queue', { connection: redisConnection });

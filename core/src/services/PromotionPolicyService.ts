@@ -1,5 +1,5 @@
-import { LISTING_TYPE, type ListingTypeValue } from '../constants/enums/listingType';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/shared';
 
 export interface PromotionPolicyResult {
     allowed: boolean;

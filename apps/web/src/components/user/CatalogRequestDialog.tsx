@@ -41,7 +41,6 @@ export function CatalogRequestDialog({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [catalogRequestId, setCatalogRequestId] = useState<string | null>(null);
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -49,14 +48,12 @@ export function CatalogRequestDialog({
                 setName(initialName);
                 setErrorMessage(null);
                 setIsSuccess(false);
-                setCatalogRequestId(null);
                 return;
             }
 
             setName("");
             setErrorMessage(null);
             setIsSuccess(false);
-            setCatalogRequestId(null);
         }, 0);
 
         return () => window.clearTimeout(timeoutId);
@@ -88,7 +85,6 @@ export function CatalogRequestDialog({
                 requestedName: name.trim(),
             });
             
-            setCatalogRequestId(result.id);
             setIsSuccess(true);
             onSuccess?.(result.id, name.trim());
             
@@ -112,11 +108,9 @@ export function CatalogRequestDialog({
                         <DialogDescription className="text-sm text-slate-500">
                             Request submitted for admin approval.
                         </DialogDescription>
-                        {catalogRequestId ? (
-                            <p className="mt-3 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                                Pending review
-                            </p>
-                        ) : null}
+                        <p className="mt-3 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                            Pending review
+                        </p>
                     </div>
                 ) : (
                     <>

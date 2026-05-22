@@ -41,7 +41,7 @@ import {
     deriveApprovalStatus,
     sendValidationError
 } from './shared';
-import { CATALOG_APPROVAL_STATUS } from "../../../constants/enums/catalogApprovalStatus";
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
@@ -151,7 +151,7 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, 'Category not found', 404);
         }
 
-        await CatalogOrchestrator.invalidateCatalogCache();
+        await CatalogOrchestrator.invalidateCatalogCache({ categoryIds: [id] });
         clearCategoryCanonicalCache();
         await logAdminAction(req, 'UPDATE_CATEGORY_SCHEMA', 'Category', category._id, { filters });
 
@@ -265,9 +265,9 @@ export const updateCategory = async (req: Request, res: Response) => {
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, CategoryModel, {
         auditAction: 'TOGGLE_CATEGORY_STATUS',
-        postOp: () => {
+        postOp: (item) => {
             clearCategoryCanonicalCache();
-            void CatalogOrchestrator.invalidateCatalogCache();
+            void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: [item._id] });
         }
     });
 };

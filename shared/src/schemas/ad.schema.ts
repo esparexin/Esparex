@@ -19,8 +19,6 @@ export const AdSchema = z.object({
     brandName: z.string().optional(),
     modelId: z.string().optional(),
     modelName: z.string().optional(),
-    catalogRequestId: z.string().optional(),
-    catalogPending: z.boolean().optional(),
     screenSize: z.string().optional(),
     location: z.object({
         city: z.string().optional(),

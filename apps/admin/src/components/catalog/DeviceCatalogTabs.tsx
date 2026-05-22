@@ -11,10 +11,12 @@ import CatalogRequestsTab from "./tabs/CatalogRequestsTab";
 
 export default function DeviceCatalogTabs() {
     const searchParams = useSearchParams();
-    const tab = searchParams.get("tab") || "device-categories";
+    const rawTab = searchParams.get("tab") || "categories";
+    // Backward-compat: normalize legacy 'device-categories' → 'categories'
+    const tab = rawTab === "device-categories" ? "categories" : rawTab;
 
     switch (tab) {
-        case "device-categories":
+        case "categories":
             return <CategoriesTab />;
         case "brands":
             return <BrandsTab />;

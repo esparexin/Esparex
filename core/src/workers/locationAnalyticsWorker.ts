@@ -2,7 +2,7 @@ import Ad from "../models/Ad";
 import User from "../models/User";
 import Location from "../models/Location";
 import LocationAnalytics from "../models/LocationAnalytics";
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 

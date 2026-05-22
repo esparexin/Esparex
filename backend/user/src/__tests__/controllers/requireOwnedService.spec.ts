@@ -1,154 +1,48 @@
 /**
- * Unit tests for requireOwnedService (Phase 8).
- *
- * Module-private helper — tested indirectly via deactivateService
- * (the simplest exported endpoint that delegates auth to requireOwnedService).
- *
- * Scenarios:
- *  - No user on req → 401
- *  - Missing :id param → 400
- *  - Malformed (non-ObjectId) :id → 400
- *  - Service not found / not owned → 404
- *  - Valid ownership → proceeds to business logic
+ * Unit tests for requireListingOwner middleware.
  */
 
-// ─── Mocks MUST be declared before any imports ───────────────────────────────
+import { Request, Response, NextFunction } from 'express';
+import { requireListingOwner } from '../../middleware/ownershipGuard';
+import { getAndVerifyOwnedListing } from '@esparex/core/utils/controllerUtils';
 
-jest.mock('@esparex/core/models/Ad', () => ({
-    __esModule: true,
-    default: { findOne: jest.fn() },
+jest.mock('@esparex/core/utils/controllerUtils', () => ({
+    getAndVerifyOwnedListing: jest.fn(),
 }));
 
-jest.mock('@esparex/core/services/StatusMutationService', () => ({
-    mutateStatus: jest.fn().mockResolvedValue({ _id: 'svc-id', status: 'deactivated' }),
-}));
+const mockGetAndVerifyOwnedListing = getAndVerifyOwnedListing as jest.Mock;
 
-jest.mock('@esparex/core/utils/requestParams', () => ({
-    getSingleParam: jest.fn((req: { params?: Record<string, string> }, res: { status: (n: number) => { json: (v: unknown) => void } }, key: string, options: { error?: string } = {}) => {
-        const val = req.params?.[key];
-        if (!val && options?.error) {
-            res.status(400).json({ error: options.error });
-            return null;
-        }
-        return val ?? '';
-    }),
-}));
-
-jest.mock('@esparex/core/utils/errorResponse', () => ({
-    sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
-        res.status(status).json({ error: msg });
-    }),
-}));
-
-jest.mock('@esparex/core/utils/logger', () => ({
-    __esModule: true,
-    default: { error: jest.fn(), info: jest.fn(), warn: jest.fn() },
-}));
-
-jest.mock('@esparex/core/utils/respond', () => ({
-    respond: jest.fn((v: unknown) => v),
-}));
-
-// ─── Imports ─────────────────────────────────────────────────────────────────
-
-import type { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import Ad from '@esparex/core/models/Ad';
-import { deactivateListing } from '../../controllers/listing/lifecycle.controller';
-import { getSingleParam } from '@esparex/core/utils/requestParams';
-
-// ─── Typed mocks ─────────────────────────────────────────────────────────────
-
-const mockedAd = Ad as unknown as { findOne: jest.Mock };
-const mockedGetSingleParam = getSingleParam as jest.Mock;
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-const VALID_ID = new mongoose.Types.ObjectId().toHexString();
-
-const makeReq = (overrides: Record<string, unknown> = {}) => ({
-    user: { _id: 'user-id', role: 'user' },
-    params: { id: VALID_ID },
-    body: {},
-    headers: {},
-    ip: '127.0.0.1',
-    ...overrides,
-});
-
-const makeRes = () => {
-    const res = { status: jest.fn().mockReturnThis(), json: jest.fn().mockReturnThis() };
-    return res;
-};
-
-// ─── Tests ───────────────────────────────────────────────────────────────────
-
-describe('requireOwnedService (via deactivateService)', () => {
+describe('requireListingOwner middleware', () => {
     beforeEach(() => {
         jest.clearAllMocks();
-        // Default: match real getSingleParam behavior including error side-effect
-        mockedGetSingleParam.mockImplementation(
-            (req: { params?: Record<string, string> }, res: { status: (n: number) => { json: (v: unknown) => void } }, key: string, options: { error?: string } = {}) => {
-                const val = req.params?.[key];
-                if (!val && options?.error) {
-                    res.status(400).json({ error: options.error });
-                    return null;
-                }
-                return val ?? '';
-            }
-        );
     });
 
-    it('returns 401 when req.user is absent', async () => {
-        const req = makeReq({ user: undefined }) as unknown as Request;
-        const res = makeRes() as unknown as Response;
+    it('calls next() and populates req.listing when getAndVerifyOwnedListing succeeds', async () => {
+        const mockListing = { _id: '123', title: 'Test ad' };
+        mockGetAndVerifyOwnedListing.mockResolvedValue(mockListing);
 
-        await deactivateListing(req, res, jest.fn());
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = jest.fn() as NextFunction;
 
-        expect(res.status).toHaveBeenCalledWith(401);
+        await requireListingOwner(req, res, next);
+
+        expect(mockGetAndVerifyOwnedListing).toHaveBeenCalledWith(req, res);
+        expect(req.listing).toBe(mockListing);
+        expect(next).toHaveBeenCalled();
     });
 
-    it('returns 400 when :id is missing', async () => {
-        const req = makeReq({ params: { id: '' } }) as unknown as Request;
-        const res = makeRes() as unknown as Response;
+    it('returns early and does not call next() when getAndVerifyOwnedListing returns null', async () => {
+        mockGetAndVerifyOwnedListing.mockResolvedValue(null);
 
-        await deactivateListing(req, res, jest.fn());
+        const req = {} as Request;
+        const res = {} as Response;
+        const next = jest.fn() as NextFunction;
 
-        expect(res.status).toHaveBeenCalledWith(400);
-    });
+        await requireListingOwner(req, res, next);
 
-
-
-    it('returns 404 when Ad.findOne returns null (service not found or wrong owner)', async () => {
-        mockedAd.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(null),
-        });
-
-        const req = makeReq() as unknown as Request;
-        const res = makeRes() as unknown as Response;
-
-        await deactivateListing(req, res, jest.fn());
-
-        expect(res.status).toHaveBeenCalledWith(404);
-        expect(mockedAd.findOne).toHaveBeenCalledWith(
-            expect.objectContaining({ _id: expect.any(String) })
-        );
-    });
-
-    it('proceeds past auth guard when service is found and owned', async () => {
-        mockedAd.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue({ _id: VALID_ID, status: 'live' }),
-        });
-
-        const req = makeReq() as unknown as Request;
-        const res = makeRes() as unknown as Response;
-
-        await deactivateListing(req, res, jest.fn());
-
-        // mutateStatus was called → auth guard passed
-        // eslint-disable-next-line @typescript-eslint/no-require-imports -- module state is mocked per test.
-        const { mutateStatus } = require('@esparex/core/services/StatusMutationService');
-        expect(mutateStatus).toHaveBeenCalledWith(
-            expect.objectContaining({ entityId: VALID_ID, toStatus: 'deactivated' })
-        );
+        expect(mockGetAndVerifyOwnedListing).toHaveBeenCalledWith(req, res);
+        expect(req.listing).toBeUndefined();
+        expect(next).not.toHaveBeenCalled();
     });
 });

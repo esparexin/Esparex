@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
 import { mutateStatus } from '../StatusMutationService';
-import { BUSINESS_STATUS } from '../../constants/enums/businessStatus';
-import { ACTOR_TYPE, type ActorTypeValue } from '../../constants/enums/actor';
+import { BUSINESS_STATUS } from '@esparex/shared';
+import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/shared';
 
 
 export const approveBusiness = async (id: string, moderatorId: string = 'SYSTEM') => {

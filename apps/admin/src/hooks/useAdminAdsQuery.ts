@@ -29,8 +29,7 @@ const DEFAULT_SUMMARY: ModerationSummary = {
     rejected: 0,
     expired: 0,
     sold: 0,
-    deactivated: 0,
-    catalogPending: 0
+    deactivated: 0
 };
 
 export function useAdminAdsQuery(input: {

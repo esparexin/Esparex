@@ -1,4 +1,5 @@
 import {
+    Drone,
     Smartphone,
     Car,
     Home,
@@ -16,7 +17,7 @@ import {
     Camera,
     HardDrive,
     Watch,
-    Monitor,
+    Tv,
     LucideIcon
 } from "lucide-react";
 
@@ -86,9 +87,12 @@ export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
     laptops: { icon: Laptop, color: "text-link-dark", bg: "bg-blue-50" },
     laptop: { icon: Laptop, color: "text-link-dark", bg: "bg-blue-50" },
 
-    "led-tv": { icon: Monitor, color: "text-red-700", bg: "bg-red-50" },
-    "led-tvs": { icon: Monitor, color: "text-red-700", bg: "bg-red-50" },
-    monitor: { icon: Monitor, color: "text-red-700", bg: "bg-red-50" },
+    "led-tv": { icon: Tv, color: "text-red-700", bg: "bg-red-50" },
+    "led-tvs": { icon: Tv, color: "text-red-700", bg: "bg-red-50" },
+    monitor: { icon: Tv, color: "text-red-700", bg: "bg-red-50" },
+    tv: { icon: Tv, color: "text-red-700", bg: "bg-red-50" },
+    drones: { icon: Drone, color: "text-sky-600", bg: "bg-sky-50" },
+    drone: { icon: Drone, color: "text-sky-600", bg: "bg-sky-50" },
 };
 
 export function getCategoryVisual(slugOrName?: string): CategoryVisual {

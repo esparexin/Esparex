@@ -2,7 +2,7 @@ import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
 import Ad from '../models/Ad';
 import DuplicateEvent from '../models/DuplicateEvent';
-import { LISTING_STATUS } from "../constants/enums/listingStatus";
+import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
 
 // ─────────────────────────────────────────────────

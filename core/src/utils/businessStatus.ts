@@ -1,4 +1,4 @@
-import { BUSINESS_STATUS, BusinessStatusValue } from '../constants/enums/businessStatus';
+import { BUSINESS_STATUS, BusinessStatusValue } from '@esparex/shared';
 
 /**
  * Legacy compatibility:

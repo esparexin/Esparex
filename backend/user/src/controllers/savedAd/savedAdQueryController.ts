@@ -11,7 +11,7 @@ export const getSavedAds = async (req: Request, res: Response) => {
         const userId = getUserId(savedAdReq);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
-        const page = Math.max(1, Number(req.query.page) || 1);
+        const page = Math.min(1000, Math.max(1, Number(req.query.page) || 1));
         const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
 
         const { data, total } = await getSavedAdsService(userId, page, limit);

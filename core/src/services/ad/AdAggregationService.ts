@@ -3,7 +3,7 @@ import {
     Ad,
     Category,
     Brand,
-    ProductModel,
+    Model,
     SparePart,
     serializeDoc,
     normalizeLocationResponse,
@@ -137,7 +137,7 @@ export const getOwnerListings = async (
     const populateSpecs = [
         { path: 'categoryId', model: Category, select: 'name slug icon' },
         { path: 'brandId', model: Brand, select: 'name slug' },
-        { path: 'modelId', model: ProductModel, select: 'name slug' },
+        { path: 'modelId', model: Model, select: 'name slug' },
         { path: 'sparePartId', model: SparePart, select: 'name slug' },
         { path: 'serviceTypeIds', model: ServiceType, select: 'name slug' },
     ] as const;
@@ -219,7 +219,7 @@ export async function hydrateAdMetadata(ads: HydratedAd[]) {
             Brand.find({ _id: { $in: missing } }).select('name slug').lean<MetadataEntity[]>()
         ),
         fetchMetadataWithCache<MetadataEntity>(modelIds, 'model', (missing) => 
-            ProductModel.find({ _id: { $in: missing } }).select('name slug').lean<MetadataEntity[]>()
+            Model.find({ _id: { $in: missing } }).select('name slug').lean<MetadataEntity[]>()
         ),
         fetchMetadataWithCache<MetadataEntity>(sparePartIds, 'sparepart', (missing) => 
             SparePart.find({ _id: { $in: missing } }).lean<MetadataEntity[]>()
@@ -590,15 +590,6 @@ export const getAds = async (
             }
         });
         pipeline.push({ $unwind: { path: '$seller', preserveNullAndEmptyArrays: true } });
-
-        // Remove sensitive seller fields
-        pipeline.push({
-            $addFields: {
-                'seller.password': '$$REMOVE',
-                'seller.otp': '$$REMOVE',
-                'seller.otpExpiry': '$$REMOVE' as unknown
-            }
-        });
     }
 
     pipeline.push({
@@ -651,8 +642,6 @@ export const getAds = async (
             deviceCondition: 1,
             sparePartsSnapshot: 1,
             sparePartIds: 1,
-            catalogRequestId: 1,
-            catalogPending: 1,
             // Include populated fields (if lookups were performed)
             category: 1,
             brand: 1,
