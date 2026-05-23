@@ -1,10 +1,14 @@
 # Esparex Governance Pointer (Cursor)
 
-Canonical AI governance and platform standards live in the repository SSOT files. This local file is a compatibility surface only and MUST NOT define independent rules.
+Canonical AI governance, platform standards, and single execution paths live strictly in the repository SSOT files. This local file is a compatibility surface only and MUST NOT define independent rules.
 
-Refer to:
-1. `ai-governance/SSOT.md` (AI Behavior & Rules)
-2. `ai-governance/SOP.md` (Execution Workflow)
-3. `docs/00-index.md` (Master Platform Documentation Registry)
+Refer strictly to:
+1. `docs/MASTER_DOCUMENT_REGISTRY.md` (Authoritative Registry)
+2. `docs/ssot/DOMAIN_MODEL_SSOT.md` (Identity & Lifecycle SSOT)
+3. `docs/ssot/API_CONTRACT_SSOT.md` (REST API Contract SSOT)
+4. `docs/ssot/ARCHITECTURE_FLOW_SSOT.md` (Core Architecture Flows)
+5. `docs/ssot/CI_CD_SSOT.md` (Pipelines & Quality Gates)
+6. `docs/governance/GOVERNANCE_POLICY.md` (Developer Coding Standards)
+7. `docs/governance/AI_GOVERNANCE_BOUNDARY.md` (AI Prompt Bounding rules)
 
-**Mandatory Rule**: All documentation updates MUST be performed in-place on the canonical files registered in `docs/00-index.md`. Never create duplicate `_final` or `_latest` files.
+**Mandatory Rule**: All documentation updates MUST be performed in-place on the canonical files registered in `docs/MASTER_DOCUMENT_REGISTRY.md`. Never create duplicate `_final`, `_latest`, or `_v2` files.
