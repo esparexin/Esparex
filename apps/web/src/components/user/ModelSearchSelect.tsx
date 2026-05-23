@@ -34,7 +34,6 @@ export function ModelSearchSelect({
     value,
     modelDisplayName = "",
     onChange,
-    onRequestSuccess,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
@@ -153,9 +152,7 @@ export function ModelSearchSelect({
             categoryId={categoryId}
             parentBrandId={brandId}
             initialName={search}
-            onSuccess={(requestId, name) => {
-                onChange("", name, requestId);
-                void onRequestSuccess?.(requestId, name);
+            onSuccess={() => {
                 setSearch("");
                 setIsEditing(false);
             }}

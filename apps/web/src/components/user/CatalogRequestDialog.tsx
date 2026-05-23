@@ -104,13 +104,10 @@ export function CatalogRequestDialog({
                 {isSuccess ? (
                     <div className="py-12 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-300">
                         <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4" />
-                        <DialogTitle className="text-xl font-bold text-slate-900 mb-2">Request Submitted!</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-slate-900 mb-2">Request Received</DialogTitle>
                         <DialogDescription className="text-sm text-slate-500">
-                            Request submitted for admin approval.
+                            Your suggestion has been logged for manual review.
                         </DialogDescription>
-                        <p className="mt-3 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                            Pending review
-                        </p>
                     </div>
                 ) : (
                     <>

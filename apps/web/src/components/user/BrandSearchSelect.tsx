@@ -28,7 +28,6 @@ export function BrandSearchSelect({
     value,
     onChange,
     categoryId,
-    onRequestSuccess,
     disabled = false,
     placeholder = "Search brand...",
     className,
@@ -114,9 +113,7 @@ export function BrandSearchSelect({
             requestType="brand"
             categoryId={categoryId}
             initialName={search}
-            onSuccess={(requestId, name) => {
-                onChange("", name, requestId);
-                void onRequestSuccess?.(requestId, name);
+            onSuccess={() => {
                 setSearch("");
                 setIsEditing(false);
             }}
