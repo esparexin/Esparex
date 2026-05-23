@@ -7,7 +7,7 @@ import { detectLocationByIP } from "@/lib/api/ipGeolocation";
 import {
     createPoint,
     toCanonicalGeoPoint,
-} from "@/lib/location/coordinates";
+} from "@esparex/shared";
 import {
     getDisplayLocationLabel,
     getHeaderLocationText,

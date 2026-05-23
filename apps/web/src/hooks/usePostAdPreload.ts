@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import type { Listing as Ad } from "@/lib/api/user/listings";
 import { resolveCanonicalLocationId, sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
-import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
+import { toCanonicalGeoPoint } from "@esparex/shared";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
 import logger from "@/lib/logger";
 import { ListingImage } from "@/types/listing";

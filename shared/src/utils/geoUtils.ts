@@ -114,3 +114,45 @@ export const normalizeGeoPoint = (input: unknown): GeoJSONPoint => {
 
     throw new Error(`ERR_GEO_02: Unrecognized location format: ${JSON.stringify(input)}`);
 };
+
+export function getLatitude(input: unknown): number | undefined {
+    try {
+        const pt = normalizeGeoPoint(input);
+        return pt.coordinates[1];
+    } catch {
+        return undefined;
+    }
+}
+
+export function getLongitude(input: unknown): number | undefined {
+    try {
+        const pt = normalizeGeoPoint(input);
+        return pt.coordinates[0];
+    } catch {
+        return undefined;
+    }
+}
+
+export function hasCoordinates(input: unknown): boolean {
+    try {
+        normalizeGeoPoint(input);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function createPoint(lng: number, lat: number): GeoJSONPoint | undefined {
+    try {
+        return normalizeGeoPoint([lng, lat]);
+    } catch {
+        return undefined;
+    }
+}
+export function toCanonicalGeoPoint(input: unknown): GeoJSONPoint | undefined {
+    try {
+        return normalizeGeoPoint(input);
+    } catch {
+        return undefined;
+    }
+}

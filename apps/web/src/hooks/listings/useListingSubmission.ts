@@ -8,7 +8,7 @@ import { notify } from "@/lib/feedback";
 import type { ListingImage } from "@/types/listing";
 import type { ListingLocation } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
-import { toCanonicalGeoPoint } from "@/lib/location/coordinates";
+import { toCanonicalGeoPoint } from "@esparex/shared";
 import { fileToBase64 } from "@/components/user/business-registration/utils";
 import { z } from "zod";
 

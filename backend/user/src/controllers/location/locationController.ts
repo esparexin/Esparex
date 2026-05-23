@@ -343,13 +343,22 @@ export const geocode = async (req: Request, res: Response) => {
         let lng: number;
         let lat: number;
 
-        if (req.query.coordinates) {
+        const queryLat = req.query.lat;
+        const queryLng = req.query.lng;
+
+        const coordinates =
+            req.query.coordinates ??
+            (queryLat && queryLng
+                ? [Number(queryLng), Number(queryLat)]
+                : undefined);
+
+        if (coordinates) {
             try {
                 let coordsObj: unknown;
-                if (typeof req.query.coordinates === 'string') {
-                    coordsObj = JSON.parse(req.query.coordinates);
+                if (typeof coordinates === 'string') {
+                    coordsObj = JSON.parse(coordinates);
                 } else {
-                    coordsObj = req.query.coordinates;
+                    coordsObj = coordinates;
                 }
                 const { normalizeGeoPoint } = await import('@esparex/shared');
                 const validGeo = normalizeGeoPoint(coordsObj);

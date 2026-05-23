@@ -12,7 +12,7 @@ import {
   getDisplayLocationLabel,
   sanitizeLocationLabel,
 } from "@/lib/location/locationLabels";
-import { getLatitude, getLongitude } from "@/lib/location/coordinates";
+import { getLatitude, getLongitude } from "@esparex/shared";
 import logger from "@/lib/logger";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import {

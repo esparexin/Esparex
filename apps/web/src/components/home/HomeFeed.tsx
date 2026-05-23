@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { getSearchLocationLabel } from "@/lib/location/locationLabels";
-import { getLatitude, getLongitude } from "@/lib/location/coordinates";
+import { getLatitude, getLongitude } from "@esparex/shared";
 import { HomeFeedClient } from "./HomeFeedClient";
 
 interface HomeFeedProps {

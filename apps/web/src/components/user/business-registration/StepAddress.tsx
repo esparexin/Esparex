@@ -12,7 +12,7 @@ import {
     normalizeLocationName,
     reverseGeocode,
 } from "@/lib/location/locationService";
-import { normalizeCoordinates } from "@/lib/location/coordinates";
+import { toCanonicalGeoPoint as normalizeCoordinates } from "@esparex/shared";
 import type { AppLocation } from "@/types/location";
 
 import type { StepBaseProps } from "./types";
