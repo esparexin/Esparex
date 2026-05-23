@@ -1,7 +1,7 @@
 import { Queue } from "bullmq";
 import logger from "../utils/logger";
 import { isQueueConnectionAvailable, redisConnection, shouldDisableQueueConnection } from "./redisConnection";
-import { withQueueDefaults } from './queueDefaults';
+import { createNoopQueue, withQueueDefaults } from './queueDefaults';
 import {
     buildDeterministicJobId,
     releaseQueueIdempotencySlot,
@@ -21,12 +21,7 @@ export interface PaymentQueueJobData extends TraceableJobData {
     gatewayCurrency?: string;
 }
 
-const createNoopQueue = <T>() => ({
-    add: async () => null,
-    close: async () => undefined,
-    on: () => undefined,
-    getJob: async () => null,
-} as unknown as Queue<T>);
+
 
 export const paymentQueue = shouldDisableQueueConnection
     ? createNoopQueue<PaymentQueueJobData>()

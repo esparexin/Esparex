@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import logger from '../../utils/logger';
 import { logAdminAction } from '../../utils/adminLogger';
-import { mutateStatus } from '../../services/StatusMutationService';
+import { mutateStatus } from '../../services/lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from "@esparex/shared";
 import { AD_STATUS } from "@esparex/shared";
 import { REPORT_STATUS } from "@esparex/shared";

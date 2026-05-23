@@ -70,21 +70,21 @@ export const sanitizedBusinessText = (text: string) => {
 };
 
 const requiredBusinessFields = {
-    businessName: z
+    name: z
         .string()
         .trim()
         .min(3, "Business name must be at least 3 characters")
         .max(100, "Business name must be less than 100 characters")
         .refine(sanitizedBusinessText, "Business name contains invalid characters"),
 
-    businessDescription: z
+    description: z
         .string()
         .trim()
         .min(20, "Description must be at least 20 characters")
         .max(2000, "Description must be less than 2000 characters")
         .refine(sanitizedBusinessText, "Description contains invalid characters"),
 
-    contactNumber: z
+    mobile: z
         .string()
         .transform((value) => value.replace(/\D/g, "").slice(-10))
         .refine(
@@ -94,7 +94,7 @@ const requiredBusinessFields = {
 
     email: z.string().email("Please enter a valid email address").max(100, "Email must be less than 100 characters"),
 
-    fullAddress: z
+    address: z
         .string()
         .trim()
         .min(15, "Enter the complete business address")
@@ -141,7 +141,7 @@ const registrationOnlyFields = {
     idProof: businessDocumentFileValidator.nullable().refine((val) => val !== undefined, "ID Proof is required"),
     businessProof: businessDocumentFileValidator.nullable().refine((val) => val !== undefined, "Business Proof is required"),
     certificates: z.array(businessDocumentFileValidator).optional(),
-    shopImages: z
+    images: z
         .array(businessImageFileValidator)
         .min(1, "Upload at least one shop image")
         .max(5, "Maximum 5 shop images allowed")
@@ -160,7 +160,7 @@ const editOnlyFields = {
     idProof: businessDocumentFileValidator.nullable().optional(),
     businessProof: businessDocumentFileValidator.nullable().optional(),
     certificates: z.array(businessDocumentFileValidator).optional(),
-    shopImages: z.array(businessImageFileValidator).max(5, "Maximum 5 shop images allowed").optional(),
+    images: z.array(businessImageFileValidator).max(5, "Maximum 5 shop images allowed").optional(),
 };
 
 export const createBusinessRegistrationSchema = () =>
@@ -174,3 +174,4 @@ export const createBusinessEditSchema = () =>
         ...requiredBusinessFields,
         ...editOnlyFields,
     });
+

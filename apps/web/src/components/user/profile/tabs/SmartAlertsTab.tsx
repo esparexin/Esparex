@@ -372,7 +372,7 @@ export function SmartAlertsTab({
                                 <div>
                                     <div className="flex items-center justify-between mb-2">
                                         <Label htmlFor="smart-alert-radius" className="text-sm">Location Radius</Label>
-                                        <span className="text-sm font-medium text-green-600">{smartAlertForm.radius} km</span>
+                                        <span className="text-sm font-medium text-green-600">{smartAlertForm.radiusKm} km</span>
                                     </div>
                                     <input
                                         id="smart-alert-radius"
@@ -380,10 +380,10 @@ export function SmartAlertsTab({
                                         type="range"
                                         min="5"
                                         max="500"
-                                        value={smartAlertForm.radius}
+                                        value={smartAlertForm.radiusKm}
                                         onChange={(e) => {
-                                            if (smartAlertErrors?.radius) clearSmartAlertError?.("radius");
-                                            updateSmartAlertForm({ radius: parseInt(e.target.value, 10) });
+                                            if (smartAlertErrors?.radiusKm) clearSmartAlertError?.("radiusKm");
+                                            updateSmartAlertForm({ radiusKm: parseInt(e.target.value, 10) });
                                         }}
                                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
                                     />
@@ -391,7 +391,7 @@ export function SmartAlertsTab({
                                         <span>5 km</span>
                                         <span>500 km</span>
                                     </div>
-                                    <FormError message={smartAlertErrors?.radius} />
+                                    <FormError message={smartAlertErrors?.radiusKm} />
                                 </div>
                                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div>
@@ -400,8 +400,8 @@ export function SmartAlertsTab({
                                     </div>
                                     <Switch
                                         id="smart-alert-email-notify"
-                                        checked={smartAlertForm.emailNotifications}
-                                        onCheckedChange={(checked) => updateSmartAlertForm({ emailNotifications: checked })}
+                                        checked={smartAlertForm.notificationChannels.includes("email")}
+                                        onCheckedChange={(checked) => updateSmartAlertForm({ notificationChannels: checked ? ["email"] : [] })}
                                     />
                                 </div>
                                 <FormError message={smartAlertGlobalError} />

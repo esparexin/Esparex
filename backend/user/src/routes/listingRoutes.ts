@@ -15,6 +15,7 @@ import { updateAdSchema } from "@esparex/core/validators/ad.validator";
 import { idempotencyMiddleware } from "../middleware/idempotency";
 import { requireListingOwner } from "../middleware/ownershipGuard";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/businessMiddleware";
+import { deprecateMethod } from "../middleware/deprecations";
 import type { ZodTypeAny } from "zod";
 
 const router = Router();
@@ -84,9 +85,13 @@ router.get("/:id/view", validateObjectId, searchLimiter, engagementController.in
 // Reveal phone number (public with optional auth context)
 router.get("/:id/phone", validateObjectId, extractUser, searchLimiter, engagementController.getListingPhone);
 
+// PATCH /api/v1/listings/:id/edit
+// Strict edit with ownership validation (Standardized)
+router.patch("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
+
 // PUT /api/v1/listings/:id/edit
-// Strict edit with ownership validation
-router.put("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
+// DEPRECATED: Use PATCH instead. Strict edit with ownership validation
+router.put("/:id/edit", deprecateMethod('PATCH'), protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
 
 // PATCH /api/v1/listings/:id/sold
 // SSOT: Required terminal state transition

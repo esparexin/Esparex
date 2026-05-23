@@ -16,7 +16,7 @@ import type {
     NormalizedLocation,
     NormalizeLocationOptions
 } from './_shared/locationServiceBase';
-export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
+export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 export { mapToLocationResponse, normalizeLocationResponse } from './_shared/locationServiceBase';
 
 export const normalizeLocation = async (

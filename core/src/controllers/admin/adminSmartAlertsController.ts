@@ -90,7 +90,9 @@ export async function deleteSmartAlertById(req: Request, res: Response) {
     try {
         const id = req.params.id as string;
         if (!id) return sendAdminError(req, res, "Missing ID", 400);
+        const logFn = buildLogFn(req);
         await SmartAlertModel.findByIdAndDelete(id);
+        await logFn('delete', 'SmartAlert', id, { reason: 'Admin deletion' });
         return sendSuccessResponse(res, { deleted: true });
     } catch (error) {
         return sendAdminError(req, res, error);

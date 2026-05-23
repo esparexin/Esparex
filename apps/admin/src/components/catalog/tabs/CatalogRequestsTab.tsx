@@ -2,7 +2,7 @@
 
 import { useAdminCatalogRequests } from "@/hooks/useAdminCatalogRequests";
 import { type CatalogRequestItem } from "@/lib/api/catalogRequests";
-import { ClipboardList, CheckCircle, XCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Clock, AlertCircle, ExternalLink, Loader2 } from "lucide-react";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState, useEffect } from "react";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
@@ -241,19 +241,32 @@ export default function CatalogRequestsTab() {
                         ),
                     },
                     {
-                        header: "Request",
-                        cell: (req) => {
-                            const userName = typeof req.requestedBy === 'string' ? req.requestedBy : `${req.requestedBy.firstName} ${req.requestedBy.lastName}`;
-                            return (
-                                <CatalogEntityCell
-                                    icon={<ClipboardList size={20} />}
-                                    iconClassName="bg-amber-50 text-amber-600"
-                                    title={req.requestedName}
-                                    subtitle={`${req.requestType} • ${userName}`}
-                                />
-                            );
-                        },
-                    },
+                         header: "Request",
+                         cell: (req) => {
+                             const userName = typeof req.requestedBy === 'string' ? req.requestedBy : `${req.requestedBy.firstName} ${req.requestedBy.lastName}`;
+                             return (
+                                 <div className="flex flex-col gap-1">
+                                     <CatalogEntityCell
+                                         icon={<ClipboardList size={20} />}
+                                         iconClassName="bg-amber-50 text-amber-600"
+                                         title={req.requestedName}
+                                         subtitle={`${req.requestType} • ${userName}`}
+                                     />
+                                     {req.listingId && (
+                                         <a
+                                             href={`/listing/${req.listingId}`}
+                                             target="_blank"
+                                             rel="noopener noreferrer"
+                                             className="inline-flex items-center gap-1 ml-10 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                                         >
+                                             <ExternalLink size={10} />
+                                             View Listing
+                                         </a>
+                                     )}
+                                 </div>
+                             );
+                         },
+                     },
                     {
                         header: "Status",
                         cell: (req) => (
@@ -267,6 +280,24 @@ export default function CatalogRequestsTab() {
                                 {req.status}
                             </span>
                         ),
+                    },
+                    {
+                        header: "Demand",
+                        cell: (req) => {
+                            const count = req.requestCount ?? 1;
+                            const isHot = count >= 5;
+                            return (
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${
+                                    isHot
+                                        ? "bg-rose-100 text-rose-700"
+                                        : count >= 2
+                                        ? "bg-amber-100 text-amber-700"
+                                        : "bg-slate-100 text-slate-500"
+                                }`}>
+                                    ×{count}
+                                </span>
+                            );
+                        },
                     },
                     {
                         header: "Actions",

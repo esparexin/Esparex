@@ -3,7 +3,8 @@ import { Business } from "@shared/types/business";
 import { ApiResponse } from "@shared/types/api";
 import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
-import * as businessService from '@esparex/core/services/BusinessService';
+import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
+import * as businessSearchService from '@esparex/core/services/business/BusinessSearchService';
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { LISTING_TYPE } from '@esparex/shared';
@@ -29,7 +30,7 @@ const requireBusiness = async (req: Request, res: Response, errorMsg = 'Invalid 
 };
 
 const getBusinessListings = async (sellerId: string, listingType: string) => {
-    return businessService.getBusinessListings(sellerId, listingType);
+    return businessCoreService.getBusinessListings(sellerId, listingType);
 };
 
 const sendListingResponse = async (req: Request, res: Response, listingType: string): Promise<void> => {
@@ -52,7 +53,7 @@ export const getBusinesses = async (req: Request, res: Response) => {
             excludeBusinessId,
         } = req.query;
         const rawServiceOnly = req.query.serviceOnly as unknown;
-        const businesses = await businessService.getBusinesses({
+        const businesses = await businessSearchService.getBusinesses({
             limit: Math.min(50, Math.max(1, typeof limit === 'number' ? limit : limit ? parseInt(limit as string, 10) : 20)),
             latitude: typeof latitude === 'number' ? latitude : latitude ? Number(latitude) : undefined,
             longitude: typeof longitude === 'number' ? longitude : longitude ? Number(longitude) : undefined,
@@ -151,7 +152,7 @@ export const getBusinessStatsById = async (req: Request, res: Response) => {
         if (!business) return;
 
         const userId = business.userId.toString();
-        const stats = await businessService.getBusinessStats(userId);
+        const stats = await businessCoreService.getBusinessStats(userId);
 
         const response = respond<ApiResponse<BusinessStatsPayload>>({
             success: true,

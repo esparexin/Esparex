@@ -69,7 +69,6 @@ export function normalizeBusiness(
     apiBusiness: ApiBusiness | null | undefined
 ): Business | null {
     if (!apiBusiness) return null;
-    const rawBusiness = apiBusiness as unknown as Record<string, unknown>;
 
     // Use shared normalization (handles coordinates & display logic)
     // We pass apiBusiness.location which has the raw structure
@@ -112,10 +111,9 @@ export function normalizeBusiness(
 
     return {
         ...apiBusiness,
-        sellerId:
-            apiBusiness.sellerId || "",
+        sellerId: apiBusiness.sellerId || "",
         mobile: apiBusiness.mobile || "",
-        isVerified: !!apiBusiness.isVerified || rawBusiness.verified === true,
+        isVerified: normalizedStatus === 'live',
         status: normalizedStatus as ApiBusiness['status'],
         logo: apiBusiness.logo,
         coverImage: apiBusiness.coverImage,

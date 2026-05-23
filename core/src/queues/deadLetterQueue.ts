@@ -2,7 +2,7 @@ import { type Job, Queue } from 'bullmq';
 import logger from '../utils/logger';
 import { redisConnection, shouldDisableQueueConnection } from './redisConnection';
 import { buildDeterministicJobId } from './queueIdempotency';
-import { withQueueDefaults } from './queueDefaults';
+import { createNoopQueue, withQueueDefaults } from './queueDefaults';
 import { captureException } from '../config/sentry';
 import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
 import { reliabilityAlertsTotal } from '../utils/metrics';
@@ -22,10 +22,7 @@ export interface DeadLetterQueueJobData {
     };
 }
 
-const createNoopQueue = <T>() => ({
-    add: async () => null,
-    close: async () => undefined,
-} as unknown as Queue<T>);
+
 
 export const deadLetterQueue = shouldDisableQueueConnection
     ? createNoopQueue<DeadLetterQueueJobData>()

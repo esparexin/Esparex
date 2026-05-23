@@ -78,7 +78,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
         brandIsPending,
     } = usePostAdCatalog();
 
-    const { stepValidationAttempts, form, errors, isEditMode } = usePostAdFlow();
+    const { stepValidationAttempts, form, errors, isEditMode, listingId } = usePostAdFlow();
 
     const {
         register,
@@ -89,8 +89,6 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
         toggleSparePart,
         loadSparePartsForCategory,
         loadBrandsForCategory,
-        loadModelsForBrand,
-        setAvailableModels,
         refreshBrands,
     } = usePostAdAction();
 
@@ -368,6 +366,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
                                     onRequestSuccess={() => refreshBrands()}
                                     disabled={brandIsPending || isEditMode}
                                     placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
+                                    listingId={listingId}
                                 />
                             )}
                             {brandIsPending && availableBrands.length > 0 && (
@@ -421,30 +420,13 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
                                         setValue("modelId", actualId, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                         setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
                                     }}
-                                    onRequestSuccess={(requestId, name) => {
-                                        // 1. Inject pending model into cache so it can be selected immediately
-                                        if (setAvailableModels) {
-                                            setAvailableModels((prev) => [
-                                                ...prev,
-                                                {
-                                                    _id: requestId,
-                                                    id: requestId,
-                                                    name: name,
-                                                    brandId: brandIdValue,
-                                                    categoryId: categoryId,
-                                                    status: "pending",
-                                                } as any
-                                            ]);
-                                        }
-                                        // 2. Fetch the latest from server under the empty query key to keep cache keys synchronized
-                                        loadModelsForBrand(brandIdValue, categoryId, "");
-                                    }}
                                     onBrandResolved={(resolvedBrandId, resolvedBrandName) => {
                                         // A new pending brand was created — sync its ID back into the form
                                         // so the ad payload carries the correct brandId ObjectId.
                                         setValue("brandId", resolvedBrandId, { shouldDirty: true });
                                         setValue("brand", resolvedBrandName, { shouldDirty: true });
                                     }}
+                                    listingId={listingId}
                                 />
                             )}
                         </Field>

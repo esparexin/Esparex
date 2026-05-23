@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { toGeoPoint } from '@esparex/shared';
+import { normalizeGeoPoint } from '@esparex/shared';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 
 type GeoEval =
@@ -17,7 +17,7 @@ interface UserGeoDoc {
 
 const evaluateCoordinates = (value: unknown): GeoEval => {
   try {
-    const point = toGeoPoint(value);
+    const point = normalizeGeoPoint(value);
     let changed = true;
     let source = 'normalized';
 

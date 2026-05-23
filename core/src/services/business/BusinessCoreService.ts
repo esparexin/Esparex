@@ -116,7 +116,6 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     safePayload.locationId = resolvedLocationPayload.locationId;
     safePayload.location = resolvedLocationPayload.location;
     safePayload.status = BUSINESS_STATUS.PENDING;
-    safePayload.isVerified = false;
     safePayload.isDeleted = false;
 
     if (business) {
@@ -207,7 +206,6 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
 
     if (hasCriticalUpdates) {
         safeUpdate.status = BUSINESS_STATUS.PENDING;
-        safeUpdate.isVerified = false;
     }
 
     if (data.location) {
@@ -248,14 +246,20 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
         await session.endSession();
     }
 
-    setImmediate(() => {
-        const cleanupTasks: Promise<unknown>[] = [];
-        if (safeUpdate.images) cleanupTasks.push(cleanupRemovedS3Objects(businessView.images, safeUpdate.images));
-        if (safeUpdate.documents) cleanupTasks.push(cleanupRemovedS3Objects(businessView.documents, safeUpdate.documents));
-        Promise.all(cleanupTasks).catch((err: unknown) => {
-            logger.error('Business update: S3 cleanup failed', { error: String(err) });
-        });
-    });
+    const cleanupTasks: Promise<unknown>[] = [];
+    if (safeUpdate.images) cleanupTasks.push(cleanupRemovedS3Objects(businessView.images, safeUpdate.images));
+    if (safeUpdate.documents) cleanupTasks.push(cleanupRemovedS3Objects(businessView.documents, safeUpdate.documents));
+    
+    if (cleanupTasks.length > 0) {
+        try {
+            await Promise.race([
+                Promise.all(cleanupTasks),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('S3 Cleanup timeout')), 5000))
+            ]);
+        } catch (err: unknown) {
+            logger.error('Business update: S3 cleanup failed or timed out', { error: String(err) });
+        }
+    }
 
     return updatedBusiness;
 };

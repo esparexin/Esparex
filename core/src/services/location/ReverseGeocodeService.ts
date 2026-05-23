@@ -24,7 +24,7 @@ import type {
     HierarchyLevel,
     GeoJSONPoint
 } from './_shared/locationServiceBase';
-export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
+export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 
 const SNAP_THRESHOLD_KM = 7.5; // Confidence radius for snapping to city center
 const resolveBoundaryMatch = async (lat: number, lng: number): Promise<NormalizedLocationResponse | null> => {

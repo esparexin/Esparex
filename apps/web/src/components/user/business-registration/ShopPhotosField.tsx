@@ -65,14 +65,14 @@ export function ShopPhotosField({
 }: ShopPhotosFieldProps) {
     const [localError, setLocalError] = useState<string | null>(null);
     const removeShopImage = (index: number) => {
-        const nextImages = [...formData.shopImages];
+        const nextImages = [...formData.images];
         nextImages.splice(index, 1);
-        setFormData({ ...formData, shopImages: nextImages });
+        setFormData({ ...formData, images: nextImages });
         setLocalError(null);
     };
 
     const handleShopImageUpload = (files: FileList) => {
-        const remainingSlots = Math.max(0, 5 - formData.shopImages.length);
+        const remainingSlots = Math.max(0, 5 - formData.images.length);
         const nextFiles = Array.from(files).slice(0, remainingSlots);
 
         if (nextFiles.length === 0) {
@@ -101,7 +101,7 @@ export function ShopPhotosField({
 
         setFormData({
             ...formData,
-            shopImages: [...formData.shopImages, ...validFiles],
+            images: [...formData.images, ...validFiles],
         });
     };
 
@@ -117,7 +117,7 @@ export function ShopPhotosField({
             </div>
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                {formData.shopImages.map((file, index) => (
+                {formData.images.map((file, index) => (
                     <ShopImageTile
                         key={`${typeof file === "string" ? file : file.name}-${index}`}
                         file={file}
@@ -126,11 +126,11 @@ export function ShopPhotosField({
                     />
                 ))}
 
-                {formData.shopImages.length < 5 && (
+                {formData.images.length < 5 && (
                     <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center transition-colors hover:border-blue-400 hover:bg-blue-50">
                         <Upload className="mb-3 h-6 w-6 text-foreground-subtle" />
                         <span className="text-sm font-semibold text-foreground-secondary">Add photo</span>
-                        <span className="mt-1 text-xs text-muted-foreground">{formData.shopImages.length}/5 uploaded</span>
+                        <span className="mt-1 text-xs text-muted-foreground">{formData.images.length}/5 uploaded</span>
                         <input
                             id="reg-shop-images"
                             name="reg-shop-images"
@@ -144,7 +144,7 @@ export function ShopPhotosField({
                 )}
             </div>
 
-            <FormError message={formData.errors?.shopImages || localError || undefined} />
+            <FormError message={formData.errors?.images || localError || undefined} />
         </div>
     );
 }

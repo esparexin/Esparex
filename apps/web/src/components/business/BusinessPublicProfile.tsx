@@ -190,7 +190,7 @@ export function BusinessPublicProfile({
 
               <div className="flex flex-wrap gap-1.5">
                 <Badge variant="secondary" className="rounded-lg bg-slate-100 text-foreground-tertiary border-none text-xs">{primaryBusinessType}</Badge>
-                {business.isVerified ? (
+                {business.status === 'live' ? (
                   <Badge className="bg-blue-50 text-link-dark border-none rounded-lg text-xs">Verified Business</Badge>
                 ) : null}
               </div>

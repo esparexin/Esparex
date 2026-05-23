@@ -1,7 +1,7 @@
 import { PipelineStage } from 'mongoose';
 import { 
     isValidLngLat, 
-    toGeoPoint,
+    normalizeGeoPoint,
     type GeoJSONPoint,
     MIN_RADIUS_KM,
     MAX_RADIUS_KM,
@@ -43,7 +43,7 @@ export const normalizeGeoInput = (lat?: number | string | null, lng?: number | s
 export const normalizeToGeoJSON = (input: unknown): GeoJSONPoint | undefined => {
     if (!input) return undefined;
     try {
-        return toGeoPoint(input);
+        return normalizeGeoPoint(input);
     } catch {
         return undefined;
     }

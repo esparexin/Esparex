@@ -101,8 +101,8 @@ async function runScenarioA(verifiedLocation: SmokeEntityWithId, validCategory: 
     logger.info('[SMOKE_TEST] scenario=A status=PENDING (Verified)');
 
     // Simulate Moderation Approval
-    const { mutateStatus } = await import('@esparex/core/services/StatusMutationService');
-    const { computeActiveExpiry } = await import('@esparex/core/services/AdStatusService');
+    const { mutateStatus } = await import('@esparex/core/services/lifecycle/StatusMutationService');
+    const { computeActiveExpiry } = await import('@esparex/core/services/lifecycle/AdStatusService');
     const expiresAt = await computeActiveExpiry('ad');
 
     await mutateStatus({

@@ -12,7 +12,7 @@ import {
     getActiveLocationById
 } from './_shared/locationServiceBase';
 import type { LocationAnalyticsEventType } from './_shared/locationServiceBase';
-export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
+export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 export const touchLocationAnalytics = async (
     locationId: unknown,
     eventType: LocationAnalyticsEventType,

@@ -4,7 +4,7 @@ import Ad from '../models/Ad';
 import SparePart from '../models/SparePart';
 import Brand from '../models/Brand';
 import { normalizeLocation } from './location/LocationNormalizer';
-import { toGeoPoint } from '@esparex/shared';
+import { normalizeGeoPoint } from '@esparex/shared';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
@@ -12,7 +12,7 @@ import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '../utils/s3';
 import { AdContext } from '../types/ad.types';
-import { computeActiveExpiry } from './AdStatusService';
+import { computeActiveExpiry } from './lifecycle/AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import { computeListingQualityScore } from '../utils/adQualityScorer';
@@ -355,7 +355,7 @@ export class AdCreationService {
             if (normalized) {
                 payload.location = { 
                     ...normalized, 
-                    coordinates: toGeoPoint(normalized.coordinates) 
+                    coordinates: normalizeGeoPoint(normalized.coordinates) 
                 };
                 payload.locationId = normalized.locationId || normalized.id;
                 

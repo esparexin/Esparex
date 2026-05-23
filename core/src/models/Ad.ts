@@ -1,6 +1,6 @@
 import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import softDeletePlugin, { ISoftDeleteDocument } from '../utils/softDeletePlugin';
-import { sanitizeGeoPoint } from '@esparex/shared';
+
 import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@esparex/shared';
 import { type AdStatusValue } from '@esparex/shared';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/shared';
@@ -436,19 +436,7 @@ AdSchema.index(
 );
 AdSchema.plugin(softDeletePlugin);
 
-const sanitizeAdLocation = (value: unknown): unknown => {
-    if (!value || typeof value !== 'object') return value;
-    const location = value as Record<string, unknown>;
-    if ('coordinates' in location) {
-        const nextGeo = sanitizeGeoPoint(location.coordinates);
-        if (!nextGeo) {
-            delete location.coordinates;
-        } else {
-            location.coordinates = nextGeo;
-        }
-    }
-    return location;
-};
+
 
 const touchesChatAvailability = (update?: Record<string, unknown>): boolean => {
     if (!update) return false;
@@ -478,37 +466,6 @@ AdSchema.pre('save', async function (this: IAd) {
             this.isModified('isChatLocked')
         );
 
-    this.location = sanitizeAdLocation(this.location) as IAd['location'];
-
-    // ── Location consistency guard (PR 4 — dual-write contract) ──────────────
-    // If a canonical locationId is set but the denormalised city/state fields
-    // are empty, auto-populate them from the Location document so that L2/L3
-    // fallback matching works correctly. Logs a warning if the Location doc
-    // cannot be found so the issue surfaces without blocking the write.
-    if (this.location?.locationId && (!this.location.city || !this.location.state)) {
-        try {
-            const loc = await Location.findById(this.location.locationId)
-                .select('+city +state +country')
-                .lean() as { city?: string; state?: string; country?: string; name?: string } | null;
-            if (loc) {
-                if (!this.location.city && loc.city) this.location.city = loc.city;
-                if (!this.location.state && loc.state) this.location.state = loc.state;
-                if (!this.location.country && loc.country) this.location.country = loc.country;
-            } else {
-                logger.warn('Ad.pre(save): locationId present but Location doc not found — dual-write cannot be repaired', {
-                    adId: this._id?.toString(),
-                    locationId: this.location.locationId?.toString(),
-                });
-            }
-        } catch (err) {
-            logger.warn('Ad.pre(save): failed to auto-populate city/state from locationId', {
-                adId: this._id?.toString(),
-                locationId: this.location.locationId?.toString(),
-                err: String(err),
-            });
-        }
-    }
-
     if (!this.seoSlug) {
         // Build an SEO-optimized base for the slug: "Title in City"
         const locationContext = this.location?.city ? ` in ${this.location.city}` : '';
@@ -521,25 +478,6 @@ AdSchema.pre('findOneAndUpdate', function () {
     const update = this.getUpdate() as Record<string, unknown> | undefined;
     (this as { _syncChatAvailability?: boolean })._syncChatAvailability = touchesChatAvailability(update);
     if (!update) return;
-
-    if ('location' in update) {
-        update.location = sanitizeAdLocation(update.location);
-    }
-
-    if (update.$set && typeof update.$set === 'object') {
-        const setObj = update.$set as Record<string, unknown>;
-        if ('location' in setObj) {
-            setObj.location = sanitizeAdLocation(setObj.location);
-        }
-        if ('location.coordinates' in setObj) {
-            const nextGeo = sanitizeGeoPoint(setObj['location.coordinates']);
-            if (!nextGeo) {
-                delete setObj['location.coordinates'];
-            } else {
-                setObj['location.coordinates'] = nextGeo;
-            }
-        }
-    }
 });
 
 AdSchema.post('save', async function (doc: IAd) {

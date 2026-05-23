@@ -1,4 +1,4 @@
-import { getBullMqConnectionOptions } from '../config/redisRuntime';
+import { redisConnection } from './redisConnection';
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
@@ -52,12 +52,10 @@ const schedulerDefaultJobOptions = withQueueDefaults({
     removeOnFail: 500,
 });
 
-const schedulerQueueConnection = getBullMqConnectionOptions();
-
 const schedulerQueue: Queue<TraceableJobData> | null = shouldDisableSchedulerQueue
     ? null
     : new Queue<TraceableJobData, unknown, string>('scheduler-jobs', {
-        connection: schedulerQueueConnection,
+        connection: redisConnection,
         defaultJobOptions: schedulerDefaultJobOptions,
     });
 
@@ -80,12 +78,12 @@ export const registerSchedulerJobProcessors = async (
     };
 
     schedulerWorker = registerWorkerWithTrace<TraceableJobData>('scheduler-jobs', processor, {
-        connection: schedulerQueueConnection,
+        connection: redisConnection,
         concurrency: 1,
     });
 
     schedulerQueueEvents = new QueueEvents('scheduler-jobs', {
-        connection: schedulerQueueConnection,
+        connection: redisConnection,
     });
 
     schedulerQueueEvents.on('completed', ({ jobId }) => {

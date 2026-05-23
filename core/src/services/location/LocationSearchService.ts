@@ -16,7 +16,7 @@ import type {
     LocationInputObject,
     NormalizedLocationResponse
 } from './_shared/locationServiceBase';
-export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
+export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 import { mapToLocationResponse } from './LocationNormalizer';
 
 let hasWarnedAtlasSearchFallback = false;

@@ -33,12 +33,18 @@ export const smartAlertFormSchema = z.object({
   location: optionalTrimmedString(
     z.string().max(120, "Location must be 120 characters or fewer.")
   ),
-  radius: z.coerce
+  radiusKm: z.coerce
     .number({ message: "Radius must be a number." })
     .min(1, "Radius must be between 1 and 500 km.")
     .max(500, "Radius must be between 1 and 500 km."),
-  emailNotifications: z.boolean(),
+  notificationChannels: z.array(z.enum(['email', 'sms', 'push'])).min(1, "Select at least one notification channel.").max(3),
   locationId: z.string().optional().nullable(),
+  brand: optionalTrimmedString(z.string()),
+  model: optionalTrimmedString(z.string()),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().min(0).optional(),
+  condition: optionalTrimmedString(z.string()),
+  state: optionalTrimmedString(z.string()),
 });
 
 export type SmartAlertFormValues = z.infer<typeof smartAlertFormSchema>;

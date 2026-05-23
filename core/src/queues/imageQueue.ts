@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import { isQueueConnectionAvailable, redisConnection, shouldDisableQueueConnection } from './redisConnection';
 import logger from '../utils/logger';
 import { addJobWithTrace, type TraceableJobData } from '../utils/queueWrapper';
-import { withQueueDefaults } from './queueDefaults';
+import { createNoopQueue, withQueueDefaults } from './queueDefaults';
 import {
     buildDeterministicJobId,
     releaseQueueIdempotencySlot,
@@ -18,11 +18,7 @@ export interface ImageOptimizationJobPayload extends TraceableJobData {
 }
 
 
-const createNoopQueue = <T>() => ({
-    add: async () => null,
-    close: async () => undefined,
-    on: () => undefined,
-} as unknown as Queue<T>);
+
 
 export const imageOptimizationQueue = shouldDisableQueueConnection
     ? createNoopQueue<ImageOptimizationJobPayload>()

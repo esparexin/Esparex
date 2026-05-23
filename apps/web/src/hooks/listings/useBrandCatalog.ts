@@ -8,7 +8,6 @@ import {
     getModels,
     getScreenSizes,
     type Brand,
-    type DeviceModel,
 } from "@/lib/api/user/masterData";
 import logger from "@/lib/logger";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
@@ -172,40 +171,11 @@ export function useBrandCatalog({
         gcTime: MODELS_STALE_TIME,
         queryFn: async () => {
             try {
-                const models = await getModels(
+                return await getModels(
                     selectedBrandId,
                     activeCategoryId || undefined,
                     modelSearch || undefined
                 );
-
-                // Preserve pending models already injected into cache.
-                const previous =
-                    queryClient.getQueryData<DeviceModel[]>([
-                        "catalog",
-                        "models",
-                        activeCategoryId,
-                        selectedBrandId,
-                        modelSearch,
-                    ]) ?? [];
-
-                const pendingOnly = previous.filter(
-                    (model) => model.status === "pending"
-                );
-
-                const existingIds = new Set(
-                    models.map((model) =>
-                        String(model.id || model._id)
-                    )
-                );
-
-                const uniquePending = pendingOnly.filter(
-                    (model) =>
-                        !existingIds.has(
-                            String(model.id || model._id)
-                        )
-                );
-
-                return [...models, ...uniquePending];
             } catch (error) {
                 logger.error(
                     `[Catalog] Failed to load models for brand ${selectedBrandId}:`,
@@ -264,61 +234,6 @@ export function useBrandCatalog({
         ]);
     }, [activeCategoryId, queryClient]);
 
-    /**
-     * Backward compatibility setter.
-     * Allows callers to inject temporary pending models.
-     */
-    const setAvailableModels = useCallback(
-        (
-            updater:
-                | DeviceModel[]
-                | ((
-                    previous: DeviceModel[]
-                ) => DeviceModel[])
-        ) => {
-            const queryKey = [
-                "catalog",
-                "models",
-                activeCategoryId,
-                selectedBrandId,
-                modelSearch,
-            ] as const;
-
-            queryClient.setQueryData<DeviceModel[]>(
-                queryKey,
-                (previous = []) =>
-                    typeof updater === "function"
-                        ? updater(previous)
-                        : updater
-            );
-
-            // Double inject into default empty search query key to prevent models disappearing when search is cleared
-            if (modelSearch !== "") {
-                const emptyQueryKey = [
-                    "catalog",
-                    "models",
-                    activeCategoryId,
-                    selectedBrandId,
-                    "",
-                ] as const;
-
-                queryClient.setQueryData<DeviceModel[]>(
-                    emptyQueryKey,
-                    (previous = []) =>
-                        typeof updater === "function"
-                            ? updater(previous)
-                            : updater
-                );
-            }
-        },
-        [
-            activeCategoryId,
-            selectedBrandId,
-            modelSearch,
-            queryClient,
-        ]
-    );
-
     return {
         brandMap,
         availableBrands,
@@ -329,6 +244,5 @@ export function useBrandCatalog({
         loadBrandsForCategory,
         loadModelsForBrand,
         refreshBrands,
-        setAvailableModels,
     };
 }

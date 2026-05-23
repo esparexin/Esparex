@@ -1,7 +1,7 @@
 import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
-import { hasValidCoordinateArray, sanitizeGeoPoint } from "@esparex/shared";
+import { hasValidCoordinateArray, normalizeGeoPoint } from "@esparex/shared";
 import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationPrimitives";
 import { LOCATION_STATUS, LOCATION_STATUS_VALUES, type LocationStatusValue } from '@esparex/shared';
 
@@ -118,7 +118,7 @@ const LocationSchema = new Schema<ILocation>(
 
 // Pre-save hook for slugification
 LocationSchema.pre("save", function () {
-    this.coordinates = sanitizeGeoPoint(this.coordinates) as ILocation['coordinates'];
+    this.coordinates = normalizeGeoPoint(this.coordinates) as ILocation['coordinates'];
 
     if (this.name) {
         this.normalizedName = normalizeLocationNameForSearch(this.name);
@@ -134,16 +134,16 @@ LocationSchema.pre("findOneAndUpdate", function () {
     if (!update) return;
 
     if ('coordinates' in update) {
-        update.coordinates = sanitizeGeoPoint(update.coordinates);
+        update.coordinates = normalizeGeoPoint(update.coordinates);
     }
 
     if (update.$set && typeof update.$set === 'object') {
         const setObj = update.$set as Record<string, unknown>;
         if ('coordinates' in setObj) {
-            setObj.coordinates = sanitizeGeoPoint(setObj.coordinates);
+            setObj.coordinates = normalizeGeoPoint(setObj.coordinates);
         }
         if ('coordinates.coordinates' in setObj) {
-            const nextGeo = sanitizeGeoPoint({
+            const nextGeo = normalizeGeoPoint({
                 type: 'Point',
                 coordinates: setObj['coordinates.coordinates']
             });

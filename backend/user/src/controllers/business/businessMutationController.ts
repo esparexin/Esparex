@@ -3,7 +3,8 @@ import { Business } from "@shared/types/business";
 import { ApiResponse } from "@shared/types/api";
 import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
-import * as businessService from '@esparex/core/services/BusinessService';
+import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
+import * as businessLifecycleService from '@esparex/core/services/business/BusinessLifecycleService';
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
@@ -39,7 +40,7 @@ export const registerBusiness = async (req: Request, res: Response) => {
             mobile: user.mobile
         };
 
-        const business = await businessService.registerBusiness(verifiedPayload, authUser._id.toString());
+        const business = await businessCoreService.registerBusiness(verifiedPayload, authUser._id.toString());
 
         const response = respond<ApiResponse<Business>>({
             success: true,
@@ -72,7 +73,7 @@ export const updateBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.getBusinessById(id);
+        const business = await businessCoreService.getBusinessById(id);
         if (!business) {
             sendErrorResponse(req, res, 404, 'Business not found');
             return;
@@ -108,30 +109,11 @@ export const updateBusiness = async (req: Request, res: Response) => {
             }
         });
 
-        // Validate coordinates if provided
-        if (filteredUpdates.location !== undefined) {
-            const loc = filteredUpdates.location as Record<string, unknown> | undefined;
-            if (loc && loc.coordinates !== undefined) {
-                const coords = loc.coordinates;
-                const isValidCoords =
-                    Array.isArray(coords) &&
-                    coords.length === 2 &&
-                    typeof coords[0] === 'number' &&
-                    typeof coords[1] === 'number' &&
-                    coords[0] >= -180 && coords[0] <= 180 &&
-                    coords[1] >= -90 && coords[1] <= 90;
-                if (!isValidCoords) {
-                    sendErrorResponse(req, res, 400, 'Invalid coordinates. Longitude must be -180 to 180 and latitude -90 to 90.', {
-                        code: 'INVALID_COORDINATES'
-                    });
-                    return;
-                }
-            }
-        }
+
 
         // Note: Sensitive status mutation checks moved to `businessService.ts`.
 
-        const updated = await businessService.updateBusinessById(id, filteredUpdates);
+        const updated = await businessCoreService.updateBusinessById(id, filteredUpdates);
 
         const response = respond<ApiResponse<Business>>({
             success: true,
@@ -163,7 +145,7 @@ export const withdrawBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.withdrawBusiness(user._id.toString());
+        const business = await businessLifecycleService.withdrawBusiness(user._id.toString());
 
         if (!business) {
             sendErrorResponse(req, res, 404, 'No pending business application found', {
@@ -193,7 +175,7 @@ export const deactivateBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.deactivateBusiness(user._id.toString());
+        const business = await businessLifecycleService.deactivateBusiness(user._id.toString());
         if (!business) {
             sendErrorResponse(req, res, 404, 'No active business found to deactivate');
             return;
@@ -214,7 +196,7 @@ export const reactivateBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.reactivateBusiness(user._id.toString());
+        const business = await businessLifecycleService.reactivateBusiness(user._id.toString());
         if (!business) {
             sendErrorResponse(req, res, 404, 'No deactivated business found to reactivate');
             return;
@@ -235,7 +217,7 @@ export const closeBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.closeBusiness(user._id.toString());
+        const business = await businessLifecycleService.closeBusiness(user._id.toString());
         if (!business) {
             sendErrorResponse(req, res, 404, 'No active business found to close');
             return;
@@ -258,7 +240,7 @@ export const renewBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.getBusinessById(id);
+        const business = await businessCoreService.getBusinessById(id);
         if (!business) {
             sendErrorResponse(req, res, 404, 'Business not found');
             return;
@@ -270,7 +252,7 @@ export const renewBusiness = async (req: Request, res: Response) => {
         }
 
         const actorType: ActorTypeValue = user.role === 'admin' || user.role === 'super_admin' ? 'admin' : 'user';
-        const updated = await businessService.renewBusiness(id, {
+        const updated = await businessLifecycleService.renewBusiness(id, {
             type: actorType,
             id: user._id.toString()
         });

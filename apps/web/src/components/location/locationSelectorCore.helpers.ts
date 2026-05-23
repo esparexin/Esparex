@@ -1,4 +1,4 @@
-import { toGeoPoint as parseGeoPoint } from "@shared";
+import { normalizeGeoPoint as parseGeoPoint } from "@shared";
 import type { Location } from "@/lib/api/user/locations";
 
 export type ErrorType = "network" | "timeout" | "server" | "not_found" | "unknown";
@@ -21,7 +21,7 @@ export const ERROR_MESSAGES: Record<ErrorType, string> = {
     unknown: "Something went wrong. Please try again.",
 };
 
-export const toGeoPoint = (coords: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
+export const normalizeGeoPoint = (coords: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
     try {
         const point = parseGeoPoint(coords);
         const [lng, lat] = point.coordinates;

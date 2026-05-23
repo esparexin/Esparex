@@ -122,7 +122,7 @@ export function RelatedBusinessesSection({
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 300px"
           />
-          {business.isVerified ? (
+          {business.status === 'live' ? (
             <Badge className="absolute left-2.5 top-2.5 rounded-full bg-blue-600 px-2 py-0.5 text-2xs font-semibold text-white border-none">
               <CheckCircle className="mr-1 h-2.5 w-2.5" />
               Verified

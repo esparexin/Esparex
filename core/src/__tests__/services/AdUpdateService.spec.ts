@@ -47,7 +47,7 @@ jest.mock('../../services/AdCreationService', () => ({
     },
 }));
 
-jest.mock('../../services/StatusMutationService', () => ({
+jest.mock('../../services/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
@@ -56,7 +56,7 @@ jest.mock('../../queues/imageQueue', () => ({
 }));
 
 import Ad from '../../models/Ad';
-import * as StatusMutationService from '../../services/StatusMutationService';
+import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
 import { updateAdLogic } from '../../services/ad/AdUpdateService';
 
 const mockedAdModel = Ad as unknown as {

@@ -1,7 +1,7 @@
 import { MODERATION_STATUS_VALUES, type ModerationItem, type ModerationStatus } from "./moderationTypes";
 import type { ListingTypeValue } from '@esparex/shared';
 import { LISTING_TYPE_VALUES } from '@esparex/shared';
-import { toGeoPoint } from "@/lib/location/display";
+import { normalizeGeoPoint } from "@/lib/location/display";
 
 const asString = (value: unknown): string | undefined =>
     typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
@@ -65,7 +65,7 @@ const normalizeLocationCoordinates = (
 ): { type: "Point"; coordinates: [number, number] } | undefined => {
     if (!value || typeof value !== "object") return undefined;
     const record = value as Record<string, unknown>;
-    return toGeoPoint(record.coordinates);
+    return normalizeGeoPoint(record.coordinates);
 };
 
 const normalizeStatus = (value: unknown): ModerationStatus => {

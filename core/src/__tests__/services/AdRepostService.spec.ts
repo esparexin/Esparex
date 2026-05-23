@@ -31,11 +31,11 @@ jest.mock('../../services/ListingSubmissionPolicy', () => ({
     },
 }));
 
-jest.mock('../../services/StatusMutationService', () => ({
+jest.mock('../../services/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('../../services/AdStatusService', () => ({
+jest.mock('../../services/lifecycle/AdStatusService', () => ({
     normalizeAdStatus: jest.fn((status) => status),
 }));
 
@@ -50,7 +50,7 @@ import mongoose from 'mongoose';
 import { repostAdLogic } from '../../services/ad/AdRepostService';
 import Ad from '../../models/Ad';
 import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy';
-import * as StatusMutationService from '../../services/StatusMutationService';
+import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
 import { LISTING_STATUS } from '@esparex/shared';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────

@@ -106,7 +106,6 @@ export interface PostAdContextType {
     loadModelsForBrand: (brandId?: string, categoryId?: string, search?: string) => Promise<void>;
     loadSparePartsForCategory: (categoryId: string) => Promise<void>;
     loadCategorySchema: (categoryId: string) => Promise<void>;
-    setAvailableModels: (updater: DeviceModel[] | ((prev: DeviceModel[]) => DeviceModel[])) => void;
     refreshBrands: () => Promise<void>;
 
     sparePartsError: string | null;
@@ -155,7 +154,6 @@ export type PostAdStateContextType = Omit<
     | "loadModelsForBrand"
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
-    | "setAvailableModels"
     | "refreshBrands"
     | "generateDescription"
     | "submitAd"
@@ -187,7 +185,6 @@ export type PostAdActionContextType = Pick<
     | "loadModelsForBrand"
     | "loadSparePartsForCategory"
     | "loadCategorySchema"
-    | "setAvailableModels"
     | "refreshBrands"
     | "generateDescription"
     | "submitAd"
@@ -301,7 +298,6 @@ export function PostAdProvider({
         availableSizes,
         loadBrandsForCategory,
         loadModelsForBrand,
-        setAvailableModels,
         refreshBrands,
         brandsError,
     } = brandCatalog;
@@ -616,7 +612,6 @@ export function PostAdProvider({
         loadModelsForBrand,
         loadSparePartsForCategory,
         loadCategorySchema,
-        setAvailableModels,
         refreshBrands,
         generateDescription,
         submitAd,
@@ -645,7 +640,6 @@ export function PostAdProvider({
         loadModelsForBrand,
         loadSparePartsForCategory,
         loadCategorySchema,
-        setAvailableModels,
         refreshBrands,
         generateDescription,
         submitAd,

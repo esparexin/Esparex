@@ -1,9 +1,9 @@
 import type { GeoJSONPoint, AppLocationSource } from "@/types/location";
 
 export interface StepData {
-    businessName: string;
-    businessDescription: string;
-    fullAddress: string;
+    name: string;
+    description: string;
+    address: string;
     currentLocationDisplay: string;
     currentLocationSource: AppLocationSource | "";
     currentLocationCity: string;
@@ -13,13 +13,13 @@ export interface StepData {
     coordinates: GeoJSONPoint | null;
     isSnapped?: boolean;
     // Contact
-    contactNumber: string;
+    mobile: string;
     email: string;
     idProofType?: string; // e.g. "aadhaar", "pan", etc.
     idProof: File | string | null;
     businessProof: File | string | null;
     certificates: (File | string)[];
-    shopImages: (File | string)[];
+    images: (File | string)[];
 
     // Field-level Validation Errors
     errors?: Partial<Record<keyof StepData, string>>;

@@ -38,20 +38,20 @@ export function getBusinessWizardFieldsForStep(
 
     if (currentStep === 0) {
         return [
-            "businessName",
-            "businessDescription",
-            "contactNumber",
+            "name",
+            "description",
+            "mobile",
             "email",
             "currentLocationDisplay",
             "coordinates",
-            "fullAddress",
+            "address",
         ];
     }
 
     if (currentStep === 1) {
         return requireDocuments
-            ? ["shopImages", "idProofType", "idProof", "businessProof"]
-            : ["shopImages"];
+            ? ["images", "idProofType", "idProof", "businessProof"]
+            : ["images"];
     }
 
     return [];

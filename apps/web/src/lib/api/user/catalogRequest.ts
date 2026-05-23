@@ -8,6 +8,8 @@ export interface CreateCatalogRequestPayload {
     categoryId: string;
     parentBrandId?: string;
     requestedName: string;
+    /** Optional soft reference to the related listing (edit-ad flow only). */
+    listingId?: string;
 }
 
 export interface CatalogRequest {

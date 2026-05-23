@@ -547,3 +547,24 @@ export const contactFormLimiter = createLimiter({
     errorCode: 'CONTACT_FORM_RATE_LIMIT',
 });
 
+/**
+ * Catalog Suggestion Limiter
+ *
+ * Stricter than the generic mutationLimiter because catalog suggestions:
+ *  - Can flood the admin review queue if abused
+ *  - Are never legitimately submitted more than a few times per day per user
+ *
+ * 5 suggestions per 24 hours per userId (falls back to hybrid IP key
+ * for unauthenticated edge cases). Isolated Redis prefix keeps this
+ * quota completely separate from other mutation buckets.
+ */
+export const catalogSuggestionLimiter = createLimiter({
+    windowMs: 24 * 60 * 60 * 1000, // 24 hours
+    max: env.NODE_ENV === 'production' ? 5 : 50,
+    keyPrefix: 'catalog:suggest:',
+    errorCode: 'CATALOG_SUGGESTION_RATE_LIMIT',
+    keyGenerator: (req: Request) => {
+        const userId = req.user?._id ? String(req.user._id) : undefined;
+        return buildHybridRateLimitKey(req, userId);
+    },
+});

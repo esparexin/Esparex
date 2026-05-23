@@ -51,12 +51,12 @@ jest.mock("@esparex/core/models/AdminMetrics", () => ({
     default: { findOneAndUpdate: jest.fn().mockResolvedValue({}) },
 }));
 
-jest.mock("@esparex/core/services/LifecycleGuard", () => ({
+jest.mock("@esparex/core/services/lifecycle/LifecycleGuard", () => ({
     validateTransition: jest.fn(),
     resolveLifecycleDomain: jest.fn().mockReturnValue("ad"),
 }));
 
-jest.mock("@esparex/core/services/LifecyclePolicyGuard", () => ({
+jest.mock("@esparex/core/services/lifecycle/LifecyclePolicyGuard", () => ({
     enforceLifecycleMutationPolicy: jest.fn(),
 }));
 
@@ -73,8 +73,8 @@ jest.mock("@esparex/core/utils/logger", () => ({
 
 import { ACTOR_TYPE } from '@esparex/shared';
 import Ad from "../../models/Ad";
-import { mutateStatusesBulk } from "../../services/StatusMutationService";
-import { validateTransition } from "../../services/LifecycleGuard";
+import { mutateStatusesBulk } from "../../services/lifecycle/StatusMutationService";
+import { validateTransition } from "../../services/lifecycle/LifecycleGuard";
 
 const mockAd = Ad as unknown as { findById: jest.Mock; find: jest.Mock };
 const mockValidate = validateTransition as jest.Mock;
@@ -139,7 +139,7 @@ describe("StatusMutationService", () => {
                 session: jest.fn().mockResolvedValue(buildMockDoc()),
             });
 
-            const { mutateStatus } = await import("@esparex/core/services/StatusMutationService");
+            const { mutateStatus } = await import("@esparex/core/services/lifecycle/StatusMutationService");
 
             await expect(
                 mutateStatus({

@@ -63,9 +63,9 @@ interface BusinessProfileFlowProps {
 }
 
 type BusinessWizardFormShape = {
-    businessName: string;
-    businessDescription: string;
-    fullAddress: string;
+    name: string;
+    description: string;
+    address: string;
     currentLocationDisplay: string;
     currentLocationSource?: AppLocationSource | "";
     currentLocationCity?: string | null;
@@ -73,7 +73,7 @@ type BusinessWizardFormShape = {
     currentLocationPincode?: string | null;
     currentLocationCountry?: string | null;
     coordinates?: unknown | null;
-    contactNumber: string;
+    mobile: string;
     email: string;
 };
 
@@ -91,10 +91,10 @@ const joinAddressParts = (...parts: unknown[]): string =>
 
 function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBusinessDTO, "images" | "documents"> {
     return {
-        name: data.businessName.trim(),
-        description: data.businessDescription.trim(),
+        name: data.name.trim(),
+        description: data.description.trim(),
         location: {
-            address: data.fullAddress.trim(),
+            address: data.address.trim(),
             display: data.currentLocationDisplay.trim(),
             ...(asOptionalString(data.currentLocationCity) ? { city: data.currentLocationCity?.trim() } : {}),
             ...(asOptionalString(data.currentLocationState) ? { state: data.currentLocationState?.trim() } : {}),
@@ -102,7 +102,7 @@ function buildBusinessPayloadBase(data: BusinessWizardFormShape): Omit<CreateBus
             ...(asOptionalString(data.currentLocationCountry) ? { country: data.currentLocationCountry?.trim() } : {}),
             coordinates: (data.coordinates as CreateBusinessDTO["location"]["coordinates"]) || undefined,
         },
-        mobile: data.contactNumber.replace(/\D/g, "").slice(-10),
+        mobile: data.mobile.replace(/\D/g, "").slice(-10),
         email: data.email.trim(),
     };
 }
@@ -125,11 +125,11 @@ function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInpu
         || fullAddress;
 
     return {
-        businessName: business.name || "",
-        businessDescription: business.description || "",
-        contactNumber: business.mobile || "",
+        name: business.name || "",
+        description: business.description || "",
+        mobile: business.mobile || "",
         email: business.email || "",
-        fullAddress: fullAddress || "",
+        address: fullAddress || "",
         currentLocationDisplay: currentLocationDisplay || "",
         currentLocationSource: "",
         currentLocationCity: business.location.city || "",
@@ -137,7 +137,7 @@ function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInpu
         currentLocationPincode: business.location.pincode || "",
         currentLocationCountry: business.location.country || "",
         coordinates: business.location.coordinates || null,
-        shopImages: business.images || [],
+        images: business.images || [],
         idProof: business.documents?.idProof?.[0] || null,
         businessProof: business.documents?.businessProof?.[0] || null,
         certificates: business.documents?.certificates || [],
@@ -238,9 +238,9 @@ function BusinessRegistrationFlow({
         mode: "onBlur",
         reValidateMode: "onChange",
         defaultValues: {
-            businessName: "",
-            businessDescription: "",
-            fullAddress: "",
+            name: "",
+            description: "",
+            address: "",
             currentLocationDisplay: "",
             currentLocationSource: "",
             currentLocationCity: "",
@@ -248,12 +248,12 @@ function BusinessRegistrationFlow({
             currentLocationPincode: "",
             currentLocationCountry: "",
             coordinates: null,
-            contactNumber: normalizedContactNumber,
+            mobile: normalizedContactNumber,
             email: user?.email || "",
             idProof: null,
             businessProof: null,
             certificates: [],
-            shopImages: [],
+            images: [],
             idProofType: undefined,
         },
     });
@@ -279,7 +279,7 @@ function BusinessRegistrationFlow({
         });
 
         try {
-            const images = await processStagedFiles(data.shopImages, {
+            const images = await processStagedFiles(data.images, {
                 label: "Uploading shop photos",
                 onProgress: setSubmissionStatus,
             });
@@ -401,9 +401,9 @@ function BusinessEditProfileFlow({
     const initialEditDefaults: BusinessEditFormInput = initialBusiness
         ? mapBusinessToEditDefaults(initialBusiness)
         : {
-            businessName: "",
-            businessDescription: "",
-            fullAddress: "",
+            name: "",
+            description: "",
+            address: "",
             currentLocationDisplay: "",
             currentLocationSource: "",
             currentLocationCity: "",
@@ -411,13 +411,13 @@ function BusinessEditProfileFlow({
             currentLocationPincode: "",
             currentLocationCountry: "",
             coordinates: null,
-            contactNumber: "",
+            mobile: "",
             email: "",
             idProofType: undefined,
             idProof: null,
             businessProof: null,
             certificates: [],
-            shopImages: [],
+            images: [],
         };
 
     const form = useForm<BusinessEditFormInput, undefined, BusinessEditFormData>({
@@ -495,7 +495,7 @@ function BusinessEditProfileFlow({
         });
 
         try {
-            const images = await processStagedFiles((data.shopImages ?? []) as Array<File | string>, {
+            const images = await processStagedFiles((data.images ?? []) as Array<File | string>, {
                 label: "Uploading shop photos",
                 onProgress: setSubmissionStatus,
             });

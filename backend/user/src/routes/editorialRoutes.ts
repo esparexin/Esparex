@@ -1,6 +1,7 @@
 import express from 'express';
 import * as editorialController from '../controllers/content/editorial.content.controller';
 import { requireAdmin } from '../middleware/adminAuth';
+import { deprecateMethod } from '../middleware/deprecations';
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.get('/', editorialController.getAllContent);
 router.get('/:slug', editorialController.getContentBySlug);
 
 // Admin (Write/Update)
-router.put('/:slug', requireAdmin, editorialController.updateContentBySlug);
+router.patch('/:slug', requireAdmin, editorialController.updateContentBySlug);
+router.put('/:slug', deprecateMethod('PATCH'), requireAdmin, editorialController.updateContentBySlug);
 
 export default router;

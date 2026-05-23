@@ -1,5 +1,5 @@
 import type { AppLocation, LocationLevel } from "@/types/location";
-import { getLatitude, getLongitude } from "@/lib/location/coordinates";
+import { getLatitude, getLongitude } from "@esparex/shared";
 
 type QueryLocation = Partial<Pick<AppLocation, "source" | "locationId" | "level" | "coordinates">> | null | undefined;
 

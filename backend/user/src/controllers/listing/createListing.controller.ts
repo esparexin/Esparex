@@ -34,6 +34,12 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
                 details: [{ field: 'location', message: 'Valid location with coordinates is required.' }]
             });
         }
+
+        const { deriveLocationMetadata } = await import('@esparex/core/services/location/LocationHierarchyService');
+        const meta = await deriveLocationMetadata(normalizedLocation.locationId, normalizedLocation.coordinates);
+        if (meta.city && !normalizedLocation.city) normalizedLocation.city = meta.city;
+        if (meta.state && !normalizedLocation.state) normalizedLocation.state = meta.state;
+
         body.location = normalizedLocation;
 
         const ad = await AdOrchestrator.createAd(body, {

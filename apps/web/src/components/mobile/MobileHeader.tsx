@@ -16,6 +16,7 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
+import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 interface MobileHeaderProps {
     navigateTo: (page: UserPage, adId?: string | number, category?: string, businessId?: string) => void;
@@ -100,7 +101,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         <MapPin className="h-3.5 w-3.5 text-blue-500 mr-1.5 flex-shrink-0" />
                         <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground-tertiary">
                             <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
-                                {isMounted ? (resolvedHeaderLocation || "India") : "India"}
+                                {isMounted ? (resolvedHeaderLocation || DEFAULT_APP_LOCATION.display) : DEFAULT_APP_LOCATION.display}
                             </span>
                         </span>
                         <ChevronDown className="h-3.5 w-3.5 text-foreground-subtle ml-1.5 flex-shrink-0" />

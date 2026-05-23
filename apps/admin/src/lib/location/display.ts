@@ -9,7 +9,7 @@ const asString = (value: unknown): string | undefined => {
     return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const toGeoPoint = (value: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
+export const normalizeGeoPoint = (value: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {
     if (!value || typeof value !== "object") return undefined;
     const point = value as GeoJSONPoint;
     if (point.type !== "Point") return undefined;
@@ -60,7 +60,7 @@ export const resolveLocationDisplay = (params: {
     const explicitLabel = asString(params.locationLabel);
     if (explicitLabel) return explicitLabel;
 
-    const geoPoint = toGeoPoint(params.coordinates);
+    const geoPoint = normalizeGeoPoint(params.coordinates);
     if (geoPoint) {
         return formatCoordinateLabel(geoPoint);
     }

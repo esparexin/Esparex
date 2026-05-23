@@ -1,104 +1,38 @@
 import { ListingLocation } from "../types/location";
-import { toGeoPoint } from "../utils/geoUtils";
-
-interface GoogleAddressComponent {
-  types: string[];
-  long_name: string;
-}
-
-interface GooglePlacesLocation {
-  lat: number | (() => number);
-  lng: number | (() => number);
-}
-
-interface GoogleGeometry {
-  location?: GooglePlacesLocation;
-}
+import { normalizeGeoPoint } from "../utils/geoUtils";
 
 /**
  * adaptLocationInput
  * 
- * SSOT: Adapts raw location inputs (Google Places, current location, strings, or records)
- * into a canonical ListingLocation contract.
+ * SSOT: Adapts strict canonical location input into a ListingLocation contract.
+ * Rejects legacy fallback structures and enforces GeoJSON compliance.
  */
 export function adaptLocationInput(raw: unknown): ListingLocation | null {
-  if (!raw) return null;
-
-  // Case: Simple String
-  if (typeof raw === "string") {
-    const value = raw.trim();
-    if (!value) return null;
-    const [cityRaw, stateRaw] = value.split(",");
-    return {
-      display: value,
-      city: cityRaw?.trim() || value,
-      state: stateRaw?.trim() || cityRaw?.trim() || value,
-      country: "India",
-    };
-  }
-
-  if (typeof raw !== "object" || raw === null) return null;
+  if (!raw || typeof raw !== "object") return null;
 
   const input = raw as Record<string, unknown>;
 
-  let city = "";
-  let state = "";
-  let display = "";
+  const city = String(input.city || "");
+  const state = String(input.state || "");
+  const display = String(input.display || input.formattedAddress || city);
+  const locationId = typeof input.locationId === "string" ? input.locationId : 
+                    typeof input.id === "string" ? input.id : undefined;
 
-  // 1. Handle Google Places API Response
-  if (input.address_components && Array.isArray(input.address_components)) {
-    const components = input.address_components as GoogleAddressComponent[];
-
-    const getComponent = (type: string): string =>
-      components.find((c) => c.types.includes(type))?.long_name || "";
-
-    city = getComponent("locality") || getComponent("administrative_area_level_2") || "";
-    state = getComponent("administrative_area_level_1") || "";
-    display = (input.formatted_address as string) || city;
-  }
-
-  // 2. Fallback to direct properties
-  if (!city && input.city) city = String(input.city);
-  if (!city && input.name) city = String(input.name);
-
-  if (!state && input.state) state = String(input.state);
-  if (!state) state = city;
-
-  if (!display) {
-    display = (input.display as string) ||
-      (input.formattedAddress as string) ||
-      (input.address as string) ||
-      city;
-  }
-
-  // 3. Coordinate Normalization
   let coordinates;
   try {
-    const geometry = input.geometry as GoogleGeometry | undefined;
-    const geoInput = geometry?.location
-      ? {
-        lat: typeof geometry.location.lat === 'function'
-          ? (geometry.location.lat as () => number)()
-          : geometry.location.lat,
-        lng: typeof geometry.location.lng === 'function'
-          ? (geometry.location.lng as () => number)()
-          : geometry.location.lng,
-      }
-      : input.coordinates ?? input;
-
-    coordinates = toGeoPoint(geoInput);
+    coordinates = normalizeGeoPoint(input.coordinates ?? input);
   } catch {
     coordinates = undefined;
   }
 
   return {
-    display: String(display),
-    city: String(city),
-    state: String(state),
+    display,
+    city,
+    state,
     country: typeof input.country === "string" ? input.country : "India",
     coordinates,
-    locationId: input.locationId || input.id || undefined
-  } as ListingLocation;
+    locationId
+  };
 }
 
 /**
