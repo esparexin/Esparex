@@ -24,6 +24,8 @@ interface CatalogRequestDialogProps {
     categoryId: string;
     parentBrandId?: string;
     initialName?: string;
+    /** Optional: the listing ID that triggered this suggestion (edit-ad flow only). */
+    listingId?: string;
     onSuccess?: (requestId: string, name: string) => void;
 }
 
@@ -34,6 +36,7 @@ export function CatalogRequestDialog({
     categoryId,
     parentBrandId,
     initialName = "",
+    listingId,
     onSuccess,
 }: CatalogRequestDialogProps) {
 
@@ -83,6 +86,7 @@ export function CatalogRequestDialog({
                 categoryId,
                 parentBrandId,
                 requestedName: name.trim(),
+                listingId,
             });
             
             setIsSuccess(true);

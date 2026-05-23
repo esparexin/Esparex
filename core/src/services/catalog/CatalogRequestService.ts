@@ -8,6 +8,8 @@ export interface CatalogRequestPayload {
     canonicalName: string;
     slug: string;
     requestedBy: string;
+    /** Optional soft reference to the related listing. Null for new-ad flow. */
+    listingId?: string;
 }
 
 export const findOrCreateCatalogRequest = async (payload: CatalogRequestPayload) => {
@@ -39,6 +41,7 @@ export const findOrCreateCatalogRequest = async (payload: CatalogRequestPayload)
         requestType: payload.requestType,
         categoryId: payload.categoryId,
         parentBrandId: payload.requestType === 'model' ? payload.parentBrandId : null,
+        listingId: payload.listingId ?? null,
         requestedName: payload.requestedName,
         canonicalName: payload.canonicalName,
         normalizedName: payload.canonicalName,

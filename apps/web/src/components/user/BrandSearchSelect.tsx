@@ -17,6 +17,8 @@ interface BrandSearchSelectProps {
     onChange: (brandId: string, brandName: string, requestId?: string) => void;
     categoryId: string;
     onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
+    /** Optional listing ID for traceability (edit-ad flow only). */
+    listingId?: string;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -28,6 +30,7 @@ export function BrandSearchSelect({
     value,
     onChange,
     categoryId,
+    listingId,
     disabled = false,
     placeholder = "Search brand...",
     className,
@@ -113,6 +116,7 @@ export function BrandSearchSelect({
             requestType="brand"
             categoryId={categoryId}
             initialName={search}
+            listingId={listingId}
             onSuccess={() => {
                 setSearch("");
                 setIsEditing(false);

@@ -23,6 +23,9 @@ export interface CatalogRequestItem {
     normalizedName?: string;
     slug: string;
     requestedBy: string | CatalogRequestUserRef;
+    requestCount?: number;
+    /** Optional soft reference to the listing that triggered this suggestion (edit-ad flow). */
+    listingId?: string | null;
     status: CatalogRequestStatus;
     approvedEntityId?: string | null;
     duplicateOfEntityId?: string | null;

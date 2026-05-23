@@ -23,6 +23,8 @@ export const createCatalogRequestSchema = z
         categoryId: objectIdSchema,
         parentBrandId: optionalObjectIdSchema,
         requestedName: z.string().trim().min(1).max(120),
+        /** Optional soft reference to the listing that triggered this suggestion. */
+        listingId: optionalObjectIdSchema,
     })
     .strict()
     .superRefine((payload, ctx) => {

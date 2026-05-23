@@ -78,7 +78,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
         brandIsPending,
     } = usePostAdCatalog();
 
-    const { stepValidationAttempts, form, errors, isEditMode } = usePostAdFlow();
+    const { stepValidationAttempts, form, errors, isEditMode, listingId } = usePostAdFlow();
 
     const {
         register,
@@ -366,6 +366,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
                                     onRequestSuccess={() => refreshBrands()}
                                     disabled={brandIsPending || isEditMode}
                                     placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"}
+                                    listingId={listingId}
                                 />
                             )}
                             {brandIsPending && availableBrands.length > 0 && (
@@ -425,6 +426,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
                                         setValue("brandId", resolvedBrandId, { shouldDirty: true });
                                         setValue("brand", resolvedBrandName, { shouldDirty: true });
                                     }}
+                                    listingId={listingId}
                                 />
                             )}
                         </Field>

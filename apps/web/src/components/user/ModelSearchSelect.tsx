@@ -23,6 +23,8 @@ interface ModelSearchSelectProps {
     onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
     /** Reserved callback for parent brand sync in async catalog flows. */
     onBrandResolved?: (brandId: string, brandName: string) => void;
+    /** Optional listing ID for traceability (edit-ad flow only). */
+    listingId?: string;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -34,6 +36,7 @@ export function ModelSearchSelect({
     value,
     modelDisplayName = "",
     onChange,
+    listingId,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
@@ -152,6 +155,7 @@ export function ModelSearchSelect({
             categoryId={categoryId}
             parentBrandId={brandId}
             initialName={search}
+            listingId={listingId}
             onSuccess={() => {
                 setSearch("");
                 setIsEditing(false);

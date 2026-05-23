@@ -156,6 +156,7 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             categoryId: string;
             parentBrandId?: string;
             requestedName: string;
+            listingId?: string;
         };
 
         const requestedName = payload.requestedName.trim();
@@ -190,7 +191,8 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             requestedName,
             canonicalName,
             slug,
-            requestedBy
+            requestedBy,
+            listingId: payload.listingId,
         });
 
         if (!isNew) {

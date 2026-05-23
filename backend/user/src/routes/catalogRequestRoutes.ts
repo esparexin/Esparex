@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect } from '../middleware/authMiddleware';
-import { mutationLimiter, searchLimiter } from '../middleware/rateLimiter';
+import { mutationLimiter, searchLimiter, catalogSuggestionLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import {
     createCatalogRequestSchema,
@@ -16,7 +16,7 @@ const router = express.Router();
 router.post(
     '/',
     protect,
-    mutationLimiter,
+    catalogSuggestionLimiter,
     validateRequest(createCatalogRequestSchema),
     createCatalogRequest
 );

@@ -14,6 +14,12 @@ export interface ICatalogRequest extends Document {
     categoryId: Types.ObjectId;
     parentBrandId?: Types.ObjectId | null;
 
+    /**
+     * Optional soft reference to the listing that triggered this suggestion.
+     * Populated only from the edit-ad flow. Null for new-ad flow.
+     */
+    listingId?: Types.ObjectId | null;
+
     requestedName: string;
     canonicalName: string;
     normalizedName: string;
@@ -69,6 +75,9 @@ const CatalogRequestSchema = new Schema<ICatalogRequest>(
 
         categoryId: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
         parentBrandId: { type: Schema.Types.ObjectId, ref: 'Brand', default: null },
+
+        /** Optional soft reference to the listing that triggered this suggestion. */
+        listingId: { type: Schema.Types.ObjectId, ref: 'Listing', default: null },
 
         requestedName: { type: String, required: true, trim: true, maxlength: 120 },
         canonicalName: { type: String, required: true, trim: true, lowercase: true, maxlength: 160 },
