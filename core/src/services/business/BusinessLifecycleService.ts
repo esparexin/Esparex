@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
-import { mutateStatus } from '../StatusMutationService';
+import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { BUSINESS_STATUS } from '@esparex/shared';
 import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/shared';
 

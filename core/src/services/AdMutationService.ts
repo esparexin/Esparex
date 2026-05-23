@@ -3,7 +3,7 @@ import Ad from '../models/Ad';
 import { ListingTypeValue } from '@esparex/shared';
 import { getUserConnection } from '../config/db';
 import { AdContext } from '../types/ad.types';
-import { mutateStatus } from './StatusMutationService';
+import { mutateStatus } from './lifecycle/StatusMutationService';
 
 // Leaf Services
 import { updateAdLogic } from './ad/AdUpdateService';

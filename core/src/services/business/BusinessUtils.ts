@@ -3,7 +3,7 @@ import { AppError } from '../../utils/AppError';
 import { processImages } from '../../utils/imageProcessor';
 import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../utils/s3';
 import { normalizeLocation } from "../location/LocationNormalizer";
-import { toGeoPoint } from '@esparex/shared';
+import { normalizeGeoPoint } from '@esparex/shared';
 import { IBusinessDocument } from '../../models/Business';
 import { type IdProofTypeValue } from '@esparex/shared';
 
@@ -162,8 +162,8 @@ export const buildBusinessLocationPayload = ({
             country: resolvedCountry,
             pincode: resolvedPincode,
             coordinates:
-                toGeoPoint(incomingLocation.coordinates)
-                || toGeoPoint(normalizedLocation?.coordinates)
+                normalizeGeoPoint(incomingLocation.coordinates)
+                || normalizeGeoPoint(normalizedLocation?.coordinates)
                 || currentLocation?.coordinates
         }
     };

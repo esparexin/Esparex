@@ -1,51 +1,51 @@
 
 import {
-    toGeoPoint,
+    normalizeGeoPoint,
     isValidGeoPoint,
     hasValidCoordinateArray,
 } from "@shared";
 
-describe('toGeoPoint', () => {
+describe('normalizeGeoPoint', () => {
     it('returns a GeoJSON Point for valid [lng, lat] tuple input', () => {
-        const result = toGeoPoint([78.96, 20.59]);
+        const result = normalizeGeoPoint([78.96, 20.59]);
         expect(result).toEqual({ type: 'Point', coordinates: [78.96, 20.59] });
     });
 
     it('returns a GeoJSON Point from a { lat, lng } object', () => {
-        const result = toGeoPoint({ lat: 20.59, lng: 78.96 });
+        const result = normalizeGeoPoint({ lat: 20.59, lng: 78.96 });
         expect(result).toEqual({ type: 'Point', coordinates: [78.96, 20.59] });
     });
 
     it('returns a GeoJSON Point from a GeoJSON Point object', () => {
         const input = { type: 'Point', coordinates: [78.96, 20.59] };
-        const result = toGeoPoint(input);
+        const result = normalizeGeoPoint(input);
         expect(result).toEqual({ type: 'Point', coordinates: [78.96, 20.59] });
     });
 
     it('throws on null input', () => {
-        expect(() => toGeoPoint(null)).toThrow();
+        expect(() => normalizeGeoPoint(null)).toThrow();
     });
 
     it('throws on undefined input', () => {
-        expect(() => toGeoPoint(undefined)).toThrow();
+        expect(() => normalizeGeoPoint(undefined)).toThrow();
     });
 
     it('throws for [0, 0] (null-island is rejected)', () => {
-        expect(() => toGeoPoint([0, 0])).toThrow();
+        expect(() => normalizeGeoPoint([0, 0])).toThrow();
     });
 
     it('preserves [lng, lat] order — longitude is index 0, latitude is index 1', () => {
-        const result = toGeoPoint([77.2090, 28.6139]);
+        const result = normalizeGeoPoint([77.2090, 28.6139]);
         expect(result.coordinates[0]).toBe(77.2090); // longitude
         expect(result.coordinates[1]).toBe(28.6139); // latitude
     });
 
     it('throws for out-of-range latitude (> 90)', () => {
-        expect(() => toGeoPoint([78.96, 91])).toThrow();
+        expect(() => normalizeGeoPoint([78.96, 91])).toThrow();
     });
 
     it('throws for out-of-range longitude (> 180)', () => {
-        expect(() => toGeoPoint([181, 20.59])).toThrow();
+        expect(() => normalizeGeoPoint([181, 20.59])).toThrow();
     });
 });
 

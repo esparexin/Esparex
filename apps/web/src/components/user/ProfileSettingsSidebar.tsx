@@ -342,7 +342,7 @@ export function ProfileSettingsSidebar({
               category: alert.category,
               locationId: alert.locationId,
               location: alert.locationId ? undefined : alert.location,
-              radiusKm: alert.radius,
+              radiusKm: alert.radiusKm,
             }));
           }}
           handleEditAlert={(alert) => handleEditAlert(alert)}

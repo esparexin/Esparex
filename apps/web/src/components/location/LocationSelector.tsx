@@ -10,7 +10,7 @@ import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "./LocationSkeleton";
-import { MAX_DROPDOWN_RESULTS, toGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
+import { MAX_DROPDOWN_RESULTS, normalizeGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 
@@ -164,7 +164,7 @@ export default function LocationSelector({
     const handleSelect = useCallback(async (loc: Location) => {
         searchApi.setIsSearching(true);
         try {
-            const canonicalGeoJSONPoint = toGeoPoint(loc.coordinates);
+            const canonicalGeoJSONPoint = normalizeGeoPoint(loc.coordinates);
             if (!canonicalGeoJSONPoint) {
                 searchApi.setSearchError({
                     type: "unknown",

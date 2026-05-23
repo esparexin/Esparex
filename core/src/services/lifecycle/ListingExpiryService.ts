@@ -1,9 +1,9 @@
-import Ad from '../models/Ad';
+import Ad from '../../models/Ad';
 import { LISTING_STATUS } from '@esparex/shared';
 import { ACTOR_TYPE } from '@esparex/shared';
 import { mutateStatusesBulk } from './StatusMutationService';
-import { lifecycleEvents } from '../events';
-import logger from '../utils/logger';
+import { lifecycleEvents } from '../../events';
+import logger from '../../utils/logger';
 
 export type ListingExpirySweepResult = {
     expiredCount: number;
@@ -57,7 +57,7 @@ export class ListingExpiryService {
             source: 'ListingExpiryService',
         });
 
-        const { invalidateAdFeedCaches } = await import('../utils/redisCache');
+        const { invalidateAdFeedCaches } = await import('../../utils/redisCache');
         await invalidateAdFeedCaches();
 
         logger.info('[ListingExpiryService] Expiry sweep completed', {

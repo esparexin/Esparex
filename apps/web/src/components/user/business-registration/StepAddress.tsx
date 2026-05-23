@@ -253,9 +253,9 @@ export function StepAddress({
                 <CompactReadonlyField
                     id="reg-contact-number"
                     label="Business contact"
-                    value={formData.contactNumber}
+                    value={formData.mobile}
                     helperText="Uses your verified account mobile number."
-                    error={formData.errors?.contactNumber}
+                    error={formData.errors?.mobile}
                     badge={(
                         <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
                             Verified
@@ -340,30 +340,30 @@ export function StepAddress({
                 <Field
                     label="Full address"
                     required
-                    error={formData.errors?.fullAddress}
+                    error={formData.errors?.address}
                     className="space-y-1.5"
                 >
                     <div className="flex items-center justify-between">
                         <span className="text-xs leading-5 text-muted-foreground">
                             Include shop/building name, street/area, pincode, and landmark.
                         </span>
-                        <span className={`shrink-0 ml-3 text-xs font-medium ${formData.fullAddress.length >= 300 ? "text-amber-600" : "text-muted-foreground"}`}>
-                            {formData.fullAddress.length}/300
+                        <span className={`shrink-0 ml-3 text-xs font-medium ${formData.address.length >= 300 ? "text-amber-600" : "text-muted-foreground"}`}>
+                            {formData.address.length}/300
                         </span>
                     </div>
                     <Textarea
                         id="reg-full-address"
-                        value={formData.fullAddress}
+                        value={formData.address}
                         onChange={(event) =>
                             setFormData({
                                 ...formData,
-                                fullAddress: event.target.value.slice(0, 300),
+                                address: event.target.value.slice(0, 300),
                             })
                         }
                         placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
                         maxLength={300}
                         rows={4}
-                        aria-invalid={Boolean(formData.errors?.fullAddress)}
+                        aria-invalid={Boolean(formData.errors?.address)}
                     />
                 </Field>
             ) : null}

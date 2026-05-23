@@ -7,14 +7,15 @@ import { LISTING_STATUS } from '@esparex/shared';
 import { LISTING_TYPE } from '@esparex/shared';
 import { ACTOR_TYPE, type ActorMetadata } from '@esparex/shared';
 import { serializeBusinessForAdmin } from '../utils/businessSerializer';
-import { mutateStatuses, mutateStatus } from './StatusMutationService';
+import { mutateStatuses, mutateStatus } from './lifecycle/StatusMutationService';
 import { AppError } from '../utils/AppError';
 import type { AdminLogFn } from './AdminListingsService';
 import { dispatchTemplatedNotification } from './NotificationService';
 import { recalculateTrustScore } from './TrustService';
 import { normalizeLocation } from './location/LocationNormalizer';
 import logger from '../utils/logger';
-import * as businessService from './BusinessService';
+import * as businessLifecycleService from './business/BusinessLifecycleService';
+import * as businessUtils from './business/BusinessUtils';
 
 import type { IBusiness } from '../models/Business';
 
@@ -207,7 +208,7 @@ export const approveAdminBusiness = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    const business = await businessService.approveBusiness(id, actorId) as IBusiness | null;
+    const business = await businessLifecycleService.approveBusiness(id, actorId) as IBusiness | null;
 
     if (!business) {
         throw new AppError('Business not found', 404);
@@ -238,7 +239,7 @@ export const rejectAdminBusiness = async (
         throw new AppError('Rejection reason is required', 400);
     }
 
-    const business = await businessService.rejectBusiness(id, reason, actorId) as IBusiness | null;
+    const business = await businessLifecycleService.rejectBusiness(id, reason, actorId) as IBusiness | null;
 
     if (!business) {
         throw new AppError('Business not found', 404);
@@ -326,7 +327,7 @@ export const updateAdminBusinessFields = async (
             address: incomingLocation.address,
             pincode: incomingLocation.pincode || currentLocation?.pincode,
         });
-        const resolvedLocationPayload = businessService.buildBusinessLocationPayload({
+        const resolvedLocationPayload = businessUtils.buildBusinessLocationPayload({
             currentLocation,
             incomingLocation,
             normalizedLocation,
@@ -364,7 +365,7 @@ export const deleteAdminBusiness = async (
     const actor: { type: string; id: string | undefined } = { type: ACTOR_TYPE.ADMIN, id: actorId };
     const cascadedCount = await cascadeExpireBusinessListings(business._id, actor, 'Cascaded from business deletion');
 
-    const deleted = await businessService.softDeleteBusiness(id);
+    const deleted = await businessLifecycleService.softDeleteBusiness(id);
 
     if (!deleted) {
         throw new AppError('Business not found', 404);
@@ -391,7 +392,7 @@ export const renewAdminBusiness = async (
     actorId: string,
     logFn: AdminLogFn
 ) => {
-    const business = await businessService.renewBusiness(id, {
+    const business = await businessLifecycleService.renewBusiness(id, {
         type: ACTOR_TYPE.ADMIN,
         id: actorId
     }) as IBusiness | null;

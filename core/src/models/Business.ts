@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { Business as SharedBusiness } from "@esparex/shared";
-import { hasValidCoordinateArray, sanitizeGeoPoint } from '@esparex/shared';
+import { hasValidCoordinateArray } from '@esparex/shared';
 import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '@esparex/shared';
 import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@esparex/shared';
 
@@ -20,8 +20,7 @@ export interface IBusiness extends Document {
     businessTypes: string[];
     locationId?: mongoose.Types.ObjectId | null;
     location: SharedBusiness['location'];
-    mobile: string; // Was phone
-    phone?: string; // Virtual for backward compat
+    mobile: string;
     email: string;
     website?: string;
     gstNumber?: string;
@@ -142,19 +141,6 @@ const BusinessSchema: Schema = new Schema({
     },
 }, { timestamps: true });
 
-const sanitizeBusinessLocation = (value: unknown): unknown => {
-    if (!value || typeof value !== 'object') return value;
-    const location = value as Record<string, unknown>;
-    if ('coordinates' in location) {
-        const nextGeo = sanitizeGeoPoint(location.coordinates);
-        if (!nextGeo) {
-            delete location.coordinates;
-        } else {
-            location.coordinates = nextGeo;
-        }
-    }
-    return location;
-};
 
 import softDeletePlugin from '../utils/softDeletePlugin';
 import { generateUniqueSlug } from '../utils/slugGenerator';
@@ -166,7 +152,6 @@ BusinessSchema.plugin(softDeletePlugin);
 // Removing isModified('name') prevents slug mutation on edits, which would
 // break external links and canonical tags.
 BusinessSchema.pre('save', async function () {
-    this.location = sanitizeBusinessLocation(this.location);
 
     if (!this.slug) {
         this.slug = await generateUniqueSlug(Business, this.name as string, undefined, undefined, 'slug');
@@ -176,25 +161,6 @@ BusinessSchema.pre('save', async function () {
 BusinessSchema.pre('findOneAndUpdate', function () {
     const update = this.getUpdate() as Record<string, unknown> | undefined;
     if (!update) return;
-
-    if ('location' in update) {
-        update.location = sanitizeBusinessLocation(update.location);
-    }
-
-    if (update.$set && typeof update.$set === 'object') {
-        const setObj = update.$set as Record<string, unknown>;
-        if ('location' in setObj) {
-            setObj.location = sanitizeBusinessLocation(setObj.location);
-        }
-        if ('location.coordinates' in setObj) {
-            const nextGeo = sanitizeGeoPoint(setObj['location.coordinates']);
-            if (!nextGeo) {
-                delete setObj['location.coordinates'];
-            } else {
-                setObj['location.coordinates'] = nextGeo;
-            }
-        }
-    }
 });
 
 /* -------------------------------------------------------------------------- */
@@ -212,8 +178,6 @@ BusinessSchema.index({ isDeleted: 1 }, { name: 'idx_business_isDeleted' });
 // partial unique ownership constraint below.
 BusinessSchema.index({ userId: 1, isDeleted: 1 }, { name: 'idx_business_userId_isDeleted' });
 BusinessSchema.index({ expiresAt: 1 }, { name: 'idx_business_expiresAt' });
-BusinessSchema.index({ status: 1, createdAt: -1 }, { name: 'idx_business_status_createdAt' });
-
 
 const activeBusinessPartialFilter = { isDeleted: false };
 
@@ -288,10 +252,6 @@ BusinessSchema.index(
     }
 );
 
-// Backward Compatibility Virtual
-BusinessSchema.virtual('phone')
-    .get(function () { return this.mobile; })
-    .set(function (v: string) { this.mobile = v; });
 
 const transformLogic = function (_doc: unknown, ret: Record<string, unknown>) {
     return ret;

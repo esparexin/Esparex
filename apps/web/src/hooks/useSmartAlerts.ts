@@ -68,7 +68,7 @@ const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
         category,
         location,
         locationId,
-        radius,
+        radiusKm: radius,
         lastMatch: typeof record.lastMatch === "string" ? record.lastMatch : undefined,
         totalMatches: typeof record.totalMatches === "number" ? record.totalMatches : undefined,
         active: typeof alert.isActive === "boolean" ? alert.isActive : (typeof alert.active === "boolean" ? alert.active : true),
@@ -82,8 +82,8 @@ const createInitialSmartAlertForm = (): SmartAlertFormData => ({
   category: "",
   location: "",
   locationId: null,
-  radius: 50,
-  emailNotifications: true,
+  radiusKm: 50,
+  notificationChannels: ["email"],
 });
 
 const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
@@ -91,7 +91,8 @@ const emptySmartAlertFieldErrors = (): SmartAlertFieldErrors => ({
   keywords: undefined,
   category: undefined,
   location: undefined,
-  radius: undefined,
+  radiusKm: undefined,
+  notificationChannels: undefined,
 });
 
 type SmartAlertLocationSelection = Pick<
@@ -188,8 +189,8 @@ export function useSmartAlerts(enabled = true) {
             category: alert.category,
             location: alert.location,
             locationId: alert.locationId || null,
-            radius: alert.radius ?? 50,
-            emailNotifications: alert.notificationChannels?.includes("email") ?? true,
+            radiusKm: alert.radiusKm ?? 50,
+            notificationChannels: (alert.notificationChannels as ("email" | "sms" | "push")[]) || ["email"],
         });
         setSmartAlertErrors(emptySmartAlertFieldErrors());
         setSmartAlertGlobalError(null);
@@ -207,7 +208,8 @@ export function useSmartAlerts(enabled = true) {
                 else if (field === "keywords") nextErrors.keywords = issue.message;
                 else if (field === "category") nextErrors.category = issue.message;
                 else if (field === "location") nextErrors.location = issue.message;
-                else if (field === "radius") nextErrors.radius = issue.message;
+                else if (field === "radiusKm") nextErrors.radiusKm = issue.message;
+                else if (field === "notificationChannels") nextErrors.notificationChannels = issue.message;
                 else if (!nextGlobalError) nextGlobalError = issue.message;
             }
             setSmartAlertErrors(nextErrors);
@@ -216,7 +218,7 @@ export function useSmartAlerts(enabled = true) {
             return;
         }
 
-        const { name, keywords, category, location, locationId, radius, emailNotifications } = parsedForm.data;
+        const { name, keywords, category, location, locationId, radiusKm, notificationChannels } = parsedForm.data;
         const canonicalCoordinates = toCanonicalGeoPoint(selectedLocation?.coordinates);
         const canonicalLocationId = sanitizeMongoObjectId(selectedLocation?.locationId || selectedLocation?.id || locationId);
         const locationDisplay = selectedLocation?.display || selectedLocation?.name || selectedLocation?.city || location || "";
@@ -233,9 +235,9 @@ export function useSmartAlerts(enabled = true) {
                 locationId: canonicalLocationId || undefined,
             },
             ...(canonicalCoordinates ? { coordinates: canonicalCoordinates } : {}),
-            radiusKm: radius,
+            radiusKm,
             frequency: "instant" as const,
-            notificationChannels: emailNotifications ? ["email"] : ["push"],
+            notificationChannels,
         };
 
         if (!editingAlertId && (!canonicalCoordinates || !canonicalLocationId || !locationDisplay)) {
@@ -255,7 +257,8 @@ export function useSmartAlerts(enabled = true) {
                 else if (root === "criteria" && nested === "keywords") nextErrors.keywords = issue.message;
                 else if (root === "criteria" && nested === "category") nextErrors.category = issue.message;
                 else if (root === "criteria" && (nested === "location" || nested === "locationId")) nextErrors.location = issue.message;
-                else if (root === "radiusKm") nextErrors.radius = issue.message;
+                else if (root === "radiusKm") nextErrors.radiusKm = issue.message;
+                else if (root === "notificationChannels") nextErrors.notificationChannels = issue.message;
                 else if (!nextGlobalError) nextGlobalError = issue.message;
             }
             setSmartAlertErrors(nextErrors);

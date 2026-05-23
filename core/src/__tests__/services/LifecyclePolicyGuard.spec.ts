@@ -1,6 +1,6 @@
 import { LISTING_STATUS } from '@esparex/shared';
 import { ACTOR_TYPE } from "@esparex/shared";
-import { enforceLifecycleMutationPolicy } from '../../services/LifecyclePolicyGuard';
+import { enforceLifecycleMutationPolicy } from '../../services/lifecycle/LifecyclePolicyGuard';
 
 describe('LifecyclePolicyGuard repost invariants', () => {
     it('rejects repost transition expired -> live', () => {

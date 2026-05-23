@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import { notificationMatchQueue } from '../../queues/adQueue';
-import { assertListingApprovedEvent } from '../../services/LifecyclePolicyGuard';
+import { assertListingApprovedEvent } from '../../services/lifecycle/LifecyclePolicyGuard';
 import {
     releaseQueueIdempotencySlot,
     reserveQueueIdempotencySlot

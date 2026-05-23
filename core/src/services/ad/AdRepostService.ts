@@ -5,8 +5,8 @@ import Ad from '../../models/Ad';
 import { getUserConnection } from '../../config/db';
 import { LISTING_STATUS } from '@esparex/shared';
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
-import { mutateStatus } from '../StatusMutationService';
-import { normalizeAdStatus } from "../AdStatusService";
+import { mutateStatus } from '../lifecycle/StatusMutationService';
+import { normalizeAdStatus } from "../lifecycle/AdStatusService";
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
 import { type ListingTypeValue } from '@esparex/shared';
 

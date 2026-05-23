@@ -61,7 +61,7 @@ jest.mock('@esparex/shared', () => {
     const originalModule = jest.requireActual('@esparex/shared');
     return {
         ...originalModule,
-        toGeoPoint: jest.fn((coords) => coords),
+        normalizeGeoPoint: jest.fn((coords) => coords),
         TraceContext: {
             getCorrelationId: jest.fn().mockReturnValue('mock-correlation-id'),
         },
@@ -88,7 +88,7 @@ jest.mock('../../utils/s3', () => ({
     sanitizeStoredImageUrls: jest.fn((urls) => urls),
 }));
 
-jest.mock('../../services/AdStatusService', () => ({
+jest.mock('../../services/lifecycle/AdStatusService', () => ({
     computeActiveExpiry: jest.fn().mockResolvedValue(new Date(Date.now() + 30 * 86400000)),
 }));
 

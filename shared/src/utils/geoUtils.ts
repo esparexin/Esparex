@@ -1,12 +1,10 @@
-import { z } from 'zod';
+
 
 export interface GeoJSONPoint {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
 }
 
-const coordsTupleSchema = z.tuple([z.number(), z.number()]);
-const latLngObjSchema = z.object({ lat: z.number(), lng: z.number() });
 
 export const MIN_RADIUS_KM = 1;
 export const MAX_RADIUS_KM = 500;
@@ -66,24 +64,20 @@ export const isValidGeoPoint = (input: unknown): input is GeoJSONPoint => {
 };
 
 /**
- * Safe GeoJSON Point guard — validates coordinates without throwing.
- * Returns the original object unchanged when valid; undefined when invalid.
- * Used in Mongoose pre-save/findOneAndUpdate hooks as a no-op passthrough guard.
- */
-export const sanitizeGeoPoint = (value: unknown): unknown => {
-    if (!value || typeof value !== 'object') return undefined;
-    const node = value as Record<string, unknown>;
-    const coords = node.coordinates;
-    return hasValidCoordinateArray(coords) ? node : undefined;
-};
-
-/**
- * Extracts and strictly formats a GeoJSON Point [lng, lat].
+ * Safe Canonical GeoJSON Point normalizer.
+ * Enforces valid [longitude, latitude] array order, finite bounds, and rejects Null Island [0,0].
  * THROWS explicit errors on bad data to prevent silent logic bypasses.
  */
-export const toGeoPoint = (input: unknown): GeoJSONPoint => {
-    if (!input) {
+export const normalizeGeoPoint = (input: unknown): GeoJSONPoint => {
+    if (!input || typeof input !== 'object') {
         throw new Error("ERR_GEO_01: Input coordinates cannot be null or undefined.");
+    }
+
+    if (hasValidCoordinateArray(input)) {
+        return {
+            type: 'Point',
+            coordinates: [Number(input[0]), Number(input[1])]
+        };
     }
 
     if (isValidGeoPoint(input)) {
@@ -94,41 +88,28 @@ export const toGeoPoint = (input: unknown): GeoJSONPoint => {
         };
     }
 
-    if (typeof input !== "object" || input === null) {
-        throw new Error("ERR_GEO_INVALID_INPUT");
-    }
-
     const rawInput = input as Record<string, unknown>;
 
-    // Handle nested coordinates property (common in legacy structures)
-    if (rawInput.coordinates && isValidGeoPoint(rawInput.coordinates)) {
-        const coords = (rawInput.coordinates as GeoJSONPoint).coordinates;
-        return {
-            type: 'Point',
-            coordinates: [Number(coords[0]), Number(coords[1])]
-        };
-    }
-
-    const latLngParse = latLngObjSchema.safeParse(input);
-    if (latLngParse.success) {
-        if (!isValidLngLat(latLngParse.data.lng, latLngParse.data.lat)) {
-            throw new Error("ERR_GEO_03: Coordinates must be within valid longitude/latitude bounds and cannot be [0,0].");
+    if (rawInput && typeof rawInput === 'object') {
+        if ('lat' in rawInput && 'lng' in rawInput) {
+            const lat = Number(rawInput.lat);
+            const lng = Number(rawInput.lng);
+            if (isValidLngLat(lng, lat)) {
+                return {
+                    type: 'Point',
+                    coordinates: [lng, lat]
+                };
+            }
         }
-        return {
-            type: 'Point',
-            coordinates: [latLngParse.data.lng, latLngParse.data.lat]
-        };
-    }
 
-    const tupleParse = coordsTupleSchema.safeParse(input);
-    if (tupleParse.success) {
-        if (!isValidLngLat(tupleParse.data[0], tupleParse.data[1])) {
-            throw new Error("ERR_GEO_03: Coordinates must be within valid longitude/latitude bounds and cannot be [0,0].");
+        // Handle nested coordinates property (for Mongoose/Canonical shapes)
+        if (rawInput.coordinates && isValidGeoPoint(rawInput.coordinates)) {
+            const coords = (rawInput.coordinates as GeoJSONPoint).coordinates;
+            return {
+                type: 'Point',
+                coordinates: [Number(coords[0]), Number(coords[1])]
+            };
         }
-        return {
-            type: 'Point',
-            coordinates: [tupleParse.data[0], tupleParse.data[1]]
-        };
     }
 
     throw new Error(`ERR_GEO_02: Unrecognized location format: ${JSON.stringify(input)}`);

@@ -57,6 +57,7 @@ const baseRoleOptions = (role: RedisClientRole): RedisOptions => ({
     commandTimeout: REDIS_COMMAND_TIMEOUT_MS,
     lazyConnect: false,
     keepAlive: 10000,
+    family: 4,
     maxLoadingRetryTime: REDIS_MAX_RETRY_DELAY_MS,
     tls: redisUrl.startsWith('rediss://') ? {} : undefined,
     retryStrategy(times) {

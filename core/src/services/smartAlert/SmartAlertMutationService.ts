@@ -10,6 +10,7 @@ import {
     normalizeCoordinates,
     normalizeLocation,
 } from "../location/LocationNormalizer";
+import { UnifiedMutationEngine } from '../mutations/UnifiedMutationEngine';
 
 export type SmartAlertCriteriaPayload = {
     keywords?: string;
@@ -220,6 +221,7 @@ export const createSmartAlertMutation = async ({
     });
 };
 
+
 export const updateSmartAlertMutation = async ({
     alertId,
     user,
@@ -229,18 +231,35 @@ export const updateSmartAlertMutation = async ({
     user?: { id?: string; _id?: string | { toString(): string } };
     body: Record<string, unknown>;
 }): Promise<SmartAlertDocument> => {
-    const { alert } = await requireOwnedAlert({ alertId, user });
-    const safeBody = pickMutableFields(body);
-
-    if (safeBody.criteria || safeBody.coordinates) {
-        await normalizeSmartAlertLocationPayload(safeBody);
-    }
-
-    await resolveSmartAlertCriteriaIds(safeBody.criteria);
-
-    Object.assign(alert, safeBody);
-    await alert.save();
-    return alert;
+    return UnifiedMutationEngine.execute<SmartAlertDocument>({
+        model: SmartAlertModel as unknown as import('mongoose').Model<SmartAlertDocument>,
+        entityId: alertId,
+        context: {
+            actor: 'USER',
+            userId: getRequestUserId(user)
+        },
+        payload: body,
+        config: {
+            mutableFields: [...SMART_ALERT_MUTABLE_FIELDS],
+        },
+        hooks: {
+            validateOwnership: (alert, context) => {
+                if (!context.userId) {
+                    throw new AppError('Unauthorized', 401, 'UNAUTHORIZED');
+                }
+                if (alert.userId.toString() !== context.userId) {
+                    throw new AppError('Unauthorized', 403, 'UNAUTHORIZED');
+                }
+            },
+            beforeSave: async (alert, safeBody) => {
+                const payload = safeBody as SmartAlertPayload;
+                if (payload.criteria || payload.coordinates) {
+                    await normalizeSmartAlertLocationPayload(payload);
+                }
+                await resolveSmartAlertCriteriaIds(payload.criteria);
+            }
+        }
+    });
 };
 
 export const deleteSmartAlertMutation = async ({

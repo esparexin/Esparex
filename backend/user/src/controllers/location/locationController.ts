@@ -300,8 +300,9 @@ export const getDefaultCenter = async (req: Request, res: Response) => {
 
 export const logLocationEvent = async (req: Request, res: Response) => {
     try {
-        const { source, city, state, lat, lng, reason, eventType, locationId } = req.body as {
-            source?: string; city?: string; state?: string; lat?: number; lng?: number;
+        const { source, city, state, coordinates, reason, eventType, locationId } = req.body as {
+            source?: string; city?: string; state?: string; 
+            coordinates?: { type: 'Point', coordinates: [number, number] };
             reason?: string; eventType?: string; locationId?: string;
         };
 
@@ -324,7 +325,7 @@ export const logLocationEvent = async (req: Request, res: Response) => {
             source,
             city,
             state,
-            coordinates: (lat != undefined && lng != undefined) ? { type: 'Point', coordinates: [Number(lng), Number(lat)] } : undefined,
+            coordinates,
             reason,
             userId,
         });
@@ -339,16 +340,26 @@ export const geocode = async (req: Request, res: Response) => {
         const config = await getLocationConfig();
         if (!config.enableReverseGeocoding) return res.json(respond({ success: true, data: null }));
 
-        const lat = Number(req.query.lat);
-        const lng = Number(req.query.lng);
+        let lng: number;
+        let lat: number;
 
-        if (Number.isNaN(lat) || Number.isNaN(lng)) return sendErrorResponse(req, res, 400, "Invalid coordinates");
-
-        if (lat < -90 || lat > 90) {
-            return sendErrorResponse(req, res, 400, 'Latitude must be between -90 and 90');
-        }
-        if (lng < -180 || lng > 180) {
-            return sendErrorResponse(req, res, 400, 'Longitude must be between -180 and 180');
+        if (req.query.coordinates) {
+            try {
+                let coordsObj: unknown;
+                if (typeof req.query.coordinates === 'string') {
+                    coordsObj = JSON.parse(req.query.coordinates);
+                } else {
+                    coordsObj = req.query.coordinates;
+                }
+                const { normalizeGeoPoint } = await import('@esparex/shared');
+                const validGeo = normalizeGeoPoint(coordsObj);
+                lng = validGeo.coordinates[0];
+                lat = validGeo.coordinates[1];
+            } catch (e) {
+                return sendErrorResponse(req, res, 400, "Invalid coordinates");
+            }
+        } else {
+            return sendErrorResponse(req, res, 400, "Invalid coordinates");
         }
 
         const best = await reverseGeocodeService(lat, lng);

@@ -47,7 +47,7 @@ export type SmartAlertListItem = {
   category: string;
   location: string;
   locationId?: string;
-  radius?: number;
+  radiusKm?: number;
   lastMatch?: string;
   totalMatches?: number;
   active?: boolean;
@@ -60,10 +60,16 @@ export type SmartAlertFormData = {
   name: string;
   keywords: string;
   category: string;
+  brand?: string;
+  model?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  condition?: string;
+  state?: string;
   location: string;
   locationId?: string | null;
-  radius: number;
-  emailNotifications: boolean;
+  radiusKm: number;
+  notificationChannels: ("email" | "sms" | "push")[];
 };
 
 export type SmartAlertFieldErrors = {
@@ -71,7 +77,8 @@ export type SmartAlertFieldErrors = {
   keywords?: string;
   category?: string;
   location?: string;
-  radius?: string;
+  radiusKm?: string;
+  notificationChannels?: string;
 };
 
 export const DELETE_ACCOUNT_REASONS = [

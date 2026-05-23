@@ -17,7 +17,7 @@ import type {
     GeoJSONPoint,
     NormalizedLocationResponse
 } from './_shared/locationServiceBase';
-export { toGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
+export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServiceBase';
 import { mapToLocationResponse } from './LocationNormalizer';
 export const ingestLocation = async (payload: {
     name: string;
@@ -343,4 +343,70 @@ export const getDefaultCenterLocation = async (
     }
 
     return null;
+};
+
+export const deriveLocationMetadata = async (
+    locationId?: string | mongoose.Types.ObjectId,
+    rawCoordinates?: unknown
+): Promise<{ city?: string; state?: string; coordinates?: GeoJSONPoint }> => {
+    let city: string | undefined;
+    let state: string | undefined;
+    let coordinates: GeoJSONPoint | undefined;
+
+    if (rawCoordinates) {
+        try {
+            const { normalizeGeoPoint } = await import('./_shared/locationServiceBase').then(m => m as { normalizeGeoPoint?: (input: unknown) => GeoJSONPoint })
+            if (normalizeGeoPoint) {
+                coordinates = normalizeGeoPoint(rawCoordinates);
+            }
+        } catch (e) {
+            coordinates = undefined;
+        }
+    }
+
+    if (!locationId) {
+        return { city, state, coordinates };
+    }
+
+    try {
+        const id = typeof locationId === 'string' ? new mongoose.Types.ObjectId(locationId) : locationId;
+        const loc = await Location.findById(id).select('name level parentId coordinates').lean<{ 
+            _id: mongoose.Types.ObjectId; 
+            name: string; 
+            level: string; 
+            parentId?: mongoose.Types.ObjectId; 
+            coordinates?: GeoJSONPoint;
+        } | null>();
+
+        if (!loc) {
+            return { city, state, coordinates };
+        }
+
+        if (!coordinates && loc.coordinates) {
+            coordinates = loc.coordinates;
+        }
+
+        if (loc.level === 'city') {
+            city = loc.name;
+            if (loc.parentId) {
+                const parent = await Location.findById(loc.parentId).select('name level').lean<{ name: string; level: string } | null>();
+                if (parent && parent.level === 'state') state = parent.name;
+            }
+        } else if (loc.level === 'state') {
+            state = loc.name;
+        } else if (loc.level === 'area' && loc.parentId) {
+            const cityDoc = await Location.findById(loc.parentId).select('name parentId level').lean<{ name: string; parentId?: mongoose.Types.ObjectId; level: string } | null>();
+            if (cityDoc && cityDoc.level === 'city') {
+                city = cityDoc.name;
+                if (cityDoc.parentId) {
+                    const stateDoc = await Location.findById(cityDoc.parentId).select('name level').lean<{ name: string; level: string } | null>();
+                    if (stateDoc && stateDoc.level === 'state') state = stateDoc.name;
+                }
+            }
+        }
+    } catch (e) {
+        // Suppress
+    }
+
+    return { city, state, coordinates };
 };

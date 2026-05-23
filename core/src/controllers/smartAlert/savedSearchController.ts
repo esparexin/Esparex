@@ -1,19 +1,19 @@
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { respond } from "@esparex/core/utils/respond";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { ApiResponse } from "@shared/types/api";
+import logger from '../../utils/logger';
+import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { ApiResponse } from "@esparex/shared";
 import {
     createSavedSearch,
     deleteSavedSearch,
     getSavedSearches
-} from '@esparex/core/services/SavedSearchService';
-import type { SavedSearchCreatePayload } from "@shared";
+} from '../../services/SavedSearchService';
+import type { SavedSearchCreatePayload } from "@esparex/shared";
 
 const getUserId = (req: Request): string | null => {
     const user = req.user;
     if (!user) return null;
-    return String(user._id);
+    return (user.id || user._id)?.toString() || null;
 };
 
 export const listSavedSearches = async (req: Request, res: Response) => {

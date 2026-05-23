@@ -73,8 +73,7 @@ router.patch('/plans/:id/toggle', requirePermission('system:config'), adminPlans
 router.get('/businesses/accounts', adminBusiness.getBusinessAccounts);
 router.get('/businesses/overview', adminBusiness.getBusinessOverview);
 router.get('/businesses/:id', adminBusiness.getBusinessAccountById);
-router.patch('/businesses/:id/approve', requirePermission('business:approve'), adminBusiness.approveBusinessAccount);
-router.patch('/businesses/:id/reject', requirePermission('business:approve'), adminBusiness.rejectBusinessAccount);
+
 router.patch('/businesses/:id/status', requirePermission('business:approve'), adminBusiness.updateBusinessStatus);
 router.patch('/businesses/:id/renew', requirePermission('business:approve'), adminBusiness.renewBusinessAccount);
 router.patch('/businesses/:id/expire', requirePermission('business:approve'), adminBusiness.expireBusinessAccount);

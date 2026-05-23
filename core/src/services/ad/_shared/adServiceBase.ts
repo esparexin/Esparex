@@ -22,7 +22,7 @@ export { serializeDoc } from '../../../utils/serialize';
 export { normalizeLocationResponse } from '../../location/LocationNormalizer';
 export { touchLocationSearchAnalytics } from '../../location/LocationAnalyticsService';
 export { buildGeoNearStage, normalizeGeoInput } from '../../../utils/mongoGeoUtils';
-export { normalizeAdStatus } from '../../AdStatusService';
+export { normalizeAdStatus } from '../../lifecycle/AdStatusService';
 export { buildAdFilterFromCriteria } from '../../../utils/adFilterHelper';
 export type { AdFilterCriteria } from '../../../utils/adFilterHelper';
 export { getCache, setCache, getMultiCache, setMultiCache, CACHE_KEYS } from '../../../utils/redisCache';

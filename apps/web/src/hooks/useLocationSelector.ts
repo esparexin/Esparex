@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocationData, useLocationDispatch } from "@/context/LocationContext";
-import { toGeoPoint, type GeoJSONPoint } from "@shared";
+import { normalizeGeoPoint, type GeoJSONPoint } from "@shared";
 import { useDismissableLayer } from "@/hooks/useDismissableLayer";
 
 export interface SelectorLocationMeta {
@@ -66,7 +66,7 @@ export function useLocationSelector({ mode = "local", onLocationSelect, initialD
 
             if (glCoordinates) {
                 try {
-                    setCoordinates(toGeoPoint(glCoordinates));
+                    setCoordinates(normalizeGeoPoint(glCoordinates));
                 } catch {
                     // Ignore — validation handles it on submit.
                 }
@@ -98,7 +98,7 @@ export function useLocationSelector({ mode = "local", onLocationSelect, initialD
 
             if (rawCoords) {
                 try {
-                    parsedCoords = toGeoPoint(rawCoords);
+                    parsedCoords = normalizeGeoPoint(rawCoords);
                 } catch {
                     parsedCoords = null;
                 }

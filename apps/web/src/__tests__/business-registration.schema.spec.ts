@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { businessRegistrationSchema } from "@/schemas/businessRegistration.schema";
 
 const validRegistrationPayload = {
-    businessName: "City Repair Hub",
-    businessDescription: "Professional mobile and laptop repair service with same-day diagnostics.",
-    fullAddress: "Shop 4, MG Road, Near Metro, Hyderabad, Telangana 500001",
+    name: "City Repair Hub",
+    description: "Professional mobile and laptop repair service with same-day diagnostics.",
+    address: "Shop 4, MG Road, Near Metro, Hyderabad, Telangana 500001",
     currentLocationDisplay: "Abids, Hyderabad",
     currentLocationCity: "Hyderabad",
     currentLocationState: "Telangana",
@@ -13,7 +13,7 @@ const validRegistrationPayload = {
         type: "Point" as const,
         coordinates: [78.4867, 17.385],
     },
-    contactNumber: "9876543210",
+    mobile: "9876543210",
     email: "owner@example.com",
     idProofType: "aadhaar",
     idProof: "https://example.com/id-proof.pdf",
@@ -38,11 +38,11 @@ describe("businessRegistrationSchema", () => {
     it("requires a full address that includes a pincode", () => {
         const result = businessRegistrationSchema.safeParse({
             ...validRegistrationPayload,
-            fullAddress: "Shop 4, MG Road, Near Metro, Hyderabad",
+            address: "Shop 4, MG Road, Near Metro, Hyderabad",
         });
 
         expect(result.success).toBe(false);
-        expect(result.error?.flatten().fieldErrors.fullAddress).toContain(
+        expect(result.error?.flatten().fieldErrors.address).toContain(
             "Enter full address including 6-digit pincode",
         );
     });

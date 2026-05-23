@@ -20,7 +20,7 @@ jest.mock('@esparex/core/services/catalog/CatalogValidationService', () => ({
     validateServiceCategoryCapability: jest.fn(),
 }));
 
-jest.mock('@esparex/core/services/StatusMutationService', () => ({
+jest.mock('@esparex/core/services/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 

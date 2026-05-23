@@ -1,7 +1,7 @@
 import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/shared';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { LISTING_STATUS_VALUES } from '@esparex/shared';
-import { getSystemConfigForRead } from './SystemConfigService';
+import { getSystemConfigForRead } from '../SystemConfigService';
 
 export type AdStatus = LifecycleStatus;
 
@@ -33,11 +33,11 @@ export const isValidAdStatus = (status: string): boolean => {
 };
 
 
-import Ad from '../models/Ad';
+import Ad from '../../models/Ad';
 import { mutateStatus } from './StatusMutationService';
-import { MS_IN_DAY, GOVERNANCE } from '../config/constants';
-import logger from '../utils/logger';
-import { lifecycleEvents } from '../events';
+import { MS_IN_DAY, GOVERNANCE } from '../../config/constants';
+import logger from '../../utils/logger';
+import { lifecycleEvents } from '../../events';
 import { ListingExpiryService } from './ListingExpiryService';
 
 // E1: mutateStatus returns doc.toObject() — typed as Record<string, unknown> | null

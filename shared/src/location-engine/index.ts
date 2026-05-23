@@ -19,7 +19,7 @@ export {
     isValidLngLat,
     hasValidCoordinateArray,
     isValidGeoPoint,
-    toGeoPoint,
+    normalizeGeoPoint,
     MIN_RADIUS_KM,
     MAX_RADIUS_KM,
     DEFAULT_RADIUS_KM,

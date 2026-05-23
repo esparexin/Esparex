@@ -39,7 +39,7 @@ const toIdString = (value: LocationResponseLike["_id"]): string | undefined => {
     return undefined;
 };
 
-const toGeoPoint = (value: LocationCoordinateShape): { type: "Point"; coordinates: [number, number] } | undefined => {
+const normalizeGeoPoint = (value: LocationCoordinateShape): { type: "Point"; coordinates: [number, number] } | undefined => {
     if (!value) return undefined;
 
     if (typeof value === "object") {
@@ -64,7 +64,7 @@ const toGeoPoint = (value: LocationCoordinateShape): { type: "Point"; coordinate
  */
 export const formatLocationResponse = (loc: LocationResponseLike) => {
     const resolvedId = toIdString(loc._id) || loc.id;
-    const resolvedCoordinates = toGeoPoint(loc.coordinates);
+    const resolvedCoordinates = normalizeGeoPoint(loc.coordinates);
     const resolvedParentId = toIdString(loc.parentId || undefined);
     const resolvedPath = Array.isArray(loc.path)
         ? loc.path

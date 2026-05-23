@@ -5,7 +5,7 @@ import User from '../models/User';
 import Business from '../models/Business';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 import logger from '../utils/logger';
-import { mutateStatus } from './StatusMutationService';
+import { mutateStatus } from './lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from '@esparex/shared';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;

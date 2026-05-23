@@ -1,21 +1,10 @@
 import { Queue } from 'bullmq';
 import { redisConnection, shouldDisableQueueConnection } from './redisConnection';
-import { withQueueDefaults } from './queueDefaults';
+import { createNoopQueue, withQueueDefaults } from './queueDefaults';
 
 const sharedJobOptions = withQueueDefaults();
 
-const createNoopQueue = <T>() => ({
-    add: async () => null,
-    close: async () => undefined,
-    on: () => undefined,
-    getJobCounts: async () => ({
-        waiting: 0,
-        active: 0,
-        delayed: 0,
-        failed: 0,
-        completed: 0,
-    }),
-} as unknown as Queue<T>);
+
 
 export const adQueue = shouldDisableQueueConnection
     ? createNoopQueue()

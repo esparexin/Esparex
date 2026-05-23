@@ -3,7 +3,7 @@ import { Business } from "@shared/types/business";
 import { ApiResponse } from "@shared/types/api";
 import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
-import * as businessService from '@esparex/core/services/BusinessService';
+import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 
@@ -15,7 +15,7 @@ export const getMyBusiness = async (req: Request, res: Response) => {
             return;
         }
 
-        const business = await businessService.getBusinessByUserId(user._id.toString());
+        const business = await businessCoreService.getBusinessByUserId(user._id.toString());
 
         const response = respond<ApiResponse<Business | null>>({
             success: true,
@@ -38,7 +38,7 @@ export const getMyBusinessStats = async (req: Request, res: Response) => {
         }
 
         const userId = user._id.toString();
-        const business = await businessService.getBusinessByUserId(userId);
+        const business = await businessCoreService.getBusinessByUserId(userId);
 
         if (!business) {
             const response = respond<ApiResponse<BusinessStatsPayload>>({
@@ -49,7 +49,7 @@ export const getMyBusinessStats = async (req: Request, res: Response) => {
             return;
         }
 
-        const stats = await businessService.getBusinessStats(userId);
+        const stats = await businessCoreService.getBusinessStats(userId);
         const response = respond<ApiResponse<BusinessStatsPayload>>({
             success: true,
             data: stats,

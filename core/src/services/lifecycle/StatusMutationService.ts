@@ -1,22 +1,22 @@
 import mongoose, { ClientSession } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../../config/db';
 import { 
     validateTransition as validateLifecycleTransition, 
     resolveLifecycleDomain,
     type ValidDomain 
 } from './LifecycleGuard';
 import { enforceLifecycleMutationPolicy } from './LifecyclePolicyGuard';
-import StatusHistory from '../models/StatusHistory';
-import AdminMetrics from '../models/AdminMetrics';
-import logger from '../utils/logger';
+import StatusHistory from '../../models/StatusHistory';
+import AdminMetrics from '../../models/AdminMetrics';
+import logger from '../../utils/logger';
 import { ActorMetadata, ACTOR_TYPE } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/shared';
-import { lifecycleEvents } from '../events';
+import { lifecycleEvents } from '../../events';
 
 // Import domain models
-import Ad from '../models/Ad';
-import User from '../models/User';
-import Business from '../models/Business';
+import Ad from '../../models/Ad';
+import User from '../../models/User';
+import Business from '../../models/Business';
 
 export type { ValidDomain };
 
@@ -408,7 +408,7 @@ async function recordMutationMetric(
     try {
         // 1. Prometheus Telemetry (High-Resolution)
         if (status === 'success') {
-            const { listingStatusTransitionsTotal } = await import('../utils/metrics');
+            const { listingStatusTransitionsTotal } = await import('../../utils/metrics');
             listingStatusTransitionsTotal.inc({
                 fromStatus: from,
                 toStatus: to,

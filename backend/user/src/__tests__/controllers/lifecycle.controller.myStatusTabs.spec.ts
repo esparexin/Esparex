@@ -7,7 +7,7 @@ jest.mock('@esparex/core/utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: (...args: unknown[]) => mockGetAndVerifyOwnedListing(...args),
 }));
 
-jest.mock('@esparex/core/services/StatusMutationService', () => ({
+jest.mock('@esparex/core/services/lifecycle/StatusMutationService', () => ({
     mutateStatus: (...args: unknown[]) => mockMutateStatus(...args),
 }));
 

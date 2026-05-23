@@ -135,9 +135,9 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
         }
 
         try {
-            await adminFetch(ADMIN_ROUTES.BUSINESS_REJECT(id), {
+            await adminFetch(ADMIN_ROUTES.BUSINESS_STATUS(id), {
                 method: "PATCH",
-                body: { reason },
+                body: { status: "rejected", reason },
             });
             showToast("Business rejected", "success");
             setRejectTarget(null);
@@ -198,7 +198,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
 
     const handleActivate = async (id: string) => {
         try {
-            await adminFetch(ADMIN_ROUTES.BUSINESS_APPROVE(id), { method: "PATCH" });
+            await adminFetch(ADMIN_ROUTES.BUSINESS_STATUS(id), { 
+                method: "PATCH",
+                body: { status: "live" },
+            });
             showToast("Business reactivated successfully", "success");
             setSelectedBusiness(null);
             await fetchBusinesses();

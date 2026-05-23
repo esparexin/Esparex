@@ -9,7 +9,7 @@ import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { AdContext } from '../../types/ad.types';
 import { generateUniqueSlug } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
-import { mutateStatus } from '../StatusMutationService';
+import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { enqueueImageOptimization } from '../../queues/imageQueue';
 
 export const updateAdLogic = async (

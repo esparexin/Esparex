@@ -1,4 +1,4 @@
-import { getSystemConfigDoc } from '../utils/systemConfigHelper';
+import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
 
 /* ────────────────────────────────────────────── */
 /* MODERATION SERVICE                             */

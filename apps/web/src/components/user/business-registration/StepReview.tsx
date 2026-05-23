@@ -52,8 +52,8 @@ export function StepReview({
                 onEdit={() => onEditStep(detailsStepIndex)}
                 content={
                     <>
-                        <p className="text-sm font-semibold text-foreground">{formData.businessName}</p>
-                        <p className="text-sm leading-6 text-foreground-tertiary">{formData.businessDescription}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.name}</p>
+                        <p className="text-sm leading-6 text-foreground-tertiary">{formData.description}</p>
                         <p className="text-sm text-muted-foreground">{formData.email}</p>
                     </>
                 }
@@ -72,7 +72,7 @@ export function StepReview({
                                 Pincode: <span className="font-semibold text-foreground">{formData.currentLocationPincode}</span>
                             </p>
                         ) : null}
-                        <p className="text-sm leading-6 text-foreground-tertiary">{formData.fullAddress}</p>
+                        <p className="text-sm leading-6 text-foreground-tertiary">{formData.address}</p>
                         <p className="text-sm text-muted-foreground">
                             Current location is recorded first, then the full address is sent for admin review.
                         </p>
@@ -87,7 +87,7 @@ export function StepReview({
                     content={
                         <>
                             <p className="text-sm font-semibold text-foreground">
-                                {formData.shopImages.length} shop photo{formData.shopImages.length === 1 ? "" : "s"} ready for review
+                                {formData.images.length} shop photo{formData.images.length === 1 ? "" : "s"} ready for review
                             </p>
                             <p className="text-sm font-semibold text-foreground">
                                 {formData.idProofType ? `${idProofTypeLabel} selected as owner ID` : idProofTypeLabel}

@@ -102,79 +102,13 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
         }
 
         const { listingType } = (req.query || {});
+        
+        const counts = await AdMetricsService.getListingStatusCountsForSeller(
+            userId, 
+            listingType ? String(listingType) : undefined
+        );
 
-        const mongoose = (await import('mongoose')).default;
-        const Ad = (await import('@esparex/core/models/Ad')).default;
-
-        const matchStage: Record<string, unknown> = {
-            sellerId: new mongoose.Types.ObjectId(userId),
-            isDeleted: { $ne: true }
-        };
-
-        const andConditions: Record<string, unknown>[] = [
-            {
-                $or: [
-                    { deletedAt: { $exists: false } },
-                    { deletedAt: null }
-                ]
-            }
-        ];
-
-        if (listingType) {
-            const typeStr = String(listingType).trim().toLowerCase();
-            if (typeStr === 'ad' || typeStr === 'ads') {
-                andConditions.push({
-                    $or: [
-                        { listingType: 'ad' },
-                        { listingType: { $exists: false } },
-                        { listingType: null }
-                    ]
-                });
-            } else if (typeStr === 'service' || typeStr === 'services') {
-                matchStage.listingType = 'service';
-            } else if (typeStr === 'spare_part' || typeStr === 'spare-parts' || typeStr === 'spare_parts') {
-                matchStage.listingType = 'spare_part';
-            }
-        }
-
-        matchStage.$and = andConditions;
-
-        const results = await Ad.aggregate([
-            {
-                $match: matchStage
-            },
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 }
-                }
-            }
-        ]);
-
-        let live = 0;
-        let pending = 0;
-        let expired = 0;
-
-        results.forEach((bucket) => {
-            const status = bucket._id;
-            const count = bucket.count;
-            if (status === 'active' || status === 'live' || status === 'deactivated') {
-                live += count;
-            } else if (status === 'pending') {
-                pending += count;
-            } else if (status === 'expired' || status === 'sold') {
-                expired += count;
-            }
-        });
-
-        const total = live + pending + expired;
-
-        return sendSuccessResponse(res, {
-            live,
-            pending,
-            expired,
-            total
-        });
+        return sendSuccessResponse(res, counts);
     } catch (error) {
         logger.error('Failed to fetch my status counts', { error });
         return sendErrorResponse(req, res, 500, 'Failed to fetch listing status counts');

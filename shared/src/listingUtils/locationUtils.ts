@@ -3,7 +3,7 @@
  * Enforces `locationId` as the canonical key and consolidates normalization.
  */
 
-import { type GeoJSONPoint, toGeoPoint } from "../utils/geoUtils";
+import { type GeoJSONPoint, normalizeGeoPoint } from "../utils/geoUtils";
 
 export const MONGOOSE_OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
 
@@ -121,7 +121,7 @@ export function normalizeListingLocation(raw: unknown): ListingLocation | null {
     let coordinates: GeoJSONPoint | undefined;
 
     try {
-        coordinates = toGeoPoint(loc.coordinates ?? loc);
+        coordinates = normalizeGeoPoint(loc.coordinates ?? loc);
     } catch {
         coordinates = undefined;
     }

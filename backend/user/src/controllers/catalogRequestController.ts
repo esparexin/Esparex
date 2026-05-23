@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import slugify from 'slugify';
-import CatalogRequest, { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
+import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
+import * as CatalogRequestService from '@esparex/core/services/catalog/CatalogRequestService';
 import { sendPaginatedResponse, sendSuccessResponse } from '@esparex/core/utils/respond';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import { AppError } from '@esparex/core/utils/AppError';
@@ -182,48 +183,19 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             }
         }
 
-        /**
-         * GLOBAL DEDUPLICATION
-         * Dedup key: (requestType, canonicalName, categoryId, parentBrandId, status='pending')
-         * requestedBy is intentionally excluded so all users share one pending record.
-         */
-        const dedupeQuery = {
+        const { request: createdRequest, isNew } = await CatalogRequestService.findOrCreateCatalogRequest({
             requestType: payload.requestType,
             categoryId: payload.categoryId,
-            parentBrandId: payload.requestType === 'model' ? payload.parentBrandId ?? null : null,
-            $or: [
-                { canonicalName },
-                { normalizedName: canonicalName },
-            ],
-            status: 'pending' as const,
-        };
-
-        const existingPending = await CatalogRequest.findOneAndUpdate(
-            dedupeQuery,
-            {
-                $addToSet: { requestedByUsers: requestedBy },
-                $inc: { requestCount: 1 },
-            },
-            { new: true, sort: { createdAt: -1 } }
-        );
-
-        if (existingPending) {
-            return sendSuccessResponse(res, existingPending, 'Existing pending catalog request found');
-        }
-
-        const createdRequest = await CatalogRequest.create({
-            requestType: payload.requestType,
-            categoryId: payload.categoryId,
-            parentBrandId: payload.requestType === 'model' ? payload.parentBrandId : null,
+            parentBrandId: payload.parentBrandId,
             requestedName,
             canonicalName,
-            normalizedName: canonicalName,
             slug,
-            requestedBy,
-            requestedByUsers: [requestedBy],
-            requestCount: 1,
-            status: 'pending',
-        } as unknown as Record<string, unknown>);
+            requestedBy
+        });
+
+        if (!isNew) {
+            return sendSuccessResponse(res, createdRequest, 'Existing pending catalog request found');
+        }
 
         const createdRequestId = String((createdRequest as ICatalogRequest)._id);
         void CatalogNotificationService.notifyAdminsOfSuggestion(payload.requestType, requestedName, requestedBy, createdRequestId);
@@ -267,13 +239,7 @@ export const getMyCatalogRequests = async (req: Request, res: Response) => {
             ];
         }
 
-        const [items, total] = await Promise.all([
-            CatalogRequest.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit),
-            CatalogRequest.countDocuments(filter),
-        ]);
+        const { items, total } = await CatalogRequestService.getCatalogRequests(filter, skip, limit, false);
 
         return sendPaginatedResponse(res, items, total, page, limit);
     } catch (error) {
@@ -313,14 +279,7 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
             ];
         }
 
-        const [items, total] = await Promise.all([
-            CatalogRequest.find(filter)
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .populate('requestedBy', REQUESTED_BY_PUBLIC_FIELDS),
-            CatalogRequest.countDocuments(filter),
-        ]);
+        const { items, total } = await CatalogRequestService.getCatalogRequests(filter, skip, limit, true);
 
         return sendPaginatedResponse(res, items, total, page, limit);
     } catch (error) {
@@ -330,8 +289,7 @@ export const getAdminCatalogRequests = async (req: Request, res: Response) => {
 
 export const getAdminCatalogRequestById = async (req: Request, res: Response) => {
     try {
-        const request = await CatalogRequest.findById(getParamId(req))
-            .populate('requestedBy', REQUESTED_BY_PUBLIC_FIELDS);
+        const request = await CatalogRequestService.getCatalogRequestById(getParamId(req), true);
 
         if (!request) {
             throw new AppError('Catalog request not found.', 404, 'CATALOG_REQUEST_NOT_FOUND');
@@ -426,24 +384,7 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
             match.requestType = query.requestType;
         }
 
-        const [groupedCounts, totalCount] = await Promise.all([
-            CatalogRequest.aggregate<{
-                _id: { requestType: 'brand' | 'model'; status: 'pending' | 'approved' | 'rejected' | 'duplicate' };
-                count: number;
-            }>([
-                { $match: match },
-                {
-                    $group: {
-                        _id: {
-                            requestType: '$requestType',
-                            status: '$status',
-                        },
-                        count: { $sum: 1 },
-                    },
-                },
-            ]),
-            CatalogRequest.countDocuments(match),
-        ]);
+        const { groupedCounts, totalCount } = await CatalogRequestService.getCatalogRequestStats(match);
 
         const emptyBuckets = {
             pending: 0,
@@ -462,7 +403,10 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
             },
         };
 
-        groupedCounts.forEach((row) => {
+        type StatusKey = 'pending' | 'approved' | 'rejected' | 'duplicate';
+        type RequestTypeKey = 'brand' | 'model';
+        
+        groupedCounts.forEach((row: { _id: { requestType: RequestTypeKey, status: StatusKey }, count: number }) => {
             const requestType = row._id.requestType;
             const status = row._id.status;
 

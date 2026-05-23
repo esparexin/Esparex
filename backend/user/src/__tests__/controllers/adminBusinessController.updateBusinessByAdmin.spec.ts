@@ -40,11 +40,15 @@ jest.mock("@esparex/core/services/TrustService", () => ({
     recalculateTrustScore: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/services/BusinessService", () => ({
+jest.mock("@esparex/core/services/business/BusinessLifecycleService", () => ({
     __esModule: true,
     approveBusiness: jest.fn(),
     rejectBusiness: jest.fn(),
     softDeleteBusiness: jest.fn(),
+}));
+
+jest.mock("@esparex/core/services/business/BusinessUtils", () => ({
+    __esModule: true,
     buildBusinessLocationPayload: jest.fn(),
 }));
 
@@ -59,7 +63,7 @@ jest.mock("@esparex/core/services/AdminBusinessService", () => ({
     serializeBusinessForAdmin: jest.fn().mockImplementation((b) => b),
 }));
 
-jest.mock("@esparex/core/services/StatusMutationService", () => ({
+jest.mock("@esparex/core/services/lifecycle/StatusMutationService", () => ({
     __esModule: true,
     mutateStatus: jest.fn(),
     mutateStatuses: jest.fn(),

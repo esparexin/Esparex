@@ -77,6 +77,29 @@ const handleRedirect = (fromPrefix: string, toPrefix: string, options: Partial<D
 };
 
 /**
+ * Warns that a specific HTTP method for this route is deprecated.
+ * Passes the request to the next handler but attaches deprecation headers.
+ */
+export const deprecateMethod = (successorMethod: string, options: Partial<DeprecationOptions> = {}): RequestHandler => {
+    return (req: Request, res: Response, next: import('express').NextFunction) => {
+        const sunsetAt = options.sunsetAt || DEFAULT_SUNSET_DATE;
+        
+        res.setHeader('Deprecation', 'true');
+        res.setHeader('Sunset', sunsetAt);
+        res.setHeader('X-Deprecated-Method', req.method);
+        res.setHeader('X-Successor-Method', successorMethod.toUpperCase());
+
+        logger.warn(`[DEPRECATION] Deprecated method used: ${req.method} ${req.originalUrl}`, {
+            method: req.method,
+            path: req.originalUrl,
+            successorMethod
+        });
+
+        next();
+    };
+};
+
+/**
  * Registers all deprecated and legacy routes
  */
 export const registerDeprecationRoutes = (app: Express): void => {

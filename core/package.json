@@ -20,7 +20,7 @@
     "./controllers/admin/chat/*": "./dist/controllers/admin/chat/*.js",
     "./controllers/admin/content/*": "./dist/controllers/admin/content/*.js",
     "./controllers/admin/plan/*": "./dist/controllers/admin/plan/*.js",
-    "./controllers/admin/smartAlert/*": "./dist/controllers/admin/smartAlert/*.js",
+    "./controllers/smartAlert/*": "./dist/controllers/smartAlert/*.js",
     "./controllers/admin/wallet/*": "./dist/controllers/admin/wallet/*.js",
     "./types/*": "./dist/types/*.js",
     "./constants/*": "./dist/constants/*.js"

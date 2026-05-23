@@ -2,7 +2,7 @@ import { LISTING_STATUS } from '@esparex/shared';
 import {
     isValidLifecycleTransition,
     validateTransition
-} from '../../services/LifecycleGuard';
+} from '../../services/lifecycle/LifecycleGuard';
 
 describe('LifecycleGuard', () => {
     it('allows only the approved transitions', () => {
