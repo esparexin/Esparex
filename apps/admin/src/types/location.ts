@@ -1,4 +1,4 @@
-import type { Location as SharedLocation, LocationLevel } from "@shared/types/location";
+import type { Location as SharedLocation, LocationLevel } from "@esparex/shared";
 
 export type Location = SharedLocation & {
     adsCount?: number;

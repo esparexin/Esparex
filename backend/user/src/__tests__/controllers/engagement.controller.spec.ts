@@ -59,9 +59,7 @@ jest.mock('../../middleware/authMiddleware', () => ({
     protect: jest.fn((_req: unknown, _res: unknown, next: () => void) => next()),
 }));
 
-jest.mock('@esparex/core/constants/enums/listingType', () => ({
-    LISTING_TYPE: { AD: 'ad', SERVICE: 'service', SPARE_PART: 'spare_part' },
-}));
+
 
 // ─── Imports ──────────────────────────────────────────────────────────────────
 

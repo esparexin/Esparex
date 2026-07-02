@@ -14,9 +14,9 @@
     "shared"
   ],
   "scripts": {
-    "prepare": "command -v husky >/dev/null 2>&1 && husky install || true",
+    "prepare": "node -e \"try { require('child_process').execSync('husky install', {stdio: 'inherit'}) } catch (e) {}\"",
     "hooks:install": "husky install",
-    "clean:workspace-installs": "rm -rf backend/user/node_modules apps/admin/node_modules apps/web/node_modules shared/node_modules core/node_modules",
+    "clean:workspace-installs": "node -e \"['backend/user/node_modules', 'apps/admin/node_modules', 'apps/web/node_modules', 'shared/node_modules', 'core/node_modules'].forEach(p => require('fs').rmSync(p, { recursive: true, force: true }))\"",
     "build": "npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user && npm run build -w @esparex/apps-admin && npm run build -w @esparex/apps-web",
     "type-check": "npm run type-check -w @esparex/shared && npm run type-check -w @esparex/core && npm run type-check -w @esparex/backend-user && npm run type-check -w @esparex/apps-admin && npm run type-check -w @esparex/apps-web",
     "dev:all": "concurrently \"npm run dev -w @esparex/backend-user\" \"npm run dev -w @esparex/apps-admin\" \"npm run dev -w @esparex/apps-web\"",
@@ -30,7 +30,7 @@
     "guard:ai-governance": "node scripts/enforce-ai-governance-ssot.js",
     "guard:no-ad-hard-delete": "node scripts/enforce-no-ad-hard-delete.js",
     "guard:moderation-namespace": "node scripts/enforce-moderation-route-whitelist.js",
-    "guard:schema-migration": "bash scripts/enforce-schema-migration-gate.sh",
+    "guard:schema-migration": "node scripts/enforce-schema-migration-gate.js",
     "guard:pr-impact-analysis": "node scripts/enforce-pr-impact-analysis.js",
     "lint:admin-status:ssot": "node scripts/enforce-admin-status-literals.js",
     "lint:user-api-result:ssot": "node scripts/enforce-user-api-result-ssot.js",
@@ -86,7 +86,7 @@
     "governance:guards": "npm run docs:lint && npm run guard:naming && npm run guard:objectid && npm run guard:platform-governance && npm run guard:notification-governance && npm run guard:ad-ssot && npm run guard:admin-status-literals && npm run guard:api-surface && npm run guard:component-api-boundary && npm run guard:compatibility-markers",
     "governance:all": "npm run lint && npm run type-check && npm run test && npm run guard:duplicate-code && npm run guard:dead-code && npm run governance:guards && npm run build",
     "guard:env-contracts": "node scripts/guard-env-contracts.js",
-    "debt:baseline": "export NODE_OPTIONS='--max-old-space-size=8192' && node scripts/generate-eslint-baseline.js",
+    "debt:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=8192 node scripts/generate-eslint-baseline.js",
     "debt:insights": "node scripts/analyze-tech-debt.js"
   },
   "optionalDependencies": {
@@ -104,6 +104,7 @@
     "@next/eslint-plugin-next": "^16.2.4",
     "@types/validator": "^13.15.10",
     "concurrently": "^9.2.1",
+    "cross-env": "^7.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.6.0",

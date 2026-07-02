@@ -1,2 +1,1 @@
-// Re-export from shared for backward compatibility
-export * from "@shared/types/user";
+export * from "@esparex/shared";

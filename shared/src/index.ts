@@ -44,6 +44,7 @@ export * from './enums/userStatus';
 
 // CONSTANTS
 export {
+    AD_LIMITS,
     MIN_AD_IMAGES,
     MAX_AD_IMAGES,
     MAX_AD_IMAGE_BYTES,
@@ -72,6 +73,7 @@ export * from './utils/locationPrimitives';
 export * from './utils/textValidator';
 export * from './utils/planEntitlements';
 export * from './listingUtils/locationUtils';
+export * from './listingUtils/imageUtils';
 export { adaptLocationInput } from './location/location.utils';
 export * from './security/hmacSignature';
 
@@ -79,6 +81,7 @@ export * from './security/hmacSignature';
 export * from './popup/popupCore';
 export * from './popup/popupEvents';
 export * from './popup/popupQueue';
+export * from './ui/popup/usePopupQueue';
 
 // CONTRACTS (API & Shared)
 export * from './contracts/api/basePaths';
@@ -97,6 +100,13 @@ export * from './types/plan';
 export * from './types/business';
 export * from './types/service';
 export * from './types/catalogHierarchy';
+export {
+    type Location,
+    type LocationLevel,
+    type GeoJSONPoint,
+    type CanonicalGeoPoint,
+    type ListingLocation
+} from './types/location';
 
 // OBSERVABILITY
 export * from './observability/trace';
@@ -105,6 +115,6 @@ export { getLogger } from './observability/index';
 export { createUniversalLogger } from './observability/logger';
 
 // IMAGE DOMAIN REGISTRY
-import imageDomainRegistry from './constants/image-domain-registry.json';
+import * as imageDomainRegistry from './constants/image-domain-registry.json';
 export { imageDomainRegistry };
 export default imageDomainRegistry;

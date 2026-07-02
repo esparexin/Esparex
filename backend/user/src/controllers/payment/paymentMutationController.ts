@@ -10,11 +10,10 @@ import {
 } from '@esparex/core/services/TransactionService';
 import { getPlanById } from '@esparex/core/services/PlanService';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/api";
+import { ApiResponse, getPrimaryPlanCreditCount } from "@esparex/shared";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
-import { getPrimaryPlanCreditCount } from "@shared";
 
 /**
  * 1. CREATE ORDER

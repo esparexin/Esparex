@@ -10,7 +10,7 @@ module.exports = {
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             diagnostics: false,
-            tsconfig: 'tsconfig.json'
+            tsconfig: '<rootDir>/tsconfig.json'
         }]
     },
     moduleNameMapper: {
@@ -19,9 +19,7 @@ module.exports = {
 
         // Shared package aliases (source of truth for tests)
         '^@shared$': '<rootDir>/../../shared/src/index.ts',
-        '^@shared/(.*)$': '<rootDir>/../../shared/src/$1',
         '^@esparex/shared$': '<rootDir>/../../shared/src/index.ts',
-        '^@esparex/shared/(.*)$': '<rootDir>/../../shared/src/$1',
 
         // Resolve all core aliases to built JS so controller/service mocks target identical module paths
         '^@esparex/core$': '<rootDir>/../../core/dist/index.js',

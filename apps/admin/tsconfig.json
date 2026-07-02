@@ -35,14 +35,8 @@
       "@/*": [
         "./src/*"
       ],
-      "@shared/*": [
-        "../../shared/src/*"
-      ],
       "@shared": [
         "../../shared/src/index.ts"
-      ],
-      "@esparex/shared/*": [
-        "../../shared/src/*"
       ],
       "@esparex/shared": [
         "../../shared/src/index.ts"

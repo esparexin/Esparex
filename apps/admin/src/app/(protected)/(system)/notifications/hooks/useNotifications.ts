@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { 
     ADMIN_NOTIFICATION_TARGET_TYPE, 
     ADMIN_NOTIFICATION_TOPIC_OPTIONS 
-} from "@shared/constants/adminNotificationTargets";
+} from "@esparex/shared";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";

@@ -1,1 +1,1 @@
-export { usePopupQueue } from "@shared/ui/popup/usePopupQueue";
+export { usePopupQueue } from "@esparex/shared";

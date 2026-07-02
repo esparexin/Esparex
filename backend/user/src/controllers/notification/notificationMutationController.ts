@@ -1,4 +1,5 @@
 import logger from '@esparex/core/utils/logger';
+import { Types } from 'mongoose';
 import * as notificationService from '@esparex/core/services/NotificationService';
 import { Request, Response } from 'express';
 import { respond } from "@esparex/core/utils/respond";
@@ -49,6 +50,12 @@ export const markRead = async (req: Request, res: Response) => {
             return res.json(respond({ success: true, message: 'All notifications marked as read' }));
         }
 
+        if (!Types.ObjectId.isValid(id)) {
+            return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
+                details: { message: `Parameter 'id' must be a valid ObjectId` }
+            });
+        }
+
         const notification = await notificationService.markNotificationReadById(id, userId);
 
         if (!notification) {
@@ -68,6 +75,12 @@ export const deleteNotification = async (req: Request, res: Response) => {
         const userId = getUserId(req);
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
         const id = req.params.id as string;
+
+        if (!Types.ObjectId.isValid(id)) {
+            return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
+                details: { message: `Parameter 'id' must be a valid ObjectId` }
+            });
+        }
 
         const notification = await notificationService.deleteUserNotification(id, userId);
 

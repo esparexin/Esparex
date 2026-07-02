@@ -47,14 +47,15 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
 
 const mockListingStatus = { LIVE: 'live', SOLD: 'sold', PENDING: 'pending', DRAFT: 'draft', DELETED: 'deleted' };
 
-jest.mock('@esparex/shared/enums/listingStatus', () => ({
-    LISTING_STATUS: mockListingStatus,
-    LISTING_STATUS_VALUES: Object.values(mockListingStatus),
-}));
-
-jest.mock('@shared/enums/actor', () => ({
-    ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
-}));
+jest.mock('@esparex/shared', () => {
+    const original = jest.requireActual('@esparex/shared');
+    return {
+        ...original,
+        LISTING_STATUS: mockListingStatus,
+        LISTING_STATUS_VALUES: Object.values(mockListingStatus),
+        ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
+    };
+});
 
 jest.mock('@esparex/core/utils/requestParams', () => ({
     getSingleParam: jest.fn(),

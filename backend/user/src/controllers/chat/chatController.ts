@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { respond } from "@esparex/core/utils/respond";
@@ -102,6 +103,13 @@ export const getChatConversation = async (req: Request, res: Response): Promise<
       return;
     }
 
+    if (!Types.ObjectId.isValid(conversationId)) {
+      sendErrorResponse(req, res, 400, 'Invalid ID Format', {
+        details: { message: `Parameter 'id' must be a valid ObjectId` }
+      });
+      return;
+    }
+
     const conversation = await getConversationForUser(conversationId, userId);
     res.json(respond({ success: true, data: conversation }));
   } catch (err: unknown) {
@@ -123,6 +131,14 @@ export const getConversationMessages = async (req: Request, res: Response): Prom
       sendErrorResponse(req, res, 400, 'Missing conversation id');
       return;
     }
+
+    if (!Types.ObjectId.isValid(conversationId)) {
+      sendErrorResponse(req, res, 400, 'Invalid ID Format', {
+        details: { message: `Parameter 'id' must be a valid ObjectId` }
+      });
+      return;
+    }
+
     const parsed = messagesQuerySchema.safeParse(req.query);
     if (!parsed.success) {
       sendErrorResponse(req, res, 400, parsed.error.errors[0]?.message ?? 'Invalid query');

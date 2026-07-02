@@ -15,7 +15,7 @@ import * as adminReports from '@esparex/core/controllers/admin/adminReportsContr
 import * as adminTransactions from '@esparex/core/controllers/admin/adminTransactionController';
 import * as adminInvoices from '@esparex/core/controllers/admin/adminInvoiceController';
 import * as adminNotifications from '@esparex/core/controllers/admin/adminNotificationController';
-import * as adminAi from '@esparex/core/controllers/admin/ai/aiController';
+import * as adminAi from '@esparex/core/controllers/shared/ai/aiController';
 import * as adminApiKeys from '@esparex/core/controllers/admin/adminApiKeyController';
 import * as adminLocations from '@esparex/core/controllers/admin/adminLocationController';
 import * as adminSystemConfig from '@esparex/core/controllers/admin/systemConfigController';

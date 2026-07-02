@@ -17,7 +17,12 @@
     "backend/user/scripts/remediate-location-data.js",
     "backend/user/scripts/remediate-master-data.js",
     "backend/user/taxonomy-alias-synonym-seed.js",
-    "backend/user/taxonomy-cleanup-execution.js"
+    "backend/user/taxonomy-cleanup-execution.js",
+    "scripts/catalog-index-migration.js",
+    "scripts/catalog-null-canonical-remediation.js",
+    "scripts/catalog-stabilization.js",
+    "scripts/catalog-status-remediation.js",
+    "scripts/catalog-strict-collision-remediation.js"
   ],
   "lifecycleBypassScripts": [
     "backend/user/seed.js",
@@ -32,7 +37,12 @@
     "backend/user/scripts/remap-null-category-models.js",
     "backend/user/scripts/remediate_india_guntur_hierarchy.mongosh.js",
     "backend/user/scripts/remediate-master-data.js",
-    "backend/user/taxonomy-cleanup-execution.js"
+    "backend/user/taxonomy-cleanup-execution.js",
+    "scripts/catalog-null-canonical-remediation.js",
+    "scripts/catalog-parity-convergence.js",
+    "scripts/catalog-stabilization.js",
+    "scripts/catalog-status-remediation.js",
+    "scripts/catalog-strict-collision-remediation.js"
   ],
   "migrationShadowScripts": [
     "backend/user/scripts/backfill-brand-categoryId.js",

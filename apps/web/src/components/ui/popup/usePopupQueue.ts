@@ -1,6 +1,6 @@
 import {
   usePopupQueue as useSharedPopupQueue,
-} from "@shared/ui/popup/usePopupQueue";
+} from "@esparex/shared";
 
 type UsePopupQueueOptions = Parameters<typeof useSharedPopupQueue>[0];
 

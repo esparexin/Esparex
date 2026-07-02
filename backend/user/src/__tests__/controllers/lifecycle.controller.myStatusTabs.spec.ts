@@ -30,14 +30,15 @@ const mockListingStatus = {
     DELETED: 'deleted',
 };
 
-jest.mock('@esparex/shared/enums/listingStatus', () => ({
-    LISTING_STATUS: mockListingStatus,
-    LISTING_STATUS_VALUES: Object.values(mockListingStatus),
-}));
-
-jest.mock('@esparex/shared/enums/actor', () => ({
-    ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
-}));
+jest.mock('@esparex/shared', () => {
+    const original = jest.requireActual('@esparex/shared');
+    return {
+        ...original,
+        LISTING_STATUS: mockListingStatus,
+        LISTING_STATUS_VALUES: Object.values(mockListingStatus),
+        ACTOR_TYPE: { USER: 'USER', ADMIN: 'ADMIN' },
+    };
+});
 
 import type { Request, Response, NextFunction } from 'express';
 import { markListingStatusSold } from '../../controllers/listing/lifecycle.controller';

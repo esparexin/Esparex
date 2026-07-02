@@ -6,6 +6,7 @@
  */
 import express from 'express';
 import { protect } from '../middleware/authMiddleware';
+import { validateObjectId } from '../middleware/validateObjectId';
 import {
   chatSendLimiter,
   chatStartLimiter,
@@ -53,13 +54,13 @@ router.post('/upload-url', protect, chatSendLimiter, getChatUploadUrl);
  * GET /api/v1/chat/:id
  * Single conversation detail for a participant.
  */
-router.get('/:id', protect, getChatConversation);
+router.get('/:id', protect, validateObjectId, getChatConversation);
 
 /**
  * GET /api/v1/chat/:id/messages
  * Paginated messages for a conversation (reverse cursor scroll).
  */
-router.get('/:id/messages', protect, getConversationMessages);
+router.get('/:id/messages', protect, validateObjectId, getConversationMessages);
 
 /**
  * POST /api/v1/chat/send
