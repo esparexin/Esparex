@@ -1,6 +1,5 @@
 import logger from '@esparex/core/utils/logger';
-import { Business } from "@shared/types/business";
-import { ApiResponse } from "@shared/types/api";
+import { Business, ApiResponse } from "@esparex/shared";
 import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
 import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';

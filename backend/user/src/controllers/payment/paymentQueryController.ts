@@ -1,7 +1,8 @@
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/api";
+import { ApiResponse } from "@esparex/shared";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/services/TransactionService';
@@ -66,6 +67,12 @@ export const getInvoice = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
         const id = req.params.id as string;
+
+        if (!Types.ObjectId.isValid(id)) {
+            return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
+                details: { message: `Parameter 'id' must be a valid ObjectId` }
+            });
+        }
 
         const invoice = await getInvoiceByIdOrTransaction(id);
 

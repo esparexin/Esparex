@@ -13,8 +13,7 @@ import { z } from 'zod';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
 import { LISTING_STATUS } from '@esparex/shared';
 import { respond } from "@esparex/core/utils/respond";
-import type { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@shared/types/api";
-import type { Ad } from "@shared";
+import type { PaginatedResponse, HomeFeedResponse, ApiResponse, Ad } from "@esparex/shared";
 import type { AuthUser } from '../../types/auth.types';
 import type { ListingTypeValue } from '@esparex/shared';
 

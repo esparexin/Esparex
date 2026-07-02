@@ -3,7 +3,7 @@ import {
     isLocalHttpHost, 
     isAllowedRemoteHost, 
     isValidS3Host 
-} from "@shared/listingUtils/imageUtils";
+} from "@esparex/shared";
 
 export { DEFAULT_IMAGE_PLACEHOLDER };
 

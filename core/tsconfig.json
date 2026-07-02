@@ -19,7 +19,6 @@
     "paths": {
       "@core/*": ["./src/*"],
       "@esparex/core/*": ["./src/*"],
-      "@esparex/shared/*": ["../shared/dist/*"],
       "@esparex/shared": ["../shared/dist/index"]
     }
   },

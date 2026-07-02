@@ -3,7 +3,7 @@ import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
 
-import type { Plan } from "@shared/types/plan";
+import type { Plan } from "@esparex/shared";
 export type { Plan };
 
 export interface PlanQuery {

@@ -69,31 +69,7 @@ jest.mock("@esparex/core/utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock(
-    "@esparex/core/constants/enums/userStatus",
-    () => ({
-        __esModule: true,
 
-        USER_STATUS: {
-            LIVE: "live",
-            ACTIVE: "active",
-            SUSPENDED: "suspended",
-            BANNED: "banned",
-            DELETED: "deleted",
-            INACTIVE: "inactive",
-        },
-
-        USER_STATUS_VALUES: [
-            "live",
-            "active",
-            "suspended",
-            "banned",
-            "deleted",
-            "inactive",
-        ],
-    }),
-    { virtual: true }
-);
 
 import Admin from "@esparex/core/models/Admin";
 

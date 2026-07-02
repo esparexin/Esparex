@@ -7,7 +7,7 @@
  */
 
 import { GOVERNANCE } from '@esparex/core/config/constants';
-import { AD_LIMITS } from "@shared/constants/adLimits";
+import { AD_LIMITS } from "@esparex/shared";
 
 describe('GOVERNANCE / shared constants sync', () => {
     it('GOVERNANCE.AD does not redefine AD_LIMITS.MAX_IMAGES', () => {

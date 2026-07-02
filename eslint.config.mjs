@@ -68,7 +68,7 @@ export default tseslint.config(
         {
           "patterns": [
             {
-              "group": ["@esparex/shared/*", "../shared/*", "**/shared/src/*"],
+              "group": ["@esparex/shared/*", "@shared/*", "../shared/*", "**/shared/src/*"],
               "message": "Please use the clean '@esparex/shared' entry point instead of internal paths."
             }
           ]
@@ -127,7 +127,7 @@ export default tseslint.config(
       "backend/**/*.{ts,js,cjs,mjs,mongosh.js}", 
       "core/**/*.{ts,js,cjs,mjs,mongosh.js}", 
       "scripts/**/*.{ts,js,cjs,mjs,mongosh.js}",
-      "eslint.config.js"
+      "eslint.config.mjs"
     ],
     languageOptions: {
       globals: {

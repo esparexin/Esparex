@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CONTACT_LIMITS } from "@shared/constants/fieldLimits";
+import { CONTACT_LIMITS } from "@esparex/shared";
 
 const ALLOWED_ID_PROOF_TYPES = ["aadhaar", "pan", "driving_license", "voter_id"] as const;
 

@@ -26,10 +26,7 @@ import mongoose from "mongoose";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import { LISTING_STATUS } from '@esparex/shared';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
-import { USER_STATUS } from '@esparex/shared';
-import { MOBILE_VISIBILITY } from "@shared/constants/mobileVisibility";
+import { LISTING_STATUS, LISTING_TYPE, type ListingTypeValue, USER_STATUS, MOBILE_VISIBILITY } from '@esparex/shared';
 import { connectDB } from "@esparex/core/config/db";
 import Ad from "@esparex/core/models/Ad";
 import User from "@esparex/core/models/User";

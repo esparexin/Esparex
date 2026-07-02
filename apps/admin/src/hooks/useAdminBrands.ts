@@ -7,9 +7,8 @@ import {
     toggleBrandStatus,
     updateBrand,
 } from "@/lib/api/brands";
-import { CreateBrandDTO, UpdateBrandDTO } from "@shared";
+import { CreateBrandDTO, UpdateBrandDTO, type Brand } from "@esparex/shared";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import type { Brand } from "@shared/types";
 
 import { type AdminListPagination } from "@/hooks/useAdminCrudList";
 

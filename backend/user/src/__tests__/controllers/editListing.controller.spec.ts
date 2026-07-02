@@ -50,10 +50,14 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
 
 const mockListingStatus = { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected', EXPIRED: 'expired' };
 
-jest.mock('@esparex/shared/enums/listingStatus', () => ({
-    LISTING_STATUS: mockListingStatus,
-    LISTING_STATUS_VALUES: Object.values(mockListingStatus),
-}));
+jest.mock('@esparex/shared', () => {
+    const original = jest.requireActual('@esparex/shared');
+    return {
+        ...original,
+        LISTING_STATUS: mockListingStatus,
+        LISTING_STATUS_VALUES: Object.values(mockListingStatus),
+    };
+});
 
 // ─── Imports ──────────────────────────────────────────────────────────────────
 

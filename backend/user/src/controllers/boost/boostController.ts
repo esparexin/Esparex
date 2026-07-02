@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getActiveBoostsForUser } from '@esparex/core/services/BoostService';
 import { respond } from "@esparex/core/utils/respond";
-import { ApiResponse } from "@shared/types/api";
+import { ApiResponse } from "@esparex/shared";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 
 /**
