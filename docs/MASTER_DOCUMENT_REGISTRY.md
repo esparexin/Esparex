@@ -28,6 +28,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `docs/architecture/REPOSITORY_SINGLE_SOURCE_OF_TRUTH.md` | Master repository architecture SSOT, layer layouts, coding, naming, build and test rules | Architecture | Active | canonical_active | `docs:lint` |
 | `docs/architecture/REPOSITORY_DIRECTORY_STANDARD.md` | Allowed directory contents, package structure templates, and folder layout rules | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/CURRENT_ARCHITECTURE.md` | Current system package graph, request flows, authentication, payments and chat lifecycles | Architecture | Active | canonical_active | `docs:lint` |
 | `docs/ssot/DOMAIN_MODEL_SSOT.md` | User Identity, Roles, Ad Status, Location indexes | Product | Active | canonical_active | `guard:ad-ssot` |
 | `docs/ssot/API_CONTRACT_SSOT.md` | API routes, namespaces, HTTP methods, errors | Architecture | Active | canonical_active | `guard:api-surface` |
 | `docs/ssot/ARCHITECTURE_FLOW_SSOT.md` | Post/Edit Ad, Location prompts, Admin Approval | Architecture | Active | canonical_active | `test:ui` |
