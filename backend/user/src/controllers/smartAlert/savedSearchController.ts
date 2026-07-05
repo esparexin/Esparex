@@ -1,3 +1,5 @@
+import { createSavedSearch, deleteSavedSearch, getSavedSearches } from '@esparex/core/services';
+
 /**
  * ESPAREX — SAVED SEARCH CONTROLLER
  *
@@ -12,11 +14,7 @@ import logger from '@esparex/core/utils/logger';
 import { respond } from '@esparex/core/utils/respond';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import { ApiResponse } from '@esparex/shared';
-import {
-    createSavedSearch,
-    deleteSavedSearch,
-    getSavedSearches
-} from '@esparex/core/services/SavedSearchService';
+
 import type { SavedSearchCreatePayload } from '@esparex/shared';
 
 const getUserId = (req: Request): string | null => {

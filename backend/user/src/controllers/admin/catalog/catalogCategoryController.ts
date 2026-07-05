@@ -1,3 +1,5 @@
+import { CategoryModel, getCatalogEntityCounts, findCategoryById, categoryParentExists, updateCategorySchemaById, findCategoryByIdWithSession, softDeleteCategoryById, CatalogOrchestrator } from '@esparex/core/services';
+
 ﻿/**
  * Catalog Category Controller
  * Handles all category-related operations
@@ -10,20 +12,12 @@ import slugify from 'slugify';
 import logger from '@esparex/core/utils/logger';
 import { getUserConnection } from '@esparex/core/config/db';
 import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
-import {
-    CategoryModel,
-    getCatalogEntityCounts,
-    findCategoryById,
-    categoryParentExists,
-    updateCategorySchemaById,
-    findCategoryByIdWithSession,
-    softDeleteCategoryById,
-} from '@esparex/core/services/catalog/CatalogCategoryService';
+
 import { logAdminAction } from '@esparex/core/utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+
 import { clearCategoryCanonicalCache } from '@esparex/core/utils/categoryCanonical';
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
 import {

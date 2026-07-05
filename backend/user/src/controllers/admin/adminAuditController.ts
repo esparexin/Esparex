@@ -1,5 +1,7 @@
+import { getAuditLogs as fetchAuditLogs } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
-import { getAuditLogs as fetchAuditLogs } from '@esparex/core/services/AdminService';
+
 import {
     getPaginationParams,
     sendPaginatedResponse,

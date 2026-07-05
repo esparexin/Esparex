@@ -1,3 +1,5 @@
+import { getDashboardOverviewStats, getDashboardCardStats, getRecentAdminLogs, getContactSubmissionsPaginated, updateContactSubmissionById, adminGetLocationAnalyticsData } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
 import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAdminError } from '@esparex/core/utils/adminBaseController';
 import { getSingleParam } from '@esparex/core/utils/requestParams';
@@ -6,14 +8,6 @@ import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 import { redis } from '@esparex/core/lib/redis';
 import { scanKeysByPattern } from '@esparex/core/utils/redisCache';
 import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
-import {
-    getDashboardOverviewStats,
-    getDashboardCardStats,
-    getRecentAdminLogs,
-    getContactSubmissionsPaginated,
-    updateContactSubmissionById,
-    adminGetLocationAnalyticsData,
-} from '@esparex/core/services/AdminDashboardService';
 
 import * as adminAnalyticsController from '../adminAnalyticsController';
 

@@ -1,3 +1,5 @@
+import { AuditService } from '@esparex/core/services';
+
 /**
  * Sentry Error Handler Middleware
  * 
@@ -13,9 +15,8 @@ import { env } from '@esparex/core/config/env';
 import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { ZodError } from 'zod';
-import { AuditService } from '@esparex/core/services/AuditService';
-import type { IAuthUser } from '@esparex/core/types/auth';
 
+import type { IAuthUser } from '@esparex/core/types/auth';
 
 type RequestWithUser = Request & {
     user?: IAuthUser;
@@ -195,7 +196,6 @@ export function customErrorHandler(
             }
         ).catch(auditErr => logger.error('Audit skip: failed to log system error', auditErr));
     }
-
 
     // Global Zod Validation Middleware
     if (err instanceof ZodError) {

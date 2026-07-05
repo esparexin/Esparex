@@ -18,7 +18,8 @@
       "@shared": ["./../../shared/dist/index"],
       "@esparex/shared": ["./../../shared/dist/index"],
       "@esparex/core": ["./../../core/dist/index.d.ts"],
-      "@esparex/core/*": ["./../../core/dist/*"]
+      "@esparex/core/*": ["./../../core/dist/*"],
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "include": ["src/index.ts", "src/server.ts", "src/**/*"],

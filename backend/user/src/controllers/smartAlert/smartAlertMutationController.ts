@@ -1,3 +1,5 @@
+import { createSmartAlertMutation, deleteSmartAlertMutation, toggleSmartAlertStatusMutation, updateSmartAlertMutation } from '@esparex/core/services';
+
 /**
  * ESPAREX — SMART ALERT MUTATION CONTROLLER
  *
@@ -17,12 +19,6 @@ import {
     getRequiredAlertId,
     toAlertContract
 } from './shared';
-import {
-    createSmartAlertMutation,
-    deleteSmartAlertMutation,
-    toggleSmartAlertStatusMutation,
-    updateSmartAlertMutation,
-} from '@esparex/core/services/smartAlert/SmartAlertMutationService';
 
 const sendSmartAlertError = (req: Request, res: Response, error: unknown) => {
     const appError = error instanceof AppError ? error : null;

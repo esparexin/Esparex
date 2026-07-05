@@ -1,3 +1,5 @@
+import { AIRequestBody, executeAiRequest, getAiContext, isAIRequestType } from '@esparex/core/services';
+
 /**
  * ESPAREX — AI CONTROLLER
  *
@@ -11,12 +13,6 @@ import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import { respond } from '@esparex/core/utils/respond';
-import {
-    AIRequestBody,
-    executeAiRequest,
-    getAiContext,
-    isAIRequestType
-} from '@esparex/core/services/AiService';
 
 export const catalogSuggest = async (req: Request, res: Response) => {
     try {

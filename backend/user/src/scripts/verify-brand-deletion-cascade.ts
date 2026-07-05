@@ -1,9 +1,10 @@
+import { CatalogOrchestrator } from '@esparex/core/services';
+
 import mongoose from "mongoose";
 import { connectDB } from "@esparex/core/config/db";
 import Brand from "@esparex/core/models/Brand";
 import Model from "@esparex/core/models/Model";
 import SparePart from "@esparex/core/models/SparePart";
-import CatalogOrchestrator from "@esparex/core/services/catalog/CatalogOrchestrator";
 
 async function run(): Promise<void> {
     console.info("[brand-verify] Connecting to MongoDB...");

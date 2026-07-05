@@ -1,14 +1,14 @@
+import { AnalyticsService_NS as analyticsService } from '@esparex/core/services';
+
 ﻿import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils/adminBaseController';
-import * as analyticsService from '@esparex/core/services/AnalyticsService';
 
 const getQueryString = (value: unknown): string | undefined => {
     if (typeof value === 'string') return value;
     if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
     return undefined;
 };
-
 
 /**
  * Get time-series analytics data

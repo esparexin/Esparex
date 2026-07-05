@@ -1,8 +1,10 @@
+import { BusinessCoreService_NS as businessCoreService } from '@esparex/core/services';
+
 import logger from '@esparex/core/utils/logger';
 import { Business, ApiResponse } from "@esparex/shared";
 import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
-import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
+
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 

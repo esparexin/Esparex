@@ -1,11 +1,12 @@
+import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload, getUserWithBusiness } from '@esparex/core/services';
+
 import { Request, Response, NextFunction } from 'express';
 import { respond } from "@esparex/core/utils/respond";
 import { ApiResponse, User as SharedUser } from "@esparex/shared";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
-import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@esparex/core/services/UserProfileService';
-import { getUserWithBusiness } from '@esparex/core/services/UserService';
+
 import type { AuthUser } from '../../types/auth.types';
 
 const resolveUserId = (req: Request, res: Response): string | null => {

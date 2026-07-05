@@ -1,11 +1,11 @@
+import { getVisibleNotificationWindowQuery, queryNotificationsForUser } from '@esparex/core/services';
+
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import logger from "@esparex/core/utils/logger";
 import { respond } from "@esparex/core/utils/respond";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { getUserId } from "./shared";
-import { getVisibleNotificationWindowQuery } from "@esparex/core/services/notification/NotificationRetentionService";
-import { queryNotificationsForUser } from "@esparex/core/services/NotificationService";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

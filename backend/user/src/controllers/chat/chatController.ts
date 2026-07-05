@@ -1,20 +1,11 @@
+import { startConversation, listConversations, getConversationForUser, getMessages, sendMessage, markRead, blockConversation, hideConversation, restoreConversation, reportConversation } from '@esparex/core/services';
+
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { respond } from "@esparex/core/utils/respond";
-import {
-  startConversation,
-  listConversations,
-  getConversationForUser,
-  getMessages,
-  sendMessage,
-  markRead,
-  blockConversation,
-  hideConversation,
-  restoreConversation,
-  reportConversation,
-} from '@esparex/core/services/ChatService';
+
 import {
   startChatSchema,
   sendMessageSchema,

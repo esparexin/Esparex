@@ -1,13 +1,14 @@
+import { AdAggregationService_NS as AdAggregationService } from '@esparex/core/services';
+import { AdDetailService_NS as AdDetailService } from '@esparex/core/services';
+import { FeedService_NS as feedService } from '@esparex/core/services';
+import { TrendingService_NS as trendingService } from '@esparex/core/services';
+
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { buildPublicAdFilter, isPublicAdVisible } from '@esparex/core/utils/FeedVisibilityGuard';
-import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
-import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
-import * as feedService from '@esparex/core/services/FeedService';
-import * as trendingService from '@esparex/core/services/TrendingService';
 
 import { z } from 'zod';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';

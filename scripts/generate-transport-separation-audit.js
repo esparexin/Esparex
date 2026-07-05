@@ -57,6 +57,14 @@ allTargetFiles.forEach(filePath => {
     const hasExpress = /from ['"]express['"]/i.test(content) || 
                       /\bRequest\b|\bResponse\b|\bNextFunction\b/.test(content);
 
+    // Check Business Logic (references models, mongoose, query helpers or specific services)
+    const hasBusinessLogic = hasExpress && (
+        /import .* from ['"].*models\/.*['"]/i.test(content) || 
+        /mongoose/i.test(content) || 
+        /\.find\(|\.create\(|\.save\(|\.update\(|\.aggregate\(/.test(content) ||
+        /Service\./i.test(content)
+    );
+
     // Find consumers
     const fileBase = path.basename(filePath, '.ts');
     const importRegex = new RegExp(`['"].*${fileBase}['"]`, 'i');
@@ -75,9 +83,16 @@ allTargetFiles.forEach(filePath => {
     // Determine category and destination
     let category = 'Category 4 (Helper/Utility)';
     let destination = 'core/src/utils/';
+    let decision = 'Relocate in Core';
     
     if (hasExpress) {
-        category = 'Category 1 (Express HTTP)';
+        if (hasBusinessLogic) {
+            category = 'Category 1 (Mixed HTTP + Logic)';
+            decision = 'Split & Move';
+        } else {
+            category = 'Category 1 (Pure HTTP Adapter)';
+            decision = 'Move';
+        }
         if (relativePath.includes('middleware/')) {
             destination = 'backend/user/src/middleware/';
         } else {
@@ -87,6 +102,7 @@ allTargetFiles.forEach(filePath => {
 
     if (relativePath.endsWith('plan/shared.ts')) {
         category = 'Split (Hybrid)';
+        decision = 'Split & Move';
         destination = 'Split to core/src/utils/ and backend/user/';
     }
 
@@ -94,8 +110,9 @@ allTargetFiles.forEach(filePath => {
         file: relativePath,
         category,
         express: hasExpress ? 'Yes' : 'No',
+        logic: hasBusinessLogic ? 'Yes' : 'No',
         consumers: consumers.length > 0 ? consumers.join(', ') : 'None (Orphan)',
-        decision: hasExpress || category === 'Split (Hybrid)' ? 'Copy & Move' : 'Relocate in Core'
+        decision
     });
 });
 
@@ -105,6 +122,8 @@ const totalExpressDeps = reports.filter(r => r.express === 'Yes').length;
 const expressControllers = reports.filter(r => r.express === 'Yes' && !r.file.includes('middleware/')).length;
 const expressMiddlewares = reports.filter(r => r.express === 'Yes' && r.file.includes('middleware/')).length;
 const coreUtilities = reports.filter(r => r.express === 'No').length;
+
+const controllersWithLogic = reports.filter(r => r.logic === 'Yes').length;
 
 // Generate Markdown report
 let markdown = `# Transport Separation Audit Report\n\n`;
@@ -117,13 +136,14 @@ markdown += `| Files with Express/HTTP Dependencies | ${totalExpressDeps} |\n`;
 markdown += `| Express Controllers | ${expressControllers} |\n`;
 markdown += `| Express Middlewares | ${expressMiddlewares} |\n`;
 markdown += `| Pure Core Utilities (No HTTP) | ${coreUtilities} |\n`;
+markdown += `| Controllers containing business logic | ${controllersWithLogic} |\n`;
 markdown += `\n---\n\n`;
 markdown += `This report lists the Express dependency, consumers, and migration decisions for each controller and middleware inside \`core/\`.\n\n`;
-markdown += `| File Path | Category | Express Dependency | Consumers | Migration Decision |\n`;
+markdown += `| File Path | Uses Express? | Contains Business Logic? | Consumers | Migration Decision |\n`;
 markdown += `| :--- | :---: | :---: | :--- | :---: |\n`;
 
 reports.forEach(r => {
-    markdown += `| \`${r.file}\` | **${r.category}** | ${r.express} | ${r.consumers} | ${r.decision} |\n`;
+    markdown += `| \`${r.file}\` | ${r.express} | ${r.logic} | ${r.consumers} | ${r.decision} |\n`;
 });
 
 const reportPath = path.join(repoRoot, 'docs/cleanup/transport-separation-audit.md');

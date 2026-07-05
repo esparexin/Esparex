@@ -1,3 +1,5 @@
+import { getUserProfileById as getUserProfileSvc } from '@esparex/core/services';
+
 /**
  * Unit tests for resolveUserId (Phase 9).
  *
@@ -25,7 +27,6 @@ jest.mock('@esparex/core/utils/respond', () => ({
 
 import type { Request, Response } from 'express';
 import { getUserProfileById } from '../../controllers/user/userQueryController';
-import { getUserProfileById as getUserProfileSvc } from '@esparex/core/services/UserProfileService';
 
 // ─── Typed mock ──────────────────────────────────────────────────────────────
 

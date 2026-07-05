@@ -1,3 +1,5 @@
+import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY, CATALOG_PUBLIC_VISIBILITY_QUERY, getActiveCategoryIds, validateActiveCategories, deriveApprovalStatus } from '@esparex/core/services';
+
 ﻿/**
  * Shared utilities for catalog controllers
  * Extracted from original catalog.content.controller.ts
@@ -18,14 +20,6 @@ import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
 
 // Re-export SSOT validation helpers so controllers import from one place.
-import {
-    ACTIVE_CATEGORY_QUERY,
-    ACTIVE_BRAND_QUERY,
-    CATALOG_PUBLIC_VISIBILITY_QUERY,
-    getActiveCategoryIds,
-    validateActiveCategories,
-    deriveApprovalStatus,
-} from '@esparex/core/services/catalog/CatalogValidationService';
 
 import { logAdminAction } from '@esparex/core/utils/adminLogger';
 import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
@@ -409,7 +403,6 @@ export async function handleCatalogReview<T extends Document>(
                 rejectionReason: (parsed?.data as { reason?: string } | undefined)?.reason || (req.body as { reason?: string })?.reason
             };
         }
-
 
         const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
         if (!item) {

@@ -1,3 +1,5 @@
+import { BrandModel, CatalogModel, findCategoryBySlugForCatalog, findBrandByFilter, getActiveBrandIds, checkBrandInCategories, checkBrandDependencies, findModelByFilter, checkModelDependencies, findModelBySlug, validateBrandIsActive, CatalogOrchestrator, MAX_MODEL_TREE_DEPTH, type ModelHierarchyDoc, updateModelHierarchyTransactionally, validateModelHierarchyMutation, detectDuplicateCandidates } from '@esparex/core/services';
+
 ﻿/**
  * Catalog Brand & Model Controller
  * Handles brands and models together due to close relationship
@@ -11,20 +13,7 @@ import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { getUserConnection } from '@esparex/core/config/db';
-import {
-    BrandModel,
-    CatalogModel,
-    findCategoryBySlugForCatalog,
-    findBrandByFilter,
-    getActiveBrandIds,
-    checkBrandInCategories,
-    checkBrandDependencies,
-    findModelByFilter,
-    checkModelDependencies,
-    findModelBySlug,
-} from '@esparex/core/services/catalog/CatalogBrandModelService';
-import { validateBrandIsActive } from '@esparex/core/services/catalog/CatalogValidationService';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+
 import {
     sendCatalogError,
     QueryRecord,
@@ -54,13 +43,6 @@ import {
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
 import { getCache, setCache } from '@esparex/core/utils/redisCache';
 import VariantModel from '@esparex/core/models/Variant';
-import {
-    MAX_MODEL_TREE_DEPTH,
-    type ModelHierarchyDoc,
-    updateModelHierarchyTransactionally,
-    validateModelHierarchyMutation,
-} from '@esparex/core/services/catalog/CatalogHierarchyService';
-import { detectDuplicateCandidates } from '@esparex/core/services/catalog/CatalogSearchGovernanceService';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes
@@ -221,7 +203,6 @@ const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Most brand/model logic now delegated to shared.ts generic handlers.
-
 
 /* ==========================================================
    BRANDS

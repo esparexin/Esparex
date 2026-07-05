@@ -1,14 +1,10 @@
+import { getApiKeys as getApiKeysService, createApiKey as createApiKeyService, revokeApiKey as revokeApiKeyService } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '@esparex/core/utils/adminBaseController';
 import { logAdminAction } from '@esparex/core/utils/adminLogger';
 import { getSingleParam } from '@esparex/core/utils/requestParams';
-import {
-    getApiKeys as getApiKeysService,
-    createApiKey as createApiKeyService,
-    revokeApiKey as revokeApiKeyService,
-} from '@esparex/core/services/ApiKeyService';
-
 
 export const getApiKeys = async (req: Request, res: Response) => {
     try {

@@ -1,3 +1,5 @@
+import { AdMutationService_NS as AdMutationService } from '@esparex/core/services';
+
 /**
  * Repost controller tests
  * Verifies the unified repostListing controller.
@@ -40,7 +42,7 @@ jest.mock('@esparex/core/utils/requestParams', () => ({
 }));
 
 import { Request, Response } from 'express';
-import AdMutationService from '@esparex/core/services/AdMutationService';
+
 import { getAndVerifyOwnedListing } from '@esparex/core/utils/controllerUtils';
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 

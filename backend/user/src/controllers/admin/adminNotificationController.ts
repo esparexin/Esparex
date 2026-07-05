@@ -1,22 +1,18 @@
+import { createNotificationLog, createScheduledNotification, getNotificationHistory, searchNotificationRecipients, NotificationDispatcher, createAdminNotificationTargetCursor } from '@esparex/core/services';
+
 ﻿import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { NOTIFICATION_TYPE } from "@esparex/shared";
 import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
-import {
-    createNotificationLog,
-    createScheduledNotification,
-    getNotificationHistory,
-    searchNotificationRecipients,
-} from "@esparex/core/services/AdminNotificationService";
+
 import {
     getPaginationParams,
     sendAdminError,
     sendSuccessResponse,
 } from '@esparex/core/utils/adminBaseController';
 import { logAdminAction } from "@esparex/core/utils/adminLogger";
-import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
-import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
+
 import { type IUser } from "@esparex/core/models/User";
 import { respond } from "@esparex/core/utils/respond";
 

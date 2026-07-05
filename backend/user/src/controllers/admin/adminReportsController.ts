@@ -1,8 +1,10 @@
+import { mutateStatus, getAdminReportById, findReportForUpdate, saveReport, updateReportById, getReportedAdsAggregation } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import logger from '@esparex/core/utils/logger';
 import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
+
 import { ACTOR_TYPE } from "@esparex/shared";
 import { AD_STATUS } from "@esparex/shared";
 import { REPORT_STATUS } from "@esparex/shared";
@@ -13,13 +15,6 @@ import {
     sendSuccessResponse,
     sendAdminError
 } from '@esparex/core/utils/adminBaseController';
-import {
-    getAdminReportById,
-    findReportForUpdate,
-    saveReport,
-    updateReportById,
-} from '@esparex/core/services/ReportService';
-import { getReportedAdsAggregation } from '@esparex/core/services/ad/AdDetailService';
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {

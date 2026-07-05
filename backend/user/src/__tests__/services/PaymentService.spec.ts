@@ -1,3 +1,5 @@
+import { checkTransactionVelocity, findPendingTransaction, createPaymentTransaction, getUserForPayment, getPlanById } from '@esparex/core/services';
+
 /**
  * Payment Mutation Controller — Unit Tests
  * 
@@ -9,13 +11,7 @@
 
 import { createPaymentOrder } from '../../controllers/payment/paymentMutationController';
 import { Request, Response } from 'express';
-import { 
-    checkTransactionVelocity, 
-    findPendingTransaction, 
-    createPaymentTransaction, 
-    getUserForPayment 
-} from '@esparex/core/services/TransactionService';
-import { getPlanById } from '@esparex/core/services/PlanService';
+
 import { getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────

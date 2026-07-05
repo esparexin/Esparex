@@ -1,3 +1,5 @@
+import { assertDuplicateRolloutReadiness, startScheduler, stopScheduler } from '@esparex/core/services';
+
 /* global NodeJS */
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
 import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
@@ -11,8 +13,7 @@ import { Server } from 'http';
 import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
 import { waitForRedisReady } from '@esparex/core/config/redis';
-import { assertDuplicateRolloutReadiness } from '@esparex/core/services/DuplicateRolloutGuard';
-import { startScheduler, stopScheduler } from '@esparex/core/services/SchedulerBoot';
+
 import Admin from '@esparex/core/models/Admin';
 import { USER_STATUS } from '@esparex/shared';
 import { createServer } from 'http';
@@ -20,7 +21,6 @@ import { initializeEventDispatcher } from '@esparex/core/events';
 import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core/utils/startupValidator';
 import { warmAllCaches } from '@esparex/core/utils/cacheWarmer';
 import { resetAllOpenCircuitBreakers } from '@esparex/core/utils/resilience';
-
 
 const PORT = env.PORT;
 let reliabilityProbeInterval: NodeJS.Timeout | null = null;
@@ -41,7 +41,6 @@ async function ensureLiveAdminPresence() {
         });
     }
 }
-
 
 export async function startServer() {
     try {
@@ -72,7 +71,6 @@ export async function startServer() {
         // Proactive Cache Warming
         await warmAllCaches();
 
-        
         // Validate Metadata Integrity (Split-Safe Check)
         await validateMetadataHealth();
         
