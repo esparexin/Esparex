@@ -35,7 +35,7 @@ jest.mock('../../controllers/catalog', () => ({
     getScreenSizeById: (_req: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
 }));
 
-jest.mock('@esparex/core/controllers/admin/catalog', () => {
+jest.mock('../../controllers/admin/catalog', () => {
     const handler = (_req: express.Request, res: express.Response) => {
         res.status(200).json({ ok: true });
     };
