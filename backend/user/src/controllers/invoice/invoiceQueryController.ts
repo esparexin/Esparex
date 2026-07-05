@@ -1,9 +1,10 @@
+import { InvoiceService_NS as invoiceService } from '@esparex/core/services';
+
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { respond } from "@esparex/core/utils/respond";
 import { getErrorMessage } from './shared';
-import * as invoiceService from '@esparex/core/services/InvoiceService';
 
 export const getInvoices = async (req: Request, res: Response) => {
     try {

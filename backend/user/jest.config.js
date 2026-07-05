@@ -20,8 +20,12 @@ module.exports = {
         // Shared package aliases (source of truth for tests)
         '^@shared$': '<rootDir>/../../shared/src/index.ts',
         '^@esparex/shared$': '<rootDir>/../../shared/src/index.ts',
+        '^@esparex/core/models$': '<rootDir>/src/tests/models.mock.ts',
+        '^@esparex/core/services$': '<rootDir>/src/tests/services.mock.ts',
+        '^@core-services/(.*)$': '<rootDir>/../../core/src/services/$1',
+        '^@utils/(.*)$': '<rootDir>/src/utils/$1',
 
-        // Resolve all core aliases to built JS so controller/service mocks target identical module paths
+        // Wildcard fallback for all other core paths
         '^@esparex/core$': '<rootDir>/../../core/dist/index.js',
         '^@esparex/core/(.*)$': '<rootDir>/../../core/dist/$1',
         '^@core/(.*)$': '<rootDir>/../../core/dist/$1'

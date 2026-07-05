@@ -1,3 +1,5 @@
+import { NotificationDispatcher, createAdminNotificationTargetCursor } from '@esparex/core/services';
+
 jest.mock("@esparex/core/models/NotificationLog", () => ({
     __esModule: true,
     default: { create: jest.fn().mockResolvedValue({ _id: "log-id" }) },
@@ -36,9 +38,9 @@ jest.mock("@esparex/core/utils/adminLogger", () => ({
 }));
 
 import NotificationLog from "@esparex/core/models/NotificationLog";
-import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
+
 import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
-import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
+
 import type { Request, Response } from "express";
 import { sendNotification } from "@esparex/core/controllers/admin/adminNotificationController";
 

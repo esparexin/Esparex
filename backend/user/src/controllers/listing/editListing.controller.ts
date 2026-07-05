@@ -1,9 +1,11 @@
+import { AdMutationService_NS as AdMutationService } from '@esparex/core/services';
+
 import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { LISTING_STATUS } from '@esparex/shared';
-import * as AdMutationService from '@esparex/core/services/AdMutationService';
+
 import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core/utils/immutableFieldErrors';
 import type { AuthUser } from '../../types/auth.types';
 

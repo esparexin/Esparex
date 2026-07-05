@@ -1,3 +1,5 @@
+import { updateAdminById } from '@esparex/core/services';
+
 jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {}
@@ -35,7 +37,6 @@ jest.mock("@esparex/core/services/AdminUsersService", () => ({
 import type { Request, Response } from "express";
 import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
 import Admin from "@esparex/core/models/Admin";
-import { updateAdminById } from "@esparex/core/services/AdminUsersService";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {

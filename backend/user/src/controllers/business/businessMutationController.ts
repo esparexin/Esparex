@@ -1,13 +1,16 @@
+import { getUserPhoneVerification } from '@esparex/core/services';
+import { BusinessCoreService_NS as businessCoreService } from '@esparex/core/services';
+import { BusinessLifecycleService_NS as businessLifecycleService } from '@esparex/core/services';
+
 import logger from '@esparex/core/utils/logger';
 import { Business, ApiResponse } from "@esparex/shared";
 import { respond } from "@esparex/core/utils/respond";
 import { Request, Response } from 'express';
-import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
-import * as businessLifecycleService from '@esparex/core/services/business/BusinessLifecycleService';
+
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
-import { getUserPhoneVerification } from '@esparex/core/services/UserService';
+
 import { type ActorTypeValue } from '@esparex/shared';
 
 export const registerBusiness = async (req: Request, res: Response) => {
@@ -107,8 +110,6 @@ export const updateBusiness = async (req: Request, res: Response) => {
                 filteredUpdates[key] = bodyRecord[key];
             }
         });
-
-
 
         // Note: Sensitive status mutation checks moved to `businessService.ts`.
 

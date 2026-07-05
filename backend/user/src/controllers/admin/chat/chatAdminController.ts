@@ -1,15 +1,10 @@
+import { adminListConversations, adminGetConversation, adminDeleteMessage, adminMuteConversation, adminExportConversation, resolveReport } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { respond } from "@esparex/core/utils/respond";
-import {
-  adminListConversations,
-  adminGetConversation,
-  adminDeleteMessage,
-  adminMuteConversation,
-  adminExportConversation,
-  resolveReport,
-} from '@esparex/core/services/ChatService';
+
 import {
   adminListQuerySchema,
   adminDeleteMessageSchema,

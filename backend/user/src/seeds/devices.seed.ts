@@ -1,5 +1,7 @@
+import { bulkImportService } from '@esparex/core/services';
 
-import { bulkImportService } from "@esparex/core/services/BulkImportService";
+
+
 import logger from "@esparex/core/utils/logger";
 
 const DEVICE_SEED_DATA = [

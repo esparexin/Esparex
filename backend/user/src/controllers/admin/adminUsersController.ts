@@ -1,5 +1,8 @@
+import { UserStatusService_NS as userStatusService } from '@esparex/core/services';
+import { AdminUsersService_NS as adminUsersService } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
-import * as userStatusService from '@esparex/core/services/UserStatusService';
+
 import {
     sendSuccessResponse,
     getPaginationParams,
@@ -7,7 +10,7 @@ import {
     sendAdminError
 } from '@esparex/core/utils/adminBaseController';
 import { USER_STATUS, UserStatusValue } from "@esparex/shared";
-import * as adminUsersService from '@esparex/core/services/AdminUsersService';
+
 import { logAdminActionDirect } from '@esparex/core/utils/adminLogger';
 import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
 import type { IAuthUser } from '@esparex/core/types/auth';

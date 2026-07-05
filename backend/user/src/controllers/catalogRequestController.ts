@@ -1,23 +1,17 @@
+import { approveCatalogRequest, markCatalogRequestDuplicate, rejectCatalogRequest, NotificationDispatcher, CatalogNotificationService, validateBrandBelongsToCategory, validateCategoryIsActive } from '@esparex/core/services';
+import { CatalogRequestService_NS as CatalogRequestService } from '@esparex/core/services';
+
 import type { Request, Response } from 'express';
 import slugify from 'slugify';
 import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
-import * as CatalogRequestService from '@esparex/core/services/catalog/CatalogRequestService';
+
 import { sendPaginatedResponse, sendSuccessResponse } from '@esparex/core/utils/respond';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import { AppError } from '@esparex/core/utils/AppError';
-import {
-    approveCatalogRequest,
-    markCatalogRequestDuplicate,
-    rejectCatalogRequest,
-} from '@esparex/core/services/catalogRequestApprovalService';
+
 import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
-import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
+
 import { NOTIFICATION_TYPE } from '@esparex/shared';
-import { CatalogNotificationService } from '@esparex/core/services/catalog/CatalogNotificationService';
-import {
-    validateBrandBelongsToCategory,
-    validateCategoryIsActive,
-} from '@esparex/core/services/catalog/CatalogValidationService';
 
 const REQUESTED_BY_PUBLIC_FIELDS = 'firstName lastName email mobile';
 

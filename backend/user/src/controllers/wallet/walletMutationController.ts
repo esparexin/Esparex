@@ -1,3 +1,5 @@
+import { credit } from '@esparex/core/services';
+
 /**
  * ESPAREX — WALLET MUTATION CONTROLLER
  *
@@ -12,7 +14,6 @@ import { logAdminAction } from '@esparex/core/utils/adminLogger';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
 import { sendSuccessResponse } from '@esparex/core/utils/adminBaseController';
 import { getErrorMessage } from './shared';
-import { credit } from '@esparex/core/services/WalletService';
 
 export const adjustWallet = async (req: Request, res: Response) => {
     try {

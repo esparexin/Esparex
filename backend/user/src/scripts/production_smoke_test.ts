@@ -1,3 +1,6 @@
+import { ViewBufferingService } from '@esparex/core/services';
+import { AdOrchestrator_NS as AdOrchestrator } from '@esparex/core/services';
+
 /**
  * 🛡️ ESPAREX PRODUCTION SMOKE TEST
  * 
@@ -8,8 +11,7 @@
  * - Atomic Aggregation (Redis buffering & Mongo recovery)
  */
 import mongoose from 'mongoose';
-import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
-import { ViewBufferingService } from '@esparex/core/services/ViewBufferingService';
+
 import { LISTING_STATUS } from '@esparex/shared';
 import User from '@esparex/core/models/User';
 import Ad from '@esparex/core/models/Ad';

@@ -1,3 +1,5 @@
+import { SparePartModel, findCategoryIdBySlug, getActiveBrandIdsForCategories, getActiveModelIdsForCategories, findSparePartById, checkSparePartDependencies, CatalogOrchestrator, validateSparePartRelations } from '@esparex/core/services';
+
 ﻿/**
  * Catalog Spare Parts Controller
  * Handles spare parts and user proposals
@@ -10,14 +12,7 @@ import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
-import {
-    SparePartModel,
-    findCategoryIdBySlug,
-    getActiveBrandIdsForCategories,
-    getActiveModelIdsForCategories,
-    findSparePartById,
-    checkSparePartDependencies,
-} from '@esparex/core/services/catalog/CatalogSparePartService';
+
 import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
 import {
     sendCatalogError,
@@ -35,8 +30,7 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
 } from './shared';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
+
 import {
     sparePartCreateSchema,
     sparePartUpdateSchema

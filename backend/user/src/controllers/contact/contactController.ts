@@ -1,7 +1,9 @@
+import { createContactSubmission } from '@esparex/core/services';
+
 import logger from '@esparex/core/utils/logger';
 import { z } from 'zod';
 import { Request, Response } from 'express';
-import { createContactSubmission } from '@esparex/core/services/ContactService';
+
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { respond } from "@esparex/core/utils/respond";
 

@@ -1,3 +1,5 @@
+import { expireBusinesses, cascadeExpireBusinessListings } from '@esparex/core/services';
+
 /**
  * verify-job-trigger.ts
  *
@@ -9,8 +11,7 @@
 
 import mongoose from "mongoose";
 import { connectDB } from "@esparex/core/config/db";
-import { expireBusinesses } from "@esparex/core/services/business/BusinessLifecycleService";
-import { cascadeExpireBusinessListings } from "@esparex/core/services/AdminBusinessService";
+
 import Business from "@esparex/core/models/Business";
 import Ad from "@esparex/core/models/Ad";
 import { BUSINESS_STATUS } from '@esparex/shared';

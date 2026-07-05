@@ -1,9 +1,10 @@
+import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '@esparex/core/services';
+
 ﻿import { Request, Response } from 'express';
-import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '@esparex/core/services/AdminSessionService';
+
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '@esparex/core/utils/adminBaseController';
 import { getSingleParam } from '@esparex/core/utils/requestParams';
 import { logAdminAction } from '@esparex/core/utils/adminLogger';
-
 
 export const getAdminSessions = async (req: Request, res: Response) => {
     try {

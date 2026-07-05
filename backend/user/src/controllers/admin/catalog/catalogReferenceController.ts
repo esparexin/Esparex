@@ -1,3 +1,5 @@
+import { CatalogOrchestrator, validateScreenSizeRelations, ServiceTypeModel, ScreenSizeModel, findCategoryBySlug, findActiveCategoryBySlug, findServiceTypeById, checkServiceTypeDependencies, findScreenSizeById, getActiveBrandsForScreenSizes } from '@esparex/core/services';
+
 ﻿/**
  * Catalog Reference Controller
  * Handles service types and screen sizes (reference data)
@@ -6,7 +8,7 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+
 import {
     sendCatalogError,
     QueryRecord,
@@ -23,7 +25,7 @@ import {
     deriveApprovalStatus,
     applyCatalogStatusFilter
 } from './shared';
-import { validateScreenSizeRelations } from '@esparex/core/services/catalog/CatalogValidationService';
+
 import {
     screenSizeCreateSchema,
     screenSizeUpdateSchema,
@@ -31,16 +33,7 @@ import {
     serviceTypeUpdateSchema
 } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import {
-    ServiceTypeModel,
-    ScreenSizeModel,
-    findCategoryBySlug,
-    findActiveCategoryBySlug,
-    findServiceTypeById,
-    checkServiceTypeDependencies,
-    findScreenSizeById,
-    getActiveBrandsForScreenSizes,
-} from '@esparex/core/services/catalog/CatalogReferenceService';
+
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { toOptionalString } from './inputCoercion';
 

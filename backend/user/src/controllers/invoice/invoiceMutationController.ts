@@ -1,7 +1,8 @@
+import { createInvoiceRecord, findUserByEmail } from '@esparex/core/services';
+
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
-import { createInvoiceRecord } from '@esparex/core/services/InvoiceService';
-import { findUserByEmail } from '@esparex/core/services/UserService';
+
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
 import { respond } from "@esparex/core/utils/respond";
 import { getErrorMessage } from './shared';
@@ -57,7 +58,6 @@ export const createInvoice = async (req: Request, res: Response) => {
         if (!user) {
             return sendErrorResponse(req, res, 400, 'Customer email not found. Please register the user first.');
         }
-
 
         const newInvoice = await createInvoiceRecord({
             invoiceNumber: await generateInvoiceNumber(),

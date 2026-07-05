@@ -1,3 +1,5 @@
+import { getPostingBalanceByUserId, getTransactionHistoryByUserId, getWalletSummaryByUserId } from '@esparex/core/services';
+
 /**
  * ESPAREX — CANONICAL WALLET QUERY CONTROLLER (SSOT)
  *
@@ -11,11 +13,6 @@
 import { Request, Response } from 'express';
 import { respond } from '@esparex/core/utils/respond';
 import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
-import {
-    getPostingBalanceByUserId,
-    getTransactionHistoryByUserId,
-    getWalletSummaryByUserId,
-} from '@esparex/core/services/wallet/WalletQueryService';
 
 const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';

@@ -1,3 +1,5 @@
+import { revokeAdminSessionsForAdmin } from '@esparex/core/services';
+
 import crypto from "crypto";
 import type { Request, Response } from "express";
 
@@ -69,17 +71,11 @@ jest.mock("@esparex/core/utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
-
-
 import Admin from "@esparex/core/models/Admin";
 
 import {
     USER_STATUS,
 } from '@esparex/shared';
-
-import {
-    revokeAdminSessionsForAdmin,
-} from "@esparex/core/services/AdminSessionService";
 
 import {
     adminLogin,

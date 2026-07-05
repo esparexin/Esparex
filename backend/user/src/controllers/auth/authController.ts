@@ -1,11 +1,12 @@
+import { AuthService, removeUserFcmToken, SendOtpResult, VerifyOtpResult } from '@esparex/core/services';
+
 import { Request, Response, NextFunction } from 'express';
-import { AuthService } from '@esparex/core/services/AuthService';
-import { removeUserFcmToken } from '@esparex/core/services/UserService';
+
 import { blacklistToken } from '@esparex/core/utils/redisCache';
 import { verifyToken } from '@esparex/core/utils/auth';
 import { sendSuccessResponse } from "@esparex/core/utils/respond";
 import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { SendOtpResult, VerifyOtpResult } from '@esparex/core/services/AuthService';
+
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 
 export class AuthController {
@@ -59,7 +60,6 @@ export class AuthController {
                 AuthController.sendAuthFailure(req, res, result);
                 return;
             }
-
 
             // Match the 7 day JWT expiration
             const cookieMaxAgeMs = 7 * 24 * 60 * 60 * 1000;

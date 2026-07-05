@@ -1,3 +1,5 @@
+import { ViewBufferingService } from '@esparex/core/services';
+
 /**
  * View Buffer Flush Cron
  *
@@ -13,7 +15,6 @@
  * in a multi-instance deployment.
  */
 
-import { ViewBufferingService } from '@esparex/core/services/ViewBufferingService';
 import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
 import logger from '@esparex/core/utils/logger';
 
