@@ -15,6 +15,7 @@
 ### 2. Tier 1: Canonical SSOTs
 - 📖 [Repository Single Source of Truth](architecture/REPOSITORY_SINGLE_SOURCE_OF_TRUTH.md) - Master repository guide, philosophy, layers, and conventions
 - 📂 [Repository Directory Standard](architecture/REPOSITORY_DIRECTORY_STANDARD.md) - Allowed folder contents and template structures
+- 🔍 [Current Architecture Report](architecture/CURRENT_ARCHITECTURE.md) - Map of package bounds and critical request/data flows
 - 💾 [Domain Model SSOT](ssot/DOMAIN_MODEL_SSOT.md) - Identity, roles, lifecycles, schemas, GeoJSON rules
 - 🔌 [API Contract SSOT](ssot/API_CONTRACT_SSOT.md) - Namespaces, HTTP methods, errors, compatibility
 - 🗺️ [Architecture Flow SSOT](ssot/ARCHITECTURE_FLOW_SSOT.md) - Post/Edit Ad, Location prompts, Admin Approval
