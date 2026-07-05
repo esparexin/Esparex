@@ -40,6 +40,7 @@
   - 📁 [Phase D: Folder Ownership](repository-audit/PHASE_D_FOLDER_OWNERSHIP.md)
   - 📁 [Phase E: Refactor Recommendations](repository-audit/PHASE_E_REFACTOR_RECOMMENDATIONS.md)
   - 📝 [Baseline Verification](repository-audit/BASELINE_VERIFICATION.md)
+  - 📝 [Transport Separation Audit](cleanup/transport-separation-audit.md)
   - 📝 [Phase 17 Execution Log](repository-audit/PHASE_17_CLEANUP_EXECUTION.md)
 
 ---
