@@ -1,2 +1,3 @@
-// Re-export wallet controllers for backward compatibility
+// Re-export wallet controllers
 export * from './walletQueryController';
+export * from './walletMutationController';
