@@ -55,6 +55,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/repository-audit/PHASE_E_REFACTOR_RECOMMENDATIONS.md` | Actionable task plan to fix folder & boundary leaks | Architecture | Active | supporting_active | Manual |
 | `docs/repository-audit/BASELINE_VERIFICATION.md` | Pre-cleanup verification results of master build | Architecture | Active | supporting_active | Manual |
 | `docs/cleanup/transport-separation-audit.md` | Dynamic file classification and consumer audit inventory for transport separation | Architecture | Active | supporting_active | `docs:lint` |
+| `docs/cleanup/ROLLBACK.md` | Reversion git commands and tags map for rollback checkpoints | Architecture | Active | supporting_active | `docs:lint` |
 | `docs/repository-audit/PHASE_17_CLEANUP_EXECUTION.md` | Execution logs and governance bypass notes for Phase 17 | Architecture | Active | supporting_active | Manual |
 
 ### Tier 3: Deprecated (superseded or obsolete documents; no longer used for implementation)
