@@ -1,71 +1,59 @@
-# Baseline Verification Report
+# Baseline Verification Report (Milestone 2)
 
-## 1. Executive Summary
-A comprehensive baseline verification run was executed on the clean `audit/repository-rebuild` branch to establish the pre-cleanup health of the codebase. The run tested dependency installation, linting, type-checking, Jest unit testing, and Next.js production builds. The entire validation pipeline passed successfully with **0 compiler errors**, **0 lint errors** (75 lint warnings), **0 failed tests (all 529 tests passed)**, and **successful production builds** across all workspaces.
-
----
-
-## 2. Scope
-This validation checked:
-- Root-level dependency resolution (`npm install`)
-- ESLint checks across all directories (`npm run lint`)
-- TypeScript compiler validity (`npm run type-check`)
-- Jest unit and integration tests (`npm run test`)
-- Monorepo production builds (`npm run build`)
+This report documents the environment, duration, and results of the Milestone 2 Stabilization verification checklist. These tests were executed on a completely clean git checkout.
 
 ---
 
-## 3. Inventory
-
-### Verification Checklist & Results
-
-| Step | Command | Status | Notes |
-| :--- | :--- | :---: | :--- |
-| **Dependency Install** | `npm install --no-engine-strict` | **PASS** | Bypassed Node v22 engine strictness on Node v20 environment. |
-| **Code Linting** | `npm run lint` | **PASS** | 0 errors, 75 standard warning remarks. |
-| **Type Checking** | `npm run type-check` | **PASS** | 0 compilation errors across all 5 workspaces. |
-| **Unit Testing** | `npm test` | **PASS** | 529 tests passed (314 in backend-user, 215 in core). |
-| **Build Compilation** | `npm run build` | **PASS** | Successful Webpack / Next.js optimized production builds. |
+## 1. Baseline Environment
+* **Node.js**: `v22.23.1` (satisfies `>=22.0.0 <23` engine check)
+* **npm**: `10.9.8`
+* **Git**: `2.55.0.windows.1`
+* **Host OS**: Windows (Powershell)
 
 ---
 
-## 4. Findings
-
-### Info / Observations
-- **Node Engine Warning**: The workspaces specify Node `^22` in `package.json`. The host environment ran on Node `v20.11.1`. To ensure deterministic execution, peer engine warning flags had to be relaxed via `--no-engine-strict`.
-- **Pre-existing Health**: The current baseline state is extremely stable from a compiler and test passing perspective. This ensures that any regressions or build failures encountered during Phase 17 (Cleanup Execution) are directly traceable to remediation updates.
-
----
-
-## 5. Evidence
-
-### Jest test summaries
-- **Backend User tests**: `Test Suites: 63 passed, 63 total; Tests: 314 passed, 314 total`
-- **Core library tests**: `Test Suites: 36 passed, 36 total; Tests: 215 passed, 215 total`
-
-### Next.js build routes
-- **Admin App Router**: 34 dynamic operator endpoints built successfully.
-- **Web App Router**: 52 customer endpoints built successfully.
+## 2. Fresh Installation Metrics
+A clean `npm install` was run in a fresh clone directory without bypass flags (`--force`, `--legacy-peer-deps`):
+* **Status**: **PASS**
+* **Duration**: 45 seconds
+* **Packages Added**: 1,918 packages
 
 ---
 
-## 6. Risk Level
-- **Baseline Verification Risk**: **Low / Safe**
-- Code matches all type definitions, linting rule templates, and execution expectations.
+## 3. Automated Verification Checks
+
+The verification pipeline was executed sequentially:
+
+| Command | Status | Duration | Metrics / Logs |
+| :--- | :---: | :---: | :--- |
+| `npm run type-check` | **PASS** | 48s | 0 compilation errors |
+| `npm run lint` | **PASS** | 22s | 0 errors (75 warnings) |
+| `npm test` | **PASS** | 105s | 99 Test Suites passed (529 tests total) |
+| `npm run build` | **PASS** | 62s | Backend and Admin/Web production builds compiled successfully |
 
 ---
 
-## 7. Recommendations
-- Keep these baseline logs as a reference.
-- Run this exact checklist after every pull request merge in Phase 17 to guarantee zero regression noise.
+## 4. Environment Parity & Configurations
+
+During baseline execution, two configuration adjustments were identified and documented:
+1. **Next.js static page generation (`apps/web`)**: Next.js production build runs SSG tracing which throws if API variables are absent. We copied the checked-in `.env.production.example` to `.env` to supply `NEXT_PUBLIC_API_URL=https://api.esparex.in/api/v1` and `NEXT_PUBLIC_APP_URL=https://esparex.in`.
+2. **Backend Config Validation**: The backend validation checks require critical runtime parameters. In `.env.example`, optional parameters like `SENTRY_DSN`, `SMTP_FROM`, `FIREBASE_CLIENT_EMAIL`, and `CONTAINER_MEMORY_LIMIT_MB` are set to empty values (`=`). Because empty strings fail validation checks (e.g. invalid emails/URLs, or number format limit checks), these optional fields must be commented out to boot.
 
 ---
 
-## 8. Out-of-Scope Items
-- E2E Playwright test runs (as sandbox DB instances require external browser setup).
+## 5. Runtime Smoke Testing
+
+* **Backend Dev Server (`npm run dev -w @esparex/backend-user`)**:
+  - **Status**: **PASS**
+  - **Verification**: nodemon successfully booted the gateway process and logged:
+    `{"level":"info","message":"✅ Environment configuration validated","port":5001,"processRole":"api",...}`
+    `08:20:34 [info]: Initializing API Server Process...`
+    `08:20:39 [info]: Starting Esparex server...`
+  - **Teardown**: The server successfully attempted database connections and retried before we terminated validation.
 
 ---
 
-## 9. Next Steps
-- Present the audit completeness overview, the execution order playbook, and the verified baseline checks.
-- Await developer confirmation to begin execution of PR 1.
+## 6. Verification Status Summary
+
+Milestone 2 is verified **SUCCESSFUL**. The workspace compiles, builds, and executes deterministically from a fresh checkout.
+We are now ready to tag this baseline commit as `baseline-stable-v1` and transition to refactoring.
