@@ -99,9 +99,25 @@ allTargetFiles.forEach(filePath => {
     });
 });
 
+// Generate metrics
+const totalAudited = reports.length;
+const totalExpressDeps = reports.filter(r => r.express === 'Yes').length;
+const expressControllers = reports.filter(r => r.express === 'Yes' && !r.file.includes('middleware/')).length;
+const expressMiddlewares = reports.filter(r => r.express === 'Yes' && r.file.includes('middleware/')).length;
+const coreUtilities = reports.filter(r => r.express === 'No').length;
+
 // Generate Markdown report
 let markdown = `# Transport Separation Audit Report\n\n`;
 markdown += `*Generated automatically on: ${new Date().toISOString()}*\n\n`;
+markdown += `## Architectural Metrics Summary\n\n`;
+markdown += `| Metric Name | Value |\n`;
+markdown += `| :--- | :---: |\n`;
+markdown += `| Total Audited Files in core | ${totalAudited} |\n`;
+markdown += `| Files with Express/HTTP Dependencies | ${totalExpressDeps} |\n`;
+markdown += `| Express Controllers | ${expressControllers} |\n`;
+markdown += `| Express Middlewares | ${expressMiddlewares} |\n`;
+markdown += `| Pure Core Utilities (No HTTP) | ${coreUtilities} |\n`;
+markdown += `\n---\n\n`;
 markdown += `This report lists the Express dependency, consumers, and migration decisions for each controller and middleware inside \`core/\`.\n\n`;
 markdown += `| File Path | Category | Express Dependency | Consumers | Migration Decision |\n`;
 markdown += `| :--- | :---: | :---: | :--- | :---: |\n`;
