@@ -1,7 +1,7 @@
 import express from 'express';
 import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
-import * as adminCatalog from '@esparex/core/controllers/admin/catalog';
+import * as adminCatalog from '../controllers/admin/catalog';
 import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
 import { deprecateMethod } from '../middleware/deprecations';
 

@@ -1,6 +1,5 @@
 /**
- * Catalog SSOT bridge:
- * backend catalog routes proxy directly to core canonical controllers.
+ * Catalog controller bridge:
+ * backend catalog routes use the locally-owned catalog controllers.
  */
-export * from '@esparex/core/controllers/admin/catalog';
-
+export * from '../admin/catalog';

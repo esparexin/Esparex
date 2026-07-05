@@ -3,24 +3,24 @@ import express from 'express';
 import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { setCsrfToken, getCsrfToken } from '../middleware/csrfProtection';
 
-import * as adminSystem from '@esparex/core/controllers/admin/system';
-import * as adminAnalytics from '@esparex/core/controllers/admin/adminAnalyticsController';
-import * as adminAudit from '@esparex/core/controllers/admin/adminAuditController';
-import * as adminUsers from '@esparex/core/controllers/admin/adminUsersController';
-import * as adminSessions from '@esparex/core/controllers/admin/adminSessionController';
-import * as adminPlans from '@esparex/core/controllers/admin/plan';
-import * as adminBusiness from '@esparex/core/controllers/admin/adminBusinessController';
-import * as adminListings from '@esparex/core/controllers/admin/adminListingsController';
-import * as adminReports from '@esparex/core/controllers/admin/adminReportsController';
-import * as adminTransactions from '@esparex/core/controllers/admin/adminTransactionController';
-import * as adminInvoices from '@esparex/core/controllers/admin/adminInvoiceController';
-import * as adminNotifications from '@esparex/core/controllers/admin/adminNotificationController';
-import * as adminAi from '@esparex/core/controllers/shared/ai/aiController';
-import * as adminApiKeys from '@esparex/core/controllers/admin/adminApiKeyController';
-import * as adminLocations from '@esparex/core/controllers/admin/adminLocationController';
-import * as adminSystemConfig from '@esparex/core/controllers/admin/systemConfigController';
-import * as adminImportContent from '@esparex/core/controllers/admin/content/import.content.controller';
-import * as adminSmartAlerts from '@esparex/core/controllers/admin/adminSmartAlertsController';
+import * as adminSystem from '../controllers/admin/system';
+import * as adminAnalytics from '../controllers/admin/adminAnalyticsController';
+import * as adminAudit from '../controllers/admin/adminAuditController';
+import * as adminUsers from '../controllers/admin/adminUsersController';
+import * as adminSessions from '../controllers/admin/adminSessionController';
+import * as adminPlans from '../controllers/admin/plan';
+import * as adminBusiness from '../controllers/admin/adminBusinessController';
+import * as adminListings from '../controllers/admin/adminListingsController';
+import * as adminReports from '../controllers/admin/adminReportsController';
+import * as adminTransactions from '../controllers/admin/adminTransactionController';
+import * as adminInvoices from '../controllers/admin/adminInvoiceController';
+import * as adminNotifications from '../controllers/admin/adminNotificationController';
+import * as adminAi from '@esparex/core/controllers/shared/ai/aiController'; // TODO Batch 4: migrate ai controller
+import * as adminApiKeys from '../controllers/admin/adminApiKeyController';
+import * as adminLocations from '../controllers/admin/adminLocationController';
+import * as adminSystemConfig from '../controllers/admin/systemConfigController';
+import * as adminImportContent from '../controllers/admin/content/import.content.controller';
+import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsController';
 
 const router = express.Router();
 
