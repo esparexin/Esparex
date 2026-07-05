@@ -26,12 +26,20 @@ All files must belong to exactly one tier. Tiers are defined below:
 
 | File Path | Domain / Scope | Owner | Status | Governance Lifecycle | Validated By |
 | :--- | :--- | :--- | :--- | :--- | :--- |
+| `docs/architecture/REPOSITORY_SINGLE_SOURCE_OF_TRUTH.md` | Master repository architecture SSOT, layer layouts, coding, naming, build and test rules | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/REPOSITORY_DIRECTORY_STANDARD.md` | Allowed directory contents, package structure templates, and folder layout rules | Architecture | Active | canonical_active | `docs:lint` |
 | `docs/ssot/DOMAIN_MODEL_SSOT.md` | User Identity, Roles, Ad Status, Location indexes | Product | Active | canonical_active | `guard:ad-ssot` |
 | `docs/ssot/API_CONTRACT_SSOT.md` | API routes, namespaces, HTTP methods, errors | Architecture | Active | canonical_active | `guard:api-surface` |
 | `docs/ssot/ARCHITECTURE_FLOW_SSOT.md` | Post/Edit Ad, Location prompts, Admin Approval | Architecture | Active | canonical_active | `test:ui` |
 | `docs/ssot/CI_CD_SSOT.md` | Pipelines, automated guards, branch rules | Ops / Infra | Active | canonical_active | `docs:lint` |
 | `docs/governance/GOVERNANCE_POLICY.md` | Developer standards, coding casing, lifecycle | Engineering | Active | canonical_active | `guard:naming` |
 | `docs/governance/AI_GOVERNANCE_BOUNDARY.md` | AI instructions, prompt limits, agent scopes | AI Gov | Active | canonical_active | `guard:ai-governance` |
+| `docs/architecture/PACKAGE_CONTRACT.md` | Monorepo package dependencies, boundaries, and import constraints | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/adr/ADR-001-core-package.md` | Decision record for Core package responsibilities and transport neutrality | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/adr/ADR-002-shared-package.md` | Decision record for Shared package responsibilities and decoupling | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/adr/ADR-003-backend-api.md` | Decision record for API gateway architecture and namespaces | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/adr/ADR-004-boundaries.md` | Decision record for monorepo import boundaries and public APIs | Architecture | Active | canonical_active | `docs:lint` |
+| `docs/architecture/adr/ADR-005-monorepo.md` | Decision record for monorepo layout and phased execution | Architecture | Active | canonical_active | `docs:lint` |
 
 ### Tier 2: Supporting (reference-only, non-authoritative documents)
 
@@ -39,6 +47,13 @@ All files must belong to exactly one tier. Tiers are defined below:
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `docs/supporting/catalog_atlas_search_indexes.md` | Reference Atlas Search index configuration | Data | Active | supporting_active | Manual |
 | `docs/supporting/listing-edit-e2e.md` | Playwright edit ad E2E suite strategy details | Testing | Active | supporting_active | `test:e2e` |
+| `docs/repository-audit/PHASE_A_FOLDER_STRUCTURE.md` | Audit of monorepo folder layout & package organization | Architecture | Active | supporting_active | Manual |
+| `docs/repository-audit/PHASE_B_PACKAGE_BOUNDARIES.md` | Analysis of core & shared package boundary violations | Architecture | Active | supporting_active | Manual |
+| `docs/repository-audit/PHASE_C_DEPENDENCY_MATRIX.md` | Static analysis of monorepo imports & circular deps | Architecture | Active | supporting_active | Manual |
+| `docs/repository-audit/PHASE_D_FOLDER_OWNERSHIP.md` | Definition of folder owners, clients, and inputs | Architecture | Active | supporting_active | Manual |
+| `docs/repository-audit/PHASE_E_REFACTOR_RECOMMENDATIONS.md` | Actionable task plan to fix folder & boundary leaks | Architecture | Active | supporting_active | Manual |
+| `docs/repository-audit/BASELINE_VERIFICATION.md` | Pre-cleanup verification results of master build | Architecture | Active | supporting_active | Manual |
+| `docs/repository-audit/PHASE_17_CLEANUP_EXECUTION.md` | Execution logs and governance bypass notes for Phase 17 | Architecture | Active | supporting_active | Manual |
 
 ### Tier 3: Deprecated (superseded or obsolete documents; no longer used for implementation)
 
