@@ -1,6 +1,18 @@
 # Transport Separation Audit Report
 
-*Generated automatically on: 2026-07-05T08:32:15.537Z*
+*Generated automatically on: 2026-07-05T08:37:47.808Z*
+
+## Architectural Metrics Summary
+
+| Metric Name | Value |
+| :--- | :---: |
+| Total Audited Files in core | 47 |
+| Files with Express/HTTP Dependencies | 37 |
+| Express Controllers | 34 |
+| Express Middlewares | 3 |
+| Pure Core Utilities (No HTTP) | 10 |
+
+---
 
 This report lists the Express dependency, consumers, and migration decisions for each controller and middleware inside `core/`.
 
