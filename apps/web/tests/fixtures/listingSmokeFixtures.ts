@@ -121,7 +121,13 @@ export function resolveListingSmokeFixtures(): ListingSmokeFixtures {
   let rawJson = process.env.SMOKE_LISTING_FIXTURES || "";
 
   if (!rawJson) {
-    const fixturePath = process.env.SMOKE_FIXTURE_PATH || path.join(process.cwd(), "smoke-fixtures.json");
+    let fixturePath = process.env.SMOKE_FIXTURE_PATH || path.join(process.cwd(), "smoke-fixtures.json");
+    if (!fs.existsSync(fixturePath)) {
+      const rootFallback = path.resolve(process.cwd(), "../../smoke-fixtures.json");
+      if (fs.existsSync(rootFallback)) {
+        fixturePath = rootFallback;
+      }
+    }
     if (fs.existsSync(fixturePath)) {
       rawJson = fs.readFileSync(fixturePath, "utf-8");
     }
