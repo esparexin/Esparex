@@ -30,8 +30,9 @@ function getFiles(dir, fileList = []) {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
     if (stat.isDirectory()) {
-      // Ignore node_modules, .git, archive/ directories completely
-      if (file !== 'node_modules' && file !== '.git' && file !== 'archive') {
+      // Ignore node_modules, .git, archive/ and docs/cleanup/ directories completely
+      const relDir = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+      if (file !== 'node_modules' && file !== '.git' && file !== 'archive' && relDir !== 'docs/cleanup') {
         getFiles(filePath, fileList);
       }
     } else {
