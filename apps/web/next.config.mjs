@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const imageDomainRegistryPath = path.resolve(__dirname, '../../shared/constants/image-domain-registry.json');
+const imageDomainRegistryPath = path.resolve(__dirname, '../../shared/src/constants/image-domain-registry.json');
 const imageDomainRegistry = JSON.parse(fs.readFileSync(imageDomainRegistryPath, 'utf8'));
 const staticRemotePatterns = Array.isArray(imageDomainRegistry.nextRemotePatterns)
     ? imageDomainRegistry.nextRemotePatterns

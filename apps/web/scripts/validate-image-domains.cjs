@@ -3,7 +3,7 @@ const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
 const srcRoot = path.join(projectRoot, 'src');
-const registryPath = path.resolve(projectRoot, '../shared/constants/image-domain-registry.json');
+const registryPath = path.resolve(projectRoot, '../shared/src/constants/image-domain-registry.json');
 const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
 
 const nextRemotePatterns = Array.isArray(registry.nextRemotePatterns) ? registry.nextRemotePatterns : [];
