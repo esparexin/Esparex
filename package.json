@@ -91,6 +91,7 @@
     "architecture:dashboard": "node scripts/architecture/generate-dashboard.js",
     "api:diff": "node scripts/architecture/api-diff.js",
     "guard:env-contracts": "node scripts/guard-env-contracts.js",
+    "guard:unicode-hygiene": "node scripts/guard-unicode-hygiene.js",
     "debt:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=8192 node scripts/generate-eslint-baseline.js",
     "debt:insights": "node scripts/analyze-tech-debt.js"
   },
