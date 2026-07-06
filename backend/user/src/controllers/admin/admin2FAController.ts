@@ -1,6 +1,6 @@
 import { getAdminWithTwoFactor, saveAdmin } from '@esparex/core/services';;
 
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
 import { logger } from '@esparex/core/utils';;;;

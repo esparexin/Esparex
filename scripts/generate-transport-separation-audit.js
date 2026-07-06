@@ -43,7 +43,9 @@ const fileContentsMap = new Map();
 projectFiles.forEach(file => {
     try {
         fileContentsMap.set(file, fs.readFileSync(file, 'utf8'));
-    } catch (e) {}
+    } catch (_e) {
+            // intentionally ignored: file may be unreadable or missing
+        }
 });
 
 // Process each file

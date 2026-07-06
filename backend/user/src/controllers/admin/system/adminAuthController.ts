@@ -1,6 +1,6 @@
 import { findAdminByEmailForAuth, findAdminByResetToken, findAdminForLogin, updateAdminLastLogin, getAdminProfileById, saveAdmin, seedAdmin, emailService, createAdminSession, getAdminSessionTtlMs, revokeAdminSession, revokeAdminSessionsForAdmin } from '@esparex/core/services';;
 
-﻿/**
+/**
  * Admin Authentication Controller
  * Handles admin login, logout, password reset, and profile
  * Extracted from adminSystemController.ts

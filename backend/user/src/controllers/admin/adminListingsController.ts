@@ -1,6 +1,6 @@
 import { AdminListingsService_NS as adminListingsService } from '@esparex/core/services';;
 
-﻿import type { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils';;;;
 
 import type { AdminLogFn } from '@esparex/core/services';;;

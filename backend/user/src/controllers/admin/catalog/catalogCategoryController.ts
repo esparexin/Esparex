@@ -1,6 +1,6 @@
 import { CategoryModel, getCatalogEntityCounts, findCategoryById, categoryParentExists, updateCategorySchemaById, findCategoryByIdWithSession, softDeleteCategoryById, CatalogOrchestrator } from '@esparex/core/services';;
 
-﻿/**
+/**
  * Catalog Category Controller
  * Handles all category-related operations
  * Extracted from catalog.content.controller.ts

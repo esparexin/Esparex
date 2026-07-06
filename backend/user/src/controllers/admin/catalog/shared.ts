@@ -1,6 +1,6 @@
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY, CATALOG_PUBLIC_VISIBILITY_QUERY, getActiveCategoryIds, validateActiveCategories, deriveApprovalStatus } from '@esparex/core/services';;
 
-﻿/**
+/**
  * Shared utilities for catalog controllers
  * Extracted from original catalog.content.controller.ts
  *

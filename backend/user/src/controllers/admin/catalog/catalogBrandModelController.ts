@@ -1,6 +1,6 @@
 import { BrandModel, CatalogModel, findCategoryBySlugForCatalog, findBrandByFilter, getActiveBrandIds, checkBrandInCategories, checkBrandDependencies, findModelByFilter, checkModelDependencies, findModelBySlug, validateBrandIsActive, CatalogOrchestrator, MAX_MODEL_TREE_DEPTH, type ModelHierarchyDoc, updateModelHierarchyTransactionally, validateModelHierarchyMutation, detectDuplicateCandidates } from '@esparex/core/services';;
 
-﻿/**
+/**
  * Catalog Brand & Model Controller
  * Handles brands and models together due to close relationship
  * Extracted from catalog.content.controller.ts

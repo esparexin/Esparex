@@ -54,7 +54,7 @@ export const getPaginationParams = (req: Request) => {
 export { sendPaginatedResponse, sendSuccessResponse } from "./respond";
 
 /**
- * ðŸ› ï¸ CENTRALIZED ADMIN ERROR HANDLER
+ * CENTRALIZED ADMIN ERROR HANDLER
  * Standardizes administrative error responses.
  */
 export const sendAdminError = (req: Request, res: Response, error: unknown, statusCode = 500) => {
