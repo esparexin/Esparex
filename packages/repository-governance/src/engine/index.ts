@@ -82,7 +82,7 @@ export class GovernanceEngine {
     } else if (profile === "doctor") {
       activeAnalyzers = registry.analyzers.filter(a => a.metadata.id === "env" || a.metadata.id === "git");
     } else if (profile === "ci") {
-      activeAnalyzers = registry.analyzers.filter(a => a.metadata.id === "unicode-hygiene" || a.metadata.id === "git");
+      activeAnalyzers = registry.analyzers.filter(a => a.metadata.id === "unicode-hygiene" || a.metadata.id === "git" || a.metadata.id === "architecture");
     }
 
     // Resolve dependencies ordering

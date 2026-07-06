@@ -85,3 +85,17 @@ export interface Reporter {
   name: string;
   write(report: GovernanceSummaryReport, options: Record<string, any>): Promise<void>;
 }
+
+export interface Checker<TPayload = any> {
+  id: string;
+  name: string;
+  check(context: AnalyzerContext): Promise<TPayload>;
+}
+
+export interface ArchitectureAnalysisPayload {
+  deepImports: { passed: boolean; filesFound: string[] };
+  circular: { passed: boolean; cycles: string[][] };
+  boundaryCore: { passed: boolean; errorOutput?: string };
+  boundaryBackend: { passed: boolean; errorOutput?: string };
+  publicApi: { passed: boolean; outputLog?: string };
+}
