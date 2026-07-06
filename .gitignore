@@ -152,3 +152,24 @@ scratch/
 **/src/**/*.js.map
 !**/src/**/*.config.js
 !**/src/tests/jest.globalTeardown.js
+
+# =========================================================================
+# Esparex Repository Hygiene Governance Baseline
+# =========================================================================
+
+# Android build caches
+.gradle/
+**/android/.gradle/
+
+# Scan, duplicate detection, and lint reports
+*-results.json
+*-baseline.json
+*report.json
+.eslintcache
+.jscpd-report-audit/
+.jscpd-report/
+
+# Test failure screenshots
+**/test-results/
+**/playwright-*.png
+
