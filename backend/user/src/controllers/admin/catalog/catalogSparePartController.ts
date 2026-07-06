@@ -1,6 +1,6 @@
 import { SparePartModel, findCategoryIdBySlug, getActiveBrandIdsForCategories, getActiveModelIdsForCategories, findSparePartById, checkSparePartDependencies, CatalogOrchestrator, validateSparePartRelations } from '@esparex/core/services';;
 
-﻿/**
+/**
  * Catalog Spare Parts Controller
  * Handles spare parts and user proposals
  * Extracted from catalog.content.controller.ts

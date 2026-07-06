@@ -1,6 +1,6 @@
 import { mutateStatus, getAdminReportById, findReportForUpdate, saveReport, updateReportById, getReportedAdsAggregation } from '@esparex/core/services';;
 
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { logger } from '@esparex/core/utils';;;;
 import { logAdminAction } from '@esparex/core/utils';;;;

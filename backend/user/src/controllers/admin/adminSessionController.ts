@@ -1,6 +1,6 @@
 import { getAdminSessions as fetchAdminSessions, revokeAdminSessionById as revokeSessionById } from '@esparex/core/services';;
 
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '@esparex/core/utils';;;;
 import { getSingleParam } from '@esparex/core/utils';;;;

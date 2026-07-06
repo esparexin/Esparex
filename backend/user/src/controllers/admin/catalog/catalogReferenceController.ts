@@ -1,6 +1,6 @@
 import { CatalogOrchestrator, validateScreenSizeRelations, ServiceTypeModel, ScreenSizeModel, findCategoryBySlug, findActiveCategoryBySlug, findServiceTypeById, checkServiceTypeDependencies, findScreenSizeById, getActiveBrandsForScreenSizes } from '@esparex/core/services';;
 
-﻿/**
+/**
  * Catalog Reference Controller
  * Handles service types and screen sizes (reference data)
  * Extracted from catalog.content.controller.ts

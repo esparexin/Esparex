@@ -1,6 +1,6 @@
 import { createNotificationLog, createScheduledNotification, getNotificationHistory, searchNotificationRecipients, NotificationDispatcher, createAdminNotificationTargetCursor } from '@esparex/core/services';;
 
-﻿import { Request, Response } from "express";
+import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { NOTIFICATION_TYPE } from "@esparex/shared";

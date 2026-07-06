@@ -1,6 +1,6 @@
 import { getSystemConfigForRead, updateSystemConfigSections } from '@esparex/core/services';;
 
-﻿import { Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils';;;;
 
 import { logAdminAction } from '@esparex/core/utils';;;;

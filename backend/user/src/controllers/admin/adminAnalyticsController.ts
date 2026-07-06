@@ -1,6 +1,6 @@
 import { AnalyticsService_NS as analyticsService } from '@esparex/core/services';;
 
-﻿import { logger } from '@esparex/core/utils';;;;
+import { logger } from '@esparex/core/utils';;;;
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils';;;;
 

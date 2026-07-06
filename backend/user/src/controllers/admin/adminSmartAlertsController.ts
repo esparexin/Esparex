@@ -1,6 +1,6 @@
 import { getAlertDeliveryLogs, SmartAlertModel, adminBulkResendAlertWarnings as bulkResendAlertWarnings } from '@esparex/core/services';;
 
-﻿import { Request, Response } from "express";
+import { Request, Response } from "express";
 import { getPaginationParams, sendAdminError, sendSuccessResponse } from '@esparex/core/utils';;;;
 
 import { logAdminActionDirect } from '@esparex/core/utils';;;;
