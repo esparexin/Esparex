@@ -1,4 +1,4 @@
-import { getCache, setCache, delCache, CACHE_NAMESPACES, CACHE_TTLS } from '../../utils/redisCache';
+import { getCache, setCache, delCache, CACHE_NAMESPACES, CACHE_TTLS } from '../../infrastructure/cache/redisCache';
 import logger from '../../utils/logger';
 
 const LOCATION_DOC_PREFIX = `${CACHE_NAMESPACES.LOCATION}:doc`;

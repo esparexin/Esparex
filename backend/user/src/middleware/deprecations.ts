@@ -1,5 +1,5 @@
 import type { Express, Request, Response, RequestHandler } from 'express';
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core/utils';;;;
 
 /**
  * ESPAREX API DEPRECATION MODULE

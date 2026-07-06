@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import Ad from '../../models/Ad';
-import { getUserConnection } from '../../config/db';
+import { getUserConnection } from '../../infrastructure/db';
 import { LISTING_STATUS } from '@esparex/shared';
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
 import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { normalizeAdStatus } from "../lifecycle/AdStatusService";
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../infrastructure/cache/redisCache';
 import { type ListingTypeValue } from '@esparex/shared';
 
 export const repostAdLogic = async (

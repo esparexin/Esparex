@@ -1,4 +1,4 @@
-import redisClient from '../../config/redis';
+import redisClient from '../../infrastructure/redis';
 
 const MAX_ALERTS_PER_USER_PER_HOUR = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60;

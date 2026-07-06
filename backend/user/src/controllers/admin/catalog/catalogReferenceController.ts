@@ -1,4 +1,4 @@
-import { CatalogOrchestrator, validateScreenSizeRelations, ServiceTypeModel, ScreenSizeModel, findCategoryBySlug, findActiveCategoryBySlug, findServiceTypeById, checkServiceTypeDependencies, findScreenSizeById, getActiveBrandsForScreenSizes } from '@esparex/core/services';
+import { CatalogOrchestrator, validateScreenSizeRelations, ServiceTypeModel, ScreenSizeModel, findCategoryBySlug, findActiveCategoryBySlug, findServiceTypeById, checkServiceTypeDependencies, findScreenSizeById, getActiveBrandsForScreenSizes } from '@esparex/core/services';;
 
 ﻿/**
  * Catalog Reference Controller
@@ -26,13 +26,8 @@ import {
     applyCatalogStatusFilter
 } from './shared';
 
-import {
-    screenSizeCreateSchema,
-    screenSizeUpdateSchema,
-    serviceTypeCreateSchema,
-    serviceTypeUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
+import { screenSizeCreateSchema, screenSizeUpdateSchema, serviceTypeCreateSchema, serviceTypeUpdateSchema } from '@esparex/core/validators';;
+import { CategoryQueryBuilder } from '@esparex/core/utils';;;;
 
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { toOptionalString } from './inputCoercion';

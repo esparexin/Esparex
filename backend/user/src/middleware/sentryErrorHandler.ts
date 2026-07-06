@@ -1,4 +1,4 @@
-import { AuditService } from '@esparex/core/services';
+import { AuditService } from '@esparex/core/services';;
 
 /**
  * Sentry Error Handler Middleware
@@ -11,12 +11,12 @@ import { AuditService } from '@esparex/core/services';
 
 import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
-import { env } from '@esparex/core/config/env';
-import logger from '@esparex/core/utils/logger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { env } from '@esparex/core/config';;;;
+import { logger } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 import { ZodError } from 'zod';
 
-import type { IAuthUser } from '@esparex/core/types/auth';
+import type { IAuthUser } from '@esparex/core/types';;
 
 type RequestWithUser = Request & {
     user?: IAuthUser;

@@ -1,4 +1,4 @@
-import { addJobWithTrace, type TraceableJobData } from '../utils/queueWrapper';
+import { addJobWithTrace, type TraceableJobData } from '../infrastructure/bullmq/queueWrapper';
 import { Queue } from 'bullmq';
 import { redisConnection } from '../queues/redisConnection';
 import logger from '../utils/logger';

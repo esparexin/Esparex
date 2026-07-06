@@ -1,7 +1,7 @@
 import { ClientSession } from 'mongoose';
 import UserWallet from '../models/UserWallet';
 import Transaction, { type ITransaction } from '../models/Transaction';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { AppError } from '../utils/AppError';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
 

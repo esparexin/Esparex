@@ -2,12 +2,12 @@ import SmartAlert from '../models/SmartAlert';
 import AlertDeliveryLog from '../models/AlertDeliveryLog';
 import { Types } from 'mongoose';
 import logger from '../utils/logger';
-import { buildGeoNearStage } from '../utils/mongoGeoUtils';
+import { buildGeoNearStage } from '../infrastructure/db/mongoGeoUtils';
 import { dispatchTemplatedNotification } from './NotificationService';
 import type { AdminLogFn } from './AdminListingsService';
 import { AppError } from '../utils/AppError';
 
-import { getCache, setCache } from '../utils/redisCache';
+import { getCache, setCache } from '../infrastructure/cache/redisCache';
 import crypto from 'crypto';
 import { toObjectId } from '../utils/idUtils';
 

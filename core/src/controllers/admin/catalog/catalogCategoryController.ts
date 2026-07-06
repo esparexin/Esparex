@@ -8,7 +8,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import logger from '../../../utils/logger';
-import { getUserConnection } from '../../../config/db';
+import { getUserConnection } from '../../../infrastructure/db';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
     CategoryModel,
@@ -42,7 +42,7 @@ import {
     sendValidationError
 } from './shared';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { getCache, setCache, CACHE_TTLS } from '../../../utils/redisCache';
+import { getCache, setCache, CACHE_TTLS } from '../../../infrastructure/cache/redisCache';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.

@@ -1,4 +1,4 @@
-import { sanitizeStoredImageUrls } from './s3';
+import { sanitizeStoredImageUrls } from '../infrastructure/storage/s3';
 
 /**
  * Normalizes an array of image tokens (strings).

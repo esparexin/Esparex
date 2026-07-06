@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { createHash } from 'crypto';
 import mongoose from 'mongoose';
 import { enforceCreateAdIdempotency, enforceCreateServiceIdempotency } from '../../middleware/idempotency';
-import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
+import { IdempotencyRequest } from '@esparex/core/models';;
 
 jest.mock('@esparex/core/models/IdempotencyRequest', () => ({
     __esModule: true,

@@ -1,5 +1,5 @@
-import { ViewBufferingService } from '@esparex/core/services';
-import { AdOrchestrator_NS as AdOrchestrator } from '@esparex/core/services';
+import { ViewBufferingService } from '@esparex/core/services';;
+import { AdOrchestrator_NS as AdOrchestrator } from '@esparex/core/services';;
 
 /**
  * 🛡️ ESPAREX PRODUCTION SMOKE TEST
@@ -13,12 +13,12 @@ import { AdOrchestrator_NS as AdOrchestrator } from '@esparex/core/services';
 import mongoose from 'mongoose';
 
 import { LISTING_STATUS } from '@esparex/shared';
-import User from '@esparex/core/models/User';
-import Ad from '@esparex/core/models/Ad';
-import Location from '@esparex/core/models/Location';
-import { connectDB } from '@esparex/core/config/db';
-import redis from '@esparex/core/config/redis';
-import logger from '@esparex/core/utils/logger';
+import { User } from '@esparex/core/models';;
+import { Ad } from '@esparex/core/models';;
+import { Location } from '@esparex/core/models';;
+import { connectDatabase as connectDB } from '@esparex/core/infrastructure';;
+import { redisClient as redis } from '@esparex/core/infrastructure';;
+import { logger } from '@esparex/core/utils';;;;
 import { Role } from '@esparex/shared';
 
 // 🧪 MOCK: Override logger to capture smoke test output
@@ -31,7 +31,7 @@ logger.info = (message: string, ...meta: unknown[]) => {
     return originalInfo.call(logger, message, ...meta);
 };
 
-import Category from '@esparex/core/models/Category';
+import { Category } from '@esparex/core/models';;
 import { CATALOG_STATUS } from '@esparex/shared';
 
 const DUMMY_LOCATION_COORDS = { type: 'Point' as const, coordinates: [77.5946, 12.9716] };
@@ -103,8 +103,8 @@ async function runScenarioA(verifiedLocation: SmokeEntityWithId, validCategory: 
     logger.info('[SMOKE_TEST] scenario=A status=PENDING (Verified)');
 
     // Simulate Moderation Approval
-    const { mutateStatus } = await import('@esparex/core/services/lifecycle/StatusMutationService');
-    const { computeActiveExpiry } = await import('@esparex/core/services/lifecycle/AdStatusService');
+    const { mutateStatus } = await import('@esparex/core/services');
+    const { computeActiveExpiry } = await import('@esparex/core/services');
     const expiresAt = await computeActiveExpiry('ad');
 
     await mutateStatus({

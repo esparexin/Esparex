@@ -1,4 +1,4 @@
-import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core/services';
+import { buildRegexSearchClauses, rankCatalogSearchResults, recordCatalogSearchTelemetry, shouldSuppressAutocomplete, tryAtlasCatalogSearch } from '@esparex/core/services';;
 
 import { Request, Response } from 'express';
 import { Model, Document } from 'mongoose';
@@ -9,17 +9,12 @@ import {
     sendSuccessResponse,
     sendAdminError
 } from './adminBaseController';
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
-import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { getAdminConnection, getUserConnection } from '@esparex/core/config/db';
-import {
-    castCatalogQueryIds,
-    recordCatalogReadDiff,
-    runCatalogShadowRead,
-    summarizeCatalogReadDiff
-} from '@esparex/core/utils/catalogShadowRead';
+import { getCache, setCache, CACHE_TTLS } from '@esparex/core/infrastructure';;
+import { FeatureFlag, isEnabled } from '@esparex/core/config';;;;
+import { getAdminConnection, getUserConnection } from '@esparex/core/infrastructure';;
+import { castCatalogQueryIds, recordCatalogReadDiff, runCatalogShadowRead, summarizeCatalogReadDiff } from '@esparex/core/utils';;;;
 
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core/utils';;;;
 
 interface ContentOptions {
     searchFields?: string[];

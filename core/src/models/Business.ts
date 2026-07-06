@@ -270,7 +270,7 @@ BusinessSchema.set('toObject', {
     transform: transformLogic
 });
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 const Business: Model<IBusiness> = (getUserConnection().models.Business as Model<IBusiness> | undefined) || getUserConnection().model<IBusiness>('Business', BusinessSchema);
 
 export default Business;

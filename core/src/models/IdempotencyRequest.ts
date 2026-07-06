@@ -1,5 +1,5 @@
 import { Schema, Document, Types, Model } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export type IdempotencyStatus = 'processing' | 'completed';
 

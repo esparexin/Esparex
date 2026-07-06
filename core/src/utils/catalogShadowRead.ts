@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
-import { getAdminConnection } from '../config/db';
+import { getAdminConnection } from '../infrastructure/db';
 import logger from './logger';
 
 type GenericDoc = Record<string, unknown>;

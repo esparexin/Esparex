@@ -6,14 +6,14 @@
 
 import { Request, Response } from 'express';
 import { sendSuccessResponse, sendAdminError } from '../../../utils/adminBaseController';
-import { connectDB, getUserConnection, getAdminConnection } from '../../../config/db';
+import { connectDB, getUserConnection, getAdminConnection } from '../../../infrastructure/db';
 import { version as appVersion } from '../../../../package.json';
 import {
     clearCachePattern,
     getCacheStats,
     getRedisHealthProbe,
     scanKeysByPattern
-} from '../../../utils/redisCache';
+} from '../../../infrastructure/cache/redisCache';
 import { getSystemConfigDoc, ensureSystemConfig } from '../../../utils/systemConfigHelper';
 
 const sendHealthError = (req: Request, res: Response, error: unknown) => {

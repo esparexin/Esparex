@@ -1,0 +1,99 @@
+{
+  "summary": {
+    "repository": "Esparex",
+    "branch": "cleanup-phase-1",
+    "commit": "eea48f3c79256afad440b2994a9debf5bf102fb0",
+    "scanTime": "2026-07-03T02:42:03.313Z",
+    "workspaceCount": 5,
+    "nodeVersion": "v20.11.1",
+    "packageManager": "npm",
+    "cleanupVersion": "1.2.0",
+    "scannerVersion": "1.2.0"
+  },
+  "statistics": {
+    "VERIFIED_SAFE_DELETE": 1,
+    "DELETE_CANDIDATE": 2,
+    "REVIEW_REQUIRED": 0,
+    "BLOCK_DELETE": 1
+  },
+  "candidates": [
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/next-env.d.ts",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "100%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 100,
+        "replacement": 100
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/app/not-found.tsx",
+      "classification": "BLOCK_DELETE",
+      "confidence": "100%",
+      "risk": "CRITICAL",
+      "evidence": "File base name matches Next.js app router convention: 'not-found.tsx'",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 0,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/hooks/useAdminStatusFilteredList.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/proxy.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "81%",
+      "risk": "HIGH",
+      "evidence": "Package Export found in 'package.json'",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 10,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    }
+  ],
+  "verifiedSafeDelete": [
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/next-env.d.ts"
+  ],
+  "reviewRequired": [
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/hooks/useAdminStatusFilteredList.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/proxy.ts"
+  ],
+  "blockDelete": [
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/app/not-found.tsx"
+  ]
+}

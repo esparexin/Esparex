@@ -1,4 +1,4 @@
-import { expireBusinesses, cascadeExpireBusinessListings } from '@esparex/core/services';
+import { expireBusinesses, cascadeExpireBusinessListings } from '@esparex/core/services';;
 
 /**
  * verify-job-trigger.ts
@@ -10,13 +10,13 @@ import { expireBusinesses, cascadeExpireBusinessListings } from '@esparex/core/s
  */
 
 import mongoose from "mongoose";
-import { connectDB } from "@esparex/core/config/db";
+import { connectDatabase as connectDB } from '@esparex/core/infrastructure';;
 
-import Business from "@esparex/core/models/Business";
-import Ad from "@esparex/core/models/Ad";
+import { Business } from '@esparex/core/models';;
+import { Ad } from '@esparex/core/models';;
 import { BUSINESS_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
-import { runExpiryWarningJob } from "@esparex/core/jobs/expiryWarning.job";
+import { runExpiryWarningJob } from '@esparex/core/jobs';;
 
 async function run(): Promise<void> {
     console.info("[job-verify] Connecting to MongoDB...");

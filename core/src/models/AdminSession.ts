@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { Schema, Document, Model, Types } from 'mongoose';
-import { getAdminConnection } from '../config/db';
+import { getAdminConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IAdminSession extends Document {

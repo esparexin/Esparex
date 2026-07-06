@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { ListingTypeValue } from '@esparex/shared';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { AdContext } from '../types/ad.types';
 import { mutateStatus } from './lifecycle/StatusMutationService';
 
@@ -14,7 +14,7 @@ import { assertOwnership } from './ad/AdPolicyService';
 // Re-export for backward compatibility
 export { assertOwnership };
 
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../infrastructure/cache/redisCache';
 
 export const updateAd = async (
     adId: string,

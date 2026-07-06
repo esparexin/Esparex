@@ -1,4 +1,4 @@
-import { getBucketName, uploadToS3 } from './s3';
+import { getBucketName, uploadToS3 } from '../infrastructure/storage/s3';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import logger from './logger';

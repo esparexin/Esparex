@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
-import { getUserConnection } from '../../config/db';
+import { getUserConnection } from '../../infrastructure/db';
 import type { MutationOptions } from './types';
 
 export class UnifiedMutationEngine {

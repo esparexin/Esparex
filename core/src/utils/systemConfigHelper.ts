@@ -1,5 +1,5 @@
 import SystemConfig, { ISystemConfig } from '../models/SystemConfig';
-import redis from '../config/redis';
+import redis from '../infrastructure/redis';
 import logger from './logger';
 
 export const SYSTEM_CONFIG_KEY = 'global';

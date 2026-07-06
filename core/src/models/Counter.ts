@@ -1,6 +1,6 @@
 // core/src/models/Counter.ts
 import { Schema, Document } from "mongoose";
-import { getUserConnection } from "../config/db";
+import { getUserConnection } from '../infrastructure/db';
 import type { Model } from "mongoose";
 import { applyToJSONTransform } from '../utils/schemaOptions';
 

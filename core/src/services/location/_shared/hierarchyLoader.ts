@@ -4,7 +4,7 @@ import Location from '../../../models/Location';
 import { toTitleCase } from '../../../utils/stringUtils';
 import { normalizeGeoPoint } from '@esparex/shared';
 export { normalizeGeoPoint };
-import { CACHE_KEYS } from '../../../utils/redisCache';
+import { CACHE_KEYS } from '../../../infrastructure/cache/redisCache';
 import { AppError } from '../../../utils/AppError';
 import { buildLocationSummary, loadHierarchyMapForLocations, type CanonicalLocationDoc } from '../../../utils/locationHierarchy';
 import {

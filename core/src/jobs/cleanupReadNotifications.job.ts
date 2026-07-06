@@ -1,6 +1,6 @@
-import { jobRunner } from "../utils/jobRunner";
+import { jobRunner } from '../infrastructure/bullmq/jobRunner';
 import logger from "../utils/logger";
-import { runWithDistributedJobLock } from "../utils/distributedJobLock";
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 import { purgeExpiredReadNotifications } from "../services/notification/NotificationRetentionService";
 
 export const runCleanupReadNotificationsJob = async () => {

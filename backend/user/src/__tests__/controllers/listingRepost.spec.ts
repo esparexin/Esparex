@@ -1,4 +1,4 @@
-import { AdMutationService_NS as AdMutationService } from '@esparex/core/services';
+import { AdMutationService_NS as AdMutationService } from '@esparex/core/services';;
 
 /**
  * Repost controller tests
@@ -43,7 +43,7 @@ jest.mock('@esparex/core/utils/requestParams', () => ({
 
 import { Request, Response } from 'express';
 
-import { getAndVerifyOwnedListing } from '@esparex/core/utils/controllerUtils';
+import { getAndVerifyOwnedListing } from '@esparex/core/utils';;;;
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 
 const mockedRepostAd = AdMutationService.repostAd as jest.Mock;

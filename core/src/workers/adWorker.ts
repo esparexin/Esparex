@@ -3,7 +3,7 @@ import { redisConnection, shouldDisableQueueConnection } from "../queues/redisCo
 import logger from "../utils/logger";
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';
 import { TraceContext } from '@esparex/shared';
-import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabilityContext';
+import { clearReliabilityContext, setReliabilityContext } from '../infrastructure/telemetry/reliabilityContext';
 // Notification matching is handled exclusively by notificationMatchWorker.ts
 
 /**

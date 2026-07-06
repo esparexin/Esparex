@@ -1,4 +1,4 @@
-import { getCacheStats, clearCachePattern } from '../../utils/redisCache';
+import { getCacheStats, clearCachePattern } from '../../infrastructure/cache/redisCache';
 import logger from '../../utils/logger';
 
 export class AdminCacheService {

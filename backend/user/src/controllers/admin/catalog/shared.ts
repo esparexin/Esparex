@@ -1,4 +1,4 @@
-import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY, CATALOG_PUBLIC_VISIBILITY_QUERY, getActiveCategoryIds, validateActiveCategories, deriveApprovalStatus } from '@esparex/core/services';
+import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY, CATALOG_PUBLIC_VISIBILITY_QUERY, getActiveCategoryIds, validateActiveCategories, deriveApprovalStatus } from '@esparex/core/services';;
 
 ﻿/**
  * Shared utilities for catalog controllers
@@ -13,16 +13,16 @@ import { Document, Model as MongooseModel } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { respond, sendSuccessResponse } from "@esparex/core/utils/respond";
-import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "@esparex/core/utils/errorResponse";
-import { sendAdminError } from '@esparex/core/utils/adminBaseController';
+import { respond, sendSuccessResponse } from '@esparex/core/utils';;;;
+import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from '@esparex/core/utils';;;;
+import { sendAdminError } from '@esparex/core/utils';;;;
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
+import { isDuplicateKeyError } from '@esparex/core/utils';;;;
 
 // Re-export SSOT validation helpers so controllers import from one place.
 
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import { logAdminAction } from '@esparex/core/utils';;;;
+import { handlePaginatedContent } from '@esparex/core/utils';;;;
 
 export { 
     sendAdminError,

@@ -36,7 +36,7 @@ PhoneRequestSchema.index(
     { name: 'idx_phonereq_buyer_seller_entity_unique_idx', unique: true }
 );
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 applyToJSONTransform(PhoneRequestSchema);

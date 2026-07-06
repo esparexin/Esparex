@@ -6,10 +6,10 @@ import schedulerQueue, { shouldDisableSchedulerQueue } from './schedulerQueue';
 import { deadLetterQueue } from './deadLetterQueue';
 import logger from '../utils/logger';
 import { shouldDisableQueueConnection } from './redisConnection';
-import { queueStatusGauge, reliabilityAlertsTotal } from '../utils/metrics';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
+import { queueStatusGauge, reliabilityAlertsTotal } from '../infrastructure/telemetry/metrics';
+import { emitReliabilityAlert } from '../infrastructure/telemetry/reliabilityAlerts';
 import { env } from '../config/env';
-import { recordQueueDelaySample } from '../utils/sloMonitor';
+import { recordQueueDelaySample } from '../infrastructure/telemetry/sloMonitor';
 
 type QueueCounts = {
     waiting: number;

@@ -1,5 +1,5 @@
-import redisClient from '../../config/redis';
-import { getCache, setCache } from '../../utils/redisCache';
+import redisClient from '../../infrastructure/redis';
+import { getCache, setCache } from '../../infrastructure/cache/redisCache';
 import { HomeFeedRequest, ParsedHomeFeedCursor, toCursorKey } from './FeedCursorService';
 import { HomeFeedResponse } from "@esparex/shared";
 

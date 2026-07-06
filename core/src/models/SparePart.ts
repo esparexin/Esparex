@@ -121,7 +121,7 @@ SparePartSchema.index(
     }
 );
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export const SparePart: Model<ISparePart> =
     (getUserConnection().models.SparePart as Model<ISparePart> | undefined) ||

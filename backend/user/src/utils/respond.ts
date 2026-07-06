@@ -4,7 +4,7 @@
  * Contains Express-aware sendSuccessResponse and sendPaginatedResponse.
  * The pure respond<T>() serializer remains in @utils/respond.
  */
-export { respond } from '@esparex/core/utils/respond';
+export { respond } from '@esparex/core/utils';;
 export { ApiResponse } from './apiResponse';
 
 import { Response } from 'express';

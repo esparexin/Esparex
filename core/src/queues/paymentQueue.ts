@@ -7,9 +7,9 @@ import {
     releaseQueueIdempotencySlot,
     reserveQueueIdempotencySlot
 } from './queueIdempotency';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
-import { reliabilityAlertsTotal } from '../utils/metrics';
-import { addJobWithTrace, type TraceableJobData } from '../utils/queueWrapper';
+import { emitReliabilityAlert } from '../infrastructure/telemetry/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../infrastructure/telemetry/metrics';
+import { addJobWithTrace, type TraceableJobData } from '../infrastructure/bullmq/queueWrapper';
 
 export type PaymentQueueJobName = "process_payment_capture";
 

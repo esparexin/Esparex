@@ -1,4 +1,4 @@
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { Invoice } from '../models/Invoice';
 import { Transaction, type ITransaction } from '../models/Transaction';
 import { 

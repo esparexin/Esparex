@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
-import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
+import { isDuplicateKeyError } from '@esparex/core/utils';;;;
 
 type ErrorResponseOptions = {
     code?: string;

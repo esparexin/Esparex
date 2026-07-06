@@ -144,6 +144,8 @@ frontend/test-results/
 frontend/android/app/new*.sh
 backend/lint_output*.txt
 scratch/
+.eslintcache
+**/.eslintcache
 
 # Build Artifacts in Source (Governance)
 **/src/**/*.js

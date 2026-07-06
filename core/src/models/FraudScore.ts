@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export interface IFraudScore extends Document {
     userId: mongoose.Types.ObjectId;

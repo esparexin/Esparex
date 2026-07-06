@@ -3,9 +3,9 @@ import logger from '../utils/logger';
 import { redisConnection, shouldDisableQueueConnection } from './redisConnection';
 import { buildDeterministicJobId } from './queueIdempotency';
 import { createNoopQueue, withQueueDefaults } from './queueDefaults';
-import { captureException } from '../config/sentry';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
-import { reliabilityAlertsTotal } from '../utils/metrics';
+import { captureException } from '../infrastructure/telemetry/sentry';
+import { emitReliabilityAlert } from '../infrastructure/telemetry/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../infrastructure/telemetry/metrics';
 
 export interface DeadLetterQueueJobData {
     sourceQueue: string;

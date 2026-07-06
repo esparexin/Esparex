@@ -10,7 +10,7 @@ const mockModelCreate = jest.fn();
 const mockInvalidateCatalogCache = jest.fn();
 const mockNotifySellersOfApproval = jest.fn();
 
-jest.mock('@esparex/core/config/db', () => ({
+jest.mock('@esparex/core/infrastructure/db', () => ({
     getUserConnection: () => mockGetUserConnection(),
 }));
 

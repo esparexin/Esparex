@@ -1,4 +1,4 @@
-import { validateAdminSession } from '@esparex/core/services';
+import { validateAdminSession } from '@esparex/core/services';;
 
 jest.mock("@esparex/core/models/Admin", () => ({
     __esModule: true,
@@ -25,8 +25,8 @@ jest.mock("@esparex/core/utils/cookieHelper", () => ({
 }));
 
 import type { Request, Response } from "express";
-import Admin from "@esparex/core/models/Admin";
-import { verifyAdminToken } from "@esparex/core/utils/auth";
+import { Admin } from '@esparex/core/models';;
+import { verifyAdminToken } from '@esparex/core/utils';;;;
 
 import { requireAdmin, requirePermission } from "../../middleware/adminAuth";
 

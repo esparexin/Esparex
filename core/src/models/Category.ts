@@ -170,7 +170,7 @@ CategorySchema.plugin(installSafeSoftDeleteQuery);
 
 
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 const Category: Model<ICategory> = (getUserConnection().models.Category as Model<ICategory> | undefined) || getUserConnection().model<ICategory>('Category', CategorySchema);
 
 export default Category;

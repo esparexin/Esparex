@@ -139,7 +139,7 @@ ServiceTypeSchema.pre('validate', function () {
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 ServiceTypeSchema.plugin(installSafeSoftDeleteQuery);
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 const ServiceType: Model<IServiceType> = (getUserConnection().models.ServiceType as Model<IServiceType> | undefined) || getUserConnection().model<IServiceType>('ServiceType', ServiceTypeSchema);
 

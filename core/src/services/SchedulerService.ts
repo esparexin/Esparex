@@ -6,7 +6,7 @@ import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { NotificationIntent } from "../domain/NotificationIntent";
 import { NotificationDispatcher } from "./notification/NotificationDispatcher";
 import logger from "../utils/logger";
-import { runWithDistributedJobLock } from "../utils/distributedJobLock";
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 import { createAdminNotificationTargetCursor } from "./notification/AdminNotificationTargetingService";
 
 interface ScheduledJobLike {

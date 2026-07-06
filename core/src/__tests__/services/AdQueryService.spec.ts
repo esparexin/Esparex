@@ -22,7 +22,7 @@ jest.mock('@esparex/core/models/Report', () => ({
     },
 }));
 
-jest.mock('@esparex/core/utils/redisCache', () => ({
+jest.mock('@esparex/core/infrastructure/cache/redisCache', () => ({
     getCache: jest.fn(),
     setCache: jest.fn(),
     CACHE_TTLS: {
@@ -30,7 +30,7 @@ jest.mock('@esparex/core/utils/redisCache', () => ({
     },
 }));
 
-jest.mock('@esparex/core/utils/s3', () => ({
+jest.mock('@esparex/core/infrastructure/storage/s3', () => ({
     sanitizePersistedImageUrls: (urls: string[]) => urls,
 }));
 

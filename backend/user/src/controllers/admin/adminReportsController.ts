@@ -1,20 +1,15 @@
-import { mutateStatus, getAdminReportById, findReportForUpdate, saveReport, updateReportById, getReportedAdsAggregation } from '@esparex/core/services';
+import { mutateStatus, getAdminReportById, findReportForUpdate, saveReport, updateReportById, getReportedAdsAggregation } from '@esparex/core/services';;
 
 ﻿import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import logger from '@esparex/core/utils/logger';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
+import { logger } from '@esparex/core/utils';;;;
+import { logAdminAction } from '@esparex/core/utils';;;;
 
 import { ACTOR_TYPE } from "@esparex/shared";
 import { AD_STATUS } from "@esparex/shared";
 import { REPORT_STATUS } from "@esparex/shared";
-import { getSingleParam } from '@esparex/core/utils/requestParams';
-import {
-    getPaginationParams,
-    sendPaginatedResponse,
-    sendSuccessResponse,
-    sendAdminError
-} from '@esparex/core/utils/adminBaseController';
+import { getSingleParam } from '@esparex/core/utils';;;;
+import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '@esparex/core/utils';;;;
 
 export const getReportedAds = async (req: Request, res: Response) => {
     try {

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import Ad, { type IAd } from '../../models/Ad';
-import { getUserConnection } from '../../config/db';
+import { getUserConnection } from '../../infrastructure/db';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
@@ -188,9 +188,9 @@ export const updateAdLogic = async (
         if (removedImagesCache.length > 0) {
             void (async () => {
                 try {
-                    const { deleteFromS3Url } = await import('../../utils/s3');
+                    const { deleteFromS3Url } = await import('../../infrastructure/storage/s3');
                     for (const url of removedImagesCache) {
-                        await deleteFromS3Url(url).catch(e => logger.error(`Failed to delete orphaned image: ${url}`, e));
+                        await deleteFromS3Url(url).catch((e: Error) => logger.error(`Failed to delete orphaned image: ${url}`, e));
                     }
                 } catch (err) {
                     logger.error('Failed to execute orphan image cleanup task', err);

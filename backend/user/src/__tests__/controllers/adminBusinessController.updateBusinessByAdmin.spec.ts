@@ -1,4 +1,4 @@
-import { AdminBusinessService_NS as adminBusinessService } from '@esparex/core/services';
+import { AdminBusinessService_NS as adminBusinessService } from '@esparex/core/services';;
 
 jest.mock("@esparex/core/models/Business", () => ({
     __esModule: true,
@@ -97,7 +97,7 @@ jest.mock("@esparex/core/utils/s3", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminBusinessController from "@esparex/core/controllers/admin/adminBusinessController";
+import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
 
 const createMockRes = (req?: Record<string, unknown>) => {
     const res = {

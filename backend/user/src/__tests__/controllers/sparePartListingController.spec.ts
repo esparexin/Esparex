@@ -1,4 +1,4 @@
-import { AdAggregationService_NS as AdAggregationService } from '@esparex/core/services';
+import { AdAggregationService_NS as AdAggregationService } from '@esparex/core/services';;
 
 jest.mock("@esparex/core/services/ad/AdAggregationService", () => ({
     __esModule: true,

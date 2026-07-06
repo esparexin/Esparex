@@ -1,20 +1,16 @@
-import { createNotificationLog, createScheduledNotification, getNotificationHistory, searchNotificationRecipients, NotificationDispatcher, createAdminNotificationTargetCursor } from '@esparex/core/services';
+import { createNotificationLog, createScheduledNotification, getNotificationHistory, searchNotificationRecipients, NotificationDispatcher, createAdminNotificationTargetCursor } from '@esparex/core/services';;
 
 ﻿import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { NOTIFICATION_TYPE } from "@esparex/shared";
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import { NotificationIntent } from '@esparex/core/domain';;
 
-import {
-    getPaginationParams,
-    sendAdminError,
-    sendSuccessResponse,
-} from '@esparex/core/utils/adminBaseController';
-import { logAdminAction } from "@esparex/core/utils/adminLogger";
+import { getPaginationParams, sendAdminError, sendSuccessResponse,  } from '@esparex/core/utils';;;;
+import { logAdminAction } from '@esparex/core/utils';;;;
 
-import { type IUser } from "@esparex/core/models/User";
-import { respond } from "@esparex/core/utils/respond";
+import { type IUser } from '@esparex/core/models';;
+import { respond } from '@esparex/core/utils';;;;
 
 const BATCH_SIZE = 500;
 

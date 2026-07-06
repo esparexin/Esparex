@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import redisClient, { shouldDisableRedis } from '../config/redis';
+import redisClient, { shouldDisableRedis } from '../infrastructure/redis';
 import logger from '../utils/logger';
 import { withTimeout } from '../utils/resilience';
 

@@ -13,7 +13,7 @@
  * mock StatusMutationService at the controller layer.
  */
 
-jest.mock("@esparex/core/config/db", () => ({
+jest.mock("@esparex/core/infrastructure/db", () => ({
     getUserConnection: jest.fn(() => ({
         startSession: jest.fn().mockResolvedValue({
             withTransaction: jest.fn().mockImplementation(async (fn: () => Promise<unknown>) => fn()),

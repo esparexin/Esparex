@@ -1,5 +1,5 @@
 import { Model, Schema, Types } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { LOCATION_LEVELS, type LocationLevel } from '../utils/locationInputNormalizer';
 
 export interface IAdminBoundary {

@@ -1,6 +1,6 @@
-import ScreenSize from "@esparex/core/models/ScreenSize";
-import Category from "@esparex/core/models/Category";
-import logger from "@esparex/core/utils/logger";
+import { ScreenSize } from '@esparex/core/models';;
+import { Category } from '@esparex/core/models';;
+import { logger } from '@esparex/core/utils';;;;
 
 const TV_SIZES = [
     { size: '32"', value: 32 },

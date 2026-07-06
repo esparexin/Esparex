@@ -2,7 +2,7 @@ import mongoose, { type PipelineStage } from 'mongoose';
 import Ad from '../models/Ad';
 import AdAnalytics from '../models/AdAnalytics';
 import Category from '../models/Category';
-import { getCache, setCache } from '../utils/redisCache';
+import { getCache, setCache } from '../infrastructure/cache/redisCache';
 import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';

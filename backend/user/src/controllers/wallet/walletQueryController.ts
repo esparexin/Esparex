@@ -1,4 +1,4 @@
-import { getPostingBalanceByUserId, getTransactionHistoryByUserId, getWalletSummaryByUserId } from '@esparex/core/services';
+import { getPostingBalanceByUserId, getTransactionHistoryByUserId, getWalletSummaryByUserId } from '@esparex/core/services';;
 
 /**
  * ESPAREX — CANONICAL WALLET QUERY CONTROLLER (SSOT)
@@ -11,8 +11,8 @@ import { getPostingBalanceByUserId, getTransactionHistoryByUserId, getWalletSumm
  * Both workspace files now re-export from here.
  */
 import { Request, Response } from 'express';
-import { respond } from '@esparex/core/utils/respond';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { respond } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 
 const getErrorMessage = (error: unknown): string =>
     error instanceof Error ? error.message : 'Unexpected error';

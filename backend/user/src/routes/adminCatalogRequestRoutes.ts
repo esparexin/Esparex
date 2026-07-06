@@ -3,16 +3,7 @@ import { requireAdmin, requirePermission } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
 import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
-import {
-    adminCatalogRequestListQuerySchema,
-    adminCatalogRequestStatsQuerySchema,
-    approveCatalogRequestSchema,
-    rejectCatalogRequestSchema,
-    markCatalogRequestDuplicateSchema,
-    bulkApproveCatalogRequestSchema,
-    bulkRejectCatalogRequestSchema,
-    bulkMarkCatalogRequestDuplicateSchema,
-} from '@esparex/core/validators/catalogRequest.validator';
+import { adminCatalogRequestListQuerySchema, adminCatalogRequestStatsQuerySchema, approveCatalogRequestSchema, rejectCatalogRequestSchema, markCatalogRequestDuplicateSchema, bulkApproveCatalogRequestSchema, bulkRejectCatalogRequestSchema, bulkMarkCatalogRequestDuplicateSchema,  } from '@esparex/core/validators';;
 import {
     getAdminCatalogRequests,
     getAdminCatalogRequestById,

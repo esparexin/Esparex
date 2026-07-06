@@ -231,3 +231,9 @@ export * as WalletService_NS from './WalletService';
 export * from './AdminRevealService';
 export * as AdminRevealService_NS from './AdminRevealService';
 
+export * from './lifecycle/AdStatusService';
+export * as AdStatusService_NS from './lifecycle/AdStatusService';
+
+export * from './lifecycle/ListingExpiryService';
+export * as ListingExpiryService_NS from './lifecycle/ListingExpiryService';
+

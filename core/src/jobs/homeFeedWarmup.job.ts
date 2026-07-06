@@ -1,5 +1,5 @@
 import { warmHomeFeedCache } from '../services/FeedService';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 import logger from '../utils/logger';
 
 export const runHomeFeedWarmupJob = async () => {

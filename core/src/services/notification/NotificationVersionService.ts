@@ -1,4 +1,4 @@
-import redisClient from '../../config/redis';
+import redisClient from '../../infrastructure/redis';
 import logger from '../../utils/logger';
 
 export class NotificationVersionService {

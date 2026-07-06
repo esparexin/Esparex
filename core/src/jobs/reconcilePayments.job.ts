@@ -1,7 +1,7 @@
 // backend/src/jobs/reconcilePayments.job.ts
 import { reconcilePayments } from './reconcilePayments';
-import { jobRunner } from '../utils/jobRunner';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { jobRunner } from '../infrastructure/bullmq/jobRunner';
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 
 export const runPaymentReconciliationJob = async () => {
     await runWithDistributedJobLock(

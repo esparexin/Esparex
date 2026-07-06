@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { getDatabaseHealthProbe, isDbReady } from '../config/db';
+import { getDatabaseHealthProbe, isDbReady } from '../infrastructure/db';
 import { getQueueHealthProbe } from '../queues/queueHealth';
 import type { QueueHealth } from '../queues/queueHealth';
-import { getRedisHealthProbe, isConnected as redisConnected } from './redisCache';
-import { getRedisOperationalObservabilityReport } from '../config/redisFactory';
+import { getRedisHealthProbe, isConnected as redisConnected } from '../infrastructure/cache/redisCache';
+import { getRedisOperationalObservabilityReport } from '../infrastructure/redis/redisFactory';
 import logger from './logger';
-import { getWorkerStatusProbe } from './workerStatus';
-import type { WorkerStatusEntry } from './workerStatus';
+import { getWorkerStatusProbe } from '../infrastructure/bullmq/workerStatus';
+import type { WorkerStatusEntry } from '../infrastructure/bullmq/workerStatus';
 
 /**
  * Shared Health Check Logic

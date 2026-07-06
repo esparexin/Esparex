@@ -2,7 +2,7 @@ import { redisConnection } from './redisConnection';
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
-import { registerWorkerWithTrace, type TraceableJobData } from '../utils/queueWrapper';
+import { registerWorkerWithTrace, type TraceableJobData } from '../infrastructure/bullmq/queueWrapper';
 import { withQueueDefaults } from './queueDefaults';
 export type SchedulerJobName =
     | 'expire_ads_job'

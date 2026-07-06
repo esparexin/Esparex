@@ -1,9 +1,4 @@
-import {
-    buildPublicAdFilter,
-    assertFeedSafetyFilter,
-    HIDDEN_MODERATION_STATUSES,
-    isPublicAdVisible,
-} from '@esparex/core/utils/FeedVisibilityGuard';
+import { buildPublicAdFilter, assertFeedSafetyFilter, HIDDEN_MODERATION_STATUSES, isPublicAdVisible,  } from '@esparex/core/utils';;;;
 
 describe('FeedVisibilityGuard', () => {
     describe('HIDDEN_MODERATION_STATUSES', () => {

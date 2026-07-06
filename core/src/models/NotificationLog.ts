@@ -42,7 +42,7 @@ const NotificationLogSchema: Schema = new Schema({
 
 NotificationLogSchema.index({ sentBy: 1, createdAt: -1 }, { name: 'idx_notificationlog_sender_freshness_idx' });
 
-import { getAdminConnection } from '../config/db';
+import { getAdminConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 applyToJSONTransform(NotificationLogSchema);
 

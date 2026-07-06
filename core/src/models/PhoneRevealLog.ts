@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export interface IPhoneRevealLog extends Document {
     buyerId: mongoose.Types.ObjectId;

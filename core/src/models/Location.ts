@@ -1,5 +1,5 @@
 import { Schema, Model, Types } from "mongoose";
-import { getUserConnection } from "../config/db";
+import { getUserConnection } from '../infrastructure/db';
 import softDeletePlugin, { ISoftDeleteDocument } from "../utils/softDeletePlugin";
 import { hasValidCoordinateArray, normalizeGeoPoint } from "@esparex/shared";
 import { LOCATION_LEVELS, buildLocationSlug, normalizeLocationNameForSearch } from "../utils/locationPrimitives";

@@ -31,7 +31,7 @@ jest.mock('@esparex/core/utils/errorResponse', () => ({
 // ── Imports ──────────────────────────────────────────────────────────────────
 
 import { paymentWebhook } from '../../controllers/payment/paymentWebhook';
-import { enqueuePaymentProcessing } from '@esparex/core/queues/paymentQueue';
+import { enqueuePaymentProcessing } from '@esparex/core/queues';;
 import { Request, Response } from 'express';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────

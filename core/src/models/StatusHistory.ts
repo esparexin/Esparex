@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { ACTOR_TYPE_VALUES } from '@esparex/shared';
 
 export interface IStatusHistory extends Document {

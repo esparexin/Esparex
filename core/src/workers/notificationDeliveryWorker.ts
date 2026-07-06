@@ -6,7 +6,7 @@ import logger from '../utils/logger';
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';
 import { queueWorkerBackoffStrategy } from '../queues/queueDefaults';
 import { TraceContext } from '@esparex/shared';
-import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabilityContext';
+import { clearReliabilityContext, setReliabilityContext } from '../infrastructure/telemetry/reliabilityContext';
 
 /**
  * Notification Delivery Worker

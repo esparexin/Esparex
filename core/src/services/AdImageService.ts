@@ -8,7 +8,7 @@
 import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
 import AdImage from '../models/AdImage';
-import { deleteFromS3Url } from '../utils/s3';
+import { deleteFromS3Url } from '../infrastructure/storage/s3';
 import { processSingleImage } from '../utils/imageProcessor';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
@@ -365,7 +365,7 @@ export const findImageDuplicates = async (
 // CANONICAL METHODS (Ex-Shims)
 // ─────────────────────────────────────────────────
 
-import { generatePresignedUploadUrl, PresignedUploadResult } from '../utils/s3';
+import { generatePresignedUploadUrl, PresignedUploadResult } from '../infrastructure/storage/s3';
 
 /**
  * Generates a presigned URL for direct S3 upload from the client.

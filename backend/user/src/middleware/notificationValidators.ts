@@ -5,7 +5,7 @@ import {
     ADMIN_NOTIFICATION_TOPIC_VALUES,
     NOTIFICATION_TYPE_VALUES,
 } from '@esparex/shared';
-import { commonSchemas, sanitizeString } from "@esparex/core/validators/common";
+import { commonSchemas, sanitizeString } from '@esparex/core/validators';;
 
 const adminNotificationTargetTypeEnum = z.enum([
     ADMIN_NOTIFICATION_TARGET_TYPE.ALL,

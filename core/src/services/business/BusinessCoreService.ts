@@ -6,7 +6,7 @@ import Ad from '../../models/Ad';
 import { normalizeAdImagesForResponse } from "../adQuery/AdQueryHelpers";
 import { LISTING_STATUS } from '@esparex/shared';
 import { AppError } from '../../utils/AppError';
-import { getUserConnection } from '../../config/db';
+import { getUserConnection } from '../../infrastructure/db';
 import logger from '../../utils/logger';
 import { normalizeLocation } from "../location/LocationNormalizer";
 import { BUSINESS_STATUS } from '@esparex/shared';

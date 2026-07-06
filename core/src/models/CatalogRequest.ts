@@ -1,6 +1,6 @@
 import { Schema, type Document, type Model, Types } from 'mongoose';
 import slugify from 'slugify';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export const CATALOG_REQUEST_TYPE_VALUES = ['brand', 'model'] as const;

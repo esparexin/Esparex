@@ -1,9 +1,4 @@
-import {
-    getAdsQuerySchema,
-    homeFeedQuerySchema,
-    markAsSoldSchema,
-    trendingAdsQuerySchema,
-} from '@esparex/core/validators/ad.validator';
+import { getAdsQuerySchema, homeFeedQuerySchema, markAsSoldSchema, trendingAdsQuerySchema,  } from '@esparex/core/validators';;
 
 const validObjectId = '507f1f77bcf86cd799439011';
 

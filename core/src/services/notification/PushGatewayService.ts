@@ -1,5 +1,5 @@
 import User from '../../models/User';
-import admin from '../../config/firebaseAdmin';
+import admin from '../../infrastructure/push/firebaseAdmin';
 import logger from '../../utils/logger';
 import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
 

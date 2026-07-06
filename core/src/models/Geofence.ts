@@ -1,5 +1,5 @@
 import { Schema, Model, Types } from "mongoose";
-import { getUserConnection } from "../config/db";
+import { getUserConnection } from '../infrastructure/db';
 
 export interface IGeofence {
     _id: Types.ObjectId;

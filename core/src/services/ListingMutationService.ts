@@ -1,5 +1,5 @@
 import { processImages } from '../utils/imageProcessor';
-import { sanitizeStoredImageUrls, deleteFromS3Url } from '../utils/s3';
+import { sanitizeStoredImageUrls, deleteFromS3Url } from '../infrastructure/storage/s3';
 import logger from '../utils/logger';
 
 export interface BaseListingCreationContext {

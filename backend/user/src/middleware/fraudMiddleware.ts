@@ -1,14 +1,14 @@
-import { analyzeFraudRisk, FraudContext, FraudDecision, RiskLevel, detectSpam } from '@esparex/core/services';
+import { analyzeFraudRisk, FraudContext, FraudDecision, RiskLevel, detectSpam } from '@esparex/core/services';;
 
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { extractDeviceFingerprint } from '@esparex/core/utils/deviceFingerprint';
+import { extractDeviceFingerprint } from '@esparex/core/utils';;;;
 
-import { detectAiSpam } from '@esparex/core/utils/aiSpamDetector';
-import logger from '@esparex/core/utils/logger';
-import { getUserConnection } from '@esparex/core/config/db';
-import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
-import { env } from '@esparex/core/config/env';
+import { detectAiSpam } from '@esparex/core/utils';;;;
+import { logger } from '@esparex/core/utils';;;;
+import { getUserConnection } from '@esparex/core/infrastructure';;
+import { FeatureFlag, isEnabled } from '@esparex/core/config';;;;
+import { env } from '@esparex/core/config';;;;
 
 export interface FraudRequest extends Request {
     fraudRisk?: RiskLevel;

@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 
 /**
  * Middleware to support both ObjectId AND Slugs

@@ -5,7 +5,7 @@ const mockSession = {
     endSession: jest.fn(),
 };
 
-jest.mock("@esparex/core/config/db", () => ({
+jest.mock("@esparex/core/infrastructure/db", () => ({
     getAdminConnection: () => ({
         models: {},
         model: jest.fn().mockReturnValue({}),
@@ -76,7 +76,7 @@ jest.mock("@esparex/core/services/InvoiceService", () => ({
     ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/config/razorpay", () => ({
+jest.mock("@esparex/core/infrastructure/payment/razorpay", () => ({
     getRazorpayClient: jest.fn().mockResolvedValue({
         orders: {
             fetch: jest.fn(),

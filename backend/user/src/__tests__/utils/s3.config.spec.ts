@@ -5,7 +5,7 @@ jest.mock('@esparex/core/config/env', () => ({
     }
 }));
 
-import { uploadToS3 } from '@esparex/core/utils/s3';
+import { uploadToS3 } from '@esparex/core/infrastructure';;
 
 describe('S3 bucket environment resolution', () => {
     it('rejects uploads when S3_BUCKET_NAME is missing', async () => {

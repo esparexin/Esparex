@@ -1,7 +1,7 @@
 import mongoose, { type ClientSession, type Types } from 'mongoose';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import CatalogRequest, {
     type ICatalogRequest,
     CATALOG_REQUEST_STATUS_VALUES,

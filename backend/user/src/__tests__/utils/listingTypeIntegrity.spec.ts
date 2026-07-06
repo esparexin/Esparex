@@ -1,9 +1,5 @@
 import { LISTING_TYPE } from '@esparex/shared';
-import {
-    getListingTypeCapability,
-    getListingTypeRemediation,
-    inferListingType,
-} from '@esparex/core/utils/listingTypeIntegrity';
+import { getListingTypeCapability, getListingTypeRemediation, inferListingType,  } from '@esparex/core/utils';;;;
 
 describe('listingTypeIntegrity', () => {
     it('treats business-style resale content without service fields as ad', () => {

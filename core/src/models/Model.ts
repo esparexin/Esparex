@@ -178,7 +178,7 @@ ModelSchema.pre('validate', function () {
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 ModelSchema.plugin(installSafeSoftDeleteQuery);
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 export const Model: MongooseModel<IModel> = (getUserConnection().models.Model as MongooseModel<IModel> | undefined) || getUserConnection().model<IModel>('Model', ModelSchema);
 
 export default Model;

@@ -1,15 +1,15 @@
-import { approveCatalogRequest, markCatalogRequestDuplicate, rejectCatalogRequest, NotificationDispatcher, CatalogNotificationService, validateBrandBelongsToCategory, validateCategoryIsActive } from '@esparex/core/services';
-import { CatalogRequestService_NS as CatalogRequestService } from '@esparex/core/services';
+import { approveCatalogRequest, markCatalogRequestDuplicate, rejectCatalogRequest, NotificationDispatcher, CatalogNotificationService, validateBrandBelongsToCategory, validateCategoryIsActive } from '@esparex/core/services';;
+import { CatalogRequestService_NS as CatalogRequestService } from '@esparex/core/services';;
 
 import type { Request, Response } from 'express';
 import slugify from 'slugify';
-import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
+import { type ICatalogRequest } from '@esparex/core/models';;
 
-import { sendPaginatedResponse, sendSuccessResponse } from '@esparex/core/utils/respond';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
-import { AppError } from '@esparex/core/utils/AppError';
+import { sendPaginatedResponse, sendSuccessResponse } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
+import { AppError } from '@esparex/core/utils';;;;
 
-import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
+import { NotificationIntent } from '@esparex/core/domain';;
 
 import { NOTIFICATION_TYPE } from '@esparex/shared';
 
