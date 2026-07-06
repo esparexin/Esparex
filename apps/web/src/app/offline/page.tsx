@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import TryAgainButton from "./TryAgainButton";
 
 export const metadata: Metadata = {
     title: "You're offline | Esparex",
@@ -29,12 +30,7 @@ export default function OfflinePage() {
             <p className="mb-8 max-w-sm text-sm text-slate-500">
                 It looks like you&apos;ve lost your internet connection. Check your network and try again.
             </p>
-            <button
-                onClick={() => window.location.reload()}
-                className="mb-4 inline-flex h-11 items-center rounded-xl bg-slate-900 px-6 text-sm font-semibold text-white transition hover:bg-slate-700 active:scale-95"
-            >
-                Try again
-            </button>
+            <TryAgainButton />
             <Link
                 href="/"
                 className="text-sm text-slate-500 underline-offset-2 hover:underline"
