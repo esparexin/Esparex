@@ -3,14 +3,14 @@ import { Worker } from "bullmq";
 import sharp from "sharp";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { redisConnection, shouldDisableQueueConnection } from "../queues/redisConnection";
-import { s3Client, getBucketName, extractS3KeyFromUrl, uploadToS3, deleteFromS3ByKey } from "../utils/s3";
+import { s3Client, getBucketName, extractS3KeyFromUrl, uploadToS3, deleteFromS3ByKey } from '../infrastructure/storage/s3';
 import Ad from "../models/Ad";
 import logger from "../utils/logger";
 import { ImageOptimizationJobPayload } from "../queues/imageQueue";
 import { enqueueDeadLetter } from "../queues/deadLetterQueue";
 import { queueWorkerBackoffStrategy } from "../queues/queueDefaults";
 import { TraceContext } from '@esparex/shared';
-import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabilityContext';
+import { clearReliabilityContext, setReliabilityContext } from '../infrastructure/telemetry/reliabilityContext';
 
 // Use a strict concurrency of 2 to avoid memory overloads when processing 10MB raw JPEGs natively.
 const createNoopWorker = <T>() => ({

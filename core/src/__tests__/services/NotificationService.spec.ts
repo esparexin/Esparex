@@ -45,7 +45,7 @@ jest.mock("@esparex/core/models/Notification", () => {
     }));
 });
 
-jest.mock("@esparex/core/config/firebaseAdmin", () => ({
+jest.mock("@esparex/core/infrastructure/push/firebaseAdmin", () => ({
     __esModule: true,
     default: { messaging: mockMessaging },
 }));
@@ -65,7 +65,7 @@ jest.mock("@esparex/core/queues/queueIdempotency", () => ({
     releaseQueueIdempotencySlot: mockReleaseIdempotencySlot,
 }));
 
-jest.mock("@esparex/core/utils/queueWrapper", () => ({
+jest.mock("@esparex/core/infrastructure/bullmq/queueWrapper", () => ({
     addJobWithTrace: mockAddJobWithTrace,
 }));
 
@@ -79,7 +79,7 @@ jest.mock("@esparex/core/queues/redisConnection", () => ({
     isQueueConnectionAvailable: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("@esparex/core/config/socket", () => ({
+jest.mock("@esparex/core/infrastructure/socket", () => ({
     getIO: mockGetIO,
 }));
 

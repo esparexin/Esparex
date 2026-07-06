@@ -1,4 +1,4 @@
-import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/services';
+import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/services';;
 
 /**
  * ESPAREX — CANONICAL ADMIN AUTH MIDDLEWARE
@@ -10,16 +10,16 @@ import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/servic
  * Current SSOT:  backend/user/src/middleware/adminAuth.ts
  */
 import { Request, Response, NextFunction } from 'express';
-import Admin, { type IAdmin } from '@esparex/core/models/Admin';
-import { getAdminCookieOptions } from '@esparex/core/utils/cookieHelper';
-import { verifyAdminToken } from '@esparex/core/utils/auth';
-import type { IAuthUser } from '@esparex/core/types/auth';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { Admin, type IAdmin } from '@esparex/core/models';;
+import { getAdminCookieOptions } from '@esparex/core/utils';;;;
+import { verifyAdminToken } from '@esparex/core/utils';;;;
+import type { IAuthUser } from '@esparex/core/types';;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 import { Role } from '@esparex/shared';
 
 import { USER_STATUS } from '@esparex/shared';
 import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core/constants/adminPermissions';
-import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
+import { setReliabilityContext } from '@esparex/core/infrastructure';;;;
 
 export const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Ad, { IAd } from '../models/Ad';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
 
@@ -218,9 +218,9 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
         });
 
         // 📊 BUSINESS METRIC: Listing Creation
-        // NOTE: Counter must be pre-registered in @esparex/core/utils/metrics at startup.
+        // NOTE: Counter must be pre-registered in @esparex/core/infrastructure/telemetry/metrics at startup.
         // We only look it up here — never create it — to avoid prom-client double-registration errors.
-        import('@esparex/core/utils/metrics').then(({ register: prometheusRegister }) => {
+        import('@esparex/core/infrastructure/telemetry/metrics').then(({ register: prometheusRegister }) => {
             const counter = prometheusRegister.getSingleMetric('esparex_listing_creation_total');
             if (counter) {
                 (counter as { inc(labels: Record<string, string>): void }).inc({

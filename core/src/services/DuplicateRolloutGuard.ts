@@ -1,4 +1,4 @@
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import logger from '../utils/logger';
 import { env } from '../config/env';
 

@@ -1,9 +1,6 @@
 ﻿import { AD_STATUS } from "@esparex/shared";
 import { LISTING_TYPE } from "@esparex/shared";
-import type {
-    ModerationListingType,
-    ModerationStatus,
-} from '@esparex/core/services/ListingModerationQueryService';
+import type { ModerationListingType, ModerationStatus,  } from '@esparex/core/services';;;
 
 const MODERATION_STATUS_SET = new Set<ModerationStatus>([
     AD_STATUS.PENDING,

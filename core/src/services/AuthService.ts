@@ -21,7 +21,7 @@ import {
     normalizeTo10Digits 
 } from '../utils/phoneUtils';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
-import { recordOtpAbuseSignal } from '../utils/securityMonitoring';
+import { recordOtpAbuseSignal } from '../infrastructure/telemetry/securityMonitoring';
 
 type AuthFailure = {
     success: false;

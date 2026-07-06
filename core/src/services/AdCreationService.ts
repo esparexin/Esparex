@@ -10,7 +10,7 @@ import { generateUniqueSlug } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
-import { sanitizeStoredImageUrls } from '../utils/s3';
+import { sanitizeStoredImageUrls } from '../infrastructure/storage/s3';
 import { AdContext } from '../types/ad.types';
 import { computeActiveExpiry } from './lifecycle/AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';

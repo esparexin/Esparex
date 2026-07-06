@@ -1,4 +1,4 @@
-import { createAdminAccount } from '@esparex/core/services';
+import { createAdminAccount } from '@esparex/core/services';;
 
 jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
@@ -28,7 +28,7 @@ jest.mock("@esparex/core/services/AdminUsersService", () => ({
     createAdminAccount: jest.fn(),
 }));
 
-import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
+import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import type { Request, Response } from "express";
 
 const createMockRes = (req?: Partial<Request>) => {

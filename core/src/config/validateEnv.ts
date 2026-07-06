@@ -1,7 +1,7 @@
 /* global NodeJS */
 import bootstrapLogger from '../utils/bootstrapLogger';
 import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '../utils/originConfig';
-import { isLocalRedisHost, resolveRedisConfig } from './redisConfig';
+import { isLocalRedisHost, resolveRedisConfig } from '../infrastructure/redis/redisConfig';
 
 const REQUIRED_PRODUCTION_ENV_VARS = [
     'RAZORPAY_WEBHOOK_SECRET',

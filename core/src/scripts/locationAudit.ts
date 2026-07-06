@@ -243,7 +243,7 @@ async function runAudit() {
     }
 }
 
-import { connectDB } from '../config/db';
+import { connectDB } from '../infrastructure/db';
 
 // Execute audit
 void (async () => {

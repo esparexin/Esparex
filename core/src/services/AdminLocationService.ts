@@ -29,7 +29,7 @@ import type { AdminLogFn } from './AdminListingsService';
 import slugify from 'slugify';
 import { escapeRegExp } from '../utils/stringUtils';
 import logger from '../utils/logger';
-import { delCache, getCache, setCache, invalidateLocationCaches } from '../utils/redisCache';
+import { delCache, getCache, setCache, invalidateLocationCaches } from '../infrastructure/cache/redisCache';
 import { LOCATION_STATUS } from '@esparex/shared';
 import {
     normalizeLocationResponse,

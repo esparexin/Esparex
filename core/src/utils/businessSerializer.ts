@@ -4,7 +4,7 @@
  * Shared between services and controllers.
  */
 
-import { sanitizePersistedImageUrls } from './s3';
+import { sanitizePersistedImageUrls } from '../infrastructure/storage/s3';
 import { serializeDoc } from './serialize';
 
 const asRecord = (value: unknown): Record<string, unknown> =>

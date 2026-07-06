@@ -1,9 +1,9 @@
 import logger from "../utils/logger";
 import { env } from '../config/env';
-import { runWithDistributedJobLock } from "../utils/distributedJobLock";
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 import AdImage from '../models/AdImage';
 import { ListObjectsV2Command, DeleteObjectsCommand } from '@aws-sdk/client-s3';
-import { s3Client, getBucketName } from '../utils/s3';
+import { s3Client, getBucketName } from '../infrastructure/storage/s3';
 import User from '../models/User';
 import Ad from '../models/Ad';
 import Business from '../models/Business';

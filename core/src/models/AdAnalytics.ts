@@ -27,7 +27,7 @@ const AdAnalyticsSchema = new Schema<IAdAnalytics>(
 AdAnalyticsSchema.index({ adId: 1 }, { name: 'idx_adanalytics_adId_unique_idx', unique: true });
 AdAnalyticsSchema.index({ score: -1 }, { name: 'idx_adanalytics_score_idx' });
 
-import { getAdminConnection } from '../config/db';
+import { getAdminConnection } from '../infrastructure/db';
 
 const connection = getAdminConnection();
 const AdAnalytics: Model<IAdAnalytics> =

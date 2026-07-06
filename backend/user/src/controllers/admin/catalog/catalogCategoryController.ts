@@ -1,4 +1,4 @@
-import { CategoryModel, getCatalogEntityCounts, findCategoryById, categoryParentExists, updateCategorySchemaById, findCategoryByIdWithSession, softDeleteCategoryById, CatalogOrchestrator } from '@esparex/core/services';
+import { CategoryModel, getCatalogEntityCounts, findCategoryById, categoryParentExists, updateCategorySchemaById, findCategoryByIdWithSession, softDeleteCategoryById, CatalogOrchestrator } from '@esparex/core/services';;
 
 ﻿/**
  * Catalog Category Controller
@@ -9,22 +9,18 @@ import { CategoryModel, getCatalogEntityCounts, findCategoryById, categoryParent
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import logger from '@esparex/core/utils/logger';
-import { getUserConnection } from '@esparex/core/config/db';
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import { logger } from '@esparex/core/utils';;;;
+import { getUserConnection } from '@esparex/core/infrastructure';;
+import { handlePaginatedContent } from '@esparex/core/utils';;;;
 
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
-import { AppError } from '@esparex/core/utils/AppError';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { logAdminAction } from '@esparex/core/utils';;;;
+import { AppError } from '@esparex/core/utils';;;;
+import { sendSuccessResponse } from '@esparex/core/utils';;;;
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 
-import { clearCategoryCanonicalCache } from '@esparex/core/utils/categoryCanonical';
+import { clearCategoryCanonicalCache } from '@esparex/core/utils';;;;
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
-import {
-    categoryCreateSchema,
-    categoryUpdateSchema,
-    categorySchemaUpdateBodySchema
-} from '@esparex/core/validators/catalog.validator';
+import { categoryCreateSchema, categoryUpdateSchema, categorySchemaUpdateBodySchema } from '@esparex/core/validators';;
 import {
     hasAdminAccess,
     sendCatalogError,
@@ -36,7 +32,7 @@ import {
     sendValidationError
 } from './shared';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
+import { getCache, setCache, CACHE_TTLS } from '@esparex/core/infrastructure';;
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────
 // Category operations delegated to shared.ts or CatalogOrchestrator.
@@ -182,7 +178,7 @@ export const createCategory = async (req: Request, res: Response) => {
                 isActive: payload.isActive as boolean | undefined,
                 fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             }),
-        } as Partial<import('@esparex/core/models/Category').ICategory>);
+        } as Partial<import('@esparex/core/models').ICategory>);
 
         clearCategoryCanonicalCache();
         sendSuccessResponse(res, category, 'Category created successfully');
@@ -237,7 +233,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             }
             : payload;
 
-        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<import('@esparex/core/models/Category').ICategory>);
+        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<import('@esparex/core/models').ICategory>);
         if (!updatedCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         clearCategoryCanonicalCache();

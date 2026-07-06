@@ -1,5 +1,5 @@
 import { env } from '../config/env';
-import { redisFactory, shouldDisableRedis } from '../config/redisFactory';
+import { redisFactory, shouldDisableRedis } from '../infrastructure/redis/redisFactory';
 import type { Redis } from 'ioredis';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';

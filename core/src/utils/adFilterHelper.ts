@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { normalizeGeoInput } from './mongoGeoUtils';
+import { normalizeGeoInput } from '../infrastructure/db/mongoGeoUtils';
 import { normalizeAdStatus } from '../services/lifecycle/AdStatusService';
 import CategoryQueryBuilder from './CategoryQueryBuilder';
 

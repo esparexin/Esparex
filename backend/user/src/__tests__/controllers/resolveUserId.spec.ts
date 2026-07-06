@@ -1,4 +1,4 @@
-import { getUserProfileById as getUserProfileSvc } from '@esparex/core/services';
+import { getUserProfileById as getUserProfileSvc } from '@esparex/core/services';;
 
 /**
  * Unit tests for resolveUserId (Phase 9).

@@ -1,4 +1,4 @@
-import { AIRequestBody, executeAiRequest, getAiContext, isAIRequestType } from '@esparex/core/services';
+import { AIRequestBody, executeAiRequest, getAiContext, isAIRequestType } from '@esparex/core/services';;
 
 /**
  * ESPAREX — AI CONTROLLER
@@ -9,10 +9,10 @@ import { AIRequestBody, executeAiRequest, getAiContext, isAIRequestType } from '
  * Previous SSOT: core/src/controllers/shared/ai/aiController.ts
  * Current SSOT:  backend/user/src/controllers/ai/aiController.ts
  */
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core/utils';;;;
 import { Request, Response } from 'express';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
-import { respond } from '@esparex/core/utils/respond';
+import { sendErrorResponse } from '@esparex/core/utils';;;;
+import { respond } from '@esparex/core/utils';;;;
 
 export const catalogSuggest = async (req: Request, res: Response) => {
     try {

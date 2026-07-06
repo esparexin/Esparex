@@ -1,4 +1,4 @@
-import { BrandModel, CatalogModel, findCategoryBySlugForCatalog, findBrandByFilter, getActiveBrandIds, checkBrandInCategories, checkBrandDependencies, findModelByFilter, checkModelDependencies, findModelBySlug, validateBrandIsActive, CatalogOrchestrator, MAX_MODEL_TREE_DEPTH, type ModelHierarchyDoc, updateModelHierarchyTransactionally, validateModelHierarchyMutation, detectDuplicateCandidates } from '@esparex/core/services';
+import { BrandModel, CatalogModel, findCategoryBySlugForCatalog, findBrandByFilter, getActiveBrandIds, checkBrandInCategories, checkBrandDependencies, findModelByFilter, checkModelDependencies, findModelBySlug, validateBrandIsActive, CatalogOrchestrator, MAX_MODEL_TREE_DEPTH, type ModelHierarchyDoc, updateModelHierarchyTransactionally, validateModelHierarchyMutation, detectDuplicateCandidates } from '@esparex/core/services';;
 
 ﻿/**
  * Catalog Brand & Model Controller
@@ -7,12 +7,12 @@ import { BrandModel, CatalogModel, findCategoryBySlugForCatalog, findBrandByFilt
  */
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import { logger } from '@esparex/core/utils';;;;
+import { sendSuccessResponse } from '@esparex/core/utils';;;;
+import { handlePaginatedContent } from '@esparex/core/utils';;;;
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { getUserConnection } from '@esparex/core/config/db';
+import { getUserConnection } from '@esparex/core/infrastructure';;
 
 import {
     sendCatalogError,
@@ -31,18 +31,12 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
 } from './shared';
-import { logAdminAction } from '@esparex/core/utils/adminLogger';
+import { logAdminAction } from '@esparex/core/utils';;;;
 import { toOptionalString, toStringArray } from './inputCoercion';
-import {
-    brandCreateSchema,
-    brandUpdateSchema,
-    modelCreateSchema,
-    modelUpdateSchema,
-    rejectionSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
-import VariantModel from '@esparex/core/models/Variant';
+import { brandCreateSchema, brandUpdateSchema, modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core/validators';;
+import { CategoryQueryBuilder } from '@esparex/core/utils';;;;
+import { getCache, setCache } from '@esparex/core/infrastructure';;
+import { Variant as VariantModel } from '@esparex/core/models';;
 
 // ── Cache helpers ──────────────────────────────────────────────────────────
 const CATALOG_CACHE_TTL = 300; // 5 minutes

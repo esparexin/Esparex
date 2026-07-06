@@ -4,7 +4,7 @@ import Model from '../../models/Model';
 import Brand from '../../models/Brand';
 import { CATALOG_STATUS } from '@esparex/shared';
 import logger from '../../utils/logger';
-import { clearCachePattern } from '../../utils/redisCache';
+import { clearCachePattern } from '../../infrastructure/cache/redisCache';
 
 /**
  * 🚀 Catalog Promotion Listener

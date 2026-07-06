@@ -1,5 +1,5 @@
 import mongoose, { ClientSession } from 'mongoose';
-import { getUserConnection } from '../../config/db';
+import { getUserConnection } from '../../infrastructure/db';
 import { 
     validateTransition as validateLifecycleTransition, 
     resolveLifecycleDomain,
@@ -235,7 +235,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             // 🛡️ PRODUCTION HARDENING: Fire-and-forget cache invalidation
             // Cache bust runs independently — a Redis failure must NOT block
             // lifecycle event dispatch that downstream consumers depend on.
-            import('@esparex/core/utils/redisCache').then(({ invalidatePublicAdCache, invalidateAdFeedCaches }) => {
+            import('@esparex/core/infrastructure/cache/redisCache').then(({ invalidatePublicAdCache, invalidateAdFeedCaches }) => {
                 return Promise.all([
                     invalidatePublicAdCache(entityId.toString()),
                     invalidateAdFeedCaches()
@@ -408,7 +408,7 @@ async function recordMutationMetric(
     try {
         // 1. Prometheus Telemetry (High-Resolution)
         if (status === 'success') {
-            const { listingStatusTransitionsTotal } = await import('../../utils/metrics');
+            const { listingStatusTransitionsTotal } = await import('../../infrastructure/telemetry/metrics');
             listingStatusTransitionsTotal.inc({
                 fromStatus: from,
                 toStatus: to,

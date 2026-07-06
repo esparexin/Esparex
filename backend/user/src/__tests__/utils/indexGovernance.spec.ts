@@ -9,8 +9,8 @@ jest.mock("@esparex/core/utils/logger", () => ({
     },
 }));
 
-import logger from "@esparex/core/utils/logger";
-import { governSchema, resetIndexGovernanceForTests } from "@esparex/core/db/indexGovernance";
+import { logger } from '@esparex/core/utils';;;;
+import { governSchema, resetIndexGovernanceForTests } from '@esparex/core/tooling';;
 
 describe("index governance", () => {
     beforeEach(() => {

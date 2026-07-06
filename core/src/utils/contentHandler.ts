@@ -8,9 +8,9 @@ import {
     sendSuccessResponse,
     sendAdminError
 } from './adminBaseController';
-import { getCache, setCache, CACHE_TTLS } from './redisCache';
+import { getCache, setCache, CACHE_TTLS } from '../infrastructure/cache/redisCache';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
-import { getAdminConnection, getUserConnection } from '../config/db';
+import { getAdminConnection, getUserConnection } from '../infrastructure/db';
 import {
     castCatalogQueryIds,
     recordCatalogReadDiff,

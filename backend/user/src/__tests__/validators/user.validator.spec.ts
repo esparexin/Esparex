@@ -1,4 +1,4 @@
-import { getUsersQuerySchema, updateUserProfileSchema } from "@esparex/core/validators/user.validator";
+import { getUsersQuerySchema, updateUserProfileSchema } from '@esparex/core/validators';;
 
 describe("getUsersQuerySchema", () => {
     it("accepts canonical admin user filters", () => {

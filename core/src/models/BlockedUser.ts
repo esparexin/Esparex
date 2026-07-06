@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IBlockedUser extends Document {

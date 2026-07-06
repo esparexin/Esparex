@@ -10,7 +10,7 @@ import { backupDatabase, cleanupOldBackups } from '../scripts/backup-database';
 import { verifyBackup } from '../scripts/verify-backup';
 import { env, isProduction } from '../config/env';
 import logger from '../utils/logger';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 
 /**
  * Run backup job

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-jest.mock("@esparex/core/config/db", () => ({
+jest.mock("@esparex/core/infrastructure/db", () => ({
     getUserConnection: () => ({
         models: {},
         model: () => ({
@@ -37,7 +37,7 @@ jest.mock("@esparex/core/models/AdminBoundary", () => ({
     default: { find: jest.fn() },
 }));
 
-jest.mock("@esparex/core/utils/redisCache", () => ({
+jest.mock("@esparex/core/infrastructure/cache/redisCache", () => ({
     getCache: jest.fn().mockResolvedValue(null),
     setCache: jest.fn().mockResolvedValue(undefined),
     CACHE_KEYS: {

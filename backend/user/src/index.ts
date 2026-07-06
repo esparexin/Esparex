@@ -1,6 +1,6 @@
 import "@esparex/core/config/loadEnv";
-import logger from "@esparex/core/utils/logger";
-import { waitForRedisReady } from '@esparex/core/config/redis';
+import { logger } from '@esparex/core/utils';;;;
+import { waitForRedisReady } from '@esparex/core/infrastructure';;
 
 const role = process.env.PROCESS_ROLE || 'api';
 
@@ -10,7 +10,7 @@ if (role === 'worker') {
         await waitForRedisReady({
             context: 'worker-bootstrap',
         });
-        const { startWorkers } = await import("@esparex/core/workers");
+        const { startWorkers } = await import('@esparex/core/workers');
         startWorkers();
     })().catch(err => {
         logger.error("Failed to start workers", { error: err instanceof Error ? err.message : String(err) });

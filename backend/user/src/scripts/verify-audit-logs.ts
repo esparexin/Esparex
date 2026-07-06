@@ -8,11 +8,11 @@
  */
 
 import mongoose from "mongoose";
-import { connectDB } from "@esparex/core/config/db";
-import AdminLog from "@esparex/core/models/AdminLog";
-import StatusHistory from "@esparex/core/models/StatusHistory";
-import Business from "@esparex/core/models/Business";
-import Ad from "@esparex/core/models/Ad";
+import { connectDatabase as connectDB } from '@esparex/core/infrastructure';;
+import { AdminLog } from '@esparex/core/models';;
+import { StatusHistory } from '@esparex/core/models';;
+import { Business } from '@esparex/core/models';;
+import { Ad } from '@esparex/core/models';;
 
 async function run(): Promise<void> {
     console.info("[log-verify] Connecting to MongoDB...");

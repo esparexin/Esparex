@@ -3,7 +3,7 @@ import Report, { ReportTargetTypeValue } from '../models/Report';
 import Ad from '../models/Ad';
 import User from '../models/User';
 import Business from '../models/Business';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../infrastructure/cache/redisCache';
 import logger from '../utils/logger';
 import { mutateStatus } from './lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from '@esparex/shared';

@@ -5,15 +5,15 @@
  * The pure logAdminActionDirect and types remain in @utils/adminLogger.
  */
 import { Request } from 'express';
-import { AdminLog } from '@esparex/core/models';
-import logger from '@esparex/core/utils/logger';
+import { AdminLog } from '@esparex/core/models';;
+import { logger } from '@esparex/core/utils';;;;
 
 // â”€â”€â”€ Re-export pure types and transport-free logger from core â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export type {
     AdminLogTargetType,
     AdminLogFn,
-} from '@esparex/core/utils/adminLogger';
-export { logAdminActionDirect } from '@esparex/core/utils/adminLogger';
+} from '@esparex/core/utils';;
+export { logAdminActionDirect } from '@esparex/core/utils';;
 
 // â”€â”€â”€ Express-aware admin action logger â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /**

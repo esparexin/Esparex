@@ -1,5 +1,5 @@
 
-import redis from '../config/redis';
+import redis from '../infrastructure/redis';
 import User from '../models/User';
 import Ad from '../models/Ad';
 import Business from '../models/Business';

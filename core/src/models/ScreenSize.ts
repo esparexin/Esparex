@@ -135,7 +135,7 @@ ScreenSizeSchema.pre('validate', function () {
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 ScreenSizeSchema.plugin(installSafeSoftDeleteQuery);
 
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 applyToJSONTransform(ScreenSizeSchema);
 ScreenSizeSchema.set('toJSON', {

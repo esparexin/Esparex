@@ -2,10 +2,7 @@ import express from 'express';
 import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter, searchLimiter, catalogSuggestionLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
-import {
-    createCatalogRequestSchema,
-    catalogRequestListQuerySchema,
-} from '@esparex/core/validators/catalogRequest.validator';
+import { createCatalogRequestSchema, catalogRequestListQuerySchema,  } from '@esparex/core/validators';;
 import {
     createCatalogRequest,
     getMyCatalogRequests,

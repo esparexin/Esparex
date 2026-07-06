@@ -1,5 +1,5 @@
 import { Schema, Document, Model } from "mongoose";
-import { getAdminConnection } from "../config/db";
+import { getAdminConnection } from '../infrastructure/db';
 import softDeletePlugin from '../utils/softDeletePlugin';
 import bcrypt from 'bcryptjs';
 import { USER_STATUS, USER_STATUS_VALUES, UserStatusValue } from '@esparex/shared';

@@ -7,10 +7,10 @@ import { withQueueDefaults } from '../queues/queueDefaults';
 import { dispatchTemplatedNotification } from './NotificationService';
 import logger from '../utils/logger';
 import { toObjectId } from '../utils/idUtils';
-import { addJobWithTrace } from '../utils/queueWrapper';
+import { addJobWithTrace } from '../infrastructure/bullmq/queueWrapper';
 import { isQueueConnectionAvailable } from '../queues/redisConnection';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
-import { reliabilityAlertsTotal } from '../utils/metrics';
+import { emitReliabilityAlert } from '../infrastructure/telemetry/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../infrastructure/telemetry/metrics';
 import { 
     SavedSearchMatchService, 
     type MinimalAdRecord, 

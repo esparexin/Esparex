@@ -1,0 +1,693 @@
+{
+  "summary": {
+    "repository": "Esparex",
+    "branch": "cleanup-phase-1",
+    "commit": "eea48f3c79256afad440b2994a9debf5bf102fb0",
+    "scanTime": "2026-07-03T02:41:02.727Z",
+    "workspaceCount": 5,
+    "nodeVersion": "v20.11.1",
+    "packageManager": "npm",
+    "cleanupVersion": "1.2.0",
+    "scannerVersion": "1.2.0"
+  },
+  "statistics": {
+    "VERIFIED_SAFE_DELETE": 6,
+    "DELETE_CANDIDATE": 17,
+    "REVIEW_REQUIRED": 11,
+    "BLOCK_DELETE": 3
+  },
+  "candidates": [
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/next-env.d.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "93%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'apps/web/next-env.d.ts'. Replacement confidence HIGH (Score: 100)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 100,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/app/not-found.tsx",
+      "classification": "BLOCK_DELETE",
+      "confidence": "100%",
+      "risk": "CRITICAL",
+      "evidence": "File base name matches Next.js app router convention: 'not-found.tsx'",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 0,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/hooks/useAdminStatusFilteredList.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/next-env.d.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "93%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'apps/admin/next-env.d.ts'. Replacement confidence HIGH (Score: 100)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 100,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/app/global-error.tsx",
+      "classification": "BLOCK_DELETE",
+      "confidence": "100%",
+      "risk": "CRITICAL",
+      "evidence": "File base name matches Next.js app router convention: 'global-error.tsx'",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 0,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/app/not-found.tsx",
+      "classification": "BLOCK_DELETE",
+      "confidence": "100%",
+      "risk": "CRITICAL",
+      "evidence": "File base name matches Next.js app router convention: 'not-found.tsx'",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 0,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/common/AppErrorBanner.tsx",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/ui/CompletedFieldCard.tsx",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "98%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 100
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/ui/MobileStickyCta.tsx",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/user/profile/tabs/MyAdsTab.tsx",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "98%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 100
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/user/wizard/WizardModalShell.tsx",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "98%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 100
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/hooks/listings/useListingCatalog.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'apps/web/src/hooks/listings/useListingCategories.ts'. Replacement confidence HIGH (Score: 70)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/hooks/usePostAdPreload.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/lib/errors/errorToPopup.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/lib/listings/browseServerPage.tsx",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/lib/listings/listingPriceAdapter.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/schemas/sparePartListingPayload.schema.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/@types/index.d.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'apps/web/src/components/user/ad-card/index.tsx'. Replacement confidence HIGH (Score: 71)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/middleware/duplicateCooldownMiddleware.ts",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "98%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 100
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/middleware/HMACSignatureMiddleware.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'core/src/middleware/HMACSignatureMiddleware.ts'. Replacement confidence HIGH (Score: 150)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/middleware/lifecyclePolicyGuard.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/types/express.d.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'core/src/types/express.ts'. Replacement confidence HIGH (Score: 78)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/types/reliability-core-augmentations.d.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'core/src/utils/securityMonitoring.ts'. Replacement confidence HIGH (Score: 200)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/admin2FAController.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/adminCacheController.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'core/src/controllers/admin/system/adminDashboardController.ts'. Replacement confidence HIGH (Score: 83)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/adminRevealController.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'core/src/controllers/admin/adminApiKeyController.ts'. Replacement confidence HIGH (Score: 71)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/chat/chatAdminController.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "96%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 80
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/middleware/HMACSignatureMiddleware.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'backend/user/src/middleware/HMACSignatureMiddleware.ts'. Replacement confidence HIGH (Score: 150)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/queues/queueDashboard.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/services/AdMediaService.ts",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "98%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 100
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/services/SellerTrustSignalsService.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/utils/adminLogHelpers.ts",
+      "classification": "REVIEW_REQUIRED",
+      "confidence": "91%",
+      "risk": "HIGH",
+      "evidence": "Potential replacement file: 'core/src/controllers/admin/adminUsersController.ts'. Replacement confidence HIGH (Score: 275)",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 20
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/utils/mongoUtils.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/utils/serviceRefResolver.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/validators/promotion.validator.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/validators/wallet.validator.ts",
+      "classification": "DELETE_CANDIDATE",
+      "confidence": "94%",
+      "risk": "MEDIUM",
+      "evidence": "Unreferenced candidate requiring verification.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 50
+      }
+    },
+    {
+      "file": "C:/Users/Administrator/Documents/GitHub/Esparex/shared/src/geo/geo.types.ts",
+      "classification": "VERIFIED_SAFE_DELETE",
+      "confidence": "98%",
+      "risk": "NONE",
+      "evidence": "No active imports, runtime references, configurations, or doc matches found.",
+      "breakdown": {
+        "static": 100,
+        "runtime": 100,
+        "framework": 100,
+        "convention": 100,
+        "config": 100,
+        "documentation": 100,
+        "git": 80,
+        "replacement": 100
+      }
+    }
+  ],
+  "verifiedSafeDelete": [
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/ui/CompletedFieldCard.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/user/profile/tabs/MyAdsTab.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/user/wizard/WizardModalShell.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/middleware/duplicateCooldownMiddleware.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/services/AdMediaService.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/shared/src/geo/geo.types.ts"
+  ],
+  "reviewRequired": [
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/next-env.d.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/next-env.d.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/hooks/listings/useListingCatalog.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/@types/index.d.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/middleware/HMACSignatureMiddleware.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/types/express.d.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/types/reliability-core-augmentations.d.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/adminCacheController.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/adminRevealController.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/middleware/HMACSignatureMiddleware.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/utils/adminLogHelpers.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/hooks/useAdminStatusFilteredList.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/common/AppErrorBanner.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/ui/MobileStickyCta.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/hooks/usePostAdPreload.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/lib/errors/errorToPopup.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/lib/listings/browseServerPage.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/lib/listings/listingPriceAdapter.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/schemas/sparePartListingPayload.schema.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/backend/user/src/middleware/lifecyclePolicyGuard.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/admin2FAController.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/controllers/admin/chat/chatAdminController.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/queues/queueDashboard.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/services/SellerTrustSignalsService.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/utils/mongoUtils.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/utils/serviceRefResolver.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/validators/promotion.validator.ts",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/core/src/validators/wallet.validator.ts"
+  ],
+  "blockDelete": [
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/src/app/not-found.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/app/global-error.tsx",
+    "C:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/app/not-found.tsx"
+  ]
+}

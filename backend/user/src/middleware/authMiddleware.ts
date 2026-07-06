@@ -13,15 +13,15 @@
  */
 import { Request, Response, NextFunction } from "express";
 import { Types } from "mongoose";
-import { verifyToken, JwtPayload } from "@esparex/core/utils/auth";
-import redis from "@esparex/core/config/redis";
-import User from "@esparex/core/models/User";
-import { isTokenBlacklisted } from "@esparex/core/utils/redisCache";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import logger from '@esparex/core/utils/logger';
+import { verifyToken, JwtPayload } from '@esparex/core/utils';;;;
+import { redisClient as redis } from '@esparex/core/infrastructure';;
+import { User } from '@esparex/core/models';;
+import { isTokenBlacklisted } from '@esparex/core/infrastructure';;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
+import { logger } from '@esparex/core/utils';;;;
 import { Role } from '@esparex/shared';
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
-import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils';;;;
+import { setReliabilityContext } from '@esparex/core/infrastructure';;;;
 
 const isStaticAsset = (path: string | undefined): boolean => {
   if (!path || typeof path !== 'string') return false;

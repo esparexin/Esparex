@@ -1,11 +1,11 @@
-import { NotificationService_NS as notificationService } from '@esparex/core/services';
+import { NotificationService_NS as notificationService } from '@esparex/core/services';;
 
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core/utils';;;;
 import { Types } from 'mongoose';
 
 import { Request, Response } from 'express';
-import { respond } from "@esparex/core/utils/respond";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 import { getUserId } from './shared';
 
 export const markAllRead = async (req: Request, res: Response) => {

@@ -1,5 +1,5 @@
 import { Schema, Document, Model } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export interface IAlertDeliveryLog extends Document {
     alertId: Schema.Types.ObjectId;

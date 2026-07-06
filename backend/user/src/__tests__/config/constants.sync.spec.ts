@@ -6,7 +6,7 @@
  * has introduced a duplicate constant — fix it by importing from shared instead.
  */
 
-import { GOVERNANCE } from '@esparex/core/config/constants';
+import { GOVERNANCE } from '@esparex/core/config';;;;
 import { AD_LIMITS } from "@esparex/shared";
 
 describe('GOVERNANCE / shared constants sync', () => {

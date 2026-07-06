@@ -9,9 +9,9 @@ import {
 } from '../../queues/queueIdempotency';
 import { withQueueDefaults } from '../../queues/queueDefaults';
 import { isQueueConnectionAvailable } from '../../queues/redisConnection';
-import { addJobWithTrace } from '../../utils/queueWrapper';
-import { emitReliabilityAlert } from '../../utils/reliabilityAlerts';
-import { reliabilityAlertsTotal } from '../../utils/metrics';
+import { addJobWithTrace } from '../../infrastructure/bullmq/queueWrapper';
+import { emitReliabilityAlert } from '../../infrastructure/telemetry/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../../infrastructure/telemetry/metrics';
 
 export const registerNotificationTriggerListener = () => {
     lifecycleEvents.on('listing.approved', async (payload) => {

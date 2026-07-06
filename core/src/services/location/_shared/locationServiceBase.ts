@@ -15,7 +15,7 @@ export { default as logger } from '../../../utils/logger';
 export { escapeRegExp, toTitleCase } from '../../../utils/stringUtils';
 export { formatLocationResponse } from '../../../lib/location/formatLocation';
 export { normalizeGeoPoint } from '@esparex/shared';
-export { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../../utils/redisCache';
+export { CACHE_KEYS, CACHE_TTLS, getCache, setCache } from '../../../infrastructure/cache/redisCache';
 export { AppError } from '../../../utils/AppError';
 export {
     buildLocationSummary,

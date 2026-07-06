@@ -1,6 +1,6 @@
 import logger from '../utils/logger';
 import { env } from '../config/env';
-import '../config/mongoosePlugins';
+import '../infrastructure/db/mongoosePlugins';
 import './Admin';
 import './Category';
 import './Brand';
@@ -54,7 +54,7 @@ import './ChatReport';
 import './BlockedUser';
 import './FraudScore';
 
-import { getUserConnection, getAdminConnection } from '../config/db';
+import { getUserConnection, getAdminConnection } from '../infrastructure/db';
 import { getIndexAuditTargets } from '../db/indexAuditTargets';
 import { governSchema, runStartupIndexAudit } from '../db/indexGovernance';
 

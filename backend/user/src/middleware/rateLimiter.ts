@@ -1,13 +1,10 @@
 import rateLimit, { type Store } from 'express-rate-limit';
 import RedisStore, { type RedisReply } from 'rate-limit-redis';
-import redisClient from '@esparex/core/config/redis';
+import { redis as redisClient } from '@esparex/core/infrastructure';;
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { env } from '@esparex/core/config/env';
-import {
-    recordOtpAbuseSignal,
-    recordRateLimitSignal
-} from '@esparex/core/utils/securityMonitoring';
+import { logger } from '@esparex/core/utils';;;;
+import { env } from '@esparex/core/config';;;;
+import { recordOtpAbuseSignal, recordRateLimitSignal } from '@esparex/core/infrastructure';;;;
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore =

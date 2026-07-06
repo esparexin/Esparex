@@ -1,5 +1,5 @@
 import { Schema, Document, Types, Model } from 'mongoose'
-import { getUserConnection } from '../config/db'
+import { getUserConnection } from '../infrastructure/db'
 
 export interface ISmartAlert extends Document {
   userId: Types.ObjectId

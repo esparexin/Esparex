@@ -1,7 +1,7 @@
 import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import type { AdStatusChangedEvent } from '../LifecycleEventDispatcher';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
+import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../infrastructure/cache/redisCache';
 import axios from 'axios';
 import { getFrontendInternalUrl } from '../../utils/appUrl';
 import { CircuitBreaker } from '../../utils/resilience';

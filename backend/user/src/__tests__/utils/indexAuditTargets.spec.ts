@@ -1,4 +1,4 @@
-import { getIndexAuditTargets } from "@esparex/core/db/indexAuditTargets";
+import { getIndexAuditTargets } from '@esparex/core/tooling';;
 
 describe("getIndexAuditTargets", () => {
     it("deduplicates a shared connection when user and admin databases are unified", () => {

@@ -1,5 +1,5 @@
 import { Schema, Model, Document, Types } from 'mongoose';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export interface IAdMetrics extends Document {
     adId: Types.ObjectId;

@@ -10,7 +10,7 @@ import { sendSuccessResponse } from "../../../utils/respond";
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { getUserConnection } from '../../../config/db';
+import { getUserConnection } from '../../../infrastructure/db';
 import {
     BrandModel,
     CatalogModel,
@@ -52,7 +52,7 @@ import {
     rejectionSchema
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
-import { getCache, setCache } from '../../../utils/redisCache';
+import { getCache, setCache } from '../../../infrastructure/cache/redisCache';
 import VariantModel from '../../../models/Variant';
 import {
     MAX_MODEL_TREE_DEPTH,

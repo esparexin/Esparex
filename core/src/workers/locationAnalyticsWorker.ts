@@ -4,7 +4,7 @@ import Location from "../models/Location";
 import LocationAnalytics from "../models/LocationAnalytics";
 import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 
 export const runLocationAnalyticsJob = async () => {
     await runWithDistributedJobLock(

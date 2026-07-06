@@ -1,4 +1,4 @@
-import redis, { shouldDisableRedis } from '../config/redis';
+import redis, { shouldDisableRedis } from '../infrastructure/redis';
 import AdMetrics from '../models/AdMetrics';
 import logger from '../utils/logger';
 import mongoose from 'mongoose';

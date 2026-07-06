@@ -4,7 +4,7 @@ import {
   MOBILE_VISIBILITY,
   normalizeMobileVisibility,
 } from "@esparex/shared";
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@esparex/shared';
 
 import { Role, ROLE_VALUES } from '@esparex/shared';

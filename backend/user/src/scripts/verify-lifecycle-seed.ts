@@ -9,11 +9,11 @@
 
 import mongoose from "mongoose";
 import { LIFECYCLE_STATUS } from "@esparex/shared";
-import { connectDB } from "@esparex/core/config/db";
-import User from "@esparex/core/models/User";
-import Business from "@esparex/core/models/Business";
-import Ad from "@esparex/core/models/Ad";
-import Category from "@esparex/core/models/Category";
+import { connectDatabase as connectDB } from '@esparex/core/infrastructure';;
+import { User } from '@esparex/core/models';;
+import { Business } from '@esparex/core/models';;
+import { Ad } from '@esparex/core/models';;
+import { Category } from '@esparex/core/models';;
 import { USER_STATUS } from '@esparex/shared';
 import { CATALOG_STATUS } from '@esparex/shared';
 

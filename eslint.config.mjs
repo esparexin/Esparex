@@ -5,8 +5,14 @@ import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import { createRequire } from "node:module";
 
+// Architecture Governance — eslint-plugin-boundaries (Architecture v1.1.0)
+// Mode: warn — will be promoted to error once baseline is confirmed clean.
+// Config generated from scripts/architecture/matrix.js — do not edit directly.
+import boundariesPlugin from "eslint-plugin-boundaries";
+
 const require = createRequire(import.meta.url);
 const esparexRules = require("./scripts/eslint-rules/index.js");
+const boundariesConfig = require("./scripts/architecture/boundaries-config.js");
 
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
@@ -187,6 +193,24 @@ export default tseslint.config(
     }
   },
 
-  // 10. Prettier (Must be last)
+  // 10. Architecture Boundaries (Architecture v1.1.0 — WARN mode)
+  // Generated from scripts/architecture/matrix.js via generate-eslint-boundaries.js
+  // To promote to error: change 'warn' to 'error' after baseline is clean.
+  {
+    files: ["core/src/**/*.{ts,tsx}", "backend/**/*.{ts,tsx}", "apps/**/*.{ts,tsx}", "shared/**/*.{ts,tsx}"],
+    plugins: {
+      boundaries: boundariesPlugin,
+    },
+    settings: {
+      "boundaries/elements": boundariesConfig.elements,
+    },
+    rules: {
+      "boundaries/dependencies": ["error", { default: "disallow", policies: boundariesConfig.rules }],
+      "boundaries/no-unknown": "off",
+      "boundaries/no-unknown-files": "off", // too noisy during baseline phase
+    },
+  },
+
+  // 11. Prettier (Must be last)
   prettier
 );

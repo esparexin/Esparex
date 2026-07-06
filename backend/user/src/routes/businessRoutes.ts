@@ -5,14 +5,10 @@ import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateIdOrSlug } from '../middleware/validateIdOrSlug';
 import { validateRequest } from '../middleware/validateRequest';
-import {
-    createBusinessSchema,
-    publicBusinessQuerySchema,
-    updateBusinessSchema
-} from '@esparex/core/validators/business.validator';
+import { createBusinessSchema, publicBusinessQuerySchema, updateBusinessSchema } from '@esparex/core/validators';;
 
 import { idempotencyMiddleware } from '../middleware/idempotency';
-import { createUploadMiddleware } from '@esparex/core/utils/uploadFactory';
+import { createUploadMiddleware } from '@esparex/core/infrastructure';;
 import { uploadFile } from '../controllers/user';
 
 const router = express.Router();

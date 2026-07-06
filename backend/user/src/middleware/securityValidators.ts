@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 import { isValidGeoPoint, DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from "@shared";
 import { z } from 'zod';
 

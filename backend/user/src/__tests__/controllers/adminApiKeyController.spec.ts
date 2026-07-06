@@ -1,4 +1,4 @@
-import { ApiKeyService_NS as apiKeyService } from '@esparex/core/services';
+import { ApiKeyService_NS as apiKeyService } from '@esparex/core/services';;
 
 jest.mock("@esparex/core/services/ApiKeyService", () => ({
     __esModule: true,
@@ -13,7 +13,7 @@ jest.mock("@esparex/core/utils/adminLogger", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as apiKeyController from "@esparex/core/controllers/admin/adminApiKeyController";
+import * as apiKeyController from "../../controllers/admin/adminApiKeyController";
 
 const createMockRes = (req?: Record<string, unknown>) => ({
     status: jest.fn().mockReturnThis(),

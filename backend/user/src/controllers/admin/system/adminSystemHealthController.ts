@@ -5,16 +5,11 @@
  */
 
 import { Request, Response } from 'express';
-import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils/adminBaseController';
-import { connectDB, getUserConnection, getAdminConnection } from '@esparex/core/config/db';
+import { sendSuccessResponse, sendAdminError } from '@esparex/core/utils';;;;
+import { connectDatabase as connectDB, getUserConnection, getAdminConnection } from '@esparex/core/infrastructure';;
 import { version as appVersion } from '@esparex/core/../package.json';
-import {
-    clearCachePattern,
-    getCacheStats,
-    getRedisHealthProbe,
-    scanKeysByPattern
-} from '@esparex/core/utils/redisCache';
-import { getSystemConfigDoc, ensureSystemConfig } from '@esparex/core/utils/systemConfigHelper';
+import { clearCachePattern, getCacheStats, getRedisHealthProbe, scanKeysByPattern } from '@esparex/core/infrastructure';;
+import { getSystemConfigDoc, ensureSystemConfig } from '@esparex/core/utils';;;;
 
 const sendHealthError = (req: Request, res: Response, error: unknown) => {
     sendAdminError(req, res, error);

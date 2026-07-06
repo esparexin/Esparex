@@ -4,9 +4,9 @@
  * Idempotent — safe to re-run; uses upsert by (name, categoryId).
  */
 
-import Category from "@esparex/core/models/Category";
-import ServiceType from "@esparex/core/models/ServiceType";
-import logger from "@esparex/core/utils/logger";
+import { Category } from '@esparex/core/models';;
+import { ServiceType } from '@esparex/core/models';;
+import { logger } from '@esparex/core/utils';;;;
 
 interface ServiceTypeEntry {
     name: string;

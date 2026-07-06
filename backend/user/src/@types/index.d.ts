@@ -1,5 +1,5 @@
-import type { IAdmin } from "@esparex/core/models/Admin";
-import type { IAuthUser } from "@esparex/core/types/auth";
+import type { IAdmin } from '@esparex/core/models';;;
+import type { IAuthUser } from '@esparex/core/types';;
 
 declare module 'express-serve-static-core' {
   interface Request {

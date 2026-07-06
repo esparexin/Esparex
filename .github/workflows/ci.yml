@@ -55,6 +55,9 @@ jobs:
       - name: Run full governance suite
         run: npm run governance:all
 
+      - name: Run architecture check (v1.1.0)
+        run: npm run architecture:check
+
       - name: Verify backend artifact
         run: test -f backend/user/dist/index.js
 

@@ -4,7 +4,7 @@ import { getSingleParam } from '../../../utils/requestParams';
 import { escapeRegExp } from '../../../utils/stringUtils';
 
 import { redis } from '../../../lib/redis';
-import { scanKeysByPattern } from '../../../utils/redisCache';
+import { scanKeysByPattern } from '../../../infrastructure/cache/redisCache';
 import { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
 import {
     getDashboardOverviewStats,

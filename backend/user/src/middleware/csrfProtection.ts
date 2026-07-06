@@ -1,10 +1,10 @@
 // backend/src/middleware/csrfProtection.ts
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
-import logger from '@esparex/core/utils/logger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { getCsrfCookieOptions } from '@esparex/core/utils/cookieHelper';
-import { env } from '@esparex/core/config/env';
+import { logger } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
+import { getCsrfCookieOptions } from '@esparex/core/utils';;;;
+import { env } from '@esparex/core/config';;;;
 
 /**
  * 🛡️ CSRF Protection Middleware

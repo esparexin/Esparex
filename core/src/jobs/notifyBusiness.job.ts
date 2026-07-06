@@ -1,8 +1,8 @@
 import Business from '../models/Business';
 import { emailService } from '../services/EmailService';
-import { jobRunner } from '../utils/jobRunner';
+import { jobRunner } from '../infrastructure/bullmq/jobRunner';
 import logger from '../utils/logger';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 import { getFrontendAppUrl } from '../utils/appUrl';
 
 export const runNotifyBusinessJob = async () => {

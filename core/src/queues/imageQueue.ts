@@ -1,15 +1,15 @@
 import { Queue } from 'bullmq';
 import { isQueueConnectionAvailable, redisConnection, shouldDisableQueueConnection } from './redisConnection';
 import logger from '../utils/logger';
-import { addJobWithTrace, type TraceableJobData } from '../utils/queueWrapper';
+import { addJobWithTrace, type TraceableJobData } from '../infrastructure/bullmq/queueWrapper';
 import { createNoopQueue, withQueueDefaults } from './queueDefaults';
 import {
     buildDeterministicJobId,
     releaseQueueIdempotencySlot,
     reserveQueueIdempotencySlot
 } from './queueIdempotency';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
-import { reliabilityAlertsTotal } from '../utils/metrics';
+import { emitReliabilityAlert } from '../infrastructure/telemetry/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../infrastructure/telemetry/metrics';
 
 export interface ImageOptimizationJobPayload extends TraceableJobData {
     entityId: string;

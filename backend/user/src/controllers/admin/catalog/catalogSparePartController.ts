@@ -1,4 +1,4 @@
-import { SparePartModel, findCategoryIdBySlug, getActiveBrandIdsForCategories, getActiveModelIdsForCategories, findSparePartById, checkSparePartDependencies, CatalogOrchestrator, validateSparePartRelations } from '@esparex/core/services';
+import { SparePartModel, findCategoryIdBySlug, getActiveBrandIdsForCategories, getActiveModelIdsForCategories, findSparePartById, checkSparePartDependencies, CatalogOrchestrator, validateSparePartRelations } from '@esparex/core/services';;
 
 ﻿/**
  * Catalog Spare Parts Controller
@@ -7,13 +7,13 @@ import { SparePartModel, findCategoryIdBySlug, getActiveBrandIdsForCategories, g
  */
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { handlePaginatedContent } from "@esparex/core/utils/contentHandler";
+import { logger } from '@esparex/core/utils';;;;
+import { handlePaginatedContent } from '@esparex/core/utils';;;;
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { sendSuccessResponse } from '@esparex/core/utils';;;;
 
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
+import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils';;;;
 import {
     sendCatalogError,
     QueryRecord,
@@ -31,13 +31,10 @@ import {
     deriveApprovalStatus
 } from './shared';
 
-import {
-    sparePartCreateSchema,
-    sparePartUpdateSchema
-} from '@esparex/core/validators/catalog.validator';
-import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
+import { sparePartCreateSchema, sparePartUpdateSchema } from '@esparex/core/validators';;
+import { CategoryQueryBuilder } from '@esparex/core/utils';;;;
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import { getCache, setCache } from '@esparex/core/infrastructure';;
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
 

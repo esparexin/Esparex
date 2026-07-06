@@ -7,11 +7,11 @@
  * Previous SSOT: core/src/controllers/smartAlert/smartAlertQueryController.ts
  * Current SSOT:  backend/user/src/controllers/smartAlert/smartAlertQueryController.ts
  */
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core/utils';;;;
 import { Request, Response } from 'express';
-import { respond } from '@esparex/core/utils/respond';
+import { respond } from '@esparex/core/utils';;;;
 import { PaginatedResponse, ApiResponse } from '@esparex/shared';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 import {
     getErrorMessage,
     SmartAlertModel,

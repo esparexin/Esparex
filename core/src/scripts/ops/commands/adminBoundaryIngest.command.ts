@@ -33,7 +33,7 @@ import fs from 'fs';
 import path from 'path';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 import { connectOpsDb } from './commandUtils';
-import { closeDB } from '../../../config/db';
+import { closeDB } from '../../../infrastructure/db';
 
 const DEFAULT_GEOJSON_URL =
     'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';

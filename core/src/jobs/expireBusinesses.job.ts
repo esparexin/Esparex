@@ -1,6 +1,6 @@
-import { jobRunner } from '../utils/jobRunner';
+import { jobRunner } from '../infrastructure/bullmq/jobRunner';
 import logger from '../utils/logger';
-import { runWithDistributedJobLock } from '../utils/distributedJobLock';
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 import { expireBusinesses } from '../services/business/BusinessLifecycleService';
 import { cascadeExpireBusinessListings } from '../services/AdminBusinessService';
 import { dispatchTemplatedNotification } from '../services/NotificationService';

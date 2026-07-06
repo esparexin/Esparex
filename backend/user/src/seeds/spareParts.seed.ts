@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import SparePart from "@esparex/core/models/SparePart";
-import Category from "@esparex/core/models/Category";
+import { SparePart } from '@esparex/core/models';;
+import { Category } from '@esparex/core/models';;
 import slugify from "slugify";
-import logger from '@esparex/core/utils/logger';
-import { escapeRegExp } from '@esparex/core/utils/stringUtils';
+import { logger } from '@esparex/core/utils';;;;
+import { escapeRegExp } from '@esparex/core/utils';;;;
 import { LISTING_TYPE } from '@esparex/shared';
 
 type SparePartSeed = {

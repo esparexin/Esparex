@@ -4,7 +4,7 @@ import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import SparePart from '../../models/SparePart';
 import ScreenSize from '../../models/ScreenSize';
-import { clearCachePattern } from '../../utils/redisCache';
+import { clearCachePattern } from '../../infrastructure/cache/redisCache';
 import logger from '../../utils/logger';
 import { isDuplicateKeyError } from '../../utils/errorHelpers';
 

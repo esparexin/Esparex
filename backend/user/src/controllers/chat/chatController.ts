@@ -1,22 +1,13 @@
-import { startConversation, listConversations, getConversationForUser, getMessages, sendMessage, markRead, blockConversation, hideConversation, restoreConversation, reportConversation } from '@esparex/core/services';
+import { startConversation, listConversations, getConversationForUser, getMessages, sendMessage, markRead, blockConversation, hideConversation, restoreConversation, reportConversation } from '@esparex/core/services';;
 
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import logger from '@esparex/core/utils/logger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { respond } from "@esparex/core/utils/respond";
+import { logger } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
+import { respond } from '@esparex/core/utils';;;;
 
-import {
-  startChatSchema,
-  sendMessageSchema,
-  readReceiptSchema,
-  blockChatSchema,
-  reportChatSchema,
-  conversationListQuerySchema,
-  messagesQuerySchema,
-  chatUploadUrlSchema,
-} from '@esparex/core/validators/chat.validator';
-import { generatePresignedUploadUrl } from '@esparex/core/utils/s3';
+import { startChatSchema, sendMessageSchema, readReceiptSchema, blockChatSchema, reportChatSchema, conversationListQuerySchema, messagesQuerySchema, chatUploadUrlSchema,  } from '@esparex/core/validators';;
+import { generatePresignedUploadUrl } from '@esparex/core/infrastructure';;
 
 const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',

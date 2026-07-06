@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { getCache, setCache } from '../utils/redisCache';
+import { getCache, setCache } from '../infrastructure/cache/redisCache';
 
 export enum FeatureFlag {
     ENABLE_AD_ORCHESTRATOR = 'ENABLE_AD_ORCHESTRATOR',

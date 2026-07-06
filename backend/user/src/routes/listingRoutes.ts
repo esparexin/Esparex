@@ -11,7 +11,7 @@ import { validateObjectId } from "../middleware/validateObjectId";
 import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
 import { searchLimiter, mutationLimiter } from "../middleware/rateLimiter";
 import { validateRequest } from "../middleware/validateRequest";
-import { updateAdSchema } from "@esparex/core/validators/ad.validator";
+import { updateAdSchema } from '@esparex/core/validators';;
 import { idempotencyMiddleware } from "../middleware/idempotency";
 import { requireListingOwner } from "../middleware/ownershipGuard";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/businessMiddleware";

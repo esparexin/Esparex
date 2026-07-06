@@ -157,7 +157,7 @@ BrandSchema.index(
   }
 )
 
-import { getUserConnection } from '../config/db'
+import { getUserConnection } from '../infrastructure/db'
 
 BrandSchema.pre('deleteOne',
   { document: true, query: false },

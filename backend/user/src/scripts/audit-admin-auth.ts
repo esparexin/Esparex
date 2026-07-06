@@ -1,9 +1,9 @@
 
 import bcrypt from 'bcryptjs';
 import '@esparex/core/config/loadEnv';
-import { env } from '@esparex/core/config/env';
-import Admin from '@esparex/core/models/Admin';
-import { connectDB } from '@esparex/core/config/db';
+import { env } from '@esparex/core/config';;;;
+import { Admin } from '@esparex/core/models';;
+import { connectDatabase as connectDB } from '@esparex/core/infrastructure';;
 
 async function auditAdmin() {
     try {

@@ -1,8 +1,8 @@
 import { reverseGeocode } from '../../services/location/ReverseGeocodeService';
 import Location from '../../models/Location';
 import AdminBoundary from '../../models/AdminBoundary';
-import { getCache, setCache } from '../../utils/redisCache';
-import { haversineDistance } from '../../utils/mongoGeoUtils';
+import { getCache, setCache } from '../../infrastructure/cache/redisCache';
+import { haversineDistance } from '../../infrastructure/db/mongoGeoUtils';
 
 jest.mock('@esparex/core/models/Location', () => ({
     __esModule: true,
@@ -18,7 +18,7 @@ jest.mock('@esparex/core/models/AdminBoundary', () => ({
         find: jest.fn()
     }
 }));
-jest.mock('@esparex/core/utils/redisCache');
+jest.mock('@esparex/core/infrastructure/cache/redisCache');
 
 describe('ReverseGeocodeService', () => {
     beforeEach(() => {

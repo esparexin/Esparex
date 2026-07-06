@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import SavedAd from '../models/SavedAd';
 import Ad from '../models/Ad';
 import { hydrateAdMetadata, type HydratedAd } from './ad/AdAggregationService';
-import { sanitizePersistedImageUrls } from '../utils/s3';
+import { sanitizePersistedImageUrls } from '../infrastructure/storage/s3';
 import { serializeDoc } from '../utils/serialize';
 import { recordAdAnalyticsEvent } from './TrendingService';
 

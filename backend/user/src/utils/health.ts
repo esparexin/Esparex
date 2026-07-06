@@ -4,12 +4,12 @@
  * Contains the Express-aware healthCheckHandler route function.
  * The pure getHealthCheckData() data collector remains in @utils/health.
  */
-export { getHealthCheckData } from '@esparex/core/utils/health';
+export { getHealthCheckData } from '@esparex/core/tooling';;
 
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { getHealthCheckData } from '@esparex/core/utils/health';
-import { isDbReady } from '@esparex/core/config/db';
+import { logger } from '@esparex/core/utils';;;;
+import { getHealthCheckData } from '@esparex/core/tooling';;
+import { isDbReady } from '@esparex/core/infrastructure';;
 
 export const healthCheckHandler = async (req: Request, res: Response) => {
     try {

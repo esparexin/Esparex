@@ -1,8 +1,4 @@
-import { 
-    canonicalizeToIndian, 
-    getMobileVariants, 
-    normalizeTo10Digits 
-} from '@esparex/core/utils/phoneUtils';
+import { canonicalizeToIndian, getMobileVariants, normalizeTo10Digits } from '@esparex/core/utils';;;;
 
 describe('Phone Utilities', () => {
     describe('normalizeTo10Digits', () => {

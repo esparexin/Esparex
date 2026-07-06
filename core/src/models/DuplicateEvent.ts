@@ -1,5 +1,5 @@
 import { Schema, Document, Types, Model } from 'mongoose';
-import { getAdminConnection } from '../config/db';
+import { getAdminConnection } from '../infrastructure/db';
 
 export type DuplicateEventAction = 'blocked' | 'flagged' | 'bypass_allowed';
 

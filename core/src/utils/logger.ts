@@ -300,7 +300,7 @@ export function logSecurity(
  */
 export function logExternalAPI(service: string, endpoint: string, durationMs: number, success: boolean, error?: Error) {
     // 📊 RECORD PROMETHEUS METRIC
-    import('./metrics.js').then(({ externalApiDuration: prometheusMetric }) => {
+    import('../infrastructure/telemetry/metrics.js').then(({ externalApiDuration: prometheusMetric }) => {
         prometheusMetric.labels(service, endpoint, success ? 'success' : 'failed').observe(durationMs / 1000);
     }).catch(() => {});
 

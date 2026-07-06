@@ -1,5 +1,5 @@
 import type { IInvoice } from '../models/Invoice';
-import { uploadToS3 } from '../utils/s3';
+import { uploadToS3 } from '../infrastructure/storage/s3';
 import logger from '../utils/logger';
 
 type InvoiceUserLike = {

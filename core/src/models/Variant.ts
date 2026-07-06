@@ -7,7 +7,7 @@ import {
 } from '@esparex/shared';
 import softDeletePlugin from '../utils/softDeletePlugin';
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
-import { getUserConnection } from '../config/db';
+import { getUserConnection } from '../infrastructure/db';
 
 export interface IVariant extends Document {
     name: string;

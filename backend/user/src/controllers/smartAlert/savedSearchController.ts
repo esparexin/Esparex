@@ -1,4 +1,4 @@
-import { createSavedSearch, deleteSavedSearch, getSavedSearches } from '@esparex/core/services';
+import { createSavedSearch, deleteSavedSearch, getSavedSearches } from '@esparex/core/services';;
 
 /**
  * ESPAREX — SAVED SEARCH CONTROLLER
@@ -10,9 +10,9 @@ import { createSavedSearch, deleteSavedSearch, getSavedSearches } from '@esparex
  * Current SSOT:  backend/user/src/controllers/smartAlert/savedSearchController.ts
  */
 import { Request, Response } from 'express';
-import logger from '@esparex/core/utils/logger';
-import { respond } from '@esparex/core/utils/respond';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { logger } from '@esparex/core/utils';;;;
+import { respond } from '@esparex/core/utils';;;;
+import { sendErrorResponse } from '@esparex/core/utils';;;;
 import { ApiResponse } from '@esparex/shared';
 
 import type { SavedSearchCreatePayload } from '@esparex/shared';

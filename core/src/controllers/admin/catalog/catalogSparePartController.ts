@@ -43,7 +43,7 @@ import {
 } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
-import { getCache, setCache } from '../../../utils/redisCache';
+import { getCache, setCache } from '../../../infrastructure/cache/redisCache';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
 

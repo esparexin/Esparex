@@ -18,7 +18,7 @@ import { Role } from '@esparex/shared';
 import { getAdminSessionTtlMs, validateAdminSession } from '../services/AdminSessionService';
 import { USER_STATUS } from '@esparex/shared';
 import { normalizeAdminPermission, roleGrantsPermission } from '../constants/adminPermissions';
-import { setReliabilityContext } from '../utils/reliabilityContext';
+import { setReliabilityContext } from '../infrastructure/telemetry/reliabilityContext';
 
 export const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;

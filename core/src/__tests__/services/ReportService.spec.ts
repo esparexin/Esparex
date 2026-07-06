@@ -30,7 +30,7 @@ jest.mock("@esparex/core/models/Business", () => ({
     },
 }));
 
-jest.mock("@esparex/core/utils/redisCache", () => ({
+jest.mock("@esparex/core/infrastructure/cache/redisCache", () => ({
     __esModule: true,
     invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
     invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined),

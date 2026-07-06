@@ -1,7 +1,7 @@
 import { notificationDeliveryQueue } from '../../queues/adQueue';
 import Notification from '../../models/Notification';
 import { NotificationVersionService } from './NotificationVersionService';
-import { getIO } from '../../config/socket';
+import { getIO } from '../../infrastructure/socket';
 import { sendNotification } from './PushGatewayService';
 import { NotificationIntent } from '../../domain/NotificationIntent';
 import logger from '../../utils/logger';
@@ -11,11 +11,11 @@ import {
     reserveQueueIdempotencySlot
 } from '../../queues/queueIdempotency';
 import { withQueueDefaults } from '../../queues/queueDefaults';
-import { addJobWithTrace, type TraceableJobData } from '../../utils/queueWrapper';
+import { addJobWithTrace, type TraceableJobData } from '../../infrastructure/bullmq/queueWrapper';
 import { isQueueConnectionAvailable } from '../../queues/redisConnection';
-import { emitReliabilityAlert } from '../../utils/reliabilityAlerts';
-import { reliabilityAlertsTotal } from '../../utils/metrics';
-import { captureException } from '../../config/sentry';
+import { emitReliabilityAlert } from '../../infrastructure/telemetry/reliabilityAlerts';
+import { reliabilityAlertsTotal } from '../../infrastructure/telemetry/metrics';
+import { captureException } from '../../infrastructure/telemetry/sentry';
 
 interface DispatchOptions {
     shadowDispatch?: boolean;

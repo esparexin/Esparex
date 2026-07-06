@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import { logAdminActionDirect } from './adminLogger';
-import type { AdminLogFn } from '@esparex/core/services';
-import type { IAuthUser } from '@esparex/core/types/auth';
+import type { AdminLogFn } from '@esparex/core/services';;;
+import type { IAuthUser } from '@esparex/core/types';;
 
 export const getActorId = (req: Request): string =>
     (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';

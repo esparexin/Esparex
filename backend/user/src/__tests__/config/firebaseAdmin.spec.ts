@@ -18,6 +18,7 @@ describe("firebaseAdmin", () => {
             info: jest.fn(),
             warn: jest.fn(),
             error: jest.fn(),
+            debug: jest.fn(),
         };
 
         jest.doMock("firebase-admin", () => ({
@@ -34,11 +35,13 @@ describe("firebaseAdmin", () => {
                 NODE_ENV: envOverrides.NODE_ENV ?? "development",
                 FIREBASE_SERVICE_ACCOUNT_JSON: envOverrides.FIREBASE_SERVICE_ACCOUNT_JSON,
                 ALLOW_FIREBASE_ADMIN: envOverrides.ALLOW_FIREBASE_ADMIN ?? false,
+                MONGODB_URI: "mongodb://localhost:27017/user",
+                ADMIN_MONGODB_URI: "mongodb://localhost:27017/admin",
             },
         }));
 
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- resetModules requires a fresh module load.
-        const firebaseAdmin = require("@esparex/core/config/firebaseAdmin").default;
+        const firebaseAdmin = require('@esparex/core/infrastructure').firebaseAdmin;
 
         return {
             firebaseAdmin,

@@ -1,7 +1,7 @@
 import logger from "../utils/logger";
 import { expireBoosts } from "../services/lifecycle/AdStatusService";
 import { ListingExpiryService } from "../services/lifecycle/ListingExpiryService";
-import { runWithDistributedJobLock } from "../utils/distributedJobLock";
+import { runWithDistributedJobLock } from '../infrastructure/redis/distributedJobLock';
 
 export const runExpireAdsJob = async () => {
     await runWithDistributedJobLock(

@@ -6,9 +6,9 @@ import { notificationMatchWorker } from './notificationMatchWorker';
 import { paymentWorker } from './paymentWorker';
 import { imageOptimizationWorker } from './imageWorker';
 import mongoose from 'mongoose';
-import redisClient from '../utils/redisCache';
-import { gracefulShutdown } from '../utils/shutdownHandler';
-import { captureException } from '../config/sentry';
+import redisClient from '../infrastructure/cache/redisCache';
+import { gracefulShutdown } from '../infrastructure/process/shutdownHandler';
+import { captureException } from '../infrastructure/telemetry/sentry';
 import { env } from '../config/env';
 import {
     queueJobDuration,
@@ -16,9 +16,9 @@ import {
     queueJobsProcessedTotal,
     reliabilityAlertsTotal,
     workerStatusGauge,
-} from '../utils/metrics';
-import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
-import { getLocalWorkerStatuses, publishWorkerHeartbeat, setLocalWorkerStatus } from '../utils/workerStatus';
+} from '../infrastructure/telemetry/metrics';
+import { emitReliabilityAlert } from '../infrastructure/telemetry/reliabilityAlerts';
+import { getLocalWorkerStatuses, publishWorkerHeartbeat, setLocalWorkerStatus } from '../infrastructure/bullmq/workerStatus';
 import { redisConnection, shouldDisableQueueConnection } from '../queues/redisConnection';
 
 const QUEUE_FAILURE_WINDOW_MS = env.RELIABILITY_QUEUE_FAILURE_WINDOW_MS ?? 60_000;

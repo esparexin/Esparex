@@ -1,4 +1,4 @@
-import { getRazorpayClient } from '../config/razorpay';
+import { getRazorpayClient } from '../infrastructure/payment/razorpay';
 import { type ITransaction } from '../models/Transaction';
 import logger from '../utils/logger';
 

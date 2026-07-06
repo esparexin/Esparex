@@ -1,4 +1,4 @@
-import { adminAuditLogQuerySchema } from "@esparex/core/validators/adminAudit.validator";
+import { adminAuditLogQuerySchema } from '@esparex/core/validators';;
 
 describe("adminAuditLogQuerySchema", () => {
     it("accepts canonical audit log filters", () => {

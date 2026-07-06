@@ -1,8 +1,8 @@
-import { bulkImportService } from '@esparex/core/services';
+import { bulkImportService } from '@esparex/core/services';;
 
 
 
-import logger from "@esparex/core/utils/logger";
+import { logger } from '@esparex/core/utils';;;;
 
 const DEVICE_SEED_DATA = [
     // ── Smartphones ─────────────────────────────────────────────────────────

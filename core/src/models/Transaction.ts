@@ -1,6 +1,6 @@
 // core/src/models/Transaction.ts
 import { Schema, Document, Types } from "mongoose";
-import { getUserConnection } from "../config/db";
+import { getUserConnection } from '../infrastructure/db';
 import type { Model } from "mongoose";
 import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from '@esparex/shared';
 import { applyToJSONTransform } from '../utils/schemaOptions';

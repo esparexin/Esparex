@@ -1,6 +1,6 @@
 // core/src/models/UserWallet.ts
 import { Schema, Model, Types } from "mongoose";
-import { getUserConnection } from "../config/db";
+import { getUserConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IUserWallet {

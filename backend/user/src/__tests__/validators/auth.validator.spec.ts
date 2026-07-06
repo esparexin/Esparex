@@ -1,4 +1,4 @@
-import { verifyOtpSchema, loginSchema } from '@esparex/core/validators/auth.validator';
+import { verifyOtpSchema, loginSchema } from '@esparex/core/validators';;
 
 describe('Auth Validation Schemas', () => {
     

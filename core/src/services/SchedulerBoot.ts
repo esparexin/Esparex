@@ -1,6 +1,6 @@
 /* global NodeJS */
 import logger from '../utils/logger';
-import redis from '../config/redis';
+import redis from '../infrastructure/redis';
 import { startSchedulerQueueEngine, stopSchedulerQueueEngine } from './SchedulerQueueEngine';
 import { randomUUID } from 'crypto';
 

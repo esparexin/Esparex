@@ -25,7 +25,7 @@ import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../type
 import { CATALOG_STATUS } from '@esparex/shared';
 import { USER_STATUS } from '@esparex/shared';
 import { connectOpsDb } from './commandUtils';
-import { closeDB } from '../../../config/db';
+import { closeDB } from '../../../infrastructure/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';
 
 

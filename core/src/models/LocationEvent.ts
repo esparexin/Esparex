@@ -1,5 +1,5 @@
 import { Schema, Document, Model } from 'mongoose';
-import { getAdminConnection } from '../config/db';
+import { getAdminConnection } from '../infrastructure/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 import {
     LOCATION_EVENT_REASONS,

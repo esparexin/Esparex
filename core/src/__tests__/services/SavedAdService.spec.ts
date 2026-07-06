@@ -21,7 +21,7 @@ jest.mock("@esparex/core/services/ad/AdAggregationService", () => ({
     hydrateAdMetadata: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock("@esparex/core/utils/s3", () => ({
+jest.mock("@esparex/core/infrastructure/storage/s3", () => ({
     sanitizePersistedImageUrls: jest.fn((imgs: string[]) => imgs),
 }));
 

@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import Ad from '../../models/Ad';
-import { getUserConnection } from '../../config/db';
+import { getUserConnection } from '../../infrastructure/db';
 import { LISTING_TYPE } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { consumeCredit } from '../WalletService';
-import { invalidateAdFeedCaches } from '../../utils/redisCache';
+import { invalidateAdFeedCaches } from '../../infrastructure/cache/redisCache';
 
 export const promoteAdLogic = async (
     id: string,

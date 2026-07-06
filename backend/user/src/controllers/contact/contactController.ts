@@ -1,11 +1,11 @@
-import { createContactSubmission } from '@esparex/core/services';
+import { createContactSubmission } from '@esparex/core/services';;
 
-import logger from '@esparex/core/utils/logger';
+import { logger } from '@esparex/core/utils';;;;
 import { z } from 'zod';
 import { Request, Response } from 'express';
 
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { respond } from "@esparex/core/utils/respond";
+import { sendErrorResponse } from '@esparex/core/utils';;;;
+import { respond } from '@esparex/core/utils';;;;
 
 /**
  * CONTACT US CONTROLLER

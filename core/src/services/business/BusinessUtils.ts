@@ -1,7 +1,7 @@
 import logger from '../../utils/logger';
 import { AppError } from '../../utils/AppError';
 import { processImages } from '../../utils/imageProcessor';
-import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../utils/s3';
+import { deleteFromS3Url, sanitizeStoredImageUrls } from '../../infrastructure/storage/s3';
 import { normalizeLocation } from "../location/LocationNormalizer";
 import { normalizeGeoPoint } from '@esparex/shared';
 import { IBusinessDocument } from '../../models/Business';

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import fs from 'fs';
 import { Types } from 'mongoose';
-import { connectDB } from '../config/db';
+import { connectDB } from '../infrastructure/db';
 import User from '../models/User';
 import Ad from '../models/Ad';
 import Category from '../models/Category';
