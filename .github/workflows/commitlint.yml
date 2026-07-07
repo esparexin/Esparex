@@ -1,0 +1,26 @@
+name: "Commitlint"
+
+on:
+  pull_request:
+    branches: [ "main", "develop", "staging" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: commitlint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install -g @commitlint/cli @commitlint/config-conventional
+      - run: commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}

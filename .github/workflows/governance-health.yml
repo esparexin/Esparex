@@ -1,0 +1,43 @@
+name: "Governance Health Check"
+
+on:
+  pull_request:
+    branches: [ "main", "develop", "staging" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gov-health-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Governance Artifacts
+        run: |
+          REQUIRED_FILES=(
+            ".github/CODEOWNERS"
+            "SECURITY.md"
+            "CONTRIBUTING.md"
+            "CODE_OF_CONDUCT.md"
+            "SUPPORT.md"
+            "ARCHITECTURE.md"
+            "GOVERNANCE.md"
+            ".github/dependabot.yml"
+            ".github/release-drafter.yml"
+          )
+          
+          MISSING=0
+          for FILE in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$FILE" ]; then
+              echo "::error::Missing required governance file: $FILE"
+              MISSING=1
+            fi
+          done
+          
+          if [ $MISSING -eq 1 ]; then
+            exit 1
+          fi

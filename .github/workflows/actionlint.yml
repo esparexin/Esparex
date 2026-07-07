@@ -1,0 +1,23 @@
+name: "Actionlint"
+
+on:
+  push:
+    branches: [ "main", "develop", "staging" ]
+  pull_request:
+    branches: [ "main", "develop", "staging" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actionlint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2

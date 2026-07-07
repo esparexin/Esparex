@@ -4,6 +4,15 @@ on:
   schedule:
     - cron: "0 2 * * *" # Run daily at 2am
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: stale-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   stale:
     runs-on: ubuntu-latest
