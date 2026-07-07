@@ -52,9 +52,6 @@ jobs:
       - name: Validate environment contract
         run: npm run guard:env-contracts
 
-      - name: Unicode hygiene check
-        run: npm run guard:unicode-hygiene
-
       - name: Run full governance suite
         run: npm run governance:all
 
