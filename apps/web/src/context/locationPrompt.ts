@@ -1,6 +1,6 @@
 import type { AppLocation } from "@/types/location";
 
-type LocationStatus = "detecting" | "available" | "manual" | "unavailable";
+type LocationStatus = "unknown" | "checking" | "prompt" | "granted" | "denied" | "manual_selection";
 
 export function shouldShowLocationFirstVisitPrompt(params: {
     status: LocationStatus;
@@ -9,11 +9,12 @@ export function shouldShowLocationFirstVisitPrompt(params: {
     isPermissionBlocked: boolean;
     promptDelayElapsed: boolean;
 }) {
+    // Only show prompt if status is explicitly "prompt" (which is set after delay if unknown)
+    // or if it was unknown/checking and we need to prompt.
+    // The state machine makes this much simpler now.
     return (
-        params.status !== "detecting" &&
-        params.source === "default" &&
+        params.status === "prompt" &&
         !params.promptDismissed &&
-        !params.isPermissionBlocked &&
-        params.promptDelayElapsed
+        params.source === "default"
     );
 }
