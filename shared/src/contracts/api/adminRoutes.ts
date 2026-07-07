@@ -47,8 +47,6 @@ export const ADMIN_ROUTES = {
   BUSINESS_ACCOUNTS: "/businesses/accounts",
   BUSINESS_OVERVIEW: "/businesses/overview",
   BUSINESS_DETAIL: (id: string) => `/businesses/${id}`,
-  BUSINESS_APPROVE: (id: string) => `/businesses/${id}/approve`,
-  BUSINESS_REJECT: (id: string) => `/businesses/${id}/reject`,
   BUSINESS_RENEW: (id: string) => `/businesses/${id}/renew`,
   BUSINESS_EXPIRE: (id: string) => `/businesses/${id}/expire`,
   BUSINESS_BULK_APPROVE: "/businesses/bulk/approve",

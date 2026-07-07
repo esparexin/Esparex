@@ -5,10 +5,10 @@
  * The pure respond<T>() serializer remains in @utils/respond.
  */
 export { respond } from '@esparex/core/utils';;
-export { ApiResponse } from './apiResponse';
+export { ApiResponse } from '@esparex/core/utils';
 
 import { Response } from 'express';
-import { ApiResponse as ApiResponseClass } from './apiResponse';
+import { ApiResponse as ApiResponseClass } from '@esparex/core/utils';
 
 /**
  * Enhanced Success Response

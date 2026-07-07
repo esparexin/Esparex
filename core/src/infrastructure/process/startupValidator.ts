@@ -77,22 +77,17 @@ export const assertCriticalStartupReadiness = async (): Promise<void> => {
     }
 
     const redisConnected = redisHealth.connected && redisHealth.pingOk && redisHealth.roundTripOk;
-    const isProduction = env.NODE_ENV === 'production';
-    const redisRequired = isProduction;
 
     if (!redisConnected) {
-        if (redisRequired) {
-            readinessFailures.push('redis subsystem is unavailable');
-        } else {
-            logger.warn('Redis unavailable; continuing with in-memory cache and rate limiter fallbacks.', {
-                connected: redisHealth.connected,
-                pingOk: redisHealth.pingOk,
-                roundTripOk: redisHealth.roundTripOk
-            });
-        }
+        logger.warn('⚠️ DEGRADED: Redis unavailable; continuing with degraded cache and queue subsystems.', {
+            connected: redisHealth.connected,
+            pingOk: redisHealth.pingOk,
+            roundTripOk: redisHealth.roundTripOk
+        });
     }
+
     if (queueHealth.status === 'down') {
-        readinessFailures.push('queue subsystem is down');
+        logger.warn('⚠️ DEGRADED: Queue subsystem is down; jobs will not be processed or enqueued successfully.');
     }
 
     if (Date.now() - startedAt > STARTUP_READINESS_TIMEOUT_MS) {

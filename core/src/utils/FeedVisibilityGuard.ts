@@ -1,39 +1,9 @@
-import { LISTING_STATUS } from '@esparex/shared';
-import { getStatusMatchCriteria } from './statusQueryMapper';
+import { HIDDEN_MODERATION_STATUSES as GUARD_HIDDEN, buildPublicVisibilityFilter } from '../services/lifecycle/LifecycleGuard';
 
-/**
- * FeedVisibilityGuard
- * Enterprise SSOT for resolving whether a public viewer is legally allowed to see an Ad.
- * 
- * Rules:
- * - status MUST be 'live' equivalent (active, approved)
- * - expiresAt MUST be in the future
- * - isDeleted MUST be false
- * - moderationStatus MUST NOT be 'rejected' or 'community_hidden'
- * - Spotlight / Boost MUST NOT override this visibility boundary.
- *
- * ALL feed/search endpoints MUST use buildPublicAdFilter() — never inline filters.
- */
-
-/**
- * Moderation statuses that hide an ad from public feeds.
- * 'rejected' = admin manual rejection.
- * 'community_hidden' = auto-hidden after ≥ N community reports.
- */
-export const HIDDEN_MODERATION_STATUSES = ['rejected', 'community_hidden', 'held_for_review'] as const;
+export const HIDDEN_MODERATION_STATUSES = GUARD_HIDDEN;
 
 export const buildPublicAdFilter = () => {
-    // Runtime safety check to prevent accidental status bypass
-    if (LISTING_STATUS.LIVE !== 'live') {
-        throw new Error('[FeedVisibilityGuard] CRITICAL: LISTING_STATUS.LIVE is corrupted or improperly defined.');
-    }
-
-    return {
-        status: getStatusMatchCriteria(LISTING_STATUS.LIVE),
-        isDeleted: false,
-        expiresAt: { $gt: new Date() },
-        moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] }
-    };
+    return buildPublicVisibilityFilter();
 };
 
 const LIVE_STATUS_ALIASES = new Set(['live', 'approved', 'active', 'published']);

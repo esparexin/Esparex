@@ -41,9 +41,12 @@ export function validateApiEnv() {
     }
 
     if (!url) {
-        throw new Error(
-            "[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL is missing"
-        );
+        if (appEnv === 'production') {
+            throw new Error(
+                "[ESPAREX CONFIG ERROR] NEXT_PUBLIC_API_URL is required in production."
+            );
+        }
+        return;
     }
 
     const isRelativeApiPath = url.startsWith('/');

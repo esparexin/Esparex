@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import {
     API_ROUTES,
 } from "../routes";
-import { toApiResult } from "@/lib/api/result";
+import { toApiResult, toPaginatedApiResult } from "@/lib/api/result";
 import type { Category } from "@/schemas";
 import { fetchUserApiJson, type ServerFetchOptions } from "./server";
 
@@ -15,14 +15,14 @@ export type { Category };
 export const getCategories = async (options?: { fetchOptions?: ServerFetchOptions }): Promise<Category[]> => {
     const { data: result } =
         typeof window === 'undefined'
-            ? await toApiResult<Category[]>(
+            ? await toPaginatedApiResult<Category>(
                 Promise.resolve(fetchUserApiJson(API_ROUTES.USER.CATEGORIES, options?.fetchOptions))
             )
-            : await toApiResult<Category[]>(
+            : await toPaginatedApiResult<Category>(
                 apiClient.get(API_ROUTES.USER.CATEGORIES)
             );
 
-    return result ?? [];
+    return result?.data ?? [];
 };
 
 /**

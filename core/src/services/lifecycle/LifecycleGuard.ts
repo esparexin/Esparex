@@ -131,3 +131,24 @@ export const validateTransition = (
         throw error;
     }
 };
+
+/**
+ * Moderation statuses that hide an ad from public feeds.
+ */
+export const HIDDEN_MODERATION_STATUSES = ['rejected', 'community_hidden', 'held_for_review'] as const;
+
+/**
+ * SSOT for public visibility filter.
+ */
+export const buildPublicVisibilityFilter = (statusValue: string = LIFECYCLE_STATUS.LIVE) => {
+    // We import getStatusMatchCriteria locally to avoid circular dependencies if needed, 
+    // or we can just require the consumer to map it if needed. 
+    // Since getStatusMatchCriteria is in statusQueryMapper.ts, we should import it at the top.
+    const { getStatusMatchCriteria } = require('../utils/statusQueryMapper');
+    return {
+        status: getStatusMatchCriteria(statusValue),
+        isDeleted: false,
+        expiresAt: { $gt: new Date() },
+        moderationStatus: { $nin: [...HIDDEN_MODERATION_STATUSES] }
+    };
+};

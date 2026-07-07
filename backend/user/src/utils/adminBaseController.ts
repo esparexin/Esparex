@@ -8,7 +8,7 @@ export { respond } from "./respond";
  * Supports wildcard (*) for full access.
  */
 import type { IAuthUser as AuthUser } from '@esparex/core/types';;
-import { ApiResponse } from "./apiResponse";
+import { ApiResponse } from "@esparex/core/utils";
 import { logger } from '@esparex/core/utils';;;;
 
 

@@ -58,6 +58,9 @@ jobs:
       - name: Run full governance suite
         run: npm run governance:all
 
+      - name: Run deployment gate
+        run: npm run deploy:gate
+
       - name: Run architecture check (v1.1.0)
         run: npm run architecture:check
 
