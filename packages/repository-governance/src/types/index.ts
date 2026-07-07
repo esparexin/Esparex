@@ -1,5 +1,7 @@
+import type { BrainSnapshot } from "@esparex/repository-brain";
+
 export interface PluginRegistry {
-  analyzers: Analyzer[];
+  analyzers: (Analyzer | GovernanceAnalyzer)[];
   validators: Validator[];
   reporters: Reporter[];
 }
@@ -14,6 +16,11 @@ export interface AnalyzerMetadata {
   dependsOn?: string[]; // IDs of analyzers that must run before this one
 }
 
+/**
+ * @deprecated Since Phase 4. Use GovernanceAnalyzer.analyze(snapshot) instead.
+ * AnalyzerContext will be removed in the Phase 5 milestone once all analyzers
+ * have migrated to the GovernanceAnalyzer interface.
+ */
 export interface AnalyzerContext {
   workspaceRoot: string;
   config: Record<string, any>;
@@ -21,6 +28,24 @@ export interface AnalyzerContext {
     currentBranch: string;
     isClean: boolean;
   };
+}
+
+/**
+ * Canonical interface for all Governance analyzers (Phase 4+).
+ *
+ * Analyzers must:
+ *   - Receive a BrainSnapshot as their only input.
+ *   - Never read `fs`, `path`, or execute Git commands directly.
+ *   - Never import @esparex/repository-scanner directly.
+ *
+ * Exception: Analyzers that check file *contents* (e.g. UnicodeHygieneAnalyzer)
+ * may call `fs.readFileSync` on paths sourced from `snapshot.repository.files`,
+ * but must not perform file *discovery* themselves.
+ */
+export interface GovernanceAnalyzer<T = unknown> {
+  readonly id: string;
+  readonly category: "architecture" | "git" | "code-quality" | "security" | "performance" | "documentation" | "testing";
+  analyze(snapshot: BrainSnapshot): Promise<AnalysisResultEnvelope<T>>;
 }
 
 export interface AnalysisResultEnvelope<T = any> {

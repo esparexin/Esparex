@@ -2,6 +2,7 @@
   "name": "@esparex/repository-governance",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=22.0.0 <23"
   },
@@ -15,8 +16,13 @@
     "type-check": "tsc --noEmit",
     "test": "node dist/tests/governance.spec.js && node dist/tests/architecture.spec.js"
   },
+  "dependencies": {
+    "@esparex/repository-scanner": "*",
+    "@esparex/repository-brain": "*"
+  },
   "devDependencies": {
     "typescript": "^5.9.3",
     "@types/node": "^25.1.0"
   }
 }
+

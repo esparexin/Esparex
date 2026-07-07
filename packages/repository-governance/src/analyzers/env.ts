@@ -1,6 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
-import { Analyzer, AnalyzerContext, AnalysisResultEnvelope } from "../types/index.js";
+import type { BrainSnapshot } from "@esparex/repository-brain";
+import { GovernanceAnalyzer, AnalysisResultEnvelope } from "../types/index.js";
 
 export interface EnvStatusPayload {
   rootEnvExists: boolean;
@@ -9,32 +8,34 @@ export interface EnvStatusPayload {
   appWebEnvExists: boolean;
 }
 
-export class EnvAnalyzer implements Analyzer<EnvStatusPayload> {
-  metadata = {
-    id: "env",
-    name: "Environment Sanity Analyzer",
-    category: "security" as const,
-    version: "1.0.0",
-    dependsOn: []
-  };
+export class EnvAnalyzer implements GovernanceAnalyzer<EnvStatusPayload> {
+  readonly id = "env";
+  readonly category = "security" as const;
 
-  async run(context: AnalyzerContext): Promise<AnalysisResultEnvelope<EnvStatusPayload>> {
+  async analyze(snapshot: BrainSnapshot): Promise<AnalysisResultEnvelope<EnvStatusPayload>> {
     const startTime = Date.now();
-    const root = context.workspaceRoot;
 
-    const rootEnvExists = fs.existsSync(path.join(root, ".env"));
-    const rootEnvExampleExists = fs.existsSync(path.join(root, ".env.example"));
-    const appAdminEnvExists = fs.existsSync(path.join(root, "apps/admin/.env"));
-    const appWebEnvExists = fs.existsSync(path.join(root, "apps/web/.env"));
+    // File discovery comes from the snapshot — never from direct fs.existsSync().
+    // The scanner has already walked the repository; we check membership only.
+    const fileSet = new Set(
+      snapshot.repository.files.map(f => f.replace(/\\/g, "/"))
+    );
+
+    const has = (rel: string) => fileSet.has(rel) || fileSet.has(rel.replace(/^\//, ""));
+
+    const rootEnvExists        = has(".env");
+    const rootEnvExampleExists = has(".env.example");
+    const appAdminEnvExists    = has("apps/admin/.env");
+    const appWebEnvExists      = has("apps/web/.env");
 
     let warningsCount = 0;
-    if (!rootEnvExists) warningsCount++;
+    if (!rootEnvExists)     warningsCount++;
     if (!appAdminEnvExists) warningsCount++;
-    if (!appWebEnvExists) warningsCount++;
+    if (!appWebEnvExists)   warningsCount++;
 
     return {
       schemaVersion: "1.0.0",
-      analyzerId: this.metadata.id,
+      analyzerId: this.id,
       timestamp: new Date().toISOString(),
       status: "success",
       durationMs: Date.now() - startTime,

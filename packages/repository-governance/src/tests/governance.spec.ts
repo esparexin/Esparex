@@ -30,7 +30,7 @@ function runTests() {
     };
 
     const resolved = GovernanceEngine.resolveDependencies([mockAnalyzerA, mockAnalyzerB]);
-    assert(resolved[0].metadata.id === "B" && resolved[1].metadata.id === "A", "Resolves dependencies in correct topological order");
+    assert((resolved[0] as Analyzer).metadata.id === "B" && (resolved[1] as Analyzer).metadata.id === "A", "Resolves dependencies in correct topological order");
   } catch (err: any) {
     assert(false, `Dependency resolution failed: ${err.message}`);
   }

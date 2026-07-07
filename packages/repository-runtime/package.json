@@ -1,0 +1,31 @@
+{
+  "name": "@esparex/repository-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0 <23"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "repository-runtime": "dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "type-check": "tsc --noEmit",
+    "test": "node dist/tests/runtime.spec.js && node dist/tests/sdk.spec.js"
+  },
+  "dependencies": {
+    "@esparex/repository-scanner": "*",
+    "@esparex/repository-brain": "*",
+    "@esparex/repository-governance": "*",
+    "@esparex/repository-skills": "*",
+    "@esparex/repository-intelligence": "*",
+    "@esparex/repository-plugin-sdk": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^25.1.0"
+  }
+}

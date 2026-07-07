@@ -1,7 +1,9 @@
+import type { BrainSnapshot } from "@esparex/repository-brain";
 import {
   PluginRegistry,
   Analyzer,
   AnalyzerContext,
+  GovernanceAnalyzer,
   AnalysisResultEnvelope,
   ValidationReport,
   GovernanceSummaryReport
@@ -9,10 +11,22 @@ import {
 import { calculateOverallScore } from "../scoring/index.js";
 
 export interface EngineRunOptions {
-  workspaceRoot: string;
+  /**
+   * Compiled BrainSnapshot — the canonical input for all Phase 4+ analyzers.
+   * All governance analyzers that implement GovernanceAnalyzer will receive this.
+   */
+  snapshot: BrainSnapshot;
+
   registry: PluginRegistry;
   profile: string;
   config: Record<string, any>;
+
+  /**
+   * @deprecated Since Phase 4. Provided only as a fallback for legacy Analyzer
+   * implementations that have not yet migrated to GovernanceAnalyzer.
+   * Will be removed in the Phase 5 milestone.
+   */
+  workspaceRoot?: string;
 }
 
 export interface EngineRunResult {
@@ -20,93 +34,96 @@ export interface EngineRunResult {
   exitCode: number;
 }
 
+// Type guard: distinguishes legacy Analyzer (has .metadata.id) from GovernanceAnalyzer (has .id)
+function isLegacyAnalyzer(a: Analyzer | GovernanceAnalyzer): a is Analyzer {
+  return "metadata" in a && typeof (a as any).metadata?.id === "string";
+}
+
+function getAnalyzerId(a: Analyzer | GovernanceAnalyzer): string {
+  return isLegacyAnalyzer(a) ? a.metadata.id : a.id;
+}
+
+function getAnalyzerDeps(a: Analyzer | GovernanceAnalyzer): string[] {
+  return isLegacyAnalyzer(a) ? (a.metadata.dependsOn || []) : [];
+}
+
 export class GovernanceEngine {
-  static resolveDependencies(analyzers: Analyzer[]): Analyzer[] {
-    const resolved: Analyzer[] = [];
-    const visited = new Set<string>();
+  static resolveDependencies(analyzers: (Analyzer | GovernanceAnalyzer)[]): (Analyzer | GovernanceAnalyzer)[] {
+    const resolved: (Analyzer | GovernanceAnalyzer)[] = [];
+    const visited  = new Set<string>();
     const visiting = new Set<string>();
 
-    const map = new Map<string, Analyzer>();
-    for (const a of analyzers) {
-      map.set(a.metadata.id, a);
-    }
+    const map = new Map<string, Analyzer | GovernanceAnalyzer>();
+    for (const a of analyzers) map.set(getAnalyzerId(a), a);
 
     function visit(id: string) {
       if (visited.has(id)) return;
-      if (visiting.has(id)) {
-        throw new Error(`Circular dependency detected involving analyzer: ${id}`);
-      }
+      if (visiting.has(id)) throw new Error(`Circular dependency detected involving analyzer: ${id}`);
       visiting.add(id);
-
       const analyzer = map.get(id);
       if (analyzer) {
-        const deps = analyzer.metadata.dependsOn || [];
-        for (const dep of deps) {
-          visit(dep);
-        }
+        for (const dep of getAnalyzerDeps(analyzer)) visit(dep);
         resolved.push(analyzer);
       }
-
       visiting.delete(id);
       visited.add(id);
     }
 
-    for (const a of analyzers) {
-      visit(a.metadata.id);
-    }
-
+    for (const a of analyzers) visit(getAnalyzerId(a));
     return resolved;
   }
 
   static async run(options: EngineRunOptions): Promise<EngineRunResult> {
-    const { workspaceRoot, registry, profile, config } = options;
+    const { snapshot, registry, profile, config } = options;
 
-    const context: AnalyzerContext = {
-      workspaceRoot,
+    // Legacy context for backward-compatible Analyzer implementations.
+    // @deprecated — will be removed in Phase 5.
+    const legacyContext: AnalyzerContext = {
+      workspaceRoot: options.workspaceRoot ?? snapshot.repository.root,
       config,
       git: {
-        currentBranch: "unknown",
+        currentBranch: snapshot.repository.branch,
         isClean: true
       }
     };
 
-    // Filter analyzers based on profile
-    // Profile profiles maps:
-    // 'quick' -> env, git
-    // 'doctor' -> env, git, dependencies, ports
-    // 'ci' -> unicode-hygiene, git
-    // 'health' / 'full' -> all
-    let activeAnalyzers = registry.analyzers;
+    // Profile filtering
+    let activeAnalyzers: (Analyzer | GovernanceAnalyzer)[] = registry.analyzers;
     if (profile === "quick") {
-      activeAnalyzers = registry.analyzers.filter(a => a.metadata.id === "git" || a.metadata.id === "env");
+      activeAnalyzers = registry.analyzers.filter(a =>
+        getAnalyzerId(a) === "git" || getAnalyzerId(a) === "env"
+      );
     } else if (profile === "doctor") {
-      activeAnalyzers = registry.analyzers.filter(a => a.metadata.id === "env" || a.metadata.id === "git");
+      activeAnalyzers = registry.analyzers.filter(a =>
+        getAnalyzerId(a) === "env" || getAnalyzerId(a) === "git"
+      );
     } else if (profile === "ci") {
-      activeAnalyzers = registry.analyzers.filter(a => a.metadata.id === "unicode-hygiene" || a.metadata.id === "git" || a.metadata.id === "architecture");
+      activeAnalyzers = registry.analyzers.filter(a => {
+        const id = getAnalyzerId(a);
+        return id === "unicode-hygiene" || id === "git" || id === "architecture";
+      });
     }
 
-    // Resolve dependencies ordering
     const executionOrder = this.resolveDependencies(activeAnalyzers);
-
     const envelopes: AnalysisResultEnvelope[] = [];
-    const validationReports: {
-      analyzerId: string;
-      name: string;
-      score: number;
-      violationsCount: number;
-      passed: boolean;
-      report: ValidationReport;
-    }[] = [];
 
-    // 1. Run Analyzers
+    // ── Run analyzers ──────────────────────────────────────────────────────
     for (const analyzer of executionOrder) {
+      const id = "metadata" in analyzer ? analyzer.metadata.id : analyzer.id;
       try {
-        const envelope = await analyzer.run(context);
+        let envelope: AnalysisResultEnvelope;
+        if ("analyze" in analyzer) {
+          // GovernanceAnalyzer (Phase 4+) — receives snapshot only
+          envelope = await (analyzer as GovernanceAnalyzer).analyze(snapshot);
+        } else {
+          // Legacy Analyzer — receives deprecated AnalyzerContext
+          envelope = await (analyzer as Analyzer).run(legacyContext);
+        }
         envelopes.push(envelope);
       } catch (err: any) {
         envelopes.push({
           schemaVersion: "1.0.0",
-          analyzerId: analyzer.metadata.id,
+          analyzerId: id,
           timestamp: new Date().toISOString(),
           status: "failure",
           durationMs: 0,
@@ -118,26 +135,32 @@ export class GovernanceEngine {
       }
     }
 
-    // 2. Run Validators
+    // ── Run validators ─────────────────────────────────────────────────────
+    const validationReports: {
+      analyzerId: string;
+      name: string;
+      score: number;
+      violationsCount: number;
+      passed: boolean;
+      report: ValidationReport;
+    }[] = [];
+
     for (const envelope of envelopes) {
-      // Find matching validator
-      // Convention: validator id matches `${analyzerId}-validator` or just matches analyzerId
-      const validator = registry.validators.find(v => v.id === `${envelope.analyzerId}-validator` || v.id === envelope.analyzerId);
-      const analyzerMeta = executionOrder.find(a => a.metadata.id === envelope.analyzerId)?.metadata;
-      const analyzerName = analyzerMeta?.name || envelope.analyzerId;
+      const validator = registry.validators.find(
+        v => v.id === `${envelope.analyzerId}-validator` || v.id === envelope.analyzerId
+      );
+      const analyzerEntry = executionOrder.find(
+        a => getAnalyzerId(a) === envelope.analyzerId
+      );
+      const analyzerName = analyzerEntry
+        ? (isLegacyAnalyzer(analyzerEntry) ? analyzerEntry.metadata.name : analyzerEntry.id)
+        : envelope.analyzerId;
 
       if (validator) {
         try {
           const rules = config.rules?.[envelope.analyzerId] || {};
           const report = await validator.validate(envelope, rules);
-          validationReports.push({
-            analyzerId: envelope.analyzerId,
-            name: analyzerName,
-            score: report.score,
-            violationsCount: report.violations.length,
-            passed: report.passed,
-            report
-          });
+          validationReports.push({ analyzerId: envelope.analyzerId, name: analyzerName, score: report.score, violationsCount: report.violations.length, passed: report.passed, report });
         } catch (err: any) {
           validationReports.push({
             analyzerId: envelope.analyzerId,
@@ -149,52 +172,33 @@ export class GovernanceEngine {
               schemaVersion: "1.0.0",
               analyzerId: envelope.analyzerId,
               score: 0,
-              violations: [{
-                ruleId: "validator-failure",
-                severity: "critical",
-                message: `Validator failed: ${err.message}`
-              }],
+              violations: [{ ruleId: "validator-failure", severity: "critical", message: `Validator failed: ${err.message}` }],
               passed: false
             }
           });
         }
       } else {
-        // Default pass validation if no validator registered
         validationReports.push({
           analyzerId: envelope.analyzerId,
           name: analyzerName,
           score: 100,
           violationsCount: 0,
           passed: true,
-          report: {
-            schemaVersion: "1.0.0",
-            analyzerId: envelope.analyzerId,
-            score: 100,
-            violations: [],
-            passed: true
-          }
+          report: { schemaVersion: "1.0.0", analyzerId: envelope.analyzerId, score: 100, violations: [], passed: true }
         });
       }
     }
 
-    // 3. Compute Scores
+    // ── Score and exit code ────────────────────────────────────────────────
     const overallScore = calculateOverallScore(validationReports);
-
-    // Determine Exit Code:
-    // 0: Success (all passed, no errors/criticals)
-    // 1: Warnings present (score < 100 but passed)
-    // 2: Standard validation failures (errors)
-    // 3: Critical gate violations
     let exitCode = 0;
-    let hasWarnings = false;
-    let hasErrors = false;
-    let hasCriticals = false;
+    let hasWarnings = false, hasErrors = false, hasCriticals = false;
 
     for (const vr of validationReports) {
-      for (const violation of vr.report.violations) {
-        if (violation.severity === "critical") hasCriticals = true;
-        else if (violation.severity === "error") hasErrors = true;
-        else if (violation.severity === "warning") hasWarnings = true;
+      for (const v of vr.report.violations) {
+        if (v.severity === "critical") hasCriticals = true;
+        else if (v.severity === "error") hasErrors = true;
+        else if (v.severity === "warning") hasWarnings = true;
       }
     }
 
@@ -202,15 +206,13 @@ export class GovernanceEngine {
     else if (hasErrors) exitCode = 2;
     else if (hasWarnings) exitCode = 1;
 
-    const report: GovernanceSummaryReport = {
-      schemaVersion: "1.0.0",
-      timestamp: new Date().toISOString(),
-      overallScore,
-      results: validationReports
-    };
-
     return {
-      report,
+      report: {
+        schemaVersion: "1.0.0",
+        timestamp: new Date().toISOString(),
+        overallScore,
+        results: validationReports
+      },
       exitCode
     };
   }

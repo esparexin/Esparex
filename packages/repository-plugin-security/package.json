@@ -1,0 +1,23 @@
+{
+  "name": "@esparex/repository-plugin-security",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0 <23"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && tsc",
+    "type-check": "tsc --noEmit",
+    "test": "node dist/tests/security.spec.js"
+  },
+  "dependencies": {
+    "@esparex/repository-plugin-sdk": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^25.1.0"
+  }
+}

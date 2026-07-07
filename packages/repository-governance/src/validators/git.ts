@@ -11,17 +11,10 @@ export class GitValidator implements Validator<GitStatusPayload> {
   ): Promise<ValidationReport> {
     const violations: RuleViolation[] = [];
     const payload = envelope.payload;
-    const allowedBranches = rulesConfig.allowedBranches || ["main", "master", "develop", "feature/transport-separation-pr2"];
+    const allowedBranches = rulesConfig.allowedBranches || ["main", "master", "develop"];
 
     if (payload) {
-      if (!payload.isClean) {
-        violations.push({
-          ruleId: "dirty-working-tree",
-          severity: "warning",
-          message: `Workspace contains ${payload.uncommittedFiles.length} uncommitted modifications. Run git status to inspect.`
-        });
-      }
-
+      // Branch allowlist check
       if (payload.currentBranch && !allowedBranches.includes(payload.currentBranch)) {
         violations.push({
           ruleId: "disallowed-branch-name",
@@ -29,11 +22,16 @@ export class GitValidator implements Validator<GitStatusPayload> {
           message: `Current branch '${payload.currentBranch}' is not in the allowed branch whitelist: ${allowedBranches.join(", ")}`
         });
       }
+
+      // NOTE: Dirty working-tree detection (uncommittedFiles) has been deferred
+      // to Phase 7 (Drift Detection Engine). The scanner does not yet surface
+      // live working-tree state; branch and commit are the only Git facts
+      // available in the current BrainSnapshot.
     }
 
     let score = 100;
     if (violations.some(v => v.severity === "warning")) score -= 10;
-    if (violations.some(v => v.severity === "error")) score -= 30;
+    if (violations.some(v => v.severity === "error"))   score -= 30;
 
     return {
       schemaVersion: "1.0.0",
