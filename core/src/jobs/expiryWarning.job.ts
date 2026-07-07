@@ -1,6 +1,7 @@
 import { addJobWithTrace, type TraceableJobData } from '../infrastructure/bullmq/queueWrapper';
 import { Queue } from 'bullmq';
-import { redisConnection } from '../queues/redisConnection';
+import { redisConnection, shouldDisableQueueConnection } from '../queues/redisConnection';
+import { createNoopQueue, withQueueDefaults } from '../queues/queueDefaults';
 import logger from '../utils/logger';
 import Business from '../models/Business';
 import Ad from '../models/Ad';
@@ -11,7 +12,14 @@ import { dispatchTemplatedNotification } from '../services/NotificationService';
 import { ACTOR_TYPE } from '@esparex/shared';
 import AdminLog from '../models/AdminLog';
 
-const expiryWarningQueue = new Queue('expiry_warning_queue', { connection: redisConnection });
+const sharedJobOptions = withQueueDefaults();
+
+const expiryWarningQueue = shouldDisableQueueConnection
+    ? createNoopQueue()
+    : new Queue('expiry_warning_queue', { 
+        connection: redisConnection,
+        defaultJobOptions: sharedJobOptions
+    });
 
 /**
  * ⏰ Expiry Warning Job

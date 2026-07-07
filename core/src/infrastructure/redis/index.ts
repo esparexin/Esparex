@@ -51,7 +51,7 @@ const validateRedisUrl = (urlValue: string): void => {
 const baseRoleOptions = (role: RedisClientRole): RedisOptions => ({
     ...redisConnectionOptions,
     maxRetriesPerRequest: role === 'app' && env.NODE_ENV !== 'production' ? 0 : null,
-    enableOfflineQueue: false,
+    enableOfflineQueue: role === 'pub' || role === 'sub',
     enableReadyCheck: true,
     connectTimeout: REDIS_CONNECT_TIMEOUT_MS,
     commandTimeout: REDIS_COMMAND_TIMEOUT_MS,

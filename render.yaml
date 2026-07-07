@@ -81,3 +81,69 @@ services:
         value: "false"
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false
+
+  - type: worker
+    name: esparex-worker
+    env: node
+    plan: starter
+    buildCommand: HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user && test -f backend/user/dist/index.js
+    startCommand: npm start -w @esparex/backend-user
+    envVars:
+      - key: PROCESS_ROLE
+        value: worker
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      
+      - key: MONGODB_URI
+        sync: false
+      - key: ADMIN_MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_JWT_SECRET
+        sync: false
+      - key: REFRESH_TOKEN_SECRET
+        sync: false
+      - key: OTP_HASH_SECRET
+        sync: false
+        
+      - key: ALLOW_REDIS
+        value: "true"
+      - key: REDIS_URL
+        sync: false
+      - key: REDIS_USERNAME
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+        
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        sync: false
+      - key: S3_BUCKET_NAME
+        sync: false
+        
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+        
+      - key: MSG91_AUTH_KEY
+        sync: false
+      - key: MSG91_SENDER_ID
+        sync: false
+        
+      - key: GEMINI_API_KEY
+        sync: false
+        
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+        
+      - key: ATLAS_LOCATION_SEARCH_INDEX
+        sync: false
