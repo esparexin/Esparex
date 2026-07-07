@@ -104,7 +104,7 @@
     "api:diff": "node scripts/architecture/api-diff.js",
     "guard:env-contracts": "node scripts/guard-env-contracts.js",
     "guard:unicode-hygiene": "npm run repository:doctor -- --profile ci",
-    "repository:doctor": "node packages/repository-governance/dist/cli/index.js",
+    "repository:doctor": "npx ts-node --compiler-options '{\"moduleResolution\":\"NodeNext\"}' packages/repository-governance/src/cli/index.ts",
     "debt:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=8192 node scripts/generate-eslint-baseline.js",
     "debt:insights": "node scripts/analyze-tech-debt.js"
   },
