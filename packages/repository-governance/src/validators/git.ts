@@ -15,12 +15,17 @@ export class GitValidator implements Validator<GitStatusPayload> {
 
     if (payload) {
       // Branch allowlist check
-      if (payload.currentBranch && !allowedBranches.includes(payload.currentBranch)) {
-        violations.push({
-          ruleId: "disallowed-branch-name",
-          severity: "info",
-          message: `Current branch '${payload.currentBranch}' is not in the allowed branch whitelist: ${allowedBranches.join(", ")}`
-        });
+      if (payload.currentBranch) {
+        const isAllowed = allowedBranches.some((b: string) => 
+          b.endsWith('*') ? payload.currentBranch!.startsWith(b.slice(0, -1)) : b === payload.currentBranch
+        );
+        if (!isAllowed) {
+          violations.push({
+            ruleId: "disallowed-branch-name",
+            severity: "info",
+            message: `Current branch '${payload.currentBranch}' is not in the allowed branch whitelist: ${allowedBranches.join(", ")}`
+          });
+        }
       }
 
       // NOTE: Dirty working-tree detection (uncommittedFiles) has been deferred

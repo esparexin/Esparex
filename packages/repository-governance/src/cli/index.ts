@@ -43,7 +43,7 @@ async function runCli() {
     rules: {
       "unicode-hygiene": {},
       "git": {
-        allowedBranches: ["main", "master", "develop", "feature/transport-separation-pr2"]
+        allowedBranches: ["main", "master", "develop", "feature/*", "fix/*", "chore/*", "docs/*", "audit/*"]
       },
       "env": {}
     }
