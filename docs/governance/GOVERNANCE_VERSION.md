@@ -1,8 +1,13 @@
-# Governance Version
-
-- **Governance Version**: 1.0.0
+# Enterprise Governance Baseline
+- **Version**: 1.0.0
+- **Status**: Frozen
 - **Effective Date**: 2026-07-07
-- **Repository Version**: 1.0.0
+
+Any future governance change requires:
+- Architecture Decision Record (ADR)
+- Governance version increment
+- Changelog entry
+- Review by repository maintainers
 
 ## Required GitHub Features
 - Secret Scanning
