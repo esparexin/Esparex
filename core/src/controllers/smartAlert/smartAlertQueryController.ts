@@ -1,7 +1,7 @@
 import logger from '../../utils/logger';
 import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
-import { PaginatedResponse, ApiResponse } from "@esparex/shared";
+import { ApiResponse } from "@esparex/shared";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import {
     getErrorMessage,

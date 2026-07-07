@@ -29,7 +29,7 @@ export class ReportWriter {
     const dir = options.outputPath ? path.dirname(options.outputPath) : "";
 
     let mdOutput = "";
-    let jsonOutput = JSON.stringify(report, null, 2);
+    const jsonOutput = JSON.stringify(report, null, 2);
 
     if (format === "markdown" || format === "both") {
       mdOutput = this.formatMarkdown(report);

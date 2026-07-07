@@ -1,4 +1,3 @@
-import type { BrainSnapshot } from "@esparex/repository-brain";
 
 /**
  * @since v1.0.0

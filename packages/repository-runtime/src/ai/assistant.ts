@@ -1,4 +1,3 @@
-import { BrainSnapshot } from "@esparex/repository-brain";
 import { SkillResult, CapabilityRequest, CapabilityRouteResult } from "@esparex/repository-skills";
 import { RepositoryRuntime } from "../sdk/runtime_sdk.js";
 
