@@ -39,7 +39,7 @@ export class ExplainabilityEngine {
 
   private explainDrift(finding: DriftFinding): ExplanationPayload {
     let expected = "Repository state matches baseline snapshot.";
-    let actual = finding.message;
+    const actual = finding.message;
     let ruleId = "DRIFT-001";
     let recommendation = finding.recommendation || "Refresh baseline snapshot.";
 

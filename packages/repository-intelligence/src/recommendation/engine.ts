@@ -1,5 +1,5 @@
 import { Recommendation, TechnicalDebtSummary } from "../types/index.js";
-import { DriftFinding } from "@esparex/repository-runtime"; // wait, import from types since we don't want runtime reference: we can pass DriftFinding[] from caller!
+// wait, import from types since we don't want runtime reference: we can pass DriftFinding[] from caller!
 // Yes, we will pass DriftFinding[] and RuleViolation[] directly to the recommendation engine.
 
 /**

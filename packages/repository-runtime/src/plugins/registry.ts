@@ -1,8 +1,7 @@
 import {
   RepositoryPlugin,
   RepositoryRuntimeApi,
-  PluginStatus,
-  PluginManifest
+  PluginStatus
 } from "@esparex/repository-plugin-sdk";
 import { RepositoryRuntime } from "../sdk/runtime_sdk.js";
 
@@ -174,7 +173,9 @@ export class ExtensionRegistry {
       for (const unsub of unsubscribers) {
         try {
           unsub();
-        } catch {}
+        } catch {
+          // Ignore unsubscribe errors
+        }
       }
       this.eventUnsubscribers.delete(pluginId);
     }

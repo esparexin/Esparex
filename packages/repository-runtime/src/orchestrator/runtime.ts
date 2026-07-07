@@ -8,7 +8,7 @@ import { FilesystemComparator } from "../drift/comparators/filesystem.js";
 import { PolicyComparator } from "../drift/comparators/policy.js";
 import { SnapshotManager } from "../history/snapshot_manager.js";
 import { HistoryManager, HealthHistoryEntry } from "../history/history_manager.js";
-import { DriftReport, GovernanceCompletedEvent } from "../events/event_types.js";
+import { DriftReport } from "../events/event_types.js";
 import { DefaultRegistry } from "@esparex/repository-governance";
 
 export interface RuntimeDiagnostics {

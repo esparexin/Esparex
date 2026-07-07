@@ -6,8 +6,6 @@ import { type AdStatusValue } from '@esparex/shared';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/shared';
 import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/shared';
 import { getUserConnection } from '../infrastructure/db';
-import Location from './Location';
-import logger from '../utils/logger';
 import { syncConversationAvailabilityForListing } from '../services/ChatAvailabilityService';
 import { generateUniqueSlug } from '../utils/slugGenerator';
 

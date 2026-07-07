@@ -4,7 +4,7 @@ import { GovernanceEngine, GovernanceSummaryReport } from "@esparex/repository-g
 import { DefaultSkillRegistry, SkillResult, CapabilityRouteResult, CapabilityRequest } from "@esparex/repository-skills";
 
 import { EventBus } from "../events/event_bus.js";
-import { DriftReport, DriftFinding } from "../events/event_types.js";
+import { DriftReport } from "../events/event_types.js";
 import { RuntimeContext, RuntimeLogger } from "../context/runtime_context.js";
 import { RepositoryRuntime as Engine } from "../orchestrator/runtime.js";
 import { ExplanationPayload, ExplainabilityEngine } from "../explainability/engine.js";
