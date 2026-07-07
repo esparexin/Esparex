@@ -93,7 +93,7 @@
     "guard:admin-status-literals": "node scripts/enforce-admin-status-literals.js",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js",
     "governance:guards": "npm run docs:lint && npm run guard:naming && npm run guard:objectid && npm run guard:platform-governance && npm run guard:notification-governance && npm run guard:ad-ssot && npm run guard:admin-status-literals && npm run guard:api-surface && npm run guard:component-api-boundary && npm run guard:compatibility-markers && npm run repository:doctor -- --profile ci",
-    "governance:all": "npm run lint && npm run type-check && npm run test && npm run guard:duplicate-code && npm run guard:dead-code && npm run governance:guards && npm run build",
+    "governance:all": "npm run lint && npm run type-check && npm run test && npm run build && npm run guard:duplicate-code && npm run guard:dead-code && npm run governance:guards",
     "architecture:check": "node scripts/architecture/check-architecture.js",
     "architecture:check:fast": "node scripts/architecture/check-architecture.js --fast",
     "architecture:report": "node scripts/architecture/check-architecture.js --report",
@@ -104,7 +104,7 @@
     "api:diff": "node scripts/architecture/api-diff.js",
     "guard:env-contracts": "node scripts/guard-env-contracts.js",
     "guard:unicode-hygiene": "npm run repository:doctor -- --profile ci",
-    "repository:doctor": "npx ts-node --compiler-options '{\"moduleResolution\":\"NodeNext\"}' packages/repository-governance/src/cli/index.ts",
+    "repository:doctor": "node packages/repository-governance/dist/cli/index.js",
     "debt:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=8192 node scripts/generate-eslint-baseline.js",
     "debt:insights": "node scripts/analyze-tech-debt.js"
   },
