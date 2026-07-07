@@ -33,14 +33,8 @@ import { useLocationActionHandlers } from "./hooks/useLocationActionHandlers";
 /* -------------------------------------------------------------------------- */
 
 export type LocationCoordinates = GeoJSONPoint;
-export type LocationStatus = "detecting" | "available" | "manual" | "unavailable";
+export type LocationStatus = "unknown" | "checking" | "prompt" | "granted" | "denied" | "manual_selection";
 export type LocationData = AppLocation;
-
-// ── Domain-split state types ──────────────────────────────────────────────────
-// LocationDataContext  — stable location value; only changes when user sets a new location.
-// LocationStatusContext — volatile detection state; changes during GPS flow.
-// Most components only need location data; subscribing to the full state causes
-// unnecessary re-renders every time GPS status cycles.
 
 export type LocationDataContextType = {
     location: LocationData;
@@ -84,15 +78,13 @@ export type LocationActionsContextType = LocationDispatchContextType;
 const LOCATION_PROMPT_DELAY_MS = 800;
 
 const getLocationStatus = (source: LocationData["source"]): LocationStatus =>
-    source === "manual" ? "manual" : "available";
+    source === "manual" ? "manual_selection" : "granted";
 
 /* -------------------------------------------------------------------------- */
 /* CONTEXT */
 /* -------------------------------------------------------------------------- */
 
 const LocationActionsContext = createContext<LocationActionsContextType | undefined>(undefined);
-
-// Focused domain contexts
 const LocationDataContext = createContext<LocationDataContextType | undefined>(undefined);
 const LocationStatusContext = createContext<LocationStatusContextType | undefined>(undefined);
 
@@ -109,12 +101,11 @@ export function LocationProvider({
 }) {
     // ── Core State ────────────────────────────────────────────────────────────
     const [location, setLocation] = useState<LocationData>(DEFAULT_APP_LOCATION);
-    const [status, setStatus] = useState<LocationStatus>("detecting");
+    const [status, setStatus] = useState<LocationStatus>("unknown");
     const [detectError, setDetectError] = useState<string | null>(null);
     const [promptDismissed, setPromptDismissed] = useState(false);
     const [showPermissionBlockedModal, setShowPermissionBlockedModal] = useState(false);
     const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
-    const [shouldShowPromptAfterDelay, setShouldShowPromptAfterDelay] = useState(false);
     const [locationExpired, setLocationExpired] = useState(false);
 
     const initializedRef = useRef(false);
@@ -136,10 +127,23 @@ export function LocationProvider({
     const persistPromptDismissed = useCallback((dismissed: boolean) => {
         setPromptDismissed(dismissed);
         setPromptDismissedFlag(dismissed);
-    }, [setPromptDismissedFlag]);
+        
+        // Expiration logic is handled by setting a timestamp in localstorage instead of just a boolean
+        if (dismissed && typeof window !== "undefined") {
+            const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+            localStorage.setItem(LOCATION_PROMPT_DISMISSED_KEY + "_expiry", expiry.toString());
+            
+            logAnalytics?.({
+                source: 'default',
+                city: 'Unknown',
+                state: 'Unknown',
+                reason: 'prompt_dismissed',
+                eventType: 'location_prompt_dismissed' as any
+            });
+        }
+    }, [setPromptDismissedFlag, logAnalytics]);
 
     const applyResolvedLocation = useCallback((nextLocation: LocationData, persist = false) => {
-        setShouldShowPromptAfterDelay(false);
         setLocation(nextLocation);
         setStatus(getLocationStatus(nextLocation.source));
         setDetectError(null);
@@ -160,20 +164,36 @@ export function LocationProvider({
         setIsPermissionBlocked(false);
         setShowPermissionBlockedModal(false);
         applyResolvedLocation(loc, persist);
-    }, [applyResolvedLocation, setPermissionBlockedFlag]);
+        
+        logAnalytics?.({
+            source: 'auto',
+            city: loc.city || 'Unknown',
+            state: loc.state || 'Unknown',
+            reason: 'permission_granted',
+            eventType: 'location_permission_granted' as any
+        });
+    }, [applyResolvedLocation, setPermissionBlockedFlag, logAnalytics]);
 
     const handleError = useCallback((msg: string) => {
-        setStatus(location.source === "manual" ? "manual" : "unavailable");
+        setStatus(location.source === "manual" ? "manual_selection" : "prompt"); // Back to prompt so they can retry or manual
         setDetectError(msg);
     }, [location.source]);
 
     const handlePermissionBlocked = useCallback(() => {
-        setStatus(location.source === "manual" ? "manual" : "unavailable");
-        setDetectError("Location permission denied. Allow location access in your browser settings and try again.");
+        setStatus("denied");
+        setDetectError("Location access is disabled for this site. Enable it in your browser's site settings.");
         setPermissionBlockedFlag(true);
         setIsPermissionBlocked(true);
         setShowPermissionBlockedModal(true);
-    }, [location.source, setPermissionBlockedFlag]);
+        
+        logAnalytics?.({
+            source: 'default',
+            city: 'Unknown',
+            state: 'Unknown',
+            reason: 'permission_denied',
+            eventType: 'location_permission_denied' as any
+        });
+    }, [setPermissionBlockedFlag, logAnalytics]);
 
     const { detect: unifiedDetect, isDetecting } = useUnifiedLocationDetection({
         onSuccess: handleSuccess,
@@ -184,10 +204,20 @@ export function LocationProvider({
 
     const detectLocation = useCallback(async (persist = false, force = false): Promise<LocationData | null> => {
         if (isDetecting && !force) return null;
-        setStatus("detecting");
+        setStatus("checking");
+        
+        // Fire analytics
+        logAnalytics?.({
+            source: 'default',
+            city: 'Unknown',
+            state: 'Unknown',
+            reason: 'requesting_permission',
+            eventType: 'location_permission_requested' as any
+        });
+        
         const result = await unifiedDetect({ persist, force });
         return result?.location || null;
-    }, [isDetecting, unifiedDetect]);
+    }, [isDetecting, unifiedDetect, logAnalytics]);
 
     const performReverseGeocode = useCallback(async (lat: number, lng: number) => {
         try {
@@ -264,7 +294,23 @@ export function LocationProvider({
 
     const readPromptDismissedFromStorage = () => {
         if (typeof window === "undefined") return false;
-        return localStorage.getItem(LOCATION_PROMPT_DISMISSED_KEY) === "true";
+        
+        const isDismissed = localStorage.getItem(LOCATION_PROMPT_DISMISSED_KEY) === "true";
+        if (!isDismissed) return false;
+        
+        // Check 30-day expiry for "Not Now"
+        const expiryStr = localStorage.getItem(LOCATION_PROMPT_DISMISSED_KEY + "_expiry");
+        if (expiryStr) {
+            const expiry = parseInt(expiryStr, 10);
+            if (!isNaN(expiry) && Date.now() > expiry) {
+                // Expired! Reset it.
+                localStorage.removeItem(LOCATION_PROMPT_DISMISSED_KEY);
+                localStorage.removeItem(LOCATION_PROMPT_DISMISSED_KEY + "_expiry");
+                return false;
+            }
+        }
+        
+        return true;
     };
 
     useEffect(() => {
@@ -274,10 +320,16 @@ export function LocationProvider({
         let cancelled = false;
 
         const initLocation = async () => {
-            setPromptDismissed(readPromptDismissedFromStorage());
-            setShouldShowPromptAfterDelay(false);
+            setStatus("checking");
+            
+            const isDismissed = readPromptDismissedFromStorage();
+            setPromptDismissed(isDismissed);
+            
             const permBlocked = readPermissionBlockedFlag();
             setIsPermissionBlocked(permBlocked);
+            if (permBlocked) {
+                setStatus("denied");
+            }
 
             const hadStoredRaw = typeof window !== "undefined" && Boolean(localStorage.getItem("esparex_location"));
             const storedLocation = readStoredLocation();
@@ -298,14 +350,49 @@ export function LocationProvider({
             }
 
             setLocation(DEFAULT_APP_LOCATION);
-            setStatus("available");
-            setDetectError(null);
-            autoDetectedRef.current = false;
-            promptDelayTimeoutRef.current = setTimeout(() => {
-                if (!cancelled) {
-                    setShouldShowPromptAfterDelay(true);
+            
+            // Capability-based permission check
+            let browserState = "prompt";
+            if (typeof navigator !== "undefined" && navigator.permissions) {
+                try {
+                    const result = await navigator.permissions.query({ name: 'geolocation' });
+                    browserState = result.state;
+                    
+                    // Listen for changes natively
+                    result.onchange = () => {
+                        if (result.state === "denied") {
+                            setStatus("denied");
+                            setPermissionBlockedFlag(true);
+                        } else if (result.state === "granted") {
+                            // If granted out of band, trigger auto-detect
+                            detectLocation(true, true);
+                        }
+                    };
+                } catch (e) {
+                    // Fallback to prompt if API fails (e.g. older Safari)
                 }
-            }, LOCATION_PROMPT_DELAY_MS);
+            }
+
+            if (permBlocked || browserState === "denied") {
+                setStatus("denied");
+                setPermissionBlockedFlag(true);
+            } else if (!isDismissed) {
+                // Introduce the delay before prompting
+                promptDelayTimeoutRef.current = setTimeout(() => {
+                    if (!cancelled && (status === "checking" || status === "unknown")) {
+                        setStatus("prompt");
+                        logAnalytics?.({
+                            source: 'default',
+                            city: 'Unknown',
+                            state: 'Unknown',
+                            reason: 'initial_prompt_shown',
+                            eventType: 'location_prompt_shown' as any
+                        });
+                    }
+                }, LOCATION_PROMPT_DELAY_MS);
+            } else {
+                setStatus("prompt"); // It's dismissed, but the state is still prompt/available to be activated manually
+            }
         };
 
         void initLocation();
@@ -314,12 +401,32 @@ export function LocationProvider({
             cancelled = true;
             if (promptDelayTimeoutRef.current) clearTimeout(promptDelayTimeoutRef.current);
         };
-    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag]);
+    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag, setPermissionBlockedFlag, logAnalytics, detectLocation, status]);
 
+    // ── Multi-Tab Synchronization ─────────────────────────────────────────────
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'esparex_app_location' && e.newValue) {
+                try {
+                    const newLocation = JSON.parse(e.newValue) as LocationData;
+                    setLocation(newLocation);
+                    setStatus(getLocationStatus(newLocation.source));
+                } catch (error) {
+                    // Ignore parse errors
+                }
+            } else if (e.key === LOCATION_PROMPT_DISMISSED_KEY) {
+                setPromptDismissed(e.newValue === "true");
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const resetPermissionBlocked = useCallback(() => {
         setPermissionBlockedFlag(false);
         setIsPermissionBlocked(false);
+        setStatus("prompt");
     }, [setPermissionBlockedFlag]);
 
     const dismissPermissionBlockedModal = useCallback(() => {
@@ -331,7 +438,7 @@ export function LocationProvider({
         source: location.source,
         promptDismissed,
         isPermissionBlocked,
-        promptDelayElapsed: shouldShowPromptAfterDelay,
+        promptDelayElapsed: true, // Controlled by status === "prompt" transition now
     });
 
     // ── Context Values ────────────────────────────────────────────────────────
@@ -339,7 +446,7 @@ export function LocationProvider({
     const dataValue = useMemo<LocationDataContextType>(
         () => ({
             location,
-            isLoaded: status !== "detecting",
+            isLoaded: status !== "checking" && status !== "unknown",
         }),
         [location, status]
     );
@@ -348,7 +455,7 @@ export function LocationProvider({
         () => ({
             status,
             detectError,
-            loading: status === "detecting",
+            loading: status === "checking",
             shouldShowFirstVisitPrompt,
             isPermissionBlocked,
             showPermissionBlockedModal,
@@ -396,23 +503,12 @@ export function useLocationActions(): LocationActionsContextType {
     return ctx;
 }
 
-// ── Focused domain hooks ──────────────────────────────────────────────────────
-// Prefer these over useLocationState() when a component only needs one domain.
-
-/**
- * useLocationData — subscribe only to location value + isLoaded.
- * Components using this do NOT re-render when GPS detection cycles.
- */
 export function useLocationData(): LocationDataContextType {
     const ctx = useContext(LocationDataContext);
     if (!ctx) throw new Error("useLocationData must be used within LocationProvider");
     return ctx;
 }
 
-/**
- * useLocationStatus — subscribe only to detection status, errors, and UI prompt state.
- * Components using this do NOT re-render when the stored location changes.
- */
 export function useLocationStatus(): LocationStatusContextType {
     const ctx = useContext(LocationStatusContext);
     if (!ctx) throw new Error("useLocationStatus must be used within LocationProvider");
