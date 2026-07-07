@@ -1,0 +1,21 @@
+# CODEOWNERS for Esparex Monorepo
+
+# Default owners for everything
+* @esparex/core-team
+
+# Frontend applications
+/apps/web/ @esparex/frontend-team
+/apps/admin/ @esparex/frontend-team
+
+# Backend services
+/backend/ @esparex/backend-team
+
+# Core & Shared business logic
+/core/ @esparex/backend-team @esparex/architecture-team
+/shared/ @esparex/backend-team @esparex/frontend-team
+
+# Infrastructure & Governance
+/.github/ @esparex/platform-team
+/scripts/ @esparex/platform-team
+/packages/repository-*/ @esparex/platform-team
+/docs/governance/ @esparex/platform-team

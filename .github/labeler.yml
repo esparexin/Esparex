@@ -1,0 +1,33 @@
+# Labeler Configuration
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'apps/web/**/*'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file: 'backend/**/*'
+
+admin:
+  - changed-files:
+    - any-glob-to-any-file: 'apps/admin/**/*'
+
+core:
+  - changed-files:
+    - any-glob-to-any-file: 'core/**/*'
+
+shared:
+  - changed-files:
+    - any-glob-to-any-file: 'shared/**/*'
+
+infrastructure:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**/*'
+    - any-glob-to-any-file: 'scripts/**/*'
+    - any-glob-to-any-file: 'package.json'
+    - any-glob-to-any-file: 'pnpm-workspace.yaml'
+
+governance:
+  - changed-files:
+    - any-glob-to-any-file: 'packages/repository-governance/**/*'
+    - any-glob-to-any-file: 'docs/governance/**/*'
