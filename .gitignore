@@ -173,3 +173,5 @@ scratch/
 **/test-results/
 **/playwright-*.png
 
+.agents/
+.esparex/

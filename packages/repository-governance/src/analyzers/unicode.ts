@@ -1,6 +1,23 @@
+// ─── Content-Reading Exception ────────────────────────────────────────────────
+//
+// This is the ONLY analyzer in @esparex/repository-governance that reads
+// from the filesystem directly.
+//
+// Permitted access: fs.readFileSync(absolutePath)  ← content reading
+// Forbidden access: fs.readdirSync / glob / walk   ← file discovery
+//
+// Rationale: Unicode/BOM/ZWSP detection requires raw byte sequences that
+// cannot be modeled in the BrainSnapshot. File *paths* are always sourced
+// from snapshot.repository.files (populated by RepositoryScanner). This
+// analyzer never enumerates directory entries independently.
+//
+// Architecture Contract Reference: Phase 4 — Governance consumes BrainSnapshot
+// ─────────────────────────────────────────────────────────────────────────────
+
 import * as fs from "fs";
 import * as path from "path";
-import { Analyzer, AnalyzerContext, AnalysisResultEnvelope } from "../types/index.js";
+import type { BrainSnapshot } from "@esparex/repository-brain";
+import { GovernanceAnalyzer, AnalysisResultEnvelope } from "../types/index.js";
 
 export interface UnicodeViolationPayload {
   file: string;
@@ -11,41 +28,18 @@ export interface UnicodeViolationPayload {
   bytesHex: string;
 }
 
-export class UnicodeHygieneAnalyzer implements Analyzer<UnicodeViolationPayload[]> {
-  metadata = {
-    id: "unicode-hygiene",
-    name: "Unicode Hygiene Analyzer",
-    category: "code-quality" as const,
-    version: "1.0.0",
-    dependsOn: []
-  };
+export class UnicodeHygieneAnalyzer implements GovernanceAnalyzer<UnicodeViolationPayload[]> {
+  readonly id = "unicode-hygiene";
+  readonly category = "code-quality" as const;
 
-  private extSet = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts"]);
-  private excludeDirs = new Set(["node_modules", ".next", "dist", ".git", "archive", ".eslintcache"]);
-
-  private *walkFiles(dir: string): Generator<string> {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (!this.excludeDirs.has(entry.name)) {
-          yield* this.walkFiles(fullPath);
-        }
-      } else if (this.extSet.has(path.extname(entry.name))) {
-        yield fullPath;
-      }
-    }
-  }
+  private readonly extSet = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".mts", ".cts"]);
 
   private findSequence(bytes: number[], pattern: number[]): number[] {
     const hits: number[] = [];
     for (let i = 0; i <= bytes.length - pattern.length; i++) {
       let match = true;
       for (let j = 0; j < pattern.length; j++) {
-        if (bytes[i + j] !== pattern[j]) {
-          match = false;
-          break;
-        }
+        if (bytes[i + j] !== pattern[j]) { match = false; break; }
       }
       if (match) hits.push(i);
     }
@@ -53,81 +47,63 @@ export class UnicodeHygieneAnalyzer implements Analyzer<UnicodeViolationPayload[
   }
 
   private getLineCol(bytes: number[], offset: number) {
-    let line = 1;
-    let col = 1;
+    let line = 1, col = 1;
     for (let i = 0; i < offset; i++) {
-      if (bytes[i] === 0x0A) {
-        line++;
-        col = 1;
-      } else {
-        col++;
-      }
+      if (bytes[i] === 0x0A) { line++; col = 1; } else { col++; }
     }
     return { line, col };
   }
 
-  async run(context: AnalyzerContext): Promise<AnalysisResultEnvelope<UnicodeViolationPayload[]>> {
+  async analyze(snapshot: BrainSnapshot): Promise<AnalysisResultEnvelope<UnicodeViolationPayload[]>> {
     const startTime = Date.now();
     const violations: UnicodeViolationPayload[] = [];
-    const root = context.workspaceRoot;
+    const root = snapshot.repository.root;
 
-    const patternBOM = [0xEF, 0xBB, 0xBF];
+    // File paths come from the snapshot — RepositoryScanner owns discovery.
+    const candidates = snapshot.repository.files.filter(
+      f => this.extSet.has(path.extname(f))
+    );
+
+    const patternBOM  = [0xEF, 0xBB, 0xBF];
     const patternZWSP = [0xE2, 0x80, 0x8B];
 
     try {
-      for (const file of this.walkFiles(root)) {
-        const rawBytes = fs.readFileSync(file);
+      for (const relFile of candidates) {
+        const absPath = path.isAbsolute(relFile) ? relFile : path.join(root, relFile);
+        // Content reading — permitted exception (see header comment above).
+        const rawBytes = fs.readFileSync(absPath);
         const bytes = Array.from(rawBytes);
-        const relativeFile = path.relative(root, file).replace(/\\/g, "/");
+        const relativeFile = path.relative(root, absPath).replace(/\\/g, "/");
 
         // 1. Check BOM
-        const bomHits = this.findSequence(bytes, patternBOM);
-        for (const offset of bomHits) {
-          // Skip legitimate file-start BOM
-          if (offset === 0) continue;
+        for (const offset of this.findSequence(bytes, patternBOM)) {
+          if (offset === 0) continue; // legitimate file-start BOM
           const { line, col } = this.getLineCol(bytes, offset);
-          violations.push({
-            file: relativeFile,
-            line,
-            col,
-            charName: "BOM / Zero Width No-Break Space",
-            unicode: "U+FEFF",
-            bytesHex: "0xEF 0xBB 0xBF"
-          });
+          violations.push({ file: relativeFile, line, col, charName: "BOM / Zero Width No-Break Space", unicode: "U+FEFF", bytesHex: "0xEF 0xBB 0xBF" });
         }
 
         // 2. Check ZWSP
-        const zwspHits = this.findSequence(bytes, patternZWSP);
-        for (const offset of zwspHits) {
+        for (const offset of this.findSequence(bytes, patternZWSP)) {
           const { line, col } = this.getLineCol(bytes, offset);
-          violations.push({
-            file: relativeFile,
-            line,
-            col,
-            charName: "Zero Width Space",
-            unicode: "U+200B",
-            bytesHex: "0xE2 0x80 0x8B"
-          });
+          violations.push({ file: relativeFile, line, col, charName: "Zero Width Space", unicode: "U+200B", bytesHex: "0xE2 0x80 0x8B" });
         }
       }
 
-      const errorsCount = violations.length;
-
       return {
         schemaVersion: "1.0.0",
-        analyzerId: this.metadata.id,
+        analyzerId: this.id,
         timestamp: new Date().toISOString(),
         status: "success",
         durationMs: Date.now() - startTime,
         warningsCount: 0,
-        errorsCount,
-        metadata: {},
+        errorsCount: violations.length,
+        metadata: { filesScanned: candidates.length },
         payload: violations
       };
     } catch (error: any) {
       return {
         schemaVersion: "1.0.0",
-        analyzerId: this.metadata.id,
+        analyzerId: this.id,
         timestamp: new Date().toISOString(),
         status: "failure",
         durationMs: Date.now() - startTime,

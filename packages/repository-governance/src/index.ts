@@ -6,9 +6,15 @@ export * from "./analyzers/index.js";
 export * from "./validators/index.js";
 export * from "./reporters/index.js";
 
+import { RepositoryScanner } from "@esparex/repository-scanner";
+import { BrainFactory } from "@esparex/repository-brain";
 import { GovernanceEngine, EngineRunResult } from "./engine/index.js";
 import { DefaultRegistry } from "./registry/index.js";
 
+/**
+ * Convenience entry point for programmatic usage.
+ * Runs the full Scanner → Brain → Governance pipeline for a given profile.
+ */
 export async function runProfile(
   profile: string,
   options: { workspaceRoot?: string; config?: Record<string, any> } = {}
@@ -33,8 +39,12 @@ export async function runProfile(
     }
   };
 
+  const scanner   = new RepositoryScanner({ workspaceRoot });
+  const inventory = await scanner.scan();
+  const snapshot  = await BrainFactory.create({ inventory, workspaceRoot });
+
   return GovernanceEngine.run({
-    workspaceRoot,
+    snapshot,
     registry: DefaultRegistry,
     profile,
     config

@@ -1,0 +1,104 @@
+# Duplicate ADR Number
+
+Duplicate ADR Number
+
+---
+
+## Purpose
+
+Checks if two ADR files share the same index number prefix.
+
+---
+
+## Description
+
+This rule enforces repository consistency and compliance in the DOCUMENTATION domain. It performs static validation checks to maintain quality standards across all modules.
+
+---
+
+## Why This Rule Exists
+
+Without this rule, development teams may introduce inconsistent implementations, security vulnerabilities, or broken documentation references, resulting in regression overhead, manual review bottlenecks, and repository drift.
+
+---
+
+## Detection Logic
+
+Scans files inside the decisions directory and validates compliance with ADR naming, metadata, and index matching rules.
+
+---
+
+## Severity
+
+**ERROR**
+
+This severity was assigned to ensure appropriate action based on the risk level. Higher severity rules indicate potential blocker risks to build or deployment stability.
+
+---
+
+## CI Policy
+
+**FAIL_BUILD**
+
+Violations of this rule will fail the CI build pipeline immediately.
+
+---
+
+## Owner
+
+Documentation Team
+
+---
+
+## Category
+
+DOCUMENTATION
+
+---
+
+## Examples
+
+### ✅ Compliant
+
+```
+<!-- metadata frontmatter table in docs/decisions/ADR-001-booking.md -->
+| Status | Date | Authors | Related Documents |
+| --- | --- | --- | --- |
+| Proposed | 2026-07-03 | Platform Team | [REPOSITORY_POLICY.md] (../governance/REPOSITORY_POLICY.md) |
+```
+
+### ❌ Non-Compliant
+
+```
+| Status | Date | Authors |
+| --- | --- | --- |
+| Proposed | 2026-07-03 | Platform Team |
+
+*Violates: Missing "Related Documents" metadata header inside ADR.*
+```
+
+---
+
+## Common False Positives
+
+None identified.
+
+---
+
+## Remediation
+
+Assign a unique sequential number prefix to the ADR file.
+
+---
+
+## Related Rules
+
+Refer to the main [REGISTRY.md](../REGISTRY.md) for related rules in the DOCUMENTATION category.
+
+---
+
+## Version History
+
+| Version | Date | Summary of changes |
+| :--- | :--- | :--- |
+| 1.0.0 | 2026-07-03 | Rule registered in the centralized rule registry |
