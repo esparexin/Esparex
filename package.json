@@ -65,7 +65,7 @@
     "lint:ci": "eslint . --max-warnings=0",
     "lint:changed": "node scripts/run-eslint-changed.js",
     "lint:fix": "eslint . --fix",
-    "test": "npm test -w @esparex/repository-governance && npm test -w @esparex/backend-user && npm test -w @esparex/core",
+    "test": "npm test -w @esparex/repository-governance && npm test -w @esparex/backend-user && npm test -w @esparex/core && npm test -w @esparex/apps-admin",
     "e2e": "node scripts/run-deterministic-e2e.mjs",
     "e2e:listing-edit": "npm run e2e:listing-edit -w @esparex/apps-web",
     "e2e:listing-edit:ci": "npm run e2e:listing-edit:ci -w @esparex/apps-web",
@@ -73,7 +73,8 @@
     "ci:governance": "node scripts/lint-baseline-enforcement.js ci-lint-results.json",
     "guard:unused-imports": "node scripts/enforce-no-new-unused-imports.js",
     "guard:duplicate-code": "jscpd --config .jscpd.json",
-    "guard:dead-code": "node scripts/orphan-sweep.cjs",
+    "guard:dead-code": "node scripts/combined-dead-code-check.mjs",
+    "audit:security": "npm audit --audit-level=high",
     "audit:duplicates": "node scripts/catalog-governance-audit.js duplicates",
     "audit:orphans": "node scripts/catalog-governance-audit.js orphans",
     "audit:canonical": "node scripts/catalog-governance-audit.js canonical",
@@ -134,7 +135,8 @@
     "lint-staged": "^16.4.0",
     "madge": "^8.0.0",
     "pm2": "^6.0.14",
-    "tsc-alias": "^1.8.16"
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
