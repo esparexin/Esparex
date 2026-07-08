@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 import logger from '../../../utils/logger';
 import { toOptionalString } from './inputCoercion';
-import { getCache, setCache } from '../../../utils/redisCache';
 import { CatalogModel } from '../../../services/catalog/CatalogBrandModelService';
 import { validateModelHierarchyMutation } from '../../../services/catalog/CatalogHierarchyService';
 import { detectDuplicateCandidates } from '../../../services/catalog/CatalogSearchGovernanceService';

@@ -1,5 +1,3 @@
-import type { AnyBulkWriteOperation, ClientSession } from 'mongoose';
-
 export type WithId = { _id: unknown };
 export type ModelHierarchyDoc = {
     _id: unknown;

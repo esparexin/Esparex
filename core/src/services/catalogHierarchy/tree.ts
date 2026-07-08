@@ -1,18 +1,17 @@
-import mongoose from 'mongoose';
 import Category from '../../models/Category';
-import Brand, { IBrand } from '../../models/Brand';
+import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import Ad from '../../models/Ad';
 import Variant from '../../models/Variant';
-import SparePart, { ISparePart } from '../../models/SparePart';
-import ScreenSize, { IScreenSize } from '../../models/ScreenSize';
+import SparePart from '../../models/SparePart';
+import ScreenSize from '../../models/ScreenSize';
 import { getActiveCategoryIds } from '../catalog/CatalogValidationService';
-import { normalizeCatalogCanonicalName, slugifyCatalogValue } from '../../utils/catalogGovernance';
+import { slugifyCatalogValue } from '../../utils/catalogGovernance';
 import type { AnyBulkWriteOperation } from 'mongoose';
 import type { HierarchyTreeResponse } from '@esparex/shared';
 import type { ModelHierarchyDoc, HierarchyIssue, HierarchyReport, ModelDeletionImpact, ModelHierarchyRepairPlan } from './types';
 import { MAX_MODEL_TREE_DEPTH } from './constants';
-import { normalizeId, getEffectiveParentId, modelSelect, getLineageKey } from './validation';
+import { getEffectiveParentId, modelSelect } from './validation';
 
 const buildActivateOps = <T extends { _id: unknown }>(
     docs: T[], predicate: (doc: T) => boolean

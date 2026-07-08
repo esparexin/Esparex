@@ -1,11 +1,10 @@
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
-import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, getMultiCache, setMultiCache, CACHE_KEYS, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../ad/_shared/adServiceBase';
+import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../ad/_shared/adServiceBase';
 import type { AdsListResult, AdFilters, UnknownRecord, AggregationStage, PaginationOptions, PublicQueryOptions, SortStage } from '../ad/_shared/adServiceBase';
 import { buildAdMatchStage, buildAdSortStage } from '../ad/AdSearchService';
 import type { HydratedAd, TelemetryAd } from './types';
 import { hydrateAdMetadata } from './metadata';
-import { getListingSuggestions } from './telemetry';
 
 const MAX_PAGE_SIZE = 50;
 const MAX_PAGE = 1000;

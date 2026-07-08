@@ -13,7 +13,8 @@ import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '../../../
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { MAX_MODEL_TREE_DEPTH } from '../../../services/catalog/CatalogHierarchyService';
 import { updateModelHierarchyTransactionally } from '../../../services/catalog/CatalogHierarchyService';
-import { catalogCacheKey, getCache, setCache, applyCacheWriteThrough, CATALOG_CACHE_TTL, normalizeOptionalObjectIdQuery, normalizeBooleanQuery, populateModelVariants, applyModelHierarchyPayload, logModelDuplicateCandidates } from './adminCatalogShared';
+import { getCache } from '../../../utils/redisCache';
+import { catalogCacheKey, applyCacheWriteThrough, normalizeOptionalObjectIdQuery, normalizeBooleanQuery, populateModelVariants, applyModelHierarchyPayload, logModelDuplicateCandidates } from './adminCatalogShared';
 
 export const getModels = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');

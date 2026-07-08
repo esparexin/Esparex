@@ -6,13 +6,13 @@ import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { getUserConnection } from '../../../config/db';
 import { BrandModel, findBrandByFilter, checkBrandDependencies, findCategoryBySlugForCatalog } from '../../../services/catalog/CatalogBrandModelService';
-import { validateBrandIsActive } from '../../../services/catalog/CatalogValidationService';
 import CatalogOrchestrator from '../../../services/catalog/CatalogOrchestrator';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, hasAdminAccess, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '../../../validators/catalog.validator';
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
-import { catalogCacheKey, getCache, setCache, applyCacheWriteThrough, CATALOG_CACHE_TTL } from './adminCatalogShared';
+import { getCache, setCache } from '../../../utils/redisCache';
+import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
 
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');

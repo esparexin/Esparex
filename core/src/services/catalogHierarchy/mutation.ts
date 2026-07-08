@@ -1,5 +1,4 @@
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import type { AnyBulkWriteOperation, ClientSession } from 'mongoose';
+import type { AnyBulkWriteOperation } from 'mongoose';
 import mongoose from 'mongoose';
 import Model from '../../models/Model';
 import Brand, { IBrand } from '../../models/Brand';
@@ -7,9 +6,9 @@ import SparePart, { ISparePart } from '../../models/SparePart';
 import ScreenSize, { IScreenSize } from '../../models/ScreenSize';
 import Category from '../../models/Category';
 import { getActiveCategoryIds } from '../catalog/CatalogValidationService';
-import type { ModelHierarchyDoc, ModelHierarchyTransactionResult, ModelHierarchyRepairPlan, RepairSummary } from './types';
+import type { ModelHierarchyDoc, ModelHierarchyTransactionResult, RepairSummary } from './types';
 import { MAX_MODEL_TREE_DEPTH } from './constants';
-import { normalizeId, getEffectiveParentId, modelSelect, validateModelHierarchyMutation } from './validation';
+import { normalizeId, modelSelect, validateModelHierarchyMutation } from './validation';
 
 const hierarchyTelemetry = {
     modelHierarchyMutations: 0,
