@@ -8,10 +8,10 @@ Last Updated: 2026-06-25
 
 Related Documents:
 - [README.md](../../README.md)
-- [REPOSITORY_GOVERNANCE.md](../../REPOSITORY_GOVERNANCE.md)
+- [GOVERNANCE_POLICY.md](../governance/GOVERNANCE_POLICY.md)
 - [ARCHITECTURE.md](../../ARCHITECTURE.md)
-- [DEPLOYMENT_MAP.md](../../DEPLOYMENT_MAP.md)
-- [API_CONTRACTS.md](../../API_CONTRACTS.md)
+- [CI_CD_SSOT.md](../ssot/CI_CD_SSOT.md)
+- [API_CONTRACT_SSOT.md](../ssot/API_CONTRACT_SSOT.md)
 
 ---
 
@@ -21,7 +21,7 @@ Related Documents:
 An **Architecture Decision Record (ADR)** is a short text document that captures a significant technical decision, its context, and the rationale behind it.
 
 ### Why do they exist?
-While our core SSOT documents (`ARCHITECTURE.md`, `DEPLOYMENT_MAP.md`, `API_CONTRACTS.md`) explain **what** the system's design is, ADRs document **why** those decisions were made. They prevent knowledge loss, simplify onboarding, provide historical context, and ensure long-term architectural traceability.
+While our core SSOT documents (`ARCHITECTURE.md`, `CI_CD_SSOT.md`, `API_CONTRACT_SSOT.md`) explain **what** the system's design is, ADRs document **why** those decisions were made. They prevent knowledge loss, simplify onboarding, provide historical context, and ensure long-term architectural traceability.
 
 ---
 
@@ -46,11 +46,9 @@ The following graph illustrates how architectural decisions feed into our Single
 graph TD
     Decisions["Architecture Decisions"] --> ADR001["ADR-001 Booking Ownership"]
     ADR001 --> ARCH["ARCHITECTURE.md"]
-    ADR001 --> API["API_CONTRACTS.md"]
-    ADR001 --> DEPL["DEPLOYMENT_MAP.md"]
-    ARCH --> RUN["RUNBOOK.md"]
-    API --> RUN
-    DEPL --> RUN
+    ADR001 --> API["docs/ssot/API_CONTRACT_SSOT.md"]
+    ADR001 --> DEPL["docs/ssot/CI_CD_SSOT.md"]
+    ARCH --> RUN["docs/ssot/DOMAIN_MODEL_SSOT.md"]
 ```
 
 ---
@@ -114,7 +112,7 @@ Architectural review and approvals are divided into operational areas:
 | Decision Category | Primary Reviewer / Owner | Relevant SSOT Document |
 | :--- | :--- | :--- |
 | **Architecture** | Principal Architect | [ARCHITECTURE.md](../../ARCHITECTURE.md) |
-| **Infrastructure & Hosting**| Platform Team | [DEPLOYMENT_MAP.md](../../DEPLOYMENT_MAP.md) |
-| **Payments & Payouts** | Financial Domain Tech Lead | [API_CONTRACTS.md](../../API_CONTRACTS.md) |
-| **Authentication & AuthZ** | Security Architect | [API_CONTRACTS.md](../../API_CONTRACTS.md) |
-| **Governance & Quality** | Repository Governance Owner | [REPOSITORY_GOVERNANCE.md](../../REPOSITORY_GOVERNANCE.md) / [AGENTS.MD](../../AGENTS.MD) |
+| **Infrastructure & Hosting**| Platform Team | [CI_CD_SSOT.md](../ssot/CI_CD_SSOT.md) |
+| **Payments & Payouts** | Financial Domain Tech Lead | [API_CONTRACT_SSOT.md](../ssot/API_CONTRACT_SSOT.md) |
+| **Authentication & AuthZ** | Security Architect | [API_CONTRACT_SSOT.md](../ssot/API_CONTRACT_SSOT.md) |
+| **Governance & Quality** | Repository Governance Owner | [GOVERNANCE_POLICY.md](../governance/GOVERNANCE_POLICY.md)
