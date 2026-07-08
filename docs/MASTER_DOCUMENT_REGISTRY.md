@@ -61,11 +61,11 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/cleanup/ROLLBACK.md` | Reversion git commands and tags map for rollback checkpoints | Architecture | Active | supporting_active | `docs:lint` |
 | `docs/repository-audit/PHASE_17_CLEANUP_EXECUTION.md` | Execution logs and governance bypass notes for Phase 17 | Architecture | Active | supporting_active | Manual |
 
-| `docs/adr/ADR-001-SSOT.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
-| `docs/adr/ADR-002-Branch-Strategy.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
-| `docs/adr/ADR-003-Deployment.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
-| `docs/adr/ADR-004-API-Versioning.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
-| `docs/adr/ADR-005-Governance.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/archive/adr/ADR-001-SSOT.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
+| `docs/archive/adr/ADR-002-Branch-Strategy.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
+| `docs/archive/adr/ADR-003-Deployment.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
+| `docs/archive/adr/ADR-004-API-Versioning.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
+| `docs/archive/adr/ADR-005-Governance.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
 | `docs/architecture/adr/ADR-001-ui-package-boundary.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/architecture/adr/ADR-002-theme-contract.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/architecture/adr/ADR-003-public-api-freeze.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
@@ -151,7 +151,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/governance/GOVERNANCE_ARCHITECTURE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/GOVERNANCE_REGISTRY.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/GOVERNANCE_VERSION.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
-| `docs/governance/MAD_AI_OPERATING_INSTRUCTIONS.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/archive/ai/MAD_AI_OPERATING_INSTRUCTIONS.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
 | `docs/governance/NAMING_CONVENTIONS.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/REGISTRY.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/REPOSITORY_POLICY.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |

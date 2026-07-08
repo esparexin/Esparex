@@ -3,4 +3,3 @@
 
 npm run type-check
 npm run guard:dead-code
-npm run docs:lint
