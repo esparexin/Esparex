@@ -35,6 +35,9 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/ssot/CI_CD_SSOT.md` | Pipelines, automated guards, branch rules | Ops / Infra | Active | canonical_active | `docs:lint` |
 | `docs/governance/GOVERNANCE_POLICY.md` | Developer standards, coding casing, lifecycle | Engineering | Active | canonical_active | `guard:naming` |
 | `docs/governance/AI_GOVERNANCE_BOUNDARY.md` | AI instructions, prompt limits, agent scopes | AI Gov | Active | canonical_active | `guard:ai-governance` |
+| `AGENTS.md` | AI agent entry point: context discovery, conflict resolution, SSOT loading | AI Gov | Active | canonical_active | `docs:lint` |
+| `docs/AI_RUNTIME_SPEC.md` | AI runtime architecture, execution flow, CLI reference, skill taxonomy | AI Gov | Active | canonical_active | `docs:lint` |
+| `docs/SSOT_INDEX.md` | Consolidated index of all Single Sources of Truth with tier hierarchy | AI Gov | Active | canonical_active | `docs:lint` |
 | `docs/architecture/PACKAGE_CONTRACT.md` | Monorepo package dependencies, boundaries, and import constraints | Architecture | Active | canonical_active | `docs:lint` |
 | `docs/architecture/adr/ADR-001-core-package.md` | Decision record for Core package responsibilities and transport neutrality | Architecture | Active | canonical_active | `docs:lint` |
 | `docs/architecture/adr/ADR-002-shared-package.md` | Decision record for Shared package responsibilities and decoupling | Architecture | Active | canonical_active | `docs:lint` |
