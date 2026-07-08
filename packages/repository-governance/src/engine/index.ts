@@ -6,9 +6,13 @@ import {
   GovernanceAnalyzer,
   AnalysisResultEnvelope,
   ValidationReport,
-  GovernanceSummaryReport
+  GovernanceSummaryReport,
+  BenchmarkResult,
+  BenchmarkProfile
 } from "../types/index.js";
 import { calculateOverallScore } from "../scoring/index.js";
+import { AstCache } from "./cache.js";
+import { BenchmarkHarness } from "./benchmark.js";
 
 export interface EngineRunOptions {
   /**
@@ -27,11 +31,18 @@ export interface EngineRunOptions {
    * Will be removed in the Phase 5 milestone.
    */
   workspaceRoot?: string;
+
+  /** PR7B: Enable in-memory AST cache (default: true) */
+  cache?: boolean;
+
+  /** PR7B: Enable benchmark mode */
+  benchmark?: BenchmarkProfile;
 }
 
 export interface EngineRunResult {
   report: GovernanceSummaryReport;
   exitCode: number;
+  performanceMeta?: Record<string, any>;
 }
 
 // Type guard: distinguishes legacy Analyzer (has .metadata.id) from GovernanceAnalyzer (has .id)
@@ -76,6 +87,10 @@ export class GovernanceEngine {
   static async run(options: EngineRunOptions): Promise<EngineRunResult> {
     const { snapshot, registry, profile, config } = options;
 
+    // PR7B: Initialize shared AST cache (per-invocation, no cross-run persistence)
+    const cacheEnabled = options.cache !== false;
+    const astCache = cacheEnabled ? new AstCache() : null;
+
     // Legacy context for backward-compatible Analyzer implementations.
     // @deprecated — will be removed in Phase 5.
     const legacyContext: AnalyzerContext = {
@@ -106,6 +121,17 @@ export class GovernanceEngine {
 
     const executionOrder = this.resolveDependencies(activeAnalyzers);
     const envelopes: AnalysisResultEnvelope[] = [];
+
+    // PR7B: Run benchmark if enabled (before main execution, non-destructive)
+    let benchmarkResults: BenchmarkResult[] | undefined;
+    if (options.benchmark?.enabled) {
+      const harness = new BenchmarkHarness();
+      benchmarkResults = await harness.runAll(
+        executionOrder,
+        snapshot,
+        options.benchmark.iterations || 3
+      );
+    }
 
     // ── Run analyzers ──────────────────────────────────────────────────────
     for (const analyzer of executionOrder) {
@@ -206,6 +232,23 @@ export class GovernanceEngine {
     else if (hasErrors) exitCode = 2;
     else if (hasWarnings) exitCode = 1;
 
+    // PR7B: Attach performance metadata to report
+    const performanceMeta: Record<string, any> = {};
+    if (astCache) {
+      performanceMeta.cacheStats = astCache.stats;
+      // Clear cache for next invocation
+      astCache.clear();
+    }
+    if (benchmarkResults) {
+      performanceMeta.benchmark = benchmarkResults.map(r => ({
+        analyzerId: r.analyzerId,
+        averageDurationMs: parseFloat(r.averageDurationMs.toFixed(2)),
+        averageMemoryMb: parseFloat(r.averageMemoryMb.toFixed(2)),
+        minDurationMs: parseFloat(r.minDurationMs.toFixed(2)),
+        maxDurationMs: parseFloat(r.maxDurationMs.toFixed(2))
+      }));
+    }
+
     return {
       report: {
         schemaVersion: "1.0.0",
@@ -213,7 +256,8 @@ export class GovernanceEngine {
         overallScore,
         results: validationReports
       },
-      exitCode
+      exitCode,
+      performanceMeta
     };
   }
 }

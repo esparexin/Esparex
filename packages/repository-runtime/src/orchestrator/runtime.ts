@@ -1,14 +1,14 @@
 import { BrainSnapshot } from "@esparex/repository-brain";
-import { RuntimeContext } from "../context/runtime_context.js";
+import { RuntimeContext } from "../context/runtime-context.js";
 import { DriftDetector } from "../drift/detector.js";
 import { ComparatorRegistry } from "../drift/registry.js";
 import { WorkspaceComparator } from "../drift/comparators/workspace.js";
 import { DependencyComparator } from "../drift/comparators/dependency.js";
 import { FilesystemComparator } from "../drift/comparators/filesystem.js";
 import { PolicyComparator } from "../drift/comparators/policy.js";
-import { SnapshotManager } from "../history/snapshot_manager.js";
-import { HistoryManager, HealthHistoryEntry } from "../history/history_manager.js";
-import { DriftReport } from "../events/event_types.js";
+import { SnapshotManager } from "../history/snapshot-manager.js";
+import { HistoryManager, HealthHistoryEntry } from "../history/history-manager.js";
+import { DriftReport } from "../events/event-types.js";
 import { DefaultRegistry } from "@esparex/repository-governance";
 
 export interface RuntimeDiagnostics {

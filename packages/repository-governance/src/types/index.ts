@@ -117,6 +117,49 @@ export interface Checker<TPayload = any> {
   check(context: AnalyzerContext): Promise<TPayload>;
 }
 
+// ── PR7B: Performance types ──────────────────────────────────────────────
+
+export interface AstCacheEntry {
+  ast: any;
+  hash: string;
+  computedAt: number;
+}
+
+export interface BenchmarkResult {
+  analyzerId: string;
+  runs: { durationMs: number; memoryMb: number }[];
+  averageDurationMs: number;
+  averageMemoryMb: number;
+  minDurationMs: number;
+  maxDurationMs: number;
+}
+
+export interface BenchmarkProfile {
+  enabled: boolean;
+  iterations: number; // number of times to run each analyzer (default 3)
+}
+
+// ── PR9: Auto-fix types ─────────────────────────────────────────────────
+
+export interface FixCapability {
+  id: string;
+  description: string;
+  eligibilityCheck(envelope: AnalysisResultEnvelope): Promise<boolean>;
+  dryRun(envelope: AnalysisResultEnvelope): Promise<FixPreview>;
+  apply(envelope: AnalysisResultEnvelope): Promise<FixResult>;
+  rollback(fixId: string): Promise<void>;
+}
+
+export interface FixPreview {
+  changes: { file: string; original: string; proposed: string }[];
+}
+
+export interface FixResult {
+  fixId: string;
+  changesApplied: number;
+  errors: string[];
+}
+
 export interface ArchitectureAnalysisPayload {
   deepImports: { passed: boolean; filesFound: string[] };
   circular: { passed: boolean; cycles: string[][] };

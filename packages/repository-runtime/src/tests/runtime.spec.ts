@@ -6,10 +6,10 @@ import { BrainFactory } from "@esparex/repository-brain";
 import { GovernanceEngine } from "@esparex/repository-governance";
 import { DefaultSkillRegistry } from "@esparex/repository-skills";
 
-import { EventBus } from "../events/event_bus.js";
-import { RuntimeContext, RuntimeLogger } from "../context/runtime_context.js";
+import { EventBus } from "../events/event-bus.js";
+import { RuntimeContext, RuntimeLogger } from "../context/runtime-context.js";
 import { RepositoryRuntime } from "../orchestrator/runtime.js";
-import { ReportWriter } from "../reporting/report_writer.js";
+import { ReportWriter } from "../reporting/report-writer.js";
 
 // ─── Silent Test Logger ───────────────────────────────────────────────────
 const silentLogger: RuntimeLogger = {

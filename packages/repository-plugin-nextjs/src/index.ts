@@ -5,4 +5,4 @@
 // @since v1.0.0
 // ─────────────────────────────────────────────────────────────────────────────
 
-export { NextJsPlugin } from "./nextjs_plugin.js";
+export { NextJsPlugin } from "./nextjs-plugin.js";

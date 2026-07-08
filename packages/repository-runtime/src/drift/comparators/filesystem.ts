@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as crypto from "crypto";
 import type { BrainSnapshot } from "@esparex/repository-brain";
-import { DriftFinding } from "../../events/event_types.js";
+import { DriftFinding } from "../../events/event-types.js";
 import { DriftComparator } from "../registry.js";
 
 interface FileCacheEntry {

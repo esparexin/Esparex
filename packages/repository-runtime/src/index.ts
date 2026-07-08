@@ -10,8 +10,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Core SDK Entry Point
-export { RepositoryRuntime } from "./sdk/runtime_sdk.js";
-export type { RepositoryRuntimeStartOptions } from "./sdk/runtime_sdk.js";
+export { RepositoryRuntime } from "./sdk/runtime-sdk.js";
+export type { RepositoryRuntimeStartOptions } from "./sdk/runtime-sdk.js";
 
 // AI Assistant interface
 export { RepositoryAssistant } from "./ai/assistant.js";
@@ -21,7 +21,7 @@ export type { AssistantResponse } from "./ai/assistant.js";
 export type { ExplanationPayload } from "./explainability/engine.js";
 
 // Event Bus hook payloads (read-only interfaces)
-export { EventBus } from "./events/event_bus.js";
+export { EventBus } from "./events/event-bus.js";
 export type {
   DriftFinding,
   DriftReport,
@@ -34,7 +34,7 @@ export type {
   RuntimeEventName,
   RuntimeEventPayload,
   RuntimeEventHandler
-} from "./events/event_types.js";
+} from "./events/event-types.js";
 
 // Dashboard DTO models
 export type {

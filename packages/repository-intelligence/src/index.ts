@@ -22,4 +22,4 @@ export { RecommendationEngine } from "./recommendation/engine.js";
 export { RepositoryHealthEngine } from "./health/engine.js";
 export { TechnicalDebtEngine } from "./debt/engine.js";
 export { TrendEngine } from "./trends/engine.js";
-export { RepositoryMemory } from "./memory/repo_memory.js";
+export { RepositoryMemory } from "./memory/repo-memory.js";

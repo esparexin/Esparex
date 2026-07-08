@@ -77,3 +77,7 @@ export class ArchitectureAnalyzer implements GovernanceAnalyzer<ArchitectureAnal
 }
 
 export { DeepImportChecker, CircularDependencyChecker, DependencyCruiserChecker, PublicApiChecker };
+export { ObservabilityAnalyzer } from "./observability.js";
+export { DTOGovernanceAnalyzer } from "./dtoGovernance.js";
+export { AppRouterLayoutAnalyzer } from "./appRouterLayout.js";
+export { DriftPreventionAnalyzer } from "./driftPrevention.js";

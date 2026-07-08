@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { RepositoryRuntime } from "../sdk/runtime_sdk.js";
+import { RepositoryRuntime } from "../sdk/runtime-sdk.js";
 import { RepositoryAssistant } from "../ai/assistant.js";
-import { ReportWriter } from "../reporting/report_writer.js";
-import { RuntimeLogger } from "../context/runtime_context.js";
+import { ReportWriter } from "../reporting/report-writer.js";
+import { RuntimeLogger } from "../context/runtime-context.js";
 
 const cliLogger: RuntimeLogger = {
   info: (msg, ...args) => console.log(`[INFO] ${msg}`, ...args),

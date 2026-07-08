@@ -1,5 +1,5 @@
 import type { BrainSnapshot } from "@esparex/repository-brain";
-import { DriftFinding, DriftReport } from "../events/event_types.js";
+import { DriftFinding, DriftReport } from "../events/event-types.js";
 import { ComparatorRegistry } from "./registry.js";
 
 /**

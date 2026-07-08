@@ -4,8 +4,9 @@
  */
 
 import { type GeoJSONPoint, normalizeGeoPoint } from "../utils/geoUtils";
+import { sanitizeMongoObjectId as _sanitizeId, MONGOOSE_OBJECT_ID_REGEX as _idRegex } from "../validators/mongo";
 
-export const MONGOOSE_OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
+export const MONGOOSE_OBJECT_ID_REGEX = _idRegex;
 
 export type ListingLocation = {
   locationId?: string;
@@ -20,10 +21,7 @@ export type ListingLocation = {
  * Validates and sanitizes a MongoDB ObjectId.
  */
 export function sanitizeMongoObjectId(value: unknown): string | undefined {
-    if (typeof value !== "string" && typeof value !== "number") return undefined;
-    const trimmed = String(value).trim();
-    if (!trimmed || !MONGOOSE_OBJECT_ID_REGEX.test(trimmed)) return undefined;
-    return trimmed;
+    return _sanitizeId(value);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { DriftFinding } from "../events/event_types.js";
+import { DriftFinding } from "../events/event-types.js";
 
 /**
  * @since v1.0.0

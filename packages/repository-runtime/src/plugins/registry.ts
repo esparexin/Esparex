@@ -3,7 +3,7 @@ import {
   RepositoryRuntimeApi,
   PluginStatus
 } from "@esparex/repository-plugin-sdk";
-import { RepositoryRuntime } from "../sdk/runtime_sdk.js";
+import { RepositoryRuntime } from "../sdk/runtime-sdk.js";
 
 export interface PluginWrapper {
   readonly plugin: RepositoryPlugin;

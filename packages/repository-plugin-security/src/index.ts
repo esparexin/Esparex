@@ -7,4 +7,4 @@
 
 export type { VulnerabilityAdvisory, VulnerabilityProvider } from "./provider.js";
 export { LocalVulnerabilityProvider } from "./providers/local_provider.js";
-export { SecurityPlugin } from "./security_plugin.js";
+export { SecurityPlugin } from "./security-plugin.js";

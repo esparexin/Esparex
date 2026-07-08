@@ -1,5 +1,5 @@
 import { SkillResult, CapabilityRequest, CapabilityRouteResult } from "@esparex/repository-skills";
-import { RepositoryRuntime } from "../sdk/runtime_sdk.js";
+import { RepositoryRuntime } from "../sdk/runtime-sdk.js";
 
 /**
  * @since v1.0.0

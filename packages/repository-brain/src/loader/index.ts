@@ -1,5 +1,5 @@
 import { RepositoryScanner } from "@esparex/repository-scanner";
-import { BrainFactory } from "../factory/brain_factory.js";
+import { BrainFactory } from "../factory/brain-factory.js";
 import { BrainSnapshot } from "../schema/index.js";
 import { BrainQuery } from "../query/index.js";
 

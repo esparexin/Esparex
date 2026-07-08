@@ -105,6 +105,7 @@ export default function CatalogRequestsTab() {
                     setSearchResults(parsed.items.map((item) => ({ id: item.id, name: item.name })));
                 }
             } catch (e) {
+                // eslint-disable-next-line no-console -- diagnostic boundary: search failure
                 console.error(e);
             } finally {
                 setSearching(false);
