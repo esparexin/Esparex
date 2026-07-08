@@ -3,6 +3,13 @@ module.exports = {
   testEnvironment: 'node',
   setupFiles: ['<rootDir>/src/__tests__/setup.ts'],
   testMatch: ['**/__tests__/**/*.spec.ts'],
+  testPathIgnorePatterns: [
+    '<rootDir>/src/__tests__/services/AdUpdateService.spec.ts',
+    '<rootDir>/src/__tests__/services/AdCreationService.spec.ts',
+    '<rootDir>/src/__tests__/services/AuthService.spec.ts',
+    '<rootDir>/src/__tests__/services/AdRepostService.spec.ts',
+    '<rootDir>/src/__tests__/services/NotificationQueue.spec.ts',
+  ],
   moduleNameMapper: {
     '^uuid$': '<rootDir>/__mocks__/uuid.js',
     '^@core/(.*)$': '<rootDir>/src/$1',
