@@ -46,20 +46,20 @@ router.get('/activity', adminSystem.getRecentActivity);
 router.get('/security/audit', requirePermission('system:logs'), adminAudit.getAuditLogs);
 
 // Users and sessions
-router.get('/users', adminUsers.getUsers);
-router.get('/users/:id', adminUsers.getUserById);
+router.get('/users', requirePermission('users:read'), adminUsers.getUsers);
+router.get('/users/:id', requirePermission('users:read'), adminUsers.getUserById);
 router.patch('/users/:id/status', requirePermission('users:write'), adminUsers.updateUserStatus);
 router.patch('/users/:id/verify', requirePermission('users:write'), adminUsers.verifyUser);
-router.get('/user-management/overview', adminUsers.getUserManagementOverview);
+router.get('/user-management/overview', requirePermission('users:read'), adminUsers.getUserManagementOverview);
 
-router.get('/admin-users', adminUsers.getAdmins);
+router.get('/admin-users', requirePermission('system:config'), adminUsers.getAdmins);
 router.post('/admin-users', requirePermission('system:config'), adminUsers.createAdmin);
-router.get('/admin-users/:id', adminUsers.getAdminById);
+router.get('/admin-users/:id', requirePermission('system:config'), adminUsers.getAdminById);
 router.patch('/admin-users/:id', requirePermission('system:config'), adminUsers.updateAdmin);
 router.delete('/admin-users/:id', requirePermission('system:config'), adminUsers.deleteAdmin);
 router.patch('/admin-users/:id/deactivate', requirePermission('system:config'), adminUsers.deactivateAdmin);
 
-router.get('/admin-sessions', adminSessions.getAdminSessions);
+router.get('/admin-sessions', requirePermission('system:config'), adminSessions.getAdminSessions);
 router.post('/admin-sessions/:id/revoke', requirePermission('system:config'), adminSessions.revokeAdminSessionById);
 
 // Plans
@@ -130,41 +130,41 @@ router.patch('/reports/:id/resolve', requirePermission('ads:write'), adminReport
 router.patch('/reports/:id/status', requirePermission('ads:write'), adminReports.updateReportStatus);
 
 // Finance
-router.get('/finance/transactions', adminTransactions.getAllTransactions);
-router.get('/finance/stats', adminTransactions.getTransactionStats);
-router.get('/invoices', adminInvoices.getAllInvoices);
-router.post('/invoices', adminInvoices.createInvoice);
-router.get('/invoices/:id', adminInvoices.getInvoiceById);
-router.get('/invoices/:id/print', adminInvoices.getPrintableInvoice);
+router.get('/finance/transactions', requirePermission('finance:read'), adminTransactions.getAllTransactions);
+router.get('/finance/stats', requirePermission('finance:read'), adminTransactions.getTransactionStats);
+router.get('/invoices', requirePermission('finance:read'), adminInvoices.getAllInvoices);
+router.post('/invoices', requirePermission('finance:manage'), adminInvoices.createInvoice);
+router.get('/invoices/:id', requirePermission('finance:read'), adminInvoices.getInvoiceById);
+router.get('/invoices/:id/print', requirePermission('finance:read'), adminInvoices.getPrintableInvoice);
 
 // Notifications, AI, API keys
-router.post('/notifications/send', adminNotifications.sendNotification);
-router.get('/notifications/history', adminNotifications.getHistory);
-router.get('/notifications/recipients', adminNotifications.getRecipients);
+router.post('/notifications/send', requirePermission('system:config'), adminNotifications.sendNotification);
+router.get('/notifications/history', requirePermission('system:config'), adminNotifications.getHistory);
+router.get('/notifications/recipients', requirePermission('system:config'), adminNotifications.getRecipients);
 
-router.post('/ai/generate', adminAi.generate);
+router.post('/ai/generate', requirePermission('system:config'), adminAi.generate);
 
-router.get('/api-keys', adminApiKeys.getApiKeys);
+router.get('/api-keys', requirePermission('system:config'), adminApiKeys.getApiKeys);
 router.post('/api-keys', requirePermission('system:config'), adminApiKeys.createApiKey);
 router.patch('/api-keys/:id/revoke', requirePermission('system:config'), adminApiKeys.revokeApiKey);
 
 // Locations and geofences
-router.get('/locations', adminLocations.getAllLocations);
-router.post('/locations', adminLocations.createLocation);
+router.get('/locations', requirePermission('system:config'), adminLocations.getAllLocations);
+router.post('/locations', requirePermission('system:config'), adminLocations.createLocation);
 router.get('/locations/analytics', adminSystem.getLocationAnalytics);
-router.get('/locations/states', adminLocations.getDistinctStates);
-router.get('/locations/moderation-queue', adminLocations.getModerationQueue);
-router.post('/locations/refresh-stats', adminLocations.refreshLocationStats);
-router.patch('/locations/:id', adminLocations.updateLocation);
-router.patch('/locations/:id/toggle', adminLocations.toggleLocationStatus);
-router.patch('/locations/:id/review', adminLocations.approveRejectLocation);
-router.delete('/locations/:id', adminLocations.deleteLocation);
+router.get('/locations/states', requirePermission('system:config'), adminLocations.getDistinctStates);
+router.get('/locations/moderation-queue', requirePermission('system:config'), adminLocations.getModerationQueue);
+router.post('/locations/refresh-stats', requirePermission('system:config'), adminLocations.refreshLocationStats);
+router.patch('/locations/:id', requirePermission('system:config'), adminLocations.updateLocation);
+router.patch('/locations/:id/toggle', requirePermission('system:config'), adminLocations.toggleLocationStatus);
+router.patch('/locations/:id/review', requirePermission('system:config'), adminLocations.approveRejectLocation);
+router.delete('/locations/:id', requirePermission('system:config'), adminLocations.deleteLocation);
 
-router.get('/geofences', adminLocations.getGeofences);
-router.post('/geofences', adminLocations.createGeofence);
-router.get('/geofences/:id', adminLocations.getGeofences);
-router.patch('/geofences/:id', adminLocations.updateGeofence);
-router.delete('/geofences/:id', adminLocations.deleteGeofence);
+router.get('/geofences', requirePermission('system:config'), adminLocations.getGeofences);
+router.post('/geofences', requirePermission('system:config'), adminLocations.createGeofence);
+router.get('/geofences/:id', requirePermission('system:config'), adminLocations.getGeofences);
+router.patch('/geofences/:id', requirePermission('system:config'), adminLocations.updateGeofence);
+router.delete('/geofences/:id', requirePermission('system:config'), adminLocations.deleteGeofence);
 
 // System
 router.get('/system/health', adminSystem.getSystemHealth);
@@ -179,8 +179,8 @@ router.get('/support/contact', adminSystem.getContactSubmissions);
 router.patch('/support/contact/:id/status', adminSystem.updateContactSubmissionStatus);
 
 // Admin operations
-router.post('/import/bulk', adminImportContent.bulkImport);
-router.post('/import/seed-devices', adminImportContent.seedDevices);
+router.post('/import/bulk', requirePermission('system:config'), adminImportContent.bulkImport);
+router.post('/import/seed-devices', requirePermission('system:config'), adminImportContent.seedDevices);
 
 router.get('/smart-alerts', adminSmartAlerts.getAllSmartAlerts);
 router.get('/smart-alerts/logs', adminSmartAlerts.getSmartAlertLogs);

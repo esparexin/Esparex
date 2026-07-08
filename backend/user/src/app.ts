@@ -208,6 +208,7 @@ app.use(cookieParser());
 
 import { apiLatencyMiddleware, getApiReliabilitySummary, memoryUsageMiddleware } from './middleware/metricsMiddleware';
 import { getSystemMetricsSummary } from '@esparex/core/infrastructure';;
+import { requireAdmin } from './middleware/adminAuth';
 app.use(apiLatencyMiddleware);
 app.use(memoryUsageMiddleware);
 
@@ -264,7 +265,7 @@ app.use('/api/v1', globalLimiter);
 
 app.get('/health', healthCheckHandler);
 
-app.get('/system/status', async (_req, res) => {
+app.get('/system/status', requireAdmin, async (_req, res) => {
     try {
         const health = await getHealthCheckData(true);
         const statusCode = health.status === 'error' ? 503 : 200;
@@ -304,7 +305,7 @@ app.get('/system/status', async (_req, res) => {
     }
 });
 
-app.get('/system/metrics-summary', async (_req, res) => {
+app.get('/system/metrics-summary', requireAdmin, async (_req, res) => {
     try {
         const summary = await getSystemMetricsSummary();
         const apiReliability = getApiReliabilitySummary();
@@ -348,10 +349,10 @@ app.get('/', (_req, res) => {
  * 📊 PROMETHEUS METRICS ENDPOINT
  * 
  * Exposes internal metrics for Prometheus scraping.
- * Protected by basic auth or internal network restricted in production.
+ * Protected by requireAdmin.
  */
 import { register } from '@esparex/core/infrastructure';;
-app.get('/metrics', async (_req, res) => {
+app.get('/metrics', requireAdmin, async (_req, res) => {
     try {
         res.set('Content-Type', register.contentType);
         res.end(await register.metrics());
