@@ -1,41 +1,79 @@
 # CI/CD SSOT
 
-This is the Tier 1 Canonical Single Source of Truth (SSOT) defining all automated integration workflows, repository quality gates, git discipline rules, and production deployment protections. Every contribution must pass all checks defined here before being merged.
+This is the **Tier 1 Canonical Single Source of Truth (SSOT)** defining all automated integration workflows, repository quality gates, git discipline rules, and production deployment protections. Every contribution must pass all checks defined here before being merged.
 
 ---
 
 ## 1. Automated Integration Pipelines (GitHub Actions)
 
-The repository runs a deterministic two-stage CI pipeline defined in `.github/workflows/ci.yml`:
+The repository runs a **7-job parallel CI pipeline** defined in `.github/workflows/ci.yml`:
 
 ```
 [PR Target: main]
        │
        ▼
-┌──────────────┐
-│    Job 1:    │
-│  ci (45m)    │ ── (Validate Env, Run governance:all, Verify backend build)
-└──────┬───────┘
-       │
-       ▼ (Pass)
-┌──────────────┐
-│    Job 2:    │
-│ e2e (20m)    │ ── (Build apps-web, Start server, Run serial Playwright E2E)
-└──────────────┘
+┌──────────────────────┐
+│  Job 1: Static       │
+│  Analysis (15m)      │
+│  Env → Lint → Type   │
+└──────────┬───────────┘
+           │
+    ┌──────┼──────┬──────────┬──────────┬───────────┐
+    ▼      ▼      ▼          ▼          ▼           ▼
+┌────────┐ ┌────┐ ┌────────┐ ┌──────┐ ┌───────┐ ┌──────┐
+│Test(5) │ │Bld │ │Govern  │ │Secur │ │PR Impt│ │E2E   │
+│15m each│ │(5) │ │15m     │ │5m    │ │5m     │ │20m   │
+│┌──────┐│ │15m │ │        │ │      │ │PR only│ │      │
+││Redis ││ │each │ │        │ │      │ │       │ │      │
+│└──────┘│ └────┘ │        │ │      │ │       │ │      │
+└────────┘ └──────┘ └────────┘ └──────┘ └───────┘ └──────┘
 ```
 
-### 1.1 Job 1: Lint, Test, and Build Monorepo (`ci`)
-This job operates synchronously and executes the following steps in order:
-1. **Dependency Installation**: Runs `HUSKY=0 npm ci` to ensure locked reproducible packages.
-2. **Environment Validation**: Runs `npm run guard:env-contracts` to check all configuration schemas.
-3. **Core Governance Validation**: Runs `npm run governance:all` (linting, typechecking, tests, code duplication, and custom governance guards).
-4. **Backend Verification**: Asserts that `backend/user/dist/index.js` builds successfully.
+### 1.1 Job 1: Static Analysis (`static-analysis`)
+Runs first. All downstream jobs depend on it.
+1. **Dependency Installation**: `HUSKY=0 npm ci`
+2. **Environment Validation**: `npm run guard:env-contracts`
+3. **Lint**: `npm run lint` — ESLint across entire monorepo
+4. **Type Check**: `npm run type-check` — TypeScript compilation on all 14 workspaces
 
-### 1.2 Job 2: Playwright E2E Listing Edit Suite (`e2e-listing-edit`)
-This job is gated on Job 1 and executes Playwright integration checks:
-- **Parallelism Protection**: Executes with `workers: 1` in CI to eliminate CPU contention and flake, and `workers: 4` locally for developer velocity.
-- **Production Build**: Builds `@esparex/apps-web` using Next.js production compiler and boots the server on port `3000`.
-- **Hydration Sync**: Intercepts all database queries with mock routes to guarantee zero dependency on a live backend database.
+### 1.2 Job 2: Test Matrix (`test`)
+5 parallel test jobs, `fail-fast: false`:
+- `@esparex/backend-user`
+- `@esparex/core`
+- `@esparex/shared`
+- `@esparex/repository-governance`
+- `@esparex/apps-admin`
+Includes Redis service for backend-user tests.
+
+### 1.3 Job 3: Build Matrix (`build`)
+5 parallel build jobs, `fail-fast: false`:
+- `@esparex/shared`
+- `@esparex/core`
+- `@esparex/backend-user`
+- `@esparex/apps-admin`
+- `@esparex/apps-web`
+
+### 1.4 Job 4: Governance Guards (`governance`)
+1. `npm run guard:duplicate-code` — jscpd copy-paste detection
+2. `npm run guard:dead-code` — Combined string + AST orphan sweep
+3. `npm run governance:guards` — 11 SSOT/naming/architecture guard scripts
+4. `npm run architecture:check` — Full architecture dependency validation
+
+### 1.5 Job 5: Security Audit (`security`)
+- `npm audit --audit-level=high`
+- `continue-on-error: true` (informational until active-dependency vulns resolved)
+
+### 1.6 Job 6: PR Impact Analysis (`pr-impact`)
+- PR-only. Validates PR description contains all required Impact Analysis sections.
+- Runs `node scripts/enforce-pr-impact-analysis.js`
+
+### 1.7 Job 7: Playwright E2E (`e2e-listing-edit`)
+- Builds `@esparex/apps-web`, starts server on port 3000
+- Runs listing-edit E2E suite with `workers: 1` (prevents flake)
+- Route-mocked — no live backend dependency
+- Video/trace on retry, screenshots on failure
+
+---
 
 ---
 
