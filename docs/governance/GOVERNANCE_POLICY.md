@@ -1,6 +1,6 @@
 # Engineering Governance Policy
 
-This is the Tier 3 Canonical Single Source of Truth (SSOT) defining standard developer practices, code quality boundaries, folder architectures, and the strict lifecycle rules for all repository assets.
+This is the **[Tier 1 Canonical](https://github.com/esparexin/Esparex/blob/main/docs/MASTER_DOCUMENT_REGISTRY.md#tier-1-canonical-authoritative-ssots-maximum-67-documents)** Single Source of Truth (SSOT) defining standard developer practices, code quality boundaries, folder architectures, and the strict lifecycle rules for all repository assets.
 
 ---
 

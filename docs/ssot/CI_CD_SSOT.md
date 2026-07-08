@@ -124,10 +124,12 @@ The Esparex platform is distributed across three authoritative hosting platforms
 
 ### 4.1 Branch Naming Conventions
 Developers must scope work to a single purpose and name branches as follows:
-- `fix/<module>-<short-description>` (e.g. `fix/auth-cookie-refresh`)
-- `feat/<module>-<short-description>` (e.g. `feat/spotlight-slots`)
-- `refactor/<module>-<short-description>` (e.g. `refactor/geojson-point`)
+- `feature/<module>-<short-description>` (e.g. `feature/auth-cookie-refresh`)
+- `bugfix/<module>-<short-description>` (e.g. `bugfix/null-pointer-dashboard`)
+- `hotfix/<module>-<short-description>` (e.g. `hotfix/payment-webhook`)
+- `chore/<module>-<short-description>` (e.g. `chore/update-deps`)
 - `docs/<topic>` (e.g. `docs/consolidate-ssots`)
+- `refactor/<module>-<short-description>` (e.g. `refactor/geojson-point`)
 
 ### 4.2 PR Gate Requirements
 - **No Direct Push**: Direct commits to the `main` branch are disabled. All changes must pass through a Pull Request.

@@ -18,6 +18,17 @@ ADRs are immutable records. Once accepted, they are never deleted — only super
 | [ADR-006](adr/ADR-006-namespace-governance.md) | Core Namespace Lockdown (v1.0.0) | Accepted | 2026-07-06 | ADR-004 |
 | [ADR-007](adr/ADR-007-architecture-enforcement.md) | Architecture Enforcement Tooling (v1.1.0) | Accepted | 2026-07-06 | — |
 
+### Not Tracked in This Index
+
+The following files reside in `docs/architecture/adr/` but are not tracked in this index. They predate the current ADR numbering system:
+
+| File | Title | Note |
+| ---- | ----- | ---- |
+| `ADR-001-ui-package-boundary.md` | UI Package Public API Boundary | Not tracked — predates current ADR system |
+| `ADR-002-theme-contract.md` | Theme Contract | Not tracked — predates current ADR system |
+| `ADR-003-public-api-freeze.md` | Public API Freeze During Infra Changes | Not tracked — predates current ADR system |
+| `ADR-004-component-lifecycle.md` | Component Lifecycle Model | Not tracked — predates current ADR system |
+
 ---
 
 ## ADR Lifecycle

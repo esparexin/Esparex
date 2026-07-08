@@ -1,7 +1,7 @@
 # AI Governance Boundary
 
 **Status:** Active  
-**Tier:** Tier 5 — AI Boundary  
+**Tier:** Tier 1 — AI Boundary (registered as Tier 1 Canonical in MASTER_DOCUMENT_REGISTRY.md)  
 **Owner:** platform-team  
 **Last Updated:** 2026-07-08  
 **Supersedes:** MAD_AI_OPERATING_INSTRUCTIONS.md (archived)
