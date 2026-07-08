@@ -14,9 +14,7 @@
     "test": "node dist/tests/intelligence.spec.js"
   },
   "dependencies": {
-    "@esparex/repository-brain": "*",
-    "@esparex/repository-scanner": "*",
-    "@esparex/repository-governance": "*"
+    "@esparex/repository-brain": "*"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
