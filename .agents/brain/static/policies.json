@@ -1,0 +1,34 @@
+{
+  "MetadataSchema": "1.0",
+  "Brain-ID": "ERB-005",
+  "policies": [
+    {
+      "id": "R-001",
+      "name": "Single Entrypoint for Shared",
+      "description": "All imports from @esparex/shared must use the root barrel entry point."
+    },
+    {
+      "id": "R-002",
+      "name": "Ban on Deep Imports from Core",
+      "description": "Imports of core sub-modules directly (e.g. core/src/models/User) are forbidden. Only barrel exports are allowed."
+    }
+  ],
+  "boundaries": {
+    "apps": {
+      "allowed": ["shared", "core-types", "core-domain"],
+      "forbidden": ["backend", "core-internal"]
+    },
+    "backend": {
+      "allowed": ["shared", "core"],
+      "forbidden": ["apps"]
+    },
+    "core": {
+      "allowed": ["shared"],
+      "forbidden": ["apps", "backend"]
+    },
+    "shared": {
+      "allowed": [],
+      "forbidden": ["apps", "backend", "core"]
+    }
+  }
+}
