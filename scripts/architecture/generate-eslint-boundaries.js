@@ -49,28 +49,28 @@ function buildRules() {
   // Package boundary rules derived from matrix
   rules.push({
     message: 'Apps may only import shared and core public types/domain',
-    from: { type: ['apps-web', 'apps-admin'] },
-    allow: [{ type: 'shared' }, { type: 'core-types' }, { type: 'core-domain' }],
+    from: [{ type: 'apps-web' }, { type: 'apps-admin' }],
+    allow: [{ to: { type: 'shared' } }, { to: { type: 'core-types' } }, { to: { type: 'core-domain' } }],
   });
 
   rules.push({
     message: 'Backend may import any public @esparex/core namespace but not core internals',
-    from: { type: 'backend' },
+    from: [{ type: 'backend' }],
     allow: [
-      { type: 'shared' },
-      { type: 'core' },
+      { to: { type: 'shared' } },
+      { to: { type: 'core' } },
     ],
   });
 
   rules.push({
     message: 'Core may import shared only (no backend or apps)',
-    from: { type: 'core' },
-    allow: [{ type: 'shared' }],
+    from: [{ type: 'core' }],
+    allow: [{ to: { type: 'shared' } }],
   });
 
   rules.push({
     message: 'Shared is fully isolated',
-    from: { type: 'shared' },
+    from: [{ type: 'shared' }],
     allow: [],
   });
 
@@ -81,13 +81,13 @@ function buildRules() {
     const allowedTypes = ns.allowedDeps.map(dep => {
       // Map path prefix to namespace id
       const found = CORE_NAMESPACES.find(n => dep.startsWith(n.pathPattern.replace('^', '').replace(/\/$/, '')));
-      return found ? { type: found.id } : null;
+      return found ? { to: { type: found.id } } : null;
     }).filter(Boolean);
 
     if (allowedTypes.length > 0) {
       rules.push({
         message: `[Matrix] ${ns.label} allowed dependencies`,
-        from: { type: ns.id },
+        from: [{ type: ns.id }],
         allow: allowedTypes,
       });
     }
