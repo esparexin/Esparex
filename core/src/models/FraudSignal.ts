@@ -18,7 +18,7 @@ const FraudSignalSchema = new Schema<IFraudSignal>({
     adId: { type: Schema.Types.ObjectId, ref: 'Ad' },
     signalType: { type: String, required: true },
     score: { type: Number, required: true },
-    createdAt: { type: Date, default: Date.now, expires: '90d' } // Auto-cleanup after 90 days
+    createdAt: { type: Date, default: Date.now } // Auto-cleanup after 90 days handled by explicit index
 });
 
 /* -------------------------------------------------------------------------- */
@@ -29,7 +29,7 @@ FraudSignalSchema.index({ ip: 1 }, { name: 'idx_fraudsignal_ip_idx' });
 FraudSignalSchema.index({ userId: 1 }, { name: 'idx_fraudsignal_userId_idx' });
 FraudSignalSchema.index({ deviceFingerprint: 1 }, { name: 'idx_fraudsignal_deviceFingerprint_idx' });
 FraudSignalSchema.index({ adId: 1 }, { name: 'idx_fraudsignal_adId_idx' });
-FraudSignalSchema.index({ createdAt: 1 }, { name: 'idx_fraudsignal_ttl_idx' }); // Existing expires
+FraudSignalSchema.index({ createdAt: 1 }, { name: 'idx_fraudsignal_ttl_idx', expireAfterSeconds: 90 * 24 * 60 * 60 }); // 90 days
 
 const userConnection = getUserConnection();
 const FraudSignal: Model<IFraudSignal> =

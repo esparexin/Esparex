@@ -15,7 +15,7 @@ export interface IAdMetrics extends Document {
 }
 
 const AdMetricsSchema: Schema = new Schema({
-    adId: { type: Schema.Types.ObjectId, ref: 'Ad', required: true, unique: true },
+    adId: { type: Schema.Types.ObjectId, ref: 'Ad', required: true },
     views: {
         total: { type: Number, default: 0 },
         unique: { type: Number, default: 0 },
