@@ -60,6 +60,7 @@ jobs:
         workspace: 
           - "@esparex/backend-user"
           - "@esparex/core"
+          - "@esparex/shared"
           - "@esparex/repository-governance"
           - "@esparex/apps-admin"
     services:
@@ -121,12 +122,12 @@ jobs:
       - run: npm run governance:guards
       - run: npm run architecture:check
 
-  # ── Job 2: Security audit (no build artifacts needed) ────────────────────────
+  # ── Job 5: Security audit ──────────────────────────────────────────
   security:
     name: Security Audit
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: ci
+    needs: static-analysis
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -137,16 +138,15 @@ jobs:
       - run: HUSKY=0 npm ci
       - name: npm audit
         run: npm audit --audit-level=high
-        # Informational until active-dependency vulnerabilities are resolved
         continue-on-error: true
 
-  # ── Job 3: PR Impact Analysis (no build artifacts needed) ────────────────────
+  # ── Job 6: PR Impact Analysis (PR only) ────────────────────────────
   pr-impact:
     name: PR Impact Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: github.event_name == 'pull_request'
-    needs: ci
+    needs: static-analysis
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -160,12 +160,12 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
 
-  # ── Job 4: Playwright E2E — Listing Edit regression suite ────────────────────
+  # ── Job 7: Playwright E2E ──────────────────────────────────────────
   e2e-listing-edit:
     name: E2E – Listing Edit Suite
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: ci
+    needs: static-analysis
     env:
       NEXT_PUBLIC_LOCAL_DEV_AUTH: "true"
     steps:
