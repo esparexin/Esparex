@@ -202,7 +202,7 @@ export default function CatalogRequestsTab() {
 
     return (
         <>
-            <CatalogPageTemplate<CatalogRequestItem, Record<string, never>>
+            <CatalogPageTemplate<CatalogRequestItem, {}>
                 isNested={true}
                 title="Catalog Requests"
                 description="Manage user-submitted requests for new brands, models, or categories. Reviewing and approving these maintains the SSOT integrity."
@@ -217,7 +217,7 @@ export default function CatalogRequestsTab() {
                 setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={async () => false}
                 handleUpdate={async () => false}
-                defaultFormData={{} as Record<string, never>}
+                defaultFormData={{}}
                 formRenderer={() => null}
                 generateColumns={() => [
                     {
