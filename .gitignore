@@ -1,3 +1,6 @@
+# Recovery workspace
+/repository-recovery/
+
 # Dependencies
 node_modules/
 /.pnp

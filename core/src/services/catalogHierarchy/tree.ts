@@ -11,7 +11,7 @@ import type { AnyBulkWriteOperation } from 'mongoose';
 import type { HierarchyTreeResponse } from '@esparex/shared';
 import type { ModelHierarchyDoc, HierarchyIssue, HierarchyReport, ModelDeletionImpact, ModelHierarchyRepairPlan } from './types';
 import { MAX_MODEL_TREE_DEPTH } from './constants';
-import { getEffectiveParentId, modelSelect } from './validation';
+import { getEffectiveParentId, modelSelect, getLineageKey } from './validation';
 
 const buildActivateOps = <T extends { _id: unknown }>(
     docs: T[], predicate: (doc: T) => boolean
