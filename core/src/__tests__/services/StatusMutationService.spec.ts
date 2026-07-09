@@ -60,6 +60,17 @@ jest.mock("@esparex/core/services/lifecycle/LifecyclePolicyGuard", () => ({
     enforceLifecycleMutationPolicy: jest.fn(),
 }));
 
+jest.mock("@esparex/core/utils/metrics", () => ({
+    __esModule: true,
+    listingStatusTransitionsTotal: { inc: jest.fn() },
+}));
+
+jest.mock("@esparex/core/utils/redisCache", () => ({
+    __esModule: true,
+    invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined),
+    invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
+}));
+
 jest.mock("@esparex/core/events", () => ({
     lifecycleEvents: {
         dispatch: jest.fn().mockResolvedValue(undefined),

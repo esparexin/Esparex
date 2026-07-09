@@ -98,6 +98,7 @@ const allFiles = getFiles(process.cwd()).filter(f =>
   !f.includes('node_modules') && 
   !f.includes('.git') &&
   !f.includes('archive/') &&
+  !f.includes('.commandcode') &&
   !f.includes('/build/') &&
   !f.includes('/intermediates/') &&
   fs.statSync(f).size > 0
@@ -109,7 +110,7 @@ const violations = [];
 
 allFiles.forEach(filePath => {
   const fileName = path.basename(filePath);
-  const relativePath = path.relative(process.cwd(), filePath);
+  const relativePath = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
 
   // Ignore MASTER_DOCUMENT_REGISTRY.md and 00-index.md from normal registration check
   if (relativePath === 'docs/MASTER_DOCUMENT_REGISTRY.md' || relativePath === 'docs/00-index.md') {

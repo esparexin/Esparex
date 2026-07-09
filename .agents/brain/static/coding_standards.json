@@ -1,0 +1,33 @@
+{
+  "MetadataSchema": "1.0",
+  "Brain-ID": "ERB-006",
+  "conventions": {
+    "casing": {
+      "variables": "camelCase",
+      "functions": "camelCase",
+      "properties": "camelCase",
+      "utilities": "camelCase",
+      "classes": "PascalCase",
+      "components": "PascalCase",
+      "files": {
+        "classes": "PascalCase",
+        "components": "PascalCase",
+        "scripts": "camelCase",
+        "utilities": "camelCase"
+      }
+    },
+    "database": {
+      "models": "singular",
+      "collections": "singular"
+    },
+    "api": {
+      "routes": "plural",
+      "parameters": "plural"
+    }
+  },
+  "typing": {
+    "noAny": true,
+    "noNullAssertion": true,
+    "noSpeculativePatches": true
+  }
+}

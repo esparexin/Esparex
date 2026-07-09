@@ -13,6 +13,9 @@ const mockNotifySellersOfApproval = jest.fn();
 jest.mock('@esparex/core/config/db', () => ({
     getUserConnection: () => mockGetUserConnection(),
 }));
+jest.mock('../../config/db', () => ({
+    getUserConnection: () => mockGetUserConnection(),
+}));
 
 jest.mock('@esparex/core/models/CatalogRequest', () => ({
     __esModule: true,

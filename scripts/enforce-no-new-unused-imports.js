@@ -4,7 +4,7 @@ const { execSync, spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const WORKSPACE_ROOTS = ["frontend", "backend", "apps/admin"];
+const WORKSPACE_ROOTS = ["apps/admin", "apps/web", "backend/user", "core", "shared"];
 
 function run(cmd) {
   return execSync(cmd, { stdio: ["ignore", "pipe", "pipe"], encoding: "utf8" }).trim();
@@ -42,10 +42,11 @@ function getChangedTsFiles(baseSha) {
 function groupByWorkspace(files) {
   const grouped = new Map();
   for (const file of files) {
-    const [workspace] = file.split("/");
-    const rel = file.replace(`${workspace}/`, "");
-    if (!grouped.has(workspace)) grouped.set(workspace, []);
-    grouped.get(workspace).push(rel);
+    const root = WORKSPACE_ROOTS.find((r) => file.startsWith(`${r}/`));
+    if (!root) continue;
+    const rel = file.slice(root.length + 1);
+    if (!grouped.has(root)) grouped.set(root, []);
+    grouped.get(root).push(rel);
   }
   return grouped;
 }
@@ -55,16 +56,35 @@ function lintWorkspaceChangedFiles(workspace, files) {
   const args = [
     "eslint",
     ...files,
-    "--max-warnings=0",
+    "--format=json",
     "--rule",
     "unused-imports/no-unused-imports:error",
   ];
   const result = spawnSync("npx", args, {
     cwd: workspace,
-    stdio: "inherit",
-    shell: false,
+    stdio: ["ignore", "pipe", "pipe"],
+    shell: true,
+    encoding: "utf8",
   });
-  return result.status ?? 1;
+
+  try {
+    const output = JSON.parse(result.stdout.trim());
+    let unusedImportCount = 0;
+    for (const file of output) {
+      const unusedInFile = file.messages.filter(m => m.ruleId === "unused-imports/no-unused-imports");
+      if (unusedInFile.length > 0) {
+        console.error(`❌ Unused imports in ${workspace}/${file.filePath}:`);
+        unusedInFile.forEach(m => {
+          console.error(`  Line ${m.line}: ${m.message}`);
+        });
+        unusedImportCount += unusedInFile.length;
+      }
+    }
+    return unusedImportCount > 0 ? 1 : 0;
+  } catch (err) {
+    console.error(`ESLint error or parsing error in workspace ${workspace}:`, result.stderr || result.stdout);
+    return 1;
+  }
 }
 
 function main() {

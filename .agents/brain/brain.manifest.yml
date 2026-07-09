@@ -1,0 +1,84 @@
+brain:
+  - id: ERB-000
+    file: 00-Brain-Governance.md
+    title: Brain Governance
+    type: Static
+    owner: Brain Governance Board
+    canonical: true
+
+  - id: ERB-001
+    file: 01-Repository-Identity.md
+    title: Repository Identity
+    type: Dynamic
+    owner: Repository Identity
+    canonical: true
+
+  - id: ERB-002
+    file: 02-Technology-Stack.md
+    title: Technology Stack
+    type: Dynamic
+    owner: Technology Inventory
+    canonical: true
+
+  - id: ERB-003
+    file: 03-Repository-Structure.md
+    title: Repository Structure
+    type: Static
+    owner: Repository Structure Map
+    canonical: true
+
+  - id: ERB-004
+    file: 04-Architecture.md
+    title: Architecture
+    type: Static
+    owner: Architecture Layer Conventions
+    canonical: true
+
+  - id: ERB-005
+    file: 05-Dependency-Rules.md
+    title: Dependency Rules
+    type: Static
+    owner: Dependency Boundary Map
+    canonical: true
+
+  - id: ERB-006
+    file: 06-Coding-Standards.md
+    title: Coding Standards
+    type: Static
+    owner: Coding Style Standards
+    canonical: true
+
+  - id: ERB-007
+    file: 07-Governance.md
+    title: Governance
+    type: Static
+    owner: Automated Health Scoring Rules
+    canonical: true
+
+  - id: ERB-008
+    file: 08-CI-CD.md
+    title: CI-CD
+    type: Dynamic
+    owner: Pipeline Validation Steps
+    canonical: true
+
+  - id: ERB-009
+    file: 09-Skill-Manifest.md
+    title: Skill Manifest
+    type: Static
+    owner: Skill Selection Manifest
+    canonical: true
+
+  - id: ERB-010
+    file: 10-Brain-Initialization.md
+    title: Brain Initialization
+    type: Static
+    owner: Agent Setup Rules
+    canonical: true
+
+  - id: ERB-011
+    file: 11-Repository-Vocabulary.md
+    title: Repository Vocabulary
+    type: Static
+    owner: Glossary Context Map
+    canonical: true

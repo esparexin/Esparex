@@ -91,6 +91,7 @@ const dynamicApiConnectSources = (() => {
 })();
 
 const connectSrc = [
+    'capacitor://*', 'http://10.0.2.2:*',
     "'self'",
     'http://localhost:*',
     'http://127.0.0.1:*',
@@ -110,6 +111,7 @@ const connectSrc = [
 ].join(' '); // Forced update for CSP
 
 const scriptSrc = [
+    'capacitor://*', 'http://localhost:*', 'http://localhost',
     "'self'",
     "'unsafe-inline'",
     ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),

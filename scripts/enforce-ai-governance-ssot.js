@@ -44,6 +44,11 @@ for (const filePath of trackedFiles) {
     continue;
   }
 
+  // Archived files are historical records — they are not active governance artifacts.
+  if (filePath.startsWith('archive/')) {
+    continue;
+  }
+
   if (ALLOWED_BRIDGE_FILES.has(filePath)) {
     continue;
   }

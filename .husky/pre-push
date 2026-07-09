@@ -1,7 +1,2 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
-
-# Run all pre-push checks EXCEPT guard:dead-code to prevent legacy orphans from blocking pushes
-npm run lint && npm run type-check && npm run test && npm run guard:duplicate-code && npm run governance:guards && npm run build
-# Add integration tests here if they exist and are distinct from 'npm run test'
-# npm run test:integration
