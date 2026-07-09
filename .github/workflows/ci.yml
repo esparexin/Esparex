@@ -58,6 +58,13 @@ jobs:
       - name: Verify backend artifact
         run: test -f backend/user/dist/index.js
 
+      - name: Upload Web Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build-artifacts
+          path: apps/web/.next/
+          retention-days: 1
+
   # ── Job 2: Playwright E2E — Listing Edit regression suite ────────────────────
   e2e-listing-edit:
     name: E2E – Listing Edit Suite
@@ -97,8 +104,11 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: apps/web
 
-      - name: Build web app
-        run: npm run build -w @esparex/apps-web
+      - name: Download Web Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build-artifacts
+          path: apps/web/.next/
 
       - name: Start web app
         run: npm run start -w @esparex/apps-web &

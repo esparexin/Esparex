@@ -5,6 +5,7 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.spec.ts'],
   moduleNameMapper: {
     '^uuid$': '<rootDir>/__mocks__/uuid.js',
+    '^bullmq$': '<rootDir>/__mocks__/bullmq.ts',
     '^@core/(.*)$': '<rootDir>/src/$1',
     '^@esparex/core/(.*)$': '<rootDir>/src/$1',
     '^@shared/(.*)$': '<rootDir>/../shared/src/$1',

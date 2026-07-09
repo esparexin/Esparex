@@ -28,7 +28,7 @@ const mockGetIO = jest.fn(() => ({
     emit: jest.fn(),
 }));
 
-jest.mock("@esparex/core/models/User", () => ({
+jest.mock("../../models/User", () => ({
     __esModule: true,
     default: {
         bulkWrite: mockBulkWrite,
@@ -37,7 +37,7 @@ jest.mock("@esparex/core/models/User", () => ({
     },
 }));
 
-jest.mock("@esparex/core/models/Notification", () => {
+jest.mock("../../models/Notification", () => {
     return jest.fn().mockImplementation((data) => ({
         ...data,
         save: jest.fn().mockResolvedValue({ _id: 'notif_123' }),
@@ -45,45 +45,47 @@ jest.mock("@esparex/core/models/Notification", () => {
     }));
 });
 
-jest.mock("@esparex/core/config/firebaseAdmin", () => ({
+jest.mock("../../config/firebaseAdmin", () => ({
     __esModule: true,
     default: { messaging: mockMessaging },
 }));
 
-jest.mock("@esparex/core/utils/logger", () => ({
+jest.mock("../../utils/logger", () => ({
     __esModule: true,
     default: mockLogger,
 }));
 
-jest.mock("@esparex/core/utils/systemConfigHelper", () => ({
+jest.mock("../../utils/systemConfigHelper", () => ({
     __esModule: true,
     getSystemConfigDoc: mockGetSystemConfigDoc,
 }));
 
-jest.mock("@esparex/core/queues/queueIdempotency", () => ({
+jest.mock("../../queues/queueIdempotency", () => ({
     reserveQueueIdempotencySlot: mockReserveIdempotencySlot,
     releaseQueueIdempotencySlot: mockReleaseIdempotencySlot,
 }));
 
-jest.mock("@esparex/core/utils/queueWrapper", () => ({
+jest.mock("../../utils/queueWrapper", () => ({
     addJobWithTrace: mockAddJobWithTrace,
 }));
 
-jest.mock("@esparex/core/services/notification/NotificationVersionService", () => ({
+jest.mock("../../services/notification/NotificationVersionService", () => ({
     NotificationVersionService: {
         incrementVersion: mockIncrementVersion,
     },
 }));
 
-jest.mock("@esparex/core/queues/redisConnection", () => ({
+jest.mock("../../queues/redisConnection", () => ({
     isQueueConnectionAvailable: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("@esparex/core/config/socket", () => ({
+jest.mock("../../config/socket", () => ({
     getIO: mockGetIO,
 }));
 
-jest.mock("@esparex/core/services/notification/NotificationPreferenceService", () => ({
+
+
+jest.mock("../../services/notification/NotificationPreferenceService", () => ({
     resolveNotificationDeliveryPlan: jest.fn().mockResolvedValue({
         suppress: false,
         channels: ['in-app', 'push']

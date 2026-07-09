@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run governance:all
-# Add integration tests here if they exist and are distinct from 'npm run test'
-# npm run test:integration
+npm run type-check
+npm run test

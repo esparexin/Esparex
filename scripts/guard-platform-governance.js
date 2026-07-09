@@ -47,6 +47,13 @@ const walkScriptFiles = (dir, relativePrefix = '') => {
     }
 
     if (!entry.isFile()) continue;
+    
+    // Always yield map and d.ts files for artifact detection
+    if (entry.name.endsWith('.js.map') || entry.name.endsWith('.d.ts')) {
+        out.push(relPath);
+        continue;
+    }
+
     if (!SCRIPT_EXTENSIONS.has(path.extname(entry.name))) continue;
     out.push(relPath);
   }
@@ -68,6 +75,7 @@ const main = () => {
   const lifecycleBypassFiles = [];
   const migrationShadowFiles = [];
   const frontendDbMutationFiles = [];
+  const staleArtifactFiles = [];
 
   for (const file of files) {
     const abs = path.join(repoRoot, file);
@@ -89,6 +97,12 @@ const main = () => {
     if (MIGRATION_SHADOW_NAME_PATTERN.test(file) && hasDbRisk) {
       migrationShadowFiles.push(file);
     }
+
+    if (file.includes('/src/') || file.startsWith('src/')) {
+      if ((file.endsWith('.js') || file.endsWith('.js.map') || file.endsWith('.d.ts')) && !file.endsWith('.config.js') && !file.endsWith('jest.globalTeardown.js')) {
+        staleArtifactFiles.push(file);
+      }
+    }
   }
 
   const unknownRisky = riskyJsMutationFiles.filter(
@@ -105,6 +119,7 @@ const main = () => {
   failIfAny('Frontend repository contains DB mutation scripts (forbidden):', frontendDbMutationFiles, failures);
   failIfAny('New lifecycle bypass JS mutations detected:', unknownLifecycleBypass, failures);
   failIfAny('New migration shadow scripts detected in backend/user/scripts:', unknownMigrationShadow, failures);
+  failIfAny('Compiled artifacts detected inside source directories (forbidden):', staleArtifactFiles, failures);
 
   const forbiddenSwFound = FORBIDDEN_SW_FILES.filter((file) => fs.existsSync(path.join(repoRoot, file)));
   failIfAny('Forbidden service worker files detected (must keep single SW strategy):', forbiddenSwFound, failures);

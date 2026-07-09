@@ -1,6 +1,7 @@
 # Taste (Continuously Learned by [CommandCode][cmd])
 
 [cmd]: https://commandcode.ai/
+
 
 # workflow
 - When conducting repository documentation audits, follow a structured multi-phase methodology: audit → verify → report → approval → cleanup, covering duplicate detection, legacy detection, dead/orphan docs, SSOT validation, broken references, and git safety verification. Confidence: 0.70

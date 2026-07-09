@@ -16,14 +16,8 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-jest.mock('../../config/db', () => ({
-    getUserConnection: jest.fn().mockReturnValue({
-        startSession: jest.fn().mockResolvedValue({
-            withTransaction: jest.fn().mockImplementation((cb) => cb()),
-            endSession: jest.fn(),
-        }),
-    }),
-}));
+jest.mock('../../config/db');
+jest.mock('@esparex/core/config/db');
 
 jest.mock('../../services/ListingSubmissionPolicy', () => ({
     ListingSubmissionPolicy: {

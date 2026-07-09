@@ -22,6 +22,17 @@ jest.mock('@esparex/core/models/User', () => ({
     },
 }));
 
+jest.mock('@esparex/core/models/SavedAd', () => ({
+    __esModule: true,
+    default: {
+        find: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+                lean: jest.fn().mockResolvedValue([]),
+            }),
+        }),
+    },
+}));
+
 jest.mock('../../config/db', () => ({
     getUserConnection: jest.fn().mockReturnValue({
         models: {},
