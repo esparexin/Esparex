@@ -2,7 +2,6 @@ import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.WEB_FRONTEND_PORT || 3000);
 const baseURL = process.env.SMOKE_FRONTEND_URL || `http://127.0.0.1:${port}`;
-const isCI = !!process.env.CI;
 
 export default defineConfig({
     testDir: './tests',
