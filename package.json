@@ -14,7 +14,7 @@
     "shared"
   ],
   "scripts": {
-    "prepare": "node -e \"try { require('child_process').execSync('husky install', {stdio: 'inherit'}) } catch (e) {}\"",
+    "prepare": "node -e \"const e=process.env,fs=require('fs');if(!e.CI&&!e.VERCEL&&!e.RENDER&&fs.existsSync('.git')){require('child_process').execSync('husky',{stdio:'inherit'})}\"",
     "hooks:install": "husky install",
     "clean:workspace-installs": "node -e \"['backend/user/node_modules', 'apps/admin/node_modules', 'apps/web/node_modules', 'shared/node_modules', 'core/node_modules'].forEach(p => require('fs').rmSync(p, { recursive: true, force: true }))\"",
     "build": "npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user && npm run build -w @esparex/apps-admin && npm run build -w @esparex/apps-web",
