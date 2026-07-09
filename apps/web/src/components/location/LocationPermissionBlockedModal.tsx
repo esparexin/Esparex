@@ -9,7 +9,7 @@ interface LocationPermissionBlockedModalProps {
     isOpen: boolean;
     onDismiss: () => void;
     onUseManualLocation: () => void;
-    onOpenBrowserSettings?: () => void; // Kept for interface compatibility, but unused internally now
+    onOpenBrowserSettings?: () => void; // Kept for contract parity, but unused internally now
 }
 
 export default function LocationPermissionBlockedModal({
