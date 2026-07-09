@@ -59,13 +59,20 @@ jobs:
         run: test -f backend/user/dist/index.js
 
       - name: Verify web build output exists
-        run: test -d apps/web/.next && echo "✅ apps/web/.next found" || (echo "❌ apps/web/.next not found after build" && exit 1)
+        run: |
+          test -d apps/web/.next && echo "✅ apps/web/.next found" || (echo "❌ apps/web/.next not found after build" && exit 1)
+          FILE_COUNT=$(find apps/web/.next -type f | wc -l)
+          echo "📊 Files in .next: $FILE_COUNT"
+          test $FILE_COUNT -gt 0 || (echo "❌ .next directory is empty!" && exit 1)
+
+      - name: Copy web build for artifact upload
+        run: cp -r apps/web/.next apps/web/next-build
 
       - name: Upload Web Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: web-build-artifacts
-          path: apps/web/.next
+          path: apps/web/next-build
           if-no-files-found: error
           retention-days: 1
 
@@ -112,7 +119,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-build-artifacts
-          path: apps/web/.next
+          path: apps/web/next-build
+
+      - name: Restore web build to .next
+        run: mv apps/web/next-build apps/web/.next
 
       - name: Start web app
         run: npm run start -w @esparex/apps-web &
