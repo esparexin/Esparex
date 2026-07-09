@@ -58,11 +58,15 @@ jobs:
       - name: Verify backend artifact
         run: test -f backend/user/dist/index.js
 
+      - name: Verify web build output exists
+        run: test -d apps/web/.next && echo "✅ apps/web/.next found" || (echo "❌ apps/web/.next not found after build" && exit 1)
+
       - name: Upload Web Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: web-build-artifacts
           path: apps/web/.next
+          if-no-files-found: error
           retention-days: 1
 
   # ── Job 2: Playwright E2E — Listing Edit regression suite ────────────────────
