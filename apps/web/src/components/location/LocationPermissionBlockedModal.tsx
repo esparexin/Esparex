@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { MapPin, Settings, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, ChevronDown, ChevronUp } from "lucide-react";
 
 interface LocationPermissionBlockedModalProps {
     isOpen: boolean;
@@ -34,7 +34,7 @@ export default function LocationPermissionBlockedModal({
                     </DialogTitle>
                     <DialogDescription id="location-blocked-desc" className="mt-4 space-y-3 text-sm text-foreground">
                         <p>
-                            Location access is disabled for this site. Enable it in your browser's site settings to use the auto-detect feature.
+                            Location access is disabled for this site. Enable it in your {"browser's"} site settings to use the auto-detect feature.
                         </p>
                     </DialogDescription>
                 </DialogHeader>

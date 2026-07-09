@@ -138,7 +138,7 @@ export function LocationProvider({
                 city: 'Unknown',
                 state: 'Unknown',
                 reason: 'prompt_dismissed',
-                eventType: 'location_prompt_dismissed' as any
+                eventType: 'location_prompt_dismissed'
             });
         }
     }, [setPromptDismissedFlag, logAnalytics]);
@@ -170,7 +170,7 @@ export function LocationProvider({
             city: loc.city || 'Unknown',
             state: loc.state || 'Unknown',
             reason: 'permission_granted',
-            eventType: 'location_permission_granted' as any
+            eventType: 'location_permission_granted'
         });
     }, [applyResolvedLocation, setPermissionBlockedFlag, logAnalytics]);
 
@@ -191,7 +191,7 @@ export function LocationProvider({
             city: 'Unknown',
             state: 'Unknown',
             reason: 'permission_denied',
-            eventType: 'location_permission_denied' as any
+            eventType: 'location_permission_denied'
         });
     }, [setPermissionBlockedFlag, logAnalytics]);
 
@@ -212,7 +212,7 @@ export function LocationProvider({
             city: 'Unknown',
             state: 'Unknown',
             reason: 'requesting_permission',
-            eventType: 'location_permission_requested' as any
+            eventType: 'location_permission_requested'
         });
         
         const result = await unifiedDetect({ persist, force });
@@ -368,7 +368,7 @@ export function LocationProvider({
                             detectLocation(true, true);
                         }
                     };
-                } catch (e) {
+                } catch {
                     // Fallback to prompt if API fails (e.g. older Safari)
                 }
             }
@@ -386,7 +386,7 @@ export function LocationProvider({
                             city: 'Unknown',
                             state: 'Unknown',
                             reason: 'initial_prompt_shown',
-                            eventType: 'location_prompt_shown' as any
+                            eventType: 'location_prompt_shown'
                         });
                     }
                 }, LOCATION_PROMPT_DELAY_MS);
@@ -411,7 +411,7 @@ export function LocationProvider({
                     const newLocation = JSON.parse(e.newValue) as LocationData;
                     setLocation(newLocation);
                     setStatus(getLocationStatus(newLocation.source));
-                } catch (error) {
+                } catch {
                     // Ignore parse errors
                 }
             } else if (e.key === LOCATION_PROMPT_DISMISSED_KEY) {
