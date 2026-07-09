@@ -7,7 +7,7 @@ const config = {
 	theme: {
 		extend: {
 			fontFamily: {
-				inter: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				sans: ['var(--font-primary)', 'system-ui', 'sans-serif'],
 			},
 			fontSize: {
 				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px
