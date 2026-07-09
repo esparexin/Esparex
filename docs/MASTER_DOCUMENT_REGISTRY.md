@@ -39,6 +39,18 @@ All files must belong to exactly one tier. Tiers are defined below:
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `docs/supporting/catalog_atlas_search_indexes.md` | Reference Atlas Search index configuration | Data | Active | supporting_active | Manual |
 | `docs/supporting/listing-edit-e2e.md` | Playwright edit ad E2E suite strategy details | Testing | Active | supporting_active | `test:e2e` |
+| `docs/environment/ENVIRONMENT_BOOTSTRAP.md` | Environment Bootstrap Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_DEPLOYMENT.md` | Environment Deployment Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_GOVERNANCE.md` | Environment Governance Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_LOADING_FLOW.md` | Environment Loading Flow Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_PLATFORM_MATRIX.md` | Environment Platform Matrix Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_RISK_REGISTER.md` | Environment Risk Register Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_SECURITY.md` | Environment Security Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_SSOT.md` | Environment SSOT Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_VALIDATION.md` | Environment Validation Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/ENVIRONMENT_VARIABLE_MATRIX.md` | Environment Variable Matrix Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/MASTER_SSOT.md` | Environment Master SSOT Guide | Ops | Active | supporting_active | Manual |
+| `docs/environment/README.md` | Environment Registry Overview | Ops | Active | supporting_active | Manual |
 
 ### Tier 3: Deprecated (superseded or obsolete documents; no longer used for implementation)
 

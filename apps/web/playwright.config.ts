@@ -2,7 +2,6 @@ import { defineConfig, devices } from '@playwright/test';
 
 const port = Number(process.env.WEB_FRONTEND_PORT || 3000);
 const baseURL = process.env.SMOKE_FRONTEND_URL || `http://127.0.0.1:${port}`;
-const isCI = !!process.env.CI;
 
 export default defineConfig({
     testDir: './tests',
@@ -34,7 +33,7 @@ export default defineConfig({
     webServer: {
         command: `npm run build && npm run start -- -H 127.0.0.1 -p ${port}`,
         url: `${baseURL}/favicon.ico`,
-        reuseExistingServer: !isCI,
+        reuseExistingServer: true,
         timeout: 180_000,
         env: {
             BYPASS_POST_AD_QUOTA_CHECK: process.env.BYPASS_POST_AD_QUOTA_CHECK || 'true',

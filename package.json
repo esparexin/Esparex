@@ -50,7 +50,7 @@
     "lint:shared": "eslint shared --cache --cache-location .eslintcache/shared",
     "lint": "eslint .",
     "lint:fast": "eslint . --cache",
-    "lint:ci": "eslint . --max-warnings=0",
+    "lint:ci": "eslint -f json -o ci-lint-results.json . && node scripts/lint-baseline-enforcement.js ci-lint-results.json",
     "lint:changed": "node scripts/run-eslint-changed.js",
     "lint:fix": "eslint . --fix",
     "test": "npm test -w @esparex/backend-user && npm test -w @esparex/core",

@@ -119,8 +119,9 @@ allFiles.forEach((file, index) => {
     if (index % 50 === 0) process.stdout.write('.');
 
     // Skip entrypoints, configs, tests, scripts, seeds, cron, etc.
-    const isTest = relPath.includes('__tests__') || relPath.endsWith('.spec.ts') || relPath.endsWith('.spec.tsx') || relPath.endsWith('.test.ts') || relPath.endsWith('.test.tsx');
-    const isScriptOrConfig = relPath.includes('scripts/') || relPath.includes('seeds/') || relPath.includes('cron/') || relPath.includes('migrations/') || relPath.endsWith('config.ts') || relPath.endsWith('config.js') || relPath.endsWith('config.json');
+    const normalizedPath = relPath.replace(/\\/g, '/');
+    const isTest = normalizedPath.includes('__tests__') || normalizedPath.endsWith('.spec.ts') || normalizedPath.endsWith('.spec.tsx') || normalizedPath.endsWith('.test.ts') || normalizedPath.endsWith('.test.tsx');
+    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json');
     if (isTest || isScriptOrConfig) {
         return;
     }
