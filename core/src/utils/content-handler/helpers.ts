@@ -1,5 +1,5 @@
 import type { Document, Model } from 'mongoose';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import logger from '../logger';
 import { getAdminConnection, getUserConnection } from '../../config/db';
 import { castCatalogQueryIds, summarizeCatalogReadDiff, recordCatalogReadDiff } from '../catalogShadowRead';

@@ -7,8 +7,7 @@ import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { CatalogSelectField } from "@/components/catalog/CatalogUiPrimitives";
 import { CatalogArchivedCategoryNotice } from "@/components/catalog/CatalogUiPrimitives";
-import { getEntityCategoryIds, toCategoryOptions } from "@/components/catalog/catalogDomainUtils";
-import type { SelectOption } from "@/components/catalog/CatalogUiPrimitives";
+import { getEntityCategoryIds } from "@/components/catalog/catalogDomainUtils";
 
 export function ModelsFormRenderer({ formData, setFormData, isEditing, editingItem, brands, categoryOptions, parentModelOptions, archivedCategoryCount }: {
     formData: ModelFormData;

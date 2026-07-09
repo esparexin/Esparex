@@ -1,8 +1,6 @@
 import mongoose from 'mongoose';
 import { escapeRegExp } from '../../utils/stringUtils';
-import logger from '../../utils/logger';
 import { getCache, setCache } from '../../utils/redisCache';
-import { LOCATION_STATUS } from '@esparex/shared';
 import { AppError } from '../../utils/AppError';
 import { findLocationById, findLocationByIdLean, findActiveParentById, locationExists, findLocationParent, findDuplicateLocation, getDistinctStateLocations, getLocationsPaginated, countAdsForLocation, countUsersForLocation } from '../location/LocationQueryService';
 import { generateLocationId, createLocationRecord, saveLocation, softDeleteLocation } from '../location/LocationMutationService';

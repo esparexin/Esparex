@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { GitBranch, Layers, CheckCircle, XCircle } from "lucide-react";
 import { useAdminModels } from "@/hooks/useAdminModels";
@@ -13,8 +13,8 @@ import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { deriveCatalogLifecycleStatus, getEntityCategoryIds, hasCategoryOverlap, resolveModalAssignableCategoryState, toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
-import { CatalogCategoryTags, CatalogEntityCell, CatalogEditDeleteActions, CatalogActiveToggleButton, CatalogSelectField, CatalogActionsRow, CatalogActionIconButton, CatalogSearchInput, CatalogAsyncComboboxFilter } from "@/components/catalog/CatalogUiPrimitives";
-import type { Model, Brand } from "@esparex/shared";
+import { CatalogCategoryTags, CatalogEntityCell, CatalogEditDeleteActions, CatalogActiveToggleButton, CatalogActionsRow, CatalogActionIconButton, CatalogSearchInput, CatalogAsyncComboboxFilter } from "@/components/catalog/CatalogUiPrimitives";
+import type { Model } from "@esparex/shared";
 import type { ModelFormData } from "./types";
 import { useParentModelFetcher, useVariantModelFetcher } from "./hooks";
 import { ModelsFormRenderer } from "./form";

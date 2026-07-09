@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import type { AdminListingsQuery } from './types';
 import { AppError } from '../../utils/AppError';
 import {

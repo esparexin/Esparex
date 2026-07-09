@@ -1,5 +1,4 @@
 import { USER_STATUS, Role, normalizeUserStatus } from '@esparex/shared';
-import { AppError } from '../../utils/AppError';
 
 const ACTIVE_USER_STATUS_QUERY = USER_STATUS.LIVE;
 const ADMIN_ROLE_RANK: Record<string, number> = { [Role.MODERATOR]: 40, [Role.ADMIN]: 70, [Role.SUPER_ADMIN]: 100 };

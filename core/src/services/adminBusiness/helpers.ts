@@ -1,6 +1,4 @@
-import Business from '../../models/Business';
-import Ad from '../../models/Ad';
-import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
+import { MS_IN_DAY } from '../../config/constants';
 import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { BUSINESS_STATUS } from '@esparex/shared';
 

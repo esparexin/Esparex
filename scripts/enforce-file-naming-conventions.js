@@ -19,8 +19,17 @@ const SCAN_DIRS = [
   'shared/src'
 ];
 
-const EXCLUDED_FILES = new Set(['index.ts', 'index.tsx', 'app.ts', 'layout.tsx', 'page.tsx', 'loading.tsx', 'error.tsx', 'not-found.tsx']);
-const EXCLUDED_PATTERNS = [/\.test\.ts$/, /\.test\.tsx$/, /\.validator\.ts$/, /\.schema\.ts$/];
+const EXCLUDED_FILES = new Set([
+  'index.ts', 'index.tsx', 'app.ts', 'layout.tsx', 'page.tsx',
+  'loading.tsx', 'error.tsx', 'not-found.tsx',
+  // Sub-module implementation files (decomposed component helpers)
+  'main.tsx', 'form.tsx', 'columns.tsx', 'provider.tsx', 'context.tsx',
+]);
+const EXCLUDED_PATTERNS = [
+  /\.test\.ts$/, /\.test\.tsx$/, /\.validator\.ts$/, /\.schema\.ts$/,
+  // Kebab-case sub-module helpers (e.g. delete-modal.tsx, edit-flow.tsx)
+  /^[a-z][a-z0-9]*(-[a-z0-9]+)+\.tsx$/,
+];
 
 function isPascalCase(name) {
   return /^[A-Z][a-zA-Z0-9]+$/.test(name);

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ACTOR_TYPE, LISTING_STATUS, LISTING_TYPE, REPORT_STATUS } from '@esparex/shared';
+import { LISTING_STATUS, LISTING_TYPE, REPORT_STATUS } from '@esparex/shared';
 import type { ListingTypeValue } from '@esparex/shared';
 import { AppError } from '../../utils/AppError';
 import { createAd } from '../AdOrchestrator';

@@ -5,11 +5,8 @@ import { USER_STATUS, Role } from '@esparex/shared';
 import { hashPassword } from '../../utils/auth';
 import { AppError } from '../../utils/AppError';
 import type { AdminLogFn } from '../AdminListingsService';
-import { recalculateTrustScore } from '../TrustService';
-import { revokeAdminSessionsForAdmin } from '../AdminSessionService';
 import type { UserFilters } from './types';
-import { ACTIVE_USER_STATUS_QUERY, buildUserStatusFilter, normalizeAdminManagedUser, ALLOWED_ADMIN_ROLES, ensureRoleAssignmentAllowed } from './helpers';
-import Admin, { IAdmin } from '../../models/Admin';
+import { ACTIVE_USER_STATUS_QUERY, buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';
 
 export const getUsers = async (filters: UserFilters = {}, pagination: { skip: number; limit: number }) => {
     const { search, status, role, isVerified } = filters;

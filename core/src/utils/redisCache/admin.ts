@@ -1,4 +1,4 @@
-import { client, isConnected, cacheMetrics, REDIS_RECOVERY_PROBE_TIMEOUT_MS } from './config';
+import { client, isConnected, cacheMetrics } from './config';
 import logger from '../logger';
 import { withTimeout } from '../resilience';
 import { scanKeysByPattern } from './scan';

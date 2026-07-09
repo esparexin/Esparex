@@ -99,7 +99,14 @@ const main = () => {
     }
 
     if (file.includes('/src/') || file.startsWith('src/')) {
-      if ((file.endsWith('.js') || file.endsWith('.js.map') || file.endsWith('.d.ts')) && !file.endsWith('.config.js') && !file.endsWith('jest.globalTeardown.js')) {
+      // Exempt hand-authored ambient declaration files in src/types/ and src/@types/ —
+      // these are standard TypeScript module/namespace augmentations, not compiled artifacts.
+      const isHandAuthoredDeclaration =
+        file.endsWith('.d.ts') &&
+        (file.includes('/src/types/') || file.includes('/src/@types/'));
+      if (!isHandAuthoredDeclaration &&
+          (file.endsWith('.js') || file.endsWith('.js.map') || file.endsWith('.d.ts')) &&
+          !file.endsWith('.config.js') && !file.endsWith('jest.globalTeardown.js')) {
         staleArtifactFiles.push(file);
       }
     }

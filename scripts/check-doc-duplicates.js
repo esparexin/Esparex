@@ -98,6 +98,7 @@ const allFiles = getFiles(process.cwd()).filter(f =>
   !f.includes('node_modules') && 
   !f.includes('.git') &&
   !f.includes('archive/') &&
+  !f.includes('.commandcode') &&
   !f.includes('/build/') &&
   !f.includes('/intermediates/') &&
   fs.statSync(f).size > 0
