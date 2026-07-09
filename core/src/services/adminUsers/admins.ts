@@ -7,7 +7,7 @@ import type { AdminLogFn } from '../AdminListingsService';
 import { recalculateTrustScore } from '../TrustService';
 import { revokeAdminSessionsForAdmin } from '../AdminSessionService';
 import { normalizeAdminManagedUser, ALLOWED_ADMIN_ROLES, ensureRoleAssignmentAllowed } from './helpers';
-import { isLastActiveSuperAdmin } from './super-admin';
+import { isLastActiveSuperAdmin } from './superAdmin';
 
 export const getAdmins = async () => Admin.find().select('-password');
 export const getAdminByIdForAdmin = async (id: string) => Admin.findById(id).select('-password');
