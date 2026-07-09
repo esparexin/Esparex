@@ -168,6 +168,17 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         throw new Error('REDIS_URL/REDIS_HOST cannot use localhost in production');
     }
 
+    console.log('[DIAGNOSTIC] NODE_ENV:', sourceEnv.NODE_ENV);
+    console.log('[DIAGNOSTIC] ALLOW_REDIS raw:', typeof sourceEnv.ALLOW_REDIS, JSON.stringify(sourceEnv.ALLOW_REDIS));
+    console.log('[DIAGNOSTIC] REDIS_URL exists:', hasValue(sourceEnv.REDIS_URL));
+    console.log('[DIAGNOSTIC] REDIS_HOST exists:', hasValue(sourceEnv.REDIS_HOST));
+    console.log('[DIAGNOSTIC] REDIS_PORT exists:', hasValue(sourceEnv.REDIS_PORT));
+    console.log('[DIAGNOSTIC] REDIS_DB exists:', hasValue(sourceEnv.REDIS_DB));
+    console.log('[DIAGNOSTIC] REDIS_USERNAME exists:', hasValue(sourceEnv.REDIS_USERNAME));
+    console.log('[DIAGNOSTIC] REDIS_PASSWORD exists:', hasValue(sourceEnv.REDIS_PASSWORD));
+    console.log('[DIAGNOSTIC] isLocalRedisHost:', isLocalRedisHost(redisConfig.host));
+    console.log('[DIAGNOSTIC] process.env keys:', Object.keys(sourceEnv).filter(k => k.includes('REDIS') || k.includes('ENV')));
+
     if (!isEnabledFlag(sourceEnv.ALLOW_REDIS)) {
         throw new Error('ALLOW_REDIS must be true in production');
     }
