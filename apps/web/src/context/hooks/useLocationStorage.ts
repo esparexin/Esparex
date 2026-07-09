@@ -44,7 +44,15 @@ export function useLocationStorage() {
         city: string;
         state: string;
         reason: string;
-        eventType?: "location_search" | "ad_view" | "ad_post";
+        eventType?: 
+            | "location_search" 
+            | "ad_view" 
+            | "ad_post"
+            | "location_prompt_dismissed"
+            | "location_permission_granted"
+            | "location_prompt_shown"
+            | "location_permission_denied"
+            | "location_permission_requested";
         locationId?: string;
     }) => {
         try {

@@ -8,7 +8,7 @@ import { normalizeToAppLocation as normalizeLocation } from "@/lib/location/loca
 
 interface UseLocationActionHandlersProps {
     setLocation: (loc: AppLocation) => void;
-    setStatus: (status: "detecting" | "available" | "manual" | "unavailable") => void;
+    setStatus: (status: "unknown" | "checking" | "prompt" | "granted" | "denied" | "manual_selection") => void;
     setDetectError: (err: string | null) => void;
     persistPromptDismissed: (dismissed: boolean) => void;
     writeStoredLocation: (loc: AppLocation) => void;
@@ -18,7 +18,15 @@ interface UseLocationActionHandlersProps {
         city: string;
         state: string;
         reason: string;
-        eventType?: "location_search" | "ad_view" | "ad_post";
+        eventType?: 
+            | "location_search" 
+            | "ad_view" 
+            | "ad_post"
+            | "location_prompt_dismissed"
+            | "location_permission_granted"
+            | "location_prompt_shown"
+            | "location_permission_denied"
+            | "location_permission_requested";
         locationId?: string;
     }) => void;
     autoDetectedRef: { current: boolean };
@@ -73,7 +81,7 @@ export function useLocationActionHandlers({
         if (!normalized) return;
 
         setLocation(normalized);
-        setStatus("manual");
+        setStatus("manual_selection");
         setDetectError(null);
         autoDetectedRef.current = false;
         persistPromptDismissed(true);
@@ -105,7 +113,7 @@ export function useLocationActionHandlers({
 
     const clearLocation = useCallback(() => {
         setLocation(DEFAULT_APP_LOCATION);
-        setStatus("available");
+        setStatus("prompt");
         setDetectError(null);
         autoDetectedRef.current = false;
 

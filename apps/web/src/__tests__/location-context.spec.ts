@@ -6,7 +6,7 @@ describe("shouldShowLocationFirstVisitPrompt", () => {
     it("shows the prompt after delay when the app is still on the default location", () => {
         expect(
             shouldShowLocationFirstVisitPrompt({
-                status: "available",
+                status: "prompt",
                 source: "default",
                 promptDismissed: false,
                 isPermissionBlocked: false,
@@ -16,9 +16,10 @@ describe("shouldShowLocationFirstVisitPrompt", () => {
     });
 
     it("does not show the prompt before the delay elapses", () => {
+        // Controlled by prompt transition state, but matching type:
         expect(
             shouldShowLocationFirstVisitPrompt({
-                status: "available",
+                status: "checking",
                 source: "default",
                 promptDismissed: false,
                 isPermissionBlocked: false,
@@ -30,7 +31,7 @@ describe("shouldShowLocationFirstVisitPrompt", () => {
     it("does not show the prompt after a manual or detected location is applied", () => {
         expect(
             shouldShowLocationFirstVisitPrompt({
-                status: "manual",
+                status: "manual_selection",
                 source: "manual",
                 promptDismissed: false,
                 isPermissionBlocked: false,
@@ -40,7 +41,7 @@ describe("shouldShowLocationFirstVisitPrompt", () => {
 
         expect(
             shouldShowLocationFirstVisitPrompt({
-                status: "available",
+                status: "granted",
                 source: "auto",
                 promptDismissed: false,
                 isPermissionBlocked: false,
