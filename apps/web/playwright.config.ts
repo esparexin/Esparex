@@ -34,7 +34,7 @@ export default defineConfig({
     webServer: {
         command: `npm run build && npm run start -- -H 127.0.0.1 -p ${port}`,
         url: `${baseURL}/favicon.ico`,
-        reuseExistingServer: !isCI,
+        reuseExistingServer: true,
         timeout: 180_000,
         env: {
             BYPASS_POST_AD_QUOTA_CHECK: process.env.BYPASS_POST_AD_QUOTA_CHECK || 'true',
