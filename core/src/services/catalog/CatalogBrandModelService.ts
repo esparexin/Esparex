@@ -13,6 +13,7 @@ import SparePart from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
 import ScreenSizeModel from '../../models/ScreenSize';
 import SmartAlertModel from '../../models/SmartAlert';
+import VariantModelImport from '../../models/Variant';
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
 import { getModelDeletionImpact } from './CatalogHierarchyService';
 
@@ -104,4 +105,22 @@ export const checkModelDependencies = async (id: string) => {
             activeHierarchyRoots: impact.activeHierarchyRoots,
         }
     };
+};
+
+export const getVariantsAndModelsForParentModels = async (modelIds: string[]) => {
+    return Promise.all([
+        VariantModelImport.find({ modelId: { $in: modelIds }, isDeleted: { $ne: true } }).sort({ name: 1 }).lean(),
+        CatalogModelImport.find({ variantOfModelId: { $in: modelIds }, isDeleted: { $ne: true } }).sort({ name: 1 }).lean(),
+    ]);
+};
+
+export const getBrandModelsForDuplicateCheck = async (brandId: string, excludeId?: string) => {
+    return CatalogModelImport.find({
+        brandId,
+        isDeleted: { $ne: true },
+        ...(excludeId ? { _id: { $ne: excludeId } } : {})
+    })
+    .select('_id name displayName canonicalName slug aliases synonyms parentModelId variantOfModelId')
+    .limit(100)
+    .lean();
 };

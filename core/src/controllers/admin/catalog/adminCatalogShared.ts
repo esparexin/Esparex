@@ -3,10 +3,9 @@ import { Request, Response } from 'express';
 import logger from '../../../utils/logger';
 import { toOptionalString } from './inputCoercion';
 import { setCache } from '../../../utils/redisCache';
-import { CatalogModel } from '../../../services/catalog/CatalogBrandModelService';
+import { CatalogModel, getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '../../../services/catalog/CatalogBrandModelService';
 import { validateModelHierarchyMutation } from '../../../services/catalog/CatalogHierarchyService';
 import { detectDuplicateCandidates } from '../../../services/catalog/CatalogSearchGovernanceService';
-import VariantModel from '../../../models/Variant';
 
 export const CATALOG_CACHE_TTL = 300;
 
@@ -46,10 +45,7 @@ export const normalizeBooleanQuery = (value: unknown): boolean => {
 export const populateModelVariants = async (items: unknown[]) => {
     const modelIds = items.map((item) => { const m = item as { _id?: unknown; id?: unknown }; return m._id ?? m.id; }).filter(Boolean).map(String);
     if (modelIds.length === 0) return items;
-    const [variantDocs, variantModelDocs] = await Promise.all([
-        VariantModel.find({ modelId: { $in: modelIds }, isDeleted: { $ne: true } }).sort({ name: 1 }).lean(),
-        CatalogModel.find({ variantOfModelId: { $in: modelIds }, isDeleted: { $ne: true } }).sort({ name: 1 }).lean(),
-    ]);
+    const [variantDocs, variantModelDocs] = await getVariantsAndModelsForParentModels(modelIds);
     const variantsByModelId = new Map<string, unknown[]>();
     for (const v of variantDocs) { const mid = String((v as { modelId?: unknown }).modelId ?? ''); if (!mid) continue; const ex = variantsByModelId.get(mid) ?? []; ex.push(v); variantsByModelId.set(mid, ex); }
     const variantModelsByParentId = new Map<string, unknown[]>();
@@ -75,8 +71,7 @@ export const logModelDuplicateCandidates = async (req: Request, payload: Record<
     const name = String(payload.displayName ?? payload.name ?? payload.canonicalName ?? '').trim();
     const brandId = toOptionalString(payload.brandId);
     if (!name || !brandId) return;
-    const candidates = await CatalogModel.find({ brandId, isDeleted: { $ne: true }, ...(options.excludeId ? { _id: { $ne: options.excludeId } } : {}) })
-        .select('_id name displayName canonicalName slug aliases synonyms parentModelId variantOfModelId').limit(100).lean();
+    const candidates = await getBrandModelsForDuplicateCheck(brandId, options.excludeId);
     const dupes = detectDuplicateCandidates(name, candidates as unknown as Record<string, unknown>[]);
     if (dupes.length > 0) logger.warn('[CatalogSearch] Potential model duplicate candidates detected', { requestPath: req.originalUrl || req.path, candidateCount: dupes.length, input: name, candidates: dupes });
 };
