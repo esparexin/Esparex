@@ -8,6 +8,8 @@ import { mutateStatuses, mutateStatus } from '../lifecycle/StatusMutationService
 import { AppError } from '../../utils/AppError';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
 
+import { getAdminBusinessAccountsData, transformBusinessDocs } from './helpers';
+
 export const getBusinessOverview = async () => {
     const thirty = new Date(Date.now() + GOVERNANCE.BUSINESS.AUTO_EXPIRE_CHECK_DAYS * MS_IN_DAY);
     const seven = new Date(); seven.setDate(seven.getDate() - 7);
@@ -24,6 +26,44 @@ export const getBusinessOverview = async () => {
         Business.aggregate([{ $match: { isDeleted: { $ne: true }, 'location.city': { $exists: true, $ne: '' } } }, { $group: { _id: '$location.city', count: { $sum: 1 } } }, { $sort: { count: -1, _id: 1 } }, { $limit: 5 }, { $project: { _id: 0, city: '$_id', count: 1 } }]),
     ]);
     return { total, pending, live, suspended, rejected, deleted, expiringSoon, expiringIn3Days, analytics: { timeline, topCities } };
+};
+
+export const getAdminBusinessAccounts = async (params: {
+    status?: string;
+    locationId?: string;
+    search?: string;
+    expiringIn3Days?: string;
+    warningSent?: string;
+    warningNotSent?: string;
+    skip: number;
+    limit: number;
+}) => {
+    const { adminQuery } = await getAdminBusinessAccountsData(params);
+
+    if (params.search) {
+        const { escapeRegExp } = require('../../utils/stringUtils');
+        const safeSearch = escapeRegExp(params.search);
+        adminQuery.$or = [
+            { name: { $regex: safeSearch, $options: 'i' } },
+            { email: { $regex: safeSearch, $options: 'i' } },
+            { mobile: { $regex: safeSearch, $options: 'i' } },
+            { 'location.city': { $regex: safeSearch, $options: 'i' } },
+        ];
+    }
+
+    const [rawItems, total] = await Promise.all([
+        Business.find(adminQuery)
+            .skip(params.skip)
+            .limit(params.limit)
+            .sort({ createdAt: -1 })
+            .populate('userId')
+            .setOptions({ withDeleted: true }),
+        Business.countDocuments(adminQuery)
+            .setOptions({ withDeleted: true }),
+    ]);
+
+    const items = transformBusinessDocs(rawItems);
+    return { items, total };
 };
 
 export const getAdminBusinessById = async (id: string) => Business.findOne({ _id: id }).setOptions({ withDeleted: true }).populate('userId');

@@ -56,40 +56,16 @@ export const getBusinessAccounts = async (req: Request, res: Response) => {
         const warningSent = typeof req.query.warningSent === 'string' ? req.query.warningSent : undefined;
         const warningNotSent = typeof req.query.warningNotSent === 'string' ? req.query.warningNotSent : undefined;
 
-        const { adminQuery } = await adminBusinessService.getAdminBusinessAccountsData({
+        const { items, total } = await adminBusinessService.getAdminBusinessAccounts({
             status,
             locationId,
             search,
             expiringIn3Days,
             warningSent,
             warningNotSent,
-            page,
+            skip,
             limit,
         });
-
-        if (search) {
-            const { escapeRegExp } = await import('@esparex/core/utils/stringUtils');
-            const safeSearch = escapeRegExp(search);
-            (adminQuery).$or = [
-                { name: { $regex: safeSearch, $options: 'i' } },
-                { email: { $regex: safeSearch, $options: 'i' } },
-                { mobile: { $regex: safeSearch, $options: 'i' } },
-                { 'location.city': { $regex: safeSearch, $options: 'i' } },
-            ];
-        }
-
-        const Business = (await import('@esparex/core/models/Business')).default;
-        const [rawItems, total] = await Promise.all([
-            Business.find(adminQuery)
-                .skip(skip)
-                .limit(limit)
-                .sort({ createdAt: -1 })
-                .populate('userId')
-                .setOptions({ withDeleted: true }),
-            Business.countDocuments(adminQuery)
-                .setOptions({ withDeleted: true }),
-        ]);
-        const items = adminBusinessService.transformBusinessDocs(rawItems);
         return sendPaginatedResponse(res, items, total, page, limit);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
