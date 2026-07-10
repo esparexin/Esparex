@@ -1,4 +1,4 @@
-import { redisConnection } from './redisConnection';
+import { redisConnection, shouldDisableQueueConnection } from './redisConnection';
 import { Queue, Worker, QueueEvents, Job, type Processor } from 'bullmq';
 import logger from '../utils/logger';
 import { env } from '../config/env';
@@ -52,7 +52,7 @@ const schedulerDefaultJobOptions = withQueueDefaults({
     removeOnFail: 500,
 });
 
-const schedulerQueue: Queue<TraceableJobData> | null = shouldDisableSchedulerQueue
+const schedulerQueue: Queue<TraceableJobData> | null = (shouldDisableSchedulerQueue || shouldDisableQueueConnection)
     ? null
     : new Queue<TraceableJobData, unknown, string>('scheduler-jobs', {
         connection: redisConnection,
@@ -66,7 +66,7 @@ let schedulerQueueEvents: QueueEvents | null = null;
 export const registerSchedulerJobProcessors = async (
     processors: Record<SchedulerJobName, SchedulerProcessor>
 ) => {
-    if (shouldDisableSchedulerQueue || processorsRegistered) return;
+    if (shouldDisableSchedulerQueue || shouldDisableQueueConnection || processorsRegistered) return;
     processorsRegistered = true;
 
     const processor: Processor<TraceableJobData, unknown, string> = async (job) => {

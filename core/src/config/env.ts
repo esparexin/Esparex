@@ -39,7 +39,7 @@ const envSchema = z.object({
     ALLOW_DB_CONNECT: z.string().transform(val => val === 'true').default('false'),
 
     // 3. Redis
-    ALLOW_REDIS: z.string().transform(val => val === 'true').default('false'),
+    ALLOW_REDIS: z.string().transform(val => val.trim().toLowerCase() === 'true').default('false'),
     REDIS_HOST: z.string().default('localhost'),
     REDIS_PORT: z.string().default('6379').transform(Number).pipe(z.number()),
     REDIS_USERNAME: z.string().optional(),
