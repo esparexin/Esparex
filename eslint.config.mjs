@@ -186,7 +186,30 @@ export default tseslint.config(
       "no-console": "off"
     }
   },
+  // 10. Framework Isolation Override (Prevent Express in core)
+  {
+    files: ["core/**/*.{ts,js,cjs,mjs}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          "paths": [
+            {
+              "name": "express",
+              "message": "The '@esparex/core' package must remain strictly framework-independent. Express imports are forbidden."
+            }
+          ],
+          "patterns": [
+            {
+              "group": ["express/**"],
+              "message": "The '@esparex/core' package must remain strictly framework-independent. Express imports are forbidden."
+            }
+          ]
+        }
+      ]
+    }
+  },
 
-  // 10. Prettier (Must be last)
+  // 11. Prettier (Must be last)
   prettier
 );

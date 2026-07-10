@@ -22,6 +22,7 @@ import {
 import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import { sendSuccessResponse } from "../../../utils/respond";
+import type { ICategory } from '@esparex/core/models/Category';
 // import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 import { clearCategoryCanonicalCache } from '@esparex/core/utils/categoryCanonical';
@@ -188,7 +189,7 @@ export const createCategory = async (req: Request, res: Response) => {
                 isActive: payload.isActive as boolean | undefined,
                 fallback: CATALOG_APPROVAL_STATUS.APPROVED,
             }),
-        } as Partial<import('@esparex/core/models/Category').ICategory>);
+        } as Partial<ICategory>);
 
         clearCategoryCanonicalCache();
         sendSuccessResponse(res, category, 'Category created successfully');
@@ -243,7 +244,7 @@ export const updateCategory = async (req: Request, res: Response) => {
             }
             : payload;
 
-        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<import('@esparex/core/models/Category').ICategory>);
+        const updatedCategory = await CatalogOrchestrator.updateCategory(categoryId, payloadWithStatus as Partial<ICategory>);
         if (!updatedCategory) return sendCatalogError(req, res, 'Category not found', 404);
 
         clearCategoryCanonicalCache();
