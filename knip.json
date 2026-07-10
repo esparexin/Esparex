@@ -1,0 +1,89 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "devDependencies": "warn",
+    "unlisted": "warn",
+    "exports": "warn",
+    "types": "warn",
+    "duplicates": "warn"
+  },
+  "ignoreDependencies": [
+    "@radix-ui/*",
+    "@react-google-maps/api",
+    "@sentry/*",
+    "@zodios/core",
+    "cmdk",
+    "embla-carousel-react",
+    "file-type",
+    "fuse.js",
+    "heic2any",
+    "input-otp",
+    "next-themes",
+    "papaparse",
+    "react-day-picker",
+    "react-resizable-panels",
+    "recharts",
+    "sharp",
+    "socket.io-parser",
+    "@aws-sdk/*",
+    "@bull-board/*",
+    "@socket.io/*",
+    "@turf/*",
+    "axios",
+    "bcryptjs",
+    "bullmq",
+    "csv-parser",
+    "firebase-admin",
+    "jimp",
+    "jsonwebtoken",
+    "multer",
+    "nodemailer",
+    "qrcode",
+    "razorpay",
+    "sanitize-html",
+    "socket.io",
+    "uuid",
+    "winston",
+    "winston-daily-rotate-file",
+    "speakeasy",
+    "eslint",
+    "typescript-eslint",
+    "@next/eslint-plugin-next",
+    "@types/*",
+    "eslint-config-prettier",
+    "eslint-plugin-unused-imports",
+    "globals",
+    "pm2",
+    "dotenv",
+    "mongoose",
+    "mongodb",
+    "date-fns",
+    "postcss",
+    "tailwindcss",
+    "autoprefixer"
+  ],
+  "workspaces": {
+    "apps/admin": {
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/web": {
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "backend/user": {
+      "entry": ["src/index.ts", "src/cron/**/*.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "core": {
+      "entry": ["src/index.ts", "src/services/**/*.ts", "src/utils/**/*.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "shared": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"]
+    }
+  }
+}

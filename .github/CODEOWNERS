@@ -1,0 +1,17 @@
+# Esparex Repository CODEOWNERS
+# Enforces structural changes and code ownership reviews on Pull Requests.
+
+# Global owners for overall repository
+* @esparex/architects
+
+# GitHub Configurations and CI Workflows
+/.github/ @esparex/architects
+
+# Core package changes (services, models, database configs)
+/core/ @esparex/architects @esparex/core-leads
+
+# Backend API package changes (routes, controllers, middlewares)
+/backend/ @esparex/architects @esparex/backend-leads
+
+# Shared library contracts & validations
+/shared/ @esparex/architects
