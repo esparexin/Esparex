@@ -3,7 +3,7 @@ const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
 const srcRoot = path.join(projectRoot, 'src');
-const registryPath = path.resolve(projectRoot, '../shared/constants/image-domain-registry.json');
+const registryPath = path.resolve(projectRoot, '../../shared/src/constants/image-domain-registry.json');
 const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
 
 const nextRemotePatterns = Array.isArray(registry.nextRemotePatterns) ? registry.nextRemotePatterns : [];
@@ -68,7 +68,7 @@ const suspiciousImageMemberRegex =
 for (const filePath of files) {
   const content = fs.readFileSync(filePath, 'utf8');
   let match;
-  while ((match = imageLiteralRegex.exec(content)) !== undefined) {
+  while ((match = imageLiteralRegex.exec(content)) !== null) {
     const rawUrl = match[2];
     if (!rawUrl) continue;
 
@@ -87,7 +87,7 @@ for (const filePath of files) {
   }
 
   let tagMatch;
-  while ((tagMatch = imageTagRegex.exec(content)) !== undefined) {
+  while ((tagMatch = imageTagRegex.exec(content)) !== null) {
     const tagSource = tagMatch[0];
     const dynamicSrc = tagSource.match(dynamicSrcRegex);
     if (!dynamicSrc || !dynamicSrc[1]) continue;
