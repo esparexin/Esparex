@@ -21,25 +21,36 @@ import { sleep, withTimeout } from '../utils/resilience';
 import { dbConnectionStatus, reliabilityAlertsTotal } from '../utils/metrics';
 // Lazy import to break circular dependency: db → reliabilityAlerts → EmailService → db
 // Static import causes isUnified TDZ crash during module initialization.
-type EmitReliabilityAlert = typeof import('../utils/reliabilityAlerts').emitReliabilityAlert;
+type EmitReliabilityAlert = (event: {
+    type: string;
+    title: string;
+    severity: 'critical' | 'high' | 'warning' | 'info';
+    summary: string;
+    dedupeKey?: string;
+    metadata?: Record<string, unknown>;
+}) => void | Promise<void>;
+
 let _emitReliabilityAlert: EmitReliabilityAlert | null = null;
 function getEmitReliabilityAlert(): EmitReliabilityAlert {
     if (!_emitReliabilityAlert) {
-         
-        _emitReliabilityAlert = require('../utils/reliabilityAlerts').emitReliabilityAlert as EmitReliabilityAlert;
+        const alertsPath = '../utils/reliabilityAlerts';
+        _emitReliabilityAlert = require(alertsPath).emitReliabilityAlert as EmitReliabilityAlert;
     }
     return _emitReliabilityAlert;
 }
-// Lazy import to break circular dependency: db → sloMonitor → reliabilityAlerts → EmailService → db
-type RecordDbResponseSample = typeof import('../utils/sloMonitor').recordDbResponseSample;
+
+type RecordDbResponseSample = (latencyMs: number) => void;
+
 let _recordDbResponseSample: RecordDbResponseSample | null = null;
 function getRecordDbResponseSample(): RecordDbResponseSample {
     if (!_recordDbResponseSample) {
-         
-        _recordDbResponseSample = require('../utils/sloMonitor').recordDbResponseSample as RecordDbResponseSample;
+        const sloPath = '../utils/sloMonitor';
+        _recordDbResponseSample = require(sloPath).recordDbResponseSample as RecordDbResponseSample;
     }
     return _recordDbResponseSample;
 }
+
+
 
 /* ======================================================
    GLOBAL MONGOOSE SETTINGS

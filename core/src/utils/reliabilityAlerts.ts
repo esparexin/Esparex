@@ -1,5 +1,4 @@
 import { env } from '../config/env';
-import { emailService } from '../services/EmailService';
 import { captureException } from '../config/sentry';
 import logger from './logger';
 import { TraceContext } from '@esparex/shared';
@@ -260,6 +259,10 @@ const sendEmailAlert = async (event: ReliabilityAlertEvent): Promise<ChannelDeli
 
     let delivered = 0;
     const failures: string[] = [];
+
+    // Lazy load EmailService to resolve startup circular dependency
+    const servicePath = '../services/EmailService';
+    const { emailService } = require(servicePath) as typeof import('../services/EmailService');
 
     for (const recipient of recipients) {
         const ok = await emailService.sendEmail(recipient, subject, html);
