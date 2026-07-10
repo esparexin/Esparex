@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
-import { isDuplicateKeyError } from './errorHelpers';
+import { isDuplicateKeyError, isMongoError, isZodError } from './errorHelpers';
 
 type ErrorResponseOptions = {
     code?: string;
@@ -95,18 +95,6 @@ export function sendCatalogError(
 // isDuplicateKeyError imported from errorHelpers (SSOT)
 
 type ZodIssueLike = { path: Array<string | number>; message: string; };
-
-function isZodError(error: unknown): error is { issues: ZodIssueLike[] } {
-    if (!error || typeof error !== 'object') return false;
-    const issues = (error as Record<string, unknown>).issues;
-    return Array.isArray(issues);
-}
-
-function isMongoError(error: unknown): boolean {
-    if (!error || typeof error !== 'object') return false;
-    const candidate = error as { name?: string };
-    return candidate.name === 'MongoError' || candidate.name === 'MongoServerError';
-}
 
 function normalizeZodIssues(error: { issues: ZodIssueLike[] }) {
     return error.issues.map((issue) => ({

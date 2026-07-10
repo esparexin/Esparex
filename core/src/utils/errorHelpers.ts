@@ -34,7 +34,7 @@ export function isMongoError(error: unknown): error is Error & { code?: string |
 /**
  * Type guard: Check for Zod validation error
  */
-export function isZodError(error: unknown): error is { issues: Array<{ path: string[] }> } {
+export function isZodError(error: unknown): error is { issues: Array<{ path: Array<string | number>; message: string }> } {
     if (!error || typeof error !== 'object') return false;
     return 'issues' in error && Array.isArray((error as Record<string, unknown>).issues);
 }
