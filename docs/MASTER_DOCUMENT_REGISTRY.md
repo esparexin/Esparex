@@ -39,6 +39,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/architecture/REPOSITORY_SINGLE_SOURCE_OF_TRUTH.md` | Master repository architecture SSOT, layer layouts, coding, naming, build and test rules | Architecture | Active | canonical_active | `docs:lint` |
 | `docs/governance/AI_GOVERNANCE_BOUNDARY.md` | AI instructions, prompt limits, agent scopes | AI Gov | Active | canonical_active | `guard:ai-governance` |
 | `docs/governance/GOVERNANCE_POLICY.md` | Developer standards, coding casing, lifecycle | Engineering | Active | canonical_active | `guard:naming` |
+| `docs/governance/VERIFICATION_STANDARD.md` | Evidence standards, verification gates, and reporting rules | Engineering | Active | canonical_active | `docs:lint` |
 | `docs/SSOT_INDEX.md` | Consolidated index of all Single Sources of Truth with tier hierarchy | AI Gov | Active | canonical_active | `docs:lint` |
 | `docs/ssot/API_CONTRACT_SSOT.md` | API routes, namespaces, HTTP methods, errors | Architecture | Active | canonical_active | `guard:api-surface` |
 | `docs/ssot/ARCHITECTURE_FLOW_SSOT.md` | Post/Edit Ad, Location prompts, Admin Approval | Architecture | Active | canonical_active | `test:ui` |
