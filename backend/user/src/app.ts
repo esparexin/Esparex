@@ -81,7 +81,7 @@ import { enforceErrorResponseContract } from './middleware/errorResponseContract
 import { isDbReady } from '@esparex/core/config/db';
 import logger from '@esparex/core/utils/logger';
 import { getAllowedOriginList, normalizeOrigin } from '@esparex/core/utils/originConfig';
-import { getHealthCheckData, healthCheckHandler } from '@esparex/core/utils/health';
+import { getHealthCheckData, healthCheckHandler } from './utils/health';
 
 /* -------------------------------------------------------------------------- */
 /* SWAGGER                                                                     */

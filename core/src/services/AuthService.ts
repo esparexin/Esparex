@@ -20,7 +20,6 @@ import {
     getMobileVariants, 
     normalizeTo10Digits 
 } from '../utils/phoneUtils';
-import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '../utils/cookieHelper';
 import { recordOtpAbuseSignal } from '../utils/securityMonitoring';
 
 type AuthFailure = {
@@ -240,10 +239,6 @@ const dispatchOtpSms = async (mobile: string, otp: string): Promise<void> => {
  * Handles User Login, OTP Management, and Token Generation.
  */
 export class AuthService {
-    static clearUserSession(res: import('express').Response): void {
-        res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));
-        res.clearCookie('esparex_auth', getAuthCookieOptions(0));
-    }
 
     static async cancelOtpSession(mobile: string): Promise<{ success: true }> {
         const mobileDigits = normalizeTo10Digits(mobile);
