@@ -52,6 +52,14 @@ jobs:
       - name: Validate environment contract
         run: npm run guard:env-contracts
 
+      - name: Secret Scanning (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
       - name: Run full governance suite
         run: npm run governance:all
 
