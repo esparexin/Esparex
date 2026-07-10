@@ -11,3 +11,8 @@ export const getAllSmartAlerts = async (skip: number, limit: number) => {
     ]);
     return { alerts, total };
 };
+
+export const getSmartAlertsForUser = async (userId?: string) => {
+    const query = userId ? { userId } : {};
+    return SmartAlert.find(query).sort({ createdAt: -1 }).lean();
+};

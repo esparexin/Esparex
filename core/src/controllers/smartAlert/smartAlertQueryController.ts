@@ -3,11 +3,8 @@ import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
 import { PaginatedResponse, ApiResponse } from "@esparex/shared";
 import { sendErrorResponse } from "../../utils/errorResponse";
-import {
-    getErrorMessage,
-    SmartAlertModel,
-    toAlertContract
-} from './shared';
+import { getErrorMessage, toAlertContract } from './shared';
+import { getSmartAlertsForUser } from '../../services/SmartAlertQueryService';
 
 export const getSmartAlerts = async (req: Request, res: Response) => {
     try {
@@ -15,7 +12,7 @@ export const getSmartAlerts = async (req: Request, res: Response) => {
         const admin = req.admin as unknown;
 
         if (admin) {
-            const alerts = await SmartAlertModel.find({}).sort({ createdAt: -1 });
+            const alerts = await getSmartAlertsForUser();
             return res.json(respond<ApiResponse<unknown>>({
                 success: true,
                 data: alerts.map((alert) => toAlertContract(alert))
@@ -24,7 +21,7 @@ export const getSmartAlerts = async (req: Request, res: Response) => {
 
         if (user) {
             const userId = user.id || user._id;
-            const alerts = await SmartAlertModel.find({ userId }).sort({ createdAt: -1 });
+            const alerts = await getSmartAlertsForUser(String(userId));
             return res.json(respond<ApiResponse<unknown>>({
                 success: true,
                 data: alerts.map((alert) => toAlertContract(alert))
