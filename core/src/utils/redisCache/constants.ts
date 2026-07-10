@@ -27,7 +27,8 @@ export const CACHE_TTLS = {
     CATEGORIES: 3600,
     HOME_PAGE: 1800,
     HOME_FEED: 300,
-    SEARCH: 300
+    SEARCH: 300,
+    SYSTEM: 120
 };
 
 export const GOVERNED_CACHE_PATTERNS: ReadonlyArray<string> = [
@@ -74,7 +75,7 @@ export const getDefaultTtlForKey = (key: string): number | null => {
     if (key.startsWith('blacklist:token:')) return 3600;
     if (key.startsWith(`${CACHE_NAMESPACES.RATE_LIMIT}:`)) return 900;
     if (key.startsWith(`${CACHE_NAMESPACES.SCHEDULER}:metrics:lock:`)) return 8 * 24 * 60 * 60;
-    if (key.startsWith(`${CACHE_NAMESPACES.SYSTEM}:config:`)) return 120;
+    if (key.startsWith(`${CACHE_NAMESPACES.SYSTEM}:config:`)) return CACHE_TTLS.SYSTEM;
     return null;
 };
 

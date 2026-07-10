@@ -1,10 +1,11 @@
 import SystemConfig, { ISystemConfig } from '../models/SystemConfig';
 import redis from '../config/redis';
 import logger from './logger';
+import { CACHE_TTLS } from './redisCache/constants';
 
 export const SYSTEM_CONFIG_KEY = 'global';
 export const SYSTEM_CONFIG_CACHE_KEY = `system:config:${SYSTEM_CONFIG_KEY}`;
-const CACHE_TTL = 60; // 60 seconds
+const CACHE_TTL = CACHE_TTLS.SYSTEM;
 
 // Explicitly type the model to avoid dynamic export typing issues
 const ModelObj = SystemConfig;
