@@ -2,7 +2,7 @@
 const path = require('path');
 const { MongoClient } = require('mongodb');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../backend/user/.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../backend/api/.env') });
 
 const getArg = (name, fallback = undefined) => {
     const prefix = `${name}=`;

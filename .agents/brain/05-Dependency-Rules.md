@@ -43,7 +43,7 @@ The boundary check rules are defined in [boundaries-config.js](file:///c:/Users/
 * **Presentation Layer (`apps/`)**:
   * **Allowed**: `@esparex/shared` (types/schemas), `@esparex/core/types` (public types), and `@esparex/core/domain` (public domain entities).
   * **Forbidden**: Direct imports of backend components, core services, or core database models.
-* **Transport Layer (`backend/user/`)**:
+* **Transport Layer (`backend/api/`)**:
   * **Allowed**: `@esparex/shared` and public `@esparex/core` namespaces.
   * **Forbidden**: Direct imports from `apps/` or core infrastructure files.
 * **Business Domain (`core/`)**:

@@ -5,7 +5,7 @@ const path = require("node:path");
 
 const repoRoot = path.resolve(__dirname, "..");
 const frontendAppRoot = path.join(repoRoot, "apps", "web", "src", "app");
-const backendAppFile = path.join(repoRoot, "backend/user", "src", "app.ts");
+const backendAppFile = path.join(repoRoot, "backend/api", "src", "app.ts");
 
 const RESERVED_STATIC_SEGMENTS = new Set([
   "create",

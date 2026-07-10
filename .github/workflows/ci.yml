@@ -64,7 +64,7 @@ jobs:
         run: npm run governance:all
 
       - name: Verify backend artifact
-        run: test -f backend/user/dist/index.js
+        run: test -f backend/api/dist/index.js
 
       - name: Verify web build output exists
         run: |

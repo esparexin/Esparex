@@ -14,7 +14,7 @@ import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
  * ESPAREX — CANONICAL END-USER AUTH MIDDLEWARE (SSOT)
  * 
  * Used by:
- * - backend/user (Public App)
+ * - backend/api (Public App)
  * - backend/admin (Admin masked/masquerade actions)
  */
 

@@ -56,7 +56,7 @@ The CI workflow is configured in [.github/workflows/ci.yml](file:///c:/Users/Adm
 5. **Unicode hygiene**: Runs `npm run guard:unicode-hygiene`.
 6. **Governance suite**: Runs `npm run governance:all` (performs ESLint checks, TypeScript checks, Jest unit tests, jscpd, and docs duplicates validation).
 7. **Architecture limits check**: Runs `npm run architecture:check` to check for circular and deep imports.
-8. **Verify Backend Artifact**: Confirms presence of compiled `backend/user/dist/index.js`.
+8. **Verify Backend Artifact**: Confirms presence of compiled `backend/api/dist/index.js`.
 
 ### 2.2 Job 2: Playwright E2E Regression (`e2e-listing-edit`)
 1. **Checkout & Node Setup**: Fetches code and resolves Node.

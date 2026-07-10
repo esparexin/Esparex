@@ -4,7 +4,7 @@
   "minTokens": 100,
   "languages": ["typescript", "tsx"],
   "path": [
-    "backend/user/src",
+    "backend/api/src",
     "apps/web/src",
     "apps/admin/src",
     "core/src",

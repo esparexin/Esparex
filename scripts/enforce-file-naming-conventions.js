@@ -14,7 +14,7 @@ const path = require('path');
 const SCAN_DIRS = [
   'apps/admin/src',
   'apps/web/src',
-  'backend/user/src',
+  'backend/api/src',
   'core/src',
   'shared/src'
 ];

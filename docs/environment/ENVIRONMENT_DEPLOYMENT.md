@@ -26,7 +26,7 @@ This documentation provides the exact checklists required for deployment procedu
 4. **Deploy:** Trigger a Vercel Preview Build.
 
 ## 5. Backend API (Render) Checklist
-1. **Required Variables:** Open `backend/user/.env.production.example`.
+1. **Required Variables:** Open `backend/api/.env.production.example`.
 2. **Dashboard Configuration:** Map every key into the Render Environment tab.
 3. **CRITICAL:** Generate a highly secure (64+ character) `JWT_SECRET`. If the key contains "change_me", the backend boot validation will crash the container.
 4. **Verify Systems:** Ensure `MONGODB_URI` and `REDIS_URL` point to managed production instances (e.g., MongoDB Atlas, Upstash).

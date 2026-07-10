@@ -69,7 +69,7 @@ All skills are implemented in `packages/repository-skills/src/skills/`. The capa
 | `packages/repository-*` | Repository Governance | **WorkspaceResolution**, **LayerResolution**, **TechnologyInspection**, **Scaffolding** |
 | `apps/web/src` | Client Presentation | **TechnologyInspection**, **LayerResolution** |
 | `apps/admin/src` | Admin Presentation | **TechnologyInspection**, **LayerResolution** |
-| `backend/user/src` | API Transport Gateway | **LayerResolution**, **TechnologyInspection** |
+| `backend/api/src` | API Transport Gateway | **LayerResolution**, **TechnologyInspection** |
 | `core/src` | Domain & Business Logic | **LayerResolution**, **TechnologyInspection** |
 | `shared/src` | Contracts & Types | **LayerResolution** |
 | `docs/` | Documentation | None (SSOT-first, no skill needed) |

@@ -40,7 +40,7 @@ function collectFiles(dir) {
 
 function main() {
   if (!fs.existsSync(scanRoot)) {
-    console.log("PASS: backend/user/src not found.");
+    console.log("PASS: backend/api/src not found.");
     return;
   }
 

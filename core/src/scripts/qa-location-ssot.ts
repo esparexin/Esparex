@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import path from 'path';
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, '../../../../backend/user/.env') });
+dotenv.config({ path: path.join(__dirname, '../../../../backend/api/.env') });
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/esparex';
 

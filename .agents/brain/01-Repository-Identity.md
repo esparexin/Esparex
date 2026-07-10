@@ -49,7 +49,7 @@ The monorepo contains six registered workspaces:
 
 1. `@esparex/apps-web` (Presentation Layer) located at [apps/web/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/web)
 2. `@esparex/apps-admin` (Presentation Layer) located at [apps/admin/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/admin)
-3. `@esparex/backend-user` (Transport Layer) located at [backend/user/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/user)
+3. `@esparex/backend-api` (Transport Layer) located at [backend/api/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/api)
 4. `@esparex/core` (Business Domain Layer) located at [core/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core)
 5. `@esparex/shared` (Shared Library Layer) located at [shared/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/shared)
 6. `@esparex/repository-governance` (Governance Platform) located at [packages/repository-governance/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/packages/repository-governance)

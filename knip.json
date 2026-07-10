@@ -73,7 +73,7 @@
       "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
-    "backend/user": {
+    "backend/api": {
       "entry": ["src/index.ts", "src/cron/**/*.ts"],
       "project": ["src/**/*.ts"]
     },

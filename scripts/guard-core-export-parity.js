@@ -155,7 +155,7 @@ const hasCoreDeclarationForImport = (subpath) => {
 };
 
 if (!fs.existsSync(backendUserSrcPath)) {
-  failures.push('Missing backend/user/src directory for import parity checks');
+  failures.push('Missing backend/api/src directory for import parity checks');
 } else {
   const backendFiles = readTextFiles(backendUserSrcPath);
   const importRegex = /(?:from\s+|import\s*\(\s*|require\s*\(\s*)['"]@esparex\/core(?:\/([^'"]+))?['"]/g;

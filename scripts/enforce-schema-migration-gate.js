@@ -113,7 +113,7 @@ console.error("❌ Schema migration governance violation.");
 console.error("Changed schema/model files:");
 schemaChanges.forEach(file => console.error(`  - ${file}`));
 console.error("\nRequired with core model changes (pick at least one):");
-console.error("  1) Add/update a migration under backend/user/migrations/");
+console.error("  1) Add/update a migration under backend/api/migrations/");
 console.error("  2) Update docs/schema-changelog.md");
 console.error("  3) Add/update migration or rollout runbook under docs/migrations/ or docs/operations/");
 process.exit(1);

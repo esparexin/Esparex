@@ -50,7 +50,7 @@ All consumers import from `@esparex/core/services/catalog/CatalogSearchGovernanc
 
 - `core/src/utils/contentHandler.ts`
 - `core/src/services/catalogRequestApprovalService.ts`
-- `backend/user/src/controllers/admin/catalog/catalogBrandModelController.ts`
+- `backend/api/src/controllers/admin/catalog/catalogBrandModelController.ts`
 - Test spec file
 
 ## Acceptance Criteria

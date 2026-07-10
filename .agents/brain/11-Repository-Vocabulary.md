@@ -35,7 +35,7 @@ Relationships:
 This glossary defines the canonical naming and terminology used across the Esparex platform.
 
 ## 1. Architectural Terms
-* **Transport**: The entry routing and protocol mapping layer (located in `backend/user`) handling HTTP REST routes and WebSocket gates.
+* **Transport**: The entry routing and protocol mapping layer (located in `backend/api`) handling HTTP REST routes and WebSocket gates.
 * **Domain**: The core business logic layer containing pure calculations and workflows (located in `core/src/domain`).
 * **Core**: The workspace encapsulating Mongoose schemas, services, adapters, database connections, and workers processes (located in `core/`).
 * **Shared**: Isomorphic, isomorphic helper library containing common validation schemas (Zod) and constants (located in `shared/`).

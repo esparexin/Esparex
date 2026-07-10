@@ -9,25 +9,25 @@
 const fs = require('fs');
 const path = require('path');
 
-const CONTROLLER_ROOT = path.join(process.cwd(), 'backend/user/src/controllers');
+const CONTROLLER_ROOT = path.join(process.cwd(), 'backend/api/src/controllers');
 const VALIDATION_PATTERN = /isValidObjectId|Types\.ObjectId|new\s+ObjectId/i;
 const ID_PARAM_PATTERN = /req\.params\.(id|.*Id)\b/g;
 
 const BASELINE = [
-  'backend/user/src/controllers/chat/chatController.ts',
-  'backend/user/src/controllers/notification/notificationMutationController.ts',
-  'backend/user/src/controllers/payment/paymentQueryController.ts',
-  'backend/user/src/controllers/smartAlert/savedSearchController.ts',
-  'backend/user/src/controllers/smartAlert/shared.ts',
-  'backend/user/src/controllers/admin/adminBusinessController.ts',
-  'backend/user/src/controllers/admin/adminInvoiceController.ts',
-  'backend/user/src/controllers/admin/adminLocationController.ts',
-  'backend/user/src/controllers/admin/adminSmartAlertsController.ts',
-  'backend/user/src/controllers/admin/adminUsersController.ts',
-  'backend/user/src/controllers/admin/catalog/catalogCategoryController.ts',
-  'backend/user/src/controllers/admin/catalog/shared.ts',
-  'backend/user/src/controllers/admin/adminListingsController.ts',
-  'backend/user/src/controllers/admin/plan/shared.ts'
+  'backend/api/src/controllers/chat/chatController.ts',
+  'backend/api/src/controllers/notification/notificationMutationController.ts',
+  'backend/api/src/controllers/payment/paymentQueryController.ts',
+  'backend/api/src/controllers/smartAlert/savedSearchController.ts',
+  'backend/api/src/controllers/smartAlert/shared.ts',
+  'backend/api/src/controllers/admin/adminBusinessController.ts',
+  'backend/api/src/controllers/admin/adminInvoiceController.ts',
+  'backend/api/src/controllers/admin/adminLocationController.ts',
+  'backend/api/src/controllers/admin/adminSmartAlertsController.ts',
+  'backend/api/src/controllers/admin/adminUsersController.ts',
+  'backend/api/src/controllers/admin/catalog/catalogCategoryController.ts',
+  'backend/api/src/controllers/admin/catalog/shared.ts',
+  'backend/api/src/controllers/admin/adminListingsController.ts',
+  'backend/api/src/controllers/admin/plan/shared.ts'
 ];
 
 function walk(dir, fileList = []) {

@@ -45,7 +45,7 @@ The monorepo operates on a strict downward dependency flow:
   [ Presentation Layer ]  (apps/web, apps/admin)
            │
            ▼
-    [ Transport Layer ]   (backend/user gateway)
+    [ Transport Layer ]   (backend/api gateway)
            │
            ▼
    [ Business Domain ]    (core - services, infrastructure, models)
@@ -66,7 +66,7 @@ For strict folder-to-folder import rules and allowed dependencies, refer directl
 * File naming and structure conventions must follow the rules defined in [ERB-006](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/brain/06-Coding-Standards.md).
 
 ### 2.2 Controller Isolation (Transport Layer)
-* Backend controllers inside `backend/user` act as thin routing wrappers mapping endpoints to core services.
+* Backend controllers inside `backend/api` act as thin routing wrappers mapping endpoints to core services.
 * Direct MongoDB queries or database writes (e.g. `User.updateOne(...)`) are strictly forbidden inside controllers. All mutations must use `@esparex/core` service boundaries.
 
 ### 2.3 Domain Neutrality & Abstraction (Core Layer)

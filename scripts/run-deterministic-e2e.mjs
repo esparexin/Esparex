@@ -101,7 +101,7 @@ async function startBackendIfRequested() {
   }
 
   console.log("[e2e] Starting backend.");
-  const child = spawnCommand(npmCmd(), ["run", "dev", "-w", "@esparex/backend-user"], {
+  const child = spawnCommand(npmCmd(), ["run", "dev", "-w", "@esparex/backend-api"], {
     env: {
       NODE_ENV: "test",
       USE_ADMIN_CATALOG_READS: process.env.USE_ADMIN_CATALOG_READS || "false",
@@ -118,7 +118,7 @@ async function seedFixturesIfRequested() {
     return;
   }
   console.log("[e2e] Seeding smoke fixtures.");
-  await run(npmCmd(), ["run", "smoke:fixtures", "-w", "@esparex/backend-user"], {
+  await run(npmCmd(), ["run", "smoke:fixtures", "-w", "@esparex/backend-api"], {
     env: { NODE_ENV: "test" },
   });
 }

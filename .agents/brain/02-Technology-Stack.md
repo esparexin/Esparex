@@ -26,7 +26,7 @@ Relationships:
       - package-lock.json
       - render.yaml
       - core/package.json
-      - backend/user/package.json
+      - backend/api/package.json
       - apps/web/package.json
       - apps/admin/package.json
     owns:
@@ -44,7 +44,7 @@ This document registers the verified technology stack catalog and specific versi
 
 ## 1. Web Applications & Frameworks
 * **Next.js**: version `^16.0.6` (React `^18.3.1`) — used in `@esparex/apps-web` and `@esparex/apps-admin`.
-* **Express**: version `^5.2.1` — used in `@esparex/backend-user`.
+* **Express**: version `^5.2.1` — used in `@esparex/backend-api`.
 * **TypeScript**: version `^5.9.3` for core/shared builds, and `^5.2.2` for app runtimes.
 
 ## 2. Databases & Storage
@@ -76,9 +76,9 @@ This document registers the verified technology stack catalog and specific versi
 * **Commit Fingerprint**: Verified against repo commit [d7e1faec](file:///c:/Users/Administrator/Documents/GitHub/Esparex)
 * **Next.js Web**: [apps/web/package.json#L75](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/web/package.json#L75)
 * **Next.js Admin**: [apps/admin/package.json#L31](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/package.json#L31)
-* **Express Backend**: [backend/user/package.json#L85](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/user/package.json#L85)
-* **MongoDB Client & Mongoose ODM**: [backend/user/package.json#L93-94](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/user/package.json#L93-94) and [core/package.json#L53](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L53)
-* **Database Migrations**: [backend/user/package.json#L92](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/user/package.json#L92)
+* **Express Backend**: [backend/api/package.json#L85](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/api/package.json#L85)
+* **MongoDB Client & Mongoose ODM**: [backend/api/package.json#L93-94](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/api/package.json#L93-94) and [core/package.json#L53](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L53)
+* **Database Migrations**: [backend/api/package.json#L92](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/api/package.json#L92)
 * **S3 Storage Client**: [core/package.json#L34](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L34)
 * **Redis Cache client (ioredis)**: [core/package.json#L49](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L49)
 * **BullMQ Background queues**: [core/package.json#L46](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L46)
@@ -87,7 +87,7 @@ This document registers the verified technology stack catalog and specific versi
 * **Nodemailer SMTP**: [core/package.json#L55](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L55)
 * **Firebase Notifications SDK**: [core/package.json#L48](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L48)
 * **Prometheus Telemetry (prom-client)**: [core/package.json#L56](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L56)
-* **Jest Test Runner**: [backend/user/package.json#L140](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/user/package.json#L140) and [core/package.json#L72](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L72)
+* **Jest Test Runner**: [backend/api/package.json#L140](file:///c:/Users/Administrator/Documents/GitHub/Esparex/backend/api/package.json#L140) and [core/package.json#L72](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/package.json#L72)
 * **Vitest Client Test Runner**: [apps/web/package.json#L115](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/web/package.json#L115)
 * **Playwright E2E browser**: [apps/web/package.json#L94](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/web/package.json#L94) and [apps/admin/package.json#L40](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/admin/package.json#L40)
 

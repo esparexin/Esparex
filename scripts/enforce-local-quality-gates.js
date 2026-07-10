@@ -15,9 +15,9 @@ function runCmd(cmd) {
 }
 
 try {
-    runCmd("npm run lint -w @esparex/backend-user");
-    runCmd("npm run type-check -w @esparex/backend-user");
-    runCmd("npm run build -w @esparex/backend-user");
+    runCmd("npm run lint -w @esparex/backend-api");
+    runCmd("npm run type-check -w @esparex/backend-api");
+    runCmd("npm run build -w @esparex/backend-api");
     runCmd("npm run lint -w @esparex/apps-web");
     runCmd("npm run type-check -w @esparex/apps-web");
     runCmd("npm run build -w @esparex/apps-web");

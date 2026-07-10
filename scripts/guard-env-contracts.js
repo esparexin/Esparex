@@ -44,8 +44,8 @@ const filesToScanForDisallowed = [
   'apps/web/.env.test',
   'apps/mobile/.env.local',
   'apps/mobile/.env.production',
-  'backend/user/.env.example',
-  'backend/user/.env.production.example',
+  'backend/api/.env.example',
+  'backend/api/.env.production.example',
 ];
 
 const requiredAppEnvFiles = [
@@ -166,7 +166,7 @@ const productionFiles = [
   'apps/web/.env.production.example',
   'apps/admin/.env.production.example',
   'apps/mobile/.env.production',
-  'backend/user/.env.production.example',
+  'backend/api/.env.production.example',
 ];
 
 for (const filePath of productionFiles) {
@@ -184,11 +184,11 @@ for (const filePath of productionFiles) {
   }
 }
 
-if (fileExists('backend/user/.env.example')) {
-  const envExample = readFile('backend/user/.env.example');
+if (fileExists('backend/api/.env.example')) {
+  const envExample = readFile('backend/api/.env.example');
   const tzCount = collectVarAssignments(envExample, 'TZ').length;
   if (tzCount > 1) {
-    errors.push('backend/user/.env.example: TZ is duplicated');
+    errors.push('backend/api/.env.example: TZ is duplicated');
   }
 }
 

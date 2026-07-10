@@ -70,7 +70,7 @@ function main() {
     console.error(`- ${violation.file}${lineRef} ${violation.source}`);
   }
   console.error("\n[HINT] All listing moderation actions (approve, reject, deactivate, etc.)");
-  console.error("MUST be defined within 'backend/user/src/modules/admin/routes/admin/moderation.routes.ts'.");
+  console.error("MUST be defined within 'backend/api/src/modules/admin/routes/admin/moderation.routes.ts'.");
   console.error("1. Move forbidden route definitions to the moderation router.");
   console.error("2. Ensure all required canonical paths are present in moderation.routes.ts.\n");
   process.exit(1);
