@@ -1,7 +1,7 @@
 /* global NodeJS */
 import { initializeDatabaseMonitoring } from './middleware/metricsMiddleware';
 import { startSystemMonitor } from '@esparex/core/utils/systemMonitor';
-import { getHealthCheckData } from '@esparex/core/utils/health';
+import { getHealthCheckData } from './utils/health';
 import { startGeoAuditCron } from './cron/geoAudit';
 import { startFraudEscalationCron } from './cron/fraudEscalation';
 import { initIO } from '@esparex/core/config/socket';

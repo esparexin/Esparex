@@ -1,5 +1,5 @@
 import express from 'express';
-import * as smartAlertController from '@esparex/core/controllers/smartAlert';
+import * as smartAlertController from '../controllers/smartAlert';
 import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';

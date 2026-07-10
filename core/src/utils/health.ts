@@ -1,4 +1,3 @@
-import { Request, Response } from 'express';
 import { getDatabaseHealthProbe, isDbReady } from '../config/db';
 import { getQueueHealthProbe } from '../queues/queueHealth';
 import type { QueueHealth } from '../queues/queueHealth';
@@ -102,25 +101,4 @@ export const getHealthCheckData = async (deep = false) => {
         workerStatus: workerHealth?.status || 'down',
         workerHealth
     };
-};
-
-export const healthCheckHandler = async (req: Request, res: Response) => {
-    try {
-        if (process.env.NODE_ENV === 'development') {
-            logger.info(`[Health] Ping from ${req.ip}`);
-        }
-        const deep = req.query.deep === 'true';
-        const healthData = await getHealthCheckData(deep);
-        return res.status(200).json(healthData);
-    } catch (error) {
-        return res.status(200).json({
-            success: true,
-            status: 'error',
-            services: {
-                mongo: isDbReady(),
-                redis: false
-            },
-            error: error instanceof Error ? error.message : String(error)
-        });
-    }
 };

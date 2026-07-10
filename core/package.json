@@ -12,16 +12,6 @@
     "./utils/*": "./dist/utils/*.js",
     "./models/*": "./dist/models/*.js",
     "./services/*": "./dist/services/*.js",
-    "./controllers/admin/*": "./dist/controllers/admin/*.js",
-    "./controllers/admin/system/*": "./dist/controllers/admin/system/*.js",
-    "./controllers/shared/ai/*": "./dist/controllers/shared/ai/*.js",
-    "./controllers/admin/business/*": "./dist/controllers/admin/business/*.js",
-    "./controllers/admin/catalog/*": "./dist/controllers/admin/catalog/*.js",
-    "./controllers/admin/chat/*": "./dist/controllers/admin/chat/*.js",
-    "./controllers/admin/content/*": "./dist/controllers/admin/content/*.js",
-    "./controllers/admin/plan/*": "./dist/controllers/admin/plan/*.js",
-    "./controllers/smartAlert/*": "./dist/controllers/smartAlert/*.js",
-    "./controllers/shared/wallet/*": "./dist/controllers/shared/wallet/*.js",
     "./types/*": "./dist/types/*.js",
     "./constants/*": "./dist/constants/*.js"
   },
@@ -67,7 +57,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.1.0",
     "@types/nodemailer": "^7.0.4",

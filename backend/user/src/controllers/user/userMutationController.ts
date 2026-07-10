@@ -21,12 +21,12 @@ import {
   isS3UploadConfigured
 } from '@esparex/core/utils/s3';
 import { processSingleImage } from '@esparex/core/utils/imageProcessor';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { sendSuccessResponse } from "../../utils/respond";
 import { normalizeLocation } from '@esparex/core/services/location/LocationNormalizer';
 import { updateUserStatus } from '@esparex/core/services/UserStatusService';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import fs from 'fs/promises';
-import { AuthService } from '@esparex/core/services/AuthService';
+import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 import {
   getBusinessStatus,
   getStorageSafeId,
@@ -236,7 +236,8 @@ export const deleteMe = async (
     // Business soft-delete cascade (Ads + SmartAlerts already handled by UserStatusService)
     await softDeleteBusinessesByUserId(userId);
 
-    AuthService.clearUserSession(res);
+    res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));
+    res.clearCookie('esparex_auth', getAuthCookieOptions(0));
 
     res.status(204).end();
     return;
