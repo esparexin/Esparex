@@ -380,6 +380,63 @@ export class CatalogOrchestrator {
             }
         }
     }
+
+    static async deleteBrandOrchestrated(brandId: string) {
+        const BrandModel = require('../../models/Brand').default;
+        const softDeleteUpdate: Record<string, unknown> = { isDeleted: true, deletedAt: new Date(), isActive: false };
+
+        const performDelete = async (txSession: mongoose.ClientSession | null) => {
+            const brand = txSession 
+                ? await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true }).session(txSession) 
+                : await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true });
+
+            if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand: null };
+            const cascadeRes = await this.cascadeBrandDelete(brandId, txSession ?? undefined);
+            return { deletedModels: cascadeRes.deletedModels, deletedSpareParts: cascadeRes.deletedSpareParts, brand };
+        };
+
+        const existingBrand = await BrandModel.findOne({ _id: brandId }).setOptions({ withDeleted: true });
+        if (!existingBrand || existingBrand.isDeleted) {
+            return { brandId, deletedModels: 0, deletedSpareParts: 0, alreadyDeleted: true };
+        }
+
+        const { checkBrandDependencies } = require('../../services/catalog/CatalogBrandModelService');
+        const deps = await checkBrandDependencies(brandId);
+        if (deps.count > 0) {
+            throw new AppError('Brand cannot be deleted because dependencies exist', 409, 'DEPENDENCIES_EXIST', deps.details);
+        }
+
+        const { getUserConnection } = require('../../config/db');
+        let session: mongoose.ClientSession | null = null;
+        try {
+            session = await getUserConnection().startSession();
+            if (session) {
+                session.startTransaction();
+                const r = await performDelete(session);
+                await session.commitTransaction();
+                return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
+            }
+            const r = await performDelete(null);
+            return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
+        } catch (e: unknown) {
+            if (session) {
+                try { await session.abortTransaction(); } catch (_) {}
+                try { await session.endSession(); } catch (_) {}
+                session = null;
+            }
+            const msg = e instanceof Error ? e.message : String(e);
+            if (/session|transaction|mongoclient/i.test(msg)) {
+                logger.warn(`Transaction session failed (${msg}). Retrying sequential...`);
+                const r = await performDelete(null);
+                return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
+            }
+            throw e;
+        } finally {
+            if (session) {
+                try { await session.endSession(); } catch (_) {}
+            }
+        }
+    }
 }
 
 export default CatalogOrchestrator;

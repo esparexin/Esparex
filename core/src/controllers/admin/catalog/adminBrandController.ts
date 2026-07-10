@@ -13,6 +13,7 @@ import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '../../../
 import CategoryQueryBuilder from '../../../utils/CategoryQueryBuilder';
 import { getCache, setCache } from '../../../utils/redisCache';
 import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
+import { AppError } from '../../../utils/AppError';
 
 export const getBrands = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
@@ -113,37 +114,33 @@ export const deleteBrand = async (req: Request, res: Response) => {
         if (!hasAdminAccess(req)) return res.status(403).json({ success: false, error: 'Admin access required', path: req.originalUrl || req.path, status: 403 });
         const id = String(req.params.id);
         if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ success: false, error: 'Invalid Brand ID format', path: req.originalUrl || req.path, status: 400 });
-        const existingBrand = await BrandModel.findOne({ _id: id }).setOptions({ withDeleted: true });
-        if (!existingBrand || existingBrand.isDeleted) return res.status(200).json({ success: true, message: 'Brand and dependent models and spare parts soft-deleted successfully', data: { brandId: id, deletedModels: 0, deletedSpareParts: 0, alreadyDeleted: true } });
-        const deps = await checkBrandDependencies(id);
-        if (deps.count > 0) return res.status(409).json({ success: false, error: 'Brand cannot be deleted because dependencies exist', status: 409, details: { models: deps.details.models, listings: deps.details.listings, spareParts: deps.details.spareParts, screenSizes: deps.details.screenSizes, smartAlerts: deps.details.smartAlerts } });
-        const softDeleteUpdate: Record<string, unknown> = { isDeleted: true, deletedAt: new Date(), isActive: false };
-        const performDelete = async (txSession: mongoose.ClientSession | null) => {
-            const brand = txSession ? await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true }).session(txSession) : await BrandModel.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
-            if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand };
-            const cascadeRes = await CatalogOrchestrator.cascadeBrandDelete(id, txSession ?? undefined);
-            return { deletedModels: cascadeRes.deletedModels, deletedSpareParts: cascadeRes.deletedSpareParts, brand };
-        };
-        let session: mongoose.ClientSession | null = null;
-        let deletedModels = 0, deletedSpareParts = 0;
-        let brandDoc: any = null;
-        try {
-            session = await getUserConnection().startSession();
-            session.startTransaction();
-            const r = await performDelete(session);
-            deletedModels = r.deletedModels; deletedSpareParts = r.deletedSpareParts; brandDoc = r.brand;
-            await session.commitTransaction();
-        } catch (e: unknown) {
-            if (session) { try { await session.abortTransaction(); } catch (abortErr) { logger.debug(`Failed to abort transaction: ${abortErr}`); } try { await session.endSession(); } catch (endErr) { logger.debug(`Failed to end session: ${endErr}`); } session = null; }
-            const msg = e instanceof Error ? e.message : String(e);
-            if (/session|transaction|mongoclient/i.test(msg)) { logger.warn(`Transaction session failed (${msg}). Retrying sequential...`); const r = await performDelete(null); deletedModels = r.deletedModels; deletedSpareParts = r.deletedSpareParts; brandDoc = r.brand; }
-            else throw e;
-        } finally { if (session) try { await session.endSession(); } catch (endErr) { logger.debug(`Failed to end session: ${endErr}`); } }
-        if (!brandDoc) return res.status(200).json({ success: true, message: 'Brand soft-deleted', data: { brandId: id, deletedModels: 0, deletedSpareParts: 0, alreadyDeleted: true } });
-        void logAdminAction(req, 'BRAND_DELETE', 'Brand', brandDoc._id);
-        return res.status(200).json({ success: true, message: 'Brand and dependent models and spare parts soft-deleted successfully', data: { brandId: id, deletedModels, deletedSpareParts, alreadyDeleted: false } });
+
+        const result = await CatalogOrchestrator.deleteBrandOrchestrated(id);
+
+        if (!result.alreadyDeleted) {
+            void logAdminAction(req, 'BRAND_DELETE', 'Brand', new mongoose.Types.ObjectId(id));
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Brand and dependent models and spare parts soft-deleted successfully',
+            data: result
+        });
     } catch (error) {
-        return res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred', path: req.originalUrl || req.path, status: 500 });
+        if (error instanceof AppError && error.code === 'DEPENDENCIES_EXIST') {
+            return res.status(409).json({
+                success: false,
+                error: error.message,
+                status: 409,
+                details: error.details
+            });
+        }
+        return res.status(500).json({
+            success: false,
+            error: error instanceof Error ? error.message : 'An unexpected error occurred',
+            path: req.originalUrl || req.path,
+            status: 500
+        });
     }
 };
 
