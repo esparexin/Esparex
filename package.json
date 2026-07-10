@@ -84,9 +84,9 @@
     "guard:admin-status-literals": "node scripts/enforce-admin-status-literals.js",
     "guard:api-surface": "node scripts/enforce-api-surface-guard.js",
     "guard:license": "license-checker --summary --production",
-    "guard:audit": "npm audit --audit-level=critical || echo '[WARN] Audit issues detected. Deferred to Project C.'",
+    "guard:audit": "npm audit --audit-level=critical",
     "governance:guards": "npm run docs:lint && npm run guard:naming && npm run guard:objectid && npm run guard:platform-governance && npm run guard:notification-governance && npm run guard:ad-ssot && npm run guard:admin-status-literals && npm run guard:api-surface && npm run guard:component-api-boundary && npm run guard:compatibility-markers",
-    "governance:all": "npm run lint && npm run type-check && npm run guard:dependencies && npm run guard:circular && npm run guard:duplicate-code && npm run guard:dead-code && npm run guard:knip && npm run guard:license && npm run guard:audit && npm run governance:guards && npm run test && npm run build",
+    "governance:all": "npm run lint && npm run type-check && npm run guard:dependencies && npm run guard:circular && npm run guard:duplicate-code && npm run guard:dead-code && npm run guard:knip && npm run guard:license && npm run governance:guards && npm run test && npm run build",
     "guard:env-contracts": "node scripts/guard-env-contracts.js",
     "debt:baseline": "cross-env NODE_OPTIONS=--max-old-space-size=8192 node scripts/generate-eslint-baseline.js",
     "debt:insights": "node scripts/analyze-tech-debt.js"
