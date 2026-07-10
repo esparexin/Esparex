@@ -495,3 +495,7 @@ export const adminBulkResendAlertWarnings = async (
         results,
     };
 };
+
+export const deleteSmartAlert = async (id: string) => {
+    return SmartAlert.findByIdAndDelete(id);
+};

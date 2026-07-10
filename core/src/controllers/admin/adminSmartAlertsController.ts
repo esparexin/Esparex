@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getPaginationParams, sendAdminError, sendSuccessResponse } from '../../utils/adminBaseController';
-import { getAlertDeliveryLogs, SmartAlertModel, adminBulkResendAlertWarnings as bulkResendAlertWarnings } from "../../services/SmartAlertService";
+import { getAlertDeliveryLogs, adminBulkResendAlertWarnings as bulkResendAlertWarnings, deleteSmartAlert } from "../../services/SmartAlertService";
+import { getAllSmartAlerts as getAllSmartAlertsFromQueryService } from "../../services/SmartAlertQueryService";
 import { logAdminActionDirect } from "../../utils/adminLogger";
 import type { IAuthUser } from "../../types/auth";
 import type { AdminLogFn } from "../../services/AdminListingsService";
@@ -63,10 +64,7 @@ export async function getAllSmartAlerts(req: Request, res: Response) {
     try {
         const { page, limit, skip } = getPaginationParams(req);
 
-        const [alerts, total] = await Promise.all([
-            SmartAlertModel.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit),
-            SmartAlertModel.countDocuments({}),
-        ]);
+        const { alerts, total } = await getAllSmartAlertsFromQueryService(skip, limit);
 
         return sendSuccessResponse(res, {
             items: alerts,
@@ -91,7 +89,7 @@ export async function deleteSmartAlertById(req: Request, res: Response) {
         const id = req.params.id as string;
         if (!id) return sendAdminError(req, res, "Missing ID", 400);
         const logFn = buildLogFn(req);
-        await SmartAlertModel.findByIdAndDelete(id);
+        await deleteSmartAlert(id);
         await logFn('delete', 'SmartAlert', id, { reason: 'Admin deletion' });
         return sendSuccessResponse(res, { deleted: true });
     } catch (error) {
