@@ -7,6 +7,7 @@ import ScreenSize from '../../models/ScreenSize';
 import { clearCachePattern } from '../../utils/redisCache';
 import logger from '../../utils/logger';
 import { isDuplicateKeyError } from '../../utils/errorHelpers';
+import { AppError } from '../../utils/AppError';
 
 type CascadeDoc = {
     _id: mongoose.Types.ObjectId;
@@ -318,6 +319,66 @@ export class CatalogOrchestrator {
         ).session(session || null);
         
         logger.info(`Detached spare parts from model: ${modelId}`);
+    }
+
+    static async deleteCategoryOrchestrated(categoryId: string) {
+        const performDelete = async (txSession: mongoose.ClientSession | null) => {
+            const CategoryModel = require('../../models/Category').default;
+            const category = txSession 
+                ? await CategoryModel.findById(categoryId).session(txSession)
+                : await CategoryModel.findById(categoryId);
+
+            if (!category) {
+                throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
+            }
+
+            if (txSession) {
+                category.isDeleted = true;
+                category.deletedAt = new Date();
+                category.isActive = false;
+                await category.save({ session: txSession });
+                await this.cascadeCategoryDelete(String(category._id), txSession);
+            } else {
+                category.isDeleted = true;
+                category.deletedAt = new Date();
+                category.isActive = false;
+                await category.save();
+                await this.cascadeCategoryDelete(String(category._id));
+            }
+            return category;
+        };
+
+        const { getUserConnection } = require('../../config/db');
+        let session: mongoose.ClientSession | null = null;
+        try {
+            session = await getUserConnection().startSession();
+            if (session) {
+                session.startTransaction();
+                const category = await performDelete(session);
+                await session.commitTransaction();
+                return category;
+            }
+            return await performDelete(null);
+        } catch (e: unknown) {
+            if (session) {
+                try { await session.abortTransaction(); } catch (_) {}
+                try { await session.endSession(); } catch (_) {}
+                session = null;
+            }
+
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
+
+            if (isSessionError) {
+                logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
+                return performDelete(null);
+            }
+            throw e;
+        } finally {
+            if (session) {
+                try { await session.endSession(); } catch (_) {}
+            }
+        }
     }
 }
 

@@ -282,70 +282,11 @@ export const deleteCategory = async (req: Request, res: Response) => {
 
     const categoryId = req.params.id as string;
 
-    const performDelete = async (txSession: mongoose.ClientSession | null) => {
-        const category = txSession 
-            ? await findCategoryByIdWithSession(categoryId, txSession)
-            : await findCategoryById(categoryId);
-
-        if (!category) {
-            throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
-        }
-
-        if (txSession) {
-            await softDeleteCategoryById(category._id, txSession);
-            await CatalogOrchestrator.cascadeCategoryDelete(String(category._id), txSession);
-        } else {
-            await softDeleteCategoryById(category._id, null as unknown as mongoose.ClientSession);
-            await CatalogOrchestrator.cascadeCategoryDelete(String(category._id));
-        }
-        return category;
-    };
-
-    let session: mongoose.ClientSession | null = null;
     try {
-        session = await getUserConnection().startSession();
-        session.startTransaction();
-        await performDelete(session);
-        await session.commitTransaction();
+        await CatalogOrchestrator.deleteCategoryOrchestrated(categoryId);
         clearCategoryCanonicalCache();
         sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
     } catch (e: unknown) {
-        if (session) {
-            try {
-                await session.abortTransaction();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-            } catch (_) {
-                // Ignore abort failure
-            }
-            try {
-                await session.endSession();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-            } catch (_) {
-                // Ignore end failure
-            }
-            session = null;
-        }
-
-        const errorMessage = e instanceof Error ? e.message : String(e);
-        const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
-
-        if (isSessionError) {
-            logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
-            try {
-                await performDelete(null);
-                clearCategoryCanonicalCache();
-                return sendSuccessResponse(res, null, 'Category and all dependent brands/models soft-deleted successfully');
-            } catch (fallbackError) {
-                const err = fallbackError instanceof AppError ? fallbackError : null;
-                if (err?.code === 'FORBIDDEN') {
-                    return sendCatalogError(req, res, err.message, 403);
-                } else if (err?.code === 'CATEGORY_NOT_FOUND') {
-                    return sendCatalogError(req, res, err.message, 404);
-                }
-                return sendCatalogError(req, res, fallbackError);
-            }
-        }
-
         const err = e instanceof AppError ? e : null;
         if (err?.code === 'FORBIDDEN') {
             return sendCatalogError(req, res, err.message, 403);
@@ -353,15 +294,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
             return sendCatalogError(req, res, err.message, 404);
         }
         return sendCatalogError(req, res, e);
-    } finally {
-        if (session) {
-            try {
-                await session.endSession();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-            } catch (_) {
-                // Ignore end failure
-            }
-        }
     }
 };
 
