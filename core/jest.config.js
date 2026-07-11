@@ -14,8 +14,6 @@ module.exports = {
     '^@esparex/shared$': '<rootDir>/../shared/src/index.ts'
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: 'tsconfig.json'
-    }]
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   }
 };

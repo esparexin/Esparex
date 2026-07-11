@@ -8,10 +8,7 @@ module.exports = {
     verbose: true,
     roots: ['<rootDir>'],
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', {
-            diagnostics: false,
-            tsconfig: '<rootDir>/tsconfig.json'
-        }]
+        '^.+\\.(t|j)sx?$': '@swc/jest',
     },
     moduleNameMapper: {
         '^uuid$': '<rootDir>/__mocks__/uuid.js',

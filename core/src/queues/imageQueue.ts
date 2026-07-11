@@ -23,7 +23,7 @@ export interface ImageOptimizationJobPayload extends TraceableJobData {
 export const imageOptimizationQueue = shouldDisableQueueConnection
     ? createNoopQueue<ImageOptimizationJobPayload>()
     : new Queue('image-optimization-events', {
-        connection: redisConnection,
+        connection: redisConnection as any,
         defaultJobOptions: withQueueDefaults({
             removeOnComplete: 500,
             removeOnFail: 1_000,

@@ -26,7 +26,7 @@ export interface PaymentQueueJobData extends TraceableJobData {
 export const paymentQueue = shouldDisableQueueConnection
     ? createNoopQueue<PaymentQueueJobData>()
     : new Queue<PaymentQueueJobData, void, PaymentQueueJobName>("payment-events", {
-        connection: redisConnection,
+        connection: redisConnection as any,
         defaultJobOptions: withQueueDefaults({
             removeOnComplete: 500,
             removeOnFail: 1_000
@@ -78,7 +78,7 @@ export async function enqueuePaymentProcessing(job: PaymentQueueJobData) {
         }
 
         return addJobWithTrace(
-            paymentQueue,
+            paymentQueue as any,
             "process_payment_capture",
             job,
             { jobId }

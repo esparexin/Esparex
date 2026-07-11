@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, Model } from 'mongoose';
 import { getAdminConnection } from '../config/db';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
@@ -36,4 +36,4 @@ JobLogSchema.index({ startedAt: -1 }, { name: 'idx_joblog_startedAt_idx' });
 
 applyToJSONTransform(JobLogSchema);
 
-export default getAdminConnection().models.JobLog || getAdminConnection().model<IJobLog>('JobLog', JobLogSchema);
+export default (getAdminConnection().models.JobLog || getAdminConnection().model<IJobLog>('JobLog', JobLogSchema)) as Model<IJobLog>;

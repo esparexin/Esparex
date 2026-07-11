@@ -62,7 +62,7 @@ export const paymentWorker = shouldDisableQueueConnection
             }
         },
         {
-            connection: redisConnection,
+            connection: redisConnection as any,
             concurrency: 5,
             settings: {
                 backoffStrategy: (attemptsMade: number) => queueWorkerBackoffStrategy(attemptsMade, 3_000, 120_000),

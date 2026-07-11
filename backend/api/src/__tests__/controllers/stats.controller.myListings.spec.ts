@@ -1,28 +1,33 @@
+// Setup global mock logger before imports are processed
+jest.mock('@esparex/core/utils/logger', () => {
+    (global as any)._mockLogger = {
+        error: jest.fn(),
+        warn: jest.fn(),
+        info: jest.fn(),
+        debug: jest.fn(),
+    };
+    return {
+        __esModule: true,
+        default: (global as any)._mockLogger,
+    };
+});
+
+const mockLogger = (global as any)._mockLogger;
+
 const mockGetOwnerListings = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
-const mockLogger = {
-    error: jest.fn(),
-    warn: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-};
 
 jest.mock('@esparex/core/services/ad/AdAggregationService', () => ({
-    getOwnerListings: mockGetOwnerListings,
+    getOwnerListings: (...args: any[]) => mockGetOwnerListings(...args),
 }));
 
 jest.mock('../../utils/respond', () => ({
-    sendSuccessResponse: mockSendSuccessResponse,
+    sendSuccessResponse: (...args: any[]) => mockSendSuccessResponse(...args),
 }));
 
 jest.mock('../../utils/errorResponse', () => ({
-    sendErrorResponse: mockSendErrorResponse,
-}));
-
-jest.mock('@esparex/core/utils/logger', () => ({
-    __esModule: true,
-    default: mockLogger,
+    sendErrorResponse: (...args: any[]) => mockSendErrorResponse(...args),
 }));
 
 import type { Request, Response } from 'express';

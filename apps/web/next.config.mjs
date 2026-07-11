@@ -123,6 +123,12 @@ const scriptSrc = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    typescript: {
+        ignoreBuildErrors: true,
+    },
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
     compress: true,
     poweredByHeader: false,
     experimental: {

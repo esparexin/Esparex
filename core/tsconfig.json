@@ -2,8 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "moduleResolution": "node",
-    "baseUrl": ".",
+    "moduleResolution": "bundler",
     "rootDir": "./src",
     "outDir": "./dist",
     "composite": false,
@@ -30,6 +29,7 @@
     "dist",
     "src/__tests__",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "src/**/__mocks__"
   ]
 }

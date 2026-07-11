@@ -46,7 +46,7 @@ export const adWorker = shouldDisableQueueConnection
             clearReliabilityContext();
         }
     }, {
-        connection: redisConnection,
+        connection: redisConnection as any,
         concurrency: 5
     });
 

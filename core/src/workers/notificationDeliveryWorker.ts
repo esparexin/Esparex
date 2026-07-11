@@ -74,7 +74,7 @@ export const notificationDeliveryWorker = shouldDisableQueueConnection
         'notification.delivery.queue',
         notificationDeliveryProcessor,
         {
-            connection: redisConnection,
+            connection: redisConnection as any,
             concurrency: 50, // High concurrency for network-bound tasks (FCM, WebSocket)
             settings: {
                 backoffStrategy: (attemptsMade: number) => {

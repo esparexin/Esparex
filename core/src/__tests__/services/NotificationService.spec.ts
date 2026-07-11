@@ -2,6 +2,22 @@
  * NotificationService & Dispatcher — Unit Tests
  */
 
+// Setup global mock logger before imports are processed
+jest.mock("../../utils/logger", () => {
+    (global as any)._mockLogger = {
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+        debug: jest.fn(),
+    };
+    return {
+        __esModule: true,
+        default: (global as any)._mockLogger,
+    };
+});
+
+const mockLogger = (global as any)._mockLogger;
+
 const mockBulkWrite = jest.fn();
 const mockUpdateOne = jest.fn();
 const mockFindById = jest.fn();
@@ -12,12 +28,6 @@ const mockMessaging = jest.fn(() => ({
     sendEachForMulticast: mockSendEachForMulticast,
 }));
 const mockGetSystemConfigDoc = jest.fn();
-const mockLogger = {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-};
 
 const mockReserveIdempotencySlot = jest.fn();
 const mockReleaseIdempotencySlot = jest.fn();
@@ -31,9 +41,9 @@ const mockGetIO = jest.fn(() => ({
 jest.mock("../../models/User", () => ({
     __esModule: true,
     default: {
-        bulkWrite: mockBulkWrite,
-        updateOne: mockUpdateOne,
-        findById: mockFindById,
+        bulkWrite: (...args: any[]) => mockBulkWrite(...args),
+        updateOne: (...args: any[]) => mockUpdateOne(...args),
+        findById: (...args: any[]) => mockFindById(...args),
     },
 }));
 
@@ -47,31 +57,26 @@ jest.mock("../../models/Notification", () => {
 
 jest.mock("../../config/firebaseAdmin", () => ({
     __esModule: true,
-    default: { messaging: mockMessaging },
-}));
-
-jest.mock("../../utils/logger", () => ({
-    __esModule: true,
-    default: mockLogger,
+    default: { messaging: (...args: any[]) => mockMessaging(...args) },
 }));
 
 jest.mock("../../utils/systemConfigHelper", () => ({
     __esModule: true,
-    getSystemConfigDoc: mockGetSystemConfigDoc,
+    getSystemConfigDoc: (...args: any[]) => mockGetSystemConfigDoc(...args),
 }));
 
 jest.mock("../../queues/queueIdempotency", () => ({
-    reserveQueueIdempotencySlot: mockReserveIdempotencySlot,
-    releaseQueueIdempotencySlot: mockReleaseIdempotencySlot,
+    reserveQueueIdempotencySlot: (...args: any[]) => mockReserveIdempotencySlot(...args),
+    releaseQueueIdempotencySlot: (...args: any[]) => mockReleaseIdempotencySlot(...args),
 }));
 
 jest.mock("../../utils/queueWrapper", () => ({
-    addJobWithTrace: mockAddJobWithTrace,
+    addJobWithTrace: (...args: any[]) => mockAddJobWithTrace(...args),
 }));
 
 jest.mock("../../services/notification/NotificationVersionService", () => ({
     NotificationVersionService: {
-        incrementVersion: mockIncrementVersion,
+        incrementVersion: (...args: any[]) => mockIncrementVersion(...args),
     },
 }));
 
@@ -80,7 +85,7 @@ jest.mock("../../queues/redisConnection", () => ({
 }));
 
 jest.mock("../../config/socket", () => ({
-    getIO: mockGetIO,
+    getIO: (...args: any[]) => mockGetIO(...args),
 }));
 
 
@@ -124,7 +129,7 @@ describe("NotificationService & Dispatcher", () => {
 
         it("sends a multicast push", async () => {
             const select = jest.fn().mockResolvedValue({ fcmTokens: [{ token: "token-1" }] });
-            (User.findById as jest.Mock).mockReturnValue({ select });
+            mockFindById.mockReturnValue({ select });
             mockSendEachForMulticast.mockResolvedValue({ failureCount: 0, responses: [{ success: true }] });
 
             await sendNotification("user-1", "Title", "Body");

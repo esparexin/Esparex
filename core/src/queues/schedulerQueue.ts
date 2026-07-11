@@ -55,7 +55,7 @@ const schedulerDefaultJobOptions = withQueueDefaults({
 const schedulerQueue: Queue<TraceableJobData> | null = (shouldDisableSchedulerQueue || shouldDisableQueueConnection)
     ? null
     : new Queue<TraceableJobData, unknown, string>('scheduler-jobs', {
-        connection: redisConnection,
+        connection: redisConnection as any,
         defaultJobOptions: schedulerDefaultJobOptions,
     });
 
@@ -78,12 +78,12 @@ export const registerSchedulerJobProcessors = async (
     };
 
     schedulerWorker = registerWorkerWithTrace<TraceableJobData>('scheduler-jobs', processor, {
-        connection: redisConnection,
+        connection: redisConnection as any,
         concurrency: 1,
     });
 
     schedulerQueueEvents = new QueueEvents('scheduler-jobs', {
-        connection: redisConnection,
+        connection: redisConnection as any,
     });
 
     schedulerQueueEvents.on('completed', ({ jobId }) => {

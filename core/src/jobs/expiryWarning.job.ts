@@ -14,7 +14,7 @@ import AdminLog from '../models/AdminLog';
 
 const expiryWarningQueue = shouldDisableQueueConnection
     ? createNoopQueue<any>()
-    : new Queue('expiry_warning_queue', { connection: redisConnection });
+    : new Queue('expiry_warning_queue', { connection: redisConnection as any });
 
 /**
  * ⏰ Expiry Warning Job

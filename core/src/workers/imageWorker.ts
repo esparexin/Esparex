@@ -129,7 +129,7 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
             }
         },
         {
-            connection: redisConnection,
+            connection: redisConnection as any,
             concurrency: 2,
             settings: {
                 backoffStrategy: (attemptsMade: number) => queueWorkerBackoffStrategy(attemptsMade, 5_000, 180_000),

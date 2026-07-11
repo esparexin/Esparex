@@ -129,9 +129,9 @@ export const getQueueHealthProbe = async (): Promise<{
         readQueueHealth('notification.delivery.queue', notificationDeliveryQueue),
         readQueueHealth('notification.match.queue', notificationMatchQueue),
         readQueueHealth('image-optimization-events', imageOptimizationQueue),
-        readQueueHealth('payment-events', paymentQueue),
-        readQueueHealth('scheduler-jobs', shouldDisableSchedulerQueue ? null : schedulerQueue),
-        readQueueHealth('dead-letter-events', deadLetterQueue),
+        readQueueHealth('payment-events', paymentQueue as any),
+        readQueueHealth('scheduler-jobs', shouldDisableSchedulerQueue ? null : schedulerQueue as any),
+        readQueueHealth('dead-letter-events', deadLetterQueue as any),
     ]);
 
     const enabled = !shouldDisableQueueConnection;

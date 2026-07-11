@@ -12,10 +12,11 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "typescript": "^7.0.2"
   },
   "dependencies": {
     "slugify": "^1.6.9",
-    "zod": "^4.4.3"
+    "zod": "^3.25.76"
   }
 }

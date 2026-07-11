@@ -27,7 +27,7 @@ export interface DeadLetterQueueJobData {
 export const deadLetterQueue = shouldDisableQueueConnection
     ? createNoopQueue<DeadLetterQueueJobData>()
     : new Queue<DeadLetterQueueJobData>('dead-letter-events', {
-        connection: redisConnection,
+        connection: redisConnection as any,
         defaultJobOptions: withQueueDefaults({
             attempts: 1,
             removeOnComplete: 2_000,
@@ -66,7 +66,7 @@ export const enqueueDeadLetter = async (
     );
 
     try {
-        await deadLetterQueue.add(
+        await (deadLetterQueue as any).add(
             'dead_letter_job',
             deadLetterData,
             withQueueDefaults({

@@ -48,14 +48,13 @@ jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 
-const mockListingStatus = { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected', EXPIRED: 'expired' };
-
 jest.mock('@esparex/shared', () => {
     const original = jest.requireActual('@esparex/shared');
+    const statusObj = { LIVE: 'live', PENDING: 'pending', DRAFT: 'draft', REJECTED: 'rejected', EXPIRED: 'expired' };
     return {
         ...original,
-        LISTING_STATUS: mockListingStatus,
-        LISTING_STATUS_VALUES: Object.values(mockListingStatus),
+        LISTING_STATUS: statusObj,
+        LISTING_STATUS_VALUES: Object.values(statusObj),
     };
 });
 

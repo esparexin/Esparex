@@ -100,7 +100,7 @@ export const notificationMatchWorker = shouldDisableQueueConnection
             }
         },
         {
-            connection: redisConnection,
+            connection: redisConnection as any,
             concurrency: 10, // Conservative: each job triggers Mongo fan-out queries
             settings: {
                 backoffStrategy: (attemptsMade: number) => {
