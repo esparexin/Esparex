@@ -54,7 +54,7 @@ The monorepo operates on a strict downward dependency flow:
     [ Shared Library ]    (shared - isomorphic helpers & Zod schemas)
 ```
 
-For strict folder-to-folder import rules and allowed dependencies, refer directly to [ERB-005](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/brain/05-Dependency-Rules.md).
+For strict folder-to-folder import rules and allowed dependencies, refer directly to the [Repository Governance Standard](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md).
 
 ---
 
@@ -63,7 +63,7 @@ For strict folder-to-folder import rules and allowed dependencies, refer directl
 ### 2.1 UI Component Purity (Presentation Layer)
 * React components inside `apps/` must remain presentational.
 * Fetch requests or database mutations are forbidden inside rendering blocks. Data processing must delegate to custom React hooks or unified api helper scripts.
-* File naming and structure conventions must follow the rules defined in [ERB-006](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/brain/06-Coding-Standards.md).
+* File naming and structure conventions must follow the rules defined in the [Engineering Governance Policy](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/GOVERNANCE_POLICY.md).
 
 ### 2.2 Controller Isolation (Transport Layer)
 * Backend controllers inside `backend/api` act as thin routing wrappers mapping endpoints to core services.

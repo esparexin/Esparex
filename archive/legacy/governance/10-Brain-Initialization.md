@@ -16,8 +16,7 @@ Relationships:
   documents:
     depends:
       - ERB-009
-    impacts:
-      - ERB-000
+    impacts: []
   repository:
     consumes:
       - ai-governance/PROMPT_TEMPLATE.md

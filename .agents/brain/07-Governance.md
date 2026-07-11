@@ -17,8 +17,6 @@ Relationships:
   documents:
     depends:
       - ERB-001
-      - ERB-005
-      - ERB-006
     impacts:
       - ERB-010
   repository:

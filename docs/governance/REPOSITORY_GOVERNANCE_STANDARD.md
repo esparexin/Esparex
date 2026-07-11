@@ -50,6 +50,8 @@ The following validation rules are considered invariants and must never be broke
 6. Mongoose models are internal implementation details of `@esparex/core`. Only TypeScript types or explicitly exported interfaces may be consumed externally. Business operations must always go through Core services.
 7. `shared` must never depend on any runtime package or connect to external databases.
 8. Every new business capability must belong to exactly one business domain owner.
+9. **Single Entrypoint for Shared**: Workspaces consuming `@esparex/shared` must import directly from the root barrel (e.g. `import { x } from "@esparex/shared"`). Deep source file imports are prohibited.
+10. **Encapsulated Core Imports**: Workspaces consuming `@esparex/core` must import only from public namespace exports (e.g. `@esparex/core/services`, `@esparex/core/models`). Direct source imports (e.g. `@esparex/core/src/models/User`) are banned.
 
 ---
 

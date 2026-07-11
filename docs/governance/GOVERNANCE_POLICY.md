@@ -10,6 +10,7 @@ To maintain high stability and catch issues at compile time, all TypeScript work
 1. **Strict Type Declarations**: The use of TypeScript's `any` type is strictly forbidden. All interfaces, API return boundaries, and component prop types must be explicitly declared.
 2. **Strict Null Checks**: The non-null assertion operator (`!`) must be avoided unless a value is logically and structurally guaranteed to be non-null. Always use optional chaining (`?.`) or fallback default values.
 3. **No Speculative speculative patches**:Speculative code changes are banned. Developers must prove the root cause of an issue and address it at the source, rather than patching downstream consumers.
+4. **Unused Imports & Variables**: ESLint must block dead imports and variables via `@typescript-eslint/no-unused-vars` and `unused-imports/no-unused-imports` rules.
 
 ---
 
@@ -55,3 +56,10 @@ Every document moves through five explicit states:
 - **No Suffix Proliferation**: Suffixes like `final`, `latest`, `updated`, `copy`, or `new` are strictly banned.
 - **Update In Place**: Active canonical documents must be modified in place. Creating `01-business-blueprint-v2.md` is strictly forbidden. Context is maintained in Git history.
 - **Exclusion of Archived Content**: All historical audits, RCCAs, and older migrations must be moved to the `/archive` directory. They must never participate in automated lints, search-index indexes, or AI context loaders.
+
+### 3.3 AI Brain Document Specifications
+Every document in the `.agents/brain/` directory must adhere to the following layout constraints:
+1. **YAML Frontmatter Metadata**: Must begin with a metadata block containing: `MetadataSchema`, `Brain-ID` (e.g. `ERB-000`), `Title`, `Version`, `Status`, `Type` (`Static` | `Dynamic`), `Owner`, `Canonical`, `Last Updated`, `Confidence`, `Maintenance`, `Validation` commands, and `Relationships`.
+2. **Separation of Facts vs. Declarative Policies**: State facts separately from declarative rule policies. Facts must carry explicit evidence links pointing directly to the codebase source files.
+3. **Static vs. Generated Boundary**: Programmatic database schema catalogs, workspaces maps, and configuration definitions belong in the dynamic `derived/` layer. Human editing is restricted to design intent, architectural principles, and declarative rules.
+

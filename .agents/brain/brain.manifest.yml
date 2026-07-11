@@ -1,11 +1,4 @@
 brain:
-  - id: ERB-000
-    file: 00-Brain-Governance.md
-    title: Brain Governance
-    type: Static
-    owner: Brain Governance Board
-    canonical: true
-
   - id: ERB-001
     file: 01-Repository-Identity.md
     title: Repository Identity
@@ -34,20 +27,6 @@ brain:
     owner: Architecture Layer Conventions
     canonical: true
 
-  - id: ERB-005
-    file: 05-Dependency-Rules.md
-    title: Dependency Rules
-    type: Static
-    owner: Dependency Boundary Map
-    canonical: true
-
-  - id: ERB-006
-    file: 06-Coding-Standards.md
-    title: Coding Standards
-    type: Static
-    owner: Coding Style Standards
-    canonical: true
-
   - id: ERB-007
     file: 07-Governance.md
     title: Governance
@@ -67,13 +46,6 @@ brain:
     title: Skill Manifest
     type: Static
     owner: Skill Selection Manifest
-    canonical: true
-
-  - id: ERB-010
-    file: 10-Brain-Initialization.md
-    title: Brain Initialization
-    type: Static
-    owner: Agent Setup Rules
     canonical: true
 
   - id: ERB-011

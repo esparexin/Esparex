@@ -40,3 +40,13 @@ The runtime AI systems executing within the Esparex application (e.g., automated
   - Model Config: `core/src/models/SystemConfig.ts`
 - **Settings UI**: Moderation parameters, API keys, and model selections are mutated strictly through the Admin dashboard at `/settings/moderation`.
 - **IDE Instruction Bounding**: Developer prompt instructions must never claim changes to runtime AI behavior or provider fallbacks without corresponding verified pull requests modifying the backend code.
+
+---
+
+## 4. Developer Agent Startup Rules
+
+Every developer AI agent loading context in this repository must follow these rules:
+1. **Obey the Documentation Hierarchy**: Refer strictly to `docs/MASTER_DOCUMENT_REGISTRY.md` to load canonical specifications.
+2. **Obey Path Boundaries**: Restrict module imports based on rules registered in `REPOSITORY_GOVERNANCE_STANDARD.md`.
+3. **Run Lint & Verification Checks**: Run `npm run docs:lint` and `npm run repository:doctor -- --profile ci` to verify code hygiene before submitting PRs.
+4. **Preserve Comments & Docs**: Do not delete unrelated comments or description blocks when modifying files.
