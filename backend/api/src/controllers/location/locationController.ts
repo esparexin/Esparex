@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import net from 'net';
 import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "@esparex/core/utils/redisCache";
 import logger from "@esparex/core/utils/logger";
 import { sendErrorResponse } from "../../utils/errorResponse";
@@ -210,6 +211,12 @@ export const ipLocate = async (req: Request, res: Response) => {
         // frontend falls through to GPS or the manual selection prompt.
         if (isLocalhost) {
             return res.json(respond({ success: true, data: null }));
+        }
+
+        // Validate IP format to prevent arbitrary parameter injection / SSRF traversal
+        if (net.isIP(ip) === 0) {
+            logger.warn('IP geolocation request blocked: invalid IP format', { ip });
+            return res.json(respond({ success: false, data: null }));
         }
 
         const url = apiKey ? `https://ipapi.co/${ip}/json/?key=${apiKey}` : `https://ipapi.co/${ip}/json/`;

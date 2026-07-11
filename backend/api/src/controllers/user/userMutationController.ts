@@ -26,6 +26,17 @@ import { normalizeLocation } from '@esparex/core/services/location/LocationNorma
 import { updateUserStatus } from '@esparex/core/services/UserStatusService';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
+
+function validateUploadPath(filePath: string): string {
+    const tempDir = os.tmpdir();
+    const resolvedPath = path.resolve(filePath);
+    if (!resolvedPath.startsWith(path.resolve(tempDir)) || resolvedPath.includes('..')) {
+        throw new Error('Security Error: Invalid upload file path expression');
+    }
+    return resolvedPath;
+}
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 import {
   getBusinessStatus,
@@ -104,14 +115,18 @@ export const updateMe = async (
       }
 
       try {
-        const diskBuffer = await fs.readFile(file.path);
+        const safeFilePath = validateUploadPath(file.path);
+        const diskBuffer = await fs.readFile(safeFilePath);
         const { url: s3Url } = await processSingleImage(
           diskBuffer,
           `users/${userId}/avatar`,
           file.mimetype
         );
 
-        if (file.path) await fs.unlink(file.path).catch(err => logger.error("Disk cleanup error", err));
+        if (file.path) {
+          const safeUnlinkPath = validateUploadPath(file.path);
+          await fs.unlink(safeUnlinkPath).catch(err => logger.error("Disk cleanup error", err));
+        }
 
         if (!s3Url || isPlaceholderImageUrl(s3Url)) {
           if (env.NODE_ENV !== 'development') {
@@ -322,13 +337,17 @@ export const uploadFile = async (
       return;
     }
     const { url: s3Url, key } = await (async () => {
-      const diskBuffer = await fs.readFile(file.path);
+      const safeFilePath = validateUploadPath(file.path);
+      const diskBuffer = await fs.readFile(safeFilePath);
       const result = await processSingleImage(
         diskBuffer,
         keyFolder,
         file.mimetype
       );
-      if (file.path) await fs.unlink(file.path).catch(err => logger.error("Disk cleanup error", err));
+      if (file.path) {
+        const safeUnlinkPath = validateUploadPath(file.path);
+        await fs.unlink(safeUnlinkPath).catch(err => logger.error("Disk cleanup error", err));
+      }
       if (!result.url || isPlaceholderImageUrl(result.url)) {
         if (env.NODE_ENV !== 'development') {
             throw new Error('UPLOAD_PLACEHOLDER_RESULT');
