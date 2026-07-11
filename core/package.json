@@ -13,7 +13,16 @@
     "./models/*": "./dist/models/*.js",
     "./services/*": "./dist/services/*.js",
     "./types/*": "./dist/types/*.js",
-    "./constants/*": "./dist/constants/*.js"
+    "./constants/*": "./dist/constants/*.js",
+    "./events": "./dist/events/index.js",
+    "./events/*": "./dist/events/*.js",
+    "./validators/*": "./dist/validators/*.js",
+    "./queues/*": "./dist/queues/*.js",
+    "./jobs/*": "./dist/jobs/*.js",
+    "./db/*": "./dist/db/*.js",
+    "./domain/NotificationIntent": "./dist/domain/NotificationIntent.js",
+    "./lib/redis": "./dist/lib/redis.js",
+    "./lib/location/formatLocation": "./dist/lib/location/formatLocation.js"
   },
   "scripts": {
     "build": "npx tsc --build && npx tsc-alias",

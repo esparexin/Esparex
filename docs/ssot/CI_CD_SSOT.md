@@ -29,7 +29,7 @@ This job operates synchronously and executes the following steps in order:
 1. **Dependency Installation**: Runs `HUSKY=0 npm ci` to ensure locked reproducible packages.
 2. **Environment Validation**: Runs `npm run guard:env-contracts` to check all configuration schemas.
 3. **Core Governance Validation**: Runs `npm run governance:all` (linting, typechecking, tests, code duplication, and custom governance guards).
-4. **Backend Verification**: Asserts that `backend/user/dist/index.js` builds successfully.
+4. **Backend Verification**: Asserts that `backend/api/dist/index.js` builds successfully.
 
 ### 1.2 Job 2: Playwright E2E Listing Edit Suite (`e2e-listing-edit`)
 This job is gated on Job 1 and executes Playwright integration checks:
@@ -68,7 +68,7 @@ The Esparex platform is distributed across three authoritative hosting platforms
 ### 3.1 Backend User API (Render Hosting)
 - **Service Name**: `esparex-api` (Web Service)
 - **Deployment Spec**: Declared in `render.yaml`. Builds dynamically on commits to `main`.
-- **Build Target**: `HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user`
+- **Build Target**: `HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api`
 - **Execution Target**: PM2 cluster runner configured via `ecosystem.config.js`.
 - **Environment Safety**: Timezones and overrides are checked in `guard-env-contracts.js`. Timezone `TZ` must be declared singular.
 

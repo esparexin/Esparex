@@ -10,7 +10,7 @@ Supersedes: None
 ```
 
 ## Executive Summary
-This document is the authoritative **Single Source of Truth (SSOT)** for environment configuration across the Esparex platform. It governs the strict loading, validation, and bootstrapping of environment variables for `apps/web` (Vercel), `apps/admin` (Vercel), and `backend/user` (Render).
+This document is the authoritative **Single Source of Truth (SSOT)** for environment configuration across the Esparex platform. It governs the strict loading, validation, and bootstrapping of environment variables for `apps/web` (Vercel), `apps/admin` (Vercel), and `backend/api` (Render).
 
 ### Deployment Architecture
 - **User Web** → Vercel
@@ -26,7 +26,7 @@ This document is the authoritative **Single Source of Truth (SSOT)** for environ
 No package or module may arbitrarily invent new environment variables. All variables must be strictly validated by the consuming host application.
 - `apps/web` owns all `NEXT_PUBLIC_` variables used in the User UI.
 - `apps/admin` owns all `NEXT_PUBLIC_` variables used in the Admin UI.
-- `backend/user` runs the Node.js API and delegates validation to `core`.
+- `backend/api` runs the Node.js API and delegates validation to `core`.
 - `core/src/config/env.ts` is the single source of truth for all backend validation.
 
 ### File Hygiene & Templates
@@ -38,8 +38,8 @@ Every application that loads variables MUST expose a `.example` template.
 | `apps/web` | `.env.production.example` | Vercel Deployment Reference |
 | `apps/admin` | `.env.local.example` | Local Admin UI Development |
 | `apps/admin` | `.env.production.example` | Vercel Deployment Reference |
-| `backend/user` | `.env.example` | Local API Development |
-| `backend/user` | `.env.production.example` | Render Deployment Reference |
+| `backend/api` | `.env.example` | Local API Development |
+| `backend/api` | `.env.production.example` | Render Deployment Reference |
 
 ---
 
@@ -56,11 +56,11 @@ This matrix establishes the definitive traceability chain, lifecycle tracking, a
 | `NEXT_PUBLIC_FIREBASE_*` | `apps/web/.env.local.example` | Next.js | Next.js | Firebase Client SDK | `apps/web` |
 | `NEXT_PUBLIC_ADMIN_API_URL`| `apps/admin/.env.local.example`| Next.js | `validateAdminApiEnv.ts` | Admin API Client | `apps/admin` |
 | `NODE_ENV` | `core/.env` / System | Node.js | `core/src/config/env.ts` | Backend System | `core` |
-| `PORT` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | Express Server | `core` |
-| `MONGODB_URI` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | Mongoose Connection | `core` |
-| `JWT_SECRET` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | Auth Middleware | `core` |
-| `HMAC_SECRET` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | OTP System | `core` |
-| `S3_BUCKET_NAME` | `backend/user/.env.production.example`| `dotenv` | `core/src/config/env.ts` | Upload Handlers | `core` |
+| `PORT` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | Express Server | `core` |
+| `MONGODB_URI` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | Mongoose Connection | `core` |
+| `JWT_SECRET` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | Auth Middleware | `core` |
+| `HMAC_SECRET` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | OTP System | `core` |
+| `S3_BUCKET_NAME` | `backend/api/.env.production.example`| `dotenv` | `core/src/config/env.ts` | Upload Handlers | `core` |
 
 ### Build vs Runtime Classification
 | Variable | Build Time | Runtime | Justification |
@@ -99,10 +99,10 @@ Runtime (Express / Authentication Middleware)
 ## 3. Environment Loading Flow
 
 ### A. Local Backend Development (Core/User)
-When running `npm run dev` in `backend/user`:
+When running `npm run dev` in `backend/api`:
 ```mermaid
 graph TD
-    A[.env (core) / .env (backend/user)] --> B[dotenv configuration]
+    A[.env (core) / .env (backend/api)] --> B[dotenv configuration]
     B --> C[core/src/config/loadEnvFiles.ts]
     C --> D[core/src/config/env.ts]
     D -->|Zod Schema Parse| E{Validation Check}
@@ -155,7 +155,7 @@ graph TD
 ## 4. Environment Bootstrap Guide
 
 ### A. Core / Backend Setup
-1. Navigate to the user backend: `cd backend/user`
+1. Navigate to the user backend: `cd backend/api`
 2. Copy the template: `cp .env.example .env`
 3. Generate a secure `JWT_SECRET` (if running locally, the default in `.env.example` is acceptable for development).
 4. Start a local MongoDB and Redis instance (or use Docker).
@@ -198,7 +198,7 @@ graph TD
 3. **Deploy:** Trigger a Vercel Preview Build.
 
 ### E. Backend API (Render) Checklist
-1. **Required Variables:** Open `backend/user/.env.production.example`.
+1. **Required Variables:** Open `backend/api/.env.production.example`.
 2. **Dashboard Configuration:** Map every key into the Render Environment tab.
 3. **CRITICAL:** Generate a highly secure (64+ character) `JWT_SECRET`.
 4. **Verify Systems:** Ensure `MONGODB_URI` and `REDIS_URL` point to managed production instances.
@@ -272,7 +272,7 @@ Review Frequency: Every release cycle.
 | Risk | Description | Mitigation |
 |---|---|---|
 | **CI Local Drift** | GitHub Actions actively injects `SKIP_ENV_VALIDATION="true"` to bypass Next.js build-time errors. | Ensure thorough Vercel Preview Branch testing before merging to `main`. |
-| **Monorepo File Sprawl** | `core`, `apps/web`, `apps/admin`, and `backend/user` all require distinct `.env` files. | Enforce the execution of the Bootstrap Guide procedures. |
+| **Monorepo File Sprawl** | `core`, `apps/web`, `apps/admin`, and `backend/api` all require distinct `.env` files. | Enforce the execution of the Bootstrap Guide procedures. |
 
 ### MEDIUM
 | Risk | Description | Mitigation |

@@ -6,7 +6,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 
 - **`@esparex/apps-admin`** (`apps/admin`): Admin dashboard UI (Next.js)
 - **`@esparex/apps-web`** (`apps/web`): User-facing web application (Next.js)
-- **`@esparex/backend-user`** (`backend/user`): Unified API services (user + admin namespaces)
+- **`@esparex/backend-api`** (`backend/api`): Unified API services (user + admin namespaces)
 - **`@esparex/core`** (`core`): Business logic, domain models, and DB services (Clean Architecture)
 - **`@esparex/shared`** (`shared`): Shared contracts, types, and utility constants
 
@@ -45,7 +45,7 @@ CI is intentionally consolidated to a single workflow:
 - Build order:
   1. `@esparex/shared`
   2. `@esparex/core`
-  3. `@esparex/backend-user`
+  3. `@esparex/backend-api`
   4. `@esparex/apps-admin`
   5. `@esparex/apps-web`
 
@@ -75,7 +75,7 @@ The backend exposes enterprise reliability surfaces:
 - `GET /system/metrics-summary`: SLO-oriented reliability summary (API, queue backlog, failure rates, worker state, security signals)
 - `GET /health`: health contract for uptime checks
 
-Environment switches for alerting are in `backend/user/.env.example`:
+Environment switches for alerting are in `backend/api/.env.example`:
 
 - `RELIABILITY_SLACK_WEBHOOK_URL`
 - `RELIABILITY_ALERT_EMAIL_TO`
@@ -95,7 +95,7 @@ The CI workflow is strict by default and fails on lint/type-check/test/build reg
 Run workspaces as needed:
 
 ```bash
-npm run dev -w @esparex/backend-user
+npm run dev -w @esparex/backend-api
 npm run dev -w @esparex/apps-web
 npm run dev -w @esparex/apps-admin
 ```
@@ -121,10 +121,10 @@ Use root-workspace builds so shared/core/backend artifacts stay consistent.
 ### Unified Backend Deployment (Render)
 When creating the Web Service (e.g., named `esparex-api`) for the API system:
 - **Root Directory**: (Leave Empty)
-- **Build Command**: `HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-user && test -f backend/user/dist/index.js`
-- **Start Command**: `npm start -w @esparex/backend-user`
+- **Build Command**: `HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api && test -f backend/api/dist/index.js`
+- **Start Command**: `npm start -w @esparex/backend-api`
 
-Do not use cross-directory commands such as `cd backend` or `cd backend/user`.
+Do not use cross-directory commands such as `cd backend` or `cd backend/api`.
 
 ### Admin System Configuration (Vercel/Render)
 
@@ -136,8 +136,8 @@ To fix 404/403 errors during login/CSRF discovery, ensure the following environm
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_ADMIN_API_URL` | `https://api.esparex.in/api/v1/admin` |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_PROD_RISK_OVERRIDE` | `false` |
 | `@esparex/apps-admin` | Vercel | `NEXT_PUBLIC_APP_ENV` | `production` |
-| `@esparex/backend-user` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
-| `@esparex/backend-user` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
-| `@esparex/backend-user` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
+| `@esparex/backend-api` | Render | `COOKIE_DOMAIN` | `.esparex.in` (required for CSRF) |
+| `@esparex/backend-api` | Render | `CORS_ALLOWED_ORIGINS` | `https://admin.esparex.in` |
+| `@esparex/backend-api` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
 
 **Note**: Admin routes are served from the unified API under `/api/v1/admin`.

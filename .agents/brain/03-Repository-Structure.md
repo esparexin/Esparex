@@ -46,7 +46,7 @@ Root directories are classified to allow automated reasoning on their purpose:
 | `apps/web` | Presentation Layer | Client application interface | Browser / SSR | TypeScript | Public | Web Application | Active |
 | `apps/admin` | Presentation Layer | Metrics and configuration panels | Browser / SSR | TypeScript | Private | Admin Application | Active |
 | `apps/mobile` | Presentation Layer | Capacitor native wrappers | iOS / Android | TypeScript | Public | Mobile Application | Active |
-| `backend/user` | Runtime Layer | Server-side API endpoint routers | Node.js | TypeScript | Private | Transport Layer | Active |
+| `backend/api` | Runtime Layer | Server-side API endpoint routers | Node.js | TypeScript | Private | Transport Layer | Active |
 | `core` | Domain Layer | Mongoose schemas and integrations | Node.js | TypeScript | Internal | Business Domain | Active |
 | `shared` | Shared Layer | Common type definitions and schemas | Isomorphic | TypeScript | Public | Shared Library | Active |
 | `packages/repository-governance` | Governance Layer | Repo lints and scoring tools | Node.js | TypeScript | Internal | Governance Platform | Active |

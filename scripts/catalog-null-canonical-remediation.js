@@ -5,7 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../backend/user/.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../backend/api/.env') });
 
 const args = new Set(process.argv.slice(2));
 const getArg = (name, fallback = undefined) => {

@@ -11,16 +11,16 @@ To prevent unversioned or colliding routes, all REST endpoints must reside withi
 ### 1.1 Public Client API
 - Namespace: `/api/v1/*`
 - Example: `GET https://api.esparex.in/api/v1/listings`
-- Handled by: `backend/user`
+- Handled by: `backend/api`
 
 ### 1.2 Back-Office Admin API
 - Namespace: `/api/v1/admin/*`
 - Example: `GET https://api.esparex.in/api/v1/admin/listings`
-- Handled by: `backend/user` (Gated strictly by Admin Authentication & Wildcard Role Checks)
+- Handled by: `backend/api` (Gated strictly by Admin Authentication & Wildcard Role Checks)
 - Direct root `/api/admin/*` or unversioned routes are deprecated and forbidden.
 
 ### 1.3 Contract Shared Types
-All DTO interfaces, query params, and payload schemas must be defined under `shared/src/contracts/api/` and shared between `apps/web`, `apps/admin`, and `backend/user` to avoid payload mapping mismatches.
+All DTO interfaces, query params, and payload schemas must be defined under `shared/src/contracts/api/` and shared between `apps/web`, `apps/admin`, and `backend/api` to avoid payload mapping mismatches.
 
 ---
 

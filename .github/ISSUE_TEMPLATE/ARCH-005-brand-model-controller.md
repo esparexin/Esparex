@@ -10,7 +10,7 @@ assignees: ""
 
 Only this file:
 ```
-backend/user/src/controllers/admin/catalog/catalogBrandModelController.ts
+backend/api/src/controllers/admin/catalog/catalogBrandModelController.ts
 ```
 
 ## Current State
@@ -25,7 +25,7 @@ backend/user/src/controllers/admin/catalog/catalogBrandModelController.ts
 
 ## Target Architecture
 
-New files in: `backend/user/src/controllers/admin/catalog/`
+New files in: `backend/api/src/controllers/admin/catalog/`
 
 | Module | Contents | Est. Lines |
 |--------|----------|------------|

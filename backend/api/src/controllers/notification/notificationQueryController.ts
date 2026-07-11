@@ -1,0 +1,75 @@
+import { Request, Response } from "express";
+import { Types } from "mongoose";
+import logger from "@esparex/core/utils/logger";
+import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { getUserId } from "./shared";
+import { getVisibleNotificationWindowQuery } from "@esparex/core/services/notification/NotificationRetentionService";
+import { queryNotificationsForUser } from "@esparex/core/services/NotificationService";
+
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+export const getNotifications = async (req: Request, res: Response) => {
+    try {
+        const userId = getUserId(req);
+        if (!userId) return sendErrorResponse(req, res, 401, "Unauthorized");
+
+        const page = Math.min(1000, Math.max(1, Number(req.query.page) || 1));
+        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const filter = req.query.filter === "unread" ? "unread" : "all";
+        const type = typeof req.query.type === "string" ? req.query.type : "all";
+        const q = typeof req.query.q === "string" ? req.query.q : undefined;
+
+        const skip = (page - 1) * limit;
+        const now = new Date();
+        // Must cast to ObjectId — MongoDB aggregation $match does NOT auto-coerce
+        // strings to ObjectId the way Mongoose find/update helpers do.
+        const userObjectId = new Types.ObjectId(userId);
+        const queryClauses: Record<string, unknown>[] = [{ userId: userObjectId }];
+
+        if (filter === "unread") {
+            queryClauses.push({ isRead: false });
+        } else {
+            queryClauses.push(getVisibleNotificationWindowQuery(now));
+        }
+
+        if (type && type !== "all") {
+            queryClauses.push({ type });
+        }
+
+        if (typeof q === "string" && q.trim().length > 0) {
+            queryClauses.push({
+                $or: [
+                    { title: { $regex: escapeRegex(q.trim()), $options: "i" } },
+                    { message: { $regex: escapeRegex(q.trim()), $options: "i" } },
+                ],
+            });
+        }
+
+        const query: Record<string, unknown> =
+            queryClauses.length === 1 ? (queryClauses[0] ?? {}) : { $and: queryClauses };
+
+        const { notifications, total, unreadCount } = await queryNotificationsForUser(query, userId, skip, limit);
+
+        return res.json(
+            respond({
+                success: true,
+                data: {
+                    notifications,
+                    pagination: {
+                        page,
+                        limit,
+                        total,
+                        pages: Math.ceil(total / limit),
+                        totalPages: Math.ceil(total / limit),
+                        hasMore: skip + notifications.length < total,
+                    },
+                    unreadCount,
+                },
+            })
+        );
+    } catch (error) {
+        logger.error("Get Notifications Error:", error);
+        return sendErrorResponse(req, res, 500, "Failed to fetch notifications");
+    }
+};

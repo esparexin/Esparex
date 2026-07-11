@@ -75,7 +75,7 @@ if (logFiles.length > 0 || dsStoreFiles.length > 0) {
 // Remove static log folders if they exist
 const staticLogDirs = [
     path.join(process.cwd(), 'logs'),
-    path.join(process.cwd(), 'backend/user/logs'),
+    path.join(process.cwd(), 'backend/api/logs'),
     path.join(process.cwd(), 'backend/logs')
 ];
 

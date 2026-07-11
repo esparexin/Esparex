@@ -12,11 +12,11 @@ This matrix establishes the definitive traceability chain, lifecycle tracking, a
 | `NEXT_PUBLIC_FIREBASE_*` | `apps/web/.env.local.example` | Next.js | Next.js | Firebase Client SDK | `apps/web` |
 | `NEXT_PUBLIC_ADMIN_API_URL`| `apps/admin/.env.local.example`| Next.js | `validateAdminApiEnv.ts` | Admin API Client | `apps/admin` |
 | `NODE_ENV` | `core/.env` / System | Node.js | `core/src/config/env.ts` | Backend System | `core` |
-| `PORT` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | Express Server | `core` |
-| `MONGODB_URI` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | Mongoose Connection | `core` |
-| `JWT_SECRET` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | Auth Middleware | `core` |
-| `HMAC_SECRET` | `backend/user/.env.example` | `dotenv` | `core/src/config/env.ts` | OTP System | `core` |
-| `S3_BUCKET_NAME` | `backend/user/.env.production.example`| `dotenv` | `core/src/config/env.ts` | Upload Handlers | `core` |
+| `PORT` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | Express Server | `core` |
+| `MONGODB_URI` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | Mongoose Connection | `core` |
+| `JWT_SECRET` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | Auth Middleware | `core` |
+| `HMAC_SECRET` | `backend/api/.env.example` | `dotenv` | `core/src/config/env.ts` | OTP System | `core` |
+| `S3_BUCKET_NAME` | `backend/api/.env.production.example`| `dotenv` | `core/src/config/env.ts` | Upload Handlers | `core` |
 
 ## 2. Build vs Runtime Classification
 

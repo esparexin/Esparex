@@ -9,8 +9,8 @@ const path = require('path');
  */
 
 const BACKEND_DIRS = [
-    path.join(__dirname, '../backend/user/src/routes'),
-    path.join(__dirname, '../backend/user/src/modules/admin/routes')
+    path.join(__dirname, '../backend/api/src/routes'),
+    path.join(__dirname, '../backend/api/src/modules/admin/routes')
 ];
 const STATIC_PATTERNS = ['/summary', '/stats', '/analytics', '/export', '/search', '/metrics', '/health', '/rules', '/keywords'];
 

@@ -7,7 +7,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const corePackagePath = path.join(repoRoot, 'core', 'package.json');
 const coreTsconfigPath = path.join(repoRoot, 'core', 'tsconfig.json');
 const coreDistPath = path.join(repoRoot, 'core', 'dist');
-const backendUserSrcPath = path.join(repoRoot, 'backend', 'user', 'src');
+const backendUserSrcPath = path.join(repoRoot, 'backend', 'api', 'src');
 
 const toPosix = (value) => value.split(path.sep).join('/');
 
@@ -155,7 +155,7 @@ const hasCoreDeclarationForImport = (subpath) => {
 };
 
 if (!fs.existsSync(backendUserSrcPath)) {
-  failures.push('Missing backend/user/src directory for import parity checks');
+  failures.push('Missing backend/api/src directory for import parity checks');
 } else {
   const backendFiles = readTextFiles(backendUserSrcPath);
   const importRegex = /(?:from\s+|import\s*\(\s*|require\s*\(\s*)['"]@esparex\/core(?:\/([^'"]+))?['"]/g;

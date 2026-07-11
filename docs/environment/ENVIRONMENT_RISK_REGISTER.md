@@ -11,7 +11,7 @@ This document classifies remaining environment architecture risks.
 | Risk | Description | Mitigation |
 |---|---|---|
 | **CI Local Drift** | GitHub Actions actively injects `SKIP_ENV_VALIDATION="true"` to bypass Next.js build-time errors. This means CI tests the code, but does not test the actual environment pipeline that Vercel uses. | This is accepted tech debt to prevent exposing production secrets to the GitHub runner. Ensure thorough Vercel Preview Branch testing before merging to `main`. |
-| **Monorepo File Sprawl** | `core`, `apps/web`, `apps/admin`, and `backend/user` all require distinct `.env` files. Developers may forget to update one, causing micro-fractures in the local environment. | Enforce the execution of the `ENVIRONMENT_BOOTSTRAP.md` procedures. |
+| **Monorepo File Sprawl** | `core`, `apps/web`, `apps/admin`, and `backend/api` all require distinct `.env` files. Developers may forget to update one, causing micro-fractures in the local environment. | Enforce the execution of the `ENVIRONMENT_BOOTSTRAP.md` procedures. |
 
 ## MEDIUM
 | Risk | Description | Mitigation |

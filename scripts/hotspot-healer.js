@@ -8,7 +8,7 @@
 const { execSync } = require('child_process');
 
 const HOTSPOTS = [
-    'backend/user/src/scripts/production_smoke_test.ts',
+    'backend/api/src/scripts/production_smoke_test.ts',
     'apps/web/src/context/AuthContext.tsx',
     'apps/web/src/app/(public)/terms/page.tsx',
     'apps/web/src/components/user/profile/tabs/MyListingsTab.tsx',

@@ -4,7 +4,7 @@
 const path = require('path');
 const mongoose = require('mongoose');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../backend/user/.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../backend/api/.env') });
 
 const argv = process.argv.slice(2);
 const getArg = (name, fallback = undefined) => {

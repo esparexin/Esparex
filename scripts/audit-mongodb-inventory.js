@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../backend/user/.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../backend/api/.env') });
 
 const TARGET_COLLECTIONS = [
   'categories',

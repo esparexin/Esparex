@@ -11,7 +11,7 @@
   "ownership": {
     "apps/web": "Web Application",
     "apps/admin": "Admin Application",
-    "backend/user": "Transport Layer",
+    "backend/api": "Transport Layer",
     "core": "Business Domain",
     "shared": "Shared Library",
     "packages/repository-governance": "Governance Platform"

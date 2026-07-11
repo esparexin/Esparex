@@ -9,7 +9,7 @@ When a new developer clones the repository, they must bootstrap three environmen
 ### A. Core / Backend Setup
 1. Navigate to the user backend:
    ```bash
-   cd backend/user
+   cd backend/api
    ```
 2. Copy the template:
    ```bash

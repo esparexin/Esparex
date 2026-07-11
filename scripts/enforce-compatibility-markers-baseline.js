@@ -13,7 +13,7 @@ const baselinePath = path.join(
 );
 
 const scanRoots = [
-  path.join(repoRoot, "backend/user", "src"),
+  path.join(repoRoot, "backend/api", "src"),
   path.join(repoRoot, "apps", "web", "src"),
   path.join(repoRoot, "apps/admin", "src"),
   path.join(repoRoot, "shared"),

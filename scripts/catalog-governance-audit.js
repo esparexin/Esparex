@@ -3,7 +3,7 @@
 const path = require('path');
 const mongoose = require('mongoose');
 
-require('dotenv').config({ path: path.resolve(__dirname, '../backend/user/.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../backend/api/.env') });
 
 const mode = process.argv[2] || 'all';
 const adminUri = process.env.ADMIN_MONGODB_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/esparex_admin';

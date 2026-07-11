@@ -25,14 +25,14 @@ To maintain consistent styling and import paths, the repository enforces:
 ### 2.2 Clean Architecture Boundaries & Core Principles
 To maintain codebase health and prevent architectural drift, the repository enforces the following permanent guardrails:
 1. **Core Package Purity**: `@esparex/core` must remain strictly framework-independent (0 Express/HTTP imports). All business logic, status mutation services, database schemas, background queues, and transaction controls belong here.
-2. **Thin API Controllers**: Controllers live exclusively in the API/delivery package (`backend/user`), functioning solely as thin HTTP request-to-response adapters.
+2. **Thin API Controllers**: Controllers live exclusively in the API/delivery package (`backend/api`), functioning solely as thin HTTP request-to-response adapters.
 3. **No Direct Model Access**: Controllers must never access Mongoose models or query databases directly. All database access must be delegated to core services or orchestrators.
 4. **Transaction Ownership**: Database session and transaction boundaries must be managed and owned entirely by services or orchestrators inside `core`, never inside controllers.
 5. **Strict Dependency Flow**: Package imports must follow the downstream dependency direction:
    ```text
-   Applications (Web/Admin/Mobile) ➔ API (backend/user) ➔ Core (@esparex/core) ➔ Shared (@esparex/shared)
+   Applications (Web/Admin/Mobile) ➔ API (backend/api) ➔ Core (@esparex/core) ➔ Shared (@esparex/shared)
    ```
-   Upstream references or imports (e.g. `core` importing from `backend/user`) are strictly prohibited.
+   Upstream references or imports (e.g. `core` importing from `backend/api`) are strictly prohibited.
 6. **No Circular Dependencies**: Circular dependency paths are banned across all packages.
 7. **Architectural Guardrails**: Any new package creation requires an approved Architecture Decision Record (ADR). Any new circular dependency or package boundary violation must fail the build in CI.
 8. **Frontend Purity**: React components must remain presentational. Direct API fetch calls within components are banned; they must delegate to custom hooks or unified API services.

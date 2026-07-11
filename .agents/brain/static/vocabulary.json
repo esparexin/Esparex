@@ -2,7 +2,7 @@
   "MetadataSchema": "1.0",
   "Brain-ID": "ERB-011",
   "terms": {
-    "Transport": "The entry routing and protocol mapping layer (located in backend/user) handling REST routes.",
+    "Transport": "The entry routing and protocol mapping layer (located in backend/api) handling REST routes.",
     "Domain": "The core business logic layer containing pure calculations and workflows (located in core/src/domain).",
     "Core": "The workspace encapsulating Mongoose schemas, services, database adapters, and queues (located in core/).",
     "Shared": "Isomorphic isomorphic helper library containing common validation schemas and helpers (located in shared/).",

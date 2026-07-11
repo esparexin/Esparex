@@ -3,11 +3,11 @@
 This document visualizes the exact sequence of environment variable loading across different execution contexts.
 
 ## 1. Local Backend Development (Core/User)
-When running `npm run dev` in `backend/user`:
+When running `npm run dev` in `backend/api`:
 
 ```mermaid
 graph TD
-    A[.env (core) / .env (backend/user)] --> B[dotenv configuration]
+    A[.env (core) / .env (backend/api)] --> B[dotenv configuration]
     B --> C[core/src/config/loadEnvFiles.ts]
     C --> D[core/src/config/env.ts]
     D -->|Zod Schema Parse| E{Validation Check}

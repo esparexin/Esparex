@@ -1,0 +1,166 @@
+import logger from '@esparex/core/utils/logger';
+import { Business, ApiResponse } from "@esparex/shared";
+import { respond } from "../../utils/respond";
+import { Request, Response } from 'express';
+import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
+import * as businessSearchService from '@esparex/core/services/business/BusinessSearchService';
+import { getSingleParam } from '../../utils/requestParams';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { LISTING_TYPE } from '@esparex/shared';
+import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
+import {
+    BusinessStatsPayload,
+    findBusinessByIdentifier,
+    sanitizeBusinessForPublic,
+    serializeBusinessForAdmin,
+    serializeBusinessForOwner,
+} from './shared';
+
+const requireBusiness = async (req: Request, res: Response, errorMsg = 'Invalid Business ID') => {
+    const id = getSingleParam(req, res, 'id', { error: errorMsg });
+    if (!id) return null;
+
+    const business = await findBusinessByIdentifier(id);
+    if (!business) {
+        sendErrorResponse(req, res, 404, 'Business not found');
+        return null;
+    }
+    return business;
+};
+
+const getBusinessListings = async (sellerId: string, listingType: string) => {
+    return businessCoreService.getBusinessListings(sellerId, listingType);
+};
+
+const sendListingResponse = async (req: Request, res: Response, listingType: string): Promise<void> => {
+    const business = await requireBusiness(req, res);
+    if (!business) return;
+    const data = await getBusinessListings(business.userId.toString(), listingType);
+    res.json(respond<ApiResponse<unknown[]>>({ success: true, data }));
+};
+
+export const getBusinesses = async (req: Request, res: Response) => {
+    try {
+        const {
+            limit,
+            latitude,
+            longitude,
+            radiusKm,
+            locationId,
+            listingCategoryId,
+            brandId,
+            excludeBusinessId,
+        } = req.query;
+        const rawServiceOnly = req.query.serviceOnly as unknown;
+        const businesses = await businessSearchService.getBusinesses({
+            limit: Math.min(50, Math.max(1, typeof limit === 'number' ? limit : limit ? parseInt(limit as string, 10) : 20)),
+            latitude: typeof latitude === 'number' ? latitude : latitude ? Number(latitude) : undefined,
+            longitude: typeof longitude === 'number' ? longitude : longitude ? Number(longitude) : undefined,
+            radiusKm: typeof radiusKm === 'number' ? radiusKm : radiusKm ? Number(radiusKm) : undefined,
+            locationId: locationId,
+            listingCategoryId: listingCategoryId,
+            brandId: brandId,
+            excludeBusinessId: excludeBusinessId,
+            serviceOnly:
+                rawServiceOnly === true
+                || rawServiceOnly === 'true',
+        });
+        const sanitizedBusinesses = businesses.map((business) => sanitizeBusinessForPublic(business));
+
+        const response = respond<ApiResponse<Business[]>>({
+            success: true,
+            data: sanitizedBusinesses as unknown as Business[]
+        });
+
+        res.json(response);
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch businesses');
+    }
+};
+
+export const getBusinessById = async (req: Request, res: Response) => {
+    try {
+        const business = await requireBusiness(req, res, 'Invalid Business ID format');
+        if (!business) return;
+
+        const user = req.user;
+        const isOwner = user && business.userId.toString() === user._id.toString();
+        const isAdmin = user && (user.role === 'admin' || user.role === 'super_admin' || user.isAdmin);
+
+        if (!isBusinessPublishedStatus(business.status) && !isOwner && !isAdmin) {
+            sendErrorResponse(req, res, 403, 'Profile unverified', {
+                message: 'This business profile is pending approval or is not currently active.'
+            });
+            return;
+        }
+
+        const payload = (!isOwner && !isAdmin)
+            ? sanitizeBusinessForPublic(business)
+            : (isAdmin ? serializeBusinessForAdmin(business) : serializeBusinessForOwner(business));
+
+        const response = respond<ApiResponse<Business>>({
+            success: true,
+            data: payload as unknown as Business
+        });
+
+        res.json(response);
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business');
+    }
+};
+
+export const getBusinessServices = async (req: Request, res: Response) => {
+    try {
+        await sendListingResponse(req, res, LISTING_TYPE.SERVICE);
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business services');
+    }
+};
+
+export const getBusinessAds = async (req: Request, res: Response) => {
+    try {
+        await sendListingResponse(req, res, LISTING_TYPE.AD);
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business ads');
+    }
+};
+
+export const getBusinessSpareParts = async (req: Request, res: Response) => {
+    try {
+        await sendListingResponse(req, res, LISTING_TYPE.SPARE_PART);
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business spare parts');
+    }
+};
+
+export const getBusinessListingsById = async (req: Request, res: Response) => {
+    try {
+        const business = await requireBusiness(req, res);
+        if (!business) return;
+        const listingType = req.query.listingType as string;
+        const data = await getBusinessListings(business.userId.toString(), listingType);
+        res.json(respond<ApiResponse<unknown[]>>({ success: true, data }));
+    } catch {
+        sendErrorResponse(req, res, 500, 'Failed to fetch business listings');
+    }
+};
+
+export const getBusinessStatsById = async (req: Request, res: Response) => {
+    try {
+        const business = await requireBusiness(req, res);
+        if (!business) return;
+
+        const userId = business.userId.toString();
+        const stats = await businessCoreService.getBusinessStats(userId);
+
+        const response = respond<ApiResponse<BusinessStatsPayload>>({
+            success: true,
+            data: stats,
+        });
+
+        res.json(response);
+    } catch (error: unknown) {
+        logger.error('Get Business Stats By ID Error:', error);
+        sendErrorResponse(req, res, 500, 'Failed to fetch business stats');
+    }
+};
