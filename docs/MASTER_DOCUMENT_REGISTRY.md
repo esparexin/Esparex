@@ -58,6 +58,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/architecture/adr/ADR-006-namespace-governance.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/architecture/adr/ADR-007-architecture-enforcement.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/architecture/ARCHITECTURE_VERSION.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/architecture/CHANGELOG.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/architecture/CORE_PUBLIC_API.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/architecture/PUBLIC_API.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/archive/adr/ADR-001-SSOT.md` | Auto-registered | Engineering | Archived | supporting_archived | `docs:lint` |
@@ -100,6 +101,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/decisions/ADR-010-admin-refund-decomposition.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/decisions/ADR-011-database-governance-standard.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/decisions/ADR-012-entity-lifecycle-state-machines.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/decisions/ADR-013-migration-rcca.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/decisions/README.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/design-system/backlog/BACKLOG.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/design-system/future-themes.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
@@ -149,6 +151,7 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/governance/BASELINE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/CANONICAL_OWNERSHIP_RULES.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/DEPENDENCY_POLICY.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/governance/DEVELOPER_HANDBOOK.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/EXECUTION_ENGINE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/EXECUTION_PIPELINE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/FILE_LIFECYCLE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
@@ -157,6 +160,11 @@ All files must belong to exactly one tier. Tiers are defined below:
 | `docs/governance/GOVERNANCE_VERSION.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/NAMING_CONVENTIONS.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/REGISTRY.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/governance/reports/migration-baseline.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/governance/reports/migration-certificate.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/governance/REPOSITORY_ARCHITECTURE_GOVERNANCE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/governance/REPOSITORY_ARCHITECTURE_SSOT.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
+| `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/REPOSITORY_POLICY.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/REPOSITORY_STRUCTURE.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
 | `docs/governance/ROADMAP.md` | Auto-registered | Engineering | Active | supporting_active | `docs:lint` |
