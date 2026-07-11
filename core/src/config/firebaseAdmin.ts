@@ -7,6 +7,7 @@ const hasFirebaseServiceAccountJson = typeof env.FIREBASE_SERVICE_ACCOUNT_JSON =
 const disableForTest = env.NODE_ENV === 'test' && !env.ALLOW_FIREBASE_ADMIN;
 let shouldDisableFirebase = disableForTest || !hasFirebaseServiceAccountJson;
 
+
 type FirebaseServiceAccount = admin.ServiceAccount & Record<string, unknown>;
 
 const mockAdmin = {
