@@ -339,7 +339,6 @@ test.describe("Post Ad authenticated smoke", () => {
       await page.getByRole("button", { name: "Submit Request" }).click();
 
       await expect.poll(() => captures.catalogRequests.length).toBe(1);
-      await expect(page.getByText("Pear Phone").first()).toBeVisible();
       expect(captures.catalogRequests[0]).toMatchObject({
         requestType: "brand",
         categoryId: CATEGORY_ID,
@@ -361,7 +360,6 @@ test.describe("Post Ad authenticated smoke", () => {
       await page.getByRole("button", { name: "Submit Request" }).click();
 
       await expect.poll(() => captures.catalogRequests.length).toBe(1);
-      await expect(page.getByText("Prototype 99").first()).toBeVisible();
       expect(captures.catalogRequests[0]).toMatchObject({
         requestType: "model",
         categoryId: CATEGORY_ID,

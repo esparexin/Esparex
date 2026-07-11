@@ -14,7 +14,7 @@ const playwrightBin = process.platform === "win32" ? "playwright.cmd" : "playwri
 const child = spawn(playwrightBin, ["test", ...forwardedArgs], {
   stdio: "inherit",
   env,
-  shell: false,
+  shell: process.platform === "win32",
 });
 
 child.on("exit", (code, signal) => {

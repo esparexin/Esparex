@@ -25,11 +25,12 @@ function npmCmd() {
 }
 
 function spawnCommand(command, args, options = {}) {
+  const isCmd = typeof command === "string" && command.endsWith(".cmd");
   const child = spawn(command, args, {
     cwd: ROOT,
     stdio: options.capture ? ["ignore", "pipe", "pipe"] : "inherit",
     env: { ...process.env, ...options.env },
-    shell: false,
+    shell: isCmd,
   });
   children.add(child);
   child.on("exit", () => children.delete(child));
