@@ -92,7 +92,7 @@
     "debt:insights": "node scripts/analyze-tech-debt.js"
   },
   "optionalDependencies": {
-    "@emnapi/runtime": "^1.8.1"
+    "@emnapi/runtime": "^1.11.2"
   },
   "overrides": {
     "@tootallnate/once": "^3.0.1",
@@ -105,23 +105,23 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
-    "@next/eslint-plugin-next": "^16.2.4",
+    "@next/eslint-plugin-next": "^16.2.10",
     "@types/validator": "^13.15.10",
-    "concurrently": "^9.2.1",
-    "cross-env": "^7.0.3",
+    "concurrently": "^10.0.3",
+    "cross-env": "^10.1.0",
     "dependency-cruiser": "^18.0.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
-    "globals": "^17.6.0",
+    "globals": "^17.7.0",
     "husky": "^9.1.7",
-    "jscpd": "^4.0.9",
+    "jscpd": "^5.0.12",
     "knip": "^6.26.0",
     "license-checker": "^25.0.1",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.0.8",
     "madge": "^8.0.0",
-    "pm2": "^6.0.14",
-    "semantic-release": "^25.0.5",
-    "tsc-alias": "^1.8.16"
+    "pm2": "^7.0.3",
+    "semantic-release": "^25.0.6",
+    "tsc-alias": "^1.9.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
