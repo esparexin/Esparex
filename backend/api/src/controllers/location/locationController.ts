@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { getCache, setCache, CACHE_KEYS, CACHE_TTLS } from "@esparex/core/utils/redisCache";
 import logger from "@esparex/core/utils/logger";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { getSystemConfigDoc } from "@esparex/core/utils/systemConfigHelper";
 import { env } from '@esparex/core/config/env';
-import { respond } from "@esparex/core/utils/respond";
+import { respond } from "../../utils/respond";
 import { createLocationEvent } from '@esparex/core/services/location/LocationEventService';
 import {
     getDefaultCenterLocation,

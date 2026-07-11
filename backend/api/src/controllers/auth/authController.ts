@@ -3,8 +3,8 @@ import { AuthService } from '@esparex/core/services/AuthService';
 import { removeUserFcmToken } from '@esparex/core/services/UserService';
 import { blacklistToken } from '@esparex/core/utils/redisCache';
 import { verifyToken } from '@esparex/core/utils/auth';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendSuccessResponse } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { SendOtpResult, VerifyOtpResult } from '@esparex/core/services/AuthService';
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 

@@ -1,6 +1,6 @@
 import logger from '@esparex/core/utils/logger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { respond } from "@esparex/core/utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "../../utils/respond";
 // backend/src/controllers/admin/paymentWebhook.ts
 import { Request, Response } from "express";
 import { enqueuePaymentProcessing } from "@esparex/core/queues/paymentQueue";

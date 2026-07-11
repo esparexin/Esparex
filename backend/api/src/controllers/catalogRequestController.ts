@@ -2,8 +2,8 @@ import type { Request, Response } from 'express';
 import slugify from 'slugify';
 import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
 import * as CatalogRequestService from '@esparex/core/services/catalog/CatalogRequestService';
-import { sendPaginatedResponse, sendSuccessResponse } from '@esparex/core/utils/respond';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
+import { sendErrorResponse } from '../utils/errorResponse';
 import { AppError } from '@esparex/core/utils/AppError';
 import {
     approveCatalogRequest,

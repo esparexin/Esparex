@@ -2,8 +2,8 @@ import logger from '@esparex/core/utils/logger';
 import { Types } from 'mongoose';
 import * as notificationService from '@esparex/core/services/NotificationService';
 import { Request, Response } from 'express';
-import { respond } from "@esparex/core/utils/respond";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { respond } from "../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { getUserId } from './shared';
 
 export const markAllRead = async (req: Request, res: Response) => {

@@ -1,9 +1,9 @@
 import logger from '@esparex/core/utils/logger';
 import { Business, ApiResponse } from "@esparex/shared";
-import { respond } from "@esparex/core/utils/respond";
+import { respond } from "../../utils/respond";
 import { Request, Response } from 'express';
 import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { BusinessStatsPayload, serializeBusinessForOwner } from './shared';
 
 export const getMyBusiness = async (req: Request, res: Response) => {

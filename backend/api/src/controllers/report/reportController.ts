@@ -2,9 +2,9 @@ import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import type { ReportTargetTypeValue } from '@esparex/core/models/Report';
-import { respond } from "@esparex/core/utils/respond";
+import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/shared";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
 import {
     checkAdExists,

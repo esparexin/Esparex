@@ -1,9 +1,9 @@
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { respond } from "@esparex/core/utils/respond";
+import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/shared";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/services/TransactionService';
 import { getActivePlans } from '@esparex/core/services/PlanService';

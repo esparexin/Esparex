@@ -2,8 +2,8 @@ import logger from '@esparex/core/utils/logger';
 import { z } from 'zod';
 import { Request, Response } from 'express';
 import { createContactSubmission } from '@esparex/core/services/ContactService';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { respond } from "@esparex/core/utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "../../utils/respond";
 
 /**
  * CONTACT US CONTROLLER

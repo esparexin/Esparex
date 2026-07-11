@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
-import { getSingleParam } from '@esparex/core/utils/requestParams';
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendSuccessResponse } from "../../utils/respond";
+import { getSingleParam } from '../../utils/requestParams';
 import * as AdEngagementService from '@esparex/core/services/AdEngagementService';
 import { getSellerPhone } from '@esparex/core/services/ContactRevealService';
 import { LISTING_TYPE } from '@esparex/shared';

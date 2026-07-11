@@ -9,8 +9,8 @@
  * Both workspace files now re-export from here.
  */
 import { Request, Response } from 'express';
-import { respond } from '@esparex/core/utils/respond';
-import { sendErrorResponse } from '@esparex/core/utils/errorResponse';
+import { respond } from '../../utils/respond';
+import { sendErrorResponse } from '../../utils/errorResponse';
 import {
     getPostingBalanceByUserId,
     getTransactionHistoryByUserId,

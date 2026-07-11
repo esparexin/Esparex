@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { sendSuccessResponse } from "../../utils/respond";
 import logger from '@esparex/core/utils/logger';
 import { LISTING_TYPE } from '@esparex/shared';
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';

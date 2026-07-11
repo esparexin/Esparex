@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { sendSuccessResponse } from "@esparex/core/utils/respond";
+import { sendSuccessResponse } from "../../utils/respond";
 import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
 import * as adImageService from '@esparex/core/services/AdImageService';
 import { normalizeListingLocation } from '@esparex/shared';
@@ -19,7 +19,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         // SSOT: Security guard to prevent seller impersonation
         if (Object.prototype.hasOwnProperty.call(body, 'sellerId')) {
-            const { sendErrorResponse } = await import("@esparex/core/utils/errorResponse");
+            const { sendErrorResponse } = await import("../../utils/errorResponse");
             return sendErrorResponse(req, res, 400, IMMUTABLE_SELLER_ID_MESSAGE, {
                 code: 'IMMUTABLE_SELLER_ID',
                 details: [{ field: 'sellerId', message: IMMUTABLE_SELLER_ID_MESSAGE }]
@@ -28,7 +28,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         const normalizedLocation = normalizeListingLocation(body.location);
         if (!normalizedLocation || !normalizedLocation.coordinates) {
-            const { sendErrorResponse } = await import("@esparex/core/utils/errorResponse");
+            const { sendErrorResponse } = await import("../../utils/errorResponse");
             return sendErrorResponse(req, res, 400, 'Valid location with coordinates is required.', {
                 code: 'INVALID_LOCATION',
                 details: [{ field: 'location', message: 'Valid location with coordinates is required.' }]

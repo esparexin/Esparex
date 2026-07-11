@@ -1,11 +1,11 @@
 import logger from '@esparex/core/utils/logger';
 import { Business, ApiResponse } from "@esparex/shared";
-import { respond } from "@esparex/core/utils/respond";
+import { respond } from "../../utils/respond";
 import { Request, Response } from 'express';
 import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
 import * as businessLifecycleService from '@esparex/core/services/business/BusinessLifecycleService';
-import { getSingleParam } from '@esparex/core/utils/requestParams';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { getSingleParam } from '../../utils/requestParams';
+import { sendErrorResponse } from "../../utils/errorResponse";
 import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
 import { getUserPhoneVerification } from '@esparex/core/services/UserService';
 import { type ActorTypeValue } from '@esparex/shared';

@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { getActiveBoostsForUser } from '@esparex/core/services/BoostService';
-import { respond } from "@esparex/core/utils/respond";
+import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/shared";
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../../utils/errorResponse";
 
 /**
  * Get user's active boosts (Spotlights, etc.)
