@@ -94,7 +94,7 @@
     "mongoose": "^9.7.4",
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
-    "nanoid": "^5.1.16",
+    "nanoid": "^3.3.11",
     "nodemailer": "^9.0.3",
     "qrcode": "^1.5.4",
     "rate-limit-redis": "^5.0.0",

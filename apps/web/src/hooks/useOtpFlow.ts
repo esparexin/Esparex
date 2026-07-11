@@ -48,8 +48,8 @@ export interface OtpFlowState {
     setNameError: (v: string) => void;
     authError: AuthError;
     clearAuthErrorOfTypes: (types: Array<NonNullable<AuthError>["type"]>) => void;
-    mobileInputRef: React.RefObject<HTMLInputElement>;
-    nameInputRef: React.RefObject<HTMLInputElement>;
+    mobileInputRef: React.RefObject<HTMLInputElement | null>;
+    nameInputRef: React.RefObject<HTMLInputElement | null>;
     otpInputsRef: React.MutableRefObject<(HTMLInputElement | null)[]>;
     isOtpStep: boolean;
     requiresName: boolean;
