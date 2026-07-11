@@ -4,8 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const appFiles = [
-  path.join(__dirname, '..', 'backend', 'user', 'src', 'app.ts'),
-  path.join(__dirname, '..', 'backend', 'admin', 'src', 'app.ts')
+  path.join(__dirname, '..', 'backend', 'api', 'src', 'app.ts')
 ];
 
 const importToken = "import { enforceErrorResponseContract } from './middleware/errorResponseContract';";

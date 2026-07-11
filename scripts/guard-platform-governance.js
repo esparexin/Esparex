@@ -11,7 +11,7 @@ const EXCLUDED_DIRS = new Set(['node_modules', 'dist', '.next', 'coverage']);
 const DB_CONNECT_PATTERN = /(mongoose\.connect|MongoClient\(|new\s+MongoClient\(|client\.db\(|connectDB\()/i;
 const DB_MUTATION_PATTERN = /(updateOne\(|updateMany\(|findOneAndUpdate\(|bulkWrite\(|insertOne\(|insertMany\(|deleteOne\(|deleteMany\(|replaceOne\(|createIndex\(|dropIndex\(|renameCollection\()/;
 const STATUS_MUTATION_PATTERN = /(status\s*[:=]|moderationStatus\s*[:=]|expiresAt\b|resolvedAt\b|approved|rejected|pending|active|suspended|dismissed)/i;
-const MIGRATION_SHADOW_NAME_PATTERN = /backend\/user\/scripts\/.*(migrate|remediate|repair|cleanup).+\.js$/;
+const MIGRATION_SHADOW_NAME_PATTERN = /backend\/api\/scripts\/.*(migrate|remediate|repair|cleanup).+\.js$/;
 
 const FORBIDDEN_SW_FILES = [
   'apps/web/firebase-messaging-sw.js',

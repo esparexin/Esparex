@@ -7,7 +7,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const corePackagePath = path.join(repoRoot, 'core', 'package.json');
 const coreTsconfigPath = path.join(repoRoot, 'core', 'tsconfig.json');
 const coreDistPath = path.join(repoRoot, 'core', 'dist');
-const backendUserSrcPath = path.join(repoRoot, 'backend', 'user', 'src');
+const backendUserSrcPath = path.join(repoRoot, 'backend', 'api', 'src');
 
 const toPosix = (value) => value.split(path.sep).join('/');
 
