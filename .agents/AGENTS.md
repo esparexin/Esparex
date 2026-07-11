@@ -11,4 +11,10 @@ Every developer AI agent executing in this workspace must load and obey the cano
    - Adhere to casing, type-safety, and TypeScript constraints defined in the [Engineering Governance Policy](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/GOVERNANCE_POLICY.md).
 4. **Architectural boundaries**:
    - Follow import boundary invariants and package public interfaces defined in the [Repository Governance Standard](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md).
+5. **AI Execution Workflow**:
+   - Before writing any code, load and execute every phase defined in [AI Execution Workflow](file:///c:/Users/Administrator/Documents/GitHub/Esparex/ai-governance/AI_EXECUTION_WORKFLOW.md).
+   - Never skip, reorder, or bypass a mandatory phase gate. Stop immediately if any gate fails.
+6. **Live Repository First**:
+   - Never rely on documentation, Markdown files, comments, or prior analysis as evidence of current repository state.
+   - All implementation decisions require direct inspection of the live source code and current git state.
 

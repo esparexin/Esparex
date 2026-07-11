@@ -3,6 +3,7 @@
   "status": "active",
   "primary": {
     "registry": "docs/MASTER_DOCUMENT_REGISTRY.md",
+    "executionWorkflow": "ai-governance/AI_EXECUTION_WORKFLOW.md",
     "ssots": {
       "domainModel": "docs/ssot/DOMAIN_MODEL_SSOT.md",
       "apiContract": "docs/ssot/API_CONTRACT_SSOT.md",

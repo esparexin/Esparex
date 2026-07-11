@@ -27,6 +27,9 @@ dist
 *.pem
 tmp/
 
+# AI IDE tool session data (Antigravity, Cursor, etc.)
+.antigravity-ide/
+
 # Debug
 npm-debug.log*
 yarn-debug.log*
