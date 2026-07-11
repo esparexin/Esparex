@@ -17,7 +17,7 @@ jest.mock('@esparex/core/services/UserProfileService', () => ({
     getUserProfileById: jest.fn(),
 }));
 
-jest.mock('@esparex/core/utils/respond', () => ({
+jest.mock('../../utils/respond', () => ({
     respond: jest.fn((v: unknown) => v),
 }));
 

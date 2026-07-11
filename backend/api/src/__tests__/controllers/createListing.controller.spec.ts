@@ -27,13 +27,13 @@ jest.mock('@esparex/core/services/AdImageService', () => ({
     getUploadPresignedUrl: jest.fn(),
 }));
 
-jest.mock('@esparex/core/utils/respond', () => ({
+jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
 // errorResponse is dynamically imported inside the controller — mock it here
 // so the dynamic import resolves to our mock during tests.
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 

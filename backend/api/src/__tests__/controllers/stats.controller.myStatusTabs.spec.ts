@@ -21,11 +21,11 @@ jest.mock('@esparex/core/services/ad/AdAggregationService', () => ({
     getOwnerListings: mockGetOwnerListings,
 }));
 
-jest.mock('@esparex/core/utils/respond', () => ({
+jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: mockSendSuccessResponse,
 }));
 
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: mockSendErrorResponse,
 }));
 

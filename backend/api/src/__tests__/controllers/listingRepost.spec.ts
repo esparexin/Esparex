@@ -11,7 +11,7 @@ jest.mock('@esparex/core/services/lifecycle/StatusMutationService', () => ({
     mutateStatus: jest.fn(),
 }));
 
-jest.mock('@esparex/core/utils/controllerUtils', () => ({
+jest.mock('../../utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: jest.fn(),
 }));
 
@@ -21,27 +21,27 @@ jest.mock('@esparex/core/services/PromotionPolicyService', () => ({
     },
 }));
 
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req: unknown, res: { status: (n: number) => { json: (v: unknown) => void } }, status: number, msg: string) => {
         res.status(status).json({ error: msg });
         return res;
     }),
 }));
 
-jest.mock('@esparex/core/utils/respond', () => ({
+jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: jest.fn((res: { status: (n: number) => { json: (v: unknown) => void } }, data: unknown, msg: string) => {
         res.status(200).json({ data, message: msg });
         return res;
     }),
 }));
 
-jest.mock('@esparex/core/utils/requestParams', () => ({
+jest.mock('../../utils/requestParams', () => ({
     getSingleParam: jest.fn((req: { params: Record<string, string> }, _res: unknown, param: string) => req.params[param]),
 }));
 
 import { Request, Response } from 'express';
 import AdMutationService from '@esparex/core/services/AdMutationService';
-import { getAndVerifyOwnedListing } from '@esparex/core/utils/controllerUtils';
+import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 import { repostListing } from '../../controllers/listing/lifecycle.controller';
 
 const mockedRepostAd = AdMutationService.repostAd as jest.Mock;

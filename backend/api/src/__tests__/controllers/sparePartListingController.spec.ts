@@ -3,7 +3,7 @@ jest.mock("@esparex/core/services/ad/AdAggregationService", () => ({
     getAds: jest.fn(),
 }));
 
-jest.mock("@esparex/core/utils/respond", () => ({
+jest.mock("../../utils/respond", () => ({
     respond: jest.fn((data: unknown) => data),
 }));
 

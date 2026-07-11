@@ -17,7 +17,7 @@ jest.mock("@esparex/core/models/Admin", () => ({
     },
 }));
 
-jest.mock("@esparex/core/utils/adminLogger", () => ({
+jest.mock("../../utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
@@ -33,7 +33,7 @@ jest.mock("@esparex/core/services/AdminUsersService", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
+import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import Admin from "@esparex/core/models/Admin";
 import { updateAdminById } from "@esparex/core/services/AdminUsersService";
 

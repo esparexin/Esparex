@@ -23,7 +23,7 @@ jest.mock("@esparex/core/models/Ad", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminUsersController from "@esparex/core/controllers/admin/adminUsersController";
+import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import User from "@esparex/core/models/User";
 import AdminMetrics from "@esparex/core/models/AdminMetrics";
 

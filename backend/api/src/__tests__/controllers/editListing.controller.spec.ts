@@ -23,11 +23,11 @@ const mockUpdateAd = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
-jest.mock('@esparex/core/utils/requestParams', () => ({
+jest.mock('../../utils/requestParams', () => ({
     getSingleParam: (...args: unknown[]) => mockGetSingleParam(...args),
 }));
 
-jest.mock('@esparex/core/utils/controllerUtils', () => ({
+jest.mock('../../utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: (...args: unknown[]) => mockGetAndVerifyOwnedListing(...args),
 }));
 
@@ -40,11 +40,11 @@ jest.mock('@esparex/core/services/AdMutationService', () => ({
     updateAd: (...args: unknown[]) => mockUpdateAd(...args),
 }));
 
-jest.mock('@esparex/core/utils/respond', () => ({
+jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 

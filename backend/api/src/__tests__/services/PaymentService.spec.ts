@@ -24,7 +24,7 @@ jest.mock('@esparex/core/services/TransactionService');
 jest.mock('@esparex/core/services/PlanService');
 jest.mock('@esparex/core/config/razorpay');
 jest.mock('@esparex/core/utils/logger');
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req, res, code, msg) => res.status(code).json({ success: false, error: msg }))
 }));
 

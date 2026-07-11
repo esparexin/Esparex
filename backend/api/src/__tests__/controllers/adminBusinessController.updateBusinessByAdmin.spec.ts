@@ -13,7 +13,7 @@ jest.mock("@esparex/core/models/Ad", () => ({
     },
 }));
 
-jest.mock("@esparex/core/utils/adminLogger", () => ({
+jest.mock("../../utils/adminLogger", () => ({
     __esModule: true,
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
@@ -69,7 +69,7 @@ jest.mock("@esparex/core/services/lifecycle/StatusMutationService", () => ({
     mutateStatuses: jest.fn(),
 }));
 
-jest.mock("@esparex/core/utils/contentHandler", () => ({
+jest.mock("../../utils/contentHandler", () => ({
     __esModule: true,
     handlePaginatedContent: jest.fn(),
 }));
@@ -95,7 +95,7 @@ jest.mock("@esparex/core/utils/s3", () => ({
 }));
 
 import type { Request, Response } from "express";
-import * as adminBusinessController from "@esparex/core/controllers/admin/adminBusinessController";
+import * as adminBusinessController from "../../controllers/admin/adminBusinessController";
 import * as adminBusinessService from "@esparex/core/services/AdminBusinessService";
 
 const createMockRes = (req?: Record<string, unknown>) => {

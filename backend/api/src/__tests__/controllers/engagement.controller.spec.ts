@@ -34,7 +34,7 @@ const mockGetSellerPhone = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
-jest.mock('@esparex/core/utils/requestParams', () => ({
+jest.mock('../../utils/requestParams', () => ({
     getSingleParam: (...args: unknown[]) => mockGetSingleParam(...args),
 }));
 
@@ -46,11 +46,11 @@ jest.mock('@esparex/core/services/ContactRevealService', () => ({
     getSellerPhone: (...args: unknown[]) => mockGetSellerPhone(...args),
 }));
 
-jest.mock('@esparex/core/utils/respond', () => ({
+jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: (...args: unknown[]) => mockSendSuccessResponse(...args),
 }));
 
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: (...args: unknown[]) => mockSendErrorResponse(...args),
 }));
 

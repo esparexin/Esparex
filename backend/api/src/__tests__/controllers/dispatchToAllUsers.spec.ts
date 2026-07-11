@@ -31,7 +31,7 @@ jest.mock("@esparex/core/domain/NotificationIntent", () => ({
     },
 }));
 
-jest.mock("@esparex/core/utils/adminLogger", () => ({
+jest.mock("../../utils/adminLogger", () => ({
     logAdminAction: jest.fn().mockResolvedValue(undefined),
 }));
 
@@ -40,7 +40,7 @@ import { NotificationDispatcher } from "@esparex/core/services/notification/Noti
 import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
 import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import type { Request, Response } from "express";
-import { sendNotification } from "@esparex/core/controllers/admin/adminNotificationController";
+import { sendNotification } from "../../controllers/admin/adminNotificationController";
 
 const mockedNotificationLog = NotificationLog as unknown as { create: jest.Mock };
 const mockedDispatcher = NotificationDispatcher as unknown as { bulkDispatch: jest.Mock };

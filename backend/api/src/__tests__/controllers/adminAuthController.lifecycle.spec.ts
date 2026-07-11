@@ -63,7 +63,7 @@ jest.mock("@esparex/core/services/EmailService", () => ({
     },
 }));
 
-jest.mock("@esparex/core/utils/adminLogger", () => ({
+jest.mock("../../utils/adminLogger", () => ({
     __esModule: true,
 
     logAdminAction: jest.fn().mockResolvedValue(undefined),
@@ -84,7 +84,7 @@ import {
 import {
     adminLogin,
     resetPassword,
-} from "@esparex/core/controllers/admin/system/adminAuthController";
+} from "../../controllers/admin/system/adminAuthController";
 
 const createMockRes = (
     req?: Partial<Request>

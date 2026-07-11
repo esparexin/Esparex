@@ -4,9 +4,9 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { requireListingOwner } from '../../middleware/ownershipGuard';
-import { getAndVerifyOwnedListing } from '@esparex/core/utils/controllerUtils';
+import { getAndVerifyOwnedListing } from '../../utils/controllerUtils';
 
-jest.mock('@esparex/core/utils/controllerUtils', () => ({
+jest.mock('../../utils/controllerUtils', () => ({
     getAndVerifyOwnedListing: jest.fn(),
 }));
 

@@ -24,7 +24,7 @@ jest.mock('@esparex/core/utils/logger', () => ({
     logBusiness: jest.fn(),
 }));
 
-jest.mock('@esparex/core/utils/errorResponse', () => ({
+jest.mock('../../utils/errorResponse', () => ({
     sendErrorResponse: jest.fn((req, res, code, msg) => res.status(code).json({ success: false, message: msg })),
 }));
 
