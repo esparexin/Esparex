@@ -20,6 +20,15 @@ module.exports = {
         path: '(^core/src/models|^@esparex/core/models)',
         dependencyTypesNot: ['type-only']
       }
+    },
+    {
+      name: 'no-legacy-transport-imports',
+      severity: 'error',
+      comment: 'Legacy transport paths are forbidden. Use local relative utilities inside backend/api instead.',
+      from: {},
+      to: {
+        path: '(^backend/user|^@esparex/backend-user|^@esparex/core/controllers|^@esparex/core/utils/respond|^@esparex/core/utils/errorResponse|^@esparex/core/utils/controllerUtils)'
+      }
     }
   ],
   options: {
