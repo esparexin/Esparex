@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import logger from '@esparex/core/utils/logger';
-import { sendErrorResponse } from "@esparex/core/utils/errorResponse";
+import { sendErrorResponse } from "../utils/errorResponse";
 import { getCsrfCookieOptions } from '@esparex/core/utils/cookieHelper';
 import { env } from '@esparex/core/config/env';
 

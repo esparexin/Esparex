@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { extractDeviceFingerprint } from '@esparex/core/utils/deviceFingerprint';
+import { extractDeviceFingerprint } from '../utils/deviceFingerprint';
 import { analyzeFraudRisk, FraudContext, FraudDecision, RiskLevel } from '@esparex/core/services/FraudDetectionService';
 import { detectSpam } from '@esparex/core/services/SpamDetectorService';
 import { detectAiSpam } from '@esparex/core/utils/aiSpamDetector';

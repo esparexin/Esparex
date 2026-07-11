@@ -9,7 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodError, ZodSchema } from 'zod';
-import { buildErrorResponse } from "@esparex/core/utils/errorResponse";
+import { buildErrorResponse } from "../utils/errorResponse";
 import logger from '@esparex/core/utils/logger';
 import { commonSchemas, sanitizeString } from '@esparex/core/validators/common';
 
