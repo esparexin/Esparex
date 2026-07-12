@@ -218,4 +218,19 @@ Before closing the issue:
 
 **No file creation without necessity.** Prefer modifying existing files over creating new ones. Every new file increases long-term maintenance cost and must have a clear, ongoing purpose.
 
+---
+
+### Enterprise Audit Quality Gate
+
+Every repository audit, code quality review, architecture review, performance audit, or security analysis must satisfy the following Quality Gate before completion:
+
+| Gate | Requirement | Check |
+| :--- | :--- | :---: |
+| **Workflow Gate** | All mandatory workflow phases (0 to 10) completed sequentially without bypass. | `[ ]` |
+| **Evidence Gate** | Every finding marked as Verified, Estimated, or Not Verified, with trace methods declared. | `[ ]` |
+| **Governance Gate** | Complete checks for SSOT, duplicate detection, and dead code/legacy consolidation. | `[ ]` |
+| **Impact Gate** | Architecture Risk and user Severity analyzed separately, with consumer count mappings. | `[ ]` |
+| **Approval Gate** | Required review path explicitly mapped (Design, Architecture, Product, Security, etc.). | `[ ]` |
+
+All reports must be structured according to the standardized Esparex Audit template.
 
