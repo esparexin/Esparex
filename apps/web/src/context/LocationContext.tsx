@@ -191,9 +191,7 @@ export function LocationProvider({
     });
 
     const detectLocation = useCallback(async (persist = false, force = false, isAutoPrompt = false): Promise<LocationData | null> => {
-        console.log(`[LocationContext] detectLocation called: persist=${persist}, force=${force}, isAutoPrompt=${isAutoPrompt}, isDetecting=${isDetecting}`);
         if (isDetecting && !force) {
-            console.log(`[LocationContext] Returning early because isDetecting is true and force is false.`);
             return null;
         }
         setStatus("checking");
@@ -207,19 +205,14 @@ export function LocationProvider({
             eventType: 'location_permission_requested'
         });
         
-        console.log(`[LocationContext] Calling unifiedDetect`);
         const result = await unifiedDetect({ persist, force });
-        console.log(`[LocationContext] unifiedDetect result:`, result);
 
         if (isAutoPrompt && result?.failure) {
-            console.log(`[LocationContext] isAutoPrompt=true, failure=${result.failure.reason}`);
             // Check native browser state to see if it's STILL prompt (meaning user dismissed it instead of denying)
             if (typeof navigator !== "undefined" && navigator.permissions) {
                 try {
                     const permResult = await navigator.permissions.query({ name: 'geolocation' });
-                    console.log(`[LocationContext] permissions query result:`, permResult.state);
                     if (permResult.state === "prompt" && (result.failure.reason === "timeout" || result.failure.reason === "position_unavailable")) {
-                        console.log(`[LocationContext] Setting promptDismissed(true)`);
                         persistPromptDismissed(true);
                     }
                 } catch {
