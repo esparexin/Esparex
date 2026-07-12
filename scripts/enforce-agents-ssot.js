@@ -10,7 +10,7 @@ const trackedFiles = execSync("git ls-files", {
   .map((line) => line.trim())
   .filter(Boolean);
 
-const AI_GOVERNANCE_ROOT = "ai-governance/";
+const AI_GOVERNANCE_ROOT = ".agents/";
 
 const BANNED_TRACKED_PREFIXES = [
   ".config/",
@@ -56,7 +56,7 @@ for (const filePath of trackedFiles) {
   if (BANNED_TRACKED_EXACT.has(filePath)) {
     violations.push({
       file: filePath,
-      reason: "Tracked local AI/tool compatibility file outside ai-governance/",
+      reason: "Tracked local AI/tool compatibility file outside .agents/",
     });
     continue;
   }
@@ -64,7 +64,7 @@ for (const filePath of trackedFiles) {
   if (BANNED_TRACKED_PREFIXES.some((prefix) => filePath.startsWith(prefix))) {
     violations.push({
       file: filePath,
-      reason: "Tracked local AI/tool configuration directory outside ai-governance/",
+      reason: "Tracked local AI/tool configuration directory outside .agents/",
     });
     continue;
   }
@@ -72,21 +72,21 @@ for (const filePath of trackedFiles) {
   if (BANNED_OUTSIDE_GOVERNANCE_PATTERNS.some((pattern) => pattern.test(filePath))) {
     violations.push({
       file: filePath,
-      reason: "AI governance or tool-specific instruction file must live under ai-governance/",
+      reason: "AI governance or tool-specific instruction file must live under .agents/",
     });
   }
 }
 
 if (violations.length > 0) {
   console.error("❌ AI governance SSOT guard failed.");
-  console.error("The following tracked files must be consolidated under ai-governance/:");
+  console.error("The following tracked files must be consolidated under .agents/:");
   for (const violation of violations) {
     console.error(`  - ${violation.file} :: ${violation.reason}`);
   }
   console.error("\n💡 HINT:");
-  console.error("   1) Keep authoritative AI governance only in ai-governance/.");
+  console.error("   1) Keep authoritative AI governance only in .agents/.");
   console.error("   2) Keep local IDE/tool files ignored and non-authoritative.");
-  console.error("   3) Keep tool-specific compatibility files thin and derived from ai-governance/ core docs.");
+  console.error("   3) Keep tool-specific compatibility files thin and derived from .agents/ core docs.");
   process.exit(1);
 }
 

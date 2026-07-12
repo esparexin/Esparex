@@ -3,28 +3,31 @@
     "ui": {
       "skills": [
         "react",
-        "ui-audit"
+        "ui_audit"
       ],
       "rules": [
-        "ui/accessibility",
-        "ui/responsive"
+        "ui_accessibility",
+        "ui_responsive"
       ],
       "verification": [
-        "ui",
-        "code"
+        "ui_ux",
+        "code_quality"
       ]
     },
     "api": {
       "skills": [
-        "express"
+        "express",
+        "api_design"
       ],
       "rules": [
-        "api/contract",
-        "security/auth"
+        "api_contract",
+        "authentication",
+        "authorization",
+        "data_persistence"
       ],
       "verification": [
-        "api",
-        "code"
+        "api_integration",
+        "code_quality"
       ]
     },
     "database": {
@@ -32,23 +35,38 @@
         "mongodb"
       ],
       "rules": [
-        "database/schema",
-        "database/indexes"
+        "data_persistence"
       ],
       "verification": [
-        "code"
+        "code_quality"
       ]
     },
-    "repository_maintenance": {
+    "repository": {
       "skills": [
-        "repository-audit"
+        "repository_audit"
       ],
       "rules": [
-        "repository/structure"
+        "repository_discipline"
       ],
       "verification": [
-        "repository",
-        "ci"
+        "repository_cleanup",
+        "code_quality"
+      ]
+    },
+    "documentation": {
+      "skills": [],
+      "rules": [],
+      "verification": [
+        "documentation_gate"
+      ]
+    },
+    "git_operations": {
+      "skills": [
+        "git_and_github"
+      ],
+      "rules": [],
+      "verification": [
+        "repository_cleanup"
       ]
     }
   }

@@ -6,14 +6,15 @@ This directory (`.agents/`) contains the single source of truth for the AI Devel
 
 If you need to add or update knowledge, refer to this routing table:
 
-| I want to add... | Where does it go? | Example |
-| :--- | :--- | :--- |
-| **New execution step** | `workflow/` | Adding a new phase before code generation. |
-| **New engineering policy** | `governance/` | "Never allow nested ternary operators." |
-| **Esparex business behavior** | `project/` | Defining what a "SuperAdmin" is in the system. |
-| **Validation checklist** | `rules/` | "Checklist for WCAG 2.1 Accessibility." |
-| **Technical expertise** | `skills/` | "How to build a highly concurrent rate limiter in Redis." |
-| **Quality gate** | `verification/` | "Steps to run the e2e Playwright suite." |
+| I want to add... | Target | Add it to... | Example |
+| :--- | :--- | :--- | :--- |
+| **I want to add a step to the process.** | `.agents/workflow/` | "Always run tests before PR." |
+| **I want to add an absolute rule.** | `.agents/governance/` | "Never skip the linter." |
+| **I want to change what context loads.** | `.agents/resolver/` | "UI tasks need accessibility rules." |
+| **I want to add domain expertise.** | `.agents/skills/` | "How to write React components." |
+| **I want to add a validation check.** | `.agents/rules/` | "All endpoints must return 200." |
+| **I want to add a quality gate.** | `.agents/verification/` | "Checklist for PR readiness." |
+| **I want to document WHY we built this.** | `.agents/decisions/` | "ADR-001: Resolver Design" |
 | **Reusable document** | `templates/` | Standard format for incident reports. |
 
 *Note: New Rules, Skills, and Verification modules must only be created if they are highly reusable and distinct.*

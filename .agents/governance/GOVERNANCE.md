@@ -6,6 +6,14 @@ version: 2.0
 last_updated: 2026-07-12
 depends_on: []
 loads_when: ["*"]
+status: active
+confidence: stable
+reviewed_on: 2026-07-12
+review_frequency: quarterly
+replaces: []
+supersedes: []
+tags: []
+category: architecture
 ---
 # Agent Rules & Constraints
 
@@ -62,3 +70,18 @@ Do not create a new Rule, Skill, Verification module, or Template unless:
 2. It cannot logically belong in an existing module.
 3. It contains sufficient implementation detail to provide ongoing value.
 4. It is expected to be reused across multiple tasks.
+
+## 5. Skill Creation Rule
+
+A Skill can only be created if:
+* It has been used at least three times.
+* It contains reusable expertise.
+* It includes:
+  * Purpose
+  * Scope
+  * Checklist
+  * Examples
+  * Anti-patterns
+* It is not already covered by another Skill.
+
+*This prevents Skills from becoming an unstructured documentation dump.*

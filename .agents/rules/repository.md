@@ -6,6 +6,14 @@ version: 1.0
 last_updated: 2026-07-12
 depends_on: []
 loads_when: ["*"]
+status: active
+confidence: stable
+reviewed_on: 2026-07-12
+review_frequency: quarterly
+replaces: []
+supersedes: []
+tags: []
+category: architecture
 ---
 # Repository Discipline Rules
 
