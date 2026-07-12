@@ -171,7 +171,7 @@ export function BrandSearchSelect({
                             e.stopPropagation();
                             handleOpenRequestDialog();
                         }}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:text-primary transition-all"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary transition-all"
                         aria-label="Suggest brand"
                         title="Suggest brand"
                     >

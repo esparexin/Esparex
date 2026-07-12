@@ -184,7 +184,7 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
               <Input
                 id="header-global-search"
-                className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus:bg-background focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all rounded-2xl shadow-sm text-base"
+                className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base"
                 placeholder="Search for mobiles, parts, services..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}

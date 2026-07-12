@@ -16,7 +16,7 @@ export function Switch({ checked, onCheckedChange, disabled = false, className =
       {...props}
       className={`
         relative inline-flex h-6 w-11 items-center rounded-full
-        transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+        transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2
         ${checked ? 'bg-green-600' : 'bg-gray-200'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${className}
