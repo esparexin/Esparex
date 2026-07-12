@@ -33,7 +33,6 @@ import {
 } from "@/config/navigation";
 
 import LocationSelector from "../location/LocationSelector";
-import { HeaderLocationPrompts } from "../location/HeaderLocationPrompts";
 
 
 interface UserHeaderProps {
@@ -161,14 +160,6 @@ export function UserHeader({ navigateTo, isLoggedIn, isAuthLoading = false, onLo
           <div className="relative" ref={locationDropdownRef}>
             <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
 
-            <HeaderLocationPrompts
-                isMounted={true}
-                showLocationSelector={showLocationSelector}
-                setShowLocationSelector={setShowLocationSelector}
-                setShowSearchDropdown={setShowSearchDropdown}
-                firstVisitWrapperClassName="absolute left-0 top-full mt-3 w-[360px]"
-                style={{ zIndex: Z_INDEX.userHeaderPopover }}
-            />
 
             {/* Location Dropdown */}
             <div

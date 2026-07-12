@@ -25,7 +25,11 @@ const stubBrowser = (params?: {
     };
 }) => {
     const geolocation = params?.geolocation ?? {
-        getCurrentPosition: vi.fn(),
+        getCurrentPosition: vi.fn((_success: Function, error: Function) => {
+            if (params?.permissionState === "denied") {
+                error({ code: 1 });
+            }
+        }),
     };
 
     vi.stubGlobal("window", {

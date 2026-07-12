@@ -3,6 +3,7 @@
   "status": "active",
   "primary": {
     "registry": "docs/MASTER_DOCUMENT_REGISTRY.md",
+    "executionWorkflow": "ai-governance/AI_EXECUTION_WORKFLOW.md",
     "ssots": {
       "domainModel": "docs/ssot/DOMAIN_MODEL_SSOT.md",
       "apiContract": "docs/ssot/API_CONTRACT_SSOT.md",
@@ -11,17 +12,6 @@
       "governancePolicy": "docs/governance/GOVERNANCE_POLICY.md",
       "aiBoundary": "docs/governance/AI_GOVERNANCE_BOUNDARY.md"
     }
-  },
-  "boundaries": {
-    "excludeArchive": [
-      "archive/**"
-    ],
-    "rules": [
-      "Prompts must reference canonical documents.",
-      "Prompts cannot redefine database lifecycles, schemas, or enums.",
-      "Prompts cannot override REST API contracts or namespacing.",
-      "Prompts are implementation assistants only, not architectural authorities."
-    ]
   },
   "developerAiTools": [
     {
@@ -52,5 +42,6 @@
     "controller": "backend/src/controllers/ai/aiController.ts",
     "validator": "backend/src/validators/ai.validator.ts",
     "service": "backend/src/services/AiService.ts"
-  }
+  },
+  "conditional": []
 }

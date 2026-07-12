@@ -19,8 +19,6 @@ import {
     LABEL_CURRENT_LOCATION_CAPTURED,
 } from "@/lib/location/locationLabels";
 
-const GEOLOCATION_TIMEOUT_MS = 20000;
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     typeof value === "object" && value !== undefined && !Array.isArray(value);
 
@@ -194,6 +192,31 @@ export type LocationDetectResult = {
     failure?: LocationDetectFailure;
 };
 
+export type LocationDetectionState =
+    | "idle"
+    | "checking_permission"
+    | "requesting_gps"
+    | "gps_acquired"
+    | "reverse_geocoding"
+    | "location_resolved"
+    | "permission_denied"
+    | "gps_timeout"
+    | "reverse_geocode_failed"
+    | "network_error";
+
+export const LOCATION_STATE_MESSAGES: Record<LocationDetectionState, string> = {
+    idle: "Detect My Location",
+    checking_permission: "Checking location permission...",
+    requesting_gps: "Requesting GPS access...",
+    gps_acquired: "GPS location acquired...",
+    reverse_geocoding: "Finding your nearest city...",
+    location_resolved: "Location detected",
+    permission_denied: "Location permission denied",
+    gps_timeout: "GPS request timed out",
+    reverse_geocode_failed: "Unable to determine your location",
+    network_error: "Unable to connect to location service",
+};
+
 const mapGeolocationError = (error: unknown): LocationDetectFailure => {
     const code = isRecord(error) && typeof error.code === "number" ? error.code : null;
     if (code === 1) {
@@ -275,29 +298,26 @@ const detectApproximateLocationByIP = async (): Promise<LocationDetectResult | n
     };
 };
 
-const detectPreciseLocation = async (
+export async function* detectPreciseLocationGenerator(
     options: CurrentLocationOptions = {}
-): Promise<LocationDetectResult> => {
-    const allowApproximateFallback = options.allowApproximateFallback === true;
-    const timeoutMs = options.timeoutMs ?? GEOLOCATION_TIMEOUT_MS;
-    const maximumAgeMs = options.maximumAgeMs ?? 0;
-    const enableHighAccuracy = options.enableHighAccuracy ?? true;
+): AsyncGenerator<LocationDetectionState, LocationDetectResult, void> {
+    const {
+        allowApproximateFallback = true,
+        timeoutMs = 20000,
+        maximumAgeMs = 0,
+        enableHighAccuracy = true,
+    } = options;
 
-    if (typeof window === "undefined") {
-        return buildFailureResult({
-            reason: "unsupported",
-            message: "Location detection is unavailable on the server.",
-        });
-    }
+    yield "checking_permission";
 
     if (!isSecureLocationContext()) {
+        yield "permission_denied";
         const approximate = allowApproximateFallback
             ? await detectApproximateLocationByIP()
             : null;
         if (approximate) {
             return approximate;
         }
-
         return buildFailureResult({
             reason: "insecure_context",
             message:
@@ -306,6 +326,7 @@ const detectPreciseLocation = async (
     }
 
     if (!navigator.geolocation) {
+        yield "permission_denied";
         const approximate = allowApproximateFallback
             ? await detectApproximateLocationByIP()
             : null;
@@ -319,23 +340,12 @@ const detectPreciseLocation = async (
         });
     }
 
-    let permissionState: PermissionState | "unknown" = "unknown";
-    try {
-        if ("permissions" in navigator && navigator.permissions?.query) {
-            const result = await navigator.permissions.query({ name: "geolocation" });
-            permissionState = result.state;
-        }
-    } catch {
-        permissionState = "unknown";
-    }
-
-    if (permissionState === "denied") {
-        return buildFailureResult({
-            reason: "permission_denied",
-            message:
-                "Location permission denied. Allow location access in your browser settings and try again.",
-        });
-    }
+    // We intentionally DO NOT await navigator.permissions.query() here.
+    // Awaiting promises and crossing React state boundaries can cause the browser 
+    // to lose the "user gesture" context. If the gesture is lost, modern browsers 
+    // (like Chrome/Safari) will silently suppress the geolocation popup, causing 
+    // an indefinite hang. getCurrentPosition natively handles "denied" anyway by 
+    // immediately returning error.code === 1.
 
     // PR-3 Hardening: 3 attempts with exponential backoff for transient "Unknown" errors
     const MAX_ATTEMPTS = 3;
@@ -344,6 +354,7 @@ const detectPreciseLocation = async (
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
         try {
+            yield "requesting_gps";
             const coords = await new Promise<GeolocationCoordinates>(
                 (resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(
@@ -358,17 +369,22 @@ const detectPreciseLocation = async (
                 }
             );
 
+            yield "gps_acquired";
+            yield "reverse_geocoding";
             const resolved = await autoDetectLocation(
                 coords.latitude,
                 coords.longitude
             );
+            
             if (resolved) {
+                yield "location_resolved";
                 return {
                     location: resolved,
                     source: "auto",
                 };
             }
 
+            yield "reverse_geocode_failed";
             return {
                 location: buildAppLocation({
                     formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
@@ -406,6 +422,7 @@ const detectPreciseLocation = async (
     // this succeeds in most indoor environments where GPS does not.
     if (lastFailureReason === "position_unavailable" && enableHighAccuracy) {
         try {
+            yield "requesting_gps";
             const coords = await new Promise<GeolocationCoordinates>((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(
                     (position) => resolve(position.coords),
@@ -418,11 +435,16 @@ const detectPreciseLocation = async (
                 );
             });
 
+            yield "gps_acquired";
+            yield "reverse_geocoding";
             const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
+            
             if (resolved) {
+                yield "location_resolved";
                 return { location: resolved, source: "auto" };
             }
 
+            yield "reverse_geocode_failed";
             return {
                 location: buildAppLocation({
                     formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
@@ -441,20 +463,38 @@ const detectPreciseLocation = async (
     }
 
     const failure = mapGeolocationError(lastError);
+    if (failure.reason === "permission_denied") {
+        yield "permission_denied";
+    } else if (failure.reason === "timeout") {
+        yield "gps_timeout";
+    } else {
+        yield "network_error";
+    }
+    
     if (allowApproximateFallback && failure.reason !== "permission_denied") {
         const approximate = await detectApproximateLocationByIP();
         if (approximate) {
+            yield "location_resolved";
             return approximate;
         }
     }
 
     return buildFailureResult(failure);
-};
+}
 
 export async function getCurrentLocationResult(
     options: CurrentLocationOptions = {}
 ): Promise<LocationDetectResult> {
-    return detectPreciseLocation(options);
+    const generator = detectPreciseLocationGenerator(options);
+    let finalResult: LocationDetectResult | undefined;
+    while (true) {
+        const { value, done } = await generator.next();
+        if (done) {
+            finalResult = value as LocationDetectResult;
+            break;
+        }
+    }
+    return finalResult;
 }
 
 export function normalizeLocationName(name: string | undefined | null): string {

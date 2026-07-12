@@ -4,7 +4,6 @@ import { Menu, MapPin, Search, LogIn, ChevronDown } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import LocationSelector from "@/components/location/LocationSelector";
-import { HeaderLocationPrompts } from "@/components/location/HeaderLocationPrompts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
@@ -13,7 +12,6 @@ import { useMounted } from "@/hooks/useMounted";
 import type { UserPage } from "@/lib/routeUtils";
 import { usePathname, useSearchParams } from "next/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
-import { Z_INDEX } from "@/lib/zIndexConfig";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
@@ -185,16 +183,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                 </Sheet>
             </header>
 
-            <HeaderLocationPrompts
-                isMounted={isMounted}
-                showLocationSelector={showLocationSelector}
-                setShowLocationSelector={setShowLocationSelector}
-                firstVisitBackdropClassName="md:hidden fixed inset-0 bg-slate-950/20 backdrop-blur-[1px]"
-                firstVisitWrapperClassName="md:hidden fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] px-3 pb-3"
-                firstVisitPromptClassName="pointer-events-auto border-slate-200 bg-white shadow-[0_-18px_45px_rgba(15,23,42,0.18)] animate-in fade-in slide-in-from-bottom-4 duration-300"
-                style={{ zIndex: Z_INDEX.mobileHeaderTooltip }}
-                disableBlockedModal={true}
-            />
+
 
         </>
     );

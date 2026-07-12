@@ -176,20 +176,43 @@ export async function startServer() {
 import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
 import redisClient from '@esparex/core/utils/redisCache';
 
+let previousHealthState: Record<string, string> = {};
+let isFirstProbe = true;
+
 function startReliabilityProbeLoop() {
     if (reliabilityProbeInterval) return;
     reliabilityProbeInterval = setInterval(() => {
         void getHealthCheckData()
             .then((health) => {
-                if (health.status !== 'ok') {
-                    logger.warn('[RELIABILITY_PROBE] degraded subsystem detected', {
-                        status: health.status,
-                        redisConnected: health.redisConnected,
-                        dbStatus: health.databaseHealth.overall,
-                        queueStatus: health.queueStatus,
-                        workerStatus: health.workerStatus,
-                    });
+                const currentServices = health.services as Record<string, string>;
+                
+                if (isFirstProbe) {
+                    isFirstProbe = false;
+                    for (const [service, state] of Object.entries(currentServices)) {
+                        if (state === 'disabled' || state === 'skipped') {
+                            logger.info(`[RELIABILITY_PROBE] ${service} is intentionally ${state} for this runtime.`);
+                        } else if (state !== 'healthy') {
+                            logger.warn(`[RELIABILITY_PROBE] ${service} started in state: ${state}`);
+                        }
+                    }
                 } else {
+                    for (const [service, state] of Object.entries(currentServices)) {
+                        const prevState = previousHealthState[service];
+                        if (prevState && prevState !== state) {
+                            if (state === 'healthy') {
+                                logger.info(`[RELIABILITY_PROBE] ${service} recovered: ${prevState} -> ${state}`);
+                            } else if (state === 'failed' || state === 'degraded') {
+                                logger.warn(`[RELIABILITY_PROBE] ${service} degraded: ${prevState} -> ${state}`);
+                            } else {
+                                logger.info(`[RELIABILITY_PROBE] ${service} state changed: ${prevState} -> ${state}`);
+                            }
+                        }
+                    }
+                }
+                
+                previousHealthState = { ...currentServices };
+
+                if (health.status === 'ok') {
                     const resetCount = resetAllOpenCircuitBreakers('health_probe_ok');
                     if (resetCount > 0) {
                         logger.warn('[RELIABILITY_PROBE] circuit breakers auto-reset after recovery', {

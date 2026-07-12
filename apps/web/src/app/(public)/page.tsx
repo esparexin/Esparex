@@ -96,6 +96,8 @@ export const metadata: Metadata = {
     },
 };
 
+import { HomeLocationAutoPrompt } from "@/components/home/HomeLocationAutoPrompt";
+
 export default async function Home() {
     const [categories, initialHomeAds] = await Promise.all([
         withTimeout(getHomeCategories(), 5000, []),
@@ -108,6 +110,7 @@ export default async function Home() {
 
     return (
         <div className="bg-white text-foreground">
+            <HomeLocationAutoPrompt />
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{

@@ -123,13 +123,8 @@ export function useLocationActionHandlers({
         }
     }, [setLocation, setStatus, setDetectError, autoDetectedRef, clearStoredLocation]);
 
-    const dismissFirstVisitPrompt = useCallback(() => {
-        persistPromptDismissed(true);
-    }, [persistPromptDismissed]);
-
     return {
         setManualLocation,
-        clearLocation,
-        dismissFirstVisitPrompt
+        clearLocation
     };
 }
