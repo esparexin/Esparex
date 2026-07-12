@@ -24,6 +24,7 @@ export const useNotificationsQuery = ({
         queryKey: queryKeys.notifications.list({ page, limit, filter, type, q }),
         queryFn: () => notificationApi.getAll({ page, limit, filter, type, q }),
         enabled, // Restored enabled usage to respect SSR rules
-        refetchOnWindowFocus: true, // Keep manual fallback refresh
-        refetchOnReconnect: true    // Keep network reconnect refresh
+        staleTime: 5 * 60 * 1000,  // 5 min — throttles refetchOnWindowFocus so it only fires after data is actually stale
+        refetchOnWindowFocus: true, // Intentional: refreshes unread badge when user returns to the tab
+        refetchOnReconnect: true    // Intentional: refreshes after network reconnect
     });

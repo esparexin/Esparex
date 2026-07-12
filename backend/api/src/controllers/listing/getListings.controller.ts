@@ -314,6 +314,7 @@ export const getHomeFeed = async (req: Request, res: Response, next: NextFunctio
         });
         const etagValue = `W/"${Buffer.from(JSON.stringify(payload)).toString('base64').substring(0, 24)}"`;
         res.setHeader('ETag', etagValue);
+        res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
         if (req.headers['if-none-match'] === etagValue) {
             return res.status(304).end();
         }
