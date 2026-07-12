@@ -3,14 +3,14 @@
 Every developer AI agent executing in this workspace must load and obey the canonical governance policies as the single source of truth:
 
 1. **Verification & Evidence Rules**:
-   - Refer strictly to the evidence standards and checklists defined in [Verification Standard](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/VERIFICATION_STANDARD.md).
+   - Refer strictly to the evidence standards and checklists.
    - Never report a task as complete without verified, objective evidence.
 2. **AI Prompts & Isolation boundaries**:
-   - Obey the prompt isolation boundaries and non-authoritative status rules defined in [AI Governance Boundary](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/AI_GOVERNANCE_BOUNDARY.md).
+   - Obey the prompt isolation boundaries and non-authoritative status rules.
 3. **Engineering conventions & type safety**:
-   - Adhere to casing, type-safety, and TypeScript constraints defined in the [Engineering Governance Policy](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/GOVERNANCE_POLICY.md).
+   - Adhere to casing, type-safety, and TypeScript constraints.
 4. **Architectural boundaries**:
-   - Follow import boundary invariants and package public interfaces defined in the [Repository Governance Standard](file:///c:/Users/Administrator/Documents/GitHub/Esparex/docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md).
+   - Follow import boundary invariants and package public interfaces.
 5. **AI Execution Workflow**:
    - Before writing any code, load and execute every phase defined in [AI Execution Workflow](file:///c:/Users/Administrator/Documents/GitHub/Esparex/ai-governance/AI_EXECUTION_WORKFLOW.md).
    - Never skip, reorder, or bypass a mandatory phase gate. Stop immediately if any gate fails.
@@ -110,7 +110,7 @@ Never assume. Never guess. Never create a new pattern until the existing impleme
 
 ### Existing Implementation Review
 
-Before implementation, identify the canonical implementation in the current repository. Do not assume file names or locations. During the Repository Audit and Architecture Audit, locate the existing implementation and verify whether it can be reused or extended before creating anything new.
+Before implementation, identify the canonical implementation in the current repository. Do not assume file names or locations. Locate the existing implementation in the live repository and verify whether it can be reused or extended before creating anything new.
 
 For every task, ask:
 
@@ -170,12 +170,10 @@ Before writing any code, confirm all of the following:
 
 ## Documentation Minimalism
 
-- Do not create `.md` files unless they provide long-term value.
-- Use a single temporary working report for audits.
-- Present findings to the user before creating permanent documentation.
-- After implementation is approved and completed, remove temporary reports.
+- Do not create `.md` files unless they provide long-term, ongoing operational value.
+- **Do not create Markdown files for audits, reports, validation, implementation summaries, progress tracking, or temporary planning.**
 - Reuse existing documentation whenever possible instead of creating new files.
-- Avoid documentation duplication and stale reports.
+- Avoid documentation duplication.
 
 ---
 
@@ -202,35 +200,14 @@ Before creating any new documentation:
 ### Repository Cleanup
 
 Before closing the issue:
-- Remove temporary reports.
-- Remove temporary scripts.
-- Remove temporary debug files.
-- Remove temporary screenshots.
-- Remove temporary exports.
-- Remove temporary notes.
-- Remove any empty directories created during the audit.
+- Remove any temporary debug files.
+- Remove temporary screenshots or exports.
+- Remove any empty directories created during the task.
 
-*Leave the repository in the same or cleaner state than before the audit.*
+*Leave the repository in the same or cleaner state than before you started.*
 
 ---
 
 ### File Creation Necessity
 
 **No file creation without necessity.** Prefer modifying existing files over creating new ones. Every new file increases long-term maintenance cost and must have a clear, ongoing purpose.
-
----
-
-### Enterprise Audit Quality Gate
-
-Every repository audit, code quality review, architecture review, performance audit, or security analysis must satisfy the following Quality Gate before completion:
-
-| Gate | Requirement | Check |
-| :--- | :--- | :---: |
-| **Workflow Gate** | All mandatory workflow phases (0 to 10) completed sequentially without bypass. | `[ ]` |
-| **Evidence Gate** | Every finding marked as Verified, Estimated, or Not Verified, with trace methods declared. | `[ ]` |
-| **Governance Gate** | Complete checks for SSOT, duplicate detection, and dead code/legacy consolidation. | `[ ]` |
-| **Impact Gate** | Architecture Risk and user Severity analyzed separately, with consumer count mappings. | `[ ]` |
-| **Approval Gate** | Required review path explicitly mapped (Design, Architecture, Product, Security, etc.). | `[ ]` |
-
-All reports must be structured according to the standardized Esparex Audit template.
-

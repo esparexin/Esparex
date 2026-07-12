@@ -91,10 +91,6 @@ Phase 18 — Completion Report             [Execution Phase]
 **Classification:** Execution Phase  
 **Trigger:** Start of every task, before reading the user request.
 
-### Authority
-- `ai-governance/AI_CONTEXT.json`
-- `.agents/AGENTS.md`
-
 ### Inputs
 - Repository workspace
 - Loaded AI tool context
@@ -124,9 +120,6 @@ Phase 18 — Completion Report             [Execution Phase]
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 0 passes.
-
-### Authority
-- `.agents/AGENTS.md` — Rule 6 (Live Repository First)
 
 ### Inputs
 - Complete user request text
@@ -160,9 +153,6 @@ Phase 18 — Completion Report             [Execution Phase]
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 1 passes.
-
-### Authority
-- None. Classification is an internal routing decision.
 
 ### Inputs
 - Requirement list from Phase 1
@@ -213,9 +203,6 @@ Also determine:
 **Classification:** Execution Gate  
 **Trigger:** After Phase 2 passes.
 
-### Authority
-- `docs/governance/VERIFICATION_STANDARD.md §2` — verification gates
-
 ### Inputs
 - Task description from Phase 1
 - GitHub repository access
@@ -245,9 +232,6 @@ Also determine:
 
 > **Renamed from "Pull Request Validation"** to remove ambiguity. This phase detects conflicts in open PRs — it does NOT satisfy any PR creation obligation. A PR is created in Phase 6.
 
-### Authority
-- `docs/governance/VERIFICATION_STANDARD.md §4` — Git workflow rules
-
 ### Inputs
 - Task scope from Phase 2
 - GitHub repository access
@@ -274,10 +258,6 @@ Also determine:
 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 4 passes.
-
-### Authority
-- `docs/governance/VERIFICATION_STANDARD.md §2` — sequential verification gates
-- `docs/governance/VERIFICATION_STANDARD.md §5` — final checklist (`git status`)
 
 ### Inputs
 - Live git repository state
@@ -312,9 +292,6 @@ git log --oneline  # confirm no broken commit state
 **Trigger:** After Phase 5 passes.
 
 > **Expanded from "Branch Validation"**. This gate now requires a feature branch AND a draft PR to exist before execution continues. Implementation is blocked until both are confirmed.
-
-### Authority
-- `docs/governance/VERIFICATION_STANDARD.md §4` — branch protection rules
 
 ### Inputs
 - Current branch name
@@ -370,10 +347,6 @@ git ls-remote      # confirm remote state
 **Classification:** Execution Phase  
 **Trigger:** After Phase 6 passes.
 
-### Authority
-- `.agents/AGENTS.md` — Rule 6 (Live Repository First)
-- `docs/governance/AI_GOVERNANCE_BOUNDARY.md §1.1` — canonical documents win; verify against live source
-
 ### Inputs
 - Live source code files
 - `package.json`, `tsconfig.json`, workspace configuration
@@ -418,10 +391,6 @@ Inspect the live repository directly. Map the following for the scope of this ta
 **Classification:** Execution Phase  
 **Trigger:** After Phase 7 passes.
 
-### Authority
-- Global Skill Library: `C:\Users\Administrator\.gemini\config\skills\`
-- Workspace Skill Library: `.agents/skills/`
-
 ### Inputs
 - Task classification from Phase 2
 - Live repository map from Phase 7
@@ -450,10 +419,6 @@ Inspect the live repository directly. Map the following for the scope of this ta
 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 8 passes.
-
-### Authority
-- `docs/governance/GOVERNANCE_POLICY.md §2.2` — DRY principle, Clean Architecture boundaries
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §6` — package public interface specification
 
 ### Inputs
 - Live repository map from Phase 7
@@ -494,13 +459,6 @@ Search the entire repository for each of the following before creating any new a
 **Classification:** Execution Gate  
 **Trigger:** After Phase 9 passes.
 
-### Authority
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §1` — prohibited coding patterns
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §2` — core architectural invariants
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §6` — package public interface specification
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §8` — package ownership matrix
-- `docs/governance/GOVERNANCE_POLICY.md §2.2` — strict dependency flow and clean architecture boundaries
-
 ### Inputs
 - Planned implementation from Phases 1 and 9
 - Live repository map from Phase 7
@@ -537,10 +495,6 @@ Validate every planned change against the architectural invariants:
 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 10 passes.
-
-### Authority
-- `docs/governance/GOVERNANCE_POLICY.md §2.1` — naming conventions (camelCase, PascalCase, Boolean prefixes)
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §7` — validator casing and categorization
 
 ### Inputs
 - Planned file list
@@ -584,11 +538,6 @@ Answer each question before creating any file:
 > 3. A **draft Pull Request is open** on GitHub, linked to the Issue from Phase 3.
 >
 > If any of the three conditions above is not met, **STOP**. Return to Phase 6 and resolve before continuing.
-
-### Authority
-- `docs/governance/GOVERNANCE_POLICY.md §1` — TypeScript strict standards; no `any`; no speculative patches
-- `docs/governance/GOVERNANCE_POLICY.md §2.2` — Clean Architecture boundaries; SOLID principles
-- `docs/governance/DEVELOPER_HANDBOOK.md §4` — bottom-up feature implementation order
 
 ### Inputs
 - Accepted requirement list from Phase 1
@@ -644,10 +593,6 @@ The following apply continuously throughout coding. Any violation is a blocking 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 12 passes.
 
-### Authority
-- `docs/governance/GOVERNANCE_POLICY.md §1` — type safety and ESLint rules
-- `docs/governance/GOVERNANCE_POLICY.md §2.2` — separation of concerns, high cohesion, low coupling
-
 ### Inputs
 - Completed implementation from Phase 12
 
@@ -679,9 +624,6 @@ The following apply continuously throughout coding. Any violation is a blocking 
 
 **Classification:** Execution Gate — Conditional  
 **Trigger:** After Phase 13 passes. Execute **only** if the UI-modified flag from Phase 2 is `Yes`. Otherwise skip directly to Phase 15.
-
-### Authority
-- `docs/governance/GOVERNANCE_POLICY.md §2.2` — frontend purity (presentational components only)
 
 ### Inputs
 - All modified or created UI components and pages
@@ -752,9 +694,6 @@ Every interactive element must implement all applicable states:
 **Classification:** Execution Gate  
 **Trigger:** After Phase 14 passes or is skipped.
 
-### Authority
-- `docs/governance/GOVERNANCE_POLICY.md §3.2` — document lifecycle; no suffix proliferation; update in place
-
 ### Inputs
 - Full working tree state
 
@@ -790,10 +729,6 @@ Verify the working tree contains **only** files that belong to this implementati
 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 15 passes.
-
-### Authority
-- `docs/governance/VERIFICATION_STANDARD.md §2` — sequential verification gates
-- `docs/governance/AI_GOVERNANCE_BOUNDARY.md §4` — required pre-PR commands
 
 ### Inputs
 - Complete, clean implementation from all prior phases
@@ -855,11 +790,6 @@ If the UI-modified flag is `Yes`, also run:
 
 > **Renamed from "Pull Request Preparation"**. The draft PR was opened in Phase 6. This phase finalizes it: marks it ready for review, attaches verification evidence, and confirms CI passes on remote.
 
-### Authority
-- `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §10` — pull request architecture checklist
-- `docs/governance/VERIFICATION_STANDARD.md §4` — Git workflow rules
-- `commitlint.config.js` — conventional commit format enforcement
-
 ### Inputs
 - Draft PR URL from Phase 6
 - Passing verification pipeline from Phase 16
@@ -919,9 +849,6 @@ Body lines: max 100 characters each
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 17 passes.
-
-### Authority
-- `docs/governance/VERIFICATION_STANDARD.md §5` — final completion checklist
 
 ### Inputs
 - Gate outputs from all prior phases
@@ -1001,3 +928,4 @@ If any item is missing or unverified, status remains **In Progress**.
 |---------|-----------|-------------|
 | ✅ PASS | Every checklist item satisfied; Completion Report fully populated with evidence | **Execution complete. Return Completion Report.** |
 | ❌ FAIL | Any checklist item unverified | Do not declare completion. Resolve the missing item. |
+
