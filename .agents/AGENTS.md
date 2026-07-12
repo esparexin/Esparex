@@ -174,3 +174,45 @@ Before writing any code, confirm all of the following:
 - Reuse existing documentation whenever possible instead of creating new files.
 - Avoid documentation duplication and stale reports.
 
+---
+
+### Existing Documentation Review Rule
+
+Before creating a new documentation file, audit existing documentation (README.md, ARCHITECTURE.md, CONTRIBUTING.md, AGENTS.md, etc.). If the information logically belongs in an existing document, update that document instead of creating a new one.
+
+---
+
+### Documentation Creation Gate
+
+Before creating any new documentation:
+
+- [ ] Does an existing document already cover this topic?
+- [ ] Is this documentation required after the task is completed?
+- [ ] Will developers use it in the future?
+- [ ] Is it referenced by tooling, CI, onboarding, or governance?
+- [ ] Has the user approved creating it?
+
+*If any answer is "No", do not create a new file.*
+
+---
+
+### Repository Cleanup
+
+Before closing the issue:
+- Remove temporary reports.
+- Remove temporary scripts.
+- Remove temporary debug files.
+- Remove temporary screenshots.
+- Remove temporary exports.
+- Remove temporary notes.
+- Remove any empty directories created during the audit.
+
+*Leave the repository in the same or cleaner state than before the audit.*
+
+---
+
+### File Creation Necessity
+
+**No file creation without necessity.** Prefer modifying existing files over creating new ones. Every new file increases long-term maintenance cost and must have a clear, ongoing purpose.
+
+
