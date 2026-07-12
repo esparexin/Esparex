@@ -396,9 +396,6 @@ export default function LocationSelector({
                                     )}
                                 </div>
                             </div>
-                            {(!searchApi.isDetecting && !searchApi.successFeedback && location?.source !== "default" && location?.display && location?.display !== "India") && (
-                                <RefreshCw className="h-4 w-4 shrink-0 text-muted-foreground opacity-70" />
-                            )}
                         </Button>
 
                         {searchApi.detectFeedback && !searchApi.isDetecting && (
@@ -515,9 +512,6 @@ export default function LocationSelector({
                                     )}
                                 </div>
                             </div>
-                            {(!searchApi.isDetecting && !searchApi.successFeedback && location?.source !== "default" && location?.display && location?.display !== "India") && (
-                                <RefreshCw className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-70 group-hover:opacity-100 transition-opacity" />
-                            )}
                         </Button>
                         {searchApi.detectFeedback && !searchApi.isDetecting && (
                             <div className="px-2 py-1 bg-destructive/5 rounded-lg border border-destructive/10 mt-1">
