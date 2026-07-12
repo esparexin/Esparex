@@ -94,10 +94,7 @@ if (schemaChanges.length === 0) {
 
 // Migration evidence pattern matches
 const migrationPatterns = [
-    /^backend\/user\/migrations\//,
-    /^docs\/schema-changelog\.md$/,
-    /^docs\/migrations\/.*\.md$/,
-    /^docs\/operations\/.*\.md$/
+    /^backend\/user\/migrations\//
 ];
 
 const hasMigrationEvidence = allFiles.some(file =>
@@ -112,8 +109,6 @@ if (hasMigrationEvidence) {
 console.error("❌ Schema migration governance violation.");
 console.error("Changed schema/model files:");
 schemaChanges.forEach(file => console.error(`  - ${file}`));
-console.error("\nRequired with core model changes (pick at least one):");
-console.error("  1) Add/update a migration under backend/api/migrations/");
-console.error("  2) Update docs/schema-changelog.md");
-console.error("  3) Add/update migration or rollout runbook under docs/migrations/ or docs/operations/");
+console.error("\nRequired with core model changes:");
+console.error("  - Add/update a migration under backend/api/migrations/");
 process.exit(1);

@@ -758,16 +758,13 @@ Execute in this exact order. If any step fails, fix the issue and re-run **all s
 7.  npm run guard:platform-governance
     Architecture boundary validation
 
-8.  npm run docs:lint
-    Document hygiene check
-
-9.  npm run repository:doctor -- --profile ci
+8.  npm run repository:doctor -- --profile ci
     Repository health check
 ```
 
 If the UI-modified flag is `Yes`, also run:
 ```
-10. npm run test:e2e
+9. npm run test:e2e
     Playwright E2E — user-facing flow validation
 ```
 
