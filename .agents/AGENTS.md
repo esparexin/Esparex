@@ -162,3 +162,15 @@ Before writing any code, confirm all of the following:
 - [ ] The implementation follows the existing architecture and project standards.
 
 **The current workflow remains unchanged. This review exists only to improve implementation quality and maintain consistency across the project.**
+
+---
+
+## Documentation Minimalism
+
+- Do not create `.md` files unless they provide long-term value.
+- Use a single temporary working report for audits.
+- Present findings to the user before creating permanent documentation.
+- After implementation is approved and completed, remove temporary reports.
+- Reuse existing documentation whenever possible instead of creating new files.
+- Avoid documentation duplication and stale reports.
+
