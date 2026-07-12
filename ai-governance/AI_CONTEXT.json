@@ -13,17 +13,6 @@
       "aiBoundary": "docs/governance/AI_GOVERNANCE_BOUNDARY.md"
     }
   },
-  "boundaries": {
-    "excludeArchive": [
-      "archive/**"
-    ],
-    "rules": [
-      "Prompts must reference canonical documents.",
-      "Prompts cannot redefine database lifecycles, schemas, or enums.",
-      "Prompts cannot override REST API contracts or namespacing.",
-      "Prompts are implementation assistants only, not architectural authorities."
-    ]
-  },
   "developerAiTools": [
     {
       "tool": "Codex",
@@ -53,5 +42,6 @@
     "controller": "backend/src/controllers/ai/aiController.ts",
     "validator": "backend/src/validators/ai.validator.ts",
     "service": "backend/src/services/AiService.ts"
-  }
+  },
+  "conditional": []
 }

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, type CSSProperties } from "re
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLocationStatus, useLocationDispatch } from "@/context/LocationContext";
+import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { Search, MapPin, Target, X, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
@@ -40,13 +40,13 @@ export default function LocationSelector({
     const isPanel = variant === "panel";
     const { detectError } = useLocationStatus();
     const { setManualLocation } = useLocationDispatch();
+    const { location } = useLocationData();
 
     const [query, setQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [selectedLabel, setSelectedLabel] = useState(currentDisplay || "");
     const [hasSelection, setHasSelection] = useState(Boolean(currentDisplay));
-    const [selectionSource, setSelectionSource] = useState<"manual" | "gps" | null>(currentDisplay ? "manual" : null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -54,9 +54,8 @@ export default function LocationSelector({
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
     const manuallyClearedRef = useRef(false);
 
-    const applySelection = useCallback((loc: Location, source: "manual" | "gps" = "manual") => {
+    const applySelection = useCallback((loc: Location, _source: "manual" | "gps" = "manual") => {
         manuallyClearedRef.current = false;
-        setSelectionSource(source);
         if (!isPanel) {
             const rawLabel = normalizeLocationName(loc.display || loc.name || loc.city);
             const prefix = (loc as SnappedLocation).isSnapped ? "~ " : "";
@@ -221,7 +220,6 @@ export default function LocationSelector({
         manuallyClearedRef.current = true;
         setSelectedLabel("");
         setHasSelection(false);
-        setSelectionSource(null);
         setQuery("");
         setIsOpen(true);
         searchApi.clearSearchSession();
@@ -380,11 +378,12 @@ export default function LocationSelector({
                             <span className="flex min-w-0 items-center gap-2">
                                 <Target className={cn("h-4 w-4 shrink-0", searchApi.isDetecting && "animate-spin")} />
                                 <span className="truncate">
-                                    {searchApi.isDetecting ? "Detecting current location..." : "Use Current Location"}
+                                    {searchApi.isDetecting 
+                                        ? (searchApi.detectFeedback || "Detecting location...") 
+                                        : (location?.source !== "default" && location?.display && location?.display !== "India")
+                                            ? `Current: ${location.display}`
+                                            : "Detect My Location"}
                                 </span>
-                            </span>
-                            <span className="shrink-0 rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-                                GPS
                             </span>
                         </Button>
 
@@ -467,11 +466,6 @@ export default function LocationSelector({
                 />
                 <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                     {(searchApi.isSearching || searchApi.isDetecting) && <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />}
-                    {hasSelection && selectionSource === "gps" && (
-                        <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-tighter">
-                            GPS
-                        </span>
-                    )}
                     {hasSelection && !disabled && (
                         <button type="button" onClick={handleClear} className="flex items-center justify-center h-8 px-2.5 rounded-lg bg-muted/60 hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" title="Change location">
                             Change
@@ -488,10 +482,13 @@ export default function LocationSelector({
                         <Button variant="ghost" className="w-full justify-start text-muted-foreground h-11 px-2 text-xs font-normal hover:bg-primary/5 group" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
                             <Target className={cn("mr-2 h-4 w-4", searchApi.isDetecting ? "animate-spin text-primary" : "group-hover:text-primary transition-colors")} />
                             <div className="flex flex-col items-start leading-none">
-                                <span className={cn("font-medium", searchApi.isDetecting ? "text-primary" : "")}>
-                                    {searchApi.isDetecting ? (searchApi.detectFeedback?.split('.')[0] + '...') : "Use Current Location"}
+                                <span className="truncate">
+                                    {searchApi.isDetecting 
+                                        ? (searchApi.detectFeedback || "Detecting location...") 
+                                        : (location?.source !== "default" && location?.display && location?.display !== "India")
+                                            ? `Current: ${location.display}`
+                                            : "Detect My Location"}
                                 </span>
-                                {searchApi.isDetecting && <span className="text-[10px] opacity-60">Wait a moment...</span>}
                             </div>
                         </Button>
                         {searchApi.detectFeedback && !searchApi.isDetecting && (

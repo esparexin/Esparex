@@ -17,8 +17,6 @@ import {
 import type { AppLocation, GeoJSONPoint } from "@/types/location";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { isGenericDetectedLocation } from "@/lib/location/locationService";
-import { shouldShowLocationFirstVisitPrompt } from "./locationPrompt";
-
 // Hooks
 import {
     useLocationStorage,
@@ -45,14 +43,13 @@ export type LocationStatusContextType = {
     status: LocationStatus;
     detectError: string | null;
     loading: boolean;
-    shouldShowFirstVisitPrompt: boolean;
-    isPermissionBlocked: boolean;
-    showPermissionBlockedModal: boolean;
     locationExpired: boolean;
+    detectFeedback: string | null;
+    promptDismissed: boolean;
 };
 
 export type LocationDispatchContextType = {
-    detectLocation: (persist?: boolean, force?: boolean) => Promise<LocationData | null>;
+    detectLocation: (persist?: boolean, force?: boolean, isAutoPrompt?: boolean) => Promise<LocationData | null>;
     setManualLocation: (
         city: string,
         state?: string,
@@ -68,9 +65,6 @@ export type LocationDispatchContextType = {
         }
     ) => void;
     clearLocation: () => void;
-    dismissFirstVisitPrompt: () => void;
-    dismissPermissionBlockedModal: () => void;
-    resetPermissionBlocked: () => void;
 };
 
 export type LocationActionsContextType = LocationDispatchContextType;
@@ -103,9 +97,7 @@ export function LocationProvider({
     const [location, setLocation] = useState<LocationData>(DEFAULT_APP_LOCATION);
     const [status, setStatus] = useState<LocationStatus>("unknown");
     const [detectError, setDetectError] = useState<string | null>(null);
-    const [promptDismissed, setPromptDismissed] = useState(false);
-    const [showPermissionBlockedModal, setShowPermissionBlockedModal] = useState(false);
-    const [isPermissionBlocked, setIsPermissionBlocked] = useState(false);
+    const [_promptDismissed, setPromptDismissed] = useState(false);
     const [locationExpired, setLocationExpired] = useState(false);
 
     const initializedRef = useRef(false);
@@ -161,8 +153,6 @@ export function LocationProvider({
     const handleSuccess = useCallback((loc: LocationData, persist?: boolean) => {
         autoDetectedRef.current = true;
         setPermissionBlockedFlag(false);
-        setIsPermissionBlocked(false);
-        setShowPermissionBlockedModal(false);
         applyResolvedLocation(loc, persist);
         
         logAnalytics?.({
@@ -183,8 +173,6 @@ export function LocationProvider({
         setStatus("denied");
         setDetectError("Location access is disabled for this site. Enable it in your browser's site settings.");
         setPermissionBlockedFlag(true);
-        setIsPermissionBlocked(true);
-        setShowPermissionBlockedModal(true);
         
         logAnalytics?.({
             source: 'default',
@@ -195,15 +183,19 @@ export function LocationProvider({
         });
     }, [setPermissionBlockedFlag, logAnalytics]);
 
-    const { detect: unifiedDetect, isDetecting } = useUnifiedLocationDetection({
+    const { detect: unifiedDetect, isDetecting, feedback: detectFeedback } = useUnifiedLocationDetection({
         onSuccess: handleSuccess,
         onError: handleError,
         onPermissionBlocked: handlePermissionBlocked,
         logAnalytics
     });
 
-    const detectLocation = useCallback(async (persist = false, force = false): Promise<LocationData | null> => {
-        if (isDetecting && !force) return null;
+    const detectLocation = useCallback(async (persist = false, force = false, isAutoPrompt = false): Promise<LocationData | null> => {
+        console.log(`[LocationContext] detectLocation called: persist=${persist}, force=${force}, isAutoPrompt=${isAutoPrompt}, isDetecting=${isDetecting}`);
+        if (isDetecting && !force) {
+            console.log(`[LocationContext] Returning early because isDetecting is true and force is false.`);
+            return null;
+        }
         setStatus("checking");
         
         // Fire analytics
@@ -215,9 +207,29 @@ export function LocationProvider({
             eventType: 'location_permission_requested'
         });
         
+        console.log(`[LocationContext] Calling unifiedDetect`);
         const result = await unifiedDetect({ persist, force });
+        console.log(`[LocationContext] unifiedDetect result:`, result);
+
+        if (isAutoPrompt && result?.failure) {
+            console.log(`[LocationContext] isAutoPrompt=true, failure=${result.failure.reason}`);
+            // Check native browser state to see if it's STILL prompt (meaning user dismissed it instead of denying)
+            if (typeof navigator !== "undefined" && navigator.permissions) {
+                try {
+                    const permResult = await navigator.permissions.query({ name: 'geolocation' });
+                    console.log(`[LocationContext] permissions query result:`, permResult.state);
+                    if (permResult.state === "prompt" && (result.failure.reason === "timeout" || result.failure.reason === "position_unavailable")) {
+                        console.log(`[LocationContext] Setting promptDismissed(true)`);
+                        persistPromptDismissed(true);
+                    }
+                } catch {
+                    // Ignore Safari permission query errors
+                }
+            }
+        }
+        
         return result?.location || null;
-    }, [isDetecting, unifiedDetect, logAnalytics]);
+    }, [isDetecting, unifiedDetect, logAnalytics, persistPromptDismissed]);
 
     const performReverseGeocode = useCallback(async (lat: number, lng: number) => {
         try {
@@ -232,8 +244,7 @@ export function LocationProvider({
 
     const {
         setManualLocation,
-        clearLocation,
-        dismissFirstVisitPrompt
+        clearLocation
     } = useLocationActionHandlers({
         setLocation,
         setStatus,
@@ -326,7 +337,6 @@ export function LocationProvider({
             setPromptDismissed(isDismissed);
             
             const permBlocked = readPermissionBlockedFlag();
-            setIsPermissionBlocked(permBlocked);
             if (permBlocked) {
                 setStatus("denied");
             }
@@ -379,14 +389,22 @@ export function LocationProvider({
             } else if (!isDismissed) {
                 // Introduce the delay before prompting
                 promptDelayTimeoutRef.current = setTimeout(() => {
-                    if (!cancelled && (status === "checking" || status === "unknown")) {
-                        setStatus("prompt");
-                        logAnalytics?.({
-                            source: 'default',
-                            city: 'Unknown',
-                            state: 'Unknown',
-                            reason: 'initial_prompt_shown',
-                            eventType: 'location_prompt_shown'
+                    if (!cancelled) {
+                        setStatus(prev => {
+                            if (prev === "checking" || prev === "unknown") {
+                                // Defer analytics to avoid side-effects in reducer
+                                setTimeout(() => {
+                                    logAnalytics?.({
+                                        source: 'default',
+                                        city: 'Unknown',
+                                        state: 'Unknown',
+                                        reason: 'initial_prompt_shown',
+                                        eventType: 'location_prompt_shown'
+                                    });
+                                }, 0);
+                                return "prompt";
+                            }
+                            return prev;
                         });
                     }
                 }, LOCATION_PROMPT_DELAY_MS);
@@ -401,7 +419,7 @@ export function LocationProvider({
             cancelled = true;
             if (promptDelayTimeoutRef.current) clearTimeout(promptDelayTimeoutRef.current);
         };
-    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag, setPermissionBlockedFlag, logAnalytics, detectLocation, status]);
+    }, [applyResolvedLocation, hydrateProfileLocation, readStoredLocation, readPermissionBlockedFlag, setPermissionBlockedFlag, logAnalytics, detectLocation]);
 
     // ── Multi-Tab Synchronization ─────────────────────────────────────────────
     useEffect(() => {
@@ -423,24 +441,6 @@ export function LocationProvider({
         return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    const resetPermissionBlocked = useCallback(() => {
-        setPermissionBlockedFlag(false);
-        setIsPermissionBlocked(false);
-        setStatus("prompt");
-    }, [setPermissionBlockedFlag]);
-
-    const dismissPermissionBlockedModal = useCallback(() => {
-        setShowPermissionBlockedModal(false);
-    }, []);
-
-    const shouldShowFirstVisitPrompt = shouldShowLocationFirstVisitPrompt({
-        status,
-        source: location.source,
-        promptDismissed,
-        isPermissionBlocked,
-        promptDelayElapsed: true, // Controlled by status === "prompt" transition now
-    });
-
     // ── Context Values ────────────────────────────────────────────────────────
 
     const dataValue = useMemo<LocationDataContextType>(
@@ -451,17 +451,16 @@ export function LocationProvider({
         [location, status]
     );
 
-    const statusValue = useMemo<LocationStatusContextType>(
+    const statusContextValue = useMemo<LocationStatusContextType>(
         () => ({
             status,
             detectError,
-            loading: status === "checking",
-            shouldShowFirstVisitPrompt,
-            isPermissionBlocked,
-            showPermissionBlockedModal,
+            loading: isDetecting,
             locationExpired,
+            detectFeedback,
+            promptDismissed: _promptDismissed,
         }),
-        [detectError, isPermissionBlocked, locationExpired, shouldShowFirstVisitPrompt, showPermissionBlockedModal, status]
+        [status, detectError, isDetecting, locationExpired, detectFeedback, _promptDismissed]
     );
 
 
@@ -470,16 +469,13 @@ export function LocationProvider({
             detectLocation,
             setManualLocation,
             clearLocation,
-            dismissFirstVisitPrompt,
-            dismissPermissionBlockedModal,
-            resetPermissionBlocked,
         }),
-        [clearLocation, detectLocation, dismissFirstVisitPrompt, dismissPermissionBlockedModal, resetPermissionBlocked, setManualLocation]
+        [clearLocation, detectLocation, setManualLocation]
     );
 
     return (
         <LocationDataContext.Provider value={dataValue}>
-            <LocationStatusContext.Provider value={statusValue}>
+            <LocationStatusContext.Provider value={statusContextValue}>
                 <LocationActionsContext.Provider value={actionsValue}>
                     {children}
                 </LocationActionsContext.Provider>

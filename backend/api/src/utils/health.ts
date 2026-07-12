@@ -18,8 +18,10 @@ export const healthCheckHandler = async (req: Request, res: Response) => {
             success: true,
             status: 'error',
             services: {
-                mongo: isDbReady(),
-                redis: false
+                mongo: isDbReady() ? 'healthy' : 'failed',
+                redis: 'failed',
+                queue: 'failed',
+                worker: 'failed'
             },
             error: error instanceof Error ? error.message : String(error)
         });

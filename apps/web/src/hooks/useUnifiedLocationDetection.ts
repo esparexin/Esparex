@@ -1,6 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import type { AppLocation } from "@/types/location";
-import { getCurrentLocationResult, type LocationDetectResult } from "@/lib/location/locationService";
+import { 
+    detectPreciseLocationGenerator, 
+    LOCATION_STATE_MESSAGES,
+    type LocationDetectionState,
+    type LocationDetectResult 
+} from "@/lib/location/locationService";
 
 interface UnifiedLocationDetectionProps {
     onSuccess?: (location: AppLocation, persist?: boolean) => void;
@@ -16,7 +21,7 @@ interface UnifiedLocationDetectionProps {
     }) => void;
 }
 
-export type DetectionPhase = "idle" | "requesting" | "precise_search" | "retrying" | "approximate_fallback" | "done" | "error";
+export type DetectionPhase = LocationDetectionState;
 
 export function useUnifiedLocationDetection({
     onSuccess,
@@ -38,35 +43,36 @@ export function useUnifiedLocationDetection({
 
         detectingRef.current = true;
         setIsDetecting(true);
-        setPhase("requesting");
-        setFeedback("Requesting GPS access...");
-
-        // Status ticker simulator for better UX during long timeouts
-        const ticker = setInterval(() => {
-            setPhase(prev => {
-                if (prev === "requesting") return "precise_search";
-                if (prev === "precise_search") return "retrying";
-                return prev;
-            });
-            setFeedback(prev => {
-                if (prev?.includes("Requesting")) return "Finding satellite signal...";
-                if (prev?.includes("Finding")) return "Improving accuracy...";
-                if (prev?.includes("Improving")) return "Still searching...";
-                return prev;
-            });
-        }, 4000);
+        setPhase("checking_permission");
+        setFeedback(LOCATION_STATE_MESSAGES["checking_permission"]);
 
         try {
-            const result = await getCurrentLocationResult({
+            const generator = detectPreciseLocationGenerator({
                 allowApproximateFallback: options.allowApproximate ?? true,
                 maximumAgeMs: options.force ? 0 : 300000,
                 timeoutMs: 20000
             });
 
-            clearInterval(ticker);
+            let finalResult: LocationDetectResult | null = null;
+            let lastState: LocationDetectionState = "checking_permission";
+            
+            while (true) {
+                const { value, done } = await generator.next();
+                
+                if (done) {
+                    finalResult = value as LocationDetectResult;
+                    break;
+                } else {
+                    lastState = value as LocationDetectionState;
+                    setPhase(lastState);
+                    setFeedback(LOCATION_STATE_MESSAGES[lastState] || null);
+                }
+            }
 
-            if (result.location) {
-                setPhase("done");
+            const result = finalResult;
+
+            if (result && result.location) {
+                setPhase("location_resolved");
                 setFeedback(null);
                 onSuccess?.(result.location, options.persist);
                 const mappedSource = result.source === "auto" ? "auto" : result.source === "ip" ? "ip" : "manual";
@@ -82,20 +88,18 @@ export function useUnifiedLocationDetection({
                 return result;
             }
 
-            if (result.failure) {
-                setPhase("error");
+            if (result && result.failure) {
+                // The generator already yielded the correct error state, so phase and feedback are already set via SSOT
                 if (result.failure.reason === "permission_denied") {
                     onPermissionBlocked?.();
                 } else {
-                    onError?.(result.failure.message);
+                    onError?.(LOCATION_STATE_MESSAGES[lastState] || result.failure.message);
                 }
-                setFeedback(result.failure.message);
             }
             return result;
         } catch {
-            clearInterval(ticker);
-            setPhase("error");
-            const msg = "An unexpected error occurred during detection.";
+            setPhase("network_error");
+            const msg = LOCATION_STATE_MESSAGES["network_error"];
             onError?.(msg);
             setFeedback(msg);
             return null;

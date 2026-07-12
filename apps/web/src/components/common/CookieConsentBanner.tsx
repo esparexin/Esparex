@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "@/icons/IconRegistry";
-import { useLocationStatus } from "@/context/LocationContext";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +12,6 @@ const CONSENT_KEY = "esparex_cookie_consent";
 
 export function CookieConsentBanner() {
     const pathname = usePathname();
-    const { shouldShowFirstVisitPrompt } = useLocationStatus();
     const [visible, setVisible] = useState(false);
     const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
 
@@ -22,7 +20,7 @@ export function CookieConsentBanner() {
         if (!stored) void (async () => { setVisible(true); })();
     }, []);
 
-    if (!visible || shouldShowFirstVisitPrompt) return null;
+    if (!visible) return null;
 
     const handleAccept = () => {
         localStorage.setItem(CONSENT_KEY, "accepted");

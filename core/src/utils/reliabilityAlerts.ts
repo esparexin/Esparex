@@ -284,8 +284,34 @@ const sendEmailAlert = async (event: ReliabilityAlertEvent): Promise<ChannelDeli
     };
 };
 
+const getDisabledSubsystem = (event: ReliabilityAlertEvent): string | null => {
+    const type = event.type.toLowerCase();
+    const service = (event.service || '').toLowerCase();
+    const moduleStr = (event.module || '').toLowerCase();
+    const allText = `${type} ${service} ${moduleStr}`;
+
+    if ((allText.includes('redis') || allText.includes('cache')) && !env.ALLOW_REDIS) {
+        return 'Redis';
+    }
+    if ((allText.includes('queue') || allText.includes('worker') || allText.includes('job'))) {
+        if (!env.ALLOW_REDIS) return 'Queue (requires Redis)';
+        if (!env.ALLOW_SCHEDULER_QUEUE && !env.RUN_SCHEDULERS) return 'Queue/Worker';
+    }
+    return null;
+};
+
 export const emitReliabilityAlert = async (event: ReliabilityAlertEvent): Promise<void> => {
     if (!env.RELIABILITY_ALERTS_ENABLED) return;
+
+    const disabledSubsystem = getDisabledSubsystem(event);
+    if (disabledSubsystem) {
+        const dedupeKey = `disabled_log_${disabledSubsystem}`;
+        if (!alertStateByKey.has(dedupeKey)) {
+            logger.info(`[RELIABILITY_ALERT] ${disabledSubsystem} intentionally disabled for this runtime. Suppressing alert: ${event.title}`);
+            alertStateByKey.set(dedupeKey, { lastSentAt: Date.now(), suppressedCount: 1, lastSeenAt: Date.now() });
+        }
+        return;
+    }
 
     const grouping = resolveAlertGrouping(event);
     const dedupeFingerprint = normalizeString(event.dedupeKey) || `${event.type}:${event.severity}`;

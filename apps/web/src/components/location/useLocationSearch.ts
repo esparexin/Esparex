@@ -25,7 +25,7 @@ export function useLocationSearch({
     onApplySelection: (loc: Location, source?: "manual" | "gps") => void;
     onClose?: () => void;
 }) {
-    const { loading: globalDetecting } = useLocationStatus();
+    const { loading: globalDetecting, detectFeedback: globalDetectFeedback } = useLocationStatus();
     const { detectLocation } = useLocationDispatch();
 
     const [locations, setLocations] = useState<Location[]>([]);
@@ -33,7 +33,7 @@ export function useLocationSearch({
     const [searchError, setSearchError] = useState<LocationError | null>(null);
     const [showSkeleton, setShowSkeleton] = useState(false);
 
-    const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
+    const [localDetectFeedback, setLocalDetectFeedback] = useState<string | null>(null);
 
     const [retryCount, setRetryCount] = useState(0);
     const [retryNonce, setRetryNonce] = useState(0);
@@ -41,6 +41,7 @@ export function useLocationSearch({
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const isDetecting = globalDetecting;
+    const detectFeedback = globalDetecting ? globalDetectFeedback : localDetectFeedback;
 
     // Search effect
     useEffect(() => {
@@ -170,15 +171,14 @@ export function useLocationSearch({
     }, [retryCount]);
 
     const handleDetect = async (onDone?: () => void) => {
-        setDetectFeedback(null);
-        
+        setLocalDetectFeedback(null);
         const detectedLocation = await detectLocation(true, true);
         if (!detectedLocation) {
-            setDetectFeedback("Could not detect current location. Please search manually.");
+            setLocalDetectFeedback("Could not detect current location. Please search manually.");
             return;
         }
         
-        setDetectFeedback(null);
+        setLocalDetectFeedback(null);
         
         // Pass it up to the caller to handle local state (e.g. Post-Ad forms)
         onApplySelection(detectedLocation as unknown as Location, "gps");
@@ -204,7 +204,7 @@ export function useLocationSearch({
         searchError, setSearchError,
         showSkeleton,
         isDetecting,
-        detectFeedback, setDetectFeedback,
+        detectFeedback, setDetectFeedback: setLocalDetectFeedback,
         retryCount, handleRetry,
         handleDetect,
         clearSearchSession

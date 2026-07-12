@@ -92,7 +92,13 @@ export const assertCriticalStartupReadiness = async (): Promise<void> => {
         }
     }
     if (queueHealth.status === 'down') {
-        readinessFailures.push('queue subsystem is down');
+        if (redisRequired) {
+            readinessFailures.push('queue subsystem is down');
+        } else {
+            logger.warn('Queue subsystem unavailable; running without background jobs.', {
+                status: queueHealth.status
+            });
+        }
     }
 
     if (Date.now() - startedAt > STARTUP_READINESS_TIMEOUT_MS) {
