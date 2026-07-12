@@ -182,7 +182,7 @@ export function SearchResultsHeader({
                     <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                             <p className="text-sm font-semibold text-foreground">
-                                {total} listing{total === 1 ? "" : "s"}
+                                {total} {total === 1 ? "listing" : "listings"}
                             </p>
                             <p className="mt-1 text-xs text-muted-foreground">
                                 Sorted by {SORT_LABELS[sort]}
@@ -227,7 +227,7 @@ export function SearchResultsHeader({
                 <div className="flex items-center gap-2">
                     <span className={cn("size-2 rounded-full", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
                     <p className="text-sm text-muted-foreground font-medium whitespace-nowrap">
-                        Showing <span className="text-foreground">{total}</span> listing{total === 1 ? "" : "s"}
+                        Showing <span className="text-foreground">{total}</span> {total === 1 ? "listing" : "listings"}
                         {activeFilterCount > 0 ? ` • ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active` : ""}
                     </p>
                 </div>
