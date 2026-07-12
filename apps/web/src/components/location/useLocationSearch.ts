@@ -34,6 +34,7 @@ export function useLocationSearch({
     const [showSkeleton, setShowSkeleton] = useState(false);
 
     const [localDetectFeedback, setLocalDetectFeedback] = useState<string | null>(null);
+    const [successFeedback, setSuccessFeedback] = useState<string | null>(null);
 
     const [retryCount, setRetryCount] = useState(0);
     const [retryNonce, setRetryNonce] = useState(0);
@@ -172,6 +173,7 @@ export function useLocationSearch({
 
     const handleDetect = async (onDone?: () => void) => {
         setLocalDetectFeedback(null);
+        setSuccessFeedback(null);
         const detectedLocation = await detectLocation(true, true);
         if (!detectedLocation) {
             setLocalDetectFeedback("Could not detect current location. Please search manually.");
@@ -179,12 +181,16 @@ export function useLocationSearch({
         }
         
         setLocalDetectFeedback(null);
+        setSuccessFeedback("✓ Current location updated");
         
         // Pass it up to the caller to handle local state (e.g. Post-Ad forms)
         onApplySelection(detectedLocation as unknown as Location, "gps");
         
-        if (isPanel) onClose?.();
-        else onDone?.();
+        setTimeout(() => {
+            setSuccessFeedback(null);
+            if (isPanel) onClose?.();
+            else onDone?.();
+        }, 1500);
     };
 
     const setOptions = setLocations;
@@ -205,6 +211,7 @@ export function useLocationSearch({
         showSkeleton,
         isDetecting,
         detectFeedback, setDetectFeedback: setLocalDetectFeedback,
+        successFeedback,
         retryCount, handleRetry,
         handleDetect,
         clearSearchSession

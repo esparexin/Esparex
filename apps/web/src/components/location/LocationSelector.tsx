@@ -369,22 +369,36 @@ export default function LocationSelector({
                         <Button
                             variant="outline"
                             className={cn(
-                                "h-11 w-full justify-between rounded-xl border-primary/20 bg-primary/5 px-3 text-sm font-medium text-primary hover:bg-primary/10",
+                                "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10",
                                 searchApi.isDetecting && "border-primary/40 bg-primary/10"
                             )}
-                            disabled={searchApi.isDetecting}
+                            disabled={searchApi.isDetecting || !!searchApi.successFeedback}
                             onClick={handlePanelDetect}
                         >
-                            <span className="flex min-w-0 items-center gap-2">
-                                <Target className={cn("h-4 w-4 shrink-0", searchApi.isDetecting && "animate-spin")} />
-                                <span className="truncate">
-                                    {searchApi.isDetecting 
-                                        ? (searchApi.detectFeedback || "Detecting location...") 
-                                        : (location?.source !== "default" && location?.display && location?.display !== "India")
-                                            ? `Current: ${location.display}`
-                                            : "Detect My Location"}
-                                </span>
-                            </span>
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                                {searchApi.successFeedback ? (
+                                    <Target className="h-4 w-4 shrink-0 text-green-600" />
+                                ) : (
+                                    <Target className={cn("h-4 w-4 shrink-0", searchApi.isDetecting && "animate-spin")} />
+                                )}
+                                <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
+                                    {searchApi.successFeedback ? (
+                                        <span className="text-green-600 font-semibold truncate w-full">{searchApi.successFeedback}</span>
+                                    ) : searchApi.isDetecting ? (
+                                        <span className="truncate w-full">{searchApi.detectFeedback || "Detecting location..."}</span>
+                                    ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
+                                        <>
+                                            <span className="truncate w-full font-semibold">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
+                                            <span className="text-[10px] text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                        </>
+                                    ) : (
+                                        <span className="truncate w-full">Detect My Location</span>
+                                    )}
+                                </div>
+                            </div>
+                            {(!searchApi.isDetecting && !searchApi.successFeedback && location?.source !== "default" && location?.display && location?.display !== "India") && (
+                                <RefreshCw className="h-4 w-4 shrink-0 text-muted-foreground opacity-70" />
+                            )}
                         </Button>
 
                         {searchApi.detectFeedback && !searchApi.isDetecting && (
@@ -479,17 +493,31 @@ export default function LocationSelector({
                     <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={handleBackdropMouseDown} />
                     <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-2 py-1 border-b">
-                        <Button variant="ghost" className="w-full justify-start text-muted-foreground h-11 px-2 text-xs font-normal hover:bg-primary/5 group" disabled={searchApi.isDetecting} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
-                            <Target className={cn("mr-2 h-4 w-4", searchApi.isDetecting ? "animate-spin text-primary" : "group-hover:text-primary transition-colors")} />
-                            <div className="flex flex-col items-start leading-none">
-                                <span className="truncate">
-                                    {searchApi.isDetecting 
-                                        ? (searchApi.detectFeedback || "Detecting location...") 
-                                        : (location?.source !== "default" && location?.display && location?.display !== "India")
-                                            ? `Current: ${location.display}`
-                                            : "Detect My Location"}
-                                </span>
+                        <Button variant="ghost" className="h-auto min-h-[44px] py-2 w-full justify-between text-muted-foreground px-2 text-xs font-normal hover:bg-primary/5 group" disabled={searchApi.isDetecting || !!searchApi.successFeedback} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
+                            <div className="flex min-w-0 flex-1 items-center gap-2">
+                                {searchApi.successFeedback ? (
+                                    <Target className="h-4 w-4 shrink-0 text-green-600" />
+                                ) : (
+                                    <Target className={cn("h-4 w-4 shrink-0", searchApi.isDetecting ? "animate-spin text-primary" : "group-hover:text-primary transition-colors")} />
+                                )}
+                                <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
+                                    {searchApi.successFeedback ? (
+                                        <span className="text-green-600 font-semibold truncate w-full">{searchApi.successFeedback}</span>
+                                    ) : searchApi.isDetecting ? (
+                                        <span className="truncate w-full">{searchApi.detectFeedback || "Detecting location..."}</span>
+                                    ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
+                                        <>
+                                            <span className="truncate w-full font-semibold text-foreground">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
+                                            <span className="text-[10px] text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                        </>
+                                    ) : (
+                                        <span className="truncate w-full">Detect My Location</span>
+                                    )}
+                                </div>
                             </div>
+                            {(!searchApi.isDetecting && !searchApi.successFeedback && location?.source !== "default" && location?.display && location?.display !== "India") && (
+                                <RefreshCw className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-70 group-hover:opacity-100 transition-opacity" />
+                            )}
                         </Button>
                         {searchApi.detectFeedback && !searchApi.isDetecting && (
                             <div className="px-2 py-1 bg-destructive/5 rounded-lg border border-destructive/10 mt-1">
