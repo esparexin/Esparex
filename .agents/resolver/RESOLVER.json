@@ -1,0 +1,55 @@
+{
+  "mappings": {
+    "ui": {
+      "skills": [
+        "react",
+        "ui-audit"
+      ],
+      "rules": [
+        "ui/accessibility",
+        "ui/responsive"
+      ],
+      "verification": [
+        "ui",
+        "code"
+      ]
+    },
+    "api": {
+      "skills": [
+        "express"
+      ],
+      "rules": [
+        "api/contract",
+        "security/auth"
+      ],
+      "verification": [
+        "api",
+        "code"
+      ]
+    },
+    "database": {
+      "skills": [
+        "mongodb"
+      ],
+      "rules": [
+        "database/schema",
+        "database/indexes"
+      ],
+      "verification": [
+        "code"
+      ]
+    },
+    "repository_maintenance": {
+      "skills": [
+        "repository-audit"
+      ],
+      "rules": [
+        "repository/structure"
+      ],
+      "verification": [
+        "repository",
+        "ci"
+      ]
+    }
+  }
+}

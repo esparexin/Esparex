@@ -96,23 +96,22 @@ Phase 18 — Completion Report             [Execution Phase]
 - Loaded AI tool context
 
 ### Process
-1. Load `ai-governance/AI_CONTEXT.json` — identify all active SSOTs and the authoritative document hierarchy.
-2. Load `ai-governance/AI_EXECUTION_WORKFLOW.md` (this document).
-3. Load `.agents/AGENTS.md` — all active workspace behavioral rules.
-4. Review the Knowledge Item (KI) system — check KI summaries for any artifacts relevant to the task before independent research.
-5. Identify candidate Skills from the Skill Library — defer full load to Phase 8.
+1. Load `.agents/AGENTS.md` — The bootstrap file that defines the execution entry point.
+2. Load `.agents/governance/GOVERNANCE.md` — The non-negotiable architectural boundaries.
+3. Load `.agents/workflow/AI_WORKFLOW.md` (this document) — The execution process.
+4. Load `.agents/project/PROJECT_CONTEXT.json` — The business rules and project data.
 
 ### Outputs
 - Active SSOT map
 - Workspace behavioral rules
-- Candidate skill list
+- Core context loaded
 
 ### Exit Criteria
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | `AI_CONTEXT.json` loaded; SSOT paths confirmed; workspace rules loaded | Continue to Phase 1 |
-| ❌ FAIL | `AI_CONTEXT.json` missing, corrupt, or unreadable | Stop. Emit failure report. |
+| ✅ PASS | Core bootstrap files and governance policies loaded | Continue to Phase 1 |
+| ❌ FAIL | Any core bootstrap file missing, corrupt, or unreadable | Stop. Emit failure report. |
 
 ---
 
@@ -386,7 +385,7 @@ Inspect the live repository directly. Map the following for the scope of this ta
 
 ---
 
-## Phase 8 — Skill Discovery
+## Phase 8 — Resolution
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 7 passes.
@@ -394,25 +393,26 @@ Inspect the live repository directly. Map the following for the scope of this ta
 ### Inputs
 - Task classification from Phase 2
 - Live repository map from Phase 7
-- Candidate skill list from Phase 0
+- Project Context from Phase 0
 
 ### Process
-1. Identify which engineering skills are required for this task.
-2. Check the Skill Library for a matching, existing Skill.
-3. If a matching Skill exists → load it. Do not rebuild it.
-4. If no matching Skill exists → create a reusable Skill, store it in the Skill Library at `.agents/skills/<skill-name>/SKILL.md`, then use it for this task.
-5. Load **only** the Skills required for the current task.
+1. Access the Resolver framework at `.agents/resolver/RESOLVER.json`.
+2. Map the task's Change Type, the Repository Discovery, and Project Context through the Resolver.
+3. Load exactly the output dependencies dictated by the Resolver:
+   - **Required Skills** (from `.agents/skills/`)
+   - **Required Rules** (from `.agents/rules/`)
+   - **Required Verification** (from `.agents/verification/`)
+   - **Priority**
+4. Do not load any rule, skill, or verification module that the Resolver does not explicitly demand.
 
 ### Outputs
-- Loaded skill list
-- Any newly created Skills registered in the Skill Library
+- Dynamically loaded context containing only task-relevant expertise and validation gates.
 
 ### Exit Criteria
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | Required skills identified; existing skills loaded; no redundant skill creation | Continue to Phase 9 |
-
+| ✅ PASS | Resolver executed and specific rules/skills/verification loaded | Continue to Phase 9 |
 ---
 
 ## Phase 9 — Duplicate & Reuse Audit
@@ -497,33 +497,23 @@ Validate every planned change against the architectural invariants:
 **Trigger:** After Phase 10 passes.
 
 ### Inputs
-- Planned file list
-- Planned export list
-- Naming decisions
+- Planned implementation from Phases 1 and 9
+- Validation checklists loaded by the Resolver (e.g., `.agents/verification/pre_implementation.md`)
 
 ### Process
-Answer each question before creating any file:
-
-| Question | Required Answer |
-|----------|----------------|
-| Can an existing file be extended instead of creating a new one? | Extend unless a new file is clearly justified |
-| Is a new file actually necessary? | Document the justification |
-| Does the proposed name conflict with an existing name? | Must not conflict |
-| Would this introduce duplicate exports? | Must not introduce duplicates |
-| Does naming follow conventions? | `camelCase` for scripts/variables; `PascalCase` for classes/components; `is`/`has`/`can` prefix for booleans |
-| Does this violate layer ownership? | Must comply with the ownership matrix |
-| Are shared utilities, hooks, types, or constants already available? | Use them |
+1. Execute the `pre_implementation.md` checklist from the verification modules.
+2. Ensure every step (e.g., draft PR open, branch exists on remote, reused existing implementations) is strictly followed.
+3. Apply any domain-specific rules loaded by the Resolver (e.g., security checks, API conventions, database rules).
 
 ### Outputs
-- Finalized file list with justifications
-- Confirmed naming decisions
+- Completed Pre-Implementation Verification checklist
 
 ### Exit Criteria
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | Every new file justified; no naming conflicts; no duplicate exports; naming conventions confirmed | Continue to Phase 12 |
-| ❌ FAIL | Unjustified new file, naming conflict, or convention violation | Stop. Resolve before implementation. |
+| ✅ PASS | Verification checklist complete; all gates passed | Continue to Phase 12 |
+| ❌ FAIL | Any checklist item missing or incomplete | Stop. Resolve before implementation. |
 
 ---
 
@@ -696,22 +686,12 @@ Every interactive element must implement all applicable states:
 
 ### Inputs
 - Full working tree state
+- `.agents/verification/repository_cleanup.md`
 
 ### Process
-Verify the working tree contains **only** files that belong to this implementation:
-
-| Category | Rule |
-|----------|------|
-| Temporary files | Must not exist (`*.tmp`, `*.temp`, `*.bak`) |
-| Debug files | Must not exist (`debug.*`, `test-output.*`) |
-| Scratch files | Must not exist (any file prefixed `scratch-`, `_temp`, `_wip`) |
-| Backup files | Must not exist (`*.orig`, `*_backup.*`, `* copy.*`) |
-| Generated artifacts | Build outputs (`dist/`, `.next/`, `*.tsbuildinfo`) must not be staged |
-| Orphan files | Files no longer imported or referenced must be removed |
-| Unused assets | Images, fonts, icons with no source references must be removed |
-| Unused styles | CSS/SCSS blocks with zero consumers must be removed |
-| Unnecessary Markdown | Temporary `.md` files created during analysis must be deleted |
-| Duplicate documentation | Any doc that duplicates an existing canonical SSOT must be removed |
+1. Execute the `repository_cleanup.md` checklist.
+2. Verify no temporary files (`*.tmp`, `*.bak`, `_wip`, `scratch-`), debug outputs, or orphan files remain in the working tree.
+3. If new documentation is created, apply `.agents/verification/documentation_gate.md` to ensure it is not duplicative and provides long-term value.
 
 ### Outputs
 - Repository hygiene status: Clean / Violations found
@@ -720,7 +700,7 @@ Verify the working tree contains **only** files that belong to this implementati
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | Working tree contains only intended files; no temporary, orphan, or duplicate artifacts | Continue to Phase 16 |
+| ✅ PASS | Working tree contains only intended files; all checklists pass | Continue to Phase 16 |
 | ❌ FAIL | Any disallowed files found | Remove them. Re-validate from Phase 15. |
 
 ---
