@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Poppins } from 'next/font/google';
 import { cookies } from 'next/headers';
 import '../styles/globals.css';
@@ -24,6 +24,14 @@ const metadataBase = (() => {
 
     return new URL('http://localhost:3000');
 })();
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#ffffff',
+};
 
 export const metadata: Metadata = {
     metadataBase,
