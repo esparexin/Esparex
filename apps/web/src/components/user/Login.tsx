@@ -132,7 +132,6 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         maxLength={10}
                         className={cn(
                           "pl-12 pr-10 tracking-[0.02em]",
-                          (mobileError || mobileServerError) && "border-destructive",
                           isValidMobile && "border-green-500"
                         )}
                         aria-label="Mobile number"
@@ -279,9 +278,6 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                           if (nameError) setNameError("");
                         }}
                         disabled={isBlocked || isLocked}
-                        className={cn(
-                          !newUserName.trim() && nameError && "border-destructive"
-                        )}
                         aria-label="Your name"
                         aria-required="true"
                         aria-invalid={!!nameError}
