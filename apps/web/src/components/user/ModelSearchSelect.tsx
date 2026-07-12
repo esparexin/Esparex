@@ -224,7 +224,7 @@ export function ModelSearchSelect({
                     disabled={disabled}
                     className={cn(
                         "pl-10 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all",
-                        "focus:ring-2 focus:ring-primary/10 focus:border-primary shadow-sm",
+                        "focus-visible:ring-2 focus-visible:ring-primary/10 focus-visible:border-primary shadow-sm",
                         showSuggestButton ? "pr-12" : "pr-4"
                     )}
                 />
@@ -236,7 +236,7 @@ export function ModelSearchSelect({
                             e.stopPropagation();
                             handleAddNew();
                         }}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:text-primary transition-all"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary transition-all"
                         aria-label="Suggest model"
                         title="Suggest model"
                     >

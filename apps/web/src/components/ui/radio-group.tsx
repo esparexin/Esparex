@@ -51,7 +51,7 @@ export function RadioGroupItem({ value, id, className }: RadioGroupItemProps) {
       value={value}
       checked={isChecked}
       onChange={() => onValueChange(value)}
-      className={`h-4 w-4 border-gray-300 text-green-600 focus:ring-green-600 cursor-pointer ${className || ''}`}
+      className={`h-4 w-4 border-gray-300 text-green-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 cursor-pointer ${className || ''}`}
     />
   );
 }

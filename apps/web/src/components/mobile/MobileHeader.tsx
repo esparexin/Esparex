@@ -136,7 +136,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                         <form onSubmit={handleSearchSubmit} className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
                             <Input
-                                className="w-full pl-9 h-11 bg-slate-100 border-transparent focus:bg-white focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
+                                className="w-full pl-9 h-11 bg-slate-100 border-transparent focus-visible:bg-white focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
                                 placeholder="Search listings..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
