@@ -1,6 +1,0 @@
-  origin/HEAD -> origin/main
-  origin/develop
-  origin/feat/production-pdf-ticket-system
-  origin/fix/payment-success-feedback
-  origin/live
-  origin/main

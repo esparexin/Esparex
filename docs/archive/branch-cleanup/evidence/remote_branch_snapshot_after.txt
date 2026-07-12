@@ -1,5 +1,0 @@
-6f756a9e4c3e6e106bb64c99c4d78b99ee3789e5	refs/heads/develop
-6c250b343bd7a97a1ac48855ce8eedf44fea160d	refs/heads/feat/production-pdf-ticket-system
-3dc5ca25c97b8c46f2c3798f41a6f72f28b95527	refs/heads/fix/payment-success-feedback
-6f756a9e4c3e6e106bb64c99c4d78b99ee3789e5	refs/heads/live
-9ee4f4f747258c48d58f1fbabaa26335bcc56821	refs/heads/main

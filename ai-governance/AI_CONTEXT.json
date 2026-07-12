@@ -2,38 +2,26 @@
   "version": "2026-05-23",
   "status": "active",
   "primary": {
-    "registry": "docs/MASTER_DOCUMENT_REGISTRY.md",
-    "executionWorkflow": "ai-governance/AI_EXECUTION_WORKFLOW.md",
-    "ssots": {
-      "domainModel": "docs/ssot/DOMAIN_MODEL_SSOT.md",
-      "apiContract": "docs/ssot/API_CONTRACT_SSOT.md",
-      "architectureFlow": "docs/ssot/ARCHITECTURE_FLOW_SSOT.md",
-      "ciCd": "docs/ssot/CI_CD_SSOT.md",
-      "governancePolicy": "docs/governance/GOVERNANCE_POLICY.md",
-      "aiBoundary": "docs/governance/AI_GOVERNANCE_BOUNDARY.md"
-    }
+    "executionWorkflow": "ai-governance/AI_EXECUTION_WORKFLOW.md"
   },
   "developerAiTools": [
     {
       "tool": "Codex",
-      "status": "active",
-      "authoritativeSource": "docs/governance/AI_GOVERNANCE_BOUNDARY.md"
+      "status": "active"
     },
     {
       "tool": "Antigravity",
       "status": "local_compatibility_surface",
       "paths": [
         ".antigravity.system.prompt.md"
-      ],
-      "authoritativeSource": "docs/governance/AI_GOVERNANCE_BOUNDARY.md"
+      ]
     },
     {
       "tool": "Cursor",
       "status": "local_compatibility_surface",
       "paths": [
         ".cursorrules"
-      ],
-      "authoritativeSource": "docs/governance/AI_GOVERNANCE_BOUNDARY.md"
+      ]
     }
   ],
   "runtimeAi": {
