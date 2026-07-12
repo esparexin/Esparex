@@ -82,7 +82,8 @@ Phase 5  — Repository State Validation   [Execution Gate]
 Phase 6  — Branch & Draft PR Creation    [Execution Gate]
 
 Phase 7  — Live Repository Discovery     [Execution Phase]
-Phase 8  — Skill Discovery               [Execution Phase]
+Phase 8  — Policy Engine                 [Execution Phase]
+Phase 8.5 — Impact Analysis              [Execution Phase]
 
 Phase 9  — Duplicate & Reuse Audit       [Execution Gate]
 Phase 10 — Architecture Validation       [Execution Gate]
@@ -370,7 +371,15 @@ git ls-remote      # confirm remote state
 > **Critical Rule:** Do not rely on documentation, Markdown files, comments, prior analysis reports, or previous conversation context as evidence of current repository state. Only live source code and live git output are authoritative.
 
 ### Process
-Inspect the live repository directly. Map the following for the scope of this task:
+Inspect the live repository directly. You must explicitly answer these 6 questions before proceeding:
+1. **What exists?** (Current implementations)
+2. **Where is SSOT?** (Single Source of Truth)
+3. **What depends on it?** (Downstream consumers)
+4. **Can it be reused?** (Duplicate prevention)
+5. **What will break?** (Risk surface)
+6. **Is there already an Issue?** (Tracking)
+
+Map the following for the scope of this task:
 
 | Category | Location |
 |----------|----------|
@@ -402,7 +411,7 @@ Inspect the live repository directly. Map the following for the scope of this ta
 
 ---
 
-## Phase 8 — Resolution
+## Phase 8 — Policy Engine
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 7 passes.
@@ -413,14 +422,14 @@ Inspect the live repository directly. Map the following for the scope of this ta
 - Project Context from Phase 0
 
 ### Process
-1. Access the Resolver framework at `.agents/resolver/RESOLVER.json`.
-2. Map the task's Change Type, the Repository Discovery, and Project Context through the Resolver.
-3. Load exactly the output dependencies dictated by the Resolver:
+1. Access the Policy Engine framework at `.agents/policy_engine/POLICY_ENGINE.json`.
+2. Map the task's Change Type, the Repository Discovery, and Project Context through the Policy Engine.
+3. Load exactly the output dependencies dictated by the Policy Engine:
    - **Required Skills** (from `.agents/skills/`)
    - **Required Rules** (from `.agents/rules/`)
    - **Required Verification** (from `.agents/verification/`)
    - **Priority**
-4. Do not load any rule, skill, or verification module that the Resolver does not explicitly demand.
+4. Do not load any rule, skill, or verification module that the Policy Engine does not explicitly demand.
 
 ### Outputs
 - Dynamically loaded context containing only task-relevant expertise and validation gates.
@@ -429,7 +438,35 @@ Inspect the live repository directly. Map the following for the scope of this ta
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | Resolver executed and specific rules/skills/verification loaded | Continue to Phase 9 |
+| ✅ PASS | Policy Engine executed and specific rules/skills/verification loaded | Continue to Phase 8.5 |
+
+---
+
+## Phase 8.5 — Impact Analysis
+
+**Classification:** Execution Phase  
+**Trigger:** After Phase 8 passes.
+
+### Inputs
+- Loaded rules, skills, and verifications from Phase 8
+- Discovery mapping from Phase 7
+
+### Process
+Before writing any code, explicitly analyze the cross-boundary impact of the planned change. 
+1. **API Impact:** Will this require frontend client updates?
+2. **Database Impact:** Will this require migrations or index changes?
+3. **Frontend Impact:** Will this break existing UI state management?
+4. **Admin Impact:** Does the admin portal need to be aware of this state?
+5. **Testing Impact:** Which test suites will break?
+
+### Outputs
+- Documented Impact Surface Map (Internal memory only, unless requested by user)
+
+### Exit Criteria
+
+| Outcome | Condition | Next Action |
+|---------|-----------|-------------|
+| ✅ PASS | Impact surface mapped across all domains | Continue to Phase 9 |
 ---
 
 ## Phase 9 — Duplicate & Reuse Audit
@@ -839,7 +876,7 @@ Body lines: max 100 characters each
 
 ---
 
-## Phase 18 — Completion Report
+## Phase 18 — Response Formatter
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 17 passes.
@@ -848,55 +885,26 @@ Body lines: max 100 characters each
 - Gate outputs from all prior phases
 
 ### Process
-Complete the following report. Every field must be populated with objective evidence — not assumed states.
+Output a deterministic, machine-readable summary. Avoid verbose paragraphs.
 
 ```
-## Completion Report
+✓ Discovery Complete
+✓ Existing implementation reused
+✓ Duplicate logic not introduced
+✓ Verification Passed
 
-### Issue Reference
-GitHub Issue: #<number> — <title>
+Changed
+- <File 1>
+- <File 2>
 
-### Branch
-`<feature-branch-name>` → targeting `<base-branch>`
+Checks
+✓ Typecheck
+✓ Build
+✓ Repository Rules
+✓ UI/UX Validation (if applicable)
 
-### Skills Used
-<skill-name>: <how it was used>
-
-### Files Modified
-`<path>` — <one-line description>
-
-### Files Created
-`<path>` — <one-line description of purpose>
-
-### Files Deleted
-`<path>` — <reason for deletion>
-
-### Gate Summary
-| Phase | Gate | Outcome | Evidence |
-|-------|------|---------|----------|
-| Phase 3  | Issue Validation          | ✅ PASS | Issue #<n> confirmed |
-| Phase 4  | Pull Request Validation   | ✅ PASS | No duplicate PRs found |
-| Phase 5  | Repository State Validation | ✅ PASS | git status: clean |
-| Phase 6  | Branch Validation         | ✅ PASS | Branch: <name>; base: <base> |
-| Phase 9  | Duplicate & Reuse Audit  | ✅ PASS | Reuse map confirmed |
-| Phase 10 | Architecture Validation  | ✅ PASS | All invariants satisfied |
-| Phase 11 | Pre-Implementation Quality Validation | ✅ PASS | |
-| Phase 13 | Code Quality Validation  | ✅ PASS | |
-| Phase 14 | UI/UX Quality Validation | ✅ PASS / ➡️ SKIP | |
-| Phase 15 | Repository Hygiene Validation | ✅ PASS | |
-| Phase 16 | Verification Pipeline    | ✅ PASS | All steps passed |
-
-### Architecture Impact
-<Change description, or: "None — isolated to <package>.">
-
-### Security Status
-<No new vulnerabilities introduced, or: list findings.>
-
-### Remaining Technical Debt
-<Known limitations or deferred items, or: "None.">
-
-### Follow-Up Recommendations
-<Optional next steps or improvements identified during implementation.>
+Next
+<Concise prompt for next action>
 ```
 
 ### Final Completion Checklist
@@ -920,6 +928,6 @@ If any item is missing or unverified, status remains **In Progress**.
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | Every checklist item satisfied; Completion Report fully populated with evidence | **Execution complete. Return Completion Report.** |
+| ✅ PASS | Every checklist item satisfied; Response Formatter output provided | **Execution complete.** |
 | ❌ FAIL | Any checklist item unverified | Do not declare completion. Resolve the missing item. |
 
