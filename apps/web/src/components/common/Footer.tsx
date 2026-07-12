@@ -82,6 +82,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
             <Link
                 href={href}
                 prefetch={false}
+                title={label}
                 className={baseClassName}
             >
                 {label}
