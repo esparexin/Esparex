@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "lucide-react";
 
-import FeatureCard from "@/components/user/FeatureCard";
-import ACCOUNT_COPY from "@/config/copy/account";
+import { FeatureCard } from "@/components/user/FeatureCard";
+import { ACCOUNT_COPY } from "@/config/copy/account";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormError } from "@/components/ui/FormError";

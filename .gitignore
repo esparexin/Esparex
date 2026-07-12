@@ -159,4 +159,5 @@ scratch/
 
 # CI artifacts
 ci-lint-results.json
-
+.eslintcache
+.eslintcache/

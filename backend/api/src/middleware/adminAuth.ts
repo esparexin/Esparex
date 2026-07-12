@@ -20,7 +20,7 @@ import { USER_STATUS } from '@esparex/shared';
 import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core/constants/adminPermissions';
 import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
 
-export const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
+const extractAdminToken = (req: Request): { token: string; source: 'cookie' | 'authorization' } | null => {
     const cookieToken = req.cookies?.admin_token as string | undefined;
     if (typeof cookieToken === 'string' && cookieToken.trim().length > 0) {
         return { token: cookieToken, source: 'cookie' };
@@ -122,28 +122,6 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         }
         return sendErrorResponse(req, res, 401, 'Unauthorized: Invalid token');
     }
-};
-
-export const requireSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
-    const userRole = req.user?.role;
-
-    if (userRole !== Role.SUPER_ADMIN) {
-        return sendErrorResponse(req, res, 403, 'Super Admin access required');
-    }
-    next();
-};
-
-export const requireRole = (roles: Role[]) => {
-    return (req: Request, res: Response, next: NextFunction) => {
-        const userRole = req.user?.role as Role | undefined;
-        if (!userRole) {
-            return sendErrorResponse(req, res, 401, 'Unauthorized');
-        }
-        if (!roles.includes(userRole)) {
-            return sendErrorResponse(req, res, 403, `Forbidden: Requires one of roles [${roles.join(', ')}]`);
-        }
-        return next();
-    };
 };
 
 export const requirePermission = (permission: string) => {

@@ -4,8 +4,9 @@
  */
 
 import { type GeoJSONPoint, normalizeGeoPoint } from "../utils/geoUtils";
+import { MONGOOSE_OBJECT_ID_REGEX, sanitizeMongoObjectId } from "../validators/mongo";
 
-export const MONGOOSE_OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
+export { MONGOOSE_OBJECT_ID_REGEX, sanitizeMongoObjectId };
 
 export type ListingLocation = {
   locationId?: string;
@@ -15,16 +16,6 @@ export type ListingLocation = {
   country?: string;
   coordinates?: GeoJSONPoint;
 };
-
-/**
- * Validates and sanitizes a MongoDB ObjectId.
- */
-export function sanitizeMongoObjectId(value: unknown): string | undefined {
-    if (typeof value !== "string" && typeof value !== "number") return undefined;
-    const trimmed = String(value).trim();
-    if (!trimmed || !MONGOOSE_OBJECT_ID_REGEX.test(trimmed)) return undefined;
-    return trimmed;
-}
 
 /**
  * Ensures a location object has a canonical `locationId`.

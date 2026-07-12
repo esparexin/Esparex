@@ -1,5 +1,5 @@
 import { SettingsIcon } from '@/components/ui/icons';
-import ACCOUNT_COPY from '@/config/copy/account';
+import { ACCOUNT_COPY } from '@/config/copy/account';
 
 interface AccountHeaderProps {
   className?: string;
@@ -25,4 +25,3 @@ export function AccountHeader({ className = '', mobile = false }: AccountHeaderP
   );
 }
 
-export default AccountHeader;

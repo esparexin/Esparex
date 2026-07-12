@@ -19,7 +19,7 @@ type AlertItem = {
     expiryWarningSentAt?: string;
 };
 
-export function useSmartAlerts() {
+export function useAdminSmartAlerts() {
     const [alerts, setAlerts] = useState<AlertItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");

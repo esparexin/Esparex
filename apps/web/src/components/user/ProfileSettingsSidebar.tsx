@@ -53,7 +53,7 @@ import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { MySuggestionsTab } from "./profile/tabs/MySuggestionsTab";
 import { SavedAds } from "./SavedAds";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
-import AccountHeader from "./AccountHeader";
+import { AccountHeader } from "./AccountHeader";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 import type { ConversationListView } from "@/lib/api/chatApi";
 import type { IConversationDTO } from "@shared";
@@ -491,4 +491,3 @@ export function ProfileSettingsSidebar({
 
 }
 
-export default ProfileSettingsSidebar;
