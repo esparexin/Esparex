@@ -8,4 +8,3 @@ export const ACCOUNT_COPY = {
   smartAlertsDescription: 'Manage your smart alerts and saved searches',
 };
 
-export default ACCOUNT_COPY;

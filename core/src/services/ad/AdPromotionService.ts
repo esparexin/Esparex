@@ -6,7 +6,7 @@ import { getUserConnection } from '../../config/db';
 import { LISTING_TYPE } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
-import { consumeCredit } from '../WalletService';
+import { consumeCredit } from '../wallet/WalletService';
 import { invalidateAdFeedCaches } from '../../utils/redisCache';
 
 export const promoteAdLogic = async (

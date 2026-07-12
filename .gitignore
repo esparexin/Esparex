@@ -156,3 +156,8 @@ scratch/
 **/src/**/*.js.map
 !**/src/**/*.config.js
 !**/src/tests/jest.globalTeardown.js
+
+# CI artifacts
+ci-lint-results.json
+.eslintcache
+.eslintcache/

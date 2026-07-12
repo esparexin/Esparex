@@ -5,7 +5,7 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
-import { useSmartAlerts } from "@/hooks/useSmartAlerts";
+import { useAdminSmartAlerts } from "@/hooks/useAdminSmartAlerts";
 import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "lucide-react";
 import { format } from "date-fns";
 
@@ -30,7 +30,7 @@ type AlertItem = {
 export default function SmartAlertsPage() {
     const [activeView, setActiveView] = useState<'logs' | 'management'>('logs');
     const { logs, loading: logsLoading, error: logsError, pagination: logsPagination, getLogs } = useSmartAlertLogs();
-    const { alerts, loading: alertsLoading, error: alertsError, pagination: alertsPagination, getAlerts, handleDeleteAlert, handleBulkResend } = useSmartAlerts();
+    const { alerts, loading: alertsLoading, error: alertsError, pagination: alertsPagination, getAlerts, handleDeleteAlert, handleBulkResend } = useAdminSmartAlerts();
     
     const [page, setPage] = useState(1);
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

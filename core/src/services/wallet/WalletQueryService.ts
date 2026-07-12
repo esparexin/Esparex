@@ -1,5 +1,5 @@
 import { getAdPostingBalance } from '../AdSlotService';
-import { getWallet, TransactionModel } from '../WalletService';
+import { getWallet, TransactionModel } from './WalletService';
 
 export type WalletTransactionHistory = {
     transactions: Record<string, unknown>[];

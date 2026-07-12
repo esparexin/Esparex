@@ -11,7 +11,7 @@ jest.mock('@esparex/core/services/PlanService', () => ({
     },
 }));
 
-jest.mock('@esparex/core/services/WalletService', () => ({
+jest.mock('@esparex/core/services/wallet/WalletService', () => ({
     consumeCredit: jest.fn(),
     credit: jest.fn(),
     WalletModel: {
@@ -40,7 +40,7 @@ jest.mock('@esparex/core/services/location/LocationNormalizer', () => ({
 import mongoose from 'mongoose';
 import { calculateUserPlan } from '../../services/PlanEngine';
 import { PlanModel, UserPlanModel } from '../../services/PlanService';
-import { consumeCredit, credit, WalletModel } from '../../services/WalletService';
+import { consumeCredit, credit, WalletModel } from '../../services/wallet/WalletService';
 import { SmartAlertModel } from '../../services/SmartAlertService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import {

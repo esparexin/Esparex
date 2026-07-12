@@ -30,4 +30,3 @@ export function FeatureCard({ title, description, Icon, rightAction, className =
   );
 }
 
-export default FeatureCard;

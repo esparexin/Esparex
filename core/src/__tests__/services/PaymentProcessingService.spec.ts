@@ -53,7 +53,7 @@ jest.mock("@esparex/core/models/AdminLog", () => ({
     },
 }));
 
-jest.mock("@esparex/core/services/WalletService", () => ({
+jest.mock("@esparex/core/services/wallet/WalletService", () => ({
     credit: jest.fn(),
     buildWalletIncrement: jest.fn().mockReturnValue({ amounts: {} }),
     hasWalletIncrement: jest.fn().mockReturnValue(true),
@@ -91,7 +91,7 @@ jest.mock("@esparex/core/config/razorpay", () => ({
 import User from "../../models/User";
 import { Invoice } from "../../models/Invoice";
 import { Transaction } from "../../models/Transaction";
-import { credit } from "../../services/WalletService";
+import { credit } from "../../services/wallet/WalletService";
 import { recordRevenue } from "../../services/RevenueAnalytics";
 import { processSuccessfulPayment, recoverPendingPayment } from "../../services/PaymentProcessingService";
 
