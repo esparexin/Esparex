@@ -1,0 +1,73 @@
+{
+  "mappings": {
+    "ui": {
+      "skills": [
+        "react",
+        "ui_audit"
+      ],
+      "rules": [
+        "ui_accessibility",
+        "ui_responsive"
+      ],
+      "verification": [
+        "ui_ux",
+        "code_quality"
+      ]
+    },
+    "api": {
+      "skills": [
+        "express",
+        "api_design"
+      ],
+      "rules": [
+        "api_contract",
+        "authentication",
+        "authorization",
+        "data_persistence"
+      ],
+      "verification": [
+        "api_integration",
+        "code_quality"
+      ]
+    },
+    "database": {
+      "skills": [
+        "mongodb"
+      ],
+      "rules": [
+        "data_persistence"
+      ],
+      "verification": [
+        "code_quality"
+      ]
+    },
+    "repository": {
+      "skills": [
+        "repository_audit"
+      ],
+      "rules": [
+        "repository_discipline"
+      ],
+      "verification": [
+        "repository_cleanup",
+        "code_quality"
+      ]
+    },
+    "documentation": {
+      "skills": [],
+      "rules": [],
+      "verification": [
+        "documentation_gate"
+      ]
+    },
+    "git_operations": {
+      "skills": [
+        "git_and_github"
+      ],
+      "rules": [],
+      "verification": [
+        "repository_cleanup"
+      ]
+    }
+  }
+}
