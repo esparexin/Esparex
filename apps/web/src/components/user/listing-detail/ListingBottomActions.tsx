@@ -181,7 +181,7 @@ export function ListingBottomActions({
             {/* Analytics Quick View */}
             <button
               onClick={onAnalyticsClick}
-              className="w-full py-2 text-xs text-center text-foreground-subtle border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+              className="w-full h-11 flex items-center justify-center gap-1 text-xs text-foreground-subtle border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
             >
               <span className="font-medium text-muted-foreground">View Analytics</span> · Tap for detailed stats
             </button>
