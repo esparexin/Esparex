@@ -1,7 +1,7 @@
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
-import { sendErrorResponse } from "../../../utils/errorResponse";
-import { respond } from "../../../utils/respond";
+import { sendErrorResponse } from "../../utils/errorResponse";
+import { respond } from "../../utils/respond";
 import {
     AIRequestBody,
     executeAiRequest,

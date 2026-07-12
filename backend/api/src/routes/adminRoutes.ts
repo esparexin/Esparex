@@ -15,7 +15,7 @@ import * as adminReports from '../controllers/admin/adminReportsController';
 import * as adminTransactions from '../controllers/admin/adminTransactionController';
 import * as adminInvoices from '../controllers/admin/adminInvoiceController';
 import * as adminNotifications from '../controllers/admin/adminNotificationController';
-import * as adminAi from '../controllers/shared/ai/aiController';
+import * as adminAi from '../controllers/ai/aiController';
 import * as adminApiKeys from '../controllers/admin/adminApiKeyController';
 import * as adminLocations from '../controllers/admin/adminLocationController';
 import * as adminSystemConfig from '../controllers/admin/systemConfigController';
