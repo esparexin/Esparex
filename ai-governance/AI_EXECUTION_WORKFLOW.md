@@ -59,27 +59,29 @@ Phase 0  — Context Loading           [Execution Phase]
 Phase 1  — Request Analysis          [Execution Phase]
 Phase 2  — Task Classification       [Execution Phase]
 
-Phase 3  — Issue Validation          [Execution Gate]
-Phase 4  — Pull Request Validation   [Execution Gate]
-Phase 5  — Repository State Validation [Execution Gate]
-Phase 6  — Branch Validation         [Execution Gate]
+Phase 3  — Issue Validation              [Execution Gate]
+Phase 4  — Conflict Detection            [Execution Gate]
+Phase 5  — Repository State Validation   [Execution Gate]
+Phase 6  — Branch & Draft PR Creation    [Execution Gate]
 
-Phase 7  — Live Repository Discovery [Execution Phase]
-Phase 8  — Skill Discovery           [Execution Phase]
+Phase 7  — Live Repository Discovery     [Execution Phase]
+Phase 8  — Skill Discovery               [Execution Phase]
 
-Phase 9  — Duplicate & Reuse Audit  [Execution Gate]
-Phase 10 — Architecture Validation  [Execution Gate]
+Phase 9  — Duplicate & Reuse Audit       [Execution Gate]
+Phase 10 — Architecture Validation       [Execution Gate]
 Phase 11 — Pre-Implementation Quality Validation [Execution Gate]
 
-Phase 12 — Implementation            [Execution Phase]
+⛔ NO CODE MAY BE WRITTEN UNTIL PHASES 3–11 ALL PASS
 
-Phase 13 — Code Quality Validation  [Execution Gate]
-Phase 14 — UI/UX Quality Validation [Execution Gate — Conditional]
+Phase 12 — Implementation                [Execution Phase]
+
+Phase 13 — Code Quality Validation       [Execution Gate]
+Phase 14 — UI/UX Quality Validation      [Execution Gate — Conditional]
 Phase 15 — Repository Hygiene Validation [Execution Gate]
-Phase 16 — Verification Pipeline    [Execution Gate]
+Phase 16 — Verification Pipeline         [Execution Gate]
 
-Phase 17 — Pull Request Preparation [Execution Phase]
-Phase 18 — Completion Report        [Execution Phase]
+Phase 17 — PR Finalization               [Execution Phase]
+Phase 18 — Completion Report             [Execution Phase]
 ```
 
 ---
@@ -236,10 +238,12 @@ Also determine:
 
 ---
 
-## Phase 4 — Pull Request Validation
+## Phase 4 — Conflict Detection
 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 3 passes.
+
+> **Renamed from "Pull Request Validation"** to remove ambiguity. This phase detects conflicts in open PRs — it does NOT satisfy any PR creation obligation. A PR is created in Phase 6.
 
 ### Authority
 - `docs/governance/VERIFICATION_STANDARD.md §4` — Git workflow rules
@@ -302,10 +306,12 @@ git log --oneline  # confirm no broken commit state
 
 ---
 
-## Phase 6 — Branch Validation
+## Phase 6 — Branch & Draft PR Creation
 
 **Classification:** Execution Gate  
 **Trigger:** After Phase 5 passes.
+
+> **Expanded from "Branch Validation"**. This gate now requires a feature branch AND a draft PR to exist before execution continues. Implementation is blocked until both are confirmed.
 
 ### Authority
 - `docs/governance/VERIFICATION_STANDARD.md §4` — branch protection rules
@@ -313,28 +319,49 @@ git log --oneline  # confirm no broken commit state
 ### Inputs
 - Current branch name
 - Git remote state
+- GitHub Issue number from Phase 3
 
 ### Process
+
+**Step 1 — Verify or create a feature branch:**
 ```
-git branch         # confirm current branch name
+git branch         # confirm NOT on main or develop
 git ls-remote      # confirm remote state
 ```
 
-1. If the current branch has already been merged → verify merge completion, delete the stale branch, synchronize with the latest base branch, and create a new feature branch.
-2. Verify branch naming follows project convention.
-3. Verify the base branch is correct.
-4. Confirm direct commits to `main` are not being attempted.
+1. If currently on `main` or `develop` → create a feature branch immediately:
+   ```
+   git checkout -b feat/issue-{N}-{short-description}
+   ```
+2. If a stale/merged branch exists → delete it, sync with base, and create a new feature branch.
+3. Branch name must follow convention: `feat/issue-{N}-{description}`, `fix/issue-{N}-{description}`, `refactor/issue-{N}-{description}`, etc.
+4. Push the branch to remote immediately:
+   ```
+   git push -u origin {branch-name}
+   ```
+
+**Step 2 — Open a Draft Pull Request:**
+
+5. Open a **draft** Pull Request on GitHub:
+   - Base: `main`
+   - Head: the feature branch created in Step 1
+   - Title: follows Conventional Commits format
+   - Body: includes `Closes #{issue-number}` from Phase 3
+6. Record the draft PR URL as evidence.
+
+> ⛔ **IMPLEMENTATION BLOCKER**: If either the feature branch or the draft PR does not exist, do NOT proceed to Phase 7. Halt until both are confirmed.
 
 ### Outputs
-- Valid branch name
-- Confirmed base branch
+- Valid feature branch name (not `main` or `develop`)
+- Confirmed branch exists on remote (`git ls-remote` output)
+- Draft PR URL (GitHub)
 
 ### Exit Criteria
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | Branch is valid, correctly named, not merged, based on correct parent | Continue to Phase 7 |
-| ❌ FAIL | Branch is stale/merged, misnamed, or targeting the wrong base | Remediate branch state. Do not continue on an invalid branch. |
+| ✅ PASS | Feature branch exists on remote AND draft PR is open and linked to the Issue | Continue to Phase 7 |
+| ❌ FAIL | Currently on `main`/`develop`, or no feature branch exists on remote, or no draft PR open | Create branch. Push. Open draft PR. Do not continue until all three are confirmed. |
 
 ---
 
@@ -550,6 +577,13 @@ Answer each question before creating any file:
 
 **Classification:** Execution Phase  
 **Trigger:** After all gates in Phases 3–11 pass. Code may only be written after this phase begins.
+
+> ⛔ **MANDATORY PREREQUISITE CHECK** — Before writing a single line of code, verify:
+> 1. You are on a **feature branch** (NOT `main` or `develop`) — confirmed by `git branch`.
+> 2. That feature branch **exists on remote** — confirmed by `git ls-remote`.
+> 3. A **draft Pull Request is open** on GitHub, linked to the Issue from Phase 3.
+>
+> If any of the three conditions above is not met, **STOP**. Return to Phase 6 and resolve before continuing.
 
 ### Authority
 - `docs/governance/GOVERNANCE_POLICY.md §1` — TypeScript strict standards; no `any`; no speculative patches
@@ -814,10 +848,12 @@ If the UI-modified flag is `Yes`, also run:
 
 ---
 
-## Phase 17 — Pull Request Preparation
+## Phase 17 — PR Finalization
 
 **Classification:** Execution Phase  
 **Trigger:** After Phase 16 passes.
+
+> **Renamed from "Pull Request Preparation"**. The draft PR was opened in Phase 6. This phase finalizes it: marks it ready for review, attaches verification evidence, and confirms CI passes on remote.
 
 ### Authority
 - `docs/governance/REPOSITORY_GOVERNANCE_STANDARD.md §10` — pull request architecture checklist
@@ -825,12 +861,13 @@ If the UI-modified flag is `Yes`, also run:
 - `commitlint.config.js` — conventional commit format enforcement
 
 ### Inputs
+- Draft PR URL from Phase 6
 - Passing verification pipeline from Phase 16
 - GitHub Issue number from Phase 3
 
 ### Process
 
-**Commit Standards**
+**Step 1 — Verify all commits are conventional:**
 
 Every commit must follow Conventional Commits as enforced by `commitlint.config.js`:
 
@@ -840,9 +877,10 @@ Every commit must follow Conventional Commits as enforced by `commitlint.config.
 Types:  feat | fix | refactor | perf | test | docs | build | ci | chore
 Scope:  package or feature area (e.g., core, backend-api, apps-web)
 Description: imperative present tense; lowercase; no trailing period
+Body lines: max 100 characters each
 ```
 
-**Pull Request Requirements**
+**Step 2 — Complete the PR body:**
 
 | Field | Requirement |
 |-------|-------------|
@@ -854,20 +892,26 @@ Description: imperative present tense; lowercase; no trailing period
 | Known risks | Limitations, edge cases, deferred work |
 | Architecture checklist | Complete `REPOSITORY_GOVERNANCE_STANDARD.md §10` checklist |
 
+**Step 3 — Mark PR ready for review:**
+- Convert the draft PR to "Ready for review" status.
+- Confirm CI pipeline is triggered and passes on remote.
+
 **Never:**
 - Merge automatically
 - Self-approve
 - Bypass the CI pipeline
 
 ### Outputs
-- Published Pull Request with all required fields completed
+- PR URL (confirmed, not a local artifact)
+- PR status: Ready for Review (no longer draft)
+- CI pipeline passing on remote
 
 ### Exit Criteria
 
 | Outcome | Condition | Next Action |
 |---------|-----------|-------------|
-| ✅ PASS | All commits are conventional; PR published with all fields; architecture checklist complete | Continue to Phase 18 |
-| ❌ FAIL | Commit format violations or required PR fields missing | Fix and re-publish. |
+| ✅ PASS | All commits conventional; PR marked ready; all fields complete; CI passing on remote | Continue to Phase 18 |
+| ❌ FAIL | Commit format violations, missing PR fields, or CI failing on remote | Fix and re-validate. |
 
 ---
 
@@ -941,8 +985,12 @@ If any item is missing or unverified, status remains **In Progress**.
 
 - [ ] Working tree is clean — `git status` output confirms
 - [ ] All commits present locally — `git log` output confirms
+- [ ] Feature branch was used (NOT `main`) — `git log --oneline` confirms
 - [ ] Branch exists on remote — `git ls-remote` output confirms
-- [ ] CI pipeline passed on remote repository
+- [ ] **Pull Request URL confirmed** — not a walkthrough artifact, a real GitHub PR link
+- [ ] PR is linked to the GitHub Issue (`Closes #N` in body)
+- [ ] CI pipeline passed on remote repository — link to CI run
+- [ ] PR has not been self-approved or auto-merged
 - [ ] No temporary artifacts remain in the working tree
 - [ ] Documentation matches the actual repository state
 - [ ] Completion Report populated with objective evidence for every field

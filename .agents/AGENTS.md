@@ -153,6 +153,9 @@ Before creating any of the following, verify an existing implementation does not
 
 Before writing any code, confirm all of the following:
 
+- [ ] **I am on a feature branch (NOT `main` or `develop`)** — confirmed by `git branch`.
+- [ ] **A draft Pull Request is open on GitHub** and linked to the GitHub Issue (Phase 6 output).
+- [ ] **The feature branch exists on remote** — confirmed by `git ls-remote`.
 - [ ] I fully understand the requirement.
 - [ ] I verified the existing implementation against the live source code.
 - [ ] I understand how Esparex currently handles this concern.
