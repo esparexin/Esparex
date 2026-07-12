@@ -89,3 +89,72 @@ Do not create duplicate collections, schemas, models, indexes, or migrations.
 - Remove dead code before adding new code.
 - Never create unnecessary files, folders, components, services, hooks, utilities, APIs, database objects, or documentation.
 - Keep the repository clean and follow the existing architecture.
+
+---
+
+## Engineering Knowledge Review (Workflow Add-on)
+
+> This is an additional review step applied during the Repository Audit and Architecture Audit phases. It does **not** modify or replace the existing workflow. Its purpose is to ensure every implementation understands and extends what Esparex already has, rather than creating parallel or duplicate systems.
+
+### Mandatory Rule
+
+Before building, implementing, modifying, or creating anything, first understand how **Esparex already handles the same concern**.
+
+Always ask:
+
+> **"Does this already exist, and how is it currently implemented in Esparex?"**
+
+Never assume. Never guess. Never create a new pattern until the existing implementation has been verified against the live source code.
+
+---
+
+### Engineering Knowledge Areas (review only areas relevant to the task)
+
+During the Repository Audit and Architecture Audit, verify the existing implementation for any of the following that apply:
+
+| Area | What to verify |
+|---|---|
+| **Error Handling** | ErrorBoundary, AppError, errorHelpers, normalizeApiError, errorResponseContract |
+| **Notifications** | NotificationDispatcher, NotificationTemplateService, NotificationPreferenceService, PushGatewayService, notification queues |
+| **Logging & Monitoring** | logger.ts, adminLogger.ts, metricsMiddleware.ts, sloMonitor.ts, reliabilityAlerts.ts, health.ts |
+| **Security** | csrfProtection.ts, securityValidators.ts, authMiddleware.ts, rateLimiter, fraudMiddleware.ts, securityMonitoring.ts |
+| **HTTP/API** | validateRequest.ts, errorResponseContract.ts, idempotency.ts, deprecations.ts, apiResponse.ts |
+| **Database** | Existing models in `core/src/models/`, softDeletePlugin, schemaOptions, safeSoftDeleteQuery, existing indexes |
+| **Performance** | redisCache, cacheWarmer, queueWrapper, imageProcessor, s3.ts |
+| **Shared Components** | `apps/web/src/components/`, `apps/admin/src/components/` |
+| **Shared Services** | `core/src/services/` |
+| **Shared Utilities** | `core/src/utils/`, `shared/src/` |
+| **Shared Hooks** | `apps/web/src/hooks/` |
+| **Middleware** | `backend/api/src/middleware/` |
+| **Existing APIs** | `backend/api/src/routes/` |
+| **Queues & Jobs** | `core/src/queues/`, `core/src/jobs/`, `core/src/workers/` |
+
+---
+
+### Reuse Before Create
+
+Before creating any of the following, verify an existing implementation does not already exist:
+
+- File, Folder, Component, Service, Hook, Utility, Middleware
+- API Endpoint, Database Model, Schema, Migration
+- Queue, Notification Handler, Error Handler
+
+**If it exists:** Reuse it. Extend it if necessary. Keep the existing architecture consistent.
+
+**If it does not exist:** Provide evidence it was searched for. Explain why a new implementation is required. Then implement.
+
+---
+
+### Pre-Implementation Confirmation Checklist
+
+Before writing any code, confirm all of the following:
+
+- [ ] I fully understand the requirement.
+- [ ] I verified the existing implementation against the live source code.
+- [ ] I understand how Esparex currently handles this concern.
+- [ ] I am reusing or extending the existing implementation where possible.
+- [ ] I am not introducing duplicate logic or parallel systems.
+- [ ] I am not creating unnecessary files, folders, or documentation.
+- [ ] The implementation follows the existing architecture and project standards.
+
+**The current workflow remains unchanged. This review exists only to improve implementation quality and maintain consistency across the project.**
