@@ -108,26 +108,30 @@ Never assume. Never guess. Never create a new pattern until the existing impleme
 
 ---
 
-### Engineering Knowledge Areas (review only areas relevant to the task)
+### Existing Implementation Review
 
-During the Repository Audit and Architecture Audit, verify the existing implementation for any of the following that apply:
+Before implementation, identify the canonical implementation in the current repository. Do not assume file names or locations. During the Repository Audit and Architecture Audit, locate the existing implementation and verify whether it can be reused or extended before creating anything new.
 
-| Area | What to verify |
-|---|---|
-| **Error Handling** | ErrorBoundary, AppError, errorHelpers, normalizeApiError, errorResponseContract |
-| **Notifications** | NotificationDispatcher, NotificationTemplateService, NotificationPreferenceService, PushGatewayService, notification queues |
-| **Logging & Monitoring** | logger.ts, adminLogger.ts, metricsMiddleware.ts, sloMonitor.ts, reliabilityAlerts.ts, health.ts |
-| **Security** | csrfProtection.ts, securityValidators.ts, authMiddleware.ts, rateLimiter, fraudMiddleware.ts, securityMonitoring.ts |
-| **HTTP/API** | validateRequest.ts, errorResponseContract.ts, idempotency.ts, deprecations.ts, apiResponse.ts |
-| **Database** | Existing models in `core/src/models/`, softDeletePlugin, schemaOptions, safeSoftDeleteQuery, existing indexes |
-| **Performance** | redisCache, cacheWarmer, queueWrapper, imageProcessor, s3.ts |
-| **Shared Components** | `apps/web/src/components/`, `apps/admin/src/components/` |
-| **Shared Services** | `core/src/services/` |
-| **Shared Utilities** | `core/src/utils/`, `shared/src/` |
-| **Shared Hooks** | `apps/web/src/hooks/` |
-| **Middleware** | `backend/api/src/middleware/` |
-| **Existing APIs** | `backend/api/src/routes/` |
-| **Queues & Jobs** | `core/src/queues/`, `core/src/jobs/`, `core/src/workers/` |
+For every task, ask:
+
+- How is this concern currently handled in Esparex?
+- Is there already a shared solution for this?
+- Can I extend it instead of creating something new?
+- Will this introduce duplicate logic or a parallel pattern?
+- Am I following the existing architecture?
+
+Apply this review to any area relevant to the task, including but not limited to:
+
+- Error Handling
+- Notifications
+- Logging & Monitoring
+- Security
+- HTTP/API Design
+- Database Design
+- Performance & Caching
+- Shared Components, Services, Hooks, and Utilities
+- Middleware
+- Queues and Background Jobs
 
 ---
 
