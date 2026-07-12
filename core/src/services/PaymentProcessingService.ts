@@ -5,7 +5,7 @@ import {
     credit, 
     buildWalletIncrement, 
     hasWalletIncrement 
-} from './WalletService';
+} from './wallet/WalletService';
 import { recordRevenue } from './RevenueAnalytics';
 import { 
     buildInvoicePayload, 

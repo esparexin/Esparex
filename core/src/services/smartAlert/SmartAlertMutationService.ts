@@ -1,7 +1,7 @@
 import { PLAN_STATUS } from '@esparex/shared';
 import { calculateUserPlan } from '../PlanEngine';
 import { UserPlanModel, PlanModel } from '../PlanService';
-import { consumeCredit, credit as creditWallet, WalletModel } from '../WalletService';
+import { consumeCredit, credit as creditWallet, WalletModel } from '../wallet/WalletService';
 import { SmartAlertModel, type SmartAlertDocument } from '../SmartAlertService';
 import { resolveMasterDataIds } from '../../utils/masterDataResolver';
 import { AppError } from '../../utils/AppError';
