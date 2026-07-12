@@ -1,4 +1,13 @@
-# Repository Rules
+---
+id: repository-discipline-rule
+owner: rules
+type: rule
+version: 1.0
+last_updated: 2026-07-12
+depends_on: []
+loads_when: ["*"]
+---
+# Repository Discipline Rules
 
 ### Mandatory Rule
 Before building, implementing, modifying, or creating anything, first understand how **Esparex already handles the same concern**.

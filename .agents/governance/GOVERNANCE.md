@@ -1,3 +1,12 @@
+---
+id: global-governance
+owner: governance
+type: governance
+version: 2.0
+last_updated: 2026-07-12
+depends_on: []
+loads_when: ["*"]
+---
 # Agent Rules & Constraints
 
 **Version:** 2.0

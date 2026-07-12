@@ -1,3 +1,12 @@
+---
+id: agents-bootstrap
+owner: root
+type: bootstrap
+version: 2.0
+last_updated: 2026-07-12
+depends_on: []
+loads_when: ["*"]
+---
 # AGENTS.md
 
 This repository uses modular AI governance.

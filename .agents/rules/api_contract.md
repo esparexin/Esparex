@@ -1,4 +1,13 @@
-# HTTP/API Rules
+---
+id: api-contract-rule
+owner: rules
+type: rule
+version: 1.0
+last_updated: 2026-07-12
+depends_on: []
+loads_when: ["api", "endpoints", "rest", "controllers"]
+---
+# API Contract Rules
 
 Before creating a new endpoint, verify:
 - Does an existing endpoint already cover this?

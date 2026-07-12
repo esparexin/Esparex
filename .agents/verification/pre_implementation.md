@@ -1,3 +1,12 @@
+---
+id: pre-implementation-verification
+owner: verification
+type: verification
+version: 1.0
+last_updated: 2026-07-12
+depends_on: []
+loads_when: ["*"]
+---
 # Pre-Implementation Confirmation Checklist
 
 Before writing any code, confirm all of the following:

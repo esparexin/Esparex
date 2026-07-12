@@ -1,3 +1,12 @@
+---
+id: context-resolver
+owner: resolver
+type: resolver
+version: 1.0
+last_updated: 2026-07-12
+depends_on: []
+loads_when: ["*"]
+---
 # The Resolver
 
 This module determines exactly what engineering knowledge to load for a given task. It is the only phase allowed to dictate context injection.

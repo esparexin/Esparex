@@ -1,3 +1,12 @@
+---
+id: ai-execution-workflow
+owner: workflow
+type: workflow
+version: 2.0
+last_updated: 2026-07-12
+depends_on: ["global-governance", "resolver"]
+loads_when: ["*"]
+---
 # AI Execution Lifecycle
 
 **Location:** `ai-governance/AI_EXECUTION_WORKFLOW.md`  
