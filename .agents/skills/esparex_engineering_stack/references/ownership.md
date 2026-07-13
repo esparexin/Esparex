@@ -25,3 +25,5 @@ This skill references, but does **not** duplicate:
 - Do **not** copy lists of API endpoint URLs here.
 - Do **not** duplicate Zod validation rules or database schemas here.
 - Do **not** add deployment checklists.
+
+This skill documents the repository's current engineering stack. It does not authorize technology changes, migrations, or dependency upgrades. Those decisions are governed through the project's governance process and approved architectural decisions.
