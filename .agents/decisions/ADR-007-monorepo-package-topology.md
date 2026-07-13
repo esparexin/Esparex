@@ -1,4 +1,4 @@
-# ADR-007: Monorepo Package Topology & Candidate Enterprise Blueprint Deferral
+# ADR-007: Ownership-Driven Monorepo Topology & Target Blueprint Deferral
 
 **Status**: Accepted
 **Date**: 2026-07-13
@@ -7,55 +7,73 @@
 
 ---
 
-## 1. Context & Architectural Question
+## 1. Context & Architectural Philosophy: Ownership Over Folders
 
-During the completion of the L1–L5 Architecture Governance Framework audits (`Phase 1`–`Phase 11`), a recurring structural question arose:
+During the completion of the L1–L5 Architecture Governance Framework audits (`Phase 1`–`Phase 11`), a recurring structural question arose regarding physical directory placement:
 
-> *"Why are `@esparex/core` (`core/`) and `@esparex/shared` (`shared/`) located right at the repository root alongside deployable end-user applications (`apps/`) and delivery backends (`backend/`)?"*
+> *"Why are `@esparex/core` (`core/`) and `@esparex/shared` (`shared/`) located at the repository root alongside deployable end-user applications (`apps/`) and server delivery backends (`backend/`)?"*
 
-While the dependency graph between these modules is verified as 100% inward and valid (`dependency-cruiser` verified 0 violations across 7,140 dependencies), placing libraries at the repository root creates visual and semantic ambiguity: a new engineer inspecting the root directory might assume `core/` and `shared/` are standalone deployable applications rather than supporting packages.
+While physical folder structure influences developer onboarding clarity, **the true architecture of a monorepo is defined by ownership, responsibility, and deployability boundaries—not folder names**.
 
-This decision record formally evaluates the current **`v1.x` Approved Baseline Topology** against the **Candidate `v2.0` Enterprise Blueprint** (`apps/`, `services/`, `packages/`, `infrastructure/`, `docs/`, `tooling/`) and defines exactly why our current layout is accepted for `v1.x`, what causes churn during any future restructuring, and the mandatory readiness checklist required before a restructuring is permitted.
+| Owner / Package | Core Responsibility | Deployable Runtime? | Universal / Platform Neutral? |
+|---|---|---|---|
+| **`apps/*`** (`web`, `admin`, `mobile`) | End-user presentation & user interface workflows | ✅ **Yes** | ❌ **No** (Browser / Capacitor) |
+| **`backend/api`** | HTTP transport, routing, Express middleware, server bootstrapping | ✅ **Yes** | ❌ **No** (Node.js / Render) |
+| **`core`** (or future `domain`) | Pure business rules, domain models, validation, Mongoose repositories | ❌ **No** (Library) | ❌ **No** (Backend Node.js library) |
+| **`shared`** | Cross-platform contracts, API schemas, shared utilities | ❌ **No** (Library) | ✅ **Yes** (Universal JS/TS) |
+
+As long as these ownership and dependency boundaries remain strictly enforced (`P1`–`P6`), physical folder locations can be reorganized later without violating architectural integrity.
+
+This decision record evaluates our **Current Approved Topology** against the **Candidate Enterprise Blueprint**, explains why root placement is accepted today, forbids multi-step intermediate rewrites, and establishes objective business/technical triggers (rather than version numbers) for any future restructuring.
 
 ---
 
 ## 2. Decision
 
-### A. Accepted Baseline for Esparex `v1.x`
-The current repository topology (`core/` and `shared/` at the repository root) is the **accepted baseline for `v1.0`** (`ADR-005`, `ADR-007`) and remains valid until a future repository restructuring is explicitly evaluated and approved through a new ADR.
+### A. Accepted Baseline Topology
+The current repository topology (`core/` and `shared/` at the repository root) is the **approved baseline** (`ADR-005`, `ADR-007`) and remains valid until a future restructuring is triggered by objective architectural needs and approved via a new ADR.
 
 ```text
-esparex/ (Current Approved Baseline - v1.x)
+esparex/ (Current Approved Baseline)
 ├── apps/                          # End-user UI deployables (web, admin, mobile)
 ├── backend/                       # Server delivery mechanisms (api)
-├── core/                          # Reusable business domain package (@esparex/core)
+├── core/                          # Reusable business domain library (@esparex/core)
 └── shared/                        # Universal contracts & schemas (@esparex/shared)
 ```
 
 ### B. Why `core` is at the Root (and Not Under `backend/`)
-- `@esparex/core` is an intentionally extracted **domain library**, not merely a folder of Express controllers (`ADR-005`).
-- Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned and consumed solely by the HTTP REST delivery mechanism (`backend/api`).
-- Keeping `core/` at the root preserves its independence as a **platform-neutral domain package** capable of powering multiple distinct backend runtimes right now and in the future (e.g., CLI maintenance scripts, background worker processes, cron schedulers).
+- `@esparex/core` is an extracted **domain library**, not merely a folder of HTTP controllers (`ADR-005`).
+- Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned solely by the HTTP REST delivery mechanism (`backend/api`).
+- Keeping `core/` at the root preserves its independence as a **reusable domain package** capable of powering multiple backend runtimes without routing through HTTP delivery (`backend/api`).
 
 ### C. Why `shared` is at the Root (and Not Under `backend/`)
-- `@esparex/shared` is consumed across both frontend client applications (`apps/web`, `apps/admin`) and backend server packages (`core`, `backend/api`).
-- Placing `shared/` under `backend/` would violate clean boundaries (`P3`) by forcing client UI applications to import from a server-delivery directory hierarchy.
-- Following the dead-code purge of unused Node `crypto` Express middleware (`DF-001` resolved in `commit 9330ba5a`), `@esparex/shared` is 100% platform-neutral (`P4`) and properly positioned as a root-accessible universal library.
+- `@esparex/shared` is consumed across both client UI applications (`apps/web`, `apps/admin`) and backend server packages (`core`, `backend/api`).
+- Placing `shared/` under `backend/` would violate clean boundaries (`P3`) by forcing client applications to import from a server-delivery directory tree.
+- Following our dead-code purge of unused Express middleware (`DF-001` resolved in `commit 9330ba5a`), `@esparex/shared` is 100% platform-neutral (`P4`) and properly positioned as a root universal library.
 
-### D. Why the Enterprise Blueprint (`packages/` + `services/`) is Deferred
-Adopting an enterprise-scale categorical structure (`apps/`, `services/`, `packages/`, `infrastructure/`, `docs/`, `tooling/`) communicates operational intent immediately by separating deployables (`apps/`, `services/`) from libraries (`packages/`). However, executing that restructuring today is **deferred** because:
-1. **Organizational vs. Functional Benefit**: Renaming and moving folders (`git mv core packages/domain`) provides cognitive clarity for onboarding developers but yields zero immediate runtime performance, test speed, or business functionality improvements.
-2. **Configuration Churn**: Moving paths across a monorepo introduces configuration and CI churn (`pnpm-workspace.yaml`, `tsconfig.json`, `dependency-cruiser.js`, Dockerfile paths, and deployment pipelines).
-3. **Engineering Opportunity Cost**: Current engineering cycles are higher-value when directed toward product feature velocity, resolving open technical debt (`R-005` Dependabot vulnerabilities), and bounded-context domain hygiene.
+### D. Single-Stage Modernization Principle (No Two-Step Rewrites)
+We explicitly **forbid** intermediate, two-step repository rewrites:
+
+```text
+❌ Forbidden Two-Step Sequence:
+Current (`core` at root) → `backend/core` → `packages/domain` (Double churn without value)
+```
+
+If the codebase is modernized in the future, it must execute via a **single, definitive migration**:
+
+```text
+✅ Required Single-Stage Sequence:
+Current (`core` / `shared` at root) → `packages/domain` + `packages/shared` + `services/api`
+```
 
 ---
 
-## 3. Candidate Future Topology (`v2.0` Candidate — Requires New ADR)
+## 3. Candidate Enterprise Blueprint & Objective Triggers
 
-Rather than forcing a fixed future commitment, the enterprise `packages/` + `services/` layout is documented as the **Candidate Enterprise Topology for `v2.0`**. It represents an evidence-driven target that will only be adopted when quantitative architectural triggers justify the migration and a new ADR is approved:
+Rather than tying future restructuring to arbitrary version numbers (`v1.x` vs `v2.0`), the enterprise `packages/` + `services/` layout is documented as our **Candidate Enterprise Blueprint**. It will be considered solely when measurable architectural or organizational triggers occur.
 
 ```text
-esparex/ (Future Candidate - Requires ADR)
+esparex/ (Candidate Enterprise Blueprint - Requires Objective Triggers + ADR)
 ├── apps/                          # Deployable UI applications
 │   ├── web/                       # Customer Web (Next.js)
 │   ├── admin/                     # Admin Portal (Vite)
@@ -64,37 +82,36 @@ esparex/ (Future Candidate - Requires ADR)
 ├── services/                      # Deployable backend server runtimes
 │   ├── api/                       # Express HTTP API (`backend/api` migrated here)
 │   ├── worker/                    # BullMQ / Background Processing Jobs (`R-001` extraction)
-│   ├── scheduler/                 # Cron / Recurring Task Engine
-│   └── ai/                        # Dedicated AI Integration Runtime
+│   └── scheduler/                 # Cron / Recurring Task Engine
 │
 ├── packages/                      # Reusable libraries
 │   ├── domain/                    # Business domain (`core/` migrated here)
 │   ├── shared/                    # Cross-platform contracts (`shared/` migrated here)
 │   ├── ui/                        # Shared UI component library
-│   ├── config/                    # Shared ESLint/TS configs
-│   └── testing/                   # Shared test utilities
+│   ├── sdk/                       # API SDK library
+│   └── config/                    # Shared ESLint/TS configs
 │
 ├── infrastructure/                # Docker, Kubernetes, Terraform, monitoring
 ├── docs/                          # Architecture governance, ADRs, system blueprints
 └── tooling/                       # Custom internal CLI scripts & build automation
 ```
 
-### Quantitative Triggers for Candidate Migration Evaluation
-The candidate migration will be formally evaluated when **at least one** of the following conditions is met:
-1. **Multiple Backend Runtimes (`R-001`)**: The HTTP API server (`backend/api`) requires standalone background worker extraction (`services/worker`) to protect HTTP P95 latency. At that point, grouping `services/api` and `services/worker` next to `packages/domain` becomes structurally essential.
-2. **Team Scaling**: The engineering organization expands to multiple autonomous squads where domain packages (`packages/domain/catalog`, `packages/domain/payments`) must be published or independently versioned across distinct boundaries.
-3. **Dedicated Modernization Epoch**: A planned, scheduled technical debt epoch where 100% of engineering bandwidth is allocated to structural refactoring and comprehensive regression verification without competing feature roadmaps.
+### Objective Business & Technical Triggers
+Repository modernization (`packages/` + `services/` migration) will be evaluated when **one or more of the following occur**:
+1. **Multiple deployable backend runtimes are introduced**: E.g., splitting `backend/api` into a dedicated API server (`services/api`), background processing worker (`services/worker`), and cron scheduler (`services/scheduler`). Grouping these next to `packages/domain` becomes structurally essential (`R-001`).
+2. **Independent package publishing becomes necessary**: E.g., publishing `@esparex/sdk` or `@esparex/shared` to an external npm registry or internal enterprise artifact repository.
+3. **Multiple engineering teams own different bounded contexts**: E.g., separate squads owning `catalog`, `payments`, and `ads` require independent boundary enforcement and versioning under `packages/domain/*`.
+4. **Repository tooling benefits from a `packages/` convention**: Modern monorepo build tools (e.g., Turborepo, Nx, Knip) require or gain significant optimization benefits from a standardized `packages/*` and `services/*` workspace layout.
+5. **Build or dependency management complexity exceeds current governance thresholds**: Monorepo dependency management or path alias resolution becomes a bottleneck under the root topology.
 
 ---
 
 ## 4. Migration Risk Analysis & Prerequisite Gate
 
-If a future ADR approves migrating from the `v1.x` Approved Baseline to the `v2.0` Candidate Topology, the migration must strictly separate code churn from build/config churn.
-
 ### Churn & Risk Classification Matrix
-Because all source files in Esparex consistently use workspace package imports (`@esparex/core`, `@esparex/shared`) rather than relative filesystem paths (`../../core/src/...`), source code modifications during directory movement (`git mv`) are minimal. The primary churn and risk live in build tooling and repository configuration:
+Because all source files in Esparex consistently use workspace package imports (`@esparex/core`, `@esparex/shared`) rather than relative filesystem paths (`../../core/src/...`), source code modifications during directory movement (`git mv`) are minimal. The primary churn lives in build tooling and repository configuration:
 
-| Area | Risk Level | Rationale & Impact |
+| Area | Risk Level | Rationale & Churn Source |
 |---|---|---|
 | **Business logic** | 🟢 **Very Low** | Zero domain algorithms, schemas, or service handlers change during directory relocation. |
 | **Runtime** | 🟢 **Very Low** | Node, Express, Next.js, and Vite runtimes execute identical compiled JavaScript bundles. |
@@ -105,7 +122,7 @@ Because all source files in Esparex consistently use workspace package imports (
 ---
 
 ### Repository Modernization Readiness Checklist (Pre-Migration Gate)
-Before any future move to `packages/` / `services/` can begin, the repository must pass the mandatory **Readiness Checklist**. If any item fails, the migration is postponed until the prerequisite is satisfied:
+Before any future move to `packages/` / `services/` can begin, the repository must pass the mandatory **Readiness Checklist**:
 
 - [ ] **No relative imports between workspaces**: All cross-package imports use strict workspace identifiers (`@esparex/core`, `@esparex/shared`). Zero instances of `import ... from '../../core/src/...'`.
 - [ ] **All packages imported via workspace names**: Every package definition (`package.json`) uses standard `workspace:*` dependencies.
@@ -116,8 +133,12 @@ Before any future move to `packages/` / `services/` can begin, the repository mu
 
 ---
 
-## 5. Summary & Strategic Direction
+## 5. Strategic Focus Summary
 
-- **For Esparex `v1.x`**: We preserve `apps/`, `backend/api`, `core/`, and `shared/` (`Status: Approved Baseline — Architecturally sound and governed`).
-- **For Esparex `v2.x`**: We establish `apps/`, `services/`, `packages/`, `infrastructure/`, `docs/`, and `tooling/` (`Status: Future Candidate — Evidence-driven, not roadmap-forced`).
-- **Execution Mandate**: Engineering bandwidth remains dedicated to shipping product features, evolving bounded contexts (`Catalog`, `Payments`), and remediating security debt (`R-005` Dependabot upgrades).
+With our ownership boundaries (`apps/*`, `backend/api`, `core`, `shared`) strictly verified (`PASS WITH OBSERVATIONS`), **architecture is no longer an engineering bottleneck**. All further architectural expansion is frozen.
+
+Engineering focus now shifts entirely to:
+1. **Product feature velocity** (using the governance framework as an automated quality gate).
+2. **Bounded-context domain hygiene** (monitoring `Catalog` and `Payments` complexity against `S5` triggers).
+3. **Security and dependency remediation** (resolving pre-existing Dependabot vulnerabilities in `R-005`).
+4. **Performance and operational excellence** (driven by real production latency telemetry).
