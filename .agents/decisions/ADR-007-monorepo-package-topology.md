@@ -8,7 +8,7 @@
 
 ---
 
-## 1. Context & Architectural Challenge
+## 1. Context & Immutable Architectural Principles
 
 During the completion of the L1–L5 Architecture Governance Framework audits (`Phase 1`–`Phase 11`), a recurring structural question arose regarding directory placement:
 
@@ -49,7 +49,7 @@ apps/* (UI Presentation Layer: web, admin, mobile)
 services/* (Server Delivery Runtimes: api, worker, scheduler, ai)
    │
    ▼  (prohibits transport leakage into domain rules)
-core/ (pure business domain capabilities, ports, adapters, shared primitives)
+core/ (pure business domain capabilities, ports, adapters, building-blocks)
    │
    ▼  (prohibits domain leakage into universal contracts/foundation)
 packages/* / shared/ (Universal cross-platform scope: contracts, foundation, utils, config)
@@ -64,7 +64,7 @@ packages/* / shared/ (Universal cross-platform scope: contracts, foundation, uti
 
 ## 3. Current Architecture vs. Target Enterprise Blueprint
 
-Rather than hardcoding fragile stage numbers, repository evolution transitions smoothly between our **Current Architecture** baseline and our **Target Enterprise Architecture**:
+Repository evolution transitions smoothly between our **Current Architecture** baseline and our **Target Enterprise Architecture**:
 
 ### Current Architecture (`Approved Baseline`)
 ```text
@@ -122,8 +122,8 @@ core/
 │   ├── storage/
 │   ├── mail/
 │   ├── search/
-│   └── observability/
-└── shared/
+│   └── telemetry/
+└── building-blocks/
     ├── primitives/
     ├── value-objects/
     ├── errors/
@@ -131,7 +131,8 @@ core/
     └── events/
         ├── EventBus.ts
         ├── EventEnvelope.ts
-        └── EventMetadata.ts
+        ├── EventSerializer.ts
+        └── EventDispatcher.ts
 
 packages/
 ├── contracts/
@@ -185,10 +186,9 @@ Before any structural relocation (`services/`, `packages/*`, or `domains/*`) beg
 
 ## 6. Summary & Execution Mandate
 
-With our architecture direction locked and governed (`ADR-001` through `ADR-009`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. The next expected structural ADR is:
-- **ADR-010: Eventing & Messaging Strategy** (defining Domain vs. Integration Events, Saga Orchestration, DLQ, and Event Versioning/Replay).
+With our architecture direction locked and governed (`ADR-001` through `ADR-009`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions. The next expected structural ADR is ADR-010: Eventing & Messaging Strategy.**
 
 We transition 100% of engineering bandwidth to **Implementation Governance**:
-1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `shared/` sprint-by-sprint alongside product delivery.
+1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `building-blocks/` sprint-by-sprint alongside product delivery.
 2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`).
 3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.

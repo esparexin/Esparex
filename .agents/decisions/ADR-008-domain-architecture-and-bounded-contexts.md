@@ -27,17 +27,17 @@ To separate concerns, the `core` codebase is organized into five timeless quadra
 - **`core/domains/`** — Bounded business contexts containing business domain logic.
 - **`core/adapters/`** — Concrete inbound and outbound adapters:
   - `core/adapters/inbound/` — Handles entry transport points (REST/WebSocket controllers, webhook listeners, CLI commands).
-  - `core/adapters/outbound/` — Implements outgoing port interfaces (Mongo persistence adapters, external vendor dispatchers).
-- **`core/infrastructure/`** — Concrete database persistence and technical capabilities.
-- **`core/shared/`** — Shared, domain-agnostic building blocks, primitives, value objects, and events plumbing.
-- **`core/events/`** — Global events are forbidden. Concrete events belong strictly to the domain context that owns them. `core/shared/events/` contains only eventing plumbing (interfaces like `EventBus`, `EventEnvelope`, `EventMetadata`).
+  - `core/adapters/outbound/` — Implements outgoing port interfaces, including concrete database repository persistence implementations (e.g. `MongoListingRepository` implementing `ListingRepositoryPort`).
+- **`core/infrastructure/`** — Concrete purely technical infrastructure bootstrapping (database connection pool setup, cache connections, logging config, telemetry setup, email clients initialization). Business-related code is prohibited here.
+- **`core/building-blocks/`** — Shared, domain-agnostic building blocks, primitives, value objects, and events plumbing.
+- **`core/events/`** — Global events are forbidden. Concrete events belong strictly to the domain context that owns them. `core/building-blocks/events/` contains only eventing plumbing (interfaces like `EventBus`, `EventEnvelope`, `EventSerializer`, `EventDispatcher`).
 
 ### 2. Internal Bounded-Context Layout
 Within each bounded context (`core/domains/<domain-name>/`), we enforce separation of use-case orchestration from pure domain rules:
 - **`application/`** — Orchestrates use cases (Application Services or demand-driven CQRS command/query split):
   - **Flat Application Services**: For standard contexts, a flat service class (e.g., `application/CatalogService.ts`) is preferred to avoid over-engineering.
   - **CQRS Split**: A context is only split into `application/commands/`, `application/queries/`, and `application/handlers/` when the complexity of the domain naturally warrants it.
-  - **Application Validation**: Input shape checks and DTO parsing live in `application/validation/`.
+  - **Application Validation**: Input shape checks and DTO validation schemas live in `application/validation/`.
 - **`domain/`** — Houses pure business logic, domain services, value objects, and entities:
   - `domain/entities/` — Stateful business entities.
   - `domain/services/` — Stateless business calculations and rules.

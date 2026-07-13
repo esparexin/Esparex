@@ -57,3 +57,18 @@ The implementation of the target architecture is structured across five sequenti
 - **Action Items**:
   1. Evaluate candidate domains against the Graduation Gate Criteria.
   2. Relocate the directory from `core/domains/<domain-name>/` to the root `domains/<domain-name>/` workspace via `git mv` only when team ownership, low coupling, and independent deployment needs are verified.
+
+---
+
+## 3. Consolidation Milestones
+
+| Milestone | Goal | Primary Verification Gate |
+|---|---|---|
+| **M1** | Create the new `core/domains/` structure without changing behavior. | Clean compile & passing types. |
+| **M2** | Move Catalog into the new structure and verify all tests pass. | All unit tests pass (`npm run test -w @esparex/core`). |
+| **M3** | Move Listings. | All unit tests pass. |
+| **M4** | Move Payments and Wallet. | All unit tests pass. |
+| **M5** | Introduce ports and adapter outbound implementations incrementally. | Strict dependency-cruiser boundary gate. |
+| **M6** | Enable all architecture verification scripts in CI. | Custom validation scripts block pull requests. |
+| **M7** | Generate architecture scorecards on every pull request. | HTML/JSON scorecard reports auto-published. |
+| **M8** | Remove the legacy flat `core/services/` layout completely. | Git file-deleted verification. |

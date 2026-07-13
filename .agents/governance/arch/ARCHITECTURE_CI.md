@@ -18,7 +18,12 @@ Our architectural fitness checks are automated and run in pre-commit hooks, pre-
 | **API Encapsulation** | Public API index.ts barrels | `npm run guard:public-api` | Blocks merge |
 | **Manifest Check** | manifest.yaml Schema | `npm run guard:manifests` | Blocks merge |
 | **Isolation Check** | Zero infra inside domains | `npm run guard:isolation` | Blocks merge |
-| **Foundation Budget** | Foundation size & reference count | `npm run guard:foundation` | Blocks merge |
+| **Building Blocks Budget**| Building blocks size & references| `npm run guard:building-blocks` | Blocks merge |
+
+### Output Reports
+Every execution of `npm run guard:architecture` automatically compiles and generates visual developer-friendly reports inside `tooling/architecture/reports/`:
+- **`architecture-report.json`**: Machine-readable violation list and coupling metrics.
+- **`architecture-report.html`**: Interactive web dashboard displaying the coupling scorecard, ownership maps, and dependency graphs.
 
 ---
 
@@ -28,11 +33,11 @@ All architecture verification scripts are written in TypeScript and executed via
 
 - **`verify-boundaries.ts`**: Runs dependency-cruiser validation to check our Dependency Rule Matrix, ensuring no upward or forbidden sideways imports.
 - **`verify-public-api.ts`**: Parses imports using the TypeScript Compiler API (AST check) to verify that cross-domain imports only target domain root barrels (`index.ts`).
-- **`verify-manifests.ts`**: Validates manifest structure, stability tags, criticality levels, and ownership coverage.
+- **`verify-manifests.ts`**: Validates manifest structure, stability tags, criticality levels, SLAs, and ownership coverage.
 - **`verify-dependencies.ts`**: Checks for unexpected runtime and devDependency references in package configurations.
 - **`verify-ports.ts`**: Scans domain contexts to ensure port interfaces conform to Hexagonal naming rules.
 - **`verify-adapters.ts`**: Verifies that adapter wrappers conform to suffix standards and reside in inbound/outbound directories.
-- **`verify-foundation.ts`**: Verifies that any file located inside `packages/foundation/` is allowed by primitive standards and content budgets.
-- **`architecture-scorecard.ts`**: Computes domain sizes, coupling ratios, circular dependencies, and violation rates to print release scorecard reports.
+- **`verify-building-blocks.ts`**: Verifies that any file located inside `core/building-blocks/` is consumed by three or more distinct bounded contexts, and validates the file count budget.
+- **`architecture-scorecard.ts`**: Computes domain sizes, coupling ratios, circular dependencies, and violation rates to print release scorecard reports and compile the report files.
 - **`dependency-graph.ts`**: Generates visual dependency relationship models across contexts.
 - **`ownership-report.ts`**: Maps code files to squad ownership directories based on manifest files.

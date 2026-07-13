@@ -8,7 +8,7 @@
 
 ## 1. Overview & Objectives
 
-This document maps the concrete, file-by-file refactoring steps to relocate the flat services in `@esparex/core` into bounded DDD contexts inside `core/domains/` and capabilities inside `core/infrastructure/`, `core/adapters/`, and `core/foundation/`.
+This document maps the concrete, file-by-file refactoring steps to relocate the flat services in `@esparex/core` into bounded DDD contexts inside `core/domains/` and capabilities inside `core/infrastructure/`, `core/adapters/`, and `core/building-blocks/`.
 
 The primary objectives are:
 1. **No PR Overlap**: Migrate files incrementally to prevent merge conflicts.
@@ -22,10 +22,10 @@ The primary objectives are:
 | Current File/Folder | Target Directory | Responsibility |
 |---|---|---|
 | `core/src/services/` (flat 90+ files) | `core/src/domains/<domain>/` | Bounded context directories |
-| `core/src/models/` (Mongoose Schemas) | `core/src/infrastructure/persistence/mongo/` | Database implementations |
-| `core/src/config/` (infrastructure boot) | `core/src/infrastructure/` | Cache, queues, configurations |
-| `core/src/utils/` (general helpers) | `core/src/foundation/` | Basic primitives & value objects |
-| `core/src/jobs/` (BullMQ workers) | `core/src/infrastructure/messaging/` | Async job queue adapters |
+| `core/src/models/` (Mongoose Schemas) | `core/src/adapters/outbound/` | Outbound persistence repository adapters |
+| `core/src/config/` (infrastructure boot) | `core/src/infrastructure/` | purely technical cache, queue, config setup |
+| `core/src/utils/` (general helpers) | `core/src/building-blocks/` | Basic primitives & value objects |
+| `core/src/jobs/` (BullMQ workers) | `core/src/adapters/outbound/` | Outbound messaging adapter implementations |
 
 ---
 
@@ -58,15 +58,15 @@ To prevent repository-wide disruption, migration runs sequentially through 4 pri
 - **PR 20**: Generate index barrels for payments, chat, users, moderation.
 
 ### Sprint 3: Ports, Adapters, & Infrastructure Relocation (PRs 21-30)
-- **PR 21**: Create `core/src/infrastructure/persistence/mongo/` and move Mongoose models.
-- **PR 22**: Move `db.ts` database bootstrapping to `infrastructure/persistence/`.
+- **PR 21**: Create `core/src/adapters/outbound/persistence/` and move Mongoose repository implementations.
+- **PR 22**: Move `db.ts` database bootstrapping to `infrastructure/database/`.
 - **PR 23**: Relocate external SDK calls into `core/src/adapters/outbound/`.
 - **PR 24**: Create `RazorpayAdapter.ts` in `core/src/adapters/outbound/` implementing `PaymentGatewayPort`.
 - **PR 25**: Create `ZeptoMailAdapter.ts` implementing `EmailPort`.
 - **PR 26**: Create `CloudinaryStorageAdapter.ts` implementing `StoragePort`.
-- **PR 27**: Relocate Redis configuration to `core/src/infrastructure/cache/redis/`.
-- **PR 28**: Relocate BullMQ queues to `core/src/infrastructure/messaging/bullmq/`.
-- **PR 29**: Create `core/src/foundation/` and relocate Result, Money, Coordinates, and base DomainErrors.
+- **PR 27**: Relocate Redis configuration to `core/src/infrastructure/cache/`.
+- **PR 28**: Relocate BullMQ queues to `core/src/infrastructure/queue/`.
+- **PR 29**: Create `core/src/building-blocks/` and relocate Result, Money, Coordinates, and base DomainErrors.
 - **PR 30**: Eliminate the legacy `core/src/services/` flat folder.
 
 ---
