@@ -58,6 +58,7 @@ Workflow Gate 0 — Repository Discovery & Reuse     [Execution Gate]
 Phase 1    — Request Analysis                       [Execution Phase]
 Phase 2    — Task Classification                    [Execution Phase]
   Phase 2a–2f — Audit Sub-Phases (only if task = Audit)
+Phase 2.5  — Skill Resolution                      [Execution Gate]
 
   ⚡ Fast-Path Track — eligible low-risk tasks may skip 4, 8, 8.5, 9, 10, 11, 11.5, 14
 
@@ -186,6 +187,30 @@ Prohibited: "Therefore create PostAdStateController."
 Naming a solution before the problem is understood and approved is a governance violation. Prohibited in findings: new controller/service/component/hook names, new architecture diagrams, new step names, any implementation-specific naming.
 Exit Criteria
 | PASS | Classification complete; if Audit, 2a–2d complete and (if applicable) 2e approved |
+
+Phase 2.5 — Skill Resolution
+Classification: Execution Gate
+Process
+
+Before any code changes are written or implementation plans are finalized, the AI must dynamically evaluate and resolve the active skill set required for the task.
+
+### Mandatory Process
+1. **Repository Discovery & Classification**: Leverage the results of live repository discovery and task classification (Phase 2) to determine the exact requirements of the task.
+2. **Discover Available Skills**: Scan the standard customization roots (`.agents/skills/*`) and any custom mapped locations (`skills.json`) to find all available skills.
+3. **Resolve Applicable Skills**: Map the requirements of the classified task against the frontmatter definitions (`name`, `description`) of the discovered skills. Select only the skills that directly govern the current task.
+4. **Enforce Isolation & Ownership Boundaries**: Check all selected skills to ensure no duplicate responsibilities or conflicting directives exist. If any duplication or conflict is found, resolve it by prioritizing the most specific skill or consulting documented ownership boundaries.
+5. **Log Resolution & Load**: Load only the finalized, non-overlapping subset of resolved skills. Record the resolution data.
+
+### Required Output
+For every task execution, the AI must record and include in the implementation plan / reports:
+- **Skills Evaluated**: List of all skills discovered in the customization roots.
+- **Skills Loaded**: List of skills selected and active for this task.
+- **Skills Applied**: How each loaded skill directly guides or constraints the current task.
+- **Skills Intentionally Skipped**: List of available but unselected skills, along with a clear reason why they were rejected.
+
+Exit Criteria
+| PASS | Skills resolved, loaded without conflicts, and resolution metadata recorded |
+| FAIL | Overlapping skills loaded, or a required skill omitted, or conflicts unresolved |
 
 Phase 3 — Issue Validation
 Classification: Execution Gate
@@ -316,6 +341,17 @@ Flag name follows the Naming Policy constant convention.
 Flag removal (cleanup of dead flag branches) is tracked as a follow-up Issue, not left indefinitely — an unremoved flag older than the agreed cleanup window is a Repository Hygiene (Phase 15) finding.
 
 This is a recommendation the AI should surface for Medium/High risk tasks, not a hard gate — the user makes the final call on whether a flag is warranted.
+
+Skill Loading Policy
+Applies to every task and prompt execution in this workspace.
+
+* **Live Discovery First**: Perform repository discovery and scan active customization folders (`.agents/skills/*` or `skills.json`) before loading any AI skills.
+* **Relevance & Minimalism**: Load only the relevant skills required for the task. Never load unnecessary skills.
+* **Single Source of Truth**: Use each loaded skill as its single source of truth for its domain.
+* **Zero Duplication**: Never duplicate rules or guidance already owned by another skill inside `AGENTS.md`, `AI_WORKFLOW.md`, or other skills.
+* **Ownership Invariants**: Ensure loaded skills have clear, non-overlapping responsibilities. Resolve conflicts using documented ownership boundaries.
+* **Traceable Reporting**: The active skill configuration (skills evaluated, loaded, applied, and skipped with justification) must be documented in the implementation plan and completion reports.
+
 Phase 11 — Pre-Implementation Quality Validation
 Classification: Execution Gate
 Process
@@ -460,6 +496,7 @@ Changed
 - <File 2>
 
 Checks
+✓ Skill Resolution (evaluated, loaded, applied, skipped recorded)
 ✓ Typecheck
 ✓ Build
 ✓ Lint & Import Hygiene
