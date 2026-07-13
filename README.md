@@ -21,6 +21,10 @@ Esparex is an npm workspaces monorepo with the following structure:
 - `ai-governance`: Canonical instructions for repo-aware AI agents
 - `docs/`: [Master Documentation Registry](docs/00-index.md)
 
+> **Workspace Governance Rule**: Every top-level directory in this repository must either be a registered npm workspace (listed in the root `package.json` `workspaces` array), or explicitly documented as an infrastructure/runtime wrapper in this README. Undocumented directories are not permitted.
+>
+> `apps/mobile` is the current documented exception — a Capacitor native shell with no independent TypeScript build pipeline.
+
 ## Setup
 
 Requirements:
