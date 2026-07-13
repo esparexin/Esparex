@@ -14,7 +14,7 @@ Evaluates whether each package strictly obeys **Single Responsibility** and **Pl
 
 | Package | Single Responsibility? | Platform Neutral? | Assessment & Responsibility Notes |
 |---|---|---|---|
-| **`@esparex/shared`** | ⚠️ `PASS WITH OBSERVATIONS` | ⚠️ `PASS WITH OBSERVATIONS` | **98% pure cross-platform contracts and schemas.**<br>• **Observation 1 (`hmacSignature.ts`)**: `shared/src/security/hmacSignature.ts` imports Node `crypto` (`import crypto from 'crypto'`) and exports Express middleware (`createHmacSignatureMiddleware`). Verified via search that it currently has **0 consumers** across the monorepo. Violates Platform Neutrality (`P4`). Must be relocated to `backend/api/src/middleware/` or removed.<br>• **Observation 2 (`locationPrimitives.ts`)**: Evaluated on *responsibility*: generates canonical location slugs (`buildLocationSlug`, `normalizeLocationNameForSearch`). If location slug formatting is exclusively a server-side ingestion rule, it belongs in `@esparex/core`. If client apps format slugs for SEO routes or pre-validation, keeping it in `shared` is responsible. Tracked in `R-004`. |
+| **`@esparex/shared`** | `PASS WITH OBSERVATIONS` | `PASS (100% after DF-001 purge)` | **Pure cross-platform contracts and schemas.**<br>• **Defect `DF-001` (`hmacSignature.ts`) [RESOLVED]**: `shared/src/security/hmacSignature.ts` imported Node `crypto` and exported Express middleware with 0 consumers across the monorepo. **Purged as dead code (`commit e04c21a`)**, restoring 100% Platform Neutrality (`P4`) to `@esparex/shared`.<br>• **Decision Pending `DP-001` (`locationPrimitives.ts`)**: Generates canonical location search slugs (`buildLocationSlug`, `normalizeLocationNameForSearch`). If client apps ever format slugs for SEO routes or pre-validation, keeping it in `shared` is responsible. If slug normalization is strictly a server-side ingestion rule, it belongs in `@esparex/core`. Tracked in `R-004`. |
 | **`@esparex/core`** | ✅ `PASS` | N/A (Backend-only) | **100% Domain logic & infrastructure configuration.**<br>Contains 466 files across 60+ models and 80+ services. Zero Express controllers, HTTP routes, or delivery handling (`ADR-005`). Evaluated at the package boundary, it maintains single responsibility (`Domain Layer`). Internally, it functions as a multi-domain monolith (`catalog`, `wallet`, `ads`, `location`, `auth`) subject to Phase 6 fitness monitoring (`S5`). |
 | **`@esparex/backend-api`** | ✅ `PASS` | N/A (Backend-only) | **100% Delivery & transport concerns.**<br>Express routes, controllers, request validation, authentication middleware, and server bootstrapping. Controllers strictly delegate domain logic to `@esparex/core` services without direct Mongoose model instantiation. |
 | **`apps/web`** | ✅ `PASS` | N/A (Browser / Next.js) | **100% End-user web presentation.**<br>Zero imports from `@esparex/core` or `@esparex/backend-api`. Only imports `@esparex/shared` for schemas, API types, and validation contracts. |
@@ -28,7 +28,7 @@ Evaluates whether each package strictly obeys **Single Responsibility** and **Pl
 |---|---|---|---|---|---|
 | 1 | **Repository Topology** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | `core/` root placement documented as accepted tradeoff (ADR-005). `apps/mobile/` documented as infrastructure wrapper (`README.md`). |
 | 2 | **Dependency Boundary** | `PASS` | 2026-07-13 | On structural change | 0 violations across 2,000 modules and 7,140 dependencies. Automated rules active (`no-frontend-imports-from-core`, `no-shared-imports-from-core`). |
-| 3 | **Architecture Justification & Responsibility** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Domain/delivery split verified with git history and build pipeline (ADR-005). Package Responsibility Audit identified `hmacSignature.ts` and `locationPrimitives.ts` for cleanup (`EX-002`, `EX-003`). |
+| 3 | **Architecture Justification & Responsibility** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Domain/delivery split verified with git history and build pipeline (ADR-005). Defect `DF-001` (`hmacSignature.ts`) purged. Decision Pending `DP-001` logged. |
 | 4 | **Future-State Review** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Current topology confirmed as optimal greenfield choice. Root placements justified per domain reusability. |
 | 5 | **Architectural Complexity** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Score **9.6/10**. All packages justified. 8 barrel files in `core/services/` verified as active controller aliases. |
 | 6 | **Architectural Fitness** | `PASS WITH OBSERVATIONS` | 2026-07-13 | 2027-01 (6 months) | Architecture fit for current scale. `catalog` and `payments` approaching bounded-context thresholds. `backend/worker/` extraction identified as next growth evolution. |
@@ -39,21 +39,24 @@ Evaluates whether each package strictly obeys **Single Responsibility** and **Pl
 
 ---
 
-## 3. Active Exceptions Register
+## 3. Active Exceptions, Decisions Pending & Defects Ledger
 
-Per `AUDIT_PROCESS.md`, any active violation of a Standard or Principle must be recorded here with an explicit scope and review trigger/expiry date.
+Separates four distinct governance concepts per `AUDIT_PROCESS.md`:
+- **Exception (`EX-NNN`)**: Knowingly violating a standard temporarily with defined justification and expiry.
+- **Observation (`OB-NNN`)**: An audit finding to investigate or monitor without blocking builds.
+- **Decision Pending (`DP-NNN`)**: The repository state is valid, but ownership must be formally classified.
+- **Defect (`DF-NNN`)**: A violation of a standard or principle requiring remediation.
 
-| Exception ID | Standard / Principle | Scope / Description | Justification | Expiry / Review Trigger | Status |
-|---|---|---|---|---|---|
-| **EX-001** | S1 (Package Ownership) | `apps/mobile/` is not a registered npm workspace | Capacitor native shell wrapping `apps/web` via server URL (`https://esparex.in`). No independent TypeScript build pipeline; registering as workspace adds package overhead without tooling value. | Review if `apps/mobile/` adds custom native TypeScript source code | Active (`README.md` documented) |
-| **EX-002** | S2/P4 (Platform Neutrality) | `slugify` dependency inside `@esparex/shared` (`locationPrimitives.ts`) | Used for backend location slug normalization (`normalizeLocationNameForSearch`, `buildLocationSlug`). Currently no frontend consumer exists. | Next dependency cleanup sprint or `locationPrimitives.ts` architectural classification (`R-004`) | Active |
-| **EX-003** | P4 (Platform Neutrality) / S3 | `hmacSignature.ts` inside `@esparex/shared/src/security/` | Imports Node `crypto` (`import crypto from 'crypto'`) and exports Express `(req, res, next)` middleware (`createHmacSignatureMiddleware`). Currently has **0 consumers** across the monorepo. | Next cleanup sprint: either remove as dead code or relocate to `@esparex/backend-api/src/middleware/` | Active (Identified during Package Responsibility Audit) |
+| ID | Type | Standard / Principle | Scope / Description | Justification / Action | Expiry / Review Trigger | Status |
+|---|---|---|---|---|---|---|
+| **EX-001** | `Exception` | S1 (Package Ownership) | `apps/mobile/` is not a registered npm workspace | Capacitor native shell wrapping `apps/web` via server URL (`https://esparex.in`). No independent TypeScript build pipeline; registering as workspace adds package overhead without tooling value. | Review if `apps/mobile/` adds custom native TypeScript source code | Active (`README.md` documented) |
+| **DP-001** | `Decision Pending` | S2/P4 (Platform Neutrality) | `slugify` dependency inside `@esparex/shared` (`locationPrimitives.ts`) | Used for backend location slug normalization (`normalizeLocationNameForSearch`, `buildLocationSlug`). Currently no frontend consumer exists. Repository state is valid, but ownership (`shared` vs `core`) must be classified. | Next dependency cleanup sprint or `locationPrimitives.ts` architectural classification (`R-004`) | Active (`Decision Pending`) |
+| **DF-001** | `Defect` | P4 (Platform Neutrality) / S3 | `hmacSignature.ts` inside `@esparex/shared/src/security/` | Imported Node `crypto` (`import crypto from 'crypto'`) and exported Express middleware with 0 consumers. | Purged as dead code (`shared/src/security/hmacSignature.ts` removed and unexported from `index.ts`). | **CLOSED / RESOLVED** (`v1.0` Freeze) |
 
 ---
 
-## 4. Summary of Open Architectural Observations
+## 4. Summary of Open Architectural Action Items
 
-1. **`hmacSignature.ts` Cleanup (`EX-003`)**: Remove unused Express/Node `crypto` middleware from `@esparex/shared/src/security/hmacSignature.ts` to restore 100% platform neutrality to `shared`.
-2. **`locationPrimitives.ts` Classification (`R-004` / `EX-002`)**: Must decide whether this is a shared domain utility (`core`) or a universal string helper (`shared`).
-3. **Pre-existing Dependabot Vulnerabilities (`R-005`)**: 47 vulnerabilities on the default branch must be cleared via an `npm audit fix` / package upgrade sprint.
-4. **ESLint Technical Debt**: 206 warnings (`any` and unused variables) in `@esparex/core/` require incremental cleanup before `eslint` can be elevated to block merges on warnings.
+1. **`locationPrimitives.ts` Classification (`DP-001` / `R-004`)**: Decide whether canonical location search slug normalization represents domain logic (`core`) or a universal string utility (`shared`).
+2. **Pre-existing Dependabot Vulnerabilities (`R-005`)**: 47 vulnerabilities on the default branch must be cleared via an `npm audit fix` / package upgrade sprint.
+3. **ESLint Technical Debt (`OB-001`)**: 206 warnings (`any` and unused variables) in `@esparex/core/` require incremental cleanup before `eslint` can be elevated to block merges on warnings.

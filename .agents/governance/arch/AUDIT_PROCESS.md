@@ -61,9 +61,18 @@ A "critical check" is any finding that violates a Principle (not just a Standard
 
 ---
 
-## Exception Process
+## Exception & Finding Classification Model
 
-When a Standard must be violated for a valid reason:
+To ensure precise governance language and avoid labeling unresolved architectural choices or minor findings as exceptions, all findings must be classified into one of four categories:
+
+| Type | Definition | Example / Treatment |
+|---|---|---|
+| **Exception (`EX-NNN`)** | We knowingly violate a standard temporarily due to technical tradeoffs or external constraints. | `EX-001` (`apps/mobile/` wrapper status). Must have explicit justification and review trigger. |
+| **Observation (`OB-NNN`)** | The audit found a minor improvement opportunity or technical debt item to monitor without blocking builds. | `OB-001` (`any` ESLint warnings in `@esparex/core/`). Tracked during periodic reviews. |
+| **Decision Pending (`DP-NNN`)** | The repository state is valid, but architectural ownership or boundary responsibility must be formally classified. | `DP-001` (`locationPrimitives.ts` normalization scope). Awaiting domain classification (`R-004`). |
+| **Defect (`DF-NNN`)** | The repository directly violates a Standard or Principle without justification. | `DF-001` (`hmacSignature.ts` Node `crypto` in `shared`). Must be remediated immediately. |
+
+When a finding is classified as an **Exception (`EX-NNN`)**, it follows the structured workflow:
 
 ```
 Standard violation identified

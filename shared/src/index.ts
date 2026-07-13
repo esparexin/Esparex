@@ -75,7 +75,6 @@ export * from './utils/planEntitlements';
 export * from './listingUtils/locationUtils';
 export * from './listingUtils/imageUtils';
 export { adaptLocationInput } from './location/location.utils';
-export * from './security/hmacSignature';
 
 // POPUP
 export * from './popup/popupCore';
