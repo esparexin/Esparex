@@ -30,8 +30,8 @@ External systems are strictly accessed via port abstractions. No business domain
 
 ### 2. Anti-Corruption Layer (ACL)
 Every adapter acts as an Anti-Corruption Layer. The adapter is responsible for:
-- Translating external API responses and webhook payloads into pure domain entities or foundation primitives.
-- Catching vendor-specific exceptions and translating them into standard foundation errors (`DomainError`).
+- Translating external API responses and webhook payloads into pure domain entities or core/shared/ primitives.
+- Catching vendor-specific exceptions and translating them into standard core/shared/ errors (`DomainError`).
 - Under no circumstances may an external vendor's payload structure be returned directly to a domain service.
 
 ### 3. Idempotency at the Boundary

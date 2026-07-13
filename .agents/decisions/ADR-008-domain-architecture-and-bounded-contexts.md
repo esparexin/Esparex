@@ -12,12 +12,9 @@
 
 While [ADR-007](./ADR-007-monorepo-package-topology.md) defines the macro-level **Repository Topology** (`apps/`, `services/`, `core/`, `packages/`), the internal architecture of `@esparex/core` (`core/`) requires rigorous boundary definitions.
 
-Currently, `core/` contains over 11 distinct business capabilities (e.g., *Listings, Catalog, Payments, Chat, Alerts, Users, Moderation, Analytics, AI, Fraud, Authentication*) organized largely under a single flat directory (`core/services/` containing 90+ service files).
+Currently, `core/` contains over 11 distinct business capabilities organized largely under a single flat directory (`core/services/` containing 90+ service files).
 
-Without internal boundary enforcement, automated fitness functions, and strict domain vs. infrastructure separation, multiple engineering squads modifying code inside `core/` face:
-1. **High merge conflict frequency**: Modifying `core/services/` touches a shared global namespace.
-2. **Coupled domain rules**: Service files directly instantiating or querying database schemas across unrelated business lines.
-3. **Infrastructure leakage**: Third-party SDKs and persistence details intermingled with pure business policies.
+Without internal boundary enforcement, automated fitness functions, and strict domain vs. infrastructure separation, multiple engineering squads modifying code inside `core/` face high merge conflict frequencies, coupled domain rules, and infrastructure leakage.
 
 ---
 
@@ -32,8 +29,8 @@ To separate concerns, the `core` codebase is organized into five timeless quadra
   - `core/adapters/inbound/` — Handles entry transport points (REST/WebSocket controllers, webhook listeners, CLI commands).
   - `core/adapters/outbound/` — Implements outgoing port interfaces (Mongo persistence adapters, external vendor dispatchers).
 - **`core/infrastructure/`** — Concrete database persistence and technical capabilities.
-- **`core/foundation/`** — Shared, domain-agnostic value objects and primitives.
-- **`core/events/`** — Shared domain event definitions and the event bus.
+- **`core/shared/`** — Shared, domain-agnostic building blocks, primitives, value objects, and events plumbing.
+- **`core/events/`** — Global events are forbidden. Concrete events belong strictly to the domain context that owns them. `core/shared/events/` contains only eventing plumbing (interfaces like `EventBus`, `EventEnvelope`, `EventMetadata`).
 
 ### 2. Internal Bounded-Context Layout
 Within each bounded context (`core/domains/<domain-name>/`), we enforce separation of use-case orchestration from pure domain rules:
@@ -45,7 +42,7 @@ Within each bounded context (`core/domains/<domain-name>/`), we enforce separati
   - `domain/entities/` — Stateful business entities.
   - `domain/services/` — Stateless business calculations and rules.
   - `domain/policies/` — Complex business-state validation policies and invariants.
-  - `domain/events/` — Pure Domain Events (e.g., `UserRegistered`).
+  - `domain/events/` — Pure Domain Events (e.g. `UserRegistered`, `PaymentCaptured`).
 - **`ports/`** — Defines Hexagonal port interfaces specific to this bounded context. To maximize cohesion, **all repository interfaces reside directly in the domain's ports directory** (e.g. `ports/ListingRepositoryPort.ts`, `ports/PaymentGatewayPort.ts`), eliminating separate repository subfolders.
 
 ### 3. Hexagonal Port/Adapter Boundary Rule
@@ -54,11 +51,7 @@ Within each bounded context (`core/domains/<domain-name>/`), we enforce separati
 - **Dependency Flow**:
   `Domain` ──► `Port` ──► `Adapter` ──► `Infrastructure`
 
-### 4. Domain vs. Integration Events
-- **Domain Events** (business rules): Indicate state changes *within* a single bounded context (e.g., `ListingCreated`, `PaymentCaptured`). They reside in `core/events/domain/` and are handled synchronously or in-memory.
-- **Integration Events** (side effects & messaging): Trigger actions *across* bounded context boundaries or external systems (e.g., `SendWelcomeEmail`). They reside in `core/events/integration/` and are dispatched asynchronously across queue infrastructure.
-
-### 5. Public API Barrel Encapsulation (`index.ts`)
+### 4. Public API Barrel Encapsulation (`index.ts`)
 Each bounded context must expose only its public API through a root `index.ts` file (`Public Facades, Public DTOs, Integration Events`). Everything outside of what is explicitly exported in `index.ts` is strictly private to that domain. Cross-domain imports targeting internal subdirectories are prohibited.
 
 ---

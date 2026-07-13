@@ -8,7 +8,7 @@
 
 ---
 
-## 1. Context & Immutable Architectural Principles
+## 1. Context & Architectural Challenge
 
 During the completion of the L1–L5 Architecture Governance Framework audits (`Phase 1`–`Phase 11`), a recurring structural question arose regarding directory placement:
 
@@ -49,7 +49,7 @@ apps/* (UI Presentation Layer: web, admin, mobile)
 services/* (Server Delivery Runtimes: api, worker, scheduler, ai)
    │
    ▼  (prohibits transport leakage into domain rules)
-core/ (pure business domain capabilities, ports, adapters, foundation)
+core/ (pure business domain capabilities, ports, adapters, shared primitives)
    │
    ▼  (prohibits domain leakage into universal contracts/foundation)
 packages/* / shared/ (Universal cross-platform scope: contracts, foundation, utils, config)
@@ -76,7 +76,7 @@ esparex/
 ```
 
 ### Why Root Placement is Maintained Today
-- **`@esparex/core`**: It is an extracted **domain library**, not merely a folder of HTTP controllers (`ADR-005`). Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned solely by HTTP REST delivery (`backend/api`), violating Principle 1. Long-term, as the contents of `@esparex/core` conform fully to our internal DDD architecture, we target renaming this directory to `packages/domain/` or `packages/business/` or `packages/platform/` to reflect its true responsibility as the business core.
+- **`@esparex/core`**: It is an extracted **domain library**, not merely a folder of HTTP controllers (`ADR-005`). Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned solely by HTTP REST delivery (`backend/api`), violating Principle 1. Long-term, as the contents of `@esparex/core` conform fully to our internal DDD architecture, we target renaming this directory to `packages/domain/` or `packages/business/` to reflect its true responsibility as the business core.
 - **`@esparex/shared`**: It is consumed across both client UI applications (`apps/web`, `apps/admin`) and backend server packages (`core`, `backend/api`). Placing `shared/` under `backend/` would violate clean boundaries (`P3`). Currently, `@esparex/shared` contains DTOs, schemas, enums, types, constants, and universal utilities (`formatters`, `phoneUtils`). Rather than prematurely renaming `shared/` to `packages/contracts/` while it still contains cross-cutting utilities, `@esparex/shared` remains intact until code naturally splits into specialized `packages/*` (`contracts`, `foundation`, `utils`, `config`).
 
 ---
@@ -123,10 +123,15 @@ core/
 │   ├── mail/
 │   ├── search/
 │   └── observability/
-├── foundation/
-└── events/
-    ├── domain/
-    └── integration/
+└── shared/
+    ├── primitives/
+    ├── value-objects/
+    ├── errors/
+    ├── ids/
+    └── events/
+        ├── EventBus.ts
+        ├── EventEnvelope.ts
+        └── EventMetadata.ts
 
 packages/
 ├── contracts/
@@ -184,6 +189,6 @@ With our architecture direction locked and governed (`ADR-001` through `ADR-009`
 - **ADR-010: Eventing & Messaging Strategy** (defining Domain vs. Integration Events, Saga Orchestration, DLQ, and Event Versioning/Replay).
 
 We transition 100% of engineering bandwidth to **Implementation Governance**:
-1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `foundation/` sprint-by-sprint alongside product delivery.
+1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `shared/` sprint-by-sprint alongside product delivery.
 2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`).
 3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.

@@ -12,33 +12,33 @@ To ensure consistency and high readability across our Hexagonal Architecture bou
 
 | Archetype | Suffix | Placement | Allowed Imports | Examples |
 |---|---|---|---|---|
-| **Port** | `Port` | `core/domains/<domain>/ports/` | Primitive types, foundation models, domain entities. | `PaymentGatewayPort`, `StoragePort`, `EmailPort` |
+| **Port** | `Port` | `core/domains/<domain>/ports/` | Primitive types, building blocks, domain entities. | `PaymentGatewayPort`, `StoragePort`, `EmailPort` |
 | **Adapter** | `Adapter` | `core/adapters/outbound/` or `inbound/` | Vendor SDKs, ports, configuration schemas. | `RazorpayAdapter`, `ZeptoMailAdapter` |
 | **Repository Port** | `RepositoryPort` | `core/domains/<domain>/ports/` | Domain entities, value objects, ID structures. | `ListingRepositoryPort`, `CategoryRepositoryPort` |
 | **Persistence** | `PersistenceAdapter` | `core/infrastructure/persistence/` | Database models, schemas, repositories, ports. | `MongoListingPersistenceAdapter` |
 
 ---
 
-## 2. Shared Foundation Reference & Content Budget (Internal Core)
+## 2. Shared Building Blocks & Content Budget (Internal Core)
 
-The shared foundation folder (`core/foundation/`) contains primitives and value objects consumed universally across multiple bounded contexts. To prevent the foundation from slowly degrading into a generic "common" folder, we enforce an objective reference budget and strict content limits:
+The internal core shared folder (`core/shared/`) contains basic building blocks, primitives, value objects, and events plumbing consumed universally across multiple bounded contexts. To prevent this folder from slowly degrading into a generic "common" folder, we enforce an objective reference budget and strict content limits:
 
-- **Reference Budget Threshold**: Code or utilities inside `core/foundation/` may **only contain code referenced by three or more bounded contexts**.
-- **Foundation Folder Size Limit**: Maximum `25` files/classes and `10` directories.
-- **Escalation Trigger**: If a file inside the foundation is referenced by fewer than three contexts, or if the size limit is exceeded, the code must be relocated to the specific business domain that consumes it.
+- **Reference Budget Threshold**: Utilities inside `core/shared/` (excluding event bus interfaces) may **only contain code referenced by three or more bounded contexts**.
+- **Building Blocks Size Limit**: Maximum `25` files/classes and `10` directories.
+- **Escalation Trigger**: If a file inside `core/shared/` is referenced by fewer than three contexts, or if the size limit is exceeded, the code must be relocated to the specific business domain that consumes it.
 
 ### Content Boundaries
-To prevent general helper functions from bloating the shared foundation, we enforce strict binary criteria:
+To prevent general helper functions from bloating the shared folder, we enforce strict binary criteria:
 
 ```text
-Allowed Foundation Primitives:
+Allowed Core Shared Building Blocks:
 ✓ Result / Either (Operation outcomes)
 ✓ Money / Percentage / Coordinates (Shared Value Objects)
 ✓ Email / Identifier / UniqueId (Domain Primitive Types)
 ✓ DomainError / NotFoundError (Shared Exceptions)
 ✓ Option / Maybe / Clock / Invariant (Standard Platform Primitives)
 
-Forbidden Foundation Primitives:
+Forbidden Core Shared Building Blocks:
 ✗ DateUtils / StringUtils (Belongs in packages/utils/)
 ✗ PhoneUtils / phoneFormatter (Belongs in packages/utils/)
 ✗ CatalogHelpers (Belongs in core/domains/catalog/)
@@ -73,16 +73,12 @@ Forbidden:
 
 ---
 
-## 4. Bounded Context Events Directory Layout (`core/events/`)
+## 4. Bounded Context Events Directory Layout
 
-Events are structured under two dedicated subdirectories based on their transactional and consumer scope:
-
-- **`core/events/domain/` (Domain Events)**:
-  - Scope: Internal to a single bounded context (e.g. `ListingCreated`). Responds to state changes synchronously/in-memory.
-  - Allowed Imports: Domain entities, domain value objects.
-- **`core/events/integration/` (Integration Events)**:
-  - Scope: Across context boundaries or external systems (e.g. `SendWelcomeEmail`). Dispatched asynchronously via message queues.
-  - Allowed Imports: contracts, DTO types.
+Concrete events belong strictly to the domain context that owns them.
+- **Domain Events** (e.g. `ListingCreated`): Reside inside their respective domain boundaries under `core/domains/<domain>/domain/events/`.
+- **Integration Events** (e.g. `PaymentCapturedIntegrationEvent`): Reside inside their respective domain boundaries under `core/domains/<domain>/domain/events/` and are exposed via the domain index barrel.
+- **Shared Eventing Plumbing**: Interface contracts like `EventBus`, `EventEnvelope`, and `EventMetadata` reside globally under `core/shared/events/`. No concrete events are permitted inside this directory.
 
 ---
 
@@ -106,7 +102,7 @@ since: 1.0                  # Baseline version
 layer: domain               # Layer classification
 depends_on:                 # Explicit imports
   - shared
-  - core/foundation
+  - core/shared
 public_api:                 # Declared public barrel exports
   facades:
     - CatalogFacade

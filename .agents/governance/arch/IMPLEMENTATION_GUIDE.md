@@ -33,7 +33,7 @@ The implementation of the target architecture is structured across five sequenti
 ### Phase 2 — Architecture Automation
 - **Goal**: Enforce boundary integrity automatically in the CI pipeline.
 - **Action Items**:
-  1. Implement all verification scripts inside `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`, `verify-manifests.ts`, `verify-foundation.ts`, `verify-scorecard.ts`).
+  1. Implement all verification scripts inside `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`, `verify-manifests.ts`, `verify-dependencies.ts`, `verify-ports.ts`, `verify-adapters.ts`, `verify-foundation.ts`, `architecture-scorecard.ts`, `dependency-graph.ts`, `ownership-report.ts`).
   2. Add strict `dependency-cruiser` rules enforcing ports-and-adapters isolation and layer constraints.
   3. Add ESLint rules blocking deep subdirectory imports across domains.
   4. Generate and print scorecard reports on each pull request.
