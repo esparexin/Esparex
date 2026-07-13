@@ -13,19 +13,38 @@ To ensure consistency and high readability across our Hexagonal Architecture bou
 | Archetype | Suffix | Placement | Allowed Imports | Examples |
 |---|---|---|---|---|
 | **Port** | `Port` | `core/domains/<domain>/ports/` | Primitive types, kernel models, domain entities. | `PaymentGatewayPort`, `StoragePort`, `EmailPort` |
-| **Adapter** | `Adapter` | `core/adapters/` | Vendor SDKs, ports, configuration schemas. | `RazorpayAdapter`, `ZeptoMailAdapter`, `CloudinaryStorageAdapter` |
+| **Adapter** | `Adapter` | `core/adapters/outbound/` or `inbound/` | Vendor SDKs, ports, configuration schemas. | `RazorpayAdapter`, `ZeptoMailAdapter` |
 | **Repository Port** | `RepositoryPort` | `core/domains/<domain>/ports/` | Domain entities, value objects, ID structures. | `ListingRepositoryPort`, `CategoryRepositoryPort` |
 | **Persistence** | `PersistenceAdapter` | `core/infrastructure/persistence/` | Database models, schemas, repositories, ports. | `MongoListingPersistenceAdapter` |
 
 ---
 
-## 2. Shared Kernel Reference Budget
+## 2. Shared Kernel Reference & Content Budget
 
-The shared domain kernel (`core/kernel/`) contains primitives and value objects consumed universally across multiple bounded contexts. To prevent the kernel from slowly degrading into a generic "common" folder, we enforce an objective reference budget:
+The shared domain kernel (`core/kernel/`) contains primitives and value objects consumed universally across multiple bounded contexts. To prevent the kernel from slowly degrading into a generic "common" folder, we enforce an objective reference budget and strict content limits:
 
 - **Reference Budget Threshold**: Code or utilities inside `core/kernel/` may **only contain code referenced by three or more bounded contexts**.
 - **Kernel Size Limit**: Maximum `25` files/classes and `10` directories.
 - **Escalation Trigger**: If a file inside the kernel is referenced by fewer than three contexts, or if the size limit is exceeded, the code must be relocated to the specific business domain that consumes it.
+
+### Content Boundaries
+To prevent general helper functions from bloating the shared kernel, we enforce strict binary criteria:
+
+```text
+Allowed Kernel Primitives:
+✓ Result / Either (Operation outcomes)
+✓ Money / Percentage / Coordinates (Shared Value Objects)
+✓ Email / Identifier / UniqueId (Domain Primitive Types)
+✓ DomainError / NotFoundError (Shared Exceptions)
+
+Forbidden Kernel Primitives:
+✗ DateUtils / StringUtils (Belongs in packages/utils/)
+✗ PhoneUtils / phoneFormatter (Belongs in packages/utils/)
+✗ CatalogHelpers (Belongs in core/domains/catalog/)
+✗ Validation (DTO schemas belong in application/validation/ or packages/contracts/)
+✗ Formatting (Belongs in packages/utils/)
+✗ Logger (Belongs in packages/config/ or packages/utils/)
+```
 
 ---
 
@@ -53,14 +72,27 @@ Forbidden:
 
 ---
 
-## 4. Domain Manifest YAML Specification (`manifest.yaml`)
+## 4. Bounded Context Events Directory Layout (`core/events/`)
+
+Events are structured under two dedicated subdirectories based on their transactional and consumer scope:
+
+- **`core/events/domain/` (Domain Events)**:
+  - Scope: Internal to a single bounded context (e.g. `ListingCreated`). Responds to state changes synchronously/in-memory.
+  - Allowed Imports: Domain entities, domain value objects.
+- **`core/events/integration/` (Integration Events)**:
+  - Scope: Across context boundaries or external systems (e.g. `SendWelcomeEmail`). Dispatched asynchronously via message queues.
+  - Allowed Imports: contracts, DTO types.
+
+---
+
+## 5. Domain Manifest YAML Specification (`manifest.yaml`)
 
 Every bounded context under `core/domains/*` must maintain a `manifest.yaml` validating its metadata, ownership, stability, and operational boundaries:
 
 ```yaml
 id: catalog                 # Bounded context identifier (stable, outlives org charts)
 name: Catalog Domain        # Human-readable domain name
-owner: catalog              # Stable domain owner tag
+owner: catalog              # Bounded context tag (stable domain, not team name)
 business_owner: Marketplace # Marketplace | Core | Support
 technical_owner: Platform   # Platform | Architecture | Security
 maintainer: Catalog Squad   # Current maintaining squad

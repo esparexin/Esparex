@@ -16,7 +16,7 @@ During the completion of the L1–L5 Architecture Governance Framework audits (`
 
 While folder organization influences developer onboarding and repository hygiene, **the true architecture of a monorepo is defined by ownership, responsibility, dependency flow, and deployability boundaries—not directory names**.
 
-To ensure our architecture remains immutable across all future states and directory restructuring without documentation aging, Esparex strictly enforces **Five Immutable Architecture Principles**:
+To ensure our architecture remains immutable across all future states and directory restructuring without documentation aging, Esparex strictly enforces **Six Immutable Architecture Principles**:
 
 ### Principle 1: Deployables Never Own Business Logic
 Deployable modules (`apps/*`, `backend/api`, or `services/*`) are strictly delivery engines. They are responsible solely for rendering UIs, routing HTTP requests, parsing payloads, and bootstrapping server infrastructure. They must never contain core business rules, validation algorithms, or direct domain data mutations.
@@ -32,6 +32,9 @@ Infrastructure bindings (`database/`, `redis/`, `docker/`, external vendor SDKs)
 
 ### Principle 5: Every Module Has One Owner
 Every package, bounded context, and directory must have exactly one documented ownership boundary (`apps/web` → Frontend Web Team; `core/domains/catalog` → Catalog Domain). Shared or unowned code blocks are forbidden.
+
+### Principle 6: Business Domains Must Never Communicate via Direct Database Access
+Bounded contexts are strictly isolated database owners. No domain context (e.g. `listings`) may query database tables or collections owned by another domain context (e.g. `catalog`) directly. Cross-domain data and behavior requests must resolve strictly through Port abstractions, Domain Facades, or Domain Events.
 
 ---
 
@@ -110,14 +113,20 @@ core/
 │   ├── users/
 │   └── moderation/
 ├── adapters/
+│   ├── inbound/
+│   └── outbound/
 ├── infrastructure/
-│   ├── persistence/
+│   ├── database/
 │   ├── cache/
-│   ├── messaging/
+│   ├── queue/
 │   ├── storage/
-│   └── mail/
+│   ├── mail/
+│   ├── search/
+│   └── observability/
 ├── kernel/
 └── events/
+    ├── domain/
+    └── integration/
 
 packages/
 ├── contracts/
@@ -171,7 +180,10 @@ Before any structural relocation (`services/`, `packages/*`, or `domains/*`) beg
 
 ## 6. Summary & Execution Mandate
 
-With our architecture direction locked and governed (`ADR-001` through `ADR-009`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. We transition 100% of engineering bandwidth to **Implementation Governance**:
+With our architecture direction locked and governed (`ADR-001` through `ADR-009`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. The next expected structural ADR is:
+- **ADR-010: Eventing & Messaging Strategy** (defining Domain vs. Integration Events, Saga Orchestration, DLQ, and Event Versioning/Replay).
+
+We transition 100% of engineering bandwidth to **Implementation Governance**:
 1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `kernel/` sprint-by-sprint alongside product delivery.
-2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`).
+2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/`.
 3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.

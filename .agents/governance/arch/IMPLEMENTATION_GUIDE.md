@@ -38,22 +38,22 @@ The implementation of the target architecture is structured across five sequenti
   3. Add ESLint rules blocking deep subdirectory imports across domains.
   4. Generate and print scorecard reports on each pull request.
 
-### Phase 3 — Shared Package Refinement
-- **Goal**: Clean up universal dependencies.
+### Phase 3 — Outbound Adapters & Outbox Refinement
+- **Goal**: Introduce clean integration adapters and reliable event pipelines.
+- **Action Items**:
+  1. Standardize Hexagonal outbound adapters in `core/adapters/outbound/` implementing their respective ports.
+  2. Implement the Transactional Outbox pattern inside `core/infrastructure/persistence/` for reliable integration event publishing.
+  3. Configure adapter observability to emit standardized logs, metrics, and trace spans.
+
+### Phase 4 — Shared Package & Runtime Evolution
+- **Goal**: Evolve universal packages and server delivery runtimes.
 - **Action Items**:
   1. Audit `@esparex/shared` and narrow its scope to true cross-platform contracts.
-  2. Extract specialized packages (e.g. `packages/contracts`, `packages/foundation`, `packages/ui`) into the `packages/` workspace only when a package has a single, well-defined responsibility.
-
-### Phase 4 — Runtime Evolution
-- **Goal**: Evolve the server delivery topology.
-- **Action Items**:
-  1. Relocate the Express API runtime wrapper from `backend/api/` to `services/api/`.
-  2. Introduce `services/worker/` to handle CPU-intensive or asynchronous tasks.
-  3. Introduce `services/scheduler/` to manage recurring cron tasks.
+  2. Extract specialized packages (e.g. `packages/contracts`, `packages/foundation`, `packages/ui`) only when a package has a single, well-defined responsibility.
+  3. Relocate Express REST controllers to `services/api/` and extract background task queues to `services/worker/` and `services/scheduler/`.
 
 ### Phase 5 — Domain Graduation
 - **Goal**: Graduate mature domain modules into standalone root-level packages.
 - **Action Items**:
   1. Evaluate candidate domains against the Graduation Gate Criteria.
-  2. Relocate the directory from `core/domains/<domain-name>/` to the root `domains/<domain-name>/` workspace via `git mv`.
-  3. Update workspace configurations (`pnpm-workspace.yaml` / `package.json`).
+  2. Relocate the directory from `core/domains/<domain-name>/` to the root `domains/<domain-name>/` workspace via `git mv` only when team ownership, low coupling, and independent deployment needs are verified.

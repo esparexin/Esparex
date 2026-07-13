@@ -28,34 +28,35 @@ We establish a **Domain-Driven Design (DDD) Core Hierarchy** inside `@esparex/co
 ### 1. Internal Core Structure
 To separate concerns, the `core` codebase is organized into five timeless quadrants:
 - **`core/domains/`** — Bounded business contexts containing business domain logic.
-- **`core/adapters/`** — Concrete vendor-specific implementations and wrapper adapters.
+- **`core/adapters/`** — Concrete inbound and outbound adapters:
+  - `core/adapters/inbound/` — Handles entry transport points (REST/WebSocket controllers, webhook listeners, CLI commands).
+  - `core/adapters/outbound/` — Implements outgoing port interfaces (Mongo persistence adapters, external vendor dispatchers).
 - **`core/infrastructure/`** — Concrete database persistence and technical capabilities.
 - **`core/kernel/`** — Shared, domain-agnostic value objects and primitives.
 - **`core/events/`** — Shared domain event definitions and the event bus.
 
 ### 2. Internal Bounded-Context Layout
 Within each bounded context (`core/domains/<domain-name>/`), we enforce separation of use-case orchestration from pure domain rules:
-- **`application/`** — Orchestrates use cases (Application Services, command/query split):
-  - `application/commands/` — State-mutating application commands.
-  - `application/queries/` — Read-only application queries.
-  - `application/handlers/` — Command and Query handlers orchestrating actions.
+- **`application/`** — Orchestrates use cases (Application Services or demand-driven CQRS command/query split):
+  - **Flat Application Services**: For standard contexts, a flat service class (e.g., `application/CatalogService.ts`) is preferred to avoid over-engineering.
+  - **CQRS Split**: A context is only split into `application/commands/`, `application/queries/`, and `application/handlers/` when the complexity of the domain naturally warrants it.
+  - **Application Validation**: Input shape checks and DTO parsing live in `application/validation/`.
 - **`domain/`** — Houses pure business logic, domain services, value objects, and entities:
   - `domain/entities/` — Stateful business entities.
   - `domain/services/` — Stateless business calculations and rules.
-  - `domain/policies/` — Complex validation guards and invariants.
-  - `domain/events/` — Pure Domain Events (e.g., `UserRegistered` or `AdPublished`).
-- **`ports/`** — Defines Hexagonal port interfaces specific to this bounded context, including all repository interface specifications (e.g., `ports/ListingRepositoryPort.ts`, `ports/PaymentGatewayPort.ts`).
-- **`validation/`** — Contains input validation logic.
+  - `domain/policies/` — Complex business-state validation policies and invariants.
+  - `domain/events/` — Pure Domain Events (e.g., `UserRegistered`).
+- **`ports/`** — Defines Hexagonal port interfaces specific to this bounded context. To maximize cohesion, **all repository interfaces reside directly in the domain's ports directory** (e.g. `ports/ListingRepositoryPort.ts`, `ports/PaymentGatewayPort.ts`), eliminating separate repository subfolders.
 
 ### 3. Hexagonal Port/Adapter Boundary Rule
-- **Port Isolation**: Ports belong strictly to the bounded context that defines them (e.g. `core/domains/payments/ports/PaymentGatewayPort`) rather than a global directory.
+- **Port Isolation**: Ports belong strictly to the bounded context that defines them rather than a global directory.
 - **Inversion of Control**: Domain code must only interact with port abstractions (`*Port`). Bounded domains are prohibited from importing or depending directly on concrete adapters or infrastructure classes.
 - **Dependency Flow**:
   `Domain` ──► `Port` ──► `Adapter` ──► `Infrastructure`
 
 ### 4. Domain vs. Integration Events
-- **Domain Events** (business rules): Indicate state changes *within* a single bounded context (e.g., `ListingCreated`, `PaymentCaptured`). They are handled synchronously or in-memory by handlers inside the same domain.
-- **Integration Events** (side effects & messaging): Trigger actions *across* bounded context boundaries or external systems (e.g., `SendWelcomeEmail`, `PushListingIndexed`). They are dispatched across the event bus and queue infrastructure.
+- **Domain Events** (business rules): Indicate state changes *within* a single bounded context (e.g., `ListingCreated`, `PaymentCaptured`). They reside in `core/events/domain/` and are handled synchronously or in-memory.
+- **Integration Events** (side effects & messaging): Trigger actions *across* bounded context boundaries or external systems (e.g., `SendWelcomeEmail`). They reside in `core/events/integration/` and are dispatched asynchronously across queue infrastructure.
 
 ### 5. Public API Barrel Encapsulation (`index.ts`)
 Each bounded context must expose only its public API through a root `index.ts` file (`Public Facades, Public DTOs, Integration Events`). Everything outside of what is explicitly exported in `index.ts` is strictly private to that domain. Cross-domain imports targeting internal subdirectories are prohibited.
