@@ -84,7 +84,21 @@ Phase 13   — Code Quality & Lint/Import Hygiene Gate   [Execution Gate]
 Phase 14   — UI/UX Quality Validation (skills, mobile-first,
              responsive, performance)     [Execution Gate — Conditional]
 Phase 15   — Repository Hygiene Validation             [Execution Gate]
-Phase 16   — Verification Pipeline (incl. Secret/Dep Scan, coverage) [Execution Gate]
+Phase 16 — Change-Aware Verification
+
+Documentation only:
+- markdown lint
+- link validation
+
+Governance only:
+- markdown lint
+- governance validation
+
+Code changes:
+- verify affected workspace only
+
+Release:
+- full repository verification
 
 Phase 17   — PR Finalization                          [Execution Phase]
 Phase 18   — Completion Report                        [Execution Phase]
@@ -554,4 +568,4 @@ Finding classification (used throughout, including Phase 2a):
 
 Implementation protection: implementation may only address ✅ Verified Issues. 💡 and 🆕 require explicit approval first. Violating this is unauthorized scope expansion — a blocking error.
 
-Audit document structure and approval stamp format are defined in `.agents/templates/AUDIT_TEMPLATE.md`.
+Audit document structure and approval stamp format are defined in `.agents/templates/AUDIT_TEMPLATE.md`.
