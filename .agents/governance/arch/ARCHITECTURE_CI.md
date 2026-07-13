@@ -2,7 +2,7 @@
 
 **Module**: 3B of 6 — Architecture Governance Framework
 **Last Updated**: 2026-07-13
-**Related Decisions**: [ADR-007](../../decisions/ADR-007-monorepo-package-topology.md), [ADR-008](../../decisions/ADR-008-domain-architecture-and-bounded-contexts.md)
+**Related Decisions**: [ADR-007](../../decisions/ADR-007-monorepo-package-topology.md), [ADR-008](../../decisions/ADR-008-domain-architecture-and-bounded-contexts.md), [ADR-009](../../decisions/ADR-009-integration-strategy.md)
 
 ---
 
@@ -18,15 +18,16 @@ Our architectural fitness checks are automated and run in pre-commit hooks, pre-
 | **API Encapsulation** | Public API index.ts barrels | `npm run guard:public-api` | Blocks merge |
 | **Manifest Check** | manifest.yaml Schema | `npm run guard:manifests` | Blocks merge |
 | **Isolation Check** | Zero infra inside domains | `npm run guard:isolation` | Blocks merge |
+| **Kernel Budget** | Kernel size & reference count | `npm run guard:kernel` | Blocks merge |
 
 ---
 
-## 2. Verification Scripts Directory (`tooling/scripts/architecture/`)
+## 2. Verification Scripts Directory (`tooling/architecture/`)
 
 Verification scripts are written in TypeScript and executed via ts-node within our CI workflows:
 
 - **`verify-boundaries.ts`**: Runs dependency-cruiser validation to check our Dependency Rule Matrix, ensuring no upward or forbidden sideways imports.
 - **`verify-public-api.ts`**: Parses imports using the TypeScript Compiler API (AST check) to verify that cross-domain imports only target domain root barrels (`index.ts`).
-- **`verify-manifests.ts`**: Validates manifest structure, stability tags, and ownership coverage.
-- **`verify-domain-coupling.ts`**: Analyzes domain dependencies to flag direct database driver or vendor SDK imports within `core/domains/*`.
-- **`architecture-scorecard.ts`**: Computes domain sizes, coupling ratios, and violation rates to print release scorecard reports.
+- **`verify-manifests.ts`**: Validates manifest structure, stability tags, criticality levels, and ownership coverage.
+- **`verify-kernel.ts`**: Verifies that any file located inside `core/kernel/` is consumed by three or more distinct bounded contexts, and validates the file count budget.
+- **`verify-scorecard.ts`**: Computes domain sizes, coupling ratios, circular dependencies, and violation rates to print release scorecard reports.

@@ -4,7 +4,7 @@
 **Date**: 2026-07-13
 **Owners**: Architecture Owner, Platform Owner
 **Impacted Modules**: Repository Root, `@esparex/core`, `@esparex/shared`, `@esparex/backend-api`, `apps/*`
-**Related Decisions**: [ADR-005](./ADR-005-package-boundary-enforcement.md), [ADR-008](./ADR-008-domain-architecture-and-bounded-contexts.md)
+**Related Decisions**: [ADR-005](./ADR-005-package-boundary-enforcement.md), [ADR-008](./ADR-008-domain-architecture-and-bounded-contexts.md), [ADR-009](./ADR-009-integration-strategy.md)
 
 ---
 
@@ -73,7 +73,7 @@ esparex/
 ```
 
 ### Why Root Placement is Maintained Today
-- **`@esparex/core`**: It is an extracted **domain library**, not merely a folder of HTTP controllers (`ADR-005`). Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned solely by HTTP REST delivery (`backend/api`), violating Principle 1.
+- **`@esparex/core`**: It is an extracted **domain library**, not merely a folder of HTTP controllers (`ADR-005`). Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned solely by HTTP REST delivery (`backend/api`), violating Principle 1. Long-term, as the contents of `@esparex/core` conform fully to our internal DDD architecture, we target renaming this directory to `packages/domain/` or `packages/business/` or `packages/platform/` to reflect its true responsibility as the business core.
 - **`@esparex/shared`**: It is consumed across both client UI applications (`apps/web`, `apps/admin`) and backend server packages (`core`, `backend/api`). Placing `shared/` under `backend/` would violate clean boundaries (`P3`). Currently, `@esparex/shared` contains DTOs, schemas, enums, types, constants, and universal utilities (`formatters`, `phoneUtils`). Rather than prematurely renaming `shared/` to `packages/contracts/` while it still contains cross-cutting utilities, `@esparex/shared` remains intact until code naturally splits into specialized `packages/*` (`contracts`, `foundation`, `utils`, `config`).
 
 ---
@@ -95,12 +95,16 @@ core/
 ├── domains/
 │   ├── catalog/
 │   │   ├── application/
+│   │   │   ├── commands/
+│   │   │   ├── queries/
+│   │   │   └── handlers/
 │   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   ├── services/
+│   │   │   ├── policies/
+│   │   │   └── events/
 │   │   ├── ports/
-│   │   ├── repositories/
-│   │   ├── policies/
-│   │   ├── validation/
-│   │   └── events/
+│   │   └── validation/
 │   ├── listings/
 │   ├── payments/
 │   ├── users/
@@ -167,7 +171,7 @@ Before any structural relocation (`services/`, `packages/*`, or `domains/*`) beg
 
 ## 6. Summary & Execution Mandate
 
-With our architecture direction locked and governed (`ADR-001` through `ADR-008`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. We transition 100% of engineering bandwidth to **Implementation Governance**:
+With our architecture direction locked and governed (`ADR-001` through `ADR-009`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. We transition 100% of engineering bandwidth to **Implementation Governance**:
 1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `kernel/` sprint-by-sprint alongside product delivery.
-2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts (`verify-boundaries.ts`, `verify-public-api.ts`).
+2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`).
 3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.

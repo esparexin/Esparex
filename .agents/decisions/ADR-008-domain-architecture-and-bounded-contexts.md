@@ -4,7 +4,7 @@
 **Date**: 2026-07-13
 **Owners**: Architecture Owner, Domain Lead
 **Impacted Modules**: `@esparex/core`, `@esparex/shared`, `@esparex/backend-api`
-**Related Decisions**: [ADR-005](./ADR-005-package-boundary-enforcement.md), [ADR-007](./ADR-007-monorepo-package-topology.md), [ADR-006](./ADR-006-adr-decision-lifecycle.md)
+**Related Decisions**: [ADR-005](./ADR-005-package-boundary-enforcement.md), [ADR-007](./ADR-007-monorepo-package-topology.md), [ADR-006](./ADR-006-adr-decision-lifecycle.md), [ADR-009](./ADR-009-integration-strategy.md)
 
 ---
 
@@ -23,7 +23,7 @@ Without internal boundary enforcement, automated fitness functions, and strict d
 
 ## 2. Decision
 
-We establish a **Domain-Driven Design (DDD) Core Hierarchy** inside `@esparex/core` that organizes code into five distinct quadrants, separates application orchestration from pure domain logic, enforces Hexagonal Port/Adapter boundaries, and requires public barrel encapsulation.
+We establish a **Domain-Driven Design (DDD) Core Hierarchy** inside `@esparex/core` that organizes code into five distinct quadrants, separates application use-case orchestration from pure domain logic, enforces Hexagonal Port/Adapter boundaries, and requires public barrel encapsulation.
 
 ### 1. Internal Core Structure
 To separate concerns, the `core` codebase is organized into five timeless quadrants:
@@ -35,13 +35,17 @@ To separate concerns, the `core` codebase is organized into five timeless quadra
 
 ### 2. Internal Bounded-Context Layout
 Within each bounded context (`core/domains/<domain-name>/`), we enforce separation of use-case orchestration from pure domain rules:
-- **`application/`** — Orchestrates use cases (Application Services, Command Handlers).
-- **`domain/`** — Houses pure business logic, domain services, value objects, and entities.
-- **`ports/`** — Defines Hexagonal port interfaces specific to this bounded context.
-- **`repositories/`** — Defines domain-specific repository interfaces.
-- **`policies/`** — Evaluates business policies and rules.
+- **`application/`** — Orchestrates use cases (Application Services, command/query split):
+  - `application/commands/` — State-mutating application commands.
+  - `application/queries/` — Read-only application queries.
+  - `application/handlers/` — Command and Query handlers orchestrating actions.
+- **`domain/`** — Houses pure business logic, domain services, value objects, and entities:
+  - `domain/entities/` — Stateful business entities.
+  - `domain/services/` — Stateless business calculations and rules.
+  - `domain/policies/` — Complex validation guards and invariants.
+  - `domain/events/` — Pure Domain Events (e.g., `UserRegistered` or `AdPublished`).
+- **`ports/`** — Defines Hexagonal port interfaces specific to this bounded context, including all repository interface specifications (e.g., `ports/ListingRepositoryPort.ts`, `ports/PaymentGatewayPort.ts`).
 - **`validation/`** — Contains input validation logic.
-- **`events/`** — Defines domain-specific events.
 
 ### 3. Hexagonal Port/Adapter Boundary Rule
 - **Port Isolation**: Ports belong strictly to the bounded context that defines them (e.g. `core/domains/payments/ports/PaymentGatewayPort`) rather than a global directory.
@@ -49,8 +53,12 @@ Within each bounded context (`core/domains/<domain-name>/`), we enforce separati
 - **Dependency Flow**:
   `Domain` ──► `Port` ──► `Adapter` ──► `Infrastructure`
 
-### 4. Public API Barrel Encapsulation (`index.ts`)
-Each bounded context must expose only its public API through a root `index.ts` file (`Public Facades, Public DTOs, Public Domain Events`). Everything outside of what is explicitly exported in `index.ts` is strictly private to that domain. Cross-domain imports targeting internal subdirectories (e.g. `domains/catalog/domain/model`) are prohibited.
+### 4. Domain vs. Integration Events
+- **Domain Events** (business rules): Indicate state changes *within* a single bounded context (e.g., `ListingCreated`, `PaymentCaptured`). They are handled synchronously or in-memory by handlers inside the same domain.
+- **Integration Events** (side effects & messaging): Trigger actions *across* bounded context boundaries or external systems (e.g., `SendWelcomeEmail`, `PushListingIndexed`). They are dispatched across the event bus and queue infrastructure.
+
+### 5. Public API Barrel Encapsulation (`index.ts`)
+Each bounded context must expose only its public API through a root `index.ts` file (`Public Facades, Public DTOs, Integration Events`). Everything outside of what is explicitly exported in `index.ts` is strictly private to that domain. Cross-domain imports targeting internal subdirectories are prohibited.
 
 ---
 

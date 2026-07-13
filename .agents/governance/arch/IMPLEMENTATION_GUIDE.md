@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Incremental Migration Mandate
+## 1. Incremental Refactoring Mandate
 
 To preserve product feature velocity and minimize regression risk, **all refactoring toward the Hexagonal DDD architecture must execute via small, focused pull requests (PRs)**. Large repository-wide structural rewrites are strictly prohibited.
 
@@ -18,47 +18,42 @@ Every incremental PR must:
 
 ---
 
-## 2. Sprint-by-Sprint Migration Strategy
+## 2. 5-Phase Execution Roadmap
 
-The migration of `@esparex/core` into the Hexagonal DDD modular core structure follows a multi-sprint roadmap:
+The implementation of the target architecture is structured across five sequential, low-disruption phases:
 
-### Sprint 1: Core Domain Consolidation (Product Foundations)
-- **Primary Goal**: Establish core directories and migrate the initial two bounded contexts.
+### Phase 1 — Internal Core Refactor (Current Priority)
+- **Goal**: Consolidate `core/` services into bounded context subdirectories without changing workspaces.
 - **Action Items**:
-  1. Create `core/domains/catalog/` and `core/domains/listings/` directories.
-  2. Subdivide each directory into `application/`, `domain/`, `ports/`, `repositories/`, `policies/`, `validation/`, and `events/`.
-  3. Migrate flat files from `core/services/` and `core/models/` related to Catalog and Listings into these subfolders.
-  4. Create public barrel `index.ts` files for Catalog and Listings.
+  1. Introduce `core/domains/` directory.
+  2. Migrate one bounded context at a time (`Catalog` ──► `Listings` ──► `Payments` ──► `Users` ──► `Chat`) into the standard CQRS-ready layout (application/domain/ports/validation).
+  3. Create public `index.ts` barrels for each domain context.
+  4. Eliminate all cross-domain deep imports, forcing consumers to go through the barrel facades.
 
-### Sprint 2: Extended Domain Consolidation (Monetization & Social)
-- **Primary Goal**: Group remaining core services.
+### Phase 2 — Architecture Automation
+- **Goal**: Enforce boundary integrity automatically in the CI pipeline.
 - **Action Items**:
-  1. Create `core/domains/payments/`, `core/domains/chat/`, and `core/domains/users/`.
-  2. Organize internal application/domain directories.
-  3. Relocate relevant services and models.
-  4. Encapsulate behind public `index.ts` barrels.
+  1. Implement all verification scripts inside `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`, `verify-manifests.ts`, `verify-kernel.ts`, `verify-scorecard.ts`).
+  2. Add strict `dependency-cruiser` rules enforcing ports-and-adapters isolation and layer constraints.
+  3. Add ESLint rules blocking deep subdirectory imports across domains.
+  4. Generate and print scorecard reports on each pull request.
 
-### Phase A: Persistence Relocation (Repositories)
-- **Primary Goal**: Decouple database drivers from domain boundaries.
+### Phase 3 — Shared Package Refinement
+- **Goal**: Clean up universal dependencies.
 - **Action Items**:
-  1. Create `core/infrastructure/persistence/mongo/`.
-  2. Move Mongoose schemas and concrete Mongo repositories out of `core/domains/*/repositories/` into `core/infrastructure/persistence/mongo/`.
-  3. Implement dependency injection wiring at the application boot level.
+  1. Audit `@esparex/shared` and narrow its scope to true cross-platform contracts.
+  2. Extract specialized packages (e.g. `packages/contracts`, `packages/foundation`, `packages/ui`) into the `packages/` workspace only when a package has a single, well-defined responsibility.
 
-### Phase B: Ports Relocation
-- **Primary Goal**: Standardize port naming and ensure domains reference only abstractions.
+### Phase 4 — Runtime Evolution
+- **Goal**: Evolve the server delivery topology.
 - **Action Items**:
-  1. Relocate abstract repository and integration interfaces to their respective `core/domains/<domain-name>/ports/` directories.
-  2. Rename all abstract interfaces to suffix `Port` (e.g. `ICategoryRepository` ──► `CategoryRepositoryPort`).
+  1. Relocate the Express API runtime wrapper from `backend/api/` to `services/api/`.
+  2. Introduce `services/worker/` to handle CPU-intensive or asynchronous tasks.
+  3. Introduce `services/scheduler/` to manage recurring cron tasks.
 
-### Phase C: Adapters Relocation
-- **Primary Goal**: Wrap vendor-specific logic.
+### Phase 5 — Domain Graduation
+- **Goal**: Graduate mature domain modules into standalone root-level packages.
 - **Action Items**:
-  1. Relocate vendor-specific SDK integrations to `core/adapters/` (e.g., Razorpay, ZeptoMail, Cloudinary).
-  2. Rename integrations to suffix `Adapter` (e.g. `RazorpayAdapter`).
-
-### Phase D: Infrastructure Consolidation
-- **Primary Goal**: Group remaining caches and queues by capability.
-- **Action Items**:
-  1. Group cache adapters into `core/infrastructure/cache/`.
-  2. Group message queue adapters into `core/infrastructure/messaging/`.
+  1. Evaluate candidate domains against the Graduation Gate Criteria.
+  2. Relocate the directory from `core/domains/<domain-name>/` to the root `domains/<domain-name>/` workspace via `git mv`.
+  3. Update workspace configurations (`pnpm-workspace.yaml` / `package.json`).
