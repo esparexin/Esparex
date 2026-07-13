@@ -28,6 +28,7 @@ export interface IAd extends Document, ISoftDeleteDocument {
         brand: string;
     }>;
     images: string[];
+    thumbnails?: string[];
     listingType?: ListingTypeValue;
     attributes?: Record<string, unknown>;
     sellerId: Types.ObjectId;

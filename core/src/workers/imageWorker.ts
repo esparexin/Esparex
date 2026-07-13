@@ -1,4 +1,4 @@
-/* global NodeJS */
+import crypto from "crypto";
 import { Worker } from "bullmq";
 import sharp from "sharp";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
@@ -44,11 +44,98 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                     throw new Error("S3_BUCKET_NAME missing. Cannot optimize images.");
                 }
 
-                const replacementMap = new Map<string, string[]>();
+                // 1. Fetch listing and check lifecycle state
+                const ad = entityType === 'ad' ? await Ad.findById(entityId) : null;
+                if (entityType === 'ad' && (!ad || ad.isDeleted)) {
+                    logger.info(`[ImageWorker] Skipping job: Ad ${entityId} not found or soft-deleted`);
+                    logger.info("[ImageWorker] Structured Telemetry", {
+                        listingId: entityId,
+                        jobId: job.id || '',
+                        listingType: ad?.listingType || 'ad',
+                        imagesProcessed: 0,
+                        imagesSkipped: imageUrls.length,
+                        thumbnailsGenerated: 0,
+                        durationMs: 0,
+                        retryCount: job.attemptsMade || 0,
+                        result: 'lifecycle_skipped'
+                    });
+                    return;
+                }
+
+                // 2. DB-First Idempotency Gate
+                const hasStagingImages = imageUrls.some(url => {
+                    const key = extractS3KeyFromUrl(url);
+                    return key && key.includes('business-staging');
+                });
+                const databaseAlreadyOptimized = ad && Array.isArray(ad.images) && ad.images.some(url => url.endsWith('-hd.webp'));
+
+                if (databaseAlreadyOptimized && !hasStagingImages) {
+                    logger.info(`[ImageWorker] DB already optimized for Ad ${entityId}, skipping.`);
+                    logger.info("[ImageWorker] Structured Telemetry", {
+                        listingId: entityId,
+                        jobId: job.id || '',
+                        listingType: ad?.listingType || 'ad',
+                        imagesProcessed: 0,
+                        imagesSkipped: imageUrls.length,
+                        thumbnailsGenerated: 0,
+                        durationMs: 0,
+                        retryCount: job.attemptsMade || 0,
+                        result: 'skipped'
+                    });
+                    return;
+                }
+
+                // 3. Determine target S3 folder prefix
+                let folder = 'ads';
+                if (ad) {
+                    if (ad.listingType === 'service') folder = 'services';
+                    else if (ad.listingType === 'spare_part') folder = 'spare-part-listings';
+                } else if (entityType === 'business') {
+                    folder = 'businesses';
+                }
+
+                const replacementMap = new Map<string, { hdUrl: string; thumbUrl: string }>();
+                let imagesProcessedCount = 0;
+                let imagesSkippedCount = 0;
+                let thumbsGeneratedCount = 0;
+                const startProcessingTime = Date.now();
 
                 for (const rawUrl of imageUrls) {
                     const rawKey = extractS3KeyFromUrl(rawUrl);
-                    if (!rawKey) continue;
+                    if (!rawKey) {
+                        imagesSkippedCount++;
+                        continue;
+                    }
+
+                    // S3-First Recovery Check
+                    const fileBaseName = rawKey.split('/').pop()?.replace(/\.[^/.]+$/, "") || crypto.randomUUID();
+                    const basePath = `${folder}/${entityId}`;
+                    const hdKey = `${basePath}/${fileBaseName}-hd.webp`;
+                    const thumbKey = `${basePath}/${fileBaseName}-thumb.webp`;
+
+                    let hdUrl: string | undefined;
+                    let thumbUrl: string | undefined;
+
+                    try {
+                        const { HeadObjectCommand } = await import('@aws-sdk/client-s3');
+                        await s3Client.send(new HeadObjectCommand({ Bucket: activeBucket, Key: hdKey }));
+                        
+                        const cloudfrontUrl = process.env.AWS_CLOUDFRONT_URL;
+                        const baseUrl = cloudfrontUrl 
+                            ? cloudfrontUrl.trim().replace(/\/$/, '')
+                            : `https://${activeBucket}.s3.${process.env.AWS_REGION || 'ap-south-1'}.amazonaws.com`;
+                        hdUrl = `${baseUrl}/${hdKey}`;
+                        thumbUrl = `${baseUrl}/${thumbKey}`;
+                        logger.info(`[ImageWorker] Target S3 key already exists (idempotency hit): ${hdKey}`);
+                    } catch (s3Err) {
+                        // File not found on S3, needs optimization
+                    }
+
+                    if (hdUrl && thumbUrl) {
+                        replacementMap.set(rawUrl, { hdUrl, thumbUrl });
+                        imagesSkippedCount++;
+                        continue;
+                    }
 
                     try {
                         const getCommand = new GetObjectCommand({
@@ -60,6 +147,7 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
 
                         if (!stream) {
                             logger.warn(`[ImageWorker] Read stream failed for ${rawKey}`);
+                            imagesSkippedCount++;
                             continue;
                         }
 
@@ -75,8 +163,7 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                             .webp({ quality: 80, effort: 4 })
                             .toBuffer();
 
-                        const hdKey = rawKey.replace(/\.[^/.]+$/, "") + "-hd.webp";
-                        const hdUrl = await uploadToS3(hdBuffer, hdKey, "image/webp");
+                        const uploadedHdUrl = await uploadToS3(hdBuffer, hdKey, "image/webp");
 
                         const thumbBuffer = await sharp(rawBuffer, { failOn: 'none' })
                             .rotate()
@@ -84,35 +171,109 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                             .webp({ quality: 70, effort: 4 })
                             .toBuffer();
 
-                        const thumbKey = rawKey.replace(/\.[^/.]+$/, "") + "-thumb.webp";
-                        await uploadToS3(thumbBuffer, thumbKey, "image/webp");
+                        const uploadedThumbUrl = await uploadToS3(thumbBuffer, thumbKey, "image/webp");
 
-                        replacementMap.set(rawUrl, [hdUrl]);
-                        await deleteFromS3ByKey(rawKey);
+                        replacementMap.set(rawUrl, { hdUrl: uploadedHdUrl, thumbUrl: uploadedThumbUrl });
 
-                        logger.info(`[ImageWorker] Optimized successfully: ${rawKey} -> ${hdUrl}`);
+                        // Delete original staging file
+                        if (rawKey.includes('business-staging') || rawKey.includes('temp/')) {
+                            await deleteFromS3ByKey(rawKey).catch(e => {
+                                logger.warn(`[ImageWorker] Failed to delete original staging object: ${rawKey}`, e);
+                            });
+                        }
+
+                        imagesProcessedCount++;
+                        thumbsGeneratedCount++;
+                        logger.info(`[ImageWorker] Optimized successfully: ${rawKey} -> ${uploadedHdUrl}`);
                     } catch (error) {
                         logger.error(`[ImageWorker] Failed to optimize image ${rawUrl}:`, error);
+                        // Retryable failure (timeout, network drop)
+                        throw error;
                     }
                 }
 
-                if (replacementMap.size > 0 && entityType === 'ad') {
-                    const ad = await Ad.findById(entityId);
-                    if (ad && Array.isArray(ad.images)) {
-                        let updatedCount = 0;
+                if (replacementMap.size > 0 && ad) {
+                    if (Array.isArray(ad.images)) {
+                        let updatedImagesCount = 0;
                         const newImagesArray = ad.images.map(image => {
-                            const replacements = replacementMap.get(image);
-                            if (replacements && replacements.length > 0) {
-                                updatedCount += 1;
-                                return replacements[0];
+                            const match = replacementMap.get(image);
+                            if (match) {
+                                updatedImagesCount += 1;
+                                return match.hdUrl;
                             }
                             return image;
                         });
 
-                        if (updatedCount > 0) {
-                            ad.images = newImagesArray.filter((img): img is string => typeof img === 'string');
-                            await ad.save();
-                            logger.info(`[ImageWorker] Updated MongoDB Ad ${entityId} with ${updatedCount} optimized URLs`);
+                        let newThumbnailsArray: string[] = [];
+                        let updatedThumbsCount = 0;
+                        if (Array.isArray(ad.thumbnails) && ad.thumbnails.length > 0) {
+                            newThumbnailsArray = ad.thumbnails.map((thumb: string) => {
+                                const match = replacementMap.get(thumb);
+                                if (match) {
+                                    updatedThumbsCount += 1;
+                                    return match.thumbUrl;
+                                }
+                                for (const [rawUrl, matchObj] of replacementMap.entries()) {
+                                    if (thumb === rawUrl) {
+                                        updatedThumbsCount += 1;
+                                        return matchObj.thumbUrl;
+                                    }
+                                }
+                                return thumb;
+                            });
+                        } else {
+                            newThumbnailsArray = newImagesArray.map((image: string) => {
+                                const match = replacementMap.get(image);
+                                if (match) {
+                                    updatedThumbsCount += 1;
+                                    return match.thumbUrl;
+                                }
+                                return image;
+                            });
+                        }
+
+                        // Atomic Update with Exact Image-Set Verification
+                        const updateResult = await Ad.updateOne(
+                            { 
+                                _id: entityId, 
+                                images: { $eq: ad.images }
+                            },
+                            {
+                                $set: {
+                                    images: newImagesArray.filter((img): img is string => typeof img === 'string'),
+                                    thumbnails: newThumbnailsArray.filter((img): img is string => typeof img === 'string')
+                                }
+                            }
+                        );
+
+                        const durationMs = Date.now() - startProcessingTime;
+
+                        if (updateResult.modifiedCount > 0) {
+                            logger.info(`[ImageWorker] Updated MongoDB Ad ${entityId} with ${updatedImagesCount} optimized URLs and ${updatedThumbsCount} thumbnails`);
+                            logger.info("[ImageWorker] Structured Telemetry", {
+                                listingId: entityId,
+                                jobId: job.id || '',
+                                listingType: ad.listingType || 'ad',
+                                imagesProcessed: imagesProcessedCount,
+                                imagesSkipped: imagesSkippedCount,
+                                thumbnailsGenerated: thumbsGeneratedCount,
+                                durationMs,
+                                retryCount: job.attemptsMade || 0,
+                                result: 'success'
+                            });
+                        } else {
+                            logger.warn(`[ImageWorker] Concurrency conflict: image set changed for Ad ${entityId}. Stale update discarded.`);
+                            logger.info("[ImageWorker] Structured Telemetry", {
+                                listingId: entityId,
+                                jobId: job.id || '',
+                                listingType: ad.listingType || 'ad',
+                                imagesProcessed: 0,
+                                imagesSkipped: imageUrls.length,
+                                thumbnailsGenerated: 0,
+                                durationMs,
+                                retryCount: job.attemptsMade || 0,
+                                result: 'concurrency_conflict'
+                            });
                         }
                     }
                 }
