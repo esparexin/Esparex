@@ -29,6 +29,26 @@ module.exports = {
       to: {
         path: '(^backend/user|^@esparex/backend-user|^@esparex/core/controllers|^@esparex/core/utils/respond|^@esparex/core/utils/errorResponse|^@esparex/core/utils/controllerUtils)'
       }
+    },
+    {
+      name: 'no-frontend-imports-from-core',
+      severity: 'error',
+      comment: 'Frontend apps must never import from @esparex/core. Use @esparex/shared for cross-platform contracts.',
+      from: { path: '^apps/' },
+      to: {
+        path: '^(core/|@esparex/core)',
+        dependencyTypesNot: ['type-only']
+      }
+    },
+    {
+      name: 'no-shared-imports-from-core',
+      severity: 'error',
+      comment: 'The @esparex/shared package must never import from @esparex/core — shared has no knowledge of backend infrastructure.',
+      from: { path: '^shared/' },
+      to: {
+        path: '^(core/|@esparex/core)',
+        dependencyTypesNot: ['type-only']
+      }
     }
   ],
   options: {

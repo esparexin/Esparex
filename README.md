@@ -9,6 +9,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 - **`@esparex/backend-api`** (`backend/api`): Unified API services (user + admin namespaces)
 - **`@esparex/core`** (`core`): Business logic, domain models, and DB services (Clean Architecture)
 - **`@esparex/shared`** (`shared`): Shared contracts, types, and utility constants
+- **`apps/mobile`** *(not an npm workspace)*: Capacitor shell that wraps `apps/web` for native iOS/Android deployment. It has no independent TypeScript build pipeline — it loads the web app via a configured server URL. Mobile-specific native code (Android/iOS) lives here. See `apps/mobile/capacitor.config.ts`.
 
 ### 📁 Folder Breakdown
 

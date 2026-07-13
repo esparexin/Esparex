@@ -81,7 +81,6 @@ export * from './security/hmacSignature';
 export * from './popup/popupCore';
 export * from './popup/popupEvents';
 export * from './popup/popupQueue';
-export * from './ui/popup/usePopupQueue';
 
 // CONTRACTS (API & Shared)
 export * from './contracts/api/basePaths';
