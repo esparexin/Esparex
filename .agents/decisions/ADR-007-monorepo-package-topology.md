@@ -1,4 +1,4 @@
-# ADR-007: Ownership-Driven Monorepo Topology, Dependency Flow & 5-Stage Roadmap
+# ADR-007: Ownership-Driven Monorepo Topology & Timeless Evolutionary Strategy
 
 **Status**: Accepted
 **Date**: 2026-07-13
@@ -16,22 +16,22 @@ During the completion of the L1–L5 Architecture Governance Framework audits (`
 
 While folder organization influences developer onboarding and repository hygiene, **the true architecture of a monorepo is defined by ownership, responsibility, dependency flow, and deployability boundaries—not directory names**.
 
-To ensure our architecture remains immutable across all future evolutionary stages and directory restructuring, Esparex strictly enforces **Five Immutable Architecture Principles**:
+To ensure our architecture remains immutable across all future states and directory restructuring without documentation aging, Esparex strictly enforces **Five Immutable Architecture Principles**:
 
 ### Principle 1: Deployables Never Own Business Logic
-Deployable modules (`apps/*`, `backend/api`, or future `services/*`) are strictly delivery engines. They are responsible solely for rendering UIs, routing HTTP requests, parsing payloads, and bootstrapping server infrastructure. They must never contain core business rules, validation algorithms, or direct domain data mutations.
+Deployable modules (`apps/*`, `backend/api`, or `services/*`) are strictly delivery engines. They are responsible solely for rendering UIs, routing HTTP requests, parsing payloads, and bootstrapping server infrastructure. They must never contain core business rules, validation algorithms, or direct domain data mutations.
 
 ### Principle 2: Business Domains Never Depend on Transport
-Domain modules (`@esparex/core` or future `domains/*`) contain 100% pure business logic. They must be completely ignorant of how they are invoked. They must never import Express, Fastify, Next.js API routers, WebSocket handlers, or CLI transport wrappers.
+Domain modules (`@esparex/core` and internal bounded contexts) contain 100% pure business logic. They must be completely ignorant of how they are invoked. They must never import Express, Fastify, Next.js API routers, WebSocket handlers, or CLI transport wrappers.
 
-### Principle 3: Contracts Never Depend on Domains
-Universal contract packages (`@esparex/shared` or future `packages/contracts`) define cross-platform data structures (`DTOs`, `Schemas`, `Types`, `Enums`). They must never import from business domain modules (`@esparex/core`), backend transport modules (`@esparex/backend-api`), or frontend client applications.
+### Principle 3: Universal Contracts Never Depend on Domains
+Universal contract libraries (`@esparex/shared` and future `packages/contracts`) define cross-platform data structures (`DTOs`, `Schemas`, `Types`, `Enums`). They must never import from business domain modules (`@esparex/core`), backend transport modules (`@esparex/backend-api`), or frontend client applications.
 
-### Principle 4: Infrastructure is Replaceable
-Infrastructure bindings (`database/`, `redis/`, `docker/`, cloud adapters) must depend on abstraction interfaces defined within domain repositories or universal configuration schemas (`P5`, `P6`). Infrastructure implementation details must never leak into domain business logic.
+### Principle 4: Infrastructure is Replaceable via Ports & Adapters
+Infrastructure bindings (`database/`, `redis/`, `docker/`, external vendor SDKs) must depend on abstraction interfaces (`ports/`) defined within domain boundaries or universal configuration schemas (`P5`, `P6`). Infrastructure implementation details (`adapters/`) must never leak into pure domain business logic (`ADR-008`).
 
 ### Principle 5: Every Module Has One Owner
-Every package, bounded context, and directory must have exactly one documented ownership boundary (`apps/web` → Frontend Web Team; `core/domains/<domain-x>` → Domain Squad). Shared or unowned code blocks are forbidden.
+Every package, bounded context, and directory must have exactly one documented ownership boundary (`apps/web` → Frontend Web Team; `core/domains/catalog` → Catalog Domain). Shared or unowned code blocks are forbidden.
 
 ---
 
@@ -46,60 +46,42 @@ apps/* (UI Presentation Layer: web, admin, mobile)
 services/* (Server Delivery Runtimes: api, worker, scheduler, ai)
    │
    ▼  (prohibits transport leakage into domain rules)
-core/ (or extracted domains/*: pure business domain capabilities)
+core/ (pure business domain capabilities, ports, adapters, kernel)
    │
-   ▼  (prohibits domain leakage into universal contracts)
-packages/contracts (Pure DTOs, Schemas, Types, Enums — universal cross-platform scope)
+   ▼  (prohibits domain leakage into universal contracts/foundation)
+packages/* / shared/ (Universal cross-platform scope: contracts, foundation, utils, config)
 ```
 
 ### Dependency Rules & Enforcement
-1. **Upward imports are strictly prohibited**: A lower layer (e.g., `packages/contracts` or `core/`) cannot import anything from a higher layer (`services/` or `apps/`). Enforced by CI `dependency-cruiser` rules (`no-frontend-imports-from-core`, `no-shared-imports-from-core`).
+1. **Upward imports are strictly prohibited**: A lower layer (e.g., `@esparex/shared` or `core/`) cannot import anything from a higher layer (`services/` or `apps/`). Enforced by CI `dependency-cruiser` rules (`no-frontend-imports-from-core`, `no-shared-imports-from-core`).
 2. **Sideways imports are prohibited unless explicitly documented**: Horizontal imports across distinct bounded contexts (`core/domains/<domain-a>` → `core/domains/<domain-b>`) must pass through documented domain event buses or public domain service facades (`ADR-008`). Enforced by `E-006` (zero circular dependencies).
-3. **Dependency direction is always inward toward platform-neutral contracts**: Every layer can depend on universal contracts (`@esparex/shared` today, `packages/contracts` in Stage 4), but never vice versa.
+3. **Dependency direction is always inward toward platform-neutral contracts**: Every layer can depend on universal packages (`@esparex/shared` today, `packages/*` in the target architecture), but never vice versa.
 
 ---
 
-## 3. Ownership Archetypes & Current Approved Topology (`Stage 1`)
+## 3. Current Architecture vs. Target Enterprise Blueprint
 
+Rather than hardcoding fragile stage numbers, repository evolution transitions smoothly between our **Current Architecture** baseline and our **Target Enterprise Architecture**:
+
+### Current Architecture (`Approved Baseline`)
 ```text
-esparex/ (Stage 1 Approved Baseline)
+esparex/
 ├── apps/                          # End-user UI deployables (web, admin, mobile)
 ├── backend/                       # Server delivery mechanisms (api)
 ├── core/                          # Reusable business domain library (@esparex/core)
-└── shared/                        # Universal contracts & schemas (@esparex/shared)
+└── shared/                        # Universal DTOs, schemas, types & utilities (@esparex/shared)
 ```
 
-| Owner / Archetype | Core Responsibility | Deployable Runtime? | Universal / Platform Neutral? |
-|---|---|---|---|
-| **`apps/*`** (`web`, `admin`, `mobile`) | End-user presentation & user interface workflows | ✅ **Yes** | ❌ **No** (Browser / Capacitor) |
-| **`backend/api`** | HTTP transport, routing, Express middleware, server bootstrapping | ✅ **Yes** | ❌ **No** (Node.js / Render) |
-| **`core`** (or future `domains/`) | Pure business rules, domain entities, value objects, domain services | ❌ **No** (Library) | ❌ **No** (Backend Node.js library) |
-| **`shared`** | Cross-platform contracts, API schemas, shared utilities | ❌ **No** (Library) | ✅ **Yes** (Universal JS/TS) |
-
-### Why Root Placement is Accepted Today (`Stage 1`)
+### Why Root Placement is Maintained Today
 - **`@esparex/core`**: It is an extracted **domain library**, not merely a folder of HTTP controllers (`ADR-005`). Moving `core/` inside `backend/core/` would falsely imply that domain logic is owned solely by HTTP REST delivery (`backend/api`), violating Principle 1.
-- **`@esparex/shared`**: It is consumed across both client UI applications (`apps/web`, `apps/admin`) and backend server packages (`core`, `backend/api`). Placing `shared/` under `backend/` would violate clean boundaries (`P3`) by forcing client applications to import from a server-delivery tree. Following our dead-code purge of unused Express middleware (`DF-001` resolved in `commit 9330ba5a`), `@esparex/shared` is 100% platform-neutral (`P4`).
+- **`@esparex/shared`**: It is consumed across both client UI applications (`apps/web`, `apps/admin`) and backend server packages (`core`, `backend/api`). Placing `shared/` under `backend/` would violate clean boundaries (`P3`). Currently, `@esparex/shared` contains DTOs, schemas, enums, types, constants, and universal utilities (`formatters`, `phoneUtils`). Rather than prematurely renaming `shared/` to `packages/contracts/` while it still contains cross-cutting utilities, `@esparex/shared` remains intact until code naturally splits into specialized `packages/*` (`contracts`, `foundation`, `utils`, `config`).
 
 ---
 
-## 4. The 5-Stage Enterprise Evolutionary Roadmap
-
-To avoid multi-step intermediate rewrites (`core` → `backend/core` → `packages/domain`), repository modernization executes via a structured **5-Stage Enterprise Roadmap** driven by objective business and architectural triggers rather than arbitrary version numbers:
-
+### Target Enterprise Architecture (`Timeless DDD Blueprint`)
 ```text
-Stage 1: Repository Stabilization (Active Approved Baseline)
-   ↓
-Stage 2: Domain Consolidation (Bounded contexts under `core/domains/*` per ADR-008)
-   ↓
-Stage 3: Service Extraction (`services/*` deployable runtimes: api, worker, scheduler, ai)
-   ↓
-Stage 4: Shared Package Standardization (`packages/contracts`, `packages/ui`, `packages/sdk`)
-   ↓
-Stage 5: Independent Domain Deployment (`domains/*` autonomous publishing & deployment)
-```
-
-```text
-esparex/ (Target Enterprise Blueprint — Stages 3, 4, and 5)
+esparex/
+│
 ├── apps/                          # Deployable UI applications
 │   ├── web/                       # Customer Web (Next.js)
 │   ├── admin/                     # Admin Portal (Vite)
@@ -111,27 +93,25 @@ esparex/ (Target Enterprise Blueprint — Stages 3, 4, and 5)
 │   ├── scheduler/                 # Cron / Recurring Task Engine
 │   └── ai/                        # Dedicated AI Integration Runtime
 │
-├── packages/                      # Reusable cross-cutting libraries
-│   ├── contracts/                 # Pure DTOs, Schemas, Types, Enums (`shared/` narrowed & migrated here)
+├── core/                          # Hexagonal & Domain-Driven Design (DDD) core (`ADR-008`)
+│   ├── domains/                   # Bounded business contexts (`catalog/`, `listings/`, `payments/`)
+│   ├── ports/                     # Abstract interfaces (`PaymentGatewayPort`, `StoragePort`, `EmailPort`)
+│   ├── adapters/                  # Concrete vendor adapters (`RazorpayAdapter`, `CloudinaryStorageAdapter`)
+│   ├── infrastructure/            # Concrete persistence/queues (`persistence/mongo`, `cache/redis`, `messaging/bullmq`)
+│   ├── kernel/                    # Shared domain kernel (`primitives/`, `value-objects/`, `policies/`, `errors/`, `ids/`)
+│   └── events/                    # Shared domain event definitions & event bus
+│
+├── packages/                      # Reusable cross-cutting libraries (natural extraction from `shared/`)
+│   ├── contracts/                 # Pure DTOs, Schemas, Types, Enums
+│   ├── foundation/                # Reusable platform primitives (`Result<T>`, `Either`, `Guard`, `Clock`, `Money`)
+│   ├── sdk/                       # Public/Internal API SDK library
 │   ├── ui/                        # Shared UI component design system
 │   ├── config/                    # Shared configuration bundles
-│   ├── sdk/                       # Public/Internal API SDK library
+│   ├── utils/                     # Pure cross-platform utilities (`formatters/`, `phoneUtils/`)
 │   ├── testing/                   # Shared test harness & mock utilities
+│   ├── tooling/                   # Custom build and developer CLI helpers
 │   ├── eslint-config/             # Dedicated ESLint rules workspace
 │   └── typescript-config/         # Dedicated TypeScript tsconfig bases
-│
-├── core/                          # Consolidated domain hierarchy (Stage 2 / ADR-008)
-│   ├── domains/                   # Bounded business contexts (`<domain-a>`, `<domain-b>`)
-│   ├── integrations/              # Vendor API adapters (`razorpay/`, `cloudinary/`)
-│   ├── infrastructure/            # Persistence & queue adapters (`persistence/`, `queues/`)
-│   └── common/                    # Shared domain kernel (`errors/`, `events/`)
-│
-├── domains/                       # Extracted autonomous business domains (Stage 5 graduation)
-│   └── <domain-name>/             # Autonomous domain graduated from `core/domains/<domain-name>`
-│
-├── tooling/                       # Custom internal developer tooling
-│   ├── scripts/                   # CI and maintenance automation
-│   └── generators/                # Scaffolding and codemod tools
 │
 ├── infrastructure/                # Replaceable infrastructure specifications
 │   ├── docker/                    # Multi-stage Dockerfiles
@@ -139,39 +119,32 @@ esparex/ (Target Enterprise Blueprint — Stages 3, 4, and 5)
 │   ├── terraform/                 # Infrastructure as Code modules
 │   └── monitoring/                # Prometheus/Grafana telemetry
 │
+├── tooling/                       # Custom internal developer tooling
+│   ├── scripts/                   # CI, maintenance, and architecture scorecards (`verify-boundaries.ts`)
+│   └── generators/                # Scaffolding and codemod tools
+│
 ├── docs/                          # Architecture governance, ADRs, system blueprints
 └── .agents/                       # Agentic workflows, skills, governance modules
 ```
 
-### Objective Stage Triggers & Multi-Factor Extraction Metrics
-Rather than extracting domains or restructuring directories based on file count alone (`600 files`), migrations between stages are triggered when multi-factor bounded-context metrics indicate necessity:
+---
 
-| Stage Transition | Primary Action | Multi-Factor Trigger Conditions |
+## 4. Graduation Criteria & Migration Strategy
+
+To avoid premature decomposition, structural migrations execute via evidence-driven **Graduation Criteria**:
+
+| Transition Path | Primary Action | Multi-Factor Graduation Criteria |
 |---|---|---|
-| **Stage 1 → Stage 2** | Consolidate `core/services/` into `core/domains/*`, `integrations/*`, `infrastructure/*`, `common/*` (`ADR-008`). | Ongoing continuous refactoring during feature sprints (`Domain Consolidation`). |
-| **Stage 2 → Stage 3** | Extract `backend/api` → `services/api` and add `services/worker`, `services/scheduler`, `services/ai`. | **Multi-Runtime Requirement (`R-001`)**: HTTP P95 latency requires offloading CPU-intensive image or AI jobs to dedicated worker servers (`services/worker`), or standalone cron engines (`services/scheduler`) must deploy independently. |
-| **Stage 3 → Stage 4** | Standardize `shared` into `packages/contracts` (`DTOs, Schemas, Types, Enums — nothing else`) and add `packages/ui`, `packages/config`. | **Contract / UI Growth**: Multiple UI applications require unified design tokens (`packages/ui`), or `shared/` requires strict scope locking (`packages/contracts`) to prevent general utility dumping. Avoids a generic package named `shared`. |
-| **Stage 4 → Stage 5** | Extract `core/domains/<domain-name>` → `domains/<domain-name>` for independent publishing or micro-service deployment. | **Multi-Squad Autonomy & High Cohesion**: When a bounded context exhibits high internal cohesion, low external coupling, independent squad ownership, high change frequency, and standalone scaling requirements. |
+| **Domain Consolidation (`core/services` → `core/domains/*`)** | Consolidate flat service files into `core/domains/*`, `ports/`, `adapters/`, and `infrastructure/` per `ADR-008`. | **Incremental Small PRs**: Executed sprint-by-sprint during normal feature delivery without large one-shot rewrites. |
+| **Service Extraction (`backend/api` → `services/api`)** | Move HTTP server delivery to `services/api` and add `services/worker`, `services/scheduler`. | **Multi-Runtime Requirement (`R-001`)**: HTTP P95 latency requires offloading CPU-intensive image/AI jobs to dedicated worker servers (`services/worker`), or standalone cron engines (`services/scheduler`) must deploy independently. |
+| **Package Splitting (`shared/` → `packages/*`)** | Naturally extract code from `@esparex/shared` into `packages/contracts`, `packages/foundation`, `packages/utils`, `packages/ui` only when each package has a single, well-defined responsibility. | **Responsibility Narrowing**: Multiple UI applications require unified design tokens (`packages/ui`), or `shared/` requires strict scope locking (`packages/contracts` vs `packages/foundation`) without premature renames. |
+| **Autonomous Domain Extraction (`core/domains/<name>` → `domains/<name>`)** | Extract `core/domains/<domain-name>` to a standalone root repository package `domains/<domain-name>`. | **Multi-Squad Autonomy & High Cohesion**: When a bounded context exhibits high internal cohesion, low external coupling, independent squad ownership, high change frequency, and standalone micro-service runtime scaling requirements. Note: The `domains/` root folder is intentionally omitted from the target diagram until an autonomous domain actually graduates (`git mv core/domains/<name> domains/<name>`). |
 
 ---
 
-## 5. Migration Churn Analysis & Prerequisite Gate
+## 5. Repository Modernization Readiness Checklist (Pre-Migration Gate)
 
-### Churn & Risk Classification Matrix
-Because all source files in Esparex consistently use workspace package imports (`@esparex/core`, `@esparex/shared`) rather than relative filesystem paths (`../../core/src/...`), source code modifications during directory relocation (`git mv`) are minimal. The primary churn lives in build tooling and repository configuration:
-
-| Area | Risk Level | Rationale & Churn Source |
-|---|---|---|
-| **Business logic** | 🟢 **Very Low** | Zero domain algorithms, schemas, or service handlers change during directory relocation. |
-| **Runtime** | 🟢 **Very Low** | Node, Express, Next.js, and Vite runtimes execute identical compiled JavaScript bundles. |
-| **Imports (workspace-based)** | 🟢 **Low** | Because packages are imported by workspace name (`@esparex/shared`), internal import statements remain unchanged. |
-| **Tooling & CI** | 🟡 **Medium** | Requires updating `pnpm-workspace.yaml`, `tsconfig.json` project references, `.dependency-cruiser.js` regex boundaries, GitHub Actions workflows, and Dockerfile `COPY` paths. |
-| **Documentation** | 🟡 **Medium** | Requires updating `README.md` onboarding paths, developer setup guides, and internal architecture diagrams. |
-
----
-
-### Repository Modernization Readiness Checklist (Pre-Migration Gate)
-Before Stages 3, 4, or 5 can begin, the repository must pass the mandatory **Readiness Checklist**:
+Before any structural relocation (`services/`, `packages/*`, or `domains/*`) begins, the repository must pass the mandatory **Readiness Checklist**:
 
 - [ ] **No relative imports between workspaces**: All cross-package imports use strict workspace identifiers (`@esparex/core`, `@esparex/shared`). Zero instances of `import ... from '../../core/src/...'`.
 - [ ] **All packages imported via workspace names**: Every package definition (`package.json`) uses standard `workspace:*` dependencies.
@@ -182,9 +155,9 @@ Before Stages 3, 4, or 5 can begin, the repository must pass the mandatory **Rea
 
 ---
 
-## 6. Summary & Execution Mandate
+## 6. Summary & Implementation Mandate
 
-With our governance framework (`v1.0`) frozen and our **5-Stage Enterprise Roadmap** published:
-1. **Current Baseline (`Stage 1`)**: `apps/`, `backend/api/`, `core/`, and `shared/` (`Status: Approved & Governed`).
-2. **Immediate Technical Focus (`Stage 2`)**: Gradually consolidating `core/` into `core/domains/*`, `integrations/*`, `infrastructure/*`, and `common/*` per [ADR-008](./ADR-008-domain-architecture-and-bounded-contexts.md) while shipping core product features and resolving security backlog items (`R-005` Dependabot vulnerabilities).
-3. **Future Evolution (`Stages 3–5`)**: Evidence-driven, objective, and mechanical—ready to scale seamlessly whenever telemetry and team growth justify the transition.
+With our architecture direction locked and governed (`ADR-001` through `ADR-008`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. We transition 100% of engineering bandwidth to **Implementation Governance**:
+1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `ports/`, `adapters/`, and `infrastructure/` sprint-by-sprint alongside product delivery.
+2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts (`verify-boundaries.ts`, `verify-public-api.ts`).
+3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.
