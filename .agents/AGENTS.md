@@ -26,7 +26,7 @@ At the start of every execution, the AI must follow this exact bootstrap sequenc
 1. **Load `AGENTS.md`** — Initialize basic governance bootstrap.
 2. **Load `governance/GOVERNANCE.md`** — Establish core policies, boundaries, and evidence standards.
 3. **Load `workflow/AI_WORKFLOW.md`** — Establish the execution phases and gates.
-4. **Load Project Context** — Load `.agents/project/PROJECT_CONTEXT.json` for repository constraints.
+4. **Load Project Context** — Load `.agents/project/PROJECT_CONTEXT.json` for repository constraints, and append an execution trace entry under phase tag "AGENTS-BOOTSTRAP" to `.agents/logs/DECISION_LOG.md` (detailing timestamp and files loaded).
 5. **Perform Live Repository Discovery** — Run search tools to inspect the active branch state and codebase.
 6. **Classify the Task** — Determine type (e.g., Feature, Fix, Audit, Refactor, Maintenance) and complexity.
 7. **Discover Available Skills** — Scan the customization roots (e.g., `.agents/skills/*` or `skills.json`) for active expertise profiles.

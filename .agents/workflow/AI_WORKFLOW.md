@@ -5,6 +5,9 @@ Every phase declares authority, inputs, process, outputs, and exit criteria. Eve
 Workflow Stability Principle
 This document defines the AI execution lifecycle. It is repository-wide governance and must remain stable. Changes are permitted only when they improve the execution process for every repository feature. Feature-specific business rules, UI behavior, domain workflows, and implementation details must never be added here; they belong in feature-specific business rule documents.
 
+No-Temporary-Artifacts Rule
+Temporary planning, progress tracking, or validation files (including but not limited to task.md, walkthrough.md, implementation_plan.md, and intermediate reports) must never be created or committed inside the repository. All such artifacts must reside strictly in the IDE's session-private/artifacts folder (outside the workspace's version-control directory) or be communicated directly through the chat.
+
 Failure Policy
 When any phase produces FAIL:
 
@@ -109,14 +112,11 @@ Phase 0 — Context Loading
 Classification: Execution Phase
 Process
 
-Load .agents/AGENTS.md
-Load .agents/governance/GOVERNANCE.md
-Load .agents/workflow/AI_WORKFLOW.md (this document)
-Load .agents/project/PROJECT_CONTEXT.json
+Verify that `.agents/logs/DECISION_LOG.md` contains a valid `AGENTS-BOOTSTRAP` entry for the active session, and inspect the filesystem to re-verify that the exact 4 core files recorded in the entry (`AGENTS.md`, `governance/GOVERNANCE.md`, `workflow/AI_WORKFLOW.md`, `project/PROJECT_CONTEXT.json`) are present, readable, and non-empty on disk right now.
 
 Exit Criteria
-| PASS | Core bootstrap files loaded |
-| FAIL | Any core file missing, corrupt, unreadable |
+| PASS | `AGENTS-BOOTSTRAP` log entry exists with all 4 core bootstrap files, and all 4 files are verified present and readable on disk |
+| FAIL | Log entry is missing, file list does not match the 4 core files, or any recorded file is missing, unreadable, or empty on disk |
 
 Workflow Gate 0 — Repository Discovery & Reuse
 Classification: Execution Gate
@@ -462,21 +462,11 @@ Exit Criteria
 | PASS | Working tree contains only intended files |
 | FAIL | Disallowed files found — remove, re-validate |
 
-Phase 16 — Verification Pipeline
+Phase 16 — Change-Aware Verification Pipeline
 Classification: Execution Gate
 Process
-Run in order; any failure means fix and re-run all steps from step 1 (subject to the global Iteration Limit and the Flaky Test Policy below):
-1. npm run format
-2. npm run lint                 # re-runs Phase 13's standard, does not redefine it
-3. npm run test:unit            # must meet the coverage threshold below
-4. npm run test:integration
-5. npm run type-check
-6. npm run build
-7. npm run guard:platform-governance
-8. npm run repository:doctor -- --profile ci
-9. npm run audit:secrets && npm run audit          # Secret & Dependency Scan
-If UI-modified = Yes, also:
-10. npm run test:e2e
+Inspect the modified files and execute the matching workspace-aware and change-aware verification steps mapped in `.agents/policy_engine/POLICY_ENGINE.json` under `verification_matrix` (subject to the global Iteration Limit and the Flaky Test Policy below).
+
 Coverage threshold: new or changed code introduced by this task must meet the repository's configured minimum coverage threshold (branch + line). A passing test:unit run with coverage below threshold is a FAIL, not a PASS.
 Secret & Dependency Scan (step 9): no leaked credentials, API keys, or tokens in the diff; no newly introduced dependency with a known critical/high vulnerability. Any hit is a FAIL — remove the secret/rotate it, or address the vulnerable dependency per the Dependency Policy.
 Flaky Test Policy: a test is only treated as flaky if it has a documented history of intermittent failure unrelated to this change (tracked in the repo's flaky-test registry). A flaky test's failure does not block this gate, but it must be logged (Evidence Standard) and reported in Phase 18 as a known flake — it may never be silently skipped or deleted to make the gate pass. A test failing for the first time is never assumed flaky.

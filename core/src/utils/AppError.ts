@@ -1,1 +1,1 @@
-export { AppError } from '../building-blocks/errors/AppError';
+export { AppError } from '../shared-kernel/errors/AppError';

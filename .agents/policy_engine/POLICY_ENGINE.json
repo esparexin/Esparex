@@ -1,73 +1,163 @@
 {
-  "mappings": {
-    "ui": {
-      "skills": [
-        "react",
-        "ui_audit"
-      ],
-      "rules": [
-        "ui_accessibility",
-        "ui_responsive"
-      ],
-      "verification": [
-        "ui_ux",
-        "code_quality"
+  "policy_metadata": {
+    "policy_version": "3.0",
+    "effective_date": "2026-07-13",
+    "breaking_change": false,
+    "deprecated": false
+  },
+  "workspaces": {
+    "@esparex/shared": {
+      "path": "shared/**",
+      "owner": "platform",
+      "dependents": [
+        "@esparex/core",
+        "@esparex/backend-api",
+        "web",
+        "admin"
       ]
     },
-    "api": {
-      "skills": [
-        "express",
-        "api_design"
-      ],
-      "rules": [
-        "api_contract",
-        "authentication",
-        "authorization",
-        "data_persistence"
-      ],
-      "verification": [
-        "api_integration",
-        "code_quality"
+    "@esparex/core": {
+      "path": "core/**",
+      "owner": "platform",
+      "dependents": [
+        "@esparex/backend-api"
       ]
     },
-    "database": {
-      "skills": [
-        "mongodb"
-      ],
-      "rules": [
-        "data_persistence"
-      ],
-      "verification": [
-        "code_quality"
-      ]
+    "@esparex/backend-api": {
+      "path": "backend/**",
+      "owner": "backend",
+      "dependents": []
     },
-    "repository": {
-      "skills": [
-        "repository_audit"
-      ],
-      "rules": [
-        "repository_discipline"
-      ],
-      "verification": [
-        "repository_cleanup",
-        "code_quality"
-      ]
+    "web": {
+      "path": "apps/web/**",
+      "owner": "frontend",
+      "dependents": []
     },
+    "admin": {
+      "path": "apps/admin/**",
+      "owner": "frontend",
+      "dependents": []
+    }
+  },
+  "verification_profiles": {
     "documentation": {
-      "skills": [],
-      "rules": [],
-      "verification": [
-        "documentation_gate"
+      "gates": [
+        "markdown_lint",
+        "link_validation"
       ]
     },
-    "git_operations": {
-      "skills": [
-        "git_and_github"
-      ],
-      "rules": [],
-      "verification": [
-        "repository_cleanup"
+    "governance": {
+      "extends": "documentation",
+      "gates": [
+        "governance_validation"
+      ]
+    },
+    "shared": {
+      "extends": "governance",
+      "gates": [
+        "build",
+        "typecheck"
+      ]
+    },
+    "backend": {
+      "extends": "shared",
+      "gates": [
+        "eslint",
+        "unit_test"
+      ]
+    },
+    "frontend": {
+      "extends": "shared",
+      "gates": [
+        "eslint",
+        "next_build"
+      ]
+    },
+    "release": {
+      "extends": "backend",
+      "gates": [
+        "integration_test",
+        "security_scan",
+        "e2e_test"
       ]
     }
+  },
+  "risk_factors": {
+    "critical_paths": [
+      {
+        "pattern": "**/payment**",
+        "added_risk": "high",
+        "reason": "Payment Processing module"
+      },
+      {
+        "pattern": "**/auth**",
+        "added_risk": "high",
+        "reason": "Authentication/Authorization core"
+      },
+      {
+        "pattern": "**/migration/**",
+        "added_risk": "high",
+        "reason": "Database Schema Migrations"
+      },
+      {
+        "pattern": "core/src/shared-kernel/**",
+        "added_risk": "medium",
+        "reason": "Shared Kernel core primitives"
+      }
+    ],
+    "file_type_overrides": [
+      {
+        "extension": ".md",
+        "forced_risk": "trivial"
+      },
+      {
+        "extension": ".txt",
+        "forced_risk": "trivial"
+      }
+    ]
+  },
+  "change_rules": [
+    {
+      "trigger": "documentation",
+      "condition": "only (*.md, *.txt)",
+      "resolved_risk": "trivial",
+      "profile": "documentation"
+    },
+    {
+      "trigger": ".agents/governance/**, .agents/workflow/**",
+      "condition": "only markdown/json/yaml",
+      "resolved_risk": "low",
+      "profile": "governance"
+    },
+    {
+      "workspace_target": "@esparex/shared",
+      "default_risk": "medium",
+      "profile": "shared"
+    },
+    {
+      "workspace_target": "@esparex/core",
+      "default_risk": "medium",
+      "profile": "backend"
+    },
+    {
+      "workspace_target": "web",
+      "default_risk": "medium",
+      "profile": "frontend"
+    },
+    {
+      "workspace_target": "admin",
+      "default_risk": "medium",
+      "profile": "frontend"
+    }
+  ],
+  "output_specification": {
+    "schema_version": "1.0",
+    "format": "json",
+    "required_fields": [
+      "workspace",
+      "risk",
+      "checks",
+      "status"
+    ]
   }
 }

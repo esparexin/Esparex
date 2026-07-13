@@ -19,26 +19,35 @@ To ensure consistency and high readability across our Hexagonal Architecture bou
 
 ---
 
-## 2. Shared Building Blocks & Content Budget (Internal Core)
+## 2. Shared Kernel Standard & Content Budget (Internal Core)
 
-The internal core building blocks folder (`core/building-blocks/`) contains basic building blocks, primitives, value objects, and events plumbing consumed universally across multiple bounded contexts. To prevent this folder from slowly degrading into a generic "common" folder, we enforce an objective reference budget and strict content limits:
+The internal core shared folder (`core/shared-kernel/`) contains foundational domain primitives, value objects, base errors, and events plumbing consumed universally across multiple bounded contexts. To prevent this folder from slowly degrading into a generic "common" utilities folder, we enforce an objective reference budget, strict compliance boundaries, and automatically checked CI constraints:
 
-- **Reference Budget Threshold**: Utilities inside `core/building-blocks/` (excluding event bus interfaces) may **only contain code referenced by three or more bounded contexts**.
-- **Building Blocks Size Limit**: Maximum `25` files/classes and `10` directories.
-- **Escalation Trigger**: If a file inside the building-blocks is referenced by fewer than three contexts, or if the size limit is exceeded, the code must be relocated to the specific business domain that consumes it.
+- **Reference Budget Threshold**: Utilities inside `core/shared-kernel/` (excluding event bus interfaces) may **only contain code referenced by three or more bounded contexts**.
+- **Objective Shared Kernel Admission Rules**: An item is eligible for inclusion in `core/shared-kernel/` only if all of the following criteria are true:
+  - [ ] **Used by three or more bounded contexts** (must be consumed universally).
+  - [ ] **Domain agnostic** (contains no business-specific domain context knowledge).
+  - [ ] **No infrastructure dependency** (no imports of database models, schemas, or technical packages).
+  - [ ] **No adapter dependency** (does not depend on any outbound or inbound adapters).
+  - [ ] **No transport dependency** (completely decoupled from HTTP, Express, REST, or messaging controllers).
+  - [ ] **No UI dependency** (contains zero CSS, layout styling, or frontend client logic).
+  - [ ] **Explicit owner** (ownership must be clearly defined in manifests).
+  - [ ] **Unit tested** (100% covered by independent unit tests).
+- **Shared Kernel Size Limit**: Maximum `25` files/classes and `10` directories.
+- **Escalation Trigger**: If a file inside the shared kernel is referenced by fewer than three contexts, or if the size limit is exceeded, the code must be relocated to the specific business domain that consumes it.
 
 ### Content Boundaries
-To prevent general helper functions from bloating the shared folder, we enforce strict binary criteria:
+To prevent general helper functions and delivery/persistence details from bloating the shared kernel, we enforce strict binary criteria:
 
 ```text
-Allowed Core Shared Building Blocks:
+Allowed Core Shared Kernel Building Blocks:
 ✓ Result / Either (Operation outcomes)
 ✓ Money / Percentage / Coordinates (Shared Value Objects)
 ✓ Email / Identifier / UniqueId (Domain Primitive Types)
-✓ DomainError / NotFoundError (Shared Exceptions)
+✓ DomainError / AppError / NotFoundError (Shared Exceptions)
 ✓ Option / Maybe / Clock / Invariant (Standard Platform Primitives)
 
-Forbidden Core Shared Building Blocks:
+Forbidden Core Shared Kernel Elements:
 ✗ DateUtils / StringUtils (Belongs in packages/utils/)
 ✗ PhoneUtils / phoneFormatter (Belongs in packages/utils/)
 ✗ CatalogHelpers (Belongs in core/domains/catalog/)
@@ -78,7 +87,7 @@ Forbidden:
 Concrete events belong strictly to the domain context that owns them.
 - **Domain Events** (e.g. `ListingCreated`): Reside inside their respective domain boundaries under `core/domains/<domain>/domain/events/`.
 - **Integration Events** (e.g. `PaymentCapturedIntegrationEvent`): Reside inside their respective domain boundaries under `core/domains/<domain>/domain/events/` and are exposed via the domain index barrel.
-- **Shared Eventing Plumbing**: Interface contracts like `EventBus`, `EventEnvelope`, `EventSerializer`, and `EventDispatcher` reside globally under `core/building-blocks/events/`. No concrete events are permitted inside this directory.
+- **Shared Eventing Plumbing**: Interface contracts like `EventBus`, `EventEnvelope`, `EventSerializer`, and `EventDispatcher` reside globally under `core/shared-kernel/events/`. No concrete events are permitted inside this directory.
 
 ---
 
@@ -102,7 +111,7 @@ since: 1.0                  # Baseline version
 layer: domain               # Layer classification
 depends_on:                 # Explicit imports
   - shared
-  - core/building-blocks
+  - core/shared-kernel
 public_api:                 # Declared public barrel exports
   facades:
     - CatalogFacade
