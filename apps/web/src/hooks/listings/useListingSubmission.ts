@@ -9,8 +9,8 @@ import type { ListingImage } from "@/types/listing";
 import type { ListingLocation } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
 import { toCanonicalGeoPoint } from "@esparex/shared";
-import { fileToBase64 } from "@/components/user/business-registration/utils";
 import { z } from "zod";
+import { apiClient } from "@/lib/api/client";
 
 import { generateIdempotencyKey } from "@/lib/listings/submissionUtils";
 import { injectApiErrors } from "@/lib/injectApiErrors";
@@ -97,9 +97,11 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
             }
             form.clearErrors("images" as Path<T>);
 
-            // 1. Image Upload Pipeline (Sequential)
+            // 1. Image Upload Pipeline (Sequential S3 Pre-upload)
             const finalImageUrls: string[] = [];
-            for (const img of imagesToProcess) {
+            for (let idx = 0; idx < imagesToProcess.length; idx++) {
+                const img = imagesToProcess[idx];
+                if (!img) continue;
                 if (img.isRemote) {
                     finalImageUrls.push(img.preview);
                     continue;
@@ -113,9 +115,29 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
 
                 if (!img.file) continue;
 
-                // Only convert to base64 if it's a local file and NOT already remote
-                const base64 = await fileToBase64(img.file);
-                finalImageUrls.push(base64);
+                const formData = new FormData();
+                formData.append("image", img.file);
+                formData.append("folder", "ads");
+
+                const csrfToken = (await apiClient.getCsrfToken()) || "";
+                const headers = {
+                    "x-csrf-token": csrfToken,
+                };
+
+                const response = await fetch("/api/upload/ad-image", {
+                    method: "POST",
+                    headers,
+                    body: formData,
+                    credentials: "include",
+                });
+                const payload = await response.json().catch(() => ({} as { success?: boolean; url?: string; error?: string }));
+                const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
+
+                if (!response.ok || !remoteUrl) {
+                    throw new Error(payload?.error || `Failed to upload image ${idx + 1}. Please try again.`);
+                }
+
+                finalImageUrls.push(remoteUrl);
             }
 
             // 2. Payload Construction

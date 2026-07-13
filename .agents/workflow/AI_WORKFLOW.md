@@ -54,6 +54,7 @@ TypeDefinitionExecution PhaseMandatory step producing output required by later p
 
 Lifecycle Overview
 Phase 0    — Context Loading                       [Execution Phase]
+Workflow Gate 0 — Repository Discovery & Reuse     [Execution Gate]
 Phase 1    — Request Analysis                       [Execution Phase]
 Phase 2    — Task Classification                    [Execution Phase]
   Phase 2a–2f — Audit Sub-Phases (only if task = Audit)
@@ -101,6 +102,44 @@ Load .agents/project/PROJECT_CONTEXT.json
 Exit Criteria
 | PASS | Core bootstrap files loaded |
 | FAIL | Any core file missing, corrupt, unreadable |
+
+Workflow Gate 0 — Repository Discovery & Reuse
+Classification: Execution Gate
+Process
+
+Before creating any new component, hook, schema, utility, service, API, context, provider, or helper, the AI must perform a repository-wide search for an existing implementation.
+
+### Mandatory Process
+1. Search the repository for existing implementations.
+2. Identify the canonical Single Source of Truth (SSOT).
+3. Determine whether the existing implementation can:
+   - Be reused,
+   - Be extended, or
+   - Be composed.
+4. Only create a new implementation if no suitable reusable implementation exists.
+5. If a new implementation is required, document the architectural justification.
+6. If a new implementation replaces an existing one, include migration and cleanup of the legacy implementation in the same workstream whenever it is safe to do so.
+
+### Prohibited
+- Creating duplicate components.
+- Creating duplicate hooks.
+- Creating duplicate schemas.
+- Creating duplicate utilities.
+- Creating duplicate API clients.
+- Creating duplicate validation logic.
+- Creating parallel implementations without documented justification.
+
+### Required Output
+Before implementation, report:
+- Existing implementations found.
+- Canonical SSOT selected.
+- Reuse decision.
+- Architectural justification (only if creating something new).
+- Legacy cleanup plan (if applicable).
+
+Exit Criteria
+| PASS | Repository-wide search completed, SSOT selected, reuse/cleanup plan documented |
+| FAIL | Duplicates created without search or justification |
 
 Phase 1 — Request Analysis
 Classification: Execution Phase

@@ -78,7 +78,7 @@ export function usePostServiceFormOrchestration({
         }
     }, [form, loadBrandsForCategory, loadServiceTypes, setValue]);
 
-    const { images, setImages, isFetchingData, businessData } = useGenericListingForm({
+    const { images, setImages, addImages, removeImage, isFetchingData, businessData } = useGenericListingForm({
         form,
         editId: editServiceId,
         onDataLoaded,
@@ -105,6 +105,8 @@ export function usePostServiceFormOrchestration({
     return {
         images,
         setImages,
+        addImages,
+        removeImage,
         isFetchingData,
         businessData,
         onValidSubmit,

@@ -7,7 +7,6 @@ export * from './schemas/catalog.schema';
 export * from './schemas/location.schema';
 export * from './schemas/savedSearch.schema';
 export * from './schemas/smartAlert.schema';
-export * from './schemas/sparePart.schema';
 export * from './schemas/text.schema';
 export * from './schemas/adPayload.schema';
 export * from './schemas/servicePayload.schema';

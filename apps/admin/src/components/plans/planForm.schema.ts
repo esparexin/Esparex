@@ -1,25 +1,42 @@
 import { z } from "zod";
+import { BasePlanPayloadSchema } from "@shared";
+
+const planShape = BasePlanPayloadSchema.shape;
+
+// limits, features, smartAlertConfig are optional schemas in shared. Unwrap them safely.
+const limitsSchema = planShape.limits instanceof z.ZodOptional ? planShape.limits.unwrap() : planShape.limits;
+const limitsShape = limitsSchema.shape;
+
+const featuresSchema = planShape.features instanceof z.ZodOptional ? planShape.features.unwrap() : planShape.features;
+const featuresShape = featuresSchema.shape;
+
+const smartAlertConfigSchema = planShape.smartAlertConfig instanceof z.ZodOptional ? planShape.smartAlertConfig.unwrap() : planShape.smartAlertConfig;
+const smartAlertConfigShape = smartAlertConfigSchema.shape;
+
+const unwrapOptional = <T extends z.ZodTypeAny>(schema: z.ZodOptional<T> | T): T => {
+    return schema instanceof z.ZodOptional ? (schema.unwrap() as T) : (schema as T);
+};
 
 export const planFormSchema = z.object({
-    code: z.string().min(1, "Plan code is required").max(50, "Code too long"),
-    name: z.string().min(1, "Plan name is required").max(100, "Name too long"),
-    description: z.string().max(300, "Description too long").optional(),
-    type: z.enum(["AD_PACK", "SPOTLIGHT", "SMART_ALERT"]),
-    userType: z.enum(["normal", "business", "both"]),
-    price: z.number().finite("Enter a valid price").min(0, "Price cannot be negative"),
+    code: planShape.code,
+    name: planShape.name,
+    description: planShape.description,
+    type: planShape.type,
+    userType: planShape.userType,
+    price: planShape.price,
     currency: z.string().min(1, "Currency is required"),
-    durationDays: z.number().finite("Enter a valid number").int().min(0),
+    durationDays: unwrapOptional(planShape.durationDays).finite("Enter a valid number").int().min(0),
     isDefault: z.boolean(),
     active: z.boolean(),
-    maxAds: z.number().int().min(0),
-    maxServices: z.number().int().min(0),
-    maxParts: z.number().int().min(0),
-    spotlightCredits: z.number().int().min(0),
-    smartAlerts: z.number().int().min(0),
-    matchFrequency: z.enum(["realtime", "hourly", "daily"]),
-    radiusLimitKm: z.number().int().min(1, "Radius must be at least 1 km"),
-    notificationChannels: z.array(z.string()).min(1, "Select at least one notification channel"),
-    priorityWeight: z.number().int().min(1, "Min 1").max(10, "Max 10"),
+    maxAds: unwrapOptional(limitsShape.maxAds).int().min(0),
+    maxServices: unwrapOptional(limitsShape.maxServices).int().min(0),
+    maxParts: unwrapOptional(limitsShape.maxParts).int().min(0),
+    spotlightCredits: unwrapOptional(limitsShape.spotlightCredits).int().min(0),
+    smartAlerts: unwrapOptional(limitsShape.smartAlerts).int().min(0),
+    matchFrequency: smartAlertConfigShape.matchFrequency,
+    radiusLimitKm: unwrapOptional(smartAlertConfigShape.radiusLimitKm).int().min(1, "Radius must be at least 1 km"),
+    notificationChannels: smartAlertConfigShape.notificationChannels,
+    priorityWeight: unwrapOptional(featuresShape.priorityWeight).int().min(1, "Min 1").max(10, "Max 10"),
     businessBadge: z.boolean(),
     canEditAd: z.boolean(),
     showOnHomePage: z.boolean(),

@@ -64,6 +64,20 @@ export {
  * Reduces duplication across validators
  */
 
+export const trimString = (value: unknown): unknown => {
+    if (typeof value !== 'string') return value;
+    return value.trim();
+};
+
+export const optionalTrimmedString = <T extends z.ZodTypeAny>(schema: T) =>
+    z.preprocess((value) => {
+        if (typeof value !== 'string') return value;
+        const trimmed = value.trim();
+        return trimmed === '' ? undefined : trimmed;
+    }, schema.optional());
+
+export const optionalTrimmedStringSchema = optionalTrimmedString(z.string());
+
 // ObjectId validation
 export const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId');
 

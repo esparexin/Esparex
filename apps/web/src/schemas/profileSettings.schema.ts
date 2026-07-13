@@ -4,17 +4,7 @@ import { MOBILE_VISIBILITY, BUSINESS_LIMITS } from "@esparex/shared";
 
 import { DELETE_ACCOUNT_REASONS } from "@/components/user/profile/types";
 
-const trimString = (value: unknown): unknown => {
-  if (typeof value !== "string") return value;
-  return value.trim();
-};
-
-const optionalTrimmedString = <T extends z.ZodString>(schema: T) =>
-  z.preprocess((value) => {
-    if (typeof value !== "string") return value;
-    const trimmed = value.trim();
-    return trimmed === "" ? undefined : trimmed;
-  }, schema.optional());
+import { trimString, optionalTrimmedString } from "@shared";
 
 export const profileFormSchema = z.object({
   name: z.preprocess(

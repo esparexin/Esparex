@@ -71,7 +71,7 @@ export function usePostSparePartFormOrchestration({
         ]);
     }, [loadBrandsForCategory, loadSparePartsForCategory]);
 
-    const { images, setImages, isFetchingData, businessData } = useGenericListingForm({
+    const { images, setImages, addImages, removeImage, isFetchingData, businessData } = useGenericListingForm({
         form,
         editId: editSparePartId,
         onDataLoaded: async (payload) => {
@@ -99,6 +99,8 @@ export function usePostSparePartFormOrchestration({
     return {
         images,
         setImages,
+        addImages,
+        removeImage,
         isFetchingData,
         businessData,
         onValidSubmit,

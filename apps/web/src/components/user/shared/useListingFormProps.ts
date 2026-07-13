@@ -2,8 +2,6 @@ import { useRouter } from "next/navigation";
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import { ListingImage } from "@/types/listing";
 import {
-    appendListingImages,
-    removeListingImageById,
     getBusinessLocationDisplay,
     type MaybeBusinessLocation,
 } from "./listingFormShared";
@@ -19,7 +17,8 @@ type GenericListingFormValues = FieldValues & {
 export function useListingFormProps<TFormValues extends GenericListingFormValues>({
     form,
     images,
-    setImages,
+    onImageUpload,
+    onImageRemove,
     isEditMode,
     isSubmitting,
     onValidSubmit,
@@ -27,7 +26,8 @@ export function useListingFormProps<TFormValues extends GenericListingFormValues
 }: {
     form: UseFormReturn<TFormValues>;
     images: ListingImage[];
-    setImages: React.Dispatch<React.SetStateAction<ListingImage[]>>;
+    onImageUpload: (files: File[]) => void;
+    onImageRemove: (id: string) => void;
     isEditMode: boolean;
     isSubmitting: boolean;
     onValidSubmit: (data: TFormValues) => Promise<void | unknown>;
@@ -43,8 +43,8 @@ export function useListingFormProps<TFormValues extends GenericListingFormValues
         isSubmitting,
         isEditMode,
         images,
-        onImageUpload: (files: File[]) => setImages(prev => appendListingImages(prev, files)),
-        onImageRemove: (id: string) => setImages(prev => removeListingImageById(prev, id)),
+        onImageUpload,
+        onImageRemove,
         locationDisplay: getBusinessLocationDisplay(businessData?.location),
     };
 }

@@ -1,50 +1,31 @@
 import { z } from "zod";
+import { smartAlertCriteriaSchema, smartAlertBodySchema } from "@shared";
 
-const trimString = (value: unknown): unknown => {
-  if (typeof value !== "string") return value;
-  return value.trim();
-};
+// criteriaSchema has .superRefine, so it's a ZodEffects. Use .innerType() to get ZodObject.
+const criteriaSchema = smartAlertCriteriaSchema instanceof z.ZodEffects ? smartAlertCriteriaSchema.innerType() : smartAlertCriteriaSchema;
+const criteriaShape = criteriaSchema.shape;
 
-const optionalTrimmedString = <T extends z.ZodString>(schema: T) =>
-  z.preprocess((value) => {
-    if (typeof value !== "string") return value;
-    const trimmed = value.trim();
-    return trimmed === "" ? undefined : trimmed;
-  }, schema.optional());
+// bodySchema is a ZodObject (with .strict())
+const bodyShape = smartAlertBodySchema.shape;
 
 export const smartAlertFormSchema = z.object({
-  name: z.preprocess(
-    trimString,
-    z
-      .string()
-      .min(3, "Alert name must be between 3 and 50 characters.")
-      .max(50, "Alert name must be between 3 and 50 characters.")
-  ),
-  keywords: z.preprocess(
-    trimString,
-    z
-      .string()
-      .min(1, "Search keywords are required.")
-      .max(150, "Search keywords must be 150 characters or fewer.")
-  ),
-  category: optionalTrimmedString(
-    z.string().max(80, "Category must be 80 characters or fewer.")
-  ),
-  location: optionalTrimmedString(
-    z.string().max(120, "Location must be 120 characters or fewer.")
-  ),
-  radiusKm: z.coerce
-    .number({ message: "Radius must be a number." })
-    .min(1, "Radius must be between 1 and 500 km.")
-    .max(500, "Radius must be between 1 and 500 km."),
-  notificationChannels: z.array(z.enum(['email', 'sms', 'push'])).min(1, "Select at least one notification channel.").max(3),
-  locationId: z.string().optional().nullable(),
-  brand: optionalTrimmedString(z.string()),
-  model: optionalTrimmedString(z.string()),
-  minPrice: z.coerce.number().min(0).optional(),
-  maxPrice: z.coerce.number().min(0).optional(),
-  condition: optionalTrimmedString(z.string()),
-  state: optionalTrimmedString(z.string()),
+  name: z.string()
+    .min(3, "Alert name must be between 3 and 50 characters.")
+    .max(50, "Alert name must be between 3 and 50 characters."),
+  keywords: z.string()
+    .min(1, "Search keywords are required.")
+    .max(150, "Search keywords must be 150 characters or fewer."),
+  category: criteriaShape.category,
+  location: criteriaShape.location,
+  radiusKm: bodyShape.radiusKm instanceof z.ZodOptional ? bodyShape.radiusKm.unwrap() : bodyShape.radiusKm,
+  notificationChannels: bodyShape.notificationChannels instanceof z.ZodOptional ? bodyShape.notificationChannels.unwrap() : bodyShape.notificationChannels,
+  locationId: criteriaShape.locationId,
+  brand: criteriaShape.brand,
+  model: criteriaShape.model,
+  minPrice: criteriaShape.minPrice,
+  maxPrice: criteriaShape.maxPrice,
+  condition: criteriaShape.condition,
+  state: criteriaShape.state,
 });
 
 export type SmartAlertFormValues = z.infer<typeof smartAlertFormSchema>;
