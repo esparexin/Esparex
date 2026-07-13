@@ -39,7 +39,7 @@ export function useCategoryDependents(
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
-        form.setValue("deviceCondition", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
         setBrandIsPending(false);
         
         await Promise.all([
@@ -65,7 +65,7 @@ export function useCategoryDependents(
             form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
             form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
             form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
-            form.setValue("deviceCondition", "", { shouldValidate: true, shouldDirty: true });
+            form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
         }
 
         if (brandId) {
