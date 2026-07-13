@@ -1,4 +1,4 @@
-# ADR-008: Domain Architecture, Bounded Contexts & Internal Core Hierarchy
+# ADR-008: Domain Architecture, Bounded Contexts & Implementation Governance
 
 **Status**: Accepted
 **Date**: 2026-07-13
@@ -10,16 +10,16 @@
 
 ## 1. Context & Architectural Challenge
 
-While [ADR-007](./ADR-007-monorepo-package-topology.md) defines the macro-level **Repository Topology** (`apps/`, `services/`, `core/`, `packages/`), the internal architecture of `@esparex/core` (`core/`) requires rigorous boundary definitions.
+While [ADR-007](./ADR-007-monorepo-package-topology.md) defines the macro-level **Repository Topology** (`apps/`, `services/`, `core/`, `packages/`), the internal architecture of `@esparex/core` (`core/`) requires rigorous boundary definitions and automated compliance.
 
 Currently, `core/` contains over 11 distinct business capabilities (e.g., *Listings, Catalog, Payments, Chat, Alerts, Users, Moderation, Analytics, AI, Fraud, Authentication*) organized largely under a single flat directory (`core/services/` containing 90+ service files).
 
-Without internal boundary enforcement and strict domain vs. infrastructure separation, multiple engineering squads modifying code inside `core/` face:
+Without internal boundary enforcement, automated fitness functions, and strict domain vs. infrastructure separation, multiple engineering squads modifying code inside `core/` face:
 1. **High merge conflict frequency**: Modifying `core/services/` touches a shared global namespace.
 2. **Coupled domain rules**: Service files directly instantiating or querying Mongoose models across unrelated business lines (`payments` querying `chat` schemas directly).
 3. **Infrastructure leakage**: Third-party SDKs (`Razorpay`, `Cloudinary`) and persistence details (`Mongoose` schemas, `BullMQ` queues) intermingled with pure business policies.
 
-This decision record establishes our **Stage 2 Domain Consolidation Hierarchy**, separates pure domain logic from infrastructure/integrations, defines standard **Bounded-Context Ownership Rules**, and sets the graduation criteria for **Stage 5 Autonomous Domain Extraction**.
+This decision record establishes our **Stage 2 Domain Consolidation Hierarchy**, enforces **Public API Barrel Encapsulation (`index.ts`)**, defines our **Machine-Readable Dependency Rule Matrix**, sets up self-describing **Domain Manifests (`manifest.yaml`)**, and governs **Automated Architectural Fitness Functions**.
 
 ---
 
@@ -29,24 +29,10 @@ Inside `@esparex/core`, code must be structured into four distinct, highly cohes
 
 ```text
 core/
-├── domains/                       # Pure bounded business contexts
-│   ├── <domain-a>/                # e.g., catalog/
-│   ├── <domain-b>/                # e.g., listings/
-│   └── <domain-c>/                # e.g., payments/
-│
-├── integrations/                  # External vendor & third-party API adapters
-│   ├── razorpay/                  # Payment gateway SDK wrappers & webhook parsers
-│   ├── cloudinary/                # Image manipulation & CDN storage adapters
-│   └── zeptomail/                 # Transactional email delivery adapters
-│
-├── infrastructure/                # Replaceable persistence & caching adapters
-│   ├── persistence/               # Mongoose schema registrations & repository adapters
-│   ├── queues/                    # BullMQ job queue wrappers
-│   └── cache/                     # Redis cache layer wrappers
-│
-└── common/                        # Shared domain kernel & cross-cutting utilities
-    ├── errors/                    # Standardized domain error classes (`DomainError`)
-    └── events/                    # In-memory or Redis domain event bus (`DomainEventBus`)
+├── domains/                       # Pure bounded business contexts (`<domain-a>`, `<domain-b>`)
+├── integrations/                  # External vendor & third-party API adapters (`razorpay/`, `cloudinary/`)
+├── infrastructure/                # Replaceable persistence & caching adapters (`persistence/`, `queues/`)
+└── common/                        # Shared domain kernel & cross-cutting utilities (`errors/`, `events/`)
 ```
 
 ### Separation of Domain vs. Infrastructure
@@ -62,70 +48,96 @@ core/
 
 ---
 
-## 3. Bounded-Context Structure & Ownership Model
+## 3. Public API Enforcement & Barrel Encapsulation (`index.ts`)
 
-To ensure every bounded context inside `core/domains/*` can graduate cleanly to an autonomous top-level domain (`Stage 5`), each domain folder follows a standardized internal layout and strict ownership boundaries.
+To prevent tight coupling between distinct bounded contexts, every domain inside `core/domains/*` must strictly encapsulate its private implementations:
 
-### Standard Bounded-Context Directory Layout (`core/domains/<domain-name>/`)
+### Rule: 100% Barrel Encapsulation via `index.ts`
+Every bounded context must expose only its public API through a root `index.ts` file (`Public Facades, Public DTOs, Public Domain Events, Abstract Repository Interfaces`). Everything outside of what is explicitly exported in `index.ts` is strictly private to that domain squad.
+
 ```text
-core/domains/<domain-name>/
-├── models/                        # Pure TypeScript domain entities & value objects
-├── services/                      # Domain services implementing business workflows
-├── policies/                      # Business rule engines & guard policies
-├── validation/                    # Zod / Joi domain validation schemas
-├── events/                        # Domain event definitions (`<Domain>Event`)
-├── repositories/                  # Abstract repository interfaces (`I<Domain>Repository`)
-└── index.ts                       # Public domain barrel (exports ONLY public contracts & facades)
+❌ Forbidden Deep Implementation Import (Breaks Encapsulation):
+import { internalHelper } from "@esparex/core/domains/catalog/services/internalHelper";
+
+✅ Required Public Facade Import:
+import { CatalogFacade, ICatalogRepository } from "@esparex/core/domains/catalog";
 ```
 
-### Bounded-Context Ownership Specification Example: `Catalog Domain`
-```text
-Catalog Domain (`core/domains/catalog`)
-├── Owns:
-│   ✓ Models (`Category`, `CategoryAttribute`, `HierarchyNode`)
-│   ✓ Services (`CatalogResolutionPolicy`, `CatalogSearchGovernanceService`)
-│   ✓ Validation (`catalog.validator.ts`)
-│   ✓ Policies (`AttributeRequiredPolicy`, `CategoryEligibilityGuard`)
-│   ✓ Domain Events (`category.created`, `attribute.updated`)
-│   ✓ Repositories (`ICategoryRepository` abstraction interface)
-└── Does NOT Own (Strictly Forbidden):
-    ✗ HTTP Transport / Express Routes (`services/api/routes/catalog.router.ts`)
-    ✗ React Components / Hooks (`apps/web/src/components/Catalog/`)
-    ✗ Redis Connection Bootstrapping (`backend/api/src/config/redis.ts`)
-    ✗ Express Middleware / JWT Decoding (`shared/middleware/auth.ts`)
-```
-
-### Inter-Domain Communication Rules
-When one bounded context requires data or capabilities from another (e.g., `listings` requires category attribute validation from `catalog`):
-1. **Direct internal imports are prohibited**: `core/domains/listings` cannot import internal implementation files from `core/domains/catalog/services/internalHelper.ts`.
-2. **Public Facade / Barrel Only**: Communication must occur strictly via the target domain's public barrel export (`import { CatalogFacade } from '../catalog'`).
-3. **Domain Event Bus**: Asynchronous cross-domain reactions (`listing.published` triggering smart alert matching in `alerts`) must use the shared `DomainEventBus` (`core/common/events`) rather than direct synchronous service coupling.
+Enforced automatically by `dependency-cruiser` (`no-deep-domain-imports` rule prohibiting imports across `core/domains/*/src/*` or deep subdirectories).
 
 ---
 
-## 4. Graduation to Stage 5: Autonomous Domain Extraction
+## 4. Machine-Readable Dependency Rule Matrix (`ADR-009 Specification`)
 
-When a bounded context inside `core/domains/<domain-name>/` achieves organizational autonomy and high change frequency, it is eligible for mechanical extraction to a top-level workspace (`domains/<domain-name>`) per [ADR-007 Stage 5](./ADR-007-monorepo-package-topology.md).
+To ensure zero duplication between governance documentation and our `dependency-cruiser` tooling, all inter-module boundary relationships must conform strictly to the **Dependency Rule Matrix**:
 
-```text
-Mechanical Stage 5 Extraction Path:
-core/domains/<domain-name>  ───(git mv)───►  domains/<domain-name>
-```
-
-### Graduation Gate Criteria (`core/domains/*` → `domains/*`)
-A domain context inside `core/` may only graduate to a standalone top-level package if it satisfies all four criteria:
-1. **Zero Sideways Implementation Coupling**: The context does not import any internal private files from other domains inside `core/domains/`.
-2. **Dedicated Squad Ownership**: An autonomous engineering squad explicitly owns the domain's roadmap, SLAs, and release lifecycle (`Principle 5`).
-3. **Independent Deployment or Publishing Need**: The domain requires independent npm publishing (e.g., sharing with an external enterprise partner) or standalone micro-service runtime execution (`services/catalog-worker`).
-4. **Clean Abstraction Compliance**: The domain depends purely on abstract repository interfaces (`I<Domain>Repository`), allowing its infrastructure adapters (`persistence/`) to be wired at the service runtime boundary without code modification.
+| From Module Layer | To Module Layer | Allowed? | Architectural Rationale & Enforcement Rule |
+|---|---|---|---|
+| **`apps/*`** | **`services/*`** | ✅ **Yes** | Client UI applications invoke backend REST/WebSocket runtimes via network/transport APIs. |
+| **`apps/*`** | **`core/` / `domains/*`** | ❌ **No** | Deployable client UIs cannot import backend domain logic or server database abstractions directly (`no-frontend-imports-from-core`). |
+| **`apps/*`** | **`contracts`** (`@esparex/shared`) | ✅ **Yes** | Client UIs share universal DTOs, schemas, types, and enums with backend services. |
+| **`services/*`** | **`core/` / `domains/*`** | ✅ **Yes** | Transport controllers/workers delegate business execution to domain facades. |
+| **`services/*`** | **`contracts`** (`@esparex/shared`) | ✅ **Yes** | Backend controllers validate payloads against universal schemas. |
+| **`core/` / `domains/*`** | **`contracts`** (`@esparex/shared`) | ✅ **Yes** | Domain entities and facades implement or validate against universal contracts. |
+| **`core/` / `domains/*`** | **`services/*` / `apps/*`** | ❌ **No** | Business logic must never depend on delivery engines or transport routers (`no-core-imports-from-backend`). |
+| **`contracts`** | **Anything else** | ❌ **No** | Universal contracts must be 100% standalone and platform-neutral (`no-shared-imports-from-core`). |
 
 ---
 
-## 5. Summary & Stage 2 Execution Strategy
+## 5. Domain Manifest Specification (`manifest.yaml`)
 
-By adopting [ADR-008](./ADR-008-domain-architecture-and-bounded-contexts.md) alongside [ADR-007](./ADR-007-monorepo-package-topology.md), Esparex establishes:
-- **Macro-level clean topology** (`apps/`, `services/`, `packages/contracts`, `core/`).
-- **Micro-level domain hygiene** (`core/domains/`, `core/integrations/`, `core/infrastructure/`, `core/common/`).
-- **Mechanical extraction paths** (`core/domains/<domain>` → `domains/<domain>`).
+When a bounded context inside `core/domains/<domain-name>/` begins preparing for autonomous graduation (`Stage 5`), or when multiple engineering squads collaborate across bounded boundaries, every domain must maintain a self-describing **`manifest.yaml`** at its root:
 
-Engineering teams execute **Stage 2 Domain Consolidation** incrementally during everyday feature development by grouping new and modified services into their respective `core/domains/<domain-name>` folders while maintaining 100% test coverage across our 540 automated test suites.
+```yaml
+# core/domains/catalog/manifest.yaml
+id: catalog
+name: Catalog Domain
+owner: catalog-squad@esparex.in
+status: active
+depends_on:
+  - contracts (@esparex/shared)
+  - core/common/errors
+  - core/common/events
+public_api:
+  facades:
+    - CatalogFacade
+    - CatalogSearchGovernanceService
+  repositories:
+    - ICategoryRepository
+    - IHierarchyRepository
+events_emitted:
+  - category.created
+  - category.updated
+  - attribute.deprecated
+events_consumed:
+  - listing.published
+```
+
+This manifest makes our architecture self-describing, enables automated CI architecture scorecards, and prevents untracked dependency drift.
+
+---
+
+## 6. Implementation Governance & Automated Fitness Functions
+
+To ensure our architecture program (`ADR-007` & `ADR-008`) never drifts into theoretical prose, we enforce **Automated Architectural Fitness Functions** across every build and pull request:
+
+### 1. Automated Fitness Functions (CI Gates)
+- **`guard:dependencies`**: `dependency-cruiser` continuously verifies our Dependency Rule Matrix, prohibiting deep domain imports, upward layer imports, and circular dependencies (`E-001`–`E-006`).
+- **`guard:public-api`**: AST linting (`@typescript-eslint/no-restricted-imports`) verifies that cross-domain imports originate strictly from public barrels (`index.ts`).
+- **`guard:infrastructure-isolation`**: Static analysis verifies that files under `core/domains/*` contain zero imports from `mongoose`, `bullmq`, `redis`, `express`, or `aws-sdk`.
+
+### 2. Architecture Scorecard & Release Telemetry
+Every release pipeline automatically aggregates and reports our **Architecture Scorecard**:
+- **Domain Coupling Ratio**: Percentage of inter-domain dependencies passing through public facades vs. internal files (Target: 100% public facade).
+- **Circular Dependency Count**: Enforced at exact 0.
+- **Domain Ownership Coverage**: Percentage of `core/domains/*` modules with a valid `manifest.yaml` and assigned squad owner (Target: 100%).
+- **Package Integrity & Size**: Monitored across all 5 workspaces (`web`, `admin`, `mobile`, `backend-api`, `core`, `shared`).
+
+---
+
+## 7. Summary & Execution Mandate
+
+With our architecture program complete and fully verifiable via machine-readable specifications:
+1. **No Further Structural ADRs Required**: Architecture documentation is mature and locked (`ADR-001` through `ADR-008`).
+2. **Immediate Implementation Focus**: We shift 100% of engineering bandwidth from expanding documentation to **Implementation Governance**—gradually restructuring `core/` into `domains/`, `integrations/`, `infrastructure/`, and `common/` during feature sprints while automating compliance via CI fitness functions.
+3. **High-Return Technical Debt**: We prioritize clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) and shipping product capabilities across our governed bounded contexts.
