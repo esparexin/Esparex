@@ -1,0 +1,18 @@
+id: {{id}}
+name: {{Name}} Domain
+owner: {{owner}}
+business_owner: Marketplace
+technical_owner: Platform
+maturity: {{stability}}
+visibility: public
+stability: {{stability}}
+criticality: medium
+sla: tier-2
+since: "1.0"
+layer: domain
+depends_on:
+  - shared
+  - core/shared-kernel
+public_api:
+  facades: []
+  ports: []
