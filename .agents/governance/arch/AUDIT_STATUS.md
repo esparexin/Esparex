@@ -26,10 +26,10 @@ Evaluates whether each package strictly obeys **Single Responsibility** and **Pl
 
 | Phase | Audit | Outcome | Last Run | Next Scheduled | Primary Observations & Exceptions |
 |---|---|---|---|---|---|
-| 1 | **Repository Topology** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | `core/` root placement documented as accepted tradeoff (ADR-005). `apps/mobile/` documented as infrastructure wrapper (`README.md`). |
+| 1 | **Repository Topology** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Current topology (`core` and `shared` at root) is the accepted baseline for `v1.0` (`ADR-005`, `ADR-007`) and remains valid until a future restructuring is approved through an ADR. `apps/mobile/` documented as infrastructure wrapper (`EX-001`). |
 | 2 | **Dependency Boundary** | `PASS` | 2026-07-13 | On structural change | 0 violations across 2,000 modules and 7,140 dependencies. Automated rules active (`no-frontend-imports-from-core`, `no-shared-imports-from-core`). |
 | 3 | **Architecture Justification & Responsibility** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Domain/delivery split verified with git history and build pipeline (ADR-005). Defect `DF-001` (`hmacSignature.ts`) purged. Decision Pending `DP-001` logged. |
-| 4 | **Future-State Review** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Current topology confirmed as optimal greenfield choice. Root placements justified per domain reusability. |
+| 4 | **Future-State Review** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | `v2.0` Enterprise Blueprint (`apps/`, `services/`, `packages/`, `infrastructure/`, `docs/`, `tooling/`) documented in `ADR-007` as roadmap target for multi-runtime worker scaling (`R-001`). |
 | 5 | **Architectural Complexity** | `PASS WITH OBSERVATIONS` | 2026-07-13 | On structural change | Score **9.6/10**. All packages justified. 8 barrel files in `core/services/` verified as active controller aliases. |
 | 6 | **Architectural Fitness** | `PASS WITH OBSERVATIONS` | 2026-07-13 | 2027-01 (6 months) | Architecture fit for current scale. `catalog` and `payments` approaching bounded-context thresholds. `backend/worker/` extraction identified as next growth evolution. |
 | 7 | **Implementation** | `ONGOING` | Continuous | Per feature/commit | 206 pre-existing `any` / unused variable warnings in `core/` tracked via ESLint. Type-check clean across all 5 workspaces. |
