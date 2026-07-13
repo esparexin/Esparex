@@ -13,9 +13,9 @@ category: form-behavior
 # Dependency Reset Matrix — Post Ad Flow
 
 **Status:** APPROVED BUSINESS RULE
-**Version:** 1.2
-**Pending Rules:** BR-010 (needs catalog verification), BR-015 (awaiting business approval)
-**Scope:** Any flow that contains the Category → Brand → Model → Screen Size → Device Condition → Spare Parts dependency chain.
+**Version:** 1.3
+**Pending Rules:** BR-015 (awaiting business approval)
+**Scope:** Any flow that contains the Category → Brand → [Model | Screen Size] → Device Condition → Spare Parts dependency chain.
 
 This document is the Single Source of Truth for cascade reset behavior. It governs frontend form behavior, backend validation, and QA test cases. Any implementation that contradicts this matrix is incorrect.
 
@@ -40,7 +40,7 @@ Every rule in this document has a unique Business Rule ID (BR-NNN). These IDs mu
 | BR-007 | Brand resets Screen Size |
 | BR-008 | Brand resets Device Condition |
 | BR-009 | Brand resets Spare Parts |
-| BR-010 | Model resets Screen Size |
+| BR-010 | **RECLASSIFIED:** Screen Size replaces Model when `hasScreenSizes = true`. They are mutually exclusive. |
 | BR-011 | Model resets Device Condition |
 | BR-012 | Model resets Spare Parts |
 | BR-013 | Screen Size resets Spare Parts |
@@ -58,10 +58,7 @@ Category
 Brand
     │
     ▼
-Model
-    │
-    ▼
-Screen Size
+[ Model ] OR [ Screen Size ] (Mutually exclusive based on category.hasScreenSizes)
     │
     ▼
 Device Condition
@@ -118,18 +115,18 @@ When the user changes Brand, everything below Brand may no longer be valid.
 
 ---
 
-### Rule 3 — Model changes (BR-010 · BR-011 · BR-012)
+### Rule 3 — Model changes (BR-011 · BR-012)
 
 When the user changes Model, everything below Model may no longer be valid.
 
 **Reset:**
-- ✅ Screen Size — **BR-010**
 - ✅ Device Condition — **BR-011**
 - ✅ Available Spare Parts (selected items) — **BR-012**
 
 **Do NOT reset:**
 - ❌ Category
 - ❌ Brand
+- ❌ Screen Size (Not applicable: mutually exclusive with Model) — **BR-010**
 - ❌ Title
 - ❌ Description
 - ❌ Images
@@ -174,8 +171,8 @@ When the user changes Screen Size, compatible spare parts may no longer be valid
 |----------|-------------|------------|----------------|
 | BR-001–005 | Category | Brand, Model, Screen Size, Device Condition, Spare Parts | Title, Description, Images, Location, Price |
 | BR-006–009 | Brand | Model, Screen Size, Device Condition, Spare Parts | Category, Title, Description, Images, Location, Price |
-| BR-010–012 | Model | Screen Size, Device Condition, Spare Parts | Category, Brand, Title, Description, Images, Location, Price |
-| BR-013 | Screen Size | Spare Parts | Category, Brand, Model, Device Condition, Title, Description, Images, Location, Price |
+| BR-011–012 | Model | Device Condition, Spare Parts | Category, Brand, Screen Size (N/A), Title, Description, Images, Location, Price |
+| BR-013 | Screen Size | Spare Parts | Category, Brand, Model (N/A), Device Condition, Title, Description, Images, Location, Price |
 | BR-014 | Device Condition | Nothing | Everything else |
 | BR-015 | Any destructive reset | Show confirmation dialog | — |
 
@@ -244,7 +241,7 @@ This business rule must be enforced at every applicable layer:
 | BR-001–005 | Category does not clear content | Change category | Title, Description, Images, Location, Price unchanged |
 | BR-006–009 | Brand → all dependents | Change brand | Model, Screen Size, Device Condition, Spare Parts cleared |
 | BR-006 | Brand does not clear category | Change brand | Category unchanged |
-| BR-010–012 | Model → all dependents | Change model | Screen Size, Device Condition, Spare Parts cleared |
+| BR-011–012 | Model → all dependents | Change model | Device Condition, Spare Parts cleared |
 | BR-013 | Screen Size → Spare Parts | Change screen size | Spare Parts cleared; Device Condition unchanged |
 | BR-014 | Device Condition → nothing | Change device condition | No other field changes |
 | BR-015 | Cancel confirmation | Trigger Brand change, click Cancel | Brand unchanged; downstream fields unchanged |
