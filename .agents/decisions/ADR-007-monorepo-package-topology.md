@@ -49,7 +49,7 @@ apps/* (UI Presentation Layer: web, admin, mobile)
 services/* (Server Delivery Runtimes: api, worker, scheduler, ai)
    │
    ▼  (prohibits transport leakage into domain rules)
-core/ (pure business domain capabilities, ports, adapters, kernel)
+core/ (pure business domain capabilities, ports, adapters, foundation)
    │
    ▼  (prohibits domain leakage into universal contracts/foundation)
 packages/* / shared/ (Universal cross-platform scope: contracts, foundation, utils, config)
@@ -123,7 +123,7 @@ core/
 │   ├── mail/
 │   ├── search/
 │   └── observability/
-├── kernel/
+├── foundation/
 └── events/
     ├── domain/
     └── integration/
@@ -184,6 +184,6 @@ With our architecture direction locked and governed (`ADR-001` through `ADR-009`
 - **ADR-010: Eventing & Messaging Strategy** (defining Domain vs. Integration Events, Saga Orchestration, DLQ, and Event Versioning/Replay).
 
 We transition 100% of engineering bandwidth to **Implementation Governance**:
-1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `kernel/` sprint-by-sprint alongside product delivery.
-2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/`.
+1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `foundation/` sprint-by-sprint alongside product delivery.
+2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts under `tooling/architecture/` (`verify-boundaries.ts`, `verify-public-api.ts`).
 3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.

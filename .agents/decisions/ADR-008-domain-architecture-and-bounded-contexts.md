@@ -32,7 +32,7 @@ To separate concerns, the `core` codebase is organized into five timeless quadra
   - `core/adapters/inbound/` — Handles entry transport points (REST/WebSocket controllers, webhook listeners, CLI commands).
   - `core/adapters/outbound/` — Implements outgoing port interfaces (Mongo persistence adapters, external vendor dispatchers).
 - **`core/infrastructure/`** — Concrete database persistence and technical capabilities.
-- **`core/kernel/`** — Shared, domain-agnostic value objects and primitives.
+- **`core/foundation/`** — Shared, domain-agnostic value objects and primitives.
 - **`core/events/`** — Shared domain event definitions and the event bus.
 
 ### 2. Internal Bounded-Context Layout
