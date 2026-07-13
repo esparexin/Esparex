@@ -118,3 +118,17 @@ public_api:                 # Declared public barrel exports
   ports:
     - CategoryRepositoryPort
 ```
+
+---
+
+## 6. Bounded Context Reference Implementation
+
+The Catalog context represents the baseline Reference Architecture for all bounded contexts in the Esparex codebase:
+
+- **Reference Commit**: `2860b4d`
+- **Modularity Checklist**:
+  - **Public API**: Exposed strictly via barrel index [index.ts](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/src/domains/catalog/index.ts). No deep internal imports allowed.
+  - **Decoupled Business Services**: Core domain validations/services contain zero mongoose, direct database model imports, or query builders.
+  - **Ports & Adapters Separation**: Port interfaces define business capabilities ([CategoryRepositoryPort.ts](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/src/domains/catalog/ports/CategoryRepositoryPort.ts)). Concrete repositories ([MongoCategoryRepository.ts](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/src/adapters/outbound/database/catalog/MongoCategoryRepository.ts)) map raw database formats to domain models.
+  - **Pure Entities**: Domain models mapped by adapters are plain, read-only JS/TS objects with immutable configuration.
+  - **Dependency Guards**: Regressions are blocked automatically by Dependency Cruiser and circularity checks in CI.
