@@ -90,7 +90,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
                         <Field label="Model" error={modelError} className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] pointer-events-none")}>
                             {!brandNameValue ? <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">Select brand first...</div>
                                 : <ModelSearchSelect brandId={brandIdValue} brandName={brandNameValue} categoryId={categoryId} value={modelId || modelNameValue} modelDisplayName={modelNameValue}
-                                    onChange={(mId, mName, rId) => { const aid = mId || rId || ""; setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); }}
+                                    onChange={(mId, mName, rId) => { const aid = mId || rId || ""; setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); setValue("deviceCondition", "", { shouldValidate: true, shouldDirty: true }); setValue("spareParts", [], { shouldValidate: true, shouldDirty: true }); }}
                                     onBrandResolved={(rbId, rbName) => { setValue("brandId", rbId, { shouldDirty: true }); setValue("brand", rbName, { shouldDirty: true }); }} listingId={listingId} />}
                         </Field>
                     </div>}
@@ -101,7 +101,7 @@ export default function DeviceIdentityFields({ currentStep = 1 }: { currentStep?
                         <div className="space-y-3">{dynamicAttributeFilters.map((f) => renderAttributeField(f, getAttributeValue(attributes, f.id) ?? f.defaultValue, shouldShowFieldError(`attributes.${f.id}`) ? (getNestedFieldMeta(errors, `attributes.${f.id}.message`) as string | undefined) : undefined, updateAttribute))}</div>
                     </section> : null}
                     {requiresScreenSize && <Field label="Screen Size" error={screenSizeError} className={cn(isEditMode && "opacity-60 pointer-events-none")}>
-                        <Select value={screenSize || undefined} onValueChange={(val) => setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true })}>
+                        <Select value={screenSize || undefined} onValueChange={(val) => { setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); setValue("spareParts", [], { shouldValidate: true, shouldDirty: true }); }}>
                             <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-foreground focus:border-primary transition-colors px-3 text-sm"><SelectValue placeholder="Select size" /></SelectTrigger>
                             <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border-2 border-slate-100 shadow-xl">
                                 {availableSizes.map((size) => <SelectItem key={size} value={size} className="font-medium py-2.5 px-3 text-sm">{size}</SelectItem>)}
