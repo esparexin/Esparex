@@ -161,3 +161,7 @@ scratch/
 ci-lint-results.json
 .eslintcache
 .eslintcache/
+
+# Architecture platform generated outputs (reports, registry, metrics history)
+# These are intentionally git-ignored. Commit snapshots manually if desired.
+.tooling/

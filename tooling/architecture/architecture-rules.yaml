@@ -1,0 +1,74 @@
+# Architecture Platform Rules
+# Version 1 — loaded by verify-architecture.ts and all check plugins.
+# Bump `version` when making breaking changes to the rule schema.
+
+version: 1
+
+# ---------------------------------------------------------------------------
+# Naming suffix rules
+# ---------------------------------------------------------------------------
+ports:
+  suffix:
+    - Port
+    - RepositoryPort
+
+adapters:
+  suffix:
+    - Adapter
+    - RepositoryAdapter
+
+# ---------------------------------------------------------------------------
+# Public barrel enforcement
+# ---------------------------------------------------------------------------
+barrels:
+  required: true
+
+# ---------------------------------------------------------------------------
+# Domain size thresholds (file counts, excluding tests)
+# ---------------------------------------------------------------------------
+max_domain_files: 40
+max_domain_largest: 80
+
+# ---------------------------------------------------------------------------
+# Forbidden imports inside domain/ and ports/ directories
+# Non-type imports of any of these modules are boundary violations.
+# ---------------------------------------------------------------------------
+forbidden_in_domain:
+  - mongoose
+  - express
+  - ioredis
+  - redis
+  - cloudinary
+  - razorpay
+
+# ---------------------------------------------------------------------------
+# Severity classification
+# Each named check id maps to a severity tier.
+# ---------------------------------------------------------------------------
+severity:
+  critical:
+    - boundary_violation
+    - circular_dependency
+  high:
+    - missing_manifest
+    - deep_import_violation
+    - manifest_schema_error
+  medium:
+    - persistence_leak
+    - legacy_bridge
+    - naming_violation
+    - unknown_dependency
+  low:
+    - unused_port
+    - unused_adapter
+    - missing_owner
+
+# ---------------------------------------------------------------------------
+# Score penalty per severity tier.
+# Score starts at 100 and each violation deducts its tier's weight.
+# ---------------------------------------------------------------------------
+score_weights:
+  critical: 15
+  high: 10
+  medium: 5
+  low: 2
