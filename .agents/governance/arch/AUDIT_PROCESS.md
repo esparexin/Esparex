@@ -25,7 +25,7 @@
 |---|---|---|---|
 | 1 | Repository Topology Audit | Per major structural change | New package, new directory, new workspace |
 | 2 | Dependency Boundary Audit | Per major structural change | Above, plus any change to `dependency-cruiser.js` |
-| 3 | Architecture Justification Audit | Per major structural change | Above, plus any new ADR |
+| 3 | Architecture Justification & Responsibility Audit | Per major structural change | Above, plus any new ADR or package boundary change. Evaluates Single Responsibility and Platform Neutrality (`P4`). |
 | 4 | Future-State Architecture Review | Per major structural change | Above |
 | 5 | Architectural Complexity Audit | Per major structural change | Above |
 | 6 | Architectural Fitness Audit | Every 6–12 months | Calendar + any fitness trigger threshold crossed (see [STANDARDS.md §S5](./STANDARDS.md)) |
