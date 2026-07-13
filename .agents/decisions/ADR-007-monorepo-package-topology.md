@@ -28,7 +28,7 @@ Domain modules (`@esparex/core` and internal bounded contexts) contain 100% pure
 Universal contract libraries (`@esparex/shared` and future `packages/contracts`) define cross-platform data structures (`DTOs`, `Schemas`, `Types`, `Enums`). They must never import from business domain modules (`@esparex/core`), backend transport modules (`@esparex/backend-api`), or frontend client applications.
 
 ### Principle 4: Infrastructure is Replaceable via Ports & Adapters
-Infrastructure bindings (`database/`, `redis/`, `docker/`, external vendor SDKs) must depend on abstraction interfaces (`ports/`) defined within domain boundaries or universal configuration schemas (`P5`, `P6`). Infrastructure implementation details (`adapters/`) must never leak into pure domain business logic (`ADR-008`).
+Infrastructure bindings (`database/`, `redis/`, `docker/`, external vendor SDKs) must depend on abstraction interfaces (`ports/`) defined within domain boundaries. Infrastructure implementation details (`adapters/`) must never leak into pure domain business logic (`ADR-008`).
 
 ### Principle 5: Every Module Has One Owner
 Every package, bounded context, and directory must have exactly one documented ownership boundary (`apps/web` → Frontend Web Team; `core/domains/catalog` → Catalog Domain). Shared or unowned code blocks are forbidden.
@@ -80,52 +80,62 @@ esparex/
 
 ### Target Enterprise Architecture (`Timeless DDD Blueprint`)
 ```text
-esparex/
-│
-├── apps/                          # Deployable UI applications
-│   ├── web/                       # Customer Web (Next.js)
-│   ├── admin/                     # Admin Portal (Vite)
-│   └── mobile/                    # Capacitor native shell wrapper
-│
-├── services/                      # Deployable backend server runtimes
-│   ├── api/                       # Express HTTP API (`backend/api` migrated here)
-│   ├── worker/                    # BullMQ / Background Processing Jobs (`R-001` extraction)
-│   ├── scheduler/                 # Cron / Recurring Task Engine
-│   └── ai/                        # Dedicated AI Integration Runtime
-│
-├── core/                          # Hexagonal & Domain-Driven Design (DDD) core (`ADR-008`)
-│   ├── domains/                   # Bounded business contexts (`catalog/`, `listings/`, `payments/`)
-│   ├── ports/                     # Abstract interfaces (`PaymentGatewayPort`, `StoragePort`, `EmailPort`)
-│   ├── adapters/                  # Concrete vendor adapters (`RazorpayAdapter`, `CloudinaryStorageAdapter`)
-│   ├── infrastructure/            # Concrete persistence/queues (`persistence/mongo`, `cache/redis`, `messaging/bullmq`)
-│   ├── kernel/                    # Shared domain kernel (`primitives/`, `value-objects/`, `policies/`, `errors/`, `ids/`)
-│   └── events/                    # Shared domain event definitions & event bus
-│
-├── packages/                      # Reusable cross-cutting libraries (natural extraction from `shared/`)
-│   ├── contracts/                 # Pure DTOs, Schemas, Types, Enums
-│   ├── foundation/                # Reusable platform primitives (`Result<T>`, `Either`, `Guard`, `Clock`, `Money`)
-│   ├── sdk/                       # Public/Internal API SDK library
-│   ├── ui/                        # Shared UI component design system
-│   ├── config/                    # Shared configuration bundles
-│   ├── utils/                     # Pure cross-platform utilities (`formatters/`, `phoneUtils/`)
-│   ├── testing/                   # Shared test harness & mock utilities
-│   ├── tooling/                   # Custom build and developer CLI helpers
-│   ├── eslint-config/             # Dedicated ESLint rules workspace
-│   └── typescript-config/         # Dedicated TypeScript tsconfig bases
-│
-├── infrastructure/                # Replaceable infrastructure specifications
-│   ├── docker/                    # Multi-stage Dockerfiles
-│   ├── kubernetes/                # K8s deployment manifests
-│   ├── terraform/                 # Infrastructure as Code modules
-│   └── monitoring/                # Prometheus/Grafana telemetry
-│
-├── tooling/                       # Custom internal developer tooling
-│   ├── scripts/                   # CI, maintenance, and architecture scorecards (`verify-boundaries.ts`)
-│   └── generators/                # Scaffolding and codemod tools
-│
-├── docs/                          # Architecture governance, ADRs, system blueprints
-└── .agents/                       # Agentic workflows, skills, governance modules
+apps/
+├── web/
+├── admin/
+└── mobile/
+
+services/
+├── api/
+├── worker/
+├── scheduler/
+└── ai/
+
+core/
+├── domains/
+│   ├── catalog/
+│   │   ├── application/
+│   │   ├── domain/
+│   │   ├── ports/
+│   │   ├── repositories/
+│   │   ├── policies/
+│   │   ├── validation/
+│   │   └── events/
+│   ├── listings/
+│   ├── payments/
+│   ├── users/
+│   └── moderation/
+├── adapters/
+├── infrastructure/
+│   ├── persistence/
+│   ├── cache/
+│   ├── messaging/
+│   ├── storage/
+│   └── mail/
+├── kernel/
+└── events/
+
+packages/
+├── contracts/
+├── foundation/
+├── sdk/
+├── ui/
+├── config/
+├── testing/
+└── tooling/
+
+infrastructure/
+├── docker/
+├── kubernetes/
+├── terraform/
+└── monitoring/
+
+tooling/
+docs/
+.agents/
 ```
+
+Note: The `infrastructure/` quadrants inside `core/` represent capabilities, not technology providers. The architecture does not specify Redis, Mongoose, or Cloudinary in its file structure to ensure it remains durable through future platform migration.
 
 ---
 
@@ -135,10 +145,10 @@ To avoid premature decomposition, structural migrations execute via evidence-dri
 
 | Transition Path | Primary Action | Multi-Factor Graduation Criteria |
 |---|---|---|
-| **Domain Consolidation (`core/services` → `core/domains/*`)** | Consolidate flat service files into `core/domains/*`, `ports/`, `adapters/`, and `infrastructure/` per `ADR-008`. | **Incremental Small PRs**: Executed sprint-by-sprint during normal feature delivery without large one-shot rewrites. |
+| **Domain Consolidation (`core/services` → `core/domains/*`)** | Consolidate flat service files into `core/domains/*`, `adapters/`, and `infrastructure/` per `ADR-008`. | **Incremental Small PRs**: Executed sprint-by-sprint during normal feature delivery without large one-shot rewrites. |
 | **Service Extraction (`backend/api` → `services/api`)** | Move HTTP server delivery to `services/api` and add `services/worker`, `services/scheduler`. | **Multi-Runtime Requirement (`R-001`)**: HTTP P95 latency requires offloading CPU-intensive image/AI jobs to dedicated worker servers (`services/worker`), or standalone cron engines (`services/scheduler`) must deploy independently. |
 | **Package Splitting (`shared/` → `packages/*`)** | Naturally extract code from `@esparex/shared` into `packages/contracts`, `packages/foundation`, `packages/utils`, `packages/ui` only when each package has a single, well-defined responsibility. | **Responsibility Narrowing**: Multiple UI applications require unified design tokens (`packages/ui`), or `shared/` requires strict scope locking (`packages/contracts` vs `packages/foundation`) without premature renames. |
-| **Autonomous Domain Extraction (`core/domains/<name>` → `domains/<name>`)** | Extract `core/domains/<domain-name>` to a standalone root repository package `domains/<domain-name>`. | **Multi-Squad Autonomy & High Cohesion**: When a bounded context exhibits high internal cohesion, low external coupling, independent squad ownership, high change frequency, and standalone micro-service runtime scaling requirements. Note: The `domains/` root folder is intentionally omitted from the target diagram until an autonomous domain actually graduates (`git mv core/domains/<name> domains/<name>`). |
+| **Autonomous Domain Extraction (`core/domains/<name>` → `domains/<name>`)** | Extract `core/domains/<domain-name>` to a standalone root repository package `domains/<domain-name>`. | **Multi-Squad Autonomy & High Cohesion**: When a bounded context exhibits high internal cohesion, low external coupling, independent squad ownership, high change frequency, and standalone micro-service runtime scaling requirements. The `domains/` root folder is intentionally omitted from the target diagram until graduation. |
 
 ---
 
@@ -155,9 +165,9 @@ Before any structural relocation (`services/`, `packages/*`, or `domains/*`) beg
 
 ---
 
-## 6. Summary & Implementation Mandate
+## 6. Summary & Execution Mandate
 
 With our architecture direction locked and governed (`ADR-001` through `ADR-008`), future structural ADRs are expected only when introducing **new architectural patterns, new deployment models, or new dependency directions**. We transition 100% of engineering bandwidth to **Implementation Governance**:
-1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `ports/`, `adapters/`, and `infrastructure/` sprint-by-sprint alongside product delivery.
+1. **Incremental Refactoring (`Small PRs`)**: Restructuring `core/` into `domains/`, `adapters/`, `infrastructure/`, and `kernel/` sprint-by-sprint alongside product delivery.
 2. **Automated Compliance**: Replacing manual documentation checks with CI-enforced architectural fitness scripts (`verify-boundaries.ts`, `verify-public-api.ts`).
 3. **High-Return Technical Debt**: Clearing pre-existing security vulnerabilities (`R-005` Dependabot backlog) across our stable, governed codebase.
