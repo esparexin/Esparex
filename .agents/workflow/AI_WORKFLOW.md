@@ -1,896 +1,418 @@
----
-id: ai-execution-workflow
-owner: workflow
-type: workflow
-version: 2.0
-last_updated: 2026-07-12
-depends_on: ["global-governance", "resolver"]
-loads_when: ["*"]
-status: active
-confidence: stable
-reviewed_on: 2026-07-12
-review_frequency: quarterly
-replaces: []
-supersedes: []
-tags: []
-category: architecture
----
-# AI Execution Lifecycle
-
-**Location:** `ai-governance/AI_EXECUTION_WORKFLOW.md`  
-**Classification:** AI Runtime — Execution Engine  
-**Registered in:** `ai-governance/AI_CONTEXT.json → primary.executionWorkflow`  
-**Scope:** All AI developer tools operating in the Esparex repository.
-
----
-
-## Purpose
-
-This document is the runtime contract that every AI agent must execute — in order, without skipping — before, during, and after writing code in the Esparex repository.
-
-Every phase declares its authority, inputs, process, outputs, and exit criteria. Every exit produces exactly one of three outcomes: **PASS**, **FAIL**, or **BLOCKED**. Execution is deterministic.
-
----
-
-## Failure Policy
-
-When any phase produces a **FAIL** outcome:
-
-1. **Stop immediately.** Do not execute the next phase.
-2. **Emit a failure report** containing:
-   - Phase number and name
-   - Gate identifier (if applicable)
-   - Evidence collected
-   - Reason for failure
-   - Required remediation steps
-3. **Do not attempt workarounds** — do not reorder phases, skip gates, or continue under assumption.
-4. **Halt execution** and wait for explicit user resolution before resuming.
-
----
-
-## Success Policy
-
-When every phase in the lifecycle produces a **PASS** outcome:
-
-1. **Execute Phase 18** — Completion Report.
-2. **Return the implementation summary** as defined by the Completion Report template.
-3. **End execution.**
-
----
-
-## Phase Classification
-
-Every phase in this lifecycle is one of two types:
-
-| Type | Definition |
-|------|-----------|
-| **Execution Phase** | A mandatory step that produces an output required by subsequent phases. |
-| **Execution Gate** | A mandatory validation checkpoint. Produces PASS, FAIL, or BLOCKED. Blocks continuation on failure. |
-
----
-
-## Lifecycle Overview
-
-```
-Phase 0  — Context Loading           [Execution Phase]
-Phase 1  — Request Analysis          [Execution Phase]
-Phase 2  — Task Classification       [Execution Phase]
-
-Phase 3  — Issue Validation              [Execution Gate]
-Phase 4  — Conflict Detection            [Execution Gate]
-Phase 5  — Repository State Validation   [Execution Gate]
-Phase 6  — Branch & Draft PR Creation    [Execution Gate]
-
-Phase 7  — Live Repository Discovery     [Execution Phase]
-Phase 8  — Policy Engine                 [Execution Phase]
-Phase 8.5 — Impact Analysis              [Execution Phase]
-
-Phase 9  — Duplicate & Reuse Audit       [Execution Gate]
-Phase 10 — Architecture Validation       [Execution Gate]
-Phase 11 — Pre-Implementation Quality Validation [Execution Gate]
-
-⛔ NO CODE MAY BE WRITTEN UNTIL PHASES 3–11 ALL PASS
-
-Phase 12 — Implementation                [Execution Phase]
-
-Phase 13 — Code Quality Validation       [Execution Gate]
-Phase 14 — UI/UX Quality Validation      [Execution Gate — Conditional]
-Phase 15 — Repository Hygiene Validation [Execution Gate]
-Phase 16 — Verification Pipeline         [Execution Gate]
-
-Phase 17 — PR Finalization               [Execution Phase]
-Phase 18 — Completion Report             [Execution Phase]
-```
-
----
-
-## Phase 0 — Context Loading
-
-**Classification:** Execution Phase  
-**Trigger:** Start of every task, before reading the user request.
-
-### Inputs
-- Repository workspace
-- Loaded AI tool context
-
-### Process
-1. Load `.agents/AGENTS.md` — The bootstrap file that defines the execution entry point.
-2. Load `.agents/governance/GOVERNANCE.md` — The non-negotiable architectural boundaries.
-3. Load `.agents/workflow/AI_WORKFLOW.md` (this document) — The execution process.
-4. Load `.agents/project/PROJECT_CONTEXT.json` — The business rules and project data.
-
-### Outputs
-- Active SSOT map
-- Workspace behavioral rules
-- Core context loaded
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Core bootstrap files and governance policies loaded | Continue to Phase 1 |
-| ❌ FAIL | Any core bootstrap file missing, corrupt, or unreadable | Stop. Emit failure report. |
-
----
-
-## Phase 1 — Request Analysis
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 0 passes.
-
-### Inputs
-- Complete user request text
-
-### Process
-1. Read the full user request before taking any action.
-2. Extract **explicit requirements** — what is directly stated.
-3. Extract **implicit requirements** — what is necessary but unstated.
-4. List **assumptions** — any statement not directly verifiable from the request text. Every assumption must be verified against live source in Phase 7.
-5. Identify **dependencies** — other systems, packages, or features this change touches.
-6. Define **acceptance criteria** — specific, measurable outcomes that constitute task success.
-7. Identify **risks and constraints** — scope boundaries, reversibility, impact surface.
-
-### Outputs
-- Requirement list (explicit + implicit)
-- Assumption register
-- Dependency map
-- Acceptance criteria
-- Risk register
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Requirements understood; acceptance criteria defined; all assumptions documented | Continue to Phase 2 |
-| ⚠️ BLOCKED | Request is ambiguous and clarification cannot be inferred from live repository | Request clarification. Halt. Do not implement under ambiguity. |
-
----
-
-## Phase 2 — Task Classification
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 1 passes.
-
-### Inputs
-- Requirement list from Phase 1
-- Risk register from Phase 1
-
-### Process
-Assign one or more classification labels:
-
-| Category | Examples |
-|----------|----------|
-| Feature | New business capability, new API endpoint |
-| Bug Fix | Defect repair, regression fix |
-| Refactoring | Restructuring without behavior change |
-| UI/UX | Component, page, layout, accessibility change |
-| Backend | Service, controller, middleware |
-| Database | Schema, index, migration |
-| DevOps | CI, deployment, build scripts |
-| Security | Auth, permissions, secrets handling |
-| Performance | Query optimization, caching, lazy loading |
-| Architecture | Package structure, dependency changes |
-| Repository Cleanup | Dead code, orphan files, unused dependencies |
-| Testing | Unit, integration, E2E coverage |
-| Documentation | Approved deliverable documents only |
-| Governance | Standards, policy, workflow |
-
-Also determine:
-
-- **Scope**: Single file / Single package / Cross-package / Full-stack
-- **Complexity**: Low / Medium / High
-- **Risk**: Low (isolated) / Medium (shared module) / High (architectural or security impact)
-- **UI Modified**: Yes / No — determines whether Phase 14 executes
-
-### Outputs
-- Task classification labels
-- Scope, complexity, risk ratings
-- UI-modified flag
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Classification complete; scope, complexity, risk, and UI flag assigned | Continue to Phase 3 |
-
----
-
-## Phase 3 — Issue Validation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 2 passes.
-
-### Inputs
-- Task description from Phase 1
-- GitHub repository access
-
-### Process
-1. Search GitHub Issues for an existing Issue that tracks this work.
-2. If a matching Issue exists → record the Issue number and title.
-3. If no matching Issue exists → draft a complete Issue (title, description, acceptance criteria, labels) and stop until the Issue is created.
-
-### Outputs
-- GitHub Issue number
-- Issue URL
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | A GitHub Issue exists and is linked to this task | Continue to Phase 4 |
-| ❌ FAIL | No Issue exists | Draft the Issue. Stop. Halt until Issue is created and number confirmed. |
-
----
-
-## Phase 4 — Conflict Detection
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 3 passes.
-
-> **Renamed from "Pull Request Validation"** to remove ambiguity. This phase detects conflicts in open PRs — it does NOT satisfy any PR creation obligation. A PR is created in Phase 6.
-
-### Inputs
-- Task scope from Phase 2
-- GitHub repository access
-
-### Process
-1. Inspect all open Pull Requests.
-2. Search for PRs touching the same files, packages, or feature areas as this task.
-3. If duplicate or overlapping work is found → record the PR number and stop.
-
-### Outputs
-- Confirmation of zero duplicate PRs
-- Or: conflicting PR number for reporting
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | No open PR duplicates or overlaps found | Continue to Phase 5 |
-| ❌ FAIL | An open PR covers the same scope | Stop. Report the conflicting PR. Do not duplicate in-progress work. |
-
----
-
-## Phase 5 — Repository State Validation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 4 passes.
-
-### Inputs
-- Live git repository state
-
-### Process
-Execute the following commands and evaluate output:
-
-```
-git status         # working tree must be clean
-git log --oneline  # confirm no broken commit state
-```
-
-1. Verify the working tree is clean — no uncommitted changes unrelated to this task.
-2. Verify no merge conflicts are present.
-3. Verify no existing build failures on the current branch.
-
-### Outputs
-- Repository health status: Clean / Unclean / Conflicted
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Working tree clean; no conflicts; no pre-existing build failures | Continue to Phase 6 |
-| ❌ FAIL | Uncommitted unrelated changes, merge conflicts, or pre-existing build failures | Stop. Emit failure report listing specific issues. |
-
----
-
-## Phase 6 — Branch & Draft PR Creation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 5 passes.
-
-> **Expanded from "Branch Validation"**. This gate now requires a feature branch AND a draft PR to exist before execution continues. Implementation is blocked until both are confirmed.
-
-### Inputs
-- Current branch name
-- Git remote state
-- GitHub Issue number from Phase 3
-
-### Process
-
-**Step 1 — Verify or create a feature branch:**
-```
-git branch         # confirm NOT on main or develop
-git ls-remote      # confirm remote state
-```
-
-1. If currently on `main` or `develop` → create a feature branch immediately:
-   ```
-   git checkout -b feat/issue-{N}-{short-description}
-   ```
-2. If a stale/merged branch exists → delete it, sync with base, and create a new feature branch.
-3. Branch name must follow convention: `feat/issue-{N}-{description}`, `fix/issue-{N}-{description}`, `refactor/issue-{N}-{description}`, etc.
-4. Push the branch to remote immediately:
-   ```
-   git push -u origin {branch-name}
-   ```
-
-**Step 2 — Open a Draft Pull Request:**
-
-5. Open a **draft** Pull Request on GitHub:
-   - Base: `main`
-   - Head: the feature branch created in Step 1
-   - Title: follows Conventional Commits format
-   - Body: includes `Closes #{issue-number}` from Phase 3
+Purpose
+This document is the runtime contract every AI agent executes — in order, without skipping — before, during, and after writing code in the Esparex repository.
+Every phase declares authority, inputs, process, outputs, and exit criteria. Every exit produces exactly one of three outcomes: PASS, FAIL, or BLOCKED. Execution is deterministic.
+
+Workflow Stability Principle
+This document defines the AI execution lifecycle. It is repository-wide governance and must remain stable. Changes are permitted only when they improve the execution process for every repository feature. Feature-specific business rules, UI behavior, domain workflows, and implementation details must never be added here; they belong in feature-specific business rule documents.
+
+Failure Policy
+When any phase produces FAIL:
+
+Stop immediately. Do not execute the next phase.
+Emit a failure report: phase number/name, gate identifier, evidence collected, reason for failure, required remediation.
+Do not reorder phases, skip gates, or continue under assumption.
+Halt and wait for explicit user resolution.
+
+Success Policy
+When every phase produces PASS:
+
+Execute Phase 18 — Completion Report.
+Return the implementation summary per the Phase 18 template.
+End execution.
+
+
+Fast-Path Track
+Applies only when all of the following are true, as determined in Phase 2:
+
+Single file changed, or a config/copy/typo change touching no logic
+Risk = Low and Complexity = Low
+No schema, API contract, auth, or business-rule change
+UI-modified = No, or a trivial style-only change with no new states/behavior
+
+If all criteria are met, the AI may skip Phases 4, 8, 8.5, 9, 10, 11, 11.5, and 14, going Phase 3 → 5 → 6 → 7 → 12 → 13 → 15 → 16 → 17 → 18. Every skipped phase must still be logged as SKIPPED (Fast-Path) in the Phase 18 report — never silently omitted. If, once in Phase 7 or 12, the change turns out to touch more than the single file/area anticipated, the AI must stop, exit Fast-Path, and re-run the full lifecycle from Phase 4 forward (see Scope Ceiling below).
+Scope Ceiling
+If actual scope during Phase 7 (Discovery) or Phase 12 (Implementation) exceeds the Phase 1/2 estimate — e.g. more than roughly 3x the files, packages, or layers originally scoped — the AI must stop, report the discrepancy, and get the user to confirm or re-scope before continuing. Silent scope expansion is a blocking error.
+Iteration Limit
+Any gate that loops on FAIL ("fix and re-check") may attempt this at most 3 times for the same root cause. On the 3rd consecutive FAIL at the same gate for the same underlying issue, the AI must stop and escalate to the user with the failure history rather than continuing to retry.
+
+Naming Policy (single source of truth)
+Every artifact name created by this workflow follows one of these patterns. No phase may invent its own naming rule.
+ArtifactPatternOwning PhaseBranchfeat|fix|refactor|chore/issue-{N}-{kebab-description}Phase 6CommitConventional Commits: type(scope): imperative lowercase summaryPhase 17PR titleSame as commit conventionPhase 17GitHub IssueDescriptive title, no ticket-number prefix (GitHub assigns it)Phase 3File / moduleMatches existing package convention discovered in Phase 7; never introduce a new convention mid-packagePhase 9, Phase 12ComponentPascalCase, one component per file, filename = component namePhase 12HookuseX camelCase, one hook per filePhase 12Type / interfacePascalCase, no I prefix, in shared/src/types/Phase 12Constant / enumSCREAMING_SNAKE_CASE for primitives, PascalCase for enum objects, in shared/src/constants/Phase 12
+Any name that doesn't fit an existing pattern is a Verified Issue if it already exists in the repo, or a blocking error if about to be created — not a judgment call.
+
+Evidence Standard (single source of truth)
+Every finding, duplicate, or violation reported anywhere in this workflow — implementation, audit, or hygiene check — must be recorded in this exact form. No phase may use a lighter-weight or heavier-weight format.
+Artifact:  <what was found>
+Location:  <file path : line number>
+Type:      Duplicate | Dead Code | Naming Violation | Lint Violation | Architecture Violation
+Action:    Reuse | Extend | Remove | Rename | Escalate (Proposed Feature)
+Statements like "there appear to be duplicates" or "this file looks unused" without a file:line are not evidence and cannot close a gate.
+Decision Log: every piece of evidence produced by any phase is appended — not overwritten — to .agents/logs/DECISION_LOG.md (or the task's PR description if no log file exists yet), tagged with phase number and timestamp. This is what makes the AI's own behavior auditable after the fact; evidence that lives only in a chat transcript does not satisfy this requirement.
+
+Phase Classification
+TypeDefinitionExecution PhaseMandatory step producing output required by later phases.Execution GateMandatory validation checkpoint. PASS / FAIL / BLOCKED. Blocks continuation on failure.
+
+Lifecycle Overview
+Phase 0    — Context Loading                       [Execution Phase]
+Phase 1    — Request Analysis                       [Execution Phase]
+Phase 2    — Task Classification                    [Execution Phase]
+  Phase 2a–2f — Audit Sub-Phases (only if task = Audit)
+
+  ⚡ Fast-Path Track — eligible low-risk tasks may skip 4, 8, 8.5, 9, 10, 11, 11.5, 14
+
+Phase 3    — Issue Validation                        [Execution Gate]
+Phase 4    — Conflict Detection (open PR overlap)     [Execution Gate]
+Phase 5    — Repository State Validation              [Execution Gate]
+Phase 6    — Branch & Draft PR Creation                [Execution Gate]
+
+Phase 7    — Live Repository Discovery               [Execution Phase]
+Phase 8    — Policy Engine                            [Execution Phase]
+Phase 8.5  — Impact Analysis                          [Execution Phase]
+
+Phase 9    — Duplication & Reuse Gate                 [Execution Gate]
+Phase 10   — Architecture Validation                  [Execution Gate]
+Phase 11   — Pre-Implementation Quality Validation     [Execution Gate]
+Phase 11.5 — Business Rules Verification Gate          [Execution Gate]
+
+⛔ NO CODE MAY BE WRITTEN UNTIL PHASES 3–11.5 ALL PASS
+
+Phase 12   — Implementation (incl. Data Migration Safety) [Execution Phase]
+
+Phase 13   — Code Quality & Lint/Import Hygiene Gate   [Execution Gate]
+Phase 14   — UI/UX Quality Validation (skills, mobile-first,
+             responsive, performance)     [Execution Gate — Conditional]
+Phase 15   — Repository Hygiene Validation             [Execution Gate]
+Phase 16   — Verification Pipeline (incl. Secret/Dep Scan, coverage) [Execution Gate]
+
+Phase 17   — PR Finalization                          [Execution Phase]
+Phase 18   — Completion Report                        [Execution Phase]
+Phase 19   — Post-Merge Monitoring                    [Execution Phase]
+Global rules that apply across every phase: Scope Ceiling, Iteration Limit (max 3 retries per gate), Dependency Policy, Feature Flag Policy, Decision Log.
+
+Phase 0 — Context Loading
+Classification: Execution Phase
+Process
+
+Load .agents/AGENTS.md
+Load .agents/governance/GOVERNANCE.md
+Load .agents/workflow/AI_WORKFLOW.md (this document)
+Load .agents/project/PROJECT_CONTEXT.json
+
+Exit Criteria
+| PASS | Core bootstrap files loaded |
+| FAIL | Any core file missing, corrupt, unreadable |
+
+Phase 1 — Request Analysis
+Classification: Execution Phase
+Process
+
+Read the full request before acting.
+Extract explicit requirements.
+Extract implicit requirements.
+List assumptions (anything not directly verifiable from the request text). Every assumption is verified against live source in Phase 7.
+Identify dependencies.
+Define acceptance criteria.
+Identify risks and constraints.
+
+
+Definition of Done: the acceptance criteria defined here must be written so they map directly onto the Phase 18 Final Completion Checklist. If a criterion can't be verified against that checklist, it isn't a real acceptance criterion — reword it now, not at Phase 18.
+
+Exit Criteria
+| PASS | Requirements understood, acceptance criteria defined, assumptions logged |
+| BLOCKED | Request ambiguous and cannot be resolved from the live repo — ask the user, halt |
+
+Phase 2 — Task Classification
+Classification: Execution Phase
+Process
+Assign classification label(s): Feature, Bug Fix, Refactoring, UI/UX, Backend, Database, DevOps, Security, Performance, Architecture, Repository Cleanup, Testing, Documentation, Governance, Audit.
+Also determine: Scope (file / package / cross-package / full-stack), Complexity (low/medium/high), Risk (low/medium/high), UI-modified flag (Yes/No — gates Phase 14). This scope estimate is the baseline the Scope Ceiling rule checks actual work against later.
+If classification includes Database, flag the task for the Data Migration Safety rule in Phase 12.
+If Scope/Complexity/Risk all qualify as Low and the criteria in the Fast-Path Track are met, mark the task Fast-Path eligible.
+If classification includes Audit, run Phase 2a–2f below before continuing to Phase 3. These are sub-phases of Phase 2, not standalone lifecycle phases — they can never be referenced as "Phase 3" etc.
+Phase 2a — Repository Audit
+Evidence-only findings across UI, UX, backend, API contracts, database models, mobile layout, duplicate code, dead code, legacy code, performance, security. Every finding uses the Evidence Standard and is classified: ✅ Verified Issue / 💡 Improvement Opportunity / 🆕 Proposed Feature / ❓ Needs Verification. No code, no solution names (see No-Solution Rule below).
+Phase 2b — Root Cause Analysis
+For each ✅ Verified Issue: Problem → Evidence → Root Cause → Impact → Severity. No code, no solution names.
+Phase 2c — Business Rules Verification
+For each in-scope field/flow: what the blueprint requires, what the live implementation does, whether they match. No code.
+Phase 2d — Gap Analysis
+For each mismatch: Current → Expected → Gap. Nothing else — no component names, no solutions.
+Phase 2e — Implementation Options
+Only after 2a–2d are complete and user-approved. For each gap: Option A (pros/cons), Option B (pros/cons), Recommended + one-sentence reason. Requires explicit user approval before Phase 2f.
+Phase 2f — Approved Implementation
+Only approved options proceed. Continues into the normal lifecycle at Phase 3, applying all gates (9–11.5) before any code is written.
+No-Solution Rule (applies to 2a–2d)
+Correct: "Current implementation mixes business state across several components."
+Prohibited: "Therefore create PostAdStateController."
+Naming a solution before the problem is understood and approved is a governance violation. Prohibited in findings: new controller/service/component/hook names, new architecture diagrams, new step names, any implementation-specific naming.
+Exit Criteria
+| PASS | Classification complete; if Audit, 2a–2d complete and (if applicable) 2e approved |
+
+Phase 3 — Issue Validation
+Classification: Execution Gate
+Process
+
+Search GitHub Issues for existing coverage.
+If found, record Issue number/title.
+If not found, draft a complete Issue (title per Naming Policy, description, acceptance criteria, labels) and stop until created.
+
+Exit Criteria
+| PASS | Issue exists and is linked |
+| FAIL | No Issue — draft it, halt until created |
+
+Phase 4 — Conflict Detection
+Classification: Execution Gate
+
+Detects overlap in open PRs only. Does not create a PR — that's Phase 6.
+
+Process
+
+Inspect open PRs.
+Search for overlap with this task's scope.
+If overlap found, record PR number, stop.
+
+Exit Criteria
+| PASS | No overlapping open PR |
+| FAIL | Overlap found — report it, do not duplicate in-progress work |
+
+Phase 5 — Repository State Validation
+Classification: Execution Gate
+Process
+git status
+git log --oneline
+Verify: working tree clean, no merge conflicts, no pre-existing build failures.
+Exit Criteria
+| PASS | Clean, no conflicts, no pre-existing failures |
+| FAIL | Any of the above violated — report specifics |
+
+Phase 6 — Branch & Draft PR Creation
+Classification: Execution Gate
+Process
+Branch:
+
+git branch — confirm not on main/develop.
+If on main/develop, create branch per Naming Policy: git checkout -b feat/issue-{N}-{description}.
+If a stale/merged branch exists, delete it, sync with base, create fresh.
+git push -u origin {branch-name}.
+
+Draft PR:
+5. Open a draft PR: base main, head the new branch, title per Naming Policy, body includes Closes #{issue-number}.
 6. Record the draft PR URL as evidence.
 
-> ⛔ **IMPLEMENTATION BLOCKER**: If either the feature branch or the draft PR does not exist, do NOT proceed to Phase 7. Halt until both are confirmed.
-
-### Outputs
-- Valid feature branch name (not `main` or `develop`)
-- Confirmed branch exists on remote (`git ls-remote` output)
-- Draft PR URL (GitHub)
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Feature branch exists on remote AND draft PR is open and linked to the Issue | Continue to Phase 7 |
-| ❌ FAIL | Currently on `main`/`develop`, or no feature branch exists on remote, or no draft PR open | Create branch. Push. Open draft PR. Do not continue until all three are confirmed. |
-
----
-
-## Phase 7 — Live Repository Discovery
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 6 passes.
-
-### Inputs
-- Live source code files
-- `package.json`, `tsconfig.json`, workspace configuration
-
-> **Critical Rule:** Do not rely on documentation, Markdown files, comments, prior analysis reports, or previous conversation context as evidence of current repository state. Only live source code and live git output are authoritative.
-
-### Process
-Inspect the live repository directly. You must explicitly answer these 6 questions before proceeding:
-1. **What exists?** (Current implementations)
-2. **Where is SSOT?** (Single Source of Truth)
-3. **What depends on it?** (Downstream consumers)
-4. **Can it be reused?** (Duplicate prevention)
-5. **What will break?** (Risk surface)
-6. **Is there already an Issue?** (Tracking)
-
-Map the following for the scope of this task:
-
-| Category | Location |
-|----------|----------|
-| Folder structure | Root and package directories |
-| Workspace configuration | Root `package.json`, workspace `package.json` files |
-| React components | `apps/*/src/components/` |
-| Custom hooks | `apps/*/src/hooks/` |
-| Domain services | `core/src/services/` |
-| REST route definitions | `backend/api/src/routes/` |
-| Controllers | `backend/api/src/controllers/` |
-| Middleware | `backend/api/src/middleware/` |
-| Utilities | `core/src/utils/`, `shared/src/` |
-| Validators & Zod schemas | `core/src/validators/` |
-| TypeScript types & interfaces | `shared/src/types/` |
-| Constants & enum records | `shared/src/constants/` |
-| Mongoose models | `core/src/models/` |
-| Test coverage | `*.test.ts`, `*.spec.ts` files adjacent to affected modules |
-
-### Outputs
-- Live repository map for the task scope
-- Verified assumption register (all assumptions from Phase 1 resolved)
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Live inspection complete for all relevant categories; all Phase 1 assumptions verified | Continue to Phase 8 |
-| ❌ FAIL | Source files are inaccessible or assumption verification reveals a blocking contradiction | Stop. Emit failure report. |
-
----
-
-## Phase 8 — Policy Engine
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 7 passes.
-
-### Inputs
-- Task classification from Phase 2
-- Live repository map from Phase 7
-- Project Context from Phase 0
-
-### Process
-1. Access the Policy Engine framework at `.agents/policy_engine/POLICY_ENGINE.json`.
-2. Map the task's Change Type, the Repository Discovery, and Project Context through the Policy Engine.
-3. Load exactly the output dependencies dictated by the Policy Engine:
-   - **Required Skills** (from `.agents/skills/`)
-   - **Required Rules** (from `.agents/rules/`)
-   - **Required Verification** (from `.agents/verification/`)
-   - **Priority**
-4. Do not load any rule, skill, or verification module that the Policy Engine does not explicitly demand.
-
-### Outputs
-- Dynamically loaded context containing only task-relevant expertise and validation gates.
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Policy Engine executed and specific rules/skills/verification loaded | Continue to Phase 8.5 |
-
----
-
-## Phase 8.5 — Impact Analysis
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 8 passes.
-
-### Inputs
-- Loaded rules, skills, and verifications from Phase 8
-- Discovery mapping from Phase 7
-
-### Process
-Before writing any code, explicitly analyze the cross-boundary impact of the planned change. 
-1. **API Impact:** Will this require frontend client updates?
-2. **Database Impact:** Will this require migrations or index changes?
-3. **Frontend Impact:** Will this break existing UI state management?
-4. **Admin Impact:** Does the admin portal need to be aware of this state?
-5. **Testing Impact:** Which test suites will break?
-
-### Outputs
-- Documented Impact Surface Map (Internal memory only, unless requested by user)
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Impact surface mapped across all domains | Continue to Phase 9 |
----
-
-## Phase 9 — Duplicate & Reuse Audit
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 8 passes.
-
-### Inputs
-- Live repository map from Phase 7
-- Task requirements from Phase 1
-
-> **Critical Rule:** Always search before creating. Reuse existing implementations whenever possible. Extend existing files instead of creating new ones whenever practical.
-
-### Process
-Search the entire repository for each of the following before creating any new artifact:
-
-| Artifact Type | Search Locations |
-|---------------|-----------------|
-| Hook | `apps/*/src/hooks/` |
-| Component | `apps/*/src/components/` |
-| Service method | `core/src/services/` |
-| API endpoint | `backend/api/src/routes/` |
-| Utility function | `core/src/utils/`, `shared/src/` |
-| Validator / Zod schema | `core/src/validators/` |
-| TypeScript type or interface | `shared/src/types/` |
-| Constant or enum | `shared/src/constants/` |
-| Middleware | `backend/api/src/middleware/` |
-| Business logic | `core/src/services/` |
-
-### Outputs
-- Reuse map: for each required artifact, either an existing artifact to reuse/extend, or a justified reason for new creation
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Zero unresolved duplicates; every required artifact either reused or justified | Continue to Phase 10 |
-| ❌ FAIL | A duplicate artifact would be created without justification | Stop. Identify the existing artifact. Plan reuse or extension. |
-
----
-
-## Phase 10 — Architecture Validation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 9 passes.
-
-### Inputs
-- Planned implementation from Phases 1 and 9
-- Live repository map from Phase 7
-
-### Process
-Validate every planned change against the architectural invariants:
-
-| Invariant | Check |
-|-----------|-------|
-| Downstream dependency direction preserved | Apps → API → Core → Shared. No upstream imports. |
-| No circular dependencies | No package imports its own consumers. |
-| Core is framework-independent | No Express or HTTP imports inside `core/src/`. |
-| Controllers are thin | No database queries, no business logic inside `backend/api/src/controllers/`. |
-| No direct model access from apps | `apps/*` must not import Mongoose models. |
-| Services own transactions | No session or transaction management outside `core/src/services/`. |
-| UI components are presentational | No direct API fetch calls inside React components. |
-| Correct layer ownership | Change belongs to the right package per the ownership matrix. |
-| Backward compatibility maintained | No breaking changes to any public interface without an ADR. |
-| No new package without ADR | New workspace creation requires an approved Architecture Decision Record. |
-
-### Outputs
-- Architecture validation result: compliant or violation list
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | All architectural invariants confirmed unviolated | Continue to Phase 11 |
-| ❌ FAIL | One or more invariants would be violated | Stop. Emit failure report listing each violation. Do not implement until the architectural plan is corrected. |
-
----
-
-## Phase 11 — Pre-Implementation Quality Validation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 10 passes.
-
-### Inputs
-- Planned implementation from Phases 1 and 9
-- Validation checklists loaded by the Resolver (e.g., `.agents/verification/pre_implementation.md`)
-
-### Process
-1. Execute the `pre_implementation.md` checklist from the verification modules.
-2. Ensure every step (e.g., draft PR open, branch exists on remote, reused existing implementations) is strictly followed.
-3. Apply any domain-specific rules loaded by the Resolver (e.g., security checks, API conventions, database rules).
-4. Perform and verify that duplicate audits, dead code audits, orphan audits, and repository quality audits have been executed, and all findings are documented or resolved.
-
-### Outputs
-- Completed Pre-Implementation Verification checklist including audit confirmations
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Verification checklist complete; all gates passed | Continue to Phase 12 |
-| ❌ FAIL | Any checklist item missing or incomplete | Stop. Resolve before implementation. |
-
----
-
-## Phase 12 — Implementation
-
-**Classification:** Execution Phase  
-**Trigger:** After all gates in Phases 3–11 pass. Code may only be written after this phase begins.
-
-> ⛔ **MANDATORY PREREQUISITE CHECK** — Before writing a single line of code, verify:
-> 1. You are on a **feature branch** (NOT `main` or `develop`) — confirmed by `git branch`.
-> 2. That feature branch **exists on remote** — confirmed by `git ls-remote`.
-> 3. A **draft Pull Request is open** on GitHub, linked to the Issue from Phase 3.
->
-> If any of the three conditions above is not met, **STOP**. Return to Phase 6 and resolve before continuing.
-
-### Inputs
-- Accepted requirement list from Phase 1
-- Reuse map from Phase 9
-- Finalized file list from Phase 11
-
-### Process
-Implement the change following the bottom-up dependency order:
-
-1. **Contract types** — `shared/src/types/`
-2. **DTO schemas** — `core/src/validators/`
-3. **Database models** — `core/src/models/`
-4. **Domain services** — `core/src/services/`
-5. **Unit tests** — isolated Jest suites
-6. **Controllers** — `backend/api/src/controllers/`
-7. **Route bindings** — `backend/api/src/routes/`
-8. **Integration tests** — Supertest
-9. **OpenAPI specs** — Swagger configuration
-10. **UI components** — `apps/*/src/components/` and pages
-
-### Implementation Invariants
-
-The following apply continuously throughout coding. Any violation is a blocking error:
-
-| Invariant | Rule |
-|-----------|------|
-| No debug output | `console.log`, `console.debug`, `console.error` banned in committed code |
-| No TODOs | `// TODO`, `// FIXME`, `// HACK` banned in committed code |
-| No placeholder code | Every function must be fully implemented |
-| No commented-out code | Deleted code must be deleted, not commented out |
-| No hardcoded secrets | API keys, passwords, tokens, connection strings must use environment variables |
-| No unused variables | Every declared variable must be consumed |
-| No unused imports | Every import must be consumed |
-| No unused exports | Every exported symbol must have at least one consumer |
-| No dead code | Unreachable code paths must be removed |
-| No partial implementations | Every feature must be complete when committed |
-| No temporary files | No `_backup`, `_temp`, `_wip` files |
-
-### Outputs
-- Complete, committed implementation
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Implementation complete; all invariants satisfied; no partial work | Continue to Phase 13 |
-| ❌ FAIL | Any invariant violated or implementation incomplete | Fix all violations before proceeding. |
-
----
-
-## Phase 13 — Code Quality Validation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 12 passes.
-
-### Inputs
-- Completed implementation from Phase 12
-
-### Process
-
-| Check | Standard |
-|-------|----------|
-| **File size and focus** | A file serving more than one clear concern must be split |
-| **Function focus** | Every function does exactly one thing |
-| **Import hygiene** | Sorted (external → internal → relative); no unused; no duplicate imports |
-| **Lazy loading** | Dynamic imports applied where full module loading at startup is not required |
-| **Render efficiency** | No unnecessary re-renders from unstable references, missing memoization, or incorrect dependency arrays |
-| **API deduplication** | No duplicate API requests for the same data within one user interaction |
-| **Coupling** | No new tight coupling between layers that previously had none |
-
-### Outputs
-- Code quality validation result
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | All checks pass; no mixed-concern files; import hygiene confirmed | Continue to Phase 14 |
-| ❌ FAIL | Any check fails | Fix and re-validate from Phase 13. |
-
----
-
-## Phase 14 — UI/UX Quality Validation
-
-**Classification:** Execution Gate — Conditional  
-**Trigger:** After Phase 13 passes. Execute **only** if the UI-modified flag from Phase 2 is `Yes`. Otherwise skip directly to Phase 15.
-
-### Inputs
-- All modified or created UI components and pages
-
-### Process
-
-**Responsive Layout**
-
-| Check | Standard |
-|-------|----------|
-| Mobile-first layout | Smallest breakpoint is the design baseline |
-| Tablet breakpoint | Layout adapts correctly |
-| Desktop breakpoint | Layout adapts correctly |
-| No horizontal scrolling | No overflow introduced at any breakpoint |
-
-**Accessibility**
-
-| Check | Standard |
-|-------|----------|
-| Keyboard navigation | All interactive elements reachable and operable via keyboard |
-| Semantic HTML | Correct heading hierarchy; appropriate semantic elements |
-| ARIA attributes | Correct and non-redundant |
-| Focus management | Modals trap focus; dialogs restore focus on close |
-| Color contrast | WCAG AA minimum met |
-
-**UI States**
-
-Every interactive element must implement all applicable states:
-
-| State | Requirement |
-|-------|-------------|
-| Loading | Shown while async operations are in progress |
-| Empty | Shown when a list or resource has no items |
-| Error | Shown when an operation fails; message is actionable |
-| Success | Confirmed when an operation completes |
-| Validation | Inline, real-time, field-level feedback |
-
-**Functional Completeness**
-
-| Element | Requirement |
-|---------|-------------|
-| Button | Has a defined, fully implemented action |
-| Link | Navigates to a valid, implemented route |
-| Navigation item | Points to a reachable destination |
-| Form | Submits to a real API endpoint |
-| Modal / Dialog | Opens, submits, and closes correctly |
-| Dropdown / Filter / Search / Pagination | Fully functional |
-| No placeholder actions | `onClick={() => {}}` is banned |
-| No dead buttons | Every button does something |
-| No broken links | Every link goes somewhere |
-| No orphan UI | No component rendered but disconnected from state or data |
-
-### Outputs
-- UI/UX validation result
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | All responsive, accessibility, state, and completeness checks pass | Continue to Phase 15 |
-| ❌ FAIL | Any check fails | Fix and re-validate from Phase 14. |
-| ➡️ SKIP | UI-modified flag is `No` | Skip to Phase 15. |
-
----
-
-## Phase 15 — Repository Hygiene Validation
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 14 passes or is skipped.
-
-### Inputs
-- Full working tree state
-- `.agents/verification/repository_cleanup.md`
-
-### Process
-1. Execute the `repository_cleanup.md` checklist.
-2. Verify no temporary files (`*.tmp`, `*.bak`, `_wip`, `scratch-`), debug outputs, or orphan files remain in the working tree.
-3. If new documentation is created, apply `.agents/verification/documentation_gate.md` to ensure it is not duplicative and provides long-term value.
-
-### Outputs
-- Repository hygiene status: Clean / Violations found
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Working tree contains only intended files; all checklists pass | Continue to Phase 16 |
-| ❌ FAIL | Any disallowed files found | Remove them. Re-validate from Phase 15. |
-
----
-
-## Phase 16 — Verification Pipeline
-
-**Classification:** Execution Gate  
-**Trigger:** After Phase 15 passes.
-
-### Inputs
-- Complete, clean implementation from all prior phases
-
-### Process
-Execute in this exact order. If any step fails, fix the issue and re-run **all steps from step 1**:
-
-```
-1.  npm run format
-    Code formatting (Prettier)
-
-2.  npm run lint
-    ESLint — type safety, unused imports, boundary violations
-
-3.  npm run type-check
-    TypeScript strict compilation
-
-4.  npm run test:unit
-    Jest — isolated core service tests
-
-5.  npm run test:integration
-    Jest + Supertest — REST API shape tests
-
-6.  npm run build
-    Full monorepo production build
-
-7.  npm run guard:platform-governance
-    Architecture boundary validation
-
-8.  npm run repository:doctor -- --profile ci
-    Repository health check
-```
-
-If the UI-modified flag is `Yes`, also run:
-```
-9. npm run test:e2e
-    Playwright E2E — user-facing flow validation
-```
-
-### Outputs
-- Verification pipeline output (pass/fail per step)
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | All applicable steps complete with zero errors; no `eslint-disable` suppressions without justification; no `as` or `!` type assertions without structural justification | Continue to Phase 17 |
-| ❌ FAIL | Any step fails | Fix the failure. Re-run all steps from step 1. |
-
----
-
-## Phase 17 — PR Finalization
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 16 passes.
-
-> **Renamed from "Pull Request Preparation"**. The draft PR was opened in Phase 6. This phase finalizes it: marks it ready for review, attaches verification evidence, and confirms CI passes on remote.
-
-### Inputs
-- Draft PR URL from Phase 6
-- Passing verification pipeline from Phase 16
-- GitHub Issue number from Phase 3
-
-### Process
-
-**Step 1 — Verify all commits are conventional:**
-
-Every commit must follow Conventional Commits as enforced by `commitlint.config.js`:
-
-```
-<type>(<scope>): <description>
-
-Types:  feat | fix | refactor | perf | test | docs | build | ci | chore
-Scope:  package or feature area (e.g., core, backend-api, apps-web)
-Description: imperative present tense; lowercase; no trailing period
-Body lines: max 100 characters each
-```
-
-**Step 2 — Complete the PR body:**
-
-| Field | Requirement |
-|-------|-------------|
-| Title | Conventional commit format: `type(scope): description` |
-| Issue reference | `Closes #<issue-number>` |
-| Description | What changed and why — not a repetition of the commit log |
-| Testing evidence | Paste Phase 16 verification pipeline output |
-| Rollback strategy | Steps to revert if the change causes a regression |
-| Known risks | Limitations, edge cases, deferred work |
-| Architecture checklist | Complete `REPOSITORY_GOVERNANCE_STANDARD.md §10` checklist |
-
-**Step 3 — Mark PR ready for review:**
-- Convert the draft PR to "Ready for review" status.
-- Confirm CI pipeline is triggered and passes on remote.
-
-**Never:**
-- Merge automatically
-- Self-approve
-- Bypass the CI pipeline
-
-### Outputs
-- PR URL (confirmed, not a local artifact)
-- PR status: Ready for Review (no longer draft)
-- CI pipeline passing on remote
-
-### Exit Criteria
-
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | All commits conventional; PR marked ready; all fields complete; CI passing on remote | Continue to Phase 18 |
-| ❌ FAIL | Commit format violations, missing PR fields, or CI failing on remote | Fix and re-validate. |
-
----
-
-## Phase 18 — Response Formatter
-
-**Classification:** Execution Phase  
-**Trigger:** After Phase 17 passes.
-
-### Inputs
-- Gate outputs from all prior phases
-
-### Process
-Output a deterministic, machine-readable summary. Avoid verbose paragraphs.
-
-```
+⛔ If either the branch or the draft PR is missing, do not proceed to Phase 7.
+
+Exit Criteria
+| PASS | Branch on remote AND draft PR open and linked to Issue |
+| FAIL | Either missing — create, push, open, then re-check |
+
+Phase 7 — Live Repository Discovery
+Classification: Execution Phase
+
+Only live source code and live git output are authoritative. Documentation, comments, and prior conversation are not evidence of current state.
+
+Process
+Answer explicitly: What exists? Where is SSOT? What depends on it? Can it be reused? What will break? Is there already an Issue?
+Map for task scope: folder structure, workspace config, components (apps/*/src/components/), hooks (apps/*/src/hooks/), domain services (core/src/services/), routes (backend/api/src/routes/), controllers, middleware, utilities (core/src/utils/, shared/src/), validators (core/src/validators/), types (shared/src/types/), constants (shared/src/constants/), models (core/src/models/), test coverage.
+Exit Criteria
+| PASS | Live map complete; all Phase 1 assumptions verified |
+| FAIL | Source inaccessible or assumption verification contradicts the plan |
+
+Phase 8 — Policy Engine
+Classification: Execution Phase
+Process
+
+Load .agents/policy_engine/POLICY_ENGINE.json.
+Map Change Type × Repository Discovery × Project Context.
+Load only the Required Skills, Required Rules, Required Verification, and Priority the engine dictates. Load nothing else.
+
+Exit Criteria
+| PASS | Policy Engine executed, task-specific context loaded |
+
+Phase 8.5 — Impact Analysis
+Classification: Execution Phase
+Process
+Before writing code, analyze and persist (not "internal memory only") the cross-boundary impact:
+
+API impact — frontend client updates needed?
+Database impact — migrations/index changes?
+Frontend impact — breaks existing UI state?
+Admin impact — does admin need awareness?
+Testing impact — which suites break?
+
+Outputs
+Persisted Impact Surface Map, same Evidence Standard as every other phase — available to the user on request, not discarded.
+Exit Criteria
+| PASS | Impact surface mapped and persisted across all domains |
+
+Phase 9 — Duplication & Reuse Gate
+Classification: Execution Gate
+
+This is the single duplicate-detection gate in this workflow. All other phases (Conflict Detection, Repository Hygiene, Audit) reference this gate's Evidence Standard rather than defining their own.
+
+Process
+Before creating any new artifact, search existing locations:
+ArtifactSearch LocationHookapps/*/src/hooks/Componentapps/*/src/components/Service methodcore/src/services/API endpointbackend/api/src/routes/Utility functioncore/src/utils/, shared/src/Validator / schemacore/src/validators/Type / interfaceshared/src/types/Constant / enumshared/src/constants/Middlewarebackend/api/src/middleware/Business logiccore/src/services/
+For every match or near-match, record it using the Evidence Standard (file:line, Type: Duplicate, Action: Reuse/Extend/Remove). Extend existing files instead of creating new ones whenever practical.
+Exit Criteria
+| PASS | Every required artifact resolved to Reuse/Extend, or new creation is justified with evidence that no existing artifact fits |
+| FAIL | A duplicate would be created without evidence-backed justification |
+
+Phase 10 — Architecture Validation
+Classification: Execution Gate
+Process
+Validate against invariants: dependency direction (Apps → API → Core → Shared, no upstream imports), no circular dependencies, Core is framework-independent (no Express/HTTP in core/src/), controllers stay thin (no DB queries/business logic), no direct model access from apps/*, transactions live only in core/src/services/, UI components are presentational (no direct fetch calls), correct layer ownership, backward compatibility (breaking changes need an ADR), new packages need an ADR.
+Exit Criteria
+| PASS | All invariants confirmed unviolated |
+| FAIL | Any invariant violated — list each, do not implement until corrected |
+
+Dependency Policy
+Applies whenever Phase 9 or Phase 12 would introduce a new third-party package. Before adding it:
+RequirementStandardJustificationState why an existing dependency or in-repo utility can't do this — checked against Phase 9's reuse mapLicenseMust be a permissive license (MIT, Apache-2.0, BSD, ISC); anything else requires explicit user approvalMaintenance healthLast published/updated within a reasonable window (e.g. 12 months); flag abandoned packagesBundle size impactFor frontend packages, report the added size against the Phase 8.5 impact budgetVulnerability statusZero known critical/high vulnerabilities at time of adding (checked again in Phase 16 step 9)
+Failing any of these is a Phase 9/10 blocking issue, not a Phase 16 surprise — catch it before implementation, not after.
+Feature Flag Policy
+For Medium/High risk changes (per Phase 2 classification) that can be decoupled from a single release, prefer shipping behind a feature flag over a big-bang merge:
+
+New/risky behavior defaults off in production until explicitly enabled.
+Flag name follows the Naming Policy constant convention.
+Flag removal (cleanup of dead flag branches) is tracked as a follow-up Issue, not left indefinitely — an unremoved flag older than the agreed cleanup window is a Repository Hygiene (Phase 15) finding.
+
+This is a recommendation the AI should surface for Medium/High risk tasks, not a hard gate — the user makes the final call on whether a flag is warranted.
+Phase 11 — Pre-Implementation Quality Validation
+Classification: Execution Gate
+Process
+
+Execute .agents/verification/pre_implementation.md.
+Confirm draft PR open, branch on remote, reuse map from Phase 9 applied.
+Apply domain-specific rules from Phase 8.
+Confirm duplicate, dead-code, and orphan audits (Phase 9) are documented or resolved.
+
+Exit Criteria
+| PASS | Checklist complete, all gates passed |
+| FAIL | Any item incomplete — resolve before implementation |
+
+Phase 11.5 — Business Rules Verification Gate
+Classification: Execution Gate
+Mandatory for any task touching a field, form, workflow, or state with defined business rules.
+Process
+For each in-scope rule, verify consistency: Blueprint → UI → API → Backend → Database → Admin (if applicable) → only then Implementation.
+Business RuleBlueprintUIAPIBackendDatabaseAdminStatus
+Exit Criteria
+| PASS | All in-scope rules verified consistently across every applicable layer |
+| FAIL | Any layer contradicts the rule — document the contradiction, do not implement |
+
+Phase 12 — Implementation
+Classification: Execution Phase
+Trigger: Only after Phases 3–11.5 all PASS.
+
+⛔ Before writing code, confirm: on a feature branch (not main/develop), branch exists on remote, draft PR open and linked. If any fails, return to Phase 6.
+
+Build Order
+
+Contract types — shared/src/types/
+DTO schemas — core/src/validators/
+Database models — core/src/models/
+Domain services — core/src/services/
+Unit tests
+Controllers — backend/api/src/controllers/
+Route bindings — backend/api/src/routes/
+Integration tests
+OpenAPI specs
+UI components
+
+Data Migration Safety (mandatory for Database-classified tasks)
+
+Every migration must be backward-compatible with the previous schema version for at least one deploy cycle (expand/contract pattern — no destructive change in the same migration that adds it).
+A dry-run against a non-production copy of the data is required before the migration is considered implemented.
+A rollback migration must be written alongside the forward migration, not authored later.
+
+Implementation Invariants (continuous, any violation is blocking)
+InvariantRuleNo debug outputconsole.log/debug/error banned in committed codeNo TODOsTODO, FIXME, HACK bannedNo placeholder codeEvery function fully implementedNo commented-out codeDeleted code is deletedNo hardcoded secretsEnv vars onlyNo unused variablesEvery declared variable consumedNo unused importsEvery import consumed — checked here, enforced as a gate in Phase 13No unused exportsEvery export has a consumer — checked here, enforced as a gate in Phase 13No dead codeUnreachable paths removedNo partial implementationsComplete when committedNo temporary filesNo _backup, _temp, _wipNamingFollows the Naming Policy — no ad hoc conventions
+Exit Criteria
+| PASS | Implementation complete, invariants satisfied |
+| FAIL | Any invariant violated — fix before proceeding |
+
+Phase 13 — Code Quality & Lint/Import Hygiene Gate
+Classification: Execution Gate
+
+This gate owns import/lint hygiene. Phase 16 re-runs the automated lint command as a pipeline step but does not redefine the standard — if Phase 16's lint step fails, it is a re-trigger of this gate, not a new one.
+
+Process
+CheckStandardFile size and focusA file serving more than one clear concern must be splitFunction focusEvery function does exactly one thingImport hygieneSorted (external → internal → relative); zero unused imports; zero duplicate importsExport hygieneZero unused exportsLazy loadingDynamic imports where full module load at startup isn't requiredRender efficiencyNo unnecessary re-renders from unstable refs, missing memoization, bad dependency arraysAPI deduplicationNo duplicate requests for the same data in one interactionCouplingNo new tight coupling between previously-independent layersNamingMatches Naming Policy exactly
+Exit Criteria
+| PASS | All checks pass, zero unused imports/exports, naming conforms |
+| FAIL | Any check fails — fix, re-validate from Phase 13 |
+
+Phase 14 — UI/UX Quality Validation
+Classification: Execution Gate — Conditional (only if UI-modified = Yes)
+Process
+Skills: before writing or reviewing any UI code, load the relevant design/frontend skill(s) (e.g. frontend-design) — this is not optional for UI-modified tasks. Visual and interaction decisions must follow the skill's design tokens and constraints, not ad hoc defaults.
+Mobile-first & fully responsive:
+CheckStandardBaselineSmallest breakpoint (mobile) is designed first, not adapted from desktop after the factBreakpointsVerified at mobile, tablet, and desktop — layout must not break at any of themNo horizontal scrollAt any breakpointTouch targetsMinimum 44×44px on mobile, adequate spacing between tappable elementsFluid layoutNo fixed pixel widths that overflow smaller viewports; use relative units
+Performance / page speed:
+CheckStandardCore Web VitalsLCP < 2.5s, CLS < 0.1, INP < 200ms on a throttled mobile profileImage optimizationCorrectly sized, modern format, lazy-loaded below the foldBundle impactNew UI code doesn't regress the route's JS bundle size beyond the budget set in Phase 8.5Render blockingNo unnecessary blocking scripts/styles added to the critical path
+Accessibility: full keyboard navigation, semantic HTML, correct ARIA, focus trapping/restoration, WCAG AA contrast.
+UI States: loading, empty, error (actionable), success, inline validation — all implemented per interactive element.
+Functional completeness: every button has a real action (onClick={() => {}} banned), every link resolves, every form submits to a real endpoint, modals open/submit/close correctly, no orphan UI.
+Exit Criteria
+| PASS | All checks pass, including mobile-first/responsive and performance budgets |
+| FAIL | Any check fails — fix, re-validate |
+| SKIP | UI-modified = No |
+
+Phase 15 — Repository Hygiene Validation
+Classification: Execution Gate
+Process
+
+Execute .agents/verification/repository_cleanup.md.
+Verify no temp files (*.tmp, *.bak, _wip, scratch-), debug output, or orphan files remain.
+If new documentation is created, apply .agents/verification/documentation_gate.md — must not be duplicative, must provide long-term value.
+
+
+Any duplicate found here follows the Phase 9 Evidence Standard — same format, no separate rule.
+
+Exit Criteria
+| PASS | Working tree contains only intended files |
+| FAIL | Disallowed files found — remove, re-validate |
+
+Phase 16 — Verification Pipeline
+Classification: Execution Gate
+Process
+Run in order; any failure means fix and re-run all steps from step 1 (subject to the global Iteration Limit and the Flaky Test Policy below):
+1. npm run format
+2. npm run lint                 # re-runs Phase 13's standard, does not redefine it
+3. npm run test:unit            # must meet the coverage threshold below
+4. npm run test:integration
+5. npm run type-check
+6. npm run build
+7. npm run guard:platform-governance
+8. npm run repository:doctor -- --profile ci
+9. npm run audit:secrets && npm run audit          # Secret & Dependency Scan
+If UI-modified = Yes, also:
+10. npm run test:e2e
+Coverage threshold: new or changed code introduced by this task must meet the repository's configured minimum coverage threshold (branch + line). A passing test:unit run with coverage below threshold is a FAIL, not a PASS.
+Secret & Dependency Scan (step 9): no leaked credentials, API keys, or tokens in the diff; no newly introduced dependency with a known critical/high vulnerability. Any hit is a FAIL — remove the secret/rotate it, or address the vulnerable dependency per the Dependency Policy.
+Flaky Test Policy: a test is only treated as flaky if it has a documented history of intermittent failure unrelated to this change (tracked in the repo's flaky-test registry). A flaky test's failure does not block this gate, but it must be logged (Evidence Standard) and reported in Phase 18 as a known flake — it may never be silently skipped or deleted to make the gate pass. A test failing for the first time is never assumed flaky.
+Exit Criteria
+| PASS | All applicable steps pass with zero errors and coverage above threshold; no unjustified eslint-disable, as, or !; no secrets or critical/high vulnerabilities found |
+| FAIL | Any step fails — fix, re-run from step 1 (see Iteration Limit) |
+
+Phase 17 — PR Finalization
+Classification: Execution Phase
+Process
+Commits: every commit follows the Naming Policy commit convention (enforced by commitlint.config.js).
+PR body:
+FieldRequirementTitleNaming Policy PR title formatIssue referenceCloses #<issue-number>DescriptionWhat changed and why — not a copy of the commit logTesting evidencePhase 16 pipeline outputRollback strategySteps to revertKnown risksLimitations, deferred workArchitecture checklistREPOSITORY_GOVERNANCE_STANDARD.md §10
+Finalize: mark draft → Ready for review, confirm CI passes on remote. Never merge automatically, self-approve, or bypass CI.
+Exit Criteria
+| PASS | Commits conventional, PR ready, fields complete, CI passing remotely |
+| FAIL | Any violation — fix and re-validate |
+
+Phase 18 — Completion Report
+Classification: Execution Phase
+Note: This is the only name for this phase — it is not separately called "Response Formatter" elsewhere in this document.
+Process
+Output a deterministic, machine-readable summary:
 ✓ Discovery Complete
-✓ Existing implementation reused
+✓ Existing implementation reused (Phase 9 evidence attached)
 ✓ Duplicate logic not introduced
 ✓ Verification Passed
 
@@ -901,34 +423,59 @@ Changed
 Checks
 ✓ Typecheck
 ✓ Build
+✓ Lint & Import Hygiene
 ✓ Repository Rules
 ✓ UI/UX Validation (if applicable)
 
 Next
 <Concise prompt for next action>
-```
+Final Completion Checklist
+Status is Completed only when every item is satisfied; otherwise In Progress.
 
-### Final Completion Checklist
+ Working tree clean — git status
+ All commits present locally — git log
+ Feature branch used (not main) — git log --oneline
+ Branch on remote — git ls-remote
+ Pull Request URL confirmed (real GitHub link, not a walkthrough artifact)
+ PR linked to Issue (Closes #N)
+ CI passed on remote — link attached
+ PR not self-approved or auto-merged
+ No temporary artifacts remain
+ Documentation matches actual repository state
+ Completion Report populated with objective evidence for every field
 
-Task status is **Completed** only when every item below is satisfied.  
-If any item is missing or unverified, status remains **In Progress**.
+Exit Criteria
+| PASS | Every checklist item satisfied, report provided — execution complete |
+| FAIL | Any item unverified — do not declare completion |
 
-- [ ] Working tree is clean — `git status` output confirms
-- [ ] All commits present locally — `git log` output confirms
-- [ ] Feature branch was used (NOT `main`) — `git log --oneline` confirms
-- [ ] Branch exists on remote — `git ls-remote` output confirms
-- [ ] **Pull Request URL confirmed** — not a walkthrough artifact, a real GitHub PR link
-- [ ] PR is linked to the GitHub Issue (`Closes #N` in body)
-- [ ] CI pipeline passed on remote repository — link to CI run
-- [ ] PR has not been self-approved or auto-merged
-- [ ] No temporary artifacts remain in the working tree
-- [ ] Documentation matches the actual repository state
-- [ ] Completion Report populated with objective evidence for every field
+Phase 19 — Post-Merge Monitoring
+Classification: Execution Phase
+Trigger: After the PR from Phase 17/18 is merged. Mandatory for Medium/High risk tasks; optional but recommended for Low risk.
+Process
 
-### Exit Criteria
+Define the monitoring window up front (e.g. 24–72 hours based on risk level) and what "healthy" looks like (error rate, latency, relevant business metric) — this should be stated before merge, not improvised after.
+Watch error rates, logs, and the defined metrics for the window.
+If a regression attributable to this change appears, trigger the rollback strategy documented in the Phase 17 PR body — do not attempt a live fix under pressure without user sign-off.
+Record the outcome (healthy / rolled back / rolled back and reworked) in the Decision Log.
 
-| Outcome | Condition | Next Action |
-|---------|-----------|-------------|
-| ✅ PASS | Every checklist item satisfied; Response Formatter output provided | **Execution complete.** |
-| ❌ FAIL | Any checklist item unverified | Do not declare completion. Resolve the missing item. |
+Exit Criteria
+| PASS | Monitoring window completed with no attributable regression, or a regression was caught and rolled back per plan |
+| FAIL | A regression occurred and no rollback strategy existed, or rollback was attempted without following the documented plan |
 
+Audit Governance Rules
+Applies to every task classified Audit (Phase 2, sub-phases 2a–2f).
+Audit means audit. Verify implementation, business rules, UI/UX, backend, repository quality. Identify root causes. Produce evidence. Do not introduce new features or architecture.
+No new feature suggestions during an audit unless explicitly requested by the user.
+Recommendation rule: if current implementation genuinely cannot solve the problem without new functionality, stop and produce a Proposed New Feature document (fields: Feature Name, Problem Being Solved, Why current system can't solve it, Business/Technical/UI/Backend/Repository impact, Alternative approaches, Risks). No implementation details. Requires explicit user approval before it enters scope.
+Finding classification (used throughout, including Phase 2a):
+
+✅ Verified Issue — implementation is incorrect, evidence required, may be fixed without extra approval.
+💡 Improvement Opportunity — works correctly, optional, no business-behavior change, needs approval to implement.
+🆕 Proposed Feature — not an audit finding, separate proposal, needs approval, follows the format above.
+❓ Needs Verification — insufficient evidence, no conclusion until resolved.
+❓ Needs Catalog Verification — business rule depends on product catalog data not yet confirmed. No conclusion until catalog data is verified; then reclassify.
+⏳ Awaiting Business Approval — business rule exists in draft or proposed state. No implementation until product owner provides explicit approval; then reclassify as ✅ Verified Issue or remove.
+
+Implementation protection: implementation may only address ✅ Verified Issues. 💡 and 🆕 require explicit approval first. Violating this is unauthorized scope expansion — a blocking error.
+
+Audit document structure and approval stamp format are defined in `.agents/templates/AUDIT_TEMPLATE.md`.
