@@ -558,9 +558,10 @@ Validate every planned change against the architectural invariants:
 1. Execute the `pre_implementation.md` checklist from the verification modules.
 2. Ensure every step (e.g., draft PR open, branch exists on remote, reused existing implementations) is strictly followed.
 3. Apply any domain-specific rules loaded by the Resolver (e.g., security checks, API conventions, database rules).
+4. Perform and verify that duplicate audits, dead code audits, orphan audits, and repository quality audits have been executed, and all findings are documented or resolved.
 
 ### Outputs
-- Completed Pre-Implementation Verification checklist
+- Completed Pre-Implementation Verification checklist including audit confirmations
 
 ### Exit Criteria
 
