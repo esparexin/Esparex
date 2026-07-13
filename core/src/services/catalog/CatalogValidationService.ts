@@ -1,7 +1,16 @@
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
-import { CATALOG_APPROVAL_STATUS, type CatalogApprovalStatusValue } from '@esparex/shared';
+import {
+    CATALOG_APPROVAL_STATUS,
+    type CatalogApprovalStatusValue,
+    CatalogValidationServiceShared,
+    type CatalogValidator,
+    CharacterValidator,
+    LengthValidator,
+    SpamValidator,
+    ReservedWordValidator
+} from '@esparex/shared';
 import CategoryQueryBuilder from '../../utils/CategoryQueryBuilder';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';
 import {
@@ -392,4 +401,23 @@ export function deriveApprovalStatus(options: {
     }
 
     return ((approvalStatus as string) || fallback) as CatalogApprovalStatusValue;
+}
+
+/* ─── Configurable Naming Validators (SSOT via @esparex/shared) ─── */
+
+export {
+    type CatalogValidator,
+    CharacterValidator,
+    LengthValidator,
+    SpamValidator,
+    ReservedWordValidator,
+};
+
+export class CatalogValidationService {
+    public static validateCatalogInput(options: {
+        name: string;
+        requestType: 'brand' | 'model';
+    }): { ok: boolean; reason?: string } {
+        return CatalogValidationServiceShared.validateCatalogInput(options);
+    }
 }

@@ -50,7 +50,7 @@ export function BrandSection() {
                         brandMap={brandMap as any} 
                         categoryId={categoryId} 
                         value={brandNameValue} 
-                        onChange={(_id, name, rId) => onBrandChange(name, rId)} 
+                        onChange={(_id, name) => onBrandChange(name, _id)} 
                         onRequestSuccess={() => refreshBrands()} 
                         disabled={brandIsPending || isEditMode} 
                         placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"} 

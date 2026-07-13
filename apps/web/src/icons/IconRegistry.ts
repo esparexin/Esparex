@@ -31,6 +31,7 @@ export {
     ChevronLeft,
     ChevronRight,
     Plus,
+    Minus,
     X,
 } from "lucide-react";
 

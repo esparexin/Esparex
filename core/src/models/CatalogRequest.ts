@@ -6,7 +6,7 @@ import { applyToJSONTransform } from '../utils/schemaOptions';
 export const CATALOG_REQUEST_TYPE_VALUES = ['brand', 'model'] as const;
 export type CatalogRequestTypeValue = (typeof CATALOG_REQUEST_TYPE_VALUES)[number];
 
-export const CATALOG_REQUEST_STATUS_VALUES = ['pending', 'approved', 'rejected', 'merged'] as const;
+export const CATALOG_REQUEST_STATUS_VALUES = ['pending', 'approved', 'rejected', 'merged', 'resolved'] as const;
 export type CatalogRequestStatusValue = (typeof CATALOG_REQUEST_STATUS_VALUES)[number];
 
 export interface ICatalogRequest extends Document {
@@ -45,6 +45,9 @@ export interface ICatalogRequest extends Document {
 
     approvedBy?: Types.ObjectId | null;
     approvedAt?: Date | null;
+    resolutionType?: 'automatic' | 'manual';
+    resolvedAt?: Date | null;
+    resolvedBySystem?: boolean;
     rejectedBy?: Types.ObjectId | null;
     rejectedAt?: Date | null;
     moderationIntelligence?: {
@@ -104,6 +107,9 @@ const CatalogRequestSchema = new Schema<ICatalogRequest>(
 
         approvedBy: { type: Schema.Types.ObjectId, ref: 'Admin', default: null },
         approvedAt: { type: Date, default: null },
+        resolutionType: { type: String, enum: ['automatic', 'manual'], default: 'manual' },
+        resolvedAt: { type: Date, default: null },
+        resolvedBySystem: { type: Boolean, default: false },
         rejectedBy: { type: Schema.Types.ObjectId, ref: 'Admin', default: null },
         rejectedAt: { type: Date, default: null },
         moderationIntelligence: {

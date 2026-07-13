@@ -29,13 +29,13 @@ export function ModelSection() {
     const shouldShowFieldError = useCallback((path: string) => hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, path)), [hasAttemptedStepValidation, touchedFields]);
     const modelError = (shouldShowFieldError("model") || shouldShowFieldError("modelId")) ? (errors.model?.message ?? errors.modelId?.message) : undefined;
 
-    const onModelChange = useCallback((mId: string | null, mName: string, rId?: string) => {
+    const onModelChange = useCallback((mId: string | null, mName: string) => {
         const affected: string[] = [];
         if (deviceCondition) affected.push("Device Condition");
         if (spareParts.length > 0) affected.push("Selected Spare Parts");
 
         withCascadeConfirmation("Model", affected, () => {
-            const aid = mId || rId || ""; 
+            const aid = mId || ""; 
             setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
             setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
             setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true }); 
@@ -59,7 +59,7 @@ export function ModelSection() {
                         categoryId={categoryId} 
                         value={modelId || modelNameValue} 
                         modelDisplayName={modelNameValue}
-                        onChange={(mId, mName, rId) => onModelChange(mId, mName, rId)}
+                        onChange={(mId, mName) => onModelChange(mId, mName)}
                         onBrandResolved={(rbId, rbName) => { 
                             setValue("brandId", rbId, { shouldDirty: true }); 
                             setValue("brand", rbName, { shouldDirty: true }); 

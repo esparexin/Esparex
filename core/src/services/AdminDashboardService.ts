@@ -84,7 +84,7 @@ export const getDashboardOverviewStats = async (publicAdFilter: Record<string, u
 // Typed status constants derived from CatalogRequestStatusValue — type-safe without
 // runtime tuple indexing that would fail when the model is mocked in tests.
 const CATALOG_REQUEST_PENDING_STATUS = 'pending' satisfies CatalogRequestStatusValue;
-const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged'];
+const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged', 'resolved'];
 const CATALOG_REQUEST_MERGED_STATUS = 'merged' satisfies CatalogRequestStatusValue;
 
 export const getCatalogHealthMetrics = async () => {

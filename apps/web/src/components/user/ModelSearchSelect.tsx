@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, useEffect, type CSSProperties } from "react";
-import { Check, Search, Loader2, Plus } from "@/icons/IconRegistry";
+import { Search, Loader2, Plus, Minus } from "@/icons/IconRegistry";
+import { CatalogValidationServiceShared } from "@esparex/shared";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -36,6 +37,7 @@ export function ModelSearchSelect({
     value,
     modelDisplayName = "",
     onChange,
+    onRequestSuccess,
     listingId,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
@@ -128,8 +130,13 @@ export function ModelSearchSelect({
         return availableModels.some((m) => m.name.toLowerCase() === trimmedSearch.toLowerCase());
     }, [availableModels, trimmedSearch]);
 
+    const isSearchValid = useMemo(() => {
+        if (!trimmedSearch) return false;
+        return CatalogValidationServiceShared.validateCatalogInput({ name: search, requestType: "model" }).ok;
+    }, [search, trimmedSearch]);
+
     const showSuggestButton =
-        trimmedSearch.length >= 2 &&
+        trimmedSearch.length > 0 &&
         !hasExactApprovedMatch &&
         !isLoading &&
         !disabled &&
@@ -141,7 +148,7 @@ export function ModelSearchSelect({
         if (!categoryId) {
             return;
         }
-        if (!hasCanonicalBrandId) {
+        if (!hasCanonicalBrandId || !isSearchValid) {
             return;
         }
         setIsRequestDialogOpen(true);
@@ -156,41 +163,69 @@ export function ModelSearchSelect({
             parentBrandId={brandId}
             initialName={search}
             listingId={listingId}
-            onSuccess={() => {
+            onSuccess={async (resolvedEntityId, name, decision) => {
                 setSearch("");
                 setIsEditing(false);
+                if (decision === 'AUTO_APPROVE') {
+                    if (onRequestSuccess) {
+                        await onRequestSuccess(resolvedEntityId, name);
+                    } else {
+                        await loadModelsForBrand(brandId, categoryId);
+                    }
+                    onChange(resolvedEntityId, name);
+                } else {
+                    if (onRequestSuccess) {
+                        await onRequestSuccess(resolvedEntityId, name);
+                    } else {
+                        await loadModelsForBrand(brandId, categoryId);
+                    }
+                }
             }}
         />
     );
 
-    // ── Selected State ──────────────────────────────────────────────────────
+    // ── Selected State (Inline Trailing Action: Minus) ─────────────────────
     if (selectedName && !isEditing) {
         return (
-            <>
-                <div className={cn(
-                    "flex h-12 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 transition-all hover:bg-slate-100/50",
-                    className
-                )}>
-                    <div className="flex items-center gap-2.5 min-w-0">
-                        <Check className="w-4 h-4 text-green-600 shrink-0" />
-                        <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
-                    </div>
+            <div className={cn("relative", className)} ref={containerRef}>
+                <div className="relative group">
+                    <Input
+                        value={selectedName}
+                        readOnly
+                        disabled={disabled}
+                        className="pl-4 pr-12 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all shadow-sm bg-slate-50 text-foreground cursor-pointer"
+                        onClick={() => {
+                            if (!disabled) {
+                                setIsEditing(true);
+                                setSearch(selectedName);
+                            }
+                        }}
+                    />
                     {!disabled && (
                         <button
                             type="button"
-                            onClick={() => setIsEditing(true)}
-                            className="ml-2 shrink-0 text-xs font-bold text-primary hover:opacity-80 active:scale-95 transition-all"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setLocalSelection(null);
+                                onChange("", "");
+                                setSearch("");
+                                setIsEditing(false);
+                            }}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary transition-all"
+                            aria-label="Remove selection"
+                            title="Remove selection"
                         >
-                            Edit
+                            <Minus className="w-[18px] h-[18px]" />
                         </button>
                     )}
                 </div>
                 {requestDialog}
-            </>
+            </div>
         );
     }
 
-    // ── Search State ────────────────────────────────────────────────────────
+    // ── Search State (Inline Trailing Action: Plus) ────────────────────────
     return (
         <div 
             className={cn("relative", className)} 
@@ -210,7 +245,7 @@ export function ModelSearchSelect({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter" && search.length >= 2 && showSuggestButton) {
+                        if (e.key === "Enter" && search.length >= 2 && showSuggestButton && isSearchValid) {
                             e.preventDefault();
                             handleAddNew();
                         }
@@ -231,12 +266,18 @@ export function ModelSearchSelect({
                 {showSuggestButton && (
                     <button
                         type="button"
+                        disabled={!isSearchValid}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             handleAddNew();
                         }}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary transition-all"
+                        className={cn(
+                            "absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary",
+                            !isSearchValid
+                                ? "opacity-40 cursor-not-allowed text-slate-300"
+                                : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                        )}
                         aria-label="Suggest model"
                         title="Suggest model"
                     >

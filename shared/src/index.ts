@@ -70,6 +70,7 @@ export * from './utils/resolveCategoryId';
 export * from './utils/geoUtils';
 export * from './utils/locationPrimitives';
 export * from './utils/textValidator';
+export * from './utils/catalogNamingValidator';
 export * from './utils/planEntitlements';
 export * from './listingUtils/locationUtils';
 export * from './listingUtils/imageUtils';
