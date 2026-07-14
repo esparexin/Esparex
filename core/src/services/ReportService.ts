@@ -1,17 +1,19 @@
 import mongoose from 'mongoose';
 import Report, { ReportTargetTypeValue } from '../models/Report';
-import Ad from '../models/Ad';
 import User from '../models/User';
 import Business from '../models/Business';
 import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
 import logger from '../utils/logger';
 import { mutateStatus } from './lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from '@esparex/shared';
+import { getListingRepository } from '../composition/listings';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;
 
 export const checkAdExists = async (adId: string) => {
-    return Ad.findById(adId).select('_id title').lean<{ _id: mongoose.Types.ObjectId; title?: string } | null>();
+    const listing = await getListingRepository().findById(adId);
+    if (!listing) return null;
+    return { _id: new mongoose.Types.ObjectId(listing.id), title: listing.title };
 };
 
 export const checkUserExists = async (userId: string) => {
@@ -73,7 +75,7 @@ export const bulkResolveReports = async (
 ) => {
     // 🛡️ ARCHITECTURAL EXCEPTION: Report domain is not yet centralized in StatusMutationService.
     // Raw Mongoose update is permitted for bulk Report resolution until the domain is migrated.
-    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
+     
     return Report.updateMany(
         {
             $or: [
