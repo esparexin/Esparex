@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
-import type { IAd } from '../../models/Ad';
 import { getListingRepository, getListingUnitOfWork } from '../../composition/listings';
+import { type Listing } from '../../domains/listings';
+import { isValidObjectId } from '../../utils/idUtils';
+
 
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
@@ -19,12 +20,10 @@ export const updateAdLogic = async (
     context: AdContext,
     externalSession?: unknown
 ): Promise<Record<string, unknown> | null> => {
-    if (!mongoose.Types.ObjectId.isValid(adId)) return null;
-
-    const id = new mongoose.Types.ObjectId(adId);
+    if (!isValidObjectId(adId)) return null;
 
     try {
-        let updatedAd: IAd | null = null;
+        let updatedAd: Listing | null = null;
         let oldPriceValue: number | undefined;
         let removedImagesCache: string[] = [];
         
@@ -94,7 +93,7 @@ export const updateAdLogic = async (
             while (slugRetries < 3) {
                 try {
                     const updated = await getListingRepository().updateOne(adId, payload as any, session);
-                    updatedAd = updated as unknown as IAd;
+                    updatedAd = updated;
                     break;
                 } catch (error: unknown) {
                     const mongoError = error as { code?: number; keyPattern?: { seoSlug?: string } };
@@ -116,9 +115,9 @@ export const updateAdLogic = async (
             }
 
             if (updatedAd && requiresReviewTransition) {
-                updatedAd = await mutateStatus({
+                updatedAd = (await mutateStatus({
                     domain: ad.listingType === 'service' ? 'service' : 'ad',
-                    entityId: id,
+                    entityId: adId,
                     toStatus: LISTING_STATUS.PENDING,
                     actor: {
                         type: context.actor === 'ADMIN' ? 'admin' : 'user',
@@ -140,7 +139,7 @@ export const updateAdLogic = async (
                         },
                     },
                     session,
-                }) as IAd | null;
+                })) as unknown as Listing | null;
             }
         };
 
@@ -154,7 +153,7 @@ export const updateAdLogic = async (
 
         if (!updatedAd) return null;
         
-        const updatedAdTyped = updatedAd as IAd;
+        const updatedAdTyped = updatedAd as Listing;
         if (Array.isArray(updatedAdTyped.images) && updatedAdTyped.images.length > 0) {
             enqueueImageOptimization(adId, 'ad', updatedAdTyped.images).catch(err => {
                 logger.error('Failed to enqueue image optimization after Ad edit', err);
@@ -166,7 +165,7 @@ export const updateAdLogic = async (
             void (async () => {
                 try {
                     const SavedAd = (await import('@esparex/core/models/SavedAd')).default;
-                    const keepers = await SavedAd.find({ adId: id }).select('userId').lean();
+                    const keepers = await SavedAd.find({ adId }).select('userId').lean();
                     if (keepers.length > 0) {
                         const { dispatchTemplatedNotification } = await import('../NotificationService');
                         for (const keeper of keepers) {
@@ -178,7 +177,7 @@ export const updateAdLogic = async (
                                     adTitle: updatedAdTyped.title, 
                                     price: String(updatedAdTyped.price) 
                                 },
-                                { adId: String(id), type: 'price_drop' }
+                                { adId, type: 'price_drop' }
                              );
                         }
                     }
@@ -201,8 +200,8 @@ export const updateAdLogic = async (
             })();
         }
 
-        if (typeof (updatedAd as { toObject?: unknown }).toObject === 'function') {
-            return (updatedAd as unknown as { toObject: () => Record<string, unknown> }).toObject();
+        if (typeof (updatedAd as any).toObject === 'function') {
+            return (updatedAd as any).toObject();
         }
         return updatedAd as unknown as Record<string, unknown>;
     } catch (error) {
@@ -213,4 +212,5 @@ export const updateAdLogic = async (
         throw error;
     }
 };
+
 

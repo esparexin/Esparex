@@ -5,10 +5,10 @@ import FraudScore from '../models/FraudScore';
 import logger from '../utils/logger';
 
 export interface FraudContext {
-    userId?: mongoose.Types.ObjectId;
+    userId?: mongoose.Types.ObjectId | string;
     ip: string;
     deviceFingerprint?: string;
-    adId?: mongoose.Types.ObjectId;
+    adId?: mongoose.Types.ObjectId | string;
     phone?: string;
     description?: string;
     price?: number;
@@ -18,6 +18,7 @@ export interface FraudContext {
     isTextSpam?: boolean;
     textSpamScore?: number;
 }
+
 
 export type RiskLevel = 'allow' | 'flag' | 'captcha' | 'moderation' | 'block';
 

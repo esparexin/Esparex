@@ -1,8 +1,9 @@
-import mongoose from 'mongoose';
-import type { IAd } from '../models/Ad';
+import { type Listing } from '../domains/listings';
 import { getListingRepository, getListingUnitOfWork } from '../composition/listings';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
+import { generateId } from '../utils/idUtils';
+
 
 
 // Specialized Services
@@ -37,10 +38,10 @@ export interface AdOrchestrationContext {
  * The Single Source of Truth for Ad mutations.
  * Enforces transaction boundaries and domain coordination.
  */
-export const createAd = async (data: Record<string, unknown>, context: AdOrchestrationContext): Promise<IAd | null> => {
+export const createAd = async (data: Record<string, unknown>, context: AdOrchestrationContext): Promise<Listing | null> => {
     const start = Date.now();
-    const adId = new mongoose.Types.ObjectId();
-    let createdAd: IAd | null = null;
+    const adId = generateId();
+    let createdAd: Listing | null = null;
 
     try {
         const listingType = (data.listingType as string) || LISTING_TYPE.AD;
@@ -51,12 +52,12 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 const slotResult = await ListingSubmissionPolicy.reserveSlot({
                     userId: context.sellerId,
                     listingType: listingType as ListingTypeValue,
-                    listingId: adId.toString(),
+                    listingId: adId,
                     session: session as any,
                     actor: 'user',
                 });
                 if (slotResult.source === 'idempotency_hit') {
-                    logger.info('AdOrchestrator: Idempotency hit for slot consumption', { adId: adId.toString() });
+                    logger.info('AdOrchestrator: Idempotency hit for slot consumption', { adId });
                 }
             }
 
@@ -84,7 +85,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     : undefined,
                 fraudScore: context.fraudScore,
             };
-            const payload = await AdCreationService.preparePayload(data, adContext, false, undefined, adId.toString());
+            const payload = await AdCreationService.preparePayload(data, adContext, false, undefined, adId);
             (payload as Record<string, unknown>)._id = adId;
 
             // 3. Duplicate Detection
@@ -112,7 +113,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             // 4. Fraud Analysis
             // Map orchestration context to FraudContext
             const fraudContext: FraudContext = {
-                userId: new mongoose.Types.ObjectId(context.authUserId),
+                userId: context.authUserId,
                 ip: context.ip || '0.0.0.0',
                 deviceFingerprint: context.deviceFingerprint,
                 action: 'POST_AD',
@@ -146,14 +147,14 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             }
 
             const createdListing = await getListingRepository().insert(payload as any, session);
-            createdAd = { ...createdListing, _id: new mongoose.Types.ObjectId(createdListing.id) } as unknown as IAd;
+            createdAd = createdListing;
 
             // 8. Final Approval (Only if actor is ADMIN and not held for review)
             if (createdAd && shouldAutoApprove) {
                 const approvedAt = new Date();
                 await mutateStatus({
                     domain: 'ad',
-                    entityId: (createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString(),
+                    entityId: createdAd.id,
                     toStatus: LISTING_STATUS.LIVE,
                     actor: {
                         type: 'admin',
@@ -163,7 +164,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     metadata: {
                         action: 'moderation_approve',
                         sourceRoute: 'AdOrchestrator.createAd',
-                        listingType: (createdAd as IAd & { listingType?: string }).listingType || 'ad',
+                        listingType: createdAd.listingType || 'ad',
                     },
                     patch: {
                         moderatorId: context.authUserId,
@@ -183,15 +184,15 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     session,
                 });
 
-                const updatedListing = await getListingRepository().findById((createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString());
-                createdAd = updatedListing ? { ...updatedListing, _id: new mongoose.Types.ObjectId(updatedListing.id) } as unknown as IAd : createdAd;
+                const updatedListing = await getListingRepository().findById(createdAd.id);
+                createdAd = updatedListing || createdAd;
             }
 
             // 9. Dispatch Image Optimization
             if (createdAd && Array.isArray(createdAd.images) && createdAd.images.length > 0) {
                 // Must not fail the transaction if queue push fails
                 enqueueImageOptimization(
-                    (createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString(),
+                    createdAd.id,
                     'ad',
                     createdAd.images
                 ).catch(err => {
@@ -206,7 +207,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
 
         const duration = Date.now() - start;
         logger.info('AdOrchestrator: createAd successful', {
-            adId: adId.toString(),
+            adId,
             duration: `${duration}ms`,
             authUserId: context.authUserId,
             sellerId: context.sellerId
@@ -231,7 +232,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
         logger.error('AdOrchestrator: createAd failed', {
             authUserId: context.authUserId,
             sellerId: context.sellerId,
-            adId: adId.toString(),
+            adId,
             duration: `${duration}ms`,
             error: error instanceof Error ? error.message : String(error)
         });
