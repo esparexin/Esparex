@@ -27,6 +27,7 @@ module.exports = {
         '^@core/(.*)$': '<rootDir>/../../core/dist/$1'
     },
     modulePathIgnorePatterns: [
-        '<rootDir>/../../shared/dist'
+        '<rootDir>/../../shared/dist',
+        '<rootDir>/dist'
     ]
 };

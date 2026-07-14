@@ -25,7 +25,7 @@ import Ajv from 'ajv';
 // The schema file sits one level above the lib/ directory.
 const SCHEMA_PATH = path.join(__dirname, '..', 'manifest.schema.json');
 const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf-8'));
-const ajv = new Ajv({ allErrors: true, strict: false });
+const ajv = new Ajv({ allErrors: true });
 const validateManifest = ajv.compile(schema);
 
 // ---------------------------------------------------------------------------
@@ -93,7 +93,7 @@ export function loadManifest(manifestPath: string): ManifestResult {
     const valid = validateManifest(parsed);
     if (!valid) {
         const errors = (validateManifest.errors ?? []).map(
-            (err) => `${err.instancePath || '(root)'}: ${err.message}`
+            (err) => `${(err as { instancePath?: string; dataPath?: string }).instancePath ?? (err as { dataPath?: string }).dataPath ?? '(root)'}: ${err.message}`
         );
         return { ok: false, errors };
     }
