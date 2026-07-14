@@ -154,7 +154,7 @@ export function findDeepDomainImports(
 ): ImportRecord[] {
     // Matches any path that enters a domain sub-directory (not its root barrel)
     const deepPattern = new RegExp(
-        `${domainsRoot.replace(/\//g, '\\/')}\/[^/]+\/(domain|ports|application)\/`
+        `${domainsRoot.replace(/\//g, '\\/')}/[^/]+/(domain|ports|application)/`
     );
     return valueImportsOnly(result).filter((i) => deepPattern.test(i.moduleSpecifier));
 }
