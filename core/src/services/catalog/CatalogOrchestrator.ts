@@ -5,7 +5,6 @@ import { Category, Brand } from '../../domains/catalog';
 export type CategoryResult = Category & Record<string, unknown>;
 export type BrandResult = Brand & Record<string, unknown>;
 
-import SparePart from '../../models/SparePart';
 import ScreenSize from '../../models/ScreenSize';
 import { clearCachePattern } from '../../utils/redisCache';
 import logger from '../../utils/logger';
@@ -174,40 +173,26 @@ export class CatalogOrchestratorImpl {
 
         // 3) SpareParts: detach category when possible; soft-delete only if no category remains
         //    or if parent brand is archived by this cascade.
-        const sparePartOrFilters: Array<Record<string, unknown>> = [{ categoryIds: categoryObjectId }];
-        if (brandIdsToDelete.length > 0) {
-            sparePartOrFilters.push({ brandId: { $in: brandIdsToDelete } });
-        }
-
-        const affectedSpareParts = await SparePart.find({ $or: sparePartOrFilters })
-            .select('_id brandId categoryIds')
-            .session(txSession as any)
-            .lean<CascadeDoc[]>();
+        const affectedSpareParts = await this.sparePartRepository.findByCategoryOrBrands(categoryId, brandIdsToDelete.map(id => String(id)), txSession);
 
         const sparePartIdsToDelete: mongoose.Types.ObjectId[] = [];
         for (const sparePart of affectedSpareParts) {
             if (sparePart.brandId && deletedBrandIdSet.has(String(sparePart.brandId))) {
-                sparePartIdsToDelete.push(sparePart._id);
+                sparePartIdsToDelete.push(new mongoose.Types.ObjectId(sparePart.id));
                 continue;
             }
 
-            const remainingCategoryIds = toUniqueCategoryObjectIds(sparePart.categoryIds, categoryId);
+            const remainingCategoryIds = toUniqueCategoryObjectIds(sparePart.categoryIds as any, categoryId);
             if (remainingCategoryIds.length === 0) {
-                sparePartIdsToDelete.push(sparePart._id);
+                sparePartIdsToDelete.push(new mongoose.Types.ObjectId(sparePart.id));
                 continue;
             }
 
-            await SparePart.updateOne(
-                { _id: sparePart._id },
-                { $set: { categoryIds: remainingCategoryIds } }
-            ).session(txSession as any);
+            await this.sparePartRepository.updateCategoryIds(sparePart.id, remainingCategoryIds.map(id => String(id)), txSession);
         }
 
         if (sparePartIdsToDelete.length > 0) {
-            await SparePart.updateMany(
-                { _id: { $in: sparePartIdsToDelete } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession as any);
+            await this.sparePartRepository.softDeleteMany(sparePartIdsToDelete.map(id => String(id)), txSession);
         }
 
         // 4) ScreenSizes: singular category link; keep cascading delete.
@@ -245,19 +230,13 @@ export class CatalogOrchestratorImpl {
         let deletedSpareParts = 0;
         // Soft-delete SpareParts linked to those models
         if (modelIds.length > 0) {
-            const spRes1 = await SparePart.updateMany(
-                { modelId: { $in: modelIds } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession as any);
-            deletedSpareParts += spRes1.modifiedCount || 0;
+            const count1 = await this.sparePartRepository.softDeleteByModelIds(modelIds.map(id => String(id)), txSession);
+            deletedSpareParts += count1;
         }
 
         // Soft-delete SpareParts linked to the brand directly
-        const spRes2 = await SparePart.updateMany(
-            { brandId },
-            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-        ).session(txSession as any);
-        deletedSpareParts += spRes2.modifiedCount || 0;
+        const count2 = await this.sparePartRepository.softDeleteByBrandId(brandId, txSession);
+        deletedSpareParts += count2;
 
         await this.invalidateCatalogCache({ brandIds: [brandId] });
         logger.info(`Cascaded soft-delete for brand: ${brandId}`);
@@ -308,10 +287,7 @@ export class CatalogOrchestratorImpl {
      * Detach SpareParts from a specific Model
      */
     async detachSparePartsFromModel(modelId: string, session?: TransactionContext) {
-        await SparePart.updateMany(
-            { modelId },
-            { $set: { modelId: null, isActive: false } }
-        ).session(session as any || null);
+        await this.sparePartRepository.clearModelReferences(modelId, session);
         
         logger.info(`Detached spare parts from model: ${modelId}`);
     }
