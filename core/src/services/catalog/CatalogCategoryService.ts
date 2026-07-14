@@ -4,7 +4,7 @@
  * Also owns the multi-model entity count query used by the admin dashboard.
  */
 
-import mongoose, { type ClientSession, type Model as MongooseModel } from 'mongoose';
+import mongoose, { type Model as MongooseModel } from 'mongoose';
 import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import CatalogModel from '../../models/Model';
@@ -83,15 +83,3 @@ export const updateCategorySchemaById = async (id: string | undefined, filters: 
     if (!id) return null;
     return Category.findByIdAndUpdate(id, { filters }, { new: true, runValidators: true });
 };
-
-export const findCategoryByIdWithSession = async (id: string | undefined, session: ClientSession) => {
-    if (!id) return null;
-    return Category.findById(id).session(session);
-};
-
-export const softDeleteCategoryById = async (id: string | { toString(): string }, session: ClientSession) =>
-    Category.updateOne(
-        { _id: new mongoose.Types.ObjectId(id.toString()) },
-        { $set: { isDeleted: true, isActive: false, deletedAt: new Date() } },
-        { session }
-    );

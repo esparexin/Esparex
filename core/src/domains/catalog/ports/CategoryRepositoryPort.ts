@@ -27,8 +27,11 @@ export interface Category {
 }
 
 export interface CategoryRepositoryPort {
-    findById(id: string): Promise<Category | null>;
-    findBySlug(slug: string): Promise<Category | null>;
-    exists(id: string): Promise<boolean>;
-    resolveActiveCategoryIds(categoryIds?: readonly CategoryId[]): Promise<readonly CategoryId[]>;
+    findById(id: string, tx?: unknown): Promise<Category | null>;
+    findBySlug(slug: string, tx?: unknown): Promise<Category | null>;
+    exists(id: string, tx?: unknown): Promise<boolean>;
+    resolveActiveCategoryIds(categoryIds?: readonly CategoryId[], tx?: unknown): Promise<readonly CategoryId[]>;
+    create(data: Partial<Category> | any, tx?: unknown): Promise<Category>;
+    update(id: string, data: Partial<Category> | any, tx?: unknown): Promise<Category | null>;
+    softDelete(id: string, tx?: unknown): Promise<boolean>;
 }

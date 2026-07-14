@@ -244,7 +244,7 @@ export const updateCategory = async (req: Request, res: Response) => {
 
         clearCategoryCanonicalCache();
 
-        void logAdminAction(req, 'CATEGORY_RENAME', 'Category', updatedCategory._id, {
+        void logAdminAction(req, 'CATEGORY_RENAME', 'Category', updatedCategory.id, {
             before: { name: oldCategory.name, slug: oldCategory.slug },
             after: { name: updatedCategory.name, slug: updatedCategory.slug }
         });

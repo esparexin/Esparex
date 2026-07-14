@@ -1,36 +1,38 @@
-import mongoose, { ClientSession } from 'mongoose';
-import Category, { ICategory } from '../../models/Category';
-import Brand from '../../models/Brand';
-import Model from '../../models/Model';
-import SparePart from '../../models/SparePart';
-import ScreenSize from '../../models/ScreenSize';
-import { clearCachePattern } from '../../utils/redisCache';
+import { Category, Brand } from '../../domains/catalog';
+
+// @todo ARCH-118: Transitional types until all consumers are migrated to strict domain models.
+export type CategoryResult = Category & Record<string, unknown>;
+export type BrandResult = Brand & Record<string, unknown>;
+
+
 import logger from '../../utils/logger';
 import { isDuplicateKeyError } from '../../utils/errorHelpers';
 import { AppError } from '../../utils/AppError';
-
-type CascadeDoc = {
-    _id: mongoose.Types.ObjectId;
-    categoryIds?: mongoose.Types.ObjectId[];
-    brandId?: mongoose.Types.ObjectId;
-};
+import { 
+    CatalogUnitOfWorkPort,
+    TransactionContext,
+    CatalogCachePort,
+    CategoryRepositoryPort, 
+    BrandRepositoryPort, 
+    ModelRepositoryPort, 
+    SparePartRepositoryPort,
+    ScreenSizeRepositoryPort
+} from '../../domains/catalog';
 
 // isDuplicateKeyError imported from errorHelpers (SSOT)
 
-const toUniqueCategoryObjectIds = (
-    categoryIds: mongoose.Types.ObjectId[] | undefined,
+const toUniqueCategoryIds = (
+    categoryIds: readonly string[] | undefined,
     deletedCategoryId: string
-): mongoose.Types.ObjectId[] => {
+): string[] => {
     if (!Array.isArray(categoryIds) || categoryIds.length === 0) return [];
-    const deduped = new Map<string, mongoose.Types.ObjectId>();
-    for (const categoryObjectId of categoryIds) {
-        const id = String(categoryObjectId);
+    const deduped = new Set<string>();
+    for (const categoryId of categoryIds) {
+        const id = String(categoryId);
         if (id === deletedCategoryId) continue;
-        if (!deduped.has(id)) {
-            deduped.set(id, new mongoose.Types.ObjectId(id));
-        }
+        deduped.add(id);
     }
-    return Array.from(deduped.values());
+    return Array.from(deduped);
 };
 
 /**
@@ -39,83 +41,50 @@ const toUniqueCategoryObjectIds = (
  * The Single Source of Truth (SSOT) for catalog domain orchestration.
  * Consolidates CRUD operations, cache management, and hierarchy integrity.
  */
-export class CatalogOrchestrator {
+export class CatalogOrchestratorImpl {
+    constructor(
+        private readonly unitOfWork: CatalogUnitOfWorkPort,
+        private readonly cacheService: CatalogCachePort,
+        private readonly categoryRepository: CategoryRepositoryPort,
+        private readonly brandRepository: BrandRepositoryPort,
+        private readonly modelRepository: ModelRepositoryPort,
+        private readonly sparePartRepository: SparePartRepositoryPort,
+        private readonly screenSizeRepository: ScreenSizeRepositoryPort
+    ) {}
     /**
      * Invalidate catalog caches, optionally scoped by category or brand
      */
-    static async invalidateCatalogCache(opts?: { categoryIds?: (string | mongoose.Types.ObjectId)[], brandIds?: (string | mongoose.Types.ObjectId)[] }) {
-        try {
-            if (!opts || (!opts.categoryIds?.length && !opts.brandIds?.length)) {
-                await Promise.all([
-                    clearCachePattern('catalog:*'),
-                    clearCachePattern('master:*'),
-                ]);
-            } else {
-                const patterns = new Set<string>();
-                
-                if (opts.categoryIds) {
-                    opts.categoryIds.forEach(id => {
-                        const idStr = id.toString();
-                        patterns.add(`catalog:brands:${idStr}`);
-                        patterns.add(`catalog:models:*category=${idStr}*`);
-                        patterns.add(`catalog:spare-parts:${idStr}:*`);
-                    });
-                }
-                
-                if (opts.brandIds) {
-                    opts.brandIds.forEach(id => {
-                        const idStr = id.toString();
-                        patterns.add(`catalog:models:*brand=${idStr}*`);
-                    });
-                }
-
-                // ALWAYS clear "all" caches, because adding a brand/model affects the global unfiltered views
-                patterns.add('catalog:brands:all');
-                patterns.add('catalog:models:*category=all*');
-                patterns.add('catalog:spare-parts:all:*');
-                patterns.add('catalog:counts:*');
-
-                await Promise.all(Array.from(patterns).map(p => clearCachePattern(p)));
-            }
-            logger.info('Catalog cache invalidated', { opts });
-        } catch (error) {
-            logger.error('Failed to invalidate catalog cache', { 
-                error: error instanceof Error ? error.message : String(error) 
-            });
-        }
+    async invalidateCatalogCache(opts?: { categoryIds?: any[], brandIds?: any[] }) {
+        const cleanOpts = opts ? {
+            categoryIds: opts.categoryIds ? opts.categoryIds.map(id => String(id)) : undefined,
+            brandIds: opts.brandIds ? opts.brandIds.map(id => String(id)) : undefined
+        } : undefined;
+        await this.cacheService.invalidateCatalogCache(cleanOpts);
     }
 
     /**
      * Cascade Category soft-delete to Brands, Models, and deactivation of Parts
      */
-    static async cascadeCategoryDelete(categoryId: string, session?: ClientSession) {
+    async cascadeCategoryDelete(categoryId: string, session?: TransactionContext) {
         const txSession = session || null;
-        const now = new Date();
-        const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
-        const brandIdsToDelete: mongoose.Types.ObjectId[] = [];
+        const brandIdsToDelete: string[] = [];
 
         // 1) Brands: detach deleted category when other categories exist; soft-delete only true orphans.
-        const linkedBrands = await Brand.find({ categoryIds: categoryObjectId })
-            .select('_id categoryIds')
-            .session(txSession)
-            .lean<CascadeDoc[]>();
+        const linkedBrands = await this.brandRepository.findByCategory(categoryId, txSession);
 
         for (const brand of linkedBrands) {
-            const remainingCategoryIds = toUniqueCategoryObjectIds(brand.categoryIds, categoryId);
+            const remainingCategoryIds = toUniqueCategoryIds(brand.categoryIds, categoryId);
             if (remainingCategoryIds.length === 0) {
-                brandIdsToDelete.push(brand._id);
+                brandIdsToDelete.push(brand.id);
                 continue;
             }
 
             try {
-                await Brand.updateOne(
-                    { _id: brand._id },
-                    { $set: { categoryIds: remainingCategoryIds } }
-                ).session(txSession);
+                await this.brandRepository.updateCategoryIds(brand.id, remainingCategoryIds, txSession);
             } catch (error) {
                 // Keep uniqueness intact; if remap collides, safely archive this duplicate branch.
                 if (isDuplicateKeyError(error)) {
-                    brandIdsToDelete.push(brand._id);
+                    brandIdsToDelete.push(brand.id);
                     continue;
                 }
                 throw error;
@@ -123,99 +92,65 @@ export class CatalogOrchestrator {
         }
 
         if (brandIdsToDelete.length > 0) {
-            await Brand.updateMany(
-                { _id: { $in: brandIdsToDelete } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession);
+            await this.brandRepository.softDeleteMany(brandIdsToDelete, txSession);
         }
 
         // 2) Models: never delete by brand sweep unless brand is actually archived.
         //    Prefer detaching deleted category; soft-delete only if model becomes orphaned.
-        const modelOrFilters: Array<Record<string, unknown>> = [{ categoryIds: categoryObjectId }];
-        if (brandIdsToDelete.length > 0) {
-            modelOrFilters.push({ brandId: { $in: brandIdsToDelete } });
-        }
+        const affectedModels = await this.modelRepository.findByCategoryOrBrands(categoryId, brandIdsToDelete, txSession);
 
-        const affectedModels = await Model.find({ $or: modelOrFilters })
-            .select('_id brandId categoryIds')
-            .session(txSession)
-            .lean<CascadeDoc[]>();
-
-        const modelIdsToDelete: mongoose.Types.ObjectId[] = [];
-        const deletedBrandIdSet = new Set(brandIdsToDelete.map((id) => String(id)));
+        const modelIdsToDelete: string[] = [];
+        const deletedBrandIdSet = new Set(brandIdsToDelete);
 
         for (const model of affectedModels) {
-            if (model.brandId && deletedBrandIdSet.has(String(model.brandId))) {
-                modelIdsToDelete.push(model._id);
+            if (model.brandId && deletedBrandIdSet.has(model.brandId)) {
+                modelIdsToDelete.push(model.id);
                 continue;
             }
 
-            const remainingCategoryIds = toUniqueCategoryObjectIds(model.categoryIds, categoryId);
+            const remainingCategoryIds = toUniqueCategoryIds(model.categoryIds, categoryId);
             
             if (remainingCategoryIds.length === 0) {
-                modelIdsToDelete.push(model._id);
+                modelIdsToDelete.push(model.id);
                 continue;
             }
 
-            await Model.updateOne(
-                { _id: model._id },
-                { $set: { categoryIds: remainingCategoryIds } }
-            ).session(txSession);
+            await this.modelRepository.updateCategoryIds(model.id, remainingCategoryIds, txSession);
         }
 
         if (modelIdsToDelete.length > 0) {
-            await Model.updateMany(
-                { _id: { $in: modelIdsToDelete } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession);
+            await this.modelRepository.softDeleteMany(modelIdsToDelete, txSession);
         }
 
         // 3) SpareParts: detach category when possible; soft-delete only if no category remains
         //    or if parent brand is archived by this cascade.
-        const sparePartOrFilters: Array<Record<string, unknown>> = [{ categoryIds: categoryObjectId }];
-        if (brandIdsToDelete.length > 0) {
-            sparePartOrFilters.push({ brandId: { $in: brandIdsToDelete } });
-        }
+        const affectedSpareParts = await this.sparePartRepository.findByCategoryOrBrands(categoryId, brandIdsToDelete, txSession);
 
-        const affectedSpareParts = await SparePart.find({ $or: sparePartOrFilters })
-            .select('_id brandId categoryIds')
-            .session(txSession)
-            .lean<CascadeDoc[]>();
-
-        const sparePartIdsToDelete: mongoose.Types.ObjectId[] = [];
+        const sparePartIdsToDelete: string[] = [];
         for (const sparePart of affectedSpareParts) {
-            if (sparePart.brandId && deletedBrandIdSet.has(String(sparePart.brandId))) {
-                sparePartIdsToDelete.push(sparePart._id);
+            if (sparePart.brandId && deletedBrandIdSet.has(sparePart.brandId)) {
+                sparePartIdsToDelete.push(sparePart.id);
                 continue;
             }
 
-            const remainingCategoryIds = toUniqueCategoryObjectIds(sparePart.categoryIds, categoryId);
+            const remainingCategoryIds = toUniqueCategoryIds(sparePart.categoryIds, categoryId);
             if (remainingCategoryIds.length === 0) {
-                sparePartIdsToDelete.push(sparePart._id);
+                sparePartIdsToDelete.push(sparePart.id);
                 continue;
             }
 
-            await SparePart.updateOne(
-                { _id: sparePart._id },
-                { $set: { categoryIds: remainingCategoryIds } }
-            ).session(txSession);
+            await this.sparePartRepository.updateCategoryIds(sparePart.id, remainingCategoryIds, txSession);
         }
 
         if (sparePartIdsToDelete.length > 0) {
-            await SparePart.updateMany(
-                { _id: { $in: sparePartIdsToDelete } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession);
+            await this.sparePartRepository.softDeleteMany(sparePartIdsToDelete, txSession);
         }
 
         // 4) ScreenSizes: singular category link; keep cascading delete.
-        const screenSizeFilter = brandIdsToDelete.length > 0
-            ? { $or: [{ categoryId: categoryObjectId }, { brandId: { $in: brandIdsToDelete } }] }
-            : { categoryId: categoryObjectId };
-        await ScreenSize.updateMany(
-            screenSizeFilter,
-            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-        ).session(txSession);
+        await this.screenSizeRepository.softDeleteByCriteria(
+            { categoryId, brandIds: brandIdsToDelete },
+            txSession
+        );
 
         await this.invalidateCatalogCache({ categoryIds: [categoryId], brandIds: brandIdsToDelete });
         logger.info('Cascaded category delete completed', {
@@ -229,45 +164,32 @@ export class CatalogOrchestrator {
     /**
      * Cascade Brand soft-delete to Models and SpareParts
      */
-    static async cascadeBrandDelete(brandId: string, session?: ClientSession) {
+    async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
         const txSession = session || null;
-        const now = new Date();
 
         // Find all models associated with this brand
-        const models = await Model.find({ brandId })
-            .select('_id')
-            .session(txSession)
-            .lean<CascadeDoc[]>();
-        const modelIds = models.map((m) => m._id);
+        const models = await this.modelRepository.findByBrandId(brandId, txSession);
+        const modelIds = models.map((m) => m.id);
 
         // Soft-delete those Models
-        const modelRes = await Model.updateMany(
-            { brandId },
-            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-        ).session(txSession);
+        const deletedModels = await this.modelRepository.softDeleteByBrandId(brandId, txSession);
 
         let deletedSpareParts = 0;
         // Soft-delete SpareParts linked to those models
         if (modelIds.length > 0) {
-            const spRes1 = await SparePart.updateMany(
-                { modelId: { $in: modelIds } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession);
-            deletedSpareParts += spRes1.modifiedCount || 0;
+            const count1 = await this.sparePartRepository.softDeleteByModelIds(modelIds, txSession);
+            deletedSpareParts += count1;
         }
 
         // Soft-delete SpareParts linked to the brand directly
-        const spRes2 = await SparePart.updateMany(
-            { brandId },
-            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-        ).session(txSession);
-        deletedSpareParts += spRes2.modifiedCount || 0;
+        const count2 = await this.sparePartRepository.softDeleteByBrandId(brandId, txSession);
+        deletedSpareParts += count2;
 
         await this.invalidateCatalogCache({ brandIds: [brandId] });
         logger.info(`Cascaded soft-delete for brand: ${brandId}`);
 
         return {
-            deletedModels: modelRes.modifiedCount || 0,
+            deletedModels,
             deletedSpareParts
         };
     }
@@ -275,36 +197,35 @@ export class CatalogOrchestrator {
     /**
      * Create Category with cache invalidation
      */
-    static async createCategory(data: Partial<ICategory>): Promise<ICategory> {
-        const category = new Category(data);
-        const result = await category.save();
-        await this.invalidateCatalogCache({ categoryIds: [category._id] });
-        return result;
+    async createCategory(data: any): Promise<CategoryResult> {
+        const result = await this.categoryRepository.create(data);
+        await this.invalidateCatalogCache({ categoryIds: [result.id] });
+        return result as CategoryResult;
     }
 
     /**
      * Update Category with cache invalidation
      */
-    static async updateCategory(id: string, data: Partial<ICategory>): Promise<ICategory | null> {
-        const result = await Category.findByIdAndUpdate(id, data, { new: true });
+    async updateCategory(id: string, data: any): Promise<CategoryResult | null> {
+        const result = await this.categoryRepository.update(id, data);
         if (result) await this.invalidateCatalogCache({ categoryIds: [id] });
-        return result;
+        return result as CategoryResult;
     }
 
 
     /**
      * Resolve all CategoryIDs from a BrandID
      */
-    static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
-        const brand = await Brand.findById(brandId).select('categoryIds').lean();
+    async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
+        const brand = await this.brandRepository.findById(brandId);
         if (!brand || !brand.categoryIds) return [];
-        return brand.categoryIds.map(id => id.toString());
+        return brand.categoryIds.map(id => String(id));
     }
 
     /**
      * Resolve a deterministic primary CategoryID from a BrandID.
      */
-    static async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
+    async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
         const ids = await this.resolveCategoryIdsFromBrand(brandId);
         return ids.length > 0 ? (ids[0] ?? null) : null;
     }
@@ -312,90 +233,29 @@ export class CatalogOrchestrator {
     /**
      * Detach SpareParts from a specific Model
      */
-    static async detachSparePartsFromModel(modelId: string, session?: ClientSession) {
-        await SparePart.updateMany(
-            { modelId },
-            { $set: { modelId: null, isActive: false } }
-        ).session(session || null);
+    async detachSparePartsFromModel(modelId: string, session?: TransactionContext) {
+        await this.sparePartRepository.clearModelReferences(modelId, session);
         
         logger.info(`Detached spare parts from model: ${modelId}`);
     }
 
-    static async deleteCategoryOrchestrated(categoryId: string) {
-        const performDelete = async (txSession: mongoose.ClientSession | null) => {
-            const CategoryModel = require('../../models/Category').default;
-            const category = txSession 
-                ? await CategoryModel.findById(categoryId).session(txSession)
-                : await CategoryModel.findById(categoryId);
+    async deleteCategoryOrchestrated(categoryId: string): Promise<CategoryResult> {
+        return this.unitOfWork.executeTransaction(async (txSession) => {
+            const category = await this.categoryRepository.findById(categoryId, txSession);
 
             if (!category) {
                 throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND');
             }
 
-            if (txSession) {
-                category.isDeleted = true;
-                category.deletedAt = new Date();
-                category.isActive = false;
-                await category.save({ session: txSession });
-                await this.cascadeCategoryDelete(String(category._id), txSession);
-            } else {
-                category.isDeleted = true;
-                category.deletedAt = new Date();
-                category.isActive = false;
-                await category.save();
-                await this.cascadeCategoryDelete(String(category._id));
-            }
-            return category;
-        };
+            await this.categoryRepository.softDelete(categoryId, txSession);
+            await this.cascadeCategoryDelete(categoryId, txSession);
 
-        const { getUserConnection } = require('../../config/db');
-        let session: mongoose.ClientSession | null = null;
-        try {
-            session = await getUserConnection().startSession();
-            if (session) {
-                session.startTransaction();
-                const category = await performDelete(session);
-                await session.commitTransaction();
-                return category;
-            }
-            return await performDelete(null);
-        } catch (e: unknown) {
-            if (session) {
-                try { await session.abortTransaction(); } catch { /* ignore */ }
-                try { await session.endSession(); } catch { /* ignore */ }
-                session = null;
-            }
-
-            const errorMessage = e instanceof Error ? e.message : String(e);
-            const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
-
-            if (isSessionError) {
-                logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
-                return performDelete(null);
-            }
-            throw e;
-        } finally {
-            if (session) {
-                try { await session.endSession(); } catch { /* ignore */ }
-            }
-        }
+            return await this.categoryRepository.findById(categoryId, txSession) as CategoryResult;
+        });
     }
 
-    static async deleteBrandOrchestrated(brandId: string) {
-        const BrandModel = require('../../models/Brand').default;
-        const softDeleteUpdate: Record<string, unknown> = { isDeleted: true, deletedAt: new Date(), isActive: false };
-
-        const performDelete = async (txSession: mongoose.ClientSession | null) => {
-            const brand = txSession 
-                ? await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true }).session(txSession) 
-                : await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true });
-
-            if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand: null };
-            const cascadeRes = await this.cascadeBrandDelete(brandId, txSession ?? undefined);
-            return { deletedModels: cascadeRes.deletedModels, deletedSpareParts: cascadeRes.deletedSpareParts, brand };
-        };
-
-        const existingBrand = await BrandModel.findOne({ _id: brandId }).setOptions({ withDeleted: true });
+    async deleteBrandOrchestrated(brandId: string) {
+        const existingBrand = await this.brandRepository.findById(brandId, true);
         if (!existingBrand || existingBrand.isDeleted) {
             return { brandId, deletedModels: 0, deletedSpareParts: 0, alreadyDeleted: true };
         }
@@ -406,36 +266,80 @@ export class CatalogOrchestrator {
             throw new AppError('Brand cannot be deleted because dependencies exist', 409, 'DEPENDENCIES_EXIST', deps.details);
         }
 
-        const { getUserConnection } = require('../../config/db');
-        let session: mongoose.ClientSession | null = null;
-        try {
-            session = await getUserConnection().startSession();
-            if (session) {
-                session.startTransaction();
-                const r = await performDelete(session);
-                await session.commitTransaction();
-                return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
-            }
-            const r = await performDelete(null);
-            return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
-        } catch (e: unknown) {
-            if (session) {
-                try { await session.abortTransaction(); } catch { /* ignore */ }
-                try { await session.endSession(); } catch { /* ignore */ }
-                session = null;
-            }
-            const msg = e instanceof Error ? e.message : String(e);
-            if (/session|transaction|mongoclient/i.test(msg)) {
-                logger.warn(`Transaction session failed (${msg}). Retrying sequential...`);
-                const r = await performDelete(null);
-                return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
-            }
-            throw e;
-        } finally {
-            if (session) {
-                try { await session.endSession(); } catch { /* ignore */ }
-            }
-        }
+        return this.unitOfWork.executeTransaction(async (txSession) => {
+            const brand = txSession 
+                ? await this.brandRepository.softDelete(brandId, txSession)
+                : await this.brandRepository.softDelete(brandId);
+
+            if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand: null };
+            const cascadeRes = await this.cascadeBrandDelete(brandId, txSession ?? undefined);
+            return { brandId, deletedModels: cascadeRes.deletedModels, deletedSpareParts: cascadeRes.deletedSpareParts, alreadyDeleted: false };
+        });
+    }
+}
+
+let serviceInstance: CatalogOrchestratorImpl | null = null;
+
+export function initializeCatalogOrchestrator(instance: CatalogOrchestratorImpl) {
+    serviceInstance = instance;
+}
+
+function getServiceInstance(): CatalogOrchestratorImpl {
+    if (!serviceInstance) {
+        const { MongoCatalogUnitOfWorkAdapter } = require('../../adapters/outbound/database/catalog/MongoCatalogUnitOfWorkAdapter');
+        const { RedisCatalogCacheAdapter } = require('../../adapters/outbound/database/catalog/RedisCatalogCacheAdapter');
+        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
+        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
+        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
+        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
+
+        const { MongoScreenSizeRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoScreenSizeRepositoryAdapter');
+
+        serviceInstance = new CatalogOrchestratorImpl(
+            new MongoCatalogUnitOfWorkAdapter(),
+            new RedisCatalogCacheAdapter(),
+            new MongoCategoryRepositoryAdapter(),
+            new MongoBrandRepositoryAdapter(),
+            new MongoModelRepositoryAdapter(),
+            new MongoSparePartRepositoryAdapter(),
+            new MongoScreenSizeRepositoryAdapter()
+        );
+    }
+    return serviceInstance;
+}
+
+export class CatalogOrchestrator {
+    private static get instance() { return getServiceInstance(); }
+
+    static async invalidateCatalogCache(opts?: { categoryIds?: any[], brandIds?: any[] }) {
+        return this.instance.invalidateCatalogCache(opts);
+    }
+    static async cascadeCategoryDelete(categoryId: string, session?: TransactionContext) {
+        return this.instance.cascadeCategoryDelete(categoryId, session);
+    }
+    static async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
+        return this.instance.cascadeBrandDelete(brandId, session);
+    }
+    static async createCategory(data: any): Promise<CategoryResult> {
+        return this.instance.createCategory(data);
+    }
+    static async updateCategory(id: string, data: any): Promise<CategoryResult | null> {
+        return this.instance.updateCategory(id, data);
+    }
+    static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
+        return this.instance.resolveCategoryIdsFromBrand(brandId);
+    }
+    static async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
+        return this.instance.resolvePrimaryCategoryIdFromBrand(brandId);
+    }
+    static async detachSparePartsFromModel(modelId: string, session?: TransactionContext) {
+        return this.instance.detachSparePartsFromModel(modelId, session);
+    }
+    static async deleteCategoryOrchestrated(categoryId: string) {
+        return this.instance.deleteCategoryOrchestrated(categoryId);
+    }
+    static async deleteBrandOrchestrated(brandId: string) {
+        return this.instance.deleteBrandOrchestrated(brandId);
     }
 }
 

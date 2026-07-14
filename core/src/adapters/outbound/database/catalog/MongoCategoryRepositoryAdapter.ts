@@ -42,33 +42,61 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
         };
     }
 
-    async findById(id: string): Promise<Category | null> {
+    async findById(id: string, tx?: unknown): Promise<Category | null> {
         const safeId = typeof id === 'string' ? id : String(id);
-        const doc = await CategoryModel.findById(safeId).lean<DbCategory | null>().exec();
+        const query = CategoryModel.findById(safeId).lean<DbCategory | null>();
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
-    async findBySlug(slug: string): Promise<Category | null> {
+    async findBySlug(slug: string, tx?: unknown): Promise<Category | null> {
         const safeSlug = typeof slug === 'string' ? slug : String(slug ?? '');
-        const doc = await CategoryModel.findOne({ slug: safeSlug }).lean<DbCategory | null>().exec();
+        const query = CategoryModel.findOne({ slug: safeSlug }).lean<DbCategory | null>();
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
-    async exists(id: string): Promise<boolean> {
-        const doc = await CategoryModel.findById(id).select('_id').lean().exec();
+    async exists(id: string, tx?: unknown): Promise<boolean> {
+        const query = CategoryModel.findById(id).select('_id').lean();
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
         return doc !== null;
     }
 
-    async resolveActiveCategoryIds(categoryIds?: readonly CategoryId[]): Promise<readonly CategoryId[]> {
-        const query: Record<string, unknown> = {
+    async resolveActiveCategoryIds(categoryIds?: readonly CategoryId[], tx?: unknown): Promise<readonly CategoryId[]> {
+        const filter: Record<string, unknown> = {
             isActive: true,
             isDeleted: { $ne: true },
             approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
         };
         if (categoryIds && categoryIds.length > 0) {
-            query._id = { $in: categoryIds };
+            filter._id = { $in: categoryIds };
         }
-        const docs = await CategoryModel.find(query).select('_id').lean().exec();
+        const query = CategoryModel.find(filter).select('_id').lean();
+        if (tx) query.session(tx as any);
+        const docs = await query.exec();
         return docs.map(doc => String(doc._id));
+    }
+
+    async create(data: Partial<Category> | any, tx?: unknown): Promise<Category> {
+        const docs = await CategoryModel.create([data], { session: tx as any });
+        return this.toDomain(docs[0] as unknown as DbCategory);
+    }
+
+    async update(id: string, data: Partial<Category> | any, tx?: unknown): Promise<Category | null> {
+        const query = CategoryModel.findByIdAndUpdate(id, data, { new: true }).lean<DbCategory | null>();
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
+        return doc ? this.toDomain(doc) : null;
+    }
+
+    async softDelete(id: string, tx?: unknown): Promise<boolean> {
+        const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
+        const query = CategoryModel.updateOne({ _id: id }, { $set: update });
+        if (tx) query.session(tx as any);
+        const res = await query.exec();
+        return res.modifiedCount > 0;
     }
 }
