@@ -1,7 +1,7 @@
 
 import redis from '../config/redis';
 import User from '../models/User';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import Business from '../models/Business';
 import SmartAlert from '../models/SmartAlert';
 import { logAdminActionDirect } from '../utils/adminLogger';
@@ -81,7 +81,7 @@ export const updateUserStatus = async (
         if (newStatus === USER_STATUS.DELETED) {
             const deletedAt = new Date();
             await Promise.all([
-                Ad.updateMany(
+                getListingRepository().updateMany(
                     { sellerId: userId, isDeleted: { $ne: true } },
                     { isDeleted: true, deletedAt }
                 ),
@@ -91,17 +91,15 @@ export const updateUserStatus = async (
                 ),
             ]);
         } else {
-            const liveListings = await Ad.find(
+            const liveListings = await getListingRepository().find(
                 { sellerId: userId, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } }
-            )
-                .select('_id')
-                .lean<Array<{ _id: unknown }>>();
+            );
 
             if (liveListings.length > 0) {
                 await mutateStatuses(
                     liveListings.map((listing) => ({
                         domain: 'ad',
-                        entityId: String(listing._id),
+                        entityId: listing.id,
                         toStatus: LISTING_STATUS.REJECTED,
                         actor: {
                             type: ACTOR_TYPE.SYSTEM,

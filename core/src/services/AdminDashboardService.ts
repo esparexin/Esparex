@@ -1,6 +1,4 @@
-import User from '../models/User';
-import Ad from '../models/Ad';
-import CatalogRequest from '../models/CatalogRequest';
+import { adminDashboardRepository } from '../composition/admin';
 
 interface CountResult { count: number }
 interface MonthlyCountResult { _id: { month: number; year: number }; count: number }
@@ -24,20 +22,6 @@ interface CardFacetResult {
 }
 interface RevenueAggResult { _id: null; total: number }
 
-import CatalogModel from '../models/Model';
-import Report from '../models/Report';
-import Business from '../models/Business';
-import RevenueAnalytics from '../models/RevenueAnalytics';
-import ContactSubmission from '../models/ContactSubmission';
-import Location from '../models/Location';
-import LocationAnalytics from '../models/LocationAnalytics';
-import AdminLog from '../models/AdminLog';
-import { LISTING_STATUS } from '@esparex/shared';
-import { LISTING_TYPE } from '@esparex/shared';
-import { BUSINESS_STATUS } from '@esparex/shared';
-import { CATALOG_STATUS } from '@esparex/shared';
-import { REPORT_STATUS } from '@esparex/shared';
-import { USER_STATUS } from '@esparex/shared';
 import type { CatalogRequestStatusValue } from '../models/CatalogRequest';
 import { escapeRegExp } from '../utils/stringUtils';
 import {
@@ -48,129 +32,25 @@ import {
 } from '../utils/locationHierarchy';
 
 export const getDashboardOverviewStats = async (publicAdFilter: Record<string, unknown>) => {
-    const [
-        totalUsers, unifiedStats,
-        pendingModels, openReports, pendingBusinesses, totalRevenueAgg,
-        catalogHealth
-    ] = await Promise.all([
-        User.countDocuments(),
-        Ad.aggregate<OverviewFacetResult>([
-            {
-                $facet: {
-                    // isDeleted guard on total counts prevents soft-deleted listings inflating admin stats
-                    totalAds:        [{ $match: { listingType: LISTING_TYPE.AD,       isDeleted: { $ne: true } } }, { $count: "count" }],
-                    activeAds:       [{ $match: { listingType: LISTING_TYPE.AD,       ...publicAdFilter } }, { $count: "count" }],
-                    pendingAds:      [{ $match: { listingType: LISTING_TYPE.AD,       status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: "count" }],
-                    totalServices:   [{ $match: { listingType: LISTING_TYPE.SERVICE,  isDeleted: { $ne: true } } }, { $count: "count" }],
-                    activeServices:  [{ $match: { listingType: LISTING_TYPE.SERVICE,  ...publicAdFilter } }, { $count: "count" }],
-                    pendingServices: [{ $match: { listingType: LISTING_TYPE.SERVICE,  status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: "count" }],
-                    rejectedServices:[{ $match: { listingType: LISTING_TYPE.SERVICE,  status: LISTING_STATUS.REJECTED, isDeleted: { $ne: true } } }, { $count: "count" }],
-                    totalSpareParts: [{ $match: { listingType: LISTING_TYPE.SPARE_PART, isDeleted: { $ne: true } } }, { $count: "count" }],
-                    activeSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, ...publicAdFilter } }, { $count: "count" }],
-                    pendingSpareParts:[{ $match: { listingType: LISTING_TYPE.SPARE_PART, status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: "count" }]
-                }
-            }
-        ]),
-        CatalogModel.countDocuments({ status: CATALOG_STATUS.PENDING }),
-        Report.countDocuments({ status: REPORT_STATUS.OPEN }),
-        Business.countDocuments({ status: BUSINESS_STATUS.PENDING }),
-        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }]),
-        getCatalogHealthMetrics()
-    ]);
-
-    return { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth };
+    return adminDashboardRepository.getDashboardOverviewStats(publicAdFilter);
 };
 
 // Typed status constants derived from CatalogRequestStatusValue — type-safe without
 // runtime tuple indexing that would fail when the model is mocked in tests.
 const CATALOG_REQUEST_PENDING_STATUS = 'pending' satisfies CatalogRequestStatusValue;
-const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged'];
+const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged', 'resolved'];
 const CATALOG_REQUEST_MERGED_STATUS = 'merged' satisfies CatalogRequestStatusValue;
 
 export const getCatalogHealthMetrics = async () => {
-    const [counts, resolutionAgg] = await Promise.all([
-        CatalogRequest.aggregate<{ _id: string; count: number }>([
-            {
-                $match: {
-                    status: { $in: [CATALOG_REQUEST_PENDING_STATUS] }
-                }
-            },
-            { $group: { _id: '$status', count: { $sum: 1 } } }
-        ]),
-        CatalogRequest.aggregate<{ _id: null; avgTimeMs: number }>([
-            {
-                $match: {
-                    status: { $in: CATALOG_REQUEST_RESOLVED_STATUSES },
-                    $or: [
-                        { approvedAt: { $ne: null } },
-                        { rejectedAt: { $ne: null } }
-                    ]
-                }
-            },
-            {
-                $project: {
-                    resolutionTimeMs: {
-                        $subtract: [
-                            { $ifNull: ['$approvedAt', '$rejectedAt'] },
-                            '$createdAt'
-                        ]
-                    }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    avgTimeMs: { $avg: '$resolutionTimeMs' }
-                }
-            }
-        ]),
-    ]);
-
-    const findCount = (status: string) => counts.find(c => c._id === status)?.count || 0;
-
-    const pendingRequests = findCount(CATALOG_REQUEST_PENDING_STATUS);
-    const mergedRequests = findCount(CATALOG_REQUEST_MERGED_STATUS);
-    const avgTimeMs = resolutionAgg[0]?.avgTimeMs || 0;
-    const averageResolutionHours = Number((avgTimeMs / (1000 * 60 * 60)).toFixed(1));
-
-    return {
-        pendingRequests,
-        averageResolutionHours,
-        mergedRequests,
-    };
+    return adminDashboardRepository.getCatalogHealthMetrics();
 };
 
 export const getDashboardCardStats = async (publicAdFilter: Record<string, unknown>) => {
-    const [
-        totalUsers, adStats,
-        totalReports,
-        totalBusinesses,
-        totalRevenueAgg,
-        catalogHealth
-    ] = await Promise.all([
-        User.countDocuments(),
-        Ad.aggregate<CardFacetResult>([
-            {
-                $facet: {
-                    live:    [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: "count" }],
-                    pending: [{ $match: { listingType: LISTING_TYPE.AD, status: LISTING_STATUS.PENDING } }, { $count: "count" }]
-                }
-            }
-        ]),
-        Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] } }),
-        Business.countDocuments({ isDeleted: { $ne: true } }),
-        RevenueAnalytics.aggregate<RevenueAggResult>([{ $group: { _id: null, total: { $sum: "$totalRevenue" } } }]),
-        getCatalogHealthMetrics()
-    ]);
-
-    return { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth };
+    return adminDashboardRepository.getDashboardCardStats(publicAdFilter);
 };
 
 export const getRecentAdminLogs = async (limit: number) => {
-    return AdminLog.find()
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .populate('adminId', 'firstName lastName email');
+    return adminDashboardRepository.getRecentAdminLogs(limit);
 };
 
 export const getContactSubmissionsPaginated = async (
@@ -178,15 +58,11 @@ export const getContactSubmissionsPaginated = async (
     skip: number,
     limit: number
 ) => {
-    return Promise.all([
-        ContactSubmission.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
-        ContactSubmission.countDocuments(query),
-    ]);
+    return adminDashboardRepository.getContactSubmissionsPaginated(query, skip, limit);
 };
 
 export const updateContactSubmissionById = async (id: string, status: string) => {
-    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
-    return ContactSubmission.findByIdAndUpdate(id, { status }, { new: true });
+    return adminDashboardRepository.updateContactSubmissionById(id, status);
 };
 
 // ─── Location Analytics ───────────────────────────────────────────────────────
@@ -200,72 +76,15 @@ export const getLocationAnalyticsRawData = async (params: {
     buildScopedUserQuery: ScopedQueryBuilder;
     hotZoneQuery: Record<string, unknown>;
 }) => {
-    const {
-        sixMonthsAgo,
-        buildScopedLocationQuery,
-        buildScopedAdQuery,
-        buildScopedUserQuery,
-        hotZoneQuery,
-    } = params;
-
-    const [
-        totalLocations,
-        totalAds,
-        totalUsers,
-        adsByLocationAgg,
-        monthlyAds,
-        monthlyUsers,
-        monthlyLocs,
-        topHotZonesRaw
-    ] = await Promise.all([
-        Location.countDocuments(buildScopedLocationQuery()),
-        Ad.countDocuments(buildScopedAdQuery({ status: LISTING_STATUS.LIVE })),
-        User.countDocuments(buildScopedUserQuery({ status: USER_STATUS.LIVE })),
-        Ad.aggregate<AdsByLocationResult>([
-            {
-                $match: {
-                    ...buildScopedAdQuery({ status: LISTING_STATUS.LIVE }),
-                    'location.locationId': { $exists: true, $ne: null },
-                }
-            },
-            { $group: { _id: '$location.locationId', adsCount: { $sum: 1 } } },
-            { $sort: { adsCount: -1 } },
-            { $limit: 250 }
-        ]),
-        Ad.aggregate<MonthlyCountResult>([
-            { $match: buildScopedAdQuery({ createdAt: { $gte: sixMonthsAgo } }) },
-            { $group: { _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, count: { $sum: 1 } } }
-        ]),
-        User.aggregate<MonthlyCountResult>([
-            { $match: buildScopedUserQuery({ createdAt: { $gte: sixMonthsAgo } }) },
-            { $group: { _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, count: { $sum: 1 } } }
-        ]),
-        Location.aggregate<MonthlyCountResult>([
-            { $match: buildScopedLocationQuery({ createdAt: { $gte: sixMonthsAgo } }) },
-            { $group: { _id: { month: { $month: "$createdAt" }, year: { $year: "$createdAt" } }, count: { $sum: 1 } } }
-        ]),
-        LocationAnalytics.find(hotZoneQuery)
-            .select('locationId popularityScore searchCount adsCount')
-            .sort({ popularityScore: -1, searchCount: -1 })
-            .limit(10)
-            .lean()
-    ]);
-
-    return { totalLocations, totalAds, totalUsers, adsByLocationAgg, monthlyAds, monthlyUsers, monthlyLocs, topHotZonesRaw };
+    return adminDashboardRepository.getLocationAnalyticsRawData(params);
 };
 
 export const getHotZoneLocations = async (locationIds: string[]) => {
-    if (locationIds.length === 0) return [];
-    return Location.find({ _id: { $in: locationIds } })
-        .select('_id name country level parentId path')
-        .lean();
+    return adminDashboardRepository.getHotZoneLocations(locationIds);
 };
 
 export const getAnalyticsLocations = async (locationIds: string[]) => {
-    if (locationIds.length === 0) return [];
-    return Location.find({ _id: { $in: locationIds } })
-        .select('_id name country level parentId path')
-        .lean();
+    return adminDashboardRepository.getAnalyticsLocations(locationIds);
 };
 
 export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unknown>) => {
@@ -378,13 +197,13 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
         hotZoneQuery,
     });
 
-    const hotZoneLocationIds = topHotZonesRaw.map((zone) => zone.locationId);
+    const hotZoneLocationIds = topHotZonesRaw.map((zone: any) => zone.locationId);
     const hotZoneLocations = await getHotZoneLocations(hotZoneLocationIds.map(String));
     const hotZoneHierarchyMap = await loadHierarchyMapForLocations(hotZoneLocations);
     const hotZoneLocationMap = new Map(
-        hotZoneLocations.map((location) => [String(location._id), location])
+        hotZoneLocations.map((location: any) => [String(location._id), location])
     );
-    const hotZones = topHotZonesRaw.map((zone) => {
+    const hotZones = topHotZonesRaw.map((zone: any) => {
         const location = hotZoneLocationMap.get(String(zone.locationId));
         const summary = location ? buildLocationSummary(location, hotZoneHierarchyMap) : undefined;
         return {
@@ -405,9 +224,9 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
         const m = d.getMonth() + 1;
         const y = d.getFullYear();
 
-        const ads = monthlyAds.find(a => a._id.month === m && a._id.year === y)?.count || 0;
-        const users = monthlyUsers.find(u => u._id.month === m && u._id.year === y)?.count || 0;
-        const locs = monthlyLocs.find(l => l._id.month === m && l._id.year === y)?.count || 0;
+        const ads = monthlyAds.find((a: any) => a._id.month === m && a._id.year === y)?.count || 0;
+        const users = monthlyUsers.find((u: any) => u._id.month === m && u._id.year === y)?.count || 0;
+        const locs = monthlyLocs.find((l: any) => l._id.month === m && l._id.year === y)?.count || 0;
 
         trends.push({
             month: monthNames[m - 1],
@@ -418,19 +237,19 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     }
 
     const adsByLocationIds = adsByLocationAgg
-        .map((entry) => entry?._id as string | undefined)
-        .filter((value): value is string => Boolean(value))
-        .map((value) => String(value));
+        .map((entry: any) => entry?._id as string | undefined)
+        .filter((value: string | undefined): value is string => Boolean(value))
+        .map((value: string) => String(value));
     const analyticsLocations = await getAnalyticsLocations(adsByLocationIds);
     const analyticsHierarchyMap = await loadHierarchyMapForLocations(analyticsLocations);
     const analyticsLocationMap = new Map(
-        analyticsLocations.map((location) => [String(location._id), location])
+        analyticsLocations.map((location: any) => [String(location._id), location])
     );
 
     const topCityMap = new Map<string, { _id: string; city: string; state: string; adsCount: number }>();
     const adsByStateMap = new Map<string, { _id: string; count: number }>();
 
-    for (const entry of adsByLocationAgg) {
+    for (const entry of adsByLocationAgg as any[]) {
         const location = analyticsLocationMap.get(String(entry._id));
         if (!location) continue;
 

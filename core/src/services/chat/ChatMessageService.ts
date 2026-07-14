@@ -1,7 +1,4 @@
-import { Types } from 'mongoose';
-import { Conversation } from '../../models/Conversation';
-import { ChatMessage } from '../../models/ChatMessage';
-import Ad from '../../models/Ad';
+import { chatRepository } from '../../composition/chat';
 import { isListingChatClosed } from '../ChatAvailabilityService';
 import logger from '../../utils/logger';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
@@ -21,37 +18,7 @@ export async function getMessages(
     before?: string,
     after?: string
 ) {
-    const baseFilter: Record<string, unknown> = {
-        conversationId,
-        deletedFor: { $ne: new Types.ObjectId(userId) },
-    };
-
-    if (after) {
-        const msgs = await ChatMessage.find({
-            ...baseFilter,
-            createdAt: { $gt: new Date(after) },
-        })
-            .sort({ createdAt: 1 })
-            .lean();
-        return { msgs, nextCursor: undefined };
-    }
-
-    if (before) {
-        baseFilter.createdAt = { $lt: new Date(before) };
-    }
-
-    const msgs = await ChatMessage.find(baseFilter)
-        .sort({ createdAt: -1 })
-        .limit(PAGE_SIZE_MESSAGES)
-        .lean();
-
-    const lastMsg = msgs[msgs.length - 1];
-    const nextCursor =
-        msgs.length === PAGE_SIZE_MESSAGES && lastMsg?.createdAt
-            ? (lastMsg.createdAt).toISOString()
-            : undefined;
-
-    return { msgs: msgs.reverse(), nextCursor };
+    return await chatRepository.findMessages(conversationId, userId, before, after);
 }
 
 export async function sendMessage(
@@ -59,15 +26,14 @@ export async function sendMessage(
     senderId: string,
     rawText: string,
     attachments: IChatAttachment[] = []
-): Promise<InstanceType<typeof ChatMessage>> {
-    const conv = await Conversation.findById(conversationId);
+) {
+    const conv = await chatRepository.findConversationById(conversationId);
     if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
-    const listing = await Ad.findById(conv.adId).select('status isDeleted isChatLocked').lean();
+    const listing = await chatRepository.getAdChatInfo(String(conv.adId));
     const derivedClosed = isListingChatClosed(listing);
 
     if (conv.isAdClosed !== derivedClosed) {
-        conv.isAdClosed = derivedClosed;
-        await conv.save();
+        await chatRepository.updateConversationAdClosedStatus(conversationId, derivedClosed);
     }
 
     const buyerStr = String(conv.buyerId);
@@ -86,10 +52,10 @@ export async function sendMessage(
     const riskScore = computeRiskScore(sanitized);
     const storedText = maskSensitiveData(sanitized);
 
-    const msg = await ChatMessage.create({
-        conversationId: new Types.ObjectId(conversationId),
-        senderId: new Types.ObjectId(senderId),
-        receiverId: new Types.ObjectId(receiverId),
+    const msg = await chatRepository.createMessage({
+        conversationId,
+        senderId,
+        receiverId,
         text: storedText,
         attachments,
         riskScore,
@@ -97,16 +63,14 @@ export async function sendMessage(
     });
 
     const unreadField = receiverId === buyerStr ? 'unreadBuyer' : 'unreadSeller';
-    await Conversation.updateOne(
-        { _id: conversationId },
-        {
-            $set: {
-                lastMessage: buildConversationPreview(storedText, attachments),
-                lastMessageAt: msg.createdAt,
-            },
-            $inc: { [unreadField]: 1 },
-            $pull: { deletedFor: new Types.ObjectId(senderId) },
-        }
+    const preview = buildConversationPreview(storedText, attachments);
+    
+    await chatRepository.updateConversationPreview(
+        conversationId,
+        unreadField,
+        senderId,
+        preview,
+        msg.createdAt
     );
 
     // 📣 NOTIFY RECEIVER (Push + In-App)
@@ -132,13 +96,11 @@ export async function sendMessage(
     })();
 
     if (riskScore >= 0.8) {
-        await ChatMessage.create({
-            conversationId: new Types.ObjectId(conversationId),
-            senderId: new Types.ObjectId(senderId),
-            receiverId: new Types.ObjectId(receiverId),
+        await chatRepository.createSystemMessage({
+            conversationId,
+            senderId,
+            receiverId,
             text: '⚠️ This message was flagged for review by our safety system.',
-            isSystemMessage: true,
-            riskScore: 0,
         });
     }
 
@@ -146,7 +108,7 @@ export async function sendMessage(
 }
 
 export async function markRead(conversationId: string, userId: string) {
-    const conv = await Conversation.findById(conversationId).lean();
+    const conv = await chatRepository.findConversationById(conversationId);
     if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
 
     const buyerStr = String(conv.buyerId);
@@ -155,12 +117,8 @@ export async function markRead(conversationId: string, userId: string) {
         throw Object.assign(new Error('Forbidden'), { status: 403 });
     }
 
-    const now = new Date();
-    await ChatMessage.updateMany(
-        { conversationId, receiverId: new Types.ObjectId(userId), readAt: null },
-        { $set: { readAt: now } }
-    );
+    await chatRepository.markMessagesRead(conversationId, userId);
 
     const unreadField = userId === buyerStr ? 'unreadBuyer' : 'unreadSeller';
-    await Conversation.updateOne({ _id: conversationId }, { $set: { [unreadField]: 0 } });
+    await chatRepository.resetUnreadCount(conversationId, unreadField);
 }

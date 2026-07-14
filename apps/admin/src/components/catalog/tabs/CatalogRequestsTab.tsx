@@ -21,7 +21,7 @@ import { getBrands } from "@/lib/api/brands";
 import { getModels } from "@/lib/api/models";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 
-const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate"]);
+const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "resolved"]);
 
 const normalizeRequestStatusParam = (value: string | null) =>
     value && REQUEST_STATUS_VALUES.has(value) ? value : "all";
@@ -271,12 +271,12 @@ export default function CatalogRequestsTab() {
                         header: "Status",
                         cell: (req) => (
                             <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
-                                req.status === "approved" ? "bg-emerald-100 text-emerald-700" :
+                                req.status === "approved" || req.status === "resolved" ? "bg-emerald-100 text-emerald-700" :
                                 req.status === "rejected" ? "bg-red-100 text-red-700" :
                                 req.status === "duplicate" ? "bg-blue-100 text-blue-700" :
                                 "bg-amber-100 text-amber-700"
                             }`}>
-                                {req.status === "pending" ? <Clock size={10} /> : req.status === "approved" ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
+                                {req.status === "pending" ? <Clock size={10} /> : (req.status === "approved" || req.status === "resolved") ? <CheckCircle size={10} /> : <AlertCircle size={10} />}
                                 {req.status}
                             </span>
                         ),
@@ -347,6 +347,7 @@ export default function CatalogRequestsTab() {
                                 { value: "all", label: "All Status" },
                                 { value: "pending", label: "Pending" },
                                 { value: "approved", label: "Approved" },
+                                { value: "resolved", label: "Resolved" },
                                 { value: "rejected", label: "Rejected" },
                                 { value: "duplicate", label: "Duplicate" },
                             ]}

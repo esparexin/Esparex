@@ -3,6 +3,35 @@ import { LISTING_STATUS } from '@esparex/shared';
 import { AdContext } from '../../types/ad.types';
 
 // Mock models and services using the canonical paths
+jest.mock('@esparex/core/composition/listings', () => ({
+    getListingRepository: jest.fn().mockReturnValue({
+        findOne: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'active',
+            listingType: 'ad',
+            sellerId: 'user-123',
+            title: 'Old Title',
+            description: 'Old Description',
+            price: 100,
+            images: [],
+            currency: 'USD'
+        }),
+        updateOne: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'active',
+            listingType: 'ad'
+        }),
+        updateOneByFilter: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'active',
+            listingType: 'ad'
+        }),
+        find: jest.fn().mockResolvedValue([]),
+        insert: jest.fn(),
+        updateMany: jest.fn()
+    })
+}));
+
 jest.mock('@esparex/core/models/Ad', () => ({
     __esModule: true,
     default: {
@@ -69,11 +98,10 @@ jest.mock('../../queues/imageQueue', () => ({
 import Ad from '../../models/Ad';
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
 import { updateAdLogic } from '../../services/ad/AdUpdateService';
+import { getListingRepository } from '@esparex/core/composition/listings';
 
-const mockedAdModel = Ad as unknown as {
-    findById: jest.Mock;
-    findByIdAndUpdate: jest.Mock;
-};
+const mockedAdModel = Ad as unknown as { findById: jest.Mock; findByIdAndUpdate: jest.Mock };
+const mockRepo = getListingRepository() as jest.Mocked<ReturnType<typeof getListingRepository>>;
 
 describe('AdUpdateService', () => {
     let mockAd: any;
@@ -109,10 +137,11 @@ describe('AdUpdateService', () => {
             session: jest.fn().mockResolvedValue(mockAd),
         });
         
-        mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+        mockRepo.updateOne.mockResolvedValue({
             ...mockAd,
             toObject: jest.fn().mockReturnValue({ ...mockAd }),
         });
+        mockRepo.findOne.mockResolvedValue(mockAd);
     });
 
     describe('updateAdLogic', () => {
@@ -123,13 +152,13 @@ describe('AdUpdateService', () => {
 
             expect(result).toBeDefined();
             expect(StatusMutationService.mutateStatus).not.toHaveBeenCalled();
-            expect(mockedAdModel.findByIdAndUpdate).toHaveBeenCalled();
+            expect(mockRepo.updateOne).toHaveBeenCalled();
         });
 
         it('should trigger re-review (PENDING status) for sensitive title change', async () => {
             const updateData = { title: 'New Title' };
             
-            mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+            mockRepo.updateOne.mockResolvedValue({
                 ...mockAd,
                 title: 'New Title',
                 toObject: jest.fn().mockReturnValue({ ...mockAd, title: 'New Title' }),
@@ -148,7 +177,7 @@ describe('AdUpdateService', () => {
         it('should trigger re-review for image changes', async () => {
             const updateData = { images: ['img1.jpg', 'img3.jpg'] }; // Changed img2 to img3
             
-            mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+            mockRepo.updateOne.mockResolvedValue({
                 ...mockAd,
                 images: ['img1.jpg', 'img3.jpg'],
                 toObject: jest.fn().mockReturnValue({ ...mockAd, images: ['img1.jpg', 'img3.jpg'] }),
@@ -162,7 +191,7 @@ describe('AdUpdateService', () => {
         it('should trigger re-review for sensitive price change and detect price drop', async () => {
             const updateData = { price: 800 }; // Dropped from 1000
             
-            mockedAdModel.findByIdAndUpdate.mockResolvedValue({
+            mockRepo.updateOne.mockResolvedValue({
                 ...mockAd,
                 price: 800,
                 toObject: jest.fn().mockReturnValue({ ...mockAd, price: 800 }),

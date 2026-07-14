@@ -8,7 +8,7 @@ import SparePartImport from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import CatalogModel from '../../models/Model';
-import AdModel from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
 // Re-export model instance for generic handler calls in the controller layer
@@ -36,7 +36,7 @@ export const getActiveBrandIdsForCategories = async (activeCategoryIds: string[]
         approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
         categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();
-    return brands.map(b => String(b._id));
+    return brands.map((b: { _id: unknown }) => String(b._id));
 };
 
 /** Return _id strings of all active models in the given categories (spare parts view). */
@@ -48,7 +48,7 @@ export const getActiveModelIdsForCategories = async (activeCategoryIds: string[]
         approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
         categoryIds: { $in: activeCategoryIds }
     }).select('_id').lean();
-    return models.map(m => String(m._id));
+    return models.map((m: { _id: unknown }) => String(m._id));
 };
 
 // ─── Spare part queries ───────────────────────────────────────────────────────
@@ -62,6 +62,6 @@ export const findSparePartById = async (id: string | undefined) => {
 
 /** Check if any ads reference this spare part (used before deletion). */
 export const checkSparePartDependencies = async (id: string) => {
-    const adsCount = await AdModel.countDocuments({ sparePartIds: id });
+    const adsCount = await getListingRepository().count({ sparePartIds: id });
     return { count: adsCount, details: { ads: adsCount } };
 };

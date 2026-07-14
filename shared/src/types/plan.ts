@@ -15,7 +15,7 @@ export interface PlanLimits {
 
 export interface SmartAlertConfig {
     maxAlerts?: number;
-    matchFrequency?: "realtime" | "hourly" | "daily";
+    matchFrequency?: "instant" | "hourly" | "daily";
     radiusLimitKm?: number;
     notificationChannels?: string[];
 }

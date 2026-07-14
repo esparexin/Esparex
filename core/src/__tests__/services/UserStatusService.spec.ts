@@ -5,17 +5,21 @@ jest.mock("@esparex/core/models/User", () => ({
     },
 }));
 
-jest.mock("@esparex/core/models/Ad", () => ({
-    __esModule: true,
-    default: {
-        updateMany: jest.fn(),
-        find: jest.fn().mockReturnValue({
-            select: jest.fn().mockReturnValue({
-                lean: jest.fn().mockResolvedValue([]),
-            }),
-        }),
-    },
-}));
+jest.mock("@esparex/core/models/Ad", () => {
+    const mockQuery: any = {
+        select: jest.fn().mockReturnThis(),
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([]),
+        then: (resolve: any, reject: any) => Promise.resolve([]).then(resolve, reject)
+    };
+    return {
+        __esModule: true,
+        default: {
+            updateMany: jest.fn(),
+            find: jest.fn().mockReturnValue(mockQuery),
+        },
+    };
+});
 
 jest.mock("@esparex/core/models/SmartAlert", () => ({
     __esModule: true,

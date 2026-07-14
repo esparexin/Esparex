@@ -1,6 +1,7 @@
 import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
+import { ListingFilter } from '../domains/listings';
 import DuplicateEvent from '../models/DuplicateEvent';
 import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
@@ -29,13 +30,13 @@ export type DuplicatePayload = {
 };
 
 export type DuplicateLookupResult = {
-    _id: mongoose.Types.ObjectId;
+    id: string;
     status: string;
 };
 
 export type CrossUserDuplicateRisk = {
     score: number;
-    matchedAdId?: mongoose.Types.ObjectId;
+    matchedAdId?: string;
     reason: string;
     details: Record<string, unknown>;
 };
@@ -43,7 +44,7 @@ export type CrossUserDuplicateRisk = {
 export interface DuplicateCheckResult {
     isDuplicate: boolean;
     riskScore: number;
-    matchedAdId?: mongoose.Types.ObjectId;
+    matchedAdId?: string;
     reason?: string;
 }
 
@@ -148,11 +149,11 @@ export const findExistingSelfDuplicate = async (
     if (!locationId) return null;
 
     const query: Record<string, unknown> = {
-        sellerId: new mongoose.Types.ObjectId(sellerId),
+        sellerId: sellerId,
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         isDeleted: { $ne: true },
-        categoryId: new mongoose.Types.ObjectId(categoryId),
-        'location.locationId': new mongoose.Types.ObjectId(locationId),
+        categoryId: categoryId,
+        'location.locationId': locationId,
         listingType: listingType || 'ad',
     };
 
@@ -161,14 +162,13 @@ export const findExistingSelfDuplicate = async (
         query.price = { $gte: price - priceMargin, $lte: price + priceMargin };
     }
 
-    if (brandId && mongoose.Types.ObjectId.isValid(brandId)) query.brandId = new mongoose.Types.ObjectId(brandId);
-    if (modelId && mongoose.Types.ObjectId.isValid(modelId)) query.modelId = new mongoose.Types.ObjectId(modelId);
-    if (excludeAdId && mongoose.Types.ObjectId.isValid(excludeAdId)) query._id = { $ne: new mongoose.Types.ObjectId(excludeAdId) };
+    if (brandId) query.brandId = brandId;
+    if (modelId) query.modelId = modelId;
+    if (excludeAdId) query._id = { $ne: excludeAdId };
+    if (session) query.session = session;
 
-    const queryBuilder = Ad.findOne(query).select('_id status').lean();
-    if (session) queryBuilder.session(session);
-
-    return (await queryBuilder);
+    const doc = await getListingRepository().findOne(query as ListingFilter);
+    return doc ? { id: doc.id, status: doc.status } : null;
 };
 
 export const assessCrossUserDuplicateRisk = async (
@@ -188,20 +188,17 @@ export const assessCrossUserDuplicateRisk = async (
     const priceMargin = price * 0.1;
     const priceRange = { $gte: price - priceMargin, $lte: price + priceMargin };
 
-    let query = Ad.find({
-        categoryId: new mongoose.Types.ObjectId(categoryId),
-        'location.locationId': new mongoose.Types.ObjectId(locationId),
+    const query: Record<string, unknown> = {
+        categoryId,
+        'location.locationId': locationId,
         price: priceRange,
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
-        sellerId: { $ne: new mongoose.Types.ObjectId(sellerId) },
+        sellerId: { $ne: sellerId },
         ...(payloadImageHashes.length > 0 ? { imageHashes: { $in: payloadImageHashes } } : {}),
-    })
-    .select('_id imageHashes')
-    .lean<{ _id: mongoose.Types.ObjectId }[]>()
-    .limit(5);
+    };
+    if (session) query.session = session;
 
-    if (session) query = query.session(session);
-    const potentialMatches = await query;
+    const potentialMatches = await getListingRepository().findWithLimit(query as ListingFilter, { createdAt: -1 }, 5);
 
     if (potentialMatches.length === 0) {
         return { score: 0, reason: 'No cross-user duplicates detected', details: {} };
@@ -212,7 +209,7 @@ export const assessCrossUserDuplicateRisk = async (
 
     return {
         score: Math.min(matchScore, 80),
-        matchedAdId: firstMatch._id,
+        matchedAdId: firstMatch.id,
         reason: 'Similar listings found from other sellers',
         details: { matchCount: potentialMatches.length, imageHashMatch: payloadImageHashes.length > 0, priceRange },
     };
@@ -222,7 +219,7 @@ export const logDuplicateEvent = async (
     event: {
         sellerId?: string;
         adId?: mongoose.Types.ObjectId | string;
-        matchedAdId?: mongoose.Types.ObjectId;
+        matchedAdId?: mongoose.Types.ObjectId | string;
         action: 'flagged' | 'blocked';
         reason?: string;
         score?: number;
@@ -236,7 +233,7 @@ export const logDuplicateEvent = async (
         const duplicateEvent = new DuplicateEvent({
             sellerId: new mongoose.Types.ObjectId(event.sellerId),
             adId: event.adId ? new mongoose.Types.ObjectId(String(event.adId)) : undefined,
-            matchedAdId: event.matchedAdId,
+            matchedAdId: event.matchedAdId ? new mongoose.Types.ObjectId(String(event.matchedAdId)) : undefined,
             action: event.action,
             reason: event.reason || 'Duplicate detected',
             score: event.score,
@@ -276,19 +273,22 @@ export class AdDuplicateService {
             : null;
 
         if (selfDuplicate) {
-            return { isDuplicate: true, riskScore: 100, matchedAdId: selfDuplicate._id, reason: 'Existing active listing detected for this user.' };
+            return { isDuplicate: true, riskScore: 100, matchedAdId: selfDuplicate.id, reason: 'Existing active listing detected for this user.' };
         }
 
         // 2. Fingerprint Check
         const fingerprint = buildDuplicateFingerprint(payload, sellerId);
         if (fingerprint) {
-            const fingerprintMatch = await Ad.findOne({
+            const query: Record<string, unknown> = {
                 duplicateFingerprint: fingerprint,
                 status: { $in: [LISTING_STATUS.LIVE, LISTING_STATUS.PENDING] }
-            }).session(session as ClientSession).select('_id').lean<{ _id: mongoose.Types.ObjectId } | null>();
+            };
+            if (session) query.session = session;
+
+            const fingerprintMatch = await getListingRepository().findOne(query as ListingFilter);
             
             if (fingerprintMatch) {
-                return { isDuplicate: true, riskScore: 90, matchedAdId: fingerprintMatch._id, reason: 'Duplicate fingerprint detected.' };
+                return { isDuplicate: true, riskScore: 90, matchedAdId: fingerprintMatch.id, reason: 'Duplicate fingerprint detected.' };
             }
         }
 

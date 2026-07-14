@@ -9,10 +9,35 @@
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-jest.mock('../../models/Ad', () => ({
+jest.mock('@esparex/core/composition/listings', () => ({
+    getListingRepository: jest.fn().mockReturnValue({
+        findOne: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'expired',
+            listingType: 'ad',
+            userId: 'user_1',
+            categoryId: 'cat_1'
+        }),
+        updateOne: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'active',
+            listingType: 'ad'
+        }),
+        updateOneByFilter: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'active',
+            listingType: 'ad'
+        }),
+        find: jest.fn().mockResolvedValue([]),
+        insert: jest.fn(),
+        updateMany: jest.fn()
+    })
+}));
+
+jest.mock('@esparex/core/models/Ad', () => ({
     __esModule: true,
     default: {
-        findOne: jest.fn(),
+        findById: jest.fn(),
     },
 }));
 
@@ -47,9 +72,11 @@ import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy'
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
 import { LISTING_STATUS } from '@esparex/shared';
 
+import { getListingRepository } from '@esparex/core/composition/listings';
+
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 
-const mockAdModel = Ad as unknown as { findOne: jest.Mock };
+const mockRepo = getListingRepository() as jest.Mocked<ReturnType<typeof getListingRepository>>;
 const mockReserveSlot = ListingSubmissionPolicy.reserveSlot as jest.Mock;
 const mockMutateStatus = StatusMutationService.mutateStatus as jest.Mock;
 
@@ -83,9 +110,7 @@ describe('AdRepostService.repostAdLogic', () => {
 
     it('should successfully repost an expired ad', async () => {
         const ad = makeAd();
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
         mockMutateStatus.mockResolvedValue({ ...ad, status: LISTING_STATUS.PENDING });
 
         const result = await repostAdLogic(AD_ID, USER_ID);
@@ -96,7 +121,7 @@ describe('AdRepostService.repostAdLogic', () => {
             listingId: AD_ID,
             listingType: 'ad'
         }));
-        expect(ad.save).toHaveBeenCalled();
+        expect(mockRepo.updateOne).toHaveBeenCalled();
         expect(mockMutateStatus).toHaveBeenCalledWith(expect.objectContaining({
             toStatus: LISTING_STATUS.PENDING,
             reason: 'Reposted by seller'
@@ -105,9 +130,7 @@ describe('AdRepostService.repostAdLogic', () => {
 
     it('should successfully repost a rejected ad', async () => {
         const ad = makeAd({ status: LISTING_STATUS.REJECTED });
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
         mockMutateStatus.mockResolvedValue({ ...ad, status: LISTING_STATUS.PENDING });
 
         await repostAdLogic(AD_ID, USER_ID);
@@ -118,18 +141,14 @@ describe('AdRepostService.repostAdLogic', () => {
 
     it('should throw error if ad is currently live', async () => {
         const ad = makeAd({ status: LISTING_STATUS.LIVE });
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
 
         await expect(repostAdLogic(AD_ID, USER_ID))
             .rejects.toThrow('Only expired or rejected ads can be reposted');
     });
 
     it('should throw error if ad is not found', async () => {
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(null)
-        });
+        mockRepo.findOne.mockResolvedValue(null);
 
         await expect(repostAdLogic(AD_ID, USER_ID))
             .rejects.toThrow('Ad not found');
@@ -137,9 +156,7 @@ describe('AdRepostService.repostAdLogic', () => {
 
     it('should throw error if quota reservation fails', async () => {
         const ad = makeAd();
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
         mockReserveSlot.mockRejectedValue(new Error('QUOTA_EXCEEDED'));
 
         await expect(repostAdLogic(AD_ID, USER_ID))
@@ -148,9 +165,7 @@ describe('AdRepostService.repostAdLogic', () => {
 
     it('should propagate status mutation errors', async () => {
         const ad = makeAd();
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
         mockMutateStatus.mockRejectedValue(new Error('MUTATION_FAILED'));
 
         await expect(repostAdLogic(AD_ID, USER_ID))
@@ -159,15 +174,17 @@ describe('AdRepostService.repostAdLogic', () => {
 
     it('should reset moderation status and reason during repost', async () => {
         const ad = makeAd();
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
         mockMutateStatus.mockResolvedValue(ad);
 
         await repostAdLogic(AD_ID, USER_ID);
 
-        expect(ad.moderationStatus).toBe('held_for_review');
-        expect(ad.moderationReason).toBe('Reposted by seller for moderation review');
+        expect(mockRepo.updateOne).toHaveBeenCalledWith(AD_ID, expect.objectContaining({
+            $set: expect.objectContaining({
+                moderationStatus: 'held_for_review',
+                moderationReason: 'Reposted by seller for moderation review'
+            })
+        }), expect.anything());
     });
 
     it('should reset duplicate flags and scores', async () => {
@@ -176,15 +193,19 @@ describe('AdRepostService.repostAdLogic', () => {
             isDuplicateFlag: true,
             duplicateOf: 'other-id'
         });
-        mockAdModel.findOne.mockReturnValue({
-            session: jest.fn().mockResolvedValue(ad)
-        });
+        mockRepo.findOne.mockResolvedValue(ad as any);
         mockMutateStatus.mockResolvedValue(ad);
 
         await repostAdLogic(AD_ID, USER_ID);
 
-        expect(ad.duplicateScore).toBe(0);
-        expect(ad.isDuplicateFlag).toBe(false);
-        expect(ad.duplicateOf).toBeUndefined();
+        expect(mockRepo.updateOne).toHaveBeenCalledWith(AD_ID, expect.objectContaining({
+            $set: expect.objectContaining({
+                duplicateScore: 0,
+                isDuplicateFlag: false
+            }),
+            $unset: expect.objectContaining({
+                duplicateOf: 1
+            })
+        }), expect.anything());
     });
 });

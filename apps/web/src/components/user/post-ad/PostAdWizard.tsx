@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./PostAdContext";
-import DeviceIdentityFields from "./steps/DeviceIdentityFields";
-import ListingDetailsFields from "./steps/ListingDetailsFields";
+import { StepOne } from "./steps/listing-information";
+import { StepTwo } from "./steps/listing-details";
 import { PostAdShell } from "./PostAdShell";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "@/components/user/shared/ListingModalLayout";
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
@@ -10,13 +10,14 @@ import { cn } from "@/components/ui/utils";
 import { Button } from "@/components/ui/button";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
+import { ValidationSummary } from "./steps/common/ValidationSummary";
 import { useNavigation } from "@/context/NavigationContext";
 import type { PostAdWizardProps } from "./types";
 
-const STEP_LABELS = ["Category", "Brand & Model", "Details & Condition", "Listing Information"];
+const STEP_LABELS = ["Listing Information", "Listing Details"];
 
 function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["navigateTo"] }) {
-  const { currentStep, isEditMode, isSubmitting, formError, submittedAd } = usePostAdFlow();
+  const { currentStep, isEditMode, isSubmitting, submittedAd } = usePostAdFlow();
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { confirmNavigation } = useNavigation();
@@ -43,7 +44,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     );
   }
 
-    const stepSubtitle = `Step ${currentStep} of 4: ${STEP_LABELS[currentStep - 1]}`;
+  const stepSubtitle = `Step ${currentStep} of 2: ${STEP_LABELS[currentStep - 1]}`;
 
   return (
     <PostAdShell>
@@ -53,21 +54,13 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         onClose={handleClose}
       >
         <ListingModalBody data-post-ad-scroll className="space-y-4">
-          {formError ? (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              <p className="font-semibold">Post Ad Error</p>
-              <p className="mt-1">{formError || "Please complete required fields before posting."}</p>
-            </div>
-          ) : null}
+          <ValidationSummary />
 
-          <div className={cn(currentStep > 3 && "hidden")}>
-            <DeviceIdentityFields currentStep={currentStep} />
+          <div className={cn(currentStep !== 1 && "hidden")}>
+            <StepOne />
           </div>
-          <div className={cn(currentStep !== 4 && "hidden")}>
-            <ListingDetailsFields />
+          <div className={cn(currentStep !== 2 && "hidden")}>
+            <StepTwo />
           </div>
 
           {currentStep > 1 && !isEditMode ? (
@@ -87,7 +80,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         <ListingModalFooter>
           <Button
             type="button"
-            onClick={currentStep === 4 ? submitAd : nextStep}
+            onClick={currentStep === 2 ? submitAd : nextStep}
             disabled={isButtonDisabled}
             className={cn(
               "w-full rounded-xl font-semibold transition-all active:scale-[0.98]",
@@ -101,7 +94,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 <span>Processing...</span>
               </div>
             ) : (
-              currentStep === 4 ? (isEditMode ? "Save Changes" : "Confirm & Post Ad") : "Continue"
+              currentStep === 2 ? (isEditMode ? "Save Changes" : "Confirm & Post Ad") : "Continue"
             )}
           </Button>
         </ListingModalFooter>

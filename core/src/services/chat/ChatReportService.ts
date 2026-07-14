@@ -1,6 +1,4 @@
-import { Types } from 'mongoose';
-import { Conversation } from '../../models/Conversation';
-import { ChatReport } from '../../models/ChatReport';
+import { chatRepository } from '../../composition/chat';
 import type { ChatReportReasonValue } from '@esparex/shared';
 
 export async function reportConversation(
@@ -10,7 +8,7 @@ export async function reportConversation(
     description?: string,
     messageId?: string
 ) {
-    const conv = await Conversation.findById(conversationId).lean();
+    const conv = await chatRepository.findConversationById(conversationId);
     if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
 
     const buyerStr = String(conv.buyerId);
@@ -21,11 +19,11 @@ export async function reportConversation(
 
     const reportedUserId = reporterId === buyerStr ? sellerStr : buyerStr;
 
-    const report = await ChatReport.create({
-        conversationId: new Types.ObjectId(conversationId),
-        reporterId: new Types.ObjectId(reporterId),
-        reportedUserId: new Types.ObjectId(reportedUserId),
-        messageId: messageId ? new Types.ObjectId(messageId) : undefined,
+    const report = await chatRepository.createReport({
+        conversationId,
+        reporterId,
+        reportedUserId,
+        messageId,
         reason,
         description,
     });

@@ -3,7 +3,7 @@ import { ADMIN_ROUTES } from '@/lib/api/routes';
 import { buildQueryString } from '@/lib/api/queryParams';
 
 export type CatalogRequestType = 'brand' | 'model';
-export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate';
+export type CatalogRequestStatus = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
 
 export interface CatalogRequestUserRef {
     id: string;
@@ -52,6 +52,7 @@ export interface CatalogRequestStatsBucket {
     approved: number;
     rejected: number;
     duplicate: number;
+    resolved: number;
     total: number;
 }
 

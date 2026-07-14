@@ -5,10 +5,7 @@
  */
 
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
 import slugify from 'slugify';
-import logger from '@esparex/core/utils/logger';
-import { getUserConnection } from '@esparex/core/config/db';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
     CategoryModel,
@@ -16,8 +13,6 @@ import {
     findCategoryById,
     categoryParentExists,
     updateCategorySchemaById,
-    findCategoryByIdWithSession,
-    softDeleteCategoryById,
 } from '@esparex/core/services/catalog/CatalogCategoryService';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';

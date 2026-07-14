@@ -1,0 +1,18 @@
+{
+  "note": "Derived from package.json and workspace manifests. Regenerate when dependencies change.",
+  "engines": {
+    "node": ">=22.0.0 <23",
+    "npm": "10.9.7"
+  },
+  "frameworks": {
+    "next": "^16.0.6",
+    "express": "^5.2.1",
+    "mongoose": "^9.0.2"
+  },
+  "libraries": {
+    "react": "^18.3.1",
+    "react-hook-form": "^7.69.0",
+    "zod": "^3.25.76",
+    "tailwindcss": "^3.4.1"
+  }
+}

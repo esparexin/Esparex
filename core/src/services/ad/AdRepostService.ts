@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { getUserConnection } from '../../config/db';
 import { LISTING_STATUS } from '@esparex/shared';
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
@@ -28,11 +28,11 @@ export const repostAdLogic = async (
 
     try {
         await session.withTransaction(async () => {
-            const ad = await Ad.findOne({
-                _id: adId,
-                sellerId: sellerObjectId,
-                isDeleted: { $ne: true }
-            }).session(session);
+            const ad = await getListingRepository().findOne({
+                ids: [id],
+                sellerId: userId,
+                isDeleted: false as any
+            });
 
             if (!ad) {
                 throw new AppError('Ad not found', 404);
@@ -57,28 +57,32 @@ export const repostAdLogic = async (
 
             const nextStatus = LISTING_STATUS.PENDING;
             const now = new Date();
-            ad.expiresAt = undefined;
-            ad.approvedAt = undefined;
-            ad.publishedAt = now;
-            ad.expiryWarningSentAt = undefined;
-            ad.expiryWarningCount = 0;
-            ad.lastExpiryWarningChannel = undefined;
-            ad.spotlightWarningSentAt = undefined;
-            ad.spotlightWarningCount = 0;
-            ad.duplicateFingerprint = undefined;
-            ad.duplicateOf = undefined;
-            ad.duplicateScore = 0;
-            ad.isDuplicateFlag = false;
-            ad.rejectionReason = undefined;
-
-            ad.moderationStatus = 'held_for_review';
-            ad.moderationReason = 'Reposted by seller for moderation review';
-
-            await ad.save({ session });
+            const patchDoc: Record<string, unknown> = {
+                $unset: {
+                    expiresAt: 1,
+                    approvedAt: 1,
+                    expiryWarningSentAt: 1,
+                    lastExpiryWarningChannel: 1,
+                    spotlightWarningSentAt: 1,
+                    duplicateFingerprint: 1,
+                    duplicateOf: 1,
+                    rejectionReason: 1
+                },
+                $set: {
+                    publishedAt: now,
+                    expiryWarningCount: 0,
+                    spotlightWarningCount: 0,
+                    duplicateScore: 0,
+                    isDuplicateFlag: false,
+                    moderationStatus: 'held_for_review',
+                    moderationReason: 'Reposted by seller for moderation review'
+                }
+            };
+            await getListingRepository().updateOne(id, patchDoc as any, session);
 
             const transitioned = await mutateStatus({
                 domain: 'ad',
-                entityId: ad._id.toString(),
+                entityId: ad.id,
                 toStatus: nextStatus,
                 actor: { type: 'user', id: userId },
                 reason: 'Reposted by seller',

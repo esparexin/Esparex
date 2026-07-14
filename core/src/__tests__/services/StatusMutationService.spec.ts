@@ -23,10 +23,36 @@ jest.mock("@esparex/core/config/db", () => ({
     isDbReady: jest.fn(() => true),
 }));
 
-jest.mock("@esparex/core/models/Ad", () => ({
+jest.mock('@esparex/core/composition/listings', () => ({
+    getListingRepository: jest.fn().mockReturnValue({
+        findOne: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'active',
+            listingType: 'ad'
+        }),
+        updateOneByFilter: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'deactivated',
+            listingType: 'ad'
+        }),
+        find: jest.fn().mockResolvedValue([]),
+        insert: jest.fn(),
+        updateMany: jest.fn()
+    })
+}));
+
+jest.mock('@esparex/core/models/Ad', () => ({
     __esModule: true,
     default: {
-        findById: jest.fn(),
+        findById: jest.fn().mockReturnValue({
+            setOptions: jest.fn().mockReturnThis(),
+            session: jest.fn().mockResolvedValue({
+                status: 'active',
+                listingType: 'ad',
+                toObject: jest.fn(() => ({ _id: "ad_1", status: "active", listingType: "ad" })),
+                save: jest.fn().mockResolvedValue({})
+            })
+        }),
         find: jest.fn(),
     },
 }));

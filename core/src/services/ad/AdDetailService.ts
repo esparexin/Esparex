@@ -1,12 +1,12 @@
 import {
     mongoose,
-    Ad,
     Business,
     Report,
     LISTING_STATUS,
     isBusinessPublishedStatus
 } from './_shared/adServiceBase';
 import type { PaginationOptions } from './_shared/adServiceBase';
+import { getListingRepository } from '../../composition/listings';
 
 import { hydrateAdMetadata } from './AdAggregationService';
 import type { IAd } from '../../models/Ad';
@@ -77,18 +77,20 @@ export const getAnyAdById = async (
     const id = new mongoose.Types.ObjectId(adId);
 
     try {
-        const ad = await Ad.findOne({ _id: id })
-            .setOptions({ withDeleted: true })
-            .populate('sellerId', 'name avatar isVerified role trustScore')
-            .lean();
-
+        const ad = await getListingRepository().findOne({ ids: [adId], isDeleted: { $in: [true, false] } as any });
         if (!ad) return null;
 
+        const User = (await import('../../models/User')).default;
+        const seller = await User.findById(ad.sellerId).select('name avatar isVerified role trustScore').lean();
+        const adRecord = { ...ad, sellerId: seller ? seller : ad.sellerId };
+
+        if (!adRecord) return null;
+
         // Perform Split-DB hydration for catalog references
-        await hydrateAdMetadata([ad]);
+        await hydrateAdMetadata([adRecord as any]);
 
         // Use DTO/interface for ad
-        const result = { ...ad } as Partial<IAd> & Record<string, unknown>;
+        const result = { ...adRecord } as unknown as Partial<IAd> & Record<string, unknown>;
         delete result.password;
         delete result.otp;
         delete result.otpExpiry;
@@ -108,9 +110,9 @@ export const getAnyAdById = async (
  */
 export const getAdForModerationById = async (id: string) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return null;
-    return Ad.findById(id)
-        .select('status reviewVersion listingType isDeleted')
-        .lean<{ status: string; reviewVersion?: number; listingType?: string; isDeleted?: boolean } | null>();
+    const ad = await getListingRepository().findById(id);
+    if (!ad) return null;
+    return { status: String(ad.status), reviewVersion: ad.reviewVersion as number, listingType: String(ad.listingType), isDeleted: Boolean(ad.isDeleted) };
 };
 
 export const getListingDetailById = async (adId: string) => {
@@ -118,18 +120,16 @@ export const getListingDetailById = async (adId: string) => {
         return null;
     }
 
-    const objectId = new mongoose.Types.ObjectId(adId);
-    const ad = await Ad.findById(objectId)
-        .populate('sellerId', 'name avatar trustScore isVerified status mobileVisibility role')
-        .lean();
+    const ad = await getListingRepository().findById(adId);
+    if (!ad) return null;
 
-    if (!ad) {
-        return null;
-    }
+    const User = (await import('../../models/User')).default;
+    const seller = await User.findById(ad.sellerId).select('name avatar trustScore isVerified status mobileVisibility role').lean();
+    const adRecord = { ...ad, sellerId: seller ? seller : ad.sellerId };
 
-    await hydrateAdMetadata([ad]);
+    await hydrateAdMetadata([adRecord as any]);
 
-    const detail = ad as unknown as Record<string, unknown> & {
+    const detail = adRecord as unknown as Record<string, unknown> & {
         categoryId?: unknown;
         brandId?: unknown;
         modelId?: unknown;
@@ -298,11 +298,12 @@ export const getAdSuggestions = async (q: string, limit = 10): Promise<string[]>
     if (!q || q.length < 2) return [];
     const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escaped, 'i');
-    const docs = await Ad.find(
-        { title: regex, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } },
-        { title: 1 }
-    ).limit(limit).lean();
-    return Array.from(new Set(docs.map((d) => d.title).filter(Boolean)));
+    const docs = await getListingRepository().findWithLimit(
+        { title: { $regex: regex } as any, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } as any },
+        undefined,
+        limit
+    );
+    return Array.from(new Set(docs.map((d) => d.title).filter(Boolean) as string[]));
 };
 
 // ─────────────────────────────────────────────────
@@ -320,12 +321,8 @@ export const getAdsByStatus = async (
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-        Ad.find({ status, isDeleted: { $ne: true } })
-            .sort({ createdAt: 1 })
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-        Ad.countDocuments({ status, isDeleted: { $ne: true } })
+        getListingRepository().findWithLimit({ status, isDeleted: { $ne: true } as any }, { createdAt: 1 }, limit, skip),
+        getListingRepository().count({ status, isDeleted: { $ne: true } as any })
     ]);
     return { data: data as unknown as Record<string, unknown>[], total };
 };
@@ -344,18 +341,16 @@ export const getAdIdBySlug = async (
 ): Promise<string | null> => {
     // 1. Direct match (canonical behavior)
     const slugQuery: Record<string, unknown> = { seoSlug: slug, ...visibilityFilter };
-    const found = await Ad.findOne(slugQuery).select('_id').lean();
-    if (found) return (found._id).toString();
+    const found = await getListingRepository().findOne(slugQuery);
+    if (found) return found.id;
 
     // 2. Fallback: Check if the slug is in 'name-slug-ID' format (common in frontend routing)
     // Extract the last 24 hex characters at the end of a hyphenated string.
     const match = slug.match(/^(.*)-([0-9a-fA-F]{24})$/);
     if (match && match[2]) {
         const potentialId = match[2];
-        const foundById = await Ad.findOne({ _id: potentialId, ...visibilityFilter })
-            .select('_id')
-            .lean();
-        if (foundById) return (foundById._id).toString();
+        const foundById = await getListingRepository().findOne({ ids: [potentialId], ...visibilityFilter });
+        if (foundById) return foundById.id;
     }
 
     return null;

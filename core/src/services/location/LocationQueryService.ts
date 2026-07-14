@@ -1,7 +1,8 @@
 import { type HydratedDocument } from 'mongoose';
 import Location from '../../models/Location';
 import type { ILocation } from '../../models/Location';
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
+import type { ListingFilter } from '../../domains/listings/ports/ListingRepositoryPort';
 import User from '../../models/User';
 import { LOCATION_STATUS } from '@esparex/shared';
 import logger from '../../utils/logger';
@@ -143,7 +144,7 @@ export const getModerationQueuePaginated = async (page: number, limit: number) =
 };
 
 export const countAdsForLocation = async (query: Record<string, unknown>) =>
-    Ad.countDocuments(query);
+    getListingRepository().count(query as ListingFilter);
 
 export const countUsersForLocation = async (query: Record<string, unknown>) =>
     User.countDocuments(query);

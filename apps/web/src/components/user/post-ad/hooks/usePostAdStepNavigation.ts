@@ -22,7 +22,7 @@ export function usePostAdStepNavigation({
     requiresScreenSize,
     categoryFilters = [],
     trigger,
-    maxStep = 4,
+    maxStep = 2,
 }: UsePostAdStepNavigationProps) {
     const nextStep = useCallback(async () => {
         setStepValidationAttempts((prev) =>
@@ -31,7 +31,8 @@ export function usePostAdStepNavigation({
         let hasErrors = false;
 
         if (currentStep === 1) {
-            const { categoryId: catId } = form.getValues();
+            const { categoryId: catId, brand: brandName, screenSize: sz, deviceCondition: dc } = form.getValues();
+            
             if (!catId) {
                 form.setError("categoryId" as Path<PostAdFormData>, {
                     type: "manual",
@@ -39,10 +40,7 @@ export function usePostAdStepNavigation({
                 });
                 hasErrors = true;
             }
-        }
-        
-        if (currentStep === 2) {
-            const { brand: brandName, screenSize: sz } = form.getValues();
+
             if (!brandName) {
                 form.setError("brand" as Path<PostAdFormData>, {
                     type: "manual",
@@ -74,10 +72,7 @@ export function usePostAdStepNavigation({
                 });
                 hasErrors = true;
             });
-        }
 
-        if (currentStep === 3) {
-            const { deviceCondition: dc } = form.getValues();
             if (!dc) {
                 form.setError("deviceCondition" as Path<PostAdFormData>, {
                     type: "manual",
@@ -100,23 +95,16 @@ export function usePostAdStepNavigation({
 
         let fieldsToValidate: Path<PostAdFormData>[] = [];
 
-        switch (currentStep) {
-            case 1:
-                fieldsToValidate = ["categoryId", "category"] as Path<PostAdFormData>[];
-                break;
-            case 2:
-                fieldsToValidate = requiresScreenSize
-                    ? ["brand", "screenSize"] as Path<PostAdFormData>[]
-                    : ["brand", "model"] as Path<PostAdFormData>[];
-                break;
-            case 3:
-                fieldsToValidate = ["deviceCondition"] as Path<PostAdFormData>[];
-                break;
-            case 4:
-                fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[];
-                break;
-            default:
-                break;
+        if (currentStep === 1) {
+            fieldsToValidate = [
+                "categoryId", 
+                "category", 
+                "brand", 
+                requiresScreenSize ? "screenSize" : "model",
+                "deviceCondition"
+            ] as Path<PostAdFormData>[];
+        } else if (currentStep === 2) {
+            fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[];
         }
 
         const isValid = await trigger(fieldsToValidate);

@@ -1,0 +1,21 @@
+id: admin
+name: Admin Domain
+owner: marketplace
+business_owner: Operations
+technical_owner: Platform
+maintainer: Admin Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: high
+sla: tier-1
+since: "1.0"
+layer: domain
+reference: true
+depends_on:
+  - shared
+  - core/shared-kernel
+public_api:
+  facades: []
+  ports:
+    - AdminDashboardRepositoryPort

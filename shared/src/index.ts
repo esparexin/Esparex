@@ -7,7 +7,6 @@ export * from './schemas/catalog.schema';
 export * from './schemas/location.schema';
 export * from './schemas/savedSearch.schema';
 export * from './schemas/smartAlert.schema';
-export * from './schemas/sparePart.schema';
 export * from './schemas/text.schema';
 export * from './schemas/adPayload.schema';
 export * from './schemas/servicePayload.schema';
@@ -71,17 +70,16 @@ export * from './utils/resolveCategoryId';
 export * from './utils/geoUtils';
 export * from './utils/locationPrimitives';
 export * from './utils/textValidator';
+export * from './utils/catalogNamingValidator';
 export * from './utils/planEntitlements';
 export * from './listingUtils/locationUtils';
 export * from './listingUtils/imageUtils';
 export { adaptLocationInput } from './location/location.utils';
-export * from './security/hmacSignature';
 
 // POPUP
 export * from './popup/popupCore';
 export * from './popup/popupEvents';
 export * from './popup/popupQueue';
-export * from './ui/popup/usePopupQueue';
 
 // CONTRACTS (API & Shared)
 export * from './contracts/api/basePaths';

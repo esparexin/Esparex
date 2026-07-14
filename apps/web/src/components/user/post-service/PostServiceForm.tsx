@@ -74,7 +74,7 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
         [dynamicCategories, categoryId]
     );
 
-    const { images, setImages, isFetchingData, businessData, onValidSubmit, isSubmitting } = usePostServiceFormOrchestration({
+    const { images, addImages, removeImage, isFetchingData, businessData, onValidSubmit, isSubmitting } = usePostServiceFormOrchestration({
         form,
         editServiceId,
         loadBrandsForCategory,
@@ -120,7 +120,11 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
     const formProps = useListingFormProps({
         form,
         images,
-        setImages,
+        onImageUpload: addImages,
+        onImageRemove: (id: string) => {
+            const idx = images.findIndex(img => img.id === id);
+            if (idx !== -1) removeImage(idx);
+        },
         isEditMode,
         isSubmitting,
         onValidSubmit,

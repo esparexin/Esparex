@@ -349,7 +349,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                     <div>
                                         <label className={labelCls}>Match Frequency</label>
                                         <select {...register("matchFrequency")} className={inputCls}>
-                                            <option value="realtime">Realtime</option>
+                                            <option value="instant">Instant (Realtime)</option>
                                             <option value="hourly">Hourly</option>
                                             <option value="daily">Daily</option>
                                         </select>

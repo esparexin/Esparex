@@ -97,7 +97,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
         isLoadingSpareParts,
     } = useSparePartCatalog({ listingType: LISTING_TYPE.SPARE_PART });
 
-    const { images, setImages, isFetchingData, businessData, onValidSubmit, isSubmitting } = usePostSparePartFormOrchestration({
+    const { images, addImages, removeImage, isFetchingData, businessData, onValidSubmit, isSubmitting } = usePostSparePartFormOrchestration({
         form,
         editSparePartId,
         loadBrandsForCategory,
@@ -136,7 +136,11 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
     const formProps = useListingFormProps({
         form,
         images,
-        setImages,
+        onImageUpload: addImages,
+        onImageRemove: (id: string) => {
+            const idx = images.findIndex(img => img.id === id);
+            if (idx !== -1) removeImage(idx);
+        },
         isEditMode,
         isSubmitting,
         onValidSubmit,

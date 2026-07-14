@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import User from '../models/User';
+import { userRepository } from '../composition/identity';
 import { LISTING_STATUS } from '@esparex/shared';
 import * as AdAggregationService from './ad/AdAggregationService';
 
@@ -26,19 +26,6 @@ export type SellerProfilePayload = {
     ads: Array<Record<string, unknown>>;
 };
 
-type UserProfileDoc = {
-    _id: mongoose.Types.ObjectId;
-    name?: string;
-    avatar?: string;
-    createdAt?: Date;
-    isVerified?: boolean;
-    location?: {
-        city?: string;
-        state?: string;
-        country?: string;
-    };
-};
-
 export const getUserProfileById = async (
     userId: string
 ): Promise<SellerProfilePayload | null> => {
@@ -46,13 +33,7 @@ export const getUserProfileById = async (
         return null;
     }
 
-    const objectId = new mongoose.Types.ObjectId(userId);
-    const seller = await User.findOne({
-        _id: objectId,
-        status: { $ne: 'deleted' }
-    })
-        .select('name avatar createdAt isVerified location.city location.state location.country')
-        .lean<UserProfileDoc | null>();
+    const seller = await userRepository.findActiveProfileById(userId);
 
     if (!seller) {
         return null;

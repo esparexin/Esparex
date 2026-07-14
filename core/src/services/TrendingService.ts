@@ -1,5 +1,6 @@
 import mongoose, { type PipelineStage } from 'mongoose';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
+import type { ListingFilter } from '../domains/listings/ports/ListingRepositoryPort';
 import AdAnalytics from '../models/AdAnalytics';
 import Category from '../models/Category';
 import { getCache, setCache } from '../utils/redisCache';
@@ -101,31 +102,9 @@ const resolveCategoryId = async (category?: string, categoryId?: string): Promis
     return found?._id || null;
 };
 
-const buildAggregateAdMatch = async (input: TrendingInput): Promise<Record<string, unknown>> => {
-    const match: Record<string, unknown> = {
-        'ad.status': LISTING_STATUS.LIVE,
-        'ad.isDeleted': { $ne: true },
-        'ad.listingType': LISTING_TYPE.AD,
-    };
 
-    const locationObjectId = toObjectId(input.locationId);
-    if (locationObjectId) {
-        match['ad.location.locationId'] = locationObjectId;
-    } else if (typeof input.location === 'string' && input.location.trim().length > 0) {
-        const safeLocation = input.location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        match['ad.location.city'] = { $regex: `^${safeLocation}$`, $options: 'i' };
-    }
-
-    const resolvedCategoryId = await resolveCategoryId(input.category, input.categoryId);
-    if (resolvedCategoryId) {
-        match['ad.categoryId'] = resolvedCategoryId;
-    }
-
-    return match;
-};
-
-const buildDirectAdMatch = async (input: TrendingInput): Promise<Record<string, unknown>> => {
-    const match: Record<string, unknown> = {
+const buildDirectAdFilter = async (input: TrendingInput): Promise<ListingFilter> => {
+    const filter: ListingFilter = {
         status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
         listingType: LISTING_TYPE.AD,
@@ -133,18 +112,18 @@ const buildDirectAdMatch = async (input: TrendingInput): Promise<Record<string, 
 
     const locationObjectId = toObjectId(input.locationId);
     if (locationObjectId) {
-        match['location.locationId'] = locationObjectId;
+        filter.locationId = locationObjectId.toString();
     } else if (typeof input.location === 'string' && input.location.trim().length > 0) {
         const safeLocation = input.location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        match['location.city'] = { $regex: `^${safeLocation}$`, $options: 'i' };
+        filter.locationCity = { $regex: `^${safeLocation}$`, $options: 'i' };
     }
 
     const resolvedCategoryId = await resolveCategoryId(input.category, input.categoryId);
     if (resolvedCategoryId) {
-        match.categoryId = resolvedCategoryId;
+        filter.categoryId = resolvedCategoryId.toString();
     }
 
-    return match;
+    return filter;
 };
 
 export const recordAdAnalyticsEvent = async (
@@ -160,10 +139,7 @@ export const recordAdAnalyticsEvent = async (
             : 'favorites';
 
     try {
-        const ad = await Ad.findById(objectId)
-            .select('_id createdAt status isDeleted')
-            .lean<{ _id: mongoose.Types.ObjectId; createdAt: Date; status: string; isDeleted?: boolean } | null>();
-
+        const ad = await getListingRepository().findById(objectId.toString());
         if (!ad || ad.isDeleted || ad.status !== LISTING_STATUS.LIVE) return;
 
         const snapshot = await AdAnalytics.findOneAndUpdate(
@@ -217,41 +193,60 @@ export const getTrendingAds = async (input: TrendingInput): Promise<{ ads: Recor
             return cached;
         }
 
-        const adMatch = await buildAggregateAdMatch(input);
-        const pipeline: PipelineStage[] = [
-            { $sort: { score: -1, updatedAt: -1 } },
-            {
-                $lookup: {
-                    from: 'ads',
-                    localField: 'adId',
-                    foreignField: '_id',
-                    as: 'ad'
+        let mergedAds: Record<string, unknown>[] = [];
+        let skip = 0;
+        const batchSize = Math.max(limit * 2, 20);
+
+        while (mergedAds.length < limit && skip < 1000) {
+            const analyticsBatch = await AdAnalytics.find()
+                .sort({ score: -1, updatedAt: -1 })
+                .skip(skip)
+                .limit(batchSize)
+                .lean<AnalyticsSnapshot[]>();
+
+            if (analyticsBatch.length === 0) break;
+
+            const adIds = analyticsBatch.map((a) => String(a.adId));
+            const filter = await buildDirectAdFilter(input);
+            filter.ids = adIds;
+
+            const listings = await getListingRepository().findWithLimit(
+                filter,
+                { createdAt: -1 },
+                batchSize
+            );
+
+            const listingMap = new Map(listings.map((l) => [l.id, l]));
+
+            for (const analytics of analyticsBatch) {
+                const l = listingMap.get(String(analytics.adId));
+                if (l) {
+                    mergedAds.push({ ...l, _id: l.id, rankScore: analytics.score });
+                    if (mergedAds.length >= limit) break;
                 }
-            },
-            { $unwind: '$ad' },
-            { $match: adMatch },
-            { $addFields: { 'ad.rankScore': '$score' } },
-            { $replaceRoot: { newRoot: '$ad' } },
-            { $limit: limit }
-        ];
-
-        const rankedAds = await AdAnalytics.aggregate<Record<string, unknown>>(pipeline);
-
-        let mergedAds = rankedAds;
-        if (mergedAds.length < limit) {
-            const fallbackMatch = await buildDirectAdMatch(input);
-            const existingIds = mergedAds
-                .map((ad) => toObjectId((ad as { _id?: unknown })._id))
-                .filter((id): id is mongoose.Types.ObjectId => Boolean(id));
-
-            if (existingIds.length > 0) {
-                fallbackMatch._id = { $nin: existingIds };
             }
 
-            const fallbackAds = await Ad.find(fallbackMatch)
-                .sort({ createdAt: -1 })
-                .limit(limit - mergedAds.length)
-                .lean<Record<string, unknown>[]>();
+            skip += batchSize;
+        }
+
+        if (mergedAds.length < limit) {
+            const fallbackFilter = await buildDirectAdFilter(input);
+            const existingIds = mergedAds.map((ad) => String(ad._id || ad.id)).filter(Boolean);
+
+            if (existingIds.length > 0) {
+                fallbackFilter.idsNotIn = existingIds;
+            }
+
+            const fallbackListings = await getListingRepository().findWithLimit(
+                fallbackFilter,
+                { createdAt: -1 },
+                limit - mergedAds.length
+            );
+
+            const fallbackAds = fallbackListings.map((l) => ({
+                ...l,
+                _id: l.id,
+            }));
 
             mergedAds = [...mergedAds, ...fallbackAds];
         }

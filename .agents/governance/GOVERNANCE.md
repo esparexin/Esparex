@@ -1,5 +1,5 @@
 ---
-id: global-governance
+id: governance
 owner: governance
 type: governance
 version: 2.0

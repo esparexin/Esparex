@@ -359,7 +359,7 @@ export const deriveLocationMetadata = async (
             if (normalizeGeoPoint) {
                 coordinates = normalizeGeoPoint(rawCoordinates);
             }
-        } catch (e) {
+        } catch {
             coordinates = undefined;
         }
     }
@@ -404,7 +404,7 @@ export const deriveLocationMetadata = async (
                 }
             }
         }
-    } catch (e) {
+    } catch {
         // Suppress
     }
 

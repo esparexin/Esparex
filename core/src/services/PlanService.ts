@@ -1,10 +1,8 @@
 import UserPlan from '../models/UserPlan';
 import Plan, { type IPlan } from '../models/Plan';
 import { type AdPostingSlotSource } from './AdSlotService';
-import { SERVICE_STATUS } from '@esparex/shared';
 import { LISTING_TYPE } from '@esparex/shared';
-import { INVENTORY_STATUS } from '@esparex/shared';
-import AdModel from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import { 
     AdSlotService, 
     getMonthlyCycleStart,
@@ -51,7 +49,7 @@ export const upsertUserPlan = async (
     startDate: Date,
     endDate: Date
 ) => {
-    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
+     
     return UserPlan.findOneAndUpdate(
         { userId, planId },
         { $set: { startDate, endDate, status: 'ACTIVE' } },
@@ -141,23 +139,17 @@ export const checkPostLimit = async (
     let currentCount = 0;
 
     if (type === 'service') {
-        let serviceQuery = AdModel.countDocuments({
+        currentCount = await getListingRepository().countActiveBySeller({
             sellerId: userId,
             listingType: LISTING_TYPE.SERVICE,
-            status: { $in: [SERVICE_STATUS.LIVE, SERVICE_STATUS.PENDING] },
-            isDeleted: { $ne: true }
+            session,
         });
-        if (session) serviceQuery = serviceQuery.session(session);
-        currentCount = await serviceQuery;
     } else if (type === 'spare_part_listing') {
-        let splQuery = AdModel.countDocuments({
+        currentCount = await getListingRepository().countActiveBySeller({
             sellerId: userId,
             listingType: LISTING_TYPE.SPARE_PART,
-            status: { $in: [INVENTORY_STATUS.LIVE, INVENTORY_STATUS.PENDING] },
-            isDeleted: { $ne: true }
+            session,
         });
-        if (session) splQuery = splQuery.session(session);
-        currentCount = await splQuery;
     }
 
     // 6. Enforce

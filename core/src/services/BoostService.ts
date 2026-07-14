@@ -1,10 +1,10 @@
 import Boost from '../models/Boost';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import { Types } from 'mongoose';
 
 export async function getActiveBoostsForUser(userId: Types.ObjectId | string) {
-    const userListings = await Ad.find({ sellerId: userId }).select('_id');
-    const entityIds = userListings.map(l => l._id);
+    const userListings = await getListingRepository().find({ sellerId: String(userId) });
+    const entityIds = userListings.map(l => new Types.ObjectId(l.id));
 
     return Boost.find({
         entityId: { $in: entityIds },

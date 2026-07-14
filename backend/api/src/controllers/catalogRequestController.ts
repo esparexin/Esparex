@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import slugify from 'slugify';
-import { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
+import CatalogRequest, { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
 import * as CatalogRequestService from '@esparex/core/services/catalog/CatalogRequestService';
 import { sendPaginatedResponse, sendSuccessResponse } from '../utils/respond';
 import { sendErrorResponse } from '../utils/errorResponse';
@@ -18,8 +18,9 @@ import {
     validateBrandBelongsToCategory,
     validateCategoryIsActive,
 } from '@esparex/core/services/catalog/CatalogValidationService';
-
-const REQUESTED_BY_PUBLIC_FIELDS = 'firstName lastName email mobile';
+import { CatalogResolutionPolicy, CatalogResolutionDecision } from '@esparex/core/services/catalog/CatalogResolutionPolicy';
+import { resolveOrCreateBrand, resolveOrCreateModel } from '@esparex/core/services/catalogRequestApproval/resolvers';
+import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 
 const normalizeCatalogCanonicalName = (value: string): string =>
     value.trim().toLowerCase().replace(/\s+/g, ' ');
@@ -184,6 +185,90 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             }
         }
 
+        // 1. Evaluate policy decision
+        const decision = CatalogResolutionPolicy.evaluate({
+            requestType: payload.requestType,
+            categoryId: payload.categoryId,
+            requestedName: payload.requestedName,
+            userId: requestedBy
+        });
+
+        // Case 1: REJECT -> Return 422 Unprocessable Entity
+        if (decision === CatalogResolutionDecision.REJECT) {
+            return res.status(422).json({
+                success: false,
+                decision: CatalogResolutionDecision.REJECT,
+                reason: 'INVALID_CATALOG_NAME',
+                message: 'Please enter a valid brand or model name.'
+            });
+        }
+
+        // Case 2: AUTO_APPROVE -> Run transaction to create & resolve immediately
+        if (decision === CatalogResolutionDecision.AUTO_APPROVE) {
+            const session = await CatalogRequest.db.startSession();
+            session.startTransaction();
+            try {
+                // Create Request
+                const createdRequest = await CatalogRequest.create([{
+                    requestType: payload.requestType,
+                    categoryId: payload.categoryId,
+                    parentBrandId: payload.requestType === 'model' ? payload.parentBrandId : null,
+                    listingId: payload.listingId ?? null,
+                    requestedName,
+                    canonicalName,
+                    normalizedName: canonicalName,
+                    slug,
+                    requestedBy,
+                    requestedByUsers: [requestedBy],
+                    requestCount: 1,
+                    status: 'resolved',
+                    resolutionType: 'automatic',
+                    resolvedAt: new Date(),
+                    resolvedBySystem: true
+                }], { session });
+
+                // Run Resolver
+                let resolution;
+                if (payload.requestType === 'brand') {
+                    resolution = await resolveOrCreateBrand(createdRequest[0], session);
+                } else {
+                    resolution = await resolveOrCreateModel(createdRequest[0], session);
+                }
+
+                // Update Request with Approved Entity ID
+                createdRequest[0].approvedEntityId = resolution.entityId;
+                await createdRequest[0].save({ session });
+
+                // Commit Transaction
+                await session.commitTransaction();
+
+                // Clear Redis Cache
+                await CatalogOrchestrator.invalidateCatalogCache({
+                    categoryIds: [payload.categoryId],
+                    brandIds: payload.parentBrandId ? [payload.parentBrandId] : []
+                });
+
+                // Trigger user notifications on best effort
+                void notifyRequesterReviewOutcome(createdRequest[0], 'approved', {
+                    approvedEntityId: String(resolution.entityId)
+                });
+
+                return sendSuccessResponse(res, {
+                    approvedEntityId: String(resolution.entityId),
+                    name: requestedName,
+                    decision: CatalogResolutionDecision.AUTO_APPROVE,
+                    created: resolution.createdCanonicalEntity,
+                    request: createdRequest[0]
+                }, 'Catalog request auto-resolved and approved successfully', 201);
+            } catch (err) {
+                await session.abortTransaction();
+                throw err;
+            } finally {
+                session.endSession();
+            }
+        }
+
+        // Case 3: MANUAL_REVIEW (Fallback standard pending queue)
         const { request: createdRequest, isNew } = await CatalogRequestService.findOrCreateCatalogRequest({
             requestType: payload.requestType,
             categoryId: payload.categoryId,
@@ -192,17 +277,25 @@ export const createCatalogRequest = async (req: Request, res: Response) => {
             canonicalName,
             slug,
             requestedBy,
-            listingId: payload.listingId,
+            listingId: payload.listingId
         });
 
         if (!isNew) {
-            return sendSuccessResponse(res, createdRequest, 'Existing pending catalog request found');
+            return sendSuccessResponse(res, {
+                decision: CatalogResolutionDecision.MANUAL_REVIEW,
+                requestId: String(createdRequest._id),
+                request: createdRequest
+            }, 'Existing pending catalog request found');
         }
 
         const createdRequestId = String((createdRequest as ICatalogRequest)._id);
         void CatalogNotificationService.notifyAdminsOfSuggestion(payload.requestType, requestedName, requestedBy, createdRequestId);
 
-        return sendSuccessResponse(res, createdRequest, 'Catalog request submitted successfully', 201);
+        return sendSuccessResponse(res, {
+            decision: CatalogResolutionDecision.MANUAL_REVIEW,
+            requestId: createdRequestId,
+            request: createdRequest
+        }, 'Your suggestion has been submitted for review.', 201);
     } catch (error) {
         return sendControllerError(req, res, error);
     }
@@ -212,7 +305,7 @@ export const getMyCatalogRequests = async (req: Request, res: Response) => {
     try {
         const requestedBy = getUserActorId(req);
         const query = req.query as {
-            status?: 'all' | 'pending' | 'approved' | 'rejected' | 'duplicate';
+            status?: 'all' | 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
             requestType?: 'brand' | 'model';
             q?: string;
             page?: number;
@@ -252,7 +345,7 @@ export const getMyCatalogRequests = async (req: Request, res: Response) => {
 export const getAdminCatalogRequests = async (req: Request, res: Response) => {
     try {
         const query = req.query as {
-            status?: 'all' | 'pending' | 'approved' | 'rejected' | 'duplicate';
+            status?: 'all' | 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
             requestType?: 'brand' | 'model';
             q?: string;
             page?: number;
@@ -393,6 +486,7 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
             approved: 0,
             rejected: 0,
             duplicate: 0,
+            resolved: 0,
             total: 0,
         };
 
@@ -405,7 +499,7 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
             },
         };
 
-        type StatusKey = 'pending' | 'approved' | 'rejected' | 'duplicate';
+        type StatusKey = 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
         type RequestTypeKey = 'brand' | 'model';
         
         groupedCounts.forEach((row: { _id: { requestType: RequestTypeKey, status: StatusKey }, count: number }) => {

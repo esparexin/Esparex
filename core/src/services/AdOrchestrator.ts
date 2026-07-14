@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import Ad, { IAd } from '../models/Ad';
+import type { IAd } from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import { getUserConnection } from '../config/db';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
@@ -147,12 +148,8 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload.expiresAt = undefined;
             }
 
-            const ads = await Ad.create([payload as unknown as Record<string, unknown>], { session });
-            if (Array.isArray(ads) && ads.length > 0) {
-                createdAd = ads[0] as IAd;
-            } else if (ads) {
-                createdAd = ads as unknown as IAd;
-            }
+            const createdListing = await getListingRepository().insert(payload as any, session);
+            createdAd = { ...createdListing, _id: new mongoose.Types.ObjectId(createdListing.id) } as unknown as IAd;
 
             // 8. Final Approval (Only if actor is ADMIN and not held for review)
             if (createdAd && shouldAutoApprove) {
@@ -189,7 +186,8 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     session,
                 });
 
-                createdAd = await Ad.findById((createdAd as IAd & { _id: mongoose.Types.ObjectId })._id).session(session);
+                const updatedListing = await getListingRepository().findById((createdAd as IAd & { _id: mongoose.Types.ObjectId })._id.toString());
+                createdAd = updatedListing ? { ...updatedListing, _id: new mongoose.Types.ObjectId(updatedListing.id) } as unknown as IAd : createdAd;
             }
 
             // 9. Dispatch Image Optimization

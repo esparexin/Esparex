@@ -74,6 +74,7 @@ jest.mock('../../utils/categoryCanonical', () => ({
 
 jest.mock('../../utils/slugGenerator', () => ({
     generateUniqueSlug: jest.fn().mockResolvedValue('unique-listing-slug'),
+    generateUniqueSlugWithChecker: jest.fn().mockResolvedValue('unique-listing-slug'),
 }));
 
 jest.mock('../../utils/locationHierarchy', () => ({
@@ -119,7 +120,7 @@ jest.mock('../../utils/serviceTypeResolver', () => ({
 import mongoose from 'mongoose';
 import { AdCreationService } from '../../services/AdCreationService';
 import { normalizeLocation } from '../../services/location/LocationNormalizer';
-import { generateUniqueSlug } from '../../utils/slugGenerator';
+import { generateUniqueSlug, generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
 import { processImages } from '../../utils/imageProcessor';
 import { validateListingCategoryCapability } from '../../services/catalog/CatalogValidationService';
 import { AdContext } from '../../types/ad.types';
@@ -132,6 +133,7 @@ import Brand from '../../models/Brand';
 
 const mockNormalizeLocation = normalizeLocation as jest.Mock;
 const mockGenerateUniqueSlug = generateUniqueSlug as jest.Mock;
+const mockGenerateUniqueSlugWithChecker = generateUniqueSlugWithChecker as jest.Mock;
 const mockProcessImages = processImages as jest.Mock;
 const mockValidateListingCategoryCapability = validateListingCategoryCapability as jest.Mock;
 const mockSparePartModelFind = SparePart.find as jest.Mock;
@@ -204,7 +206,7 @@ describe('AdCreationService.preparePayload', () => {
         
         // Slug
         expect(payload.seoSlug).toBe('unique-listing-slug');
-        expect(mockGenerateUniqueSlug).toHaveBeenCalledWith(expect.anything(), 'Fresh iPhone 15 Pro', undefined, undefined);
+        expect(mockGenerateUniqueSlugWithChecker).toHaveBeenCalledWith('Fresh iPhone 15 Pro', expect.any(Function), undefined);
 
         // Quality Score
         expect(payload.listingQualityScore).toBe(90);

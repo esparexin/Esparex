@@ -1,16 +1,16 @@
 "use client";
 
-import React from "react";
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import logger from "@/lib/logger";
 import { 
     createRemoteListingImages,
 } from "./listingFormShared";
-import type { ListingImage } from "@/types/listing";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useAuth } from "@/context/AuthContext";
 import { buildGenericListingEditResetValues } from "@/lib/listings/postingFormNormalization";
 import { useListingEditPreload } from "./useListingEditPreload";
+
+import { useListingImages } from "@/hooks/listings/useListingImages";
 
 interface UseGenericListingFormProps<T extends FieldValues> {
     form: UseFormReturn<T>;
@@ -27,7 +27,14 @@ export function useGenericListingForm<T extends FieldValues>({
     const { businessData } = useBusiness(user, undefined, {
         includeStats: false,
     });
-    const [images, setImages] = React.useState<ListingImage[]>([]);
+    const {
+        listingImages: images,
+        setListingImages: setImages,
+        addImages,
+        removeImage,
+    } = useListingImages({
+        maxImages: 10,
+    });
     const { isFetchingData } = useListingEditPreload<Record<string, unknown>>({
         editId,
         onPayload: async (payload) => {
@@ -50,6 +57,8 @@ export function useGenericListingForm<T extends FieldValues>({
     return {
         images,
         setImages,
+        addImages,
+        removeImage,
         isFetchingData,
         businessData,
     };

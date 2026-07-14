@@ -3,7 +3,6 @@ import type {
     RankingReplayInput,
     RankingReplayResult,
     RankingExperimentDecision,
-    RankingIntelligenceInsight,
     ModerationIntelligenceHint,
     DuplicateCandidate,
     MarketplaceIntentScore,
@@ -19,7 +18,6 @@ import {
     scoreCatalogSearchQuality,
     scoreFairnessAwareRanking,
     classifyMarketplaceIntent,
-    getTrustSignals,
     clamp01,
 } from './scoring';
 

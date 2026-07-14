@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, type CSSProperties } from "react";
-import { Check, Search, Plus } from "@/icons/IconRegistry";
+import { Search, Plus, Minus } from "@/icons/IconRegistry";
+import { CatalogValidationServiceShared } from "@esparex/shared";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -30,6 +31,7 @@ export function BrandSearchSelect({
     value,
     onChange,
     categoryId,
+    onRequestSuccess,
     listingId,
     disabled = false,
     placeholder = "Search brand...",
@@ -96,14 +98,19 @@ export function BrandSearchSelect({
         return brands.some((b) => b.toLowerCase() === trimmedSearch.toLowerCase());
     }, [brands, trimmedSearch]);
 
+    const isSearchValid = useMemo(() => {
+        if (!trimmedSearch) return false;
+        return CatalogValidationServiceShared.validateCatalogInput({ name: search, requestType: "brand" }).ok;
+    }, [search, trimmedSearch]);
+
     const showSuggestButton =
-        trimmedSearch.length >= 2 &&
+        trimmedSearch.length > 0 &&
         !hasExactApprovedMatch &&
         !disabled &&
         canRequestBrand;
 
     const handleOpenRequestDialog = () => {
-        if (!canRequestBrand) {
+        if (!canRequestBrand || !isSearchValid) {
             return;
         }
         setIsRequestDialogOpen(true);
@@ -117,41 +124,64 @@ export function BrandSearchSelect({
             categoryId={categoryId}
             initialName={search}
             listingId={listingId}
-            onSuccess={() => {
+            onSuccess={async (resolvedEntityId, name, decision) => {
                 setSearch("");
                 setIsEditing(false);
+                if (decision === 'AUTO_APPROVE') {
+                    if (onRequestSuccess) {
+                        await onRequestSuccess(resolvedEntityId, name);
+                    }
+                    onChange(resolvedEntityId, name);
+                } else {
+                    if (onRequestSuccess) {
+                        await onRequestSuccess(resolvedEntityId, name);
+                    }
+                }
             }}
         />
     );
 
-    // ── Selected state ──────────────────────────────────────────────────────
+    // ── Selected state (Inline Trailing Action: Minus) ─────────────────────
     if (selectedName && !isEditing) {
         return (
-            <>
-                <div className={cn(
-                    "flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3",
-                    className
-                )}>
-                    <div className="flex items-center gap-1.5 min-w-0">
-                        <Check className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                        <span className="truncate text-sm font-semibold text-foreground">{selectedName}</span>
-                    </div>
+            <div className={cn("relative", className)} ref={containerRef}>
+                <div className="relative">
+                    <Input
+                        value={selectedName}
+                        readOnly
+                        disabled={disabled}
+                        className="pl-3 pr-10 bg-slate-50 font-medium text-foreground cursor-pointer"
+                        onClick={() => {
+                            if (!disabled) {
+                                setIsEditing(true);
+                                setSearch(selectedName);
+                            }
+                        }}
+                    />
                     {!disabled && (
                         <button
                             type="button"
-                            onClick={() => setIsEditing(true)}
-                            className="ml-2 shrink-0 text-xs font-semibold text-primary hover:underline"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onChange("", "");
+                                setSearch("");
+                                setIsEditing(false);
+                            }}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary transition-all"
+                            aria-label="Remove selection"
+                            title="Remove selection"
                         >
-                            Edit
+                            <Minus className="w-[18px] h-[18px]" />
                         </button>
                     )}
                 </div>
                 {requestDialog}
-            </>
+            </div>
         );
     }
 
-    // ── Search state ────────────────────────────────────────────────────────
+    // ── Search state (Inline Trailing Action: Plus) ────────────────────────
     return (
         <div className={cn("relative", className)} ref={containerRef}>
             <div className="relative">
@@ -166,12 +196,18 @@ export function BrandSearchSelect({
                 {showSuggestButton && (
                     <button
                         type="button"
+                        disabled={!isSearchValid}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             handleOpenRequestDialog();
                         }}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary transition-all"
+                        className={cn(
+                            "absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary",
+                            !isSearchValid
+                                ? "opacity-40 cursor-not-allowed text-slate-300"
+                                : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                        )}
                         aria-label="Suggest brand"
                         title="Suggest brand"
                     >

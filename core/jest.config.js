@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   setupFiles: ['<rootDir>/src/__tests__/setup.ts'],
   testMatch: ['**/__tests__/**/*.spec.ts'],
+  modulePathIgnorePatterns: ['<rootDir>/dist/'],
   moduleNameMapper: {
     '^uuid$': '<rootDir>/__mocks__/uuid.js',
     '^bullmq$': '<rootDir>/__mocks__/bullmq.ts',

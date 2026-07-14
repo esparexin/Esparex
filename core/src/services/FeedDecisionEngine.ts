@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
-import Ad from '../models/Ad';
 import { env } from '../config/env';
+import { getListingRepository } from '../composition/listings';
+import type { ListingFilter } from '../domains/listings/ports/ListingRepositoryPort';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 import logger from '../utils/logger';
 
@@ -79,22 +80,41 @@ export class FeedDecisionEngine {
         const mergedAds: Record<string, unknown>[] = [];
         const seenIds = new Set(excludeIds);
 
-        const fetchBatch = async (matchStage: Record<string, unknown>, stageName: FallbackStage, radius: number = 0) => {
+        const fetchBatch = async (matchStage: ListingFilter, stageName: FallbackStage, radius: number = 0, isRadius: boolean = false) => {
             if (mergedAds.length >= limitNeeded) return;
 
-            const visibilityFilter = buildPublicAdFilter();
-            const pipeline: mongoose.PipelineStage[] = [
-                { $match: { ...matchStage, ...visibilityFilter, _id: { $nin: Array.from(seenIds).map(id => new mongoose.Types.ObjectId(id)) } } },
-                { $sort: { createdAt: -1 } },
-                { $limit: limitNeeded - mergedAds.length },
-            ];
+            const visibilityFilter = buildPublicAdFilter() as unknown as Partial<ListingFilter>;
+            const filter: ListingFilter = {
+                ...matchStage,
+                ...visibilityFilter,
+                idsNotIn: Array.from(seenIds)
+            };
 
-            const results = await Ad.aggregate<Record<string, unknown>>(pipeline);
+            const limit = limitNeeded - mergedAds.length;
+            
+            let results;
+            if (isRadius && input.lat !== undefined && input.lng !== undefined) {
+                results = await getListingRepository().findWithinRadius(
+                    input.lng,
+                    input.lat,
+                    radius,
+                    filter,
+                    { createdAt: -1 },
+                    limit
+                );
+            } else {
+                results = await getListingRepository().findWithLimit(
+                    filter,
+                    { createdAt: -1 },
+                    limit
+                );
+            }
+
             for (const ad of results) {
-                const idStr = String(ad._id);
+                const idStr = String(ad.id);
                 if (!seenIds.has(idStr)) {
                     seenIds.add(idStr);
-                    mergedAds.push(ad);
+                    mergedAds.push({ ...ad, _id: ad.id });
                 }
             }
 
@@ -104,9 +124,9 @@ export class FeedDecisionEngine {
             }
         };
 
-        const baseMatch: Record<string, unknown> = {};
+        const baseMatch: ListingFilter = {};
         if (categoryId) {
-            baseMatch.categoryId = mongoose.Types.ObjectId.isValid(categoryId) ? new mongoose.Types.ObjectId(categoryId) : categoryId;
+            baseMatch.categoryId = categoryId;
         }
 
         // Stage 1: Radius (skip — $geoNear handled upstream by AdQueryService/FeedService)
@@ -118,9 +138,8 @@ export class FeedDecisionEngine {
         // Stage 2: Structured location via locationId (preferred over regex — uses index)
         if (input.locationId && mongoose.Types.ObjectId.isValid(input.locationId) && mergedAds.length < limitNeeded) {
             currentStage = 'CITY';
-            const locObjId = new mongoose.Types.ObjectId(input.locationId);
             await fetchBatch(
-                { ...baseMatch, $or: [{ locationPath: locObjId }, { 'location.locationId': locObjId }] },
+                { ...baseMatch, $or: [{ locationPath: input.locationId }, { locationId: input.locationId }] },
                 'CITY'
             );
         }
@@ -129,12 +148,12 @@ export class FeedDecisionEngine {
             currentStage = 'CITY';
             const countBefore = mergedAds.length;
             await fetchBatch(
-                { ...baseMatch, 'location.city': input.city },
+                { ...baseMatch, locationCity: input.city },
                 'CITY'
             );
             if (mergedAds.length === countBefore) {
                 await fetchBatch(
-                    { ...baseMatch, 'location.city': new RegExp(`^${escapeRegex(input.city)}$`, 'i') },
+                    { ...baseMatch, locationCity: { $regex: `^${escapeRegex(input.city)}$`, $options: 'i' } },
                     'CITY'
                 );
             }
@@ -145,12 +164,12 @@ export class FeedDecisionEngine {
             currentStage = 'STATE';
             const countBefore = mergedAds.length;
             await fetchBatch(
-                { ...baseMatch, 'location.state': input.state },
+                { ...baseMatch, locationState: input.state },
                 'STATE'
             );
             if (mergedAds.length === countBefore) {
                 await fetchBatch(
-                    { ...baseMatch, 'location.state': new RegExp(`^${escapeRegex(input.state)}$`, 'i') },
+                    { ...baseMatch, locationState: { $regex: `^${escapeRegex(input.state)}$`, $options: 'i' } },
                     'STATE'
                 );
             }
@@ -163,12 +182,12 @@ export class FeedDecisionEngine {
                 currentStage = 'REGIONAL';
                 const countBefore = mergedAds.length;
                 await fetchBatch(
-                    { ...baseMatch, 'location.state': { $in: neighbors } },
+                    { ...baseMatch, locationState: { $in: neighbors } },
                     'REGIONAL'
                 );
                 if (mergedAds.length === countBefore) {
                     await fetchBatch(
-                        { ...baseMatch, 'location.state': { $in: neighbors.map(n => new RegExp(`^${escapeRegex(n)}$`, 'i')) } },
+                        { ...baseMatch, locationState: { $in: neighbors.map(n => new RegExp(`^${escapeRegex(n)}$`, 'i')) } },
                         'REGIONAL'
                     );
                 }

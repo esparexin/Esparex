@@ -6,7 +6,8 @@
  */
 
 import mongoose from 'mongoose';
-import Ad, { type IAd } from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
+import { Listing, ListingFilter } from '../domains/listings';
 import logger from '../utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
@@ -48,7 +49,7 @@ export const incrementAdView = async (
  * Higher-order increment by a generic filter (e.g. slug).
  */
 export const incrementAdViewByFilter = async (filter: Record<string, unknown>) =>
-    Ad.findOneAndUpdate(filter, { $inc: { 'views.total': 1 } });
+    getListingRepository().updateMany(filter as ListingFilter, { $inc: { 'views.total': 1 } } as any);
 
 /**
  * Enterprise view increment with unique tracking support.
@@ -68,11 +69,11 @@ export const incrementAdViewWithUniqueness = async (
             (update.$inc as Record<string, number>)['views.unique'] = 1;
         }
 
-        const result = await Ad.findOneAndUpdate(filter, update, { new: true }).select('_id location views').lean();
+        const result = await getListingRepository().updateOneByFilter(filter as ListingFilter, update as any);
         
         if (result) {
-            const adId = result._id;
-            const locationId = result.location?.locationId?.toString?.();
+            const adId = result.id;
+            const locationId = result.location?.locationId;
             
             if (locationId) {
                 void touchLocationAnalytics(locationId, 'ad_view', 1).catch(() => {});
@@ -106,9 +107,7 @@ export const getAdEngagementMetrics = async (
     const id = new mongoose.Types.ObjectId(adId);
 
     try {
-        const ad = await Ad.findById(id)
-            .select('views')
-            .lean();
+        const ad = await getListingRepository().findById(id.toString());
 
         if (!ad) {
             return null;
@@ -143,14 +142,8 @@ export const getSellerAdStats = async (
         return null;
     }
 
-    const id = new mongoose.Types.ObjectId(sellerId);
-
     try {
-        type AdStatsEntry = Pick<IAd, 'views' | 'status'>;
-
-        const ads = await Ad.find({ sellerId: id, isDeleted: { $ne: true } })
-            .select('views status')
-            .lean<AdStatsEntry[]>();
+        const ads = await getListingRepository().find({ sellerId: sellerId, isDeleted: { $ne: true } });
 
         const totalViews = ads.reduce((sum, ad) => sum + (ad.views?.total || 0), 0);
 

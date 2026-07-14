@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { toOptionalString } from './inputCoercion';
 import { setCache } from '@esparex/core/utils/redisCache';
-import { CatalogModel, getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core/services/catalog/CatalogBrandModelService';
+import { getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import { validateModelHierarchyMutation } from '@esparex/core/services/catalog/CatalogHierarchyService';
 import { detectDuplicateCandidates } from '@esparex/core/services/catalog/CatalogSearchGovernanceService';
 

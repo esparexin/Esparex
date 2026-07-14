@@ -1,0 +1,1 @@
+export { MongoListingRepositoryAdapter } from './MongoListingRepositoryAdapter';

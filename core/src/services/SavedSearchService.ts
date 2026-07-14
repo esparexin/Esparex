@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import SavedSearch from '../models/SavedSearch';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import { notificationMatchQueue } from '../queues/adQueue';
 import { releaseQueueIdempotencySlot, reserveQueueIdempotencySlot } from '../queues/queueIdempotency';
 import { withQueueDefaults } from '../queues/queueDefaults';
@@ -113,13 +113,29 @@ export const processSavedSearchAlertDispatch = async (adId: string): Promise<voi
         return;
     }
 
-    const ad = await Ad.findById(adId)
-        .select('_id title description price categoryId location seoSlug status isDeleted')
-        .lean<MinimalAdRecord | null>();
-
-    if (!ad || ad.status !== 'live' || (ad as MinimalAdRecord & { isDeleted?: boolean }).isDeleted) {
+    const listing = await getListingRepository().findById(adId);
+    if (!listing || listing.status !== 'live' || listing.isDeleted) {
         return;
     }
+
+    const ad: MinimalAdRecord = {
+        _id: new Types.ObjectId(listing.id),
+        title: listing.title,
+        description: listing.description,
+        price: listing.price,
+        status: listing.status,
+        seoSlug: listing.seoSlug,
+        categoryId: listing.categoryId ? new Types.ObjectId(listing.categoryId) : undefined,
+        location: {
+            locationId: listing.location.locationId ? new Types.ObjectId(listing.location.locationId) : undefined,
+            city: listing.location.city,
+            display: listing.location.display,
+            coordinates: {
+                type: 'Point',
+                coordinates: listing.location.coordinates,
+            },
+        },
+    };
 
     const candidateFilter = SavedSearchMatchService.buildSearchFilter(ad);
     const candidates = await SavedSearch.find(candidateFilter)

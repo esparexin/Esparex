@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DomainManifest",
+  "description": "Schema for Esparex bounded context manifest.yaml files.",
+  "type": "object",
+  "required": ["id", "name", "owner", "maturity", "stability", "criticality", "sla", "layer"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable bounded context identifier. Must be kebab-case.",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable domain name.",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "description": "Owning squad or team. Must be non-empty.",
+      "minLength": 1
+    },
+    "business_owner": {
+      "type": "string",
+      "description": "Business area owning this context.",
+      "enum": ["Marketplace", "Core", "Support", "Platform", "Finance", "Operations"]
+    },
+    "technical_owner": {
+      "type": "string",
+      "description": "Technical team responsible for this context.",
+      "minLength": 1
+    },
+    "maintainer": {
+      "type": "string",
+      "description": "Current maintaining squad."
+    },
+    "maturity": {
+      "type": "string",
+      "description": "Domain maturity level.",
+      "enum": ["experimental", "growing", "stable", "strategic"]
+    },
+    "visibility": {
+      "type": "string",
+      "description": "Whether the domain is public or internal.",
+      "enum": ["public", "private"]
+    },
+    "stability": {
+      "type": "string",
+      "description": "API stability of the public barrel exports.",
+      "enum": ["experimental", "stable"]
+    },
+    "criticality": {
+      "type": "string",
+      "description": "Business criticality level.",
+      "enum": ["low", "medium", "high", "mission-critical"]
+    },
+    "sla": {
+      "type": "string",
+      "description": "Service level tier.",
+      "enum": ["tier-1", "tier-2", "tier-3"]
+    },
+    "since": {
+      "type": "string",
+      "description": "Version since which this domain has existed.",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "layer": {
+      "type": "string",
+      "description": "Architectural layer classification.",
+      "enum": ["domain", "application", "infrastructure", "adapter"]
+    },
+    "reference": {
+      "type": "boolean",
+      "description": "When true, this domain is the reference implementation for the architecture pattern."
+    },
+    "depends_on": {
+      "type": "array",
+      "description": "List of domains or packages this context depends on.",
+      "items": { "type": "string" },
+      "default": []
+    },
+    "public_api": {
+      "type": "object",
+      "description": "Declared public barrel exports.",
+      "additionalProperties": false,
+      "properties": {
+        "facades": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+        "ports": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        }
+      }
+    }
+  }
+}

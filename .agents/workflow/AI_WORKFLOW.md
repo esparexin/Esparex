@@ -5,6 +5,9 @@ Every phase declares authority, inputs, process, outputs, and exit criteria. Eve
 Workflow Stability Principle
 This document defines the AI execution lifecycle. It is repository-wide governance and must remain stable. Changes are permitted only when they improve the execution process for every repository feature. Feature-specific business rules, UI behavior, domain workflows, and implementation details must never be added here; they belong in feature-specific business rule documents.
 
+No-Temporary-Artifacts Rule
+Temporary planning, progress tracking, or validation files (including but not limited to task.md, walkthrough.md, implementation_plan.md, and intermediate reports) must never be created or committed inside the repository. All such artifacts must reside strictly in the IDE's session-private/artifacts folder (outside the workspace's version-control directory) or be communicated directly through the chat.
+
 Failure Policy
 When any phase produces FAIL:
 
@@ -54,9 +57,11 @@ TypeDefinitionExecution PhaseMandatory step producing output required by later p
 
 Lifecycle Overview
 Phase 0    — Context Loading                       [Execution Phase]
+Workflow Gate 0 — Repository Discovery & Reuse     [Execution Gate]
 Phase 1    — Request Analysis                       [Execution Phase]
 Phase 2    — Task Classification                    [Execution Phase]
   Phase 2a–2f — Audit Sub-Phases (only if task = Audit)
+Phase 2.5  — Skill Resolution                      [Execution Gate]
 
   ⚡ Fast-Path Track — eligible low-risk tasks may skip 4, 8, 8.5, 9, 10, 11, 11.5, 14
 
@@ -82,7 +87,21 @@ Phase 13   — Code Quality & Lint/Import Hygiene Gate   [Execution Gate]
 Phase 14   — UI/UX Quality Validation (skills, mobile-first,
              responsive, performance)     [Execution Gate — Conditional]
 Phase 15   — Repository Hygiene Validation             [Execution Gate]
-Phase 16   — Verification Pipeline (incl. Secret/Dep Scan, coverage) [Execution Gate]
+Phase 16 — Change-Aware Verification
+
+Documentation only:
+- markdown lint
+- link validation
+
+Governance only:
+- markdown lint
+- governance validation
+
+Code changes:
+- verify affected workspace only
+
+Release:
+- full repository verification
 
 Phase 17   — PR Finalization                          [Execution Phase]
 Phase 18   — Completion Report                        [Execution Phase]
@@ -93,14 +112,49 @@ Phase 0 — Context Loading
 Classification: Execution Phase
 Process
 
-Load .agents/AGENTS.md
-Load .agents/governance/GOVERNANCE.md
-Load .agents/workflow/AI_WORKFLOW.md (this document)
-Load .agents/project/PROJECT_CONTEXT.json
+Verify that `.agents/logs/DECISION_LOG.md` contains a valid `AGENTS-BOOTSTRAP` entry for the active session, and inspect the filesystem to re-verify that the exact 4 core files recorded in the entry (`AGENTS.md`, `governance/GOVERNANCE.md`, `workflow/AI_WORKFLOW.md`, `project/PROJECT_CONTEXT.json`) are present, readable, and non-empty on disk right now.
 
 Exit Criteria
-| PASS | Core bootstrap files loaded |
-| FAIL | Any core file missing, corrupt, unreadable |
+| PASS | `AGENTS-BOOTSTRAP` log entry exists with all 4 core bootstrap files, and all 4 files are verified present and readable on disk |
+| FAIL | Log entry is missing, file list does not match the 4 core files, or any recorded file is missing, unreadable, or empty on disk |
+
+Workflow Gate 0 — Repository Discovery & Reuse
+Classification: Execution Gate
+Process
+
+Before creating any new component, hook, schema, utility, service, API, context, provider, or helper, the AI must perform a repository-wide search for an existing implementation.
+
+### Mandatory Process
+1. Search the repository for existing implementations.
+2. Identify the canonical Single Source of Truth (SSOT).
+3. Determine whether the existing implementation can:
+   - Be reused,
+   - Be extended, or
+   - Be composed.
+4. Only create a new implementation if no suitable reusable implementation exists.
+5. If a new implementation is required, document the architectural justification.
+6. If a new implementation replaces an existing one, include migration and cleanup of the legacy implementation in the same workstream whenever it is safe to do so.
+
+### Prohibited
+- Creating duplicate components.
+- Creating duplicate hooks.
+- Creating duplicate schemas.
+- Creating duplicate utilities.
+- Creating duplicate API clients.
+- Creating duplicate validation logic.
+- Creating parallel implementations without documented justification.
+
+### Required Output
+Before implementation, report:
+- Existing implementations found.
+- Canonical SSOT selected.
+- Reuse decision.
+- Architectural justification (only if creating something new).
+- Legacy cleanup plan (if applicable).
+
+Exit Criteria
+| PASS | Repository-wide search completed, SSOT selected, reuse/cleanup plan documented |
+| FAIL | Duplicates created without search or justification |
 
 Phase 1 — Request Analysis
 Classification: Execution Phase
@@ -147,6 +201,30 @@ Prohibited: "Therefore create PostAdStateController."
 Naming a solution before the problem is understood and approved is a governance violation. Prohibited in findings: new controller/service/component/hook names, new architecture diagrams, new step names, any implementation-specific naming.
 Exit Criteria
 | PASS | Classification complete; if Audit, 2a–2d complete and (if applicable) 2e approved |
+
+Phase 2.5 — Skill Resolution
+Classification: Execution Gate
+Process
+
+Before any code changes are written or implementation plans are finalized, the AI must dynamically evaluate and resolve the active skill set required for the task.
+
+### Mandatory Process
+1. **Repository Discovery & Classification**: Leverage the results of live repository discovery and task classification (Phase 2) to determine the exact requirements of the task.
+2. **Discover Available Skills**: Scan the standard customization roots (`.agents/skills/*`) and any custom mapped locations (`skills.json`) to find all available skills.
+3. **Resolve Applicable Skills**: Map the requirements of the classified task against the frontmatter definitions (`name`, `description`) of the discovered skills. Select only the skills that directly govern the current task.
+4. **Enforce Isolation & Ownership Boundaries**: Check all selected skills to ensure no duplicate responsibilities or conflicting directives exist. If any duplication or conflict is found, resolve it by prioritizing the most specific skill or consulting documented ownership boundaries.
+5. **Log Resolution & Load**: Load only the finalized, non-overlapping subset of resolved skills. Record the resolution data.
+
+### Required Output
+For every task execution, the AI must record and include in the implementation plan / reports:
+- **Skills Evaluated**: List of all skills discovered in the customization roots.
+- **Skills Loaded**: List of skills selected and active for this task.
+- **Skills Applied**: How each loaded skill directly guides or constraints the current task.
+- **Skills Intentionally Skipped**: List of available but unselected skills, along with a clear reason why they were rejected.
+
+Exit Criteria
+| PASS | Skills resolved, loaded without conflicts, and resolution metadata recorded |
+| FAIL | Overlapping skills loaded, or a required skill omitted, or conflicts unresolved |
 
 Phase 3 — Issue Validation
 Classification: Execution Gate
@@ -277,6 +355,17 @@ Flag name follows the Naming Policy constant convention.
 Flag removal (cleanup of dead flag branches) is tracked as a follow-up Issue, not left indefinitely — an unremoved flag older than the agreed cleanup window is a Repository Hygiene (Phase 15) finding.
 
 This is a recommendation the AI should surface for Medium/High risk tasks, not a hard gate — the user makes the final call on whether a flag is warranted.
+
+Skill Loading Policy
+Applies to every task and prompt execution in this workspace.
+
+* **Live Discovery First**: Perform repository discovery and scan active customization folders (`.agents/skills/*` or `skills.json`) before loading any AI skills.
+* **Relevance & Minimalism**: Load only the relevant skills required for the task. Never load unnecessary skills.
+* **Single Source of Truth**: Use each loaded skill as its single source of truth for its domain.
+* **Zero Duplication**: Never duplicate rules or guidance already owned by another skill inside `AGENTS.md`, `AI_WORKFLOW.md`, or other skills.
+* **Ownership Invariants**: Ensure loaded skills have clear, non-overlapping responsibilities. Resolve conflicts using documented ownership boundaries.
+* **Traceable Reporting**: The active skill configuration (skills evaluated, loaded, applied, and skipped with justification) must be documented in the implementation plan and completion reports.
+
 Phase 11 — Pre-Implementation Quality Validation
 Classification: Execution Gate
 Process
@@ -373,21 +462,11 @@ Exit Criteria
 | PASS | Working tree contains only intended files |
 | FAIL | Disallowed files found — remove, re-validate |
 
-Phase 16 — Verification Pipeline
+Phase 16 — Change-Aware Verification Pipeline
 Classification: Execution Gate
 Process
-Run in order; any failure means fix and re-run all steps from step 1 (subject to the global Iteration Limit and the Flaky Test Policy below):
-1. npm run format
-2. npm run lint                 # re-runs Phase 13's standard, does not redefine it
-3. npm run test:unit            # must meet the coverage threshold below
-4. npm run test:integration
-5. npm run type-check
-6. npm run build
-7. npm run guard:platform-governance
-8. npm run repository:doctor -- --profile ci
-9. npm run audit:secrets && npm run audit          # Secret & Dependency Scan
-If UI-modified = Yes, also:
-10. npm run test:e2e
+Inspect the modified files and execute the matching workspace-aware and change-aware verification steps mapped in `.agents/policy_engine/POLICY_ENGINE.json` under `verification_matrix` (subject to the global Iteration Limit and the Flaky Test Policy below).
+
 Coverage threshold: new or changed code introduced by this task must meet the repository's configured minimum coverage threshold (branch + line). A passing test:unit run with coverage below threshold is a FAIL, not a PASS.
 Secret & Dependency Scan (step 9): no leaked credentials, API keys, or tokens in the diff; no newly introduced dependency with a known critical/high vulnerability. Any hit is a FAIL — remove the secret/rotate it, or address the vulnerable dependency per the Dependency Policy.
 Flaky Test Policy: a test is only treated as flaky if it has a documented history of intermittent failure unrelated to this change (tracked in the repo's flaky-test registry). A flaky test's failure does not block this gate, but it must be logged (Evidence Standard) and reported in Phase 18 as a known flake — it may never be silently skipped or deleted to make the gate pass. A test failing for the first time is never assumed flaky.
@@ -421,6 +500,7 @@ Changed
 - <File 2>
 
 Checks
+✓ Skill Resolution (evaluated, loaded, applied, skipped recorded)
 ✓ Typecheck
 ✓ Build
 ✓ Lint & Import Hygiene
@@ -478,4 +558,4 @@ Finding classification (used throughout, including Phase 2a):
 
 Implementation protection: implementation may only address ✅ Verified Issues. 💡 and 🆕 require explicit approval first. Violating this is unauthorized scope expansion — a blocking error.
 
-Audit document structure and approval stamp format are defined in `.agents/templates/AUDIT_TEMPLATE.md`.
+Audit document structure and approval stamp format are defined in `.agents/templates/AUDIT_TEMPLATE.md`.

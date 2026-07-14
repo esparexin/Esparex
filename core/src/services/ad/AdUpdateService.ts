@@ -1,13 +1,14 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
-import Ad, { type IAd } from '../../models/Ad';
+import type { IAd } from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { getUserConnection } from '../../config/db';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { AdContext } from '../../types/ad.types';
-import { generateUniqueSlug } from '../../utils/slugGenerator';
+import { generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
 import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { enqueueImageOptimization } from '../../queues/imageQueue';
@@ -31,12 +32,12 @@ export const updateAdLogic = async (
         let removedImagesCache: string[] = [];
         
         const executeUpdate = async () => {
-            const ad = await Ad.findById(id).session(session);
+            const ad = await getListingRepository().findOne({ ids: [adId], session });
             if (!ad) return;
 
             oldPriceValue = ad.price;
 
-            if (context.actor === 'USER' && String(ad.sellerId) !== context.sellerId)
+            if (context.actor === 'USER' && ad.sellerId !== context.sellerId)
                 throw new AppError('Unauthorized: You can only edit your own ads', 403);
             if (ad.status === LIFECYCLE_STATUS.SOLD || ad.status === LIFECYCLE_STATUS.EXPIRED || ad.status === LIFECYCLE_STATUS.REJECTED || ad.status === LIFECYCLE_STATUS.DEACTIVATED)
                 throw new AppError('This ad can no longer be edited in its current status.', 400);
@@ -64,7 +65,7 @@ export const updateAdLogic = async (
             );
 
             const untypedPayload = payload as Record<string, unknown>;
-            const untypedAd = ad.toObject() as unknown as Record<string, unknown>;
+            const untypedAd = ad as unknown as Record<string, unknown>;
 
             let sensitiveChange = false;
             if (context.actor === 'USER') {
@@ -95,19 +96,22 @@ export const updateAdLogic = async (
             let slugRetries = 0;
             while (slugRetries < 3) {
                 try {
-                    const updated = await Ad.findByIdAndUpdate(id, payload, {
-                        new: true,
-                        session,
-                        runValidators: true
-                    });
-                    updatedAd = updated;
+                    const updated = await getListingRepository().updateOne(adId, payload as any, session);
+                    updatedAd = updated as unknown as IAd;
                     break;
                 } catch (error: unknown) {
                     const mongoError = error as { code?: number; keyPattern?: { seoSlug?: string } };
                     if (mongoError.code === 11000 && mongoError.keyPattern?.seoSlug) {
                         slugRetries++;
                         const baseTitle = (payload as Record<string, unknown>).title as string || ad.title;
-                        (payload as Record<string, unknown>).seoSlug = await generateUniqueSlug(Ad, baseTitle, ad.seoSlug, adId);
+                        (payload as Record<string, unknown>).seoSlug = await generateUniqueSlugWithChecker(
+                            baseTitle,
+                            async (candidate) => {
+                                const count = await getListingRepository().count({ seoSlug: candidate, idsNotIn: [adId], session });
+                                return count > 0;
+                            },
+                            ad.seoSlug
+                        );
                     } else {
                         throw error;
                     }

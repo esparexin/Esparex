@@ -1,20 +1,11 @@
 import { z } from 'zod';
-import { objectIdSchema } from './common.schemas';
+import { objectIdSchema, optionalTrimmedStringSchema as optionalTrimmedString } from './common.schemas';
 import { coordinatesSchema } from './coordinates.schema';
-
-const optionalTrimmedString = z.preprocess(
-    (value) => {
-        if (typeof value !== 'string') return value;
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-    },
-    z.string().optional()
-);
 
 const frequencySchema = z.enum(['daily', 'instant']);
 const notificationChannelSchema = z.enum(['email', 'sms', 'push']);
 
-const smartAlertCriteriaSchema = z
+export const smartAlertCriteriaSchema = z
     .object({
         keywords: optionalTrimmedString,
         category: optionalTrimmedString,
@@ -45,7 +36,7 @@ const smartAlertCriteriaSchema = z
         }
     });
 
-const smartAlertBodySchema = z
+export const smartAlertBodySchema = z
     .object({
         alertName: optionalTrimmedString,
         name: optionalTrimmedString,

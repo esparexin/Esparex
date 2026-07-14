@@ -18,7 +18,7 @@ export interface CatalogRequest {
     categoryId: string;
     parentBrandId?: string;
     requestedName: string;
-    status: 'pending' | 'approved' | 'rejected' | 'duplicate';
+    status: 'pending' | 'approved' | 'rejected' | 'duplicate' | 'resolved';
     createdAt: string;
 }
 
@@ -29,14 +29,23 @@ interface PaginationMeta {
     pages: number;
 }
 
+export interface CatalogRequestResult {
+    approvedEntityId?: string;
+    requestId?: string;
+    name: string;
+    decision: 'AUTO_APPROVE' | 'MANUAL_REVIEW' | 'REJECT';
+    created?: boolean;
+    request: any;
+}
+
 /**
  * Submit a request for a missing brand or model.
- * This will be reviewed by an admin and, if approved, added to the catalog.
+ * This will be resolved based on resolution policies.
  */
-export async function createCatalogRequest(payload: CreateCatalogRequestPayload): Promise<CatalogRequest> {
+export async function createCatalogRequest(payload: CreateCatalogRequestPayload): Promise<CatalogRequestResult> {
     try {
         const response = await apiClient.post(API_ROUTES.USER.CATALOG_REQUESTS, payload);
-        return unwrapApiPayload<CatalogRequest>(response) as CatalogRequest;
+        return unwrapApiPayload<CatalogRequestResult>(response) as CatalogRequestResult;
     } catch (error) {
         logger.error("[CatalogRequest] createCatalogRequest failed:", error);
         throw error instanceof Error ? error : new Error("Failed to submit request");

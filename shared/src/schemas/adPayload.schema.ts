@@ -13,6 +13,8 @@ import {
 import { LISTING_TYPE_VALUES } from '../enums/listingType';
 
 
+import { optionalTrimmedStringSchema as optionalTrimmedString } from './common.schemas';
+
 const objectId = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId');
 const optionalObjectId = z.preprocess(
     (value) => {
@@ -21,15 +23,6 @@ const optionalObjectId = z.preprocess(
         return trimmed.length > 0 ? trimmed : undefined;
     },
     objectId.optional()
-);
-
-const optionalTrimmedString = z.preprocess(
-    (value) => {
-        if (typeof value !== 'string') return value;
-        const trimmed = value.trim();
-        return trimmed.length > 0 ? trimmed : undefined;
-    },
-    z.string().optional()
 );
 
 

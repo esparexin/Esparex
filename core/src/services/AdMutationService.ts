@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import { ListingTypeValue } from '@esparex/shared';
 import { getUserConnection } from '../config/db';
 import { AdContext } from '../types/ad.types';
@@ -99,23 +99,21 @@ export const extendListingExpiry = async (
     currentStatus: string,
     now: Date
 ) => {
-    return Ad.findByIdAndUpdate(
-        id,
-        {
+    return getListingRepository().updateOne(id, {
+        $set: {
             expiresAt,
             expiryWarningSentAt: null,
             expiryWarningCount: 0,
             lastExpiryWarningChannel: null,
-            $push: {
-                timeline: {
-                    status: currentStatus,
-                    timestamp: now,
-                    reason: 'Expiry extended by admin',
-                },
+        },
+        $push: {
+            timeline: {
+                status: currentStatus,
+                timestamp: now,
+                reason: 'Expiry extended by admin',
             },
         },
-        { new: true }
-    );
+    } as any);
 };
 
 export const findOwnedService = async (
@@ -124,10 +122,9 @@ export const findOwnedService = async (
     listingType: string,
     fetchFull: boolean
 ) => {
-    const objectId = new mongoose.Types.ObjectId(id);
-    const sellerObjectId = new mongoose.Types.ObjectId(typeof userId === 'string' ? userId : userId.toString());
+    const sellerId = typeof userId === 'string' ? userId : userId.toString();
     if (fetchFull) {
-        return Ad.findOne({ _id: objectId, listingType: listingType as ListingTypeValue, sellerId: sellerObjectId });
+        return getListingRepository().findOne({ ids: [id], listingType: listingType as ListingTypeValue, sellerId });
     }
-    return Ad.findOne({ _id: objectId, listingType: listingType as ListingTypeValue, sellerId: sellerObjectId, isDeleted: { $ne: true } }).select('status');
+    return getListingRepository().findOne({ ids: [id], listingType: listingType as ListingTypeValue, sellerId, isDeleted: { $ne: true } } as any);
 };

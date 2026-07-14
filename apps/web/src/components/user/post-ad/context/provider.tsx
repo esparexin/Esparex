@@ -89,7 +89,7 @@ export function PostAdProvider({
     }, [availableSpareParts, isLoadingSpareParts, form]);
 
     const initializeFromListing = useCallback(async (data: Listing) => {
-        setMode('edit'); setListingId(String(data.id || (data as any)._id || "")); setCurrentStep(4);
+        setMode('edit'); setListingId(String(data.id || (data as any)._id || "")); setCurrentStep(2);
         if (setOriginalAdStatus && data.status) setOriginalAdStatus(data.status);
         const categoryId = data.categoryId || data.category;
         setValue("categoryId", categoryId); setValue("category", categoryId); setValue("brand", typeof data.brandName === "string" ? data.brandName : ""); setValue("brandId", data.brandId || "");
