@@ -1,4 +1,4 @@
-import mongoose, { ClientSession } from 'mongoose';
+import mongoose from 'mongoose';
 import Category, { ICategory } from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
@@ -9,7 +9,8 @@ import logger from '../../utils/logger';
 import { isDuplicateKeyError } from '../../utils/errorHelpers';
 import { AppError } from '../../utils/AppError';
 import { 
-    CatalogUnitOfWorkPort, 
+    CatalogUnitOfWorkPort,
+    TransactionContext,
     CatalogCachePort,
     CategoryRepositoryPort, 
     BrandRepositoryPort, 
@@ -104,7 +105,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Cascade Category soft-delete to Brands, Models, and deactivation of Parts
      */
-    async cascadeCategoryDelete(categoryId: string, session?: ClientSession) {
+    async cascadeCategoryDelete(categoryId: string, session?: TransactionContext) {
         const txSession = session || null;
         const now = new Date();
         const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
@@ -245,7 +246,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Cascade Brand soft-delete to Models and SpareParts
      */
-    async cascadeBrandDelete(brandId: string, session?: ClientSession) {
+    async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
         const txSession = session || null;
         const now = new Date();
 
@@ -338,10 +339,10 @@ export class CatalogOrchestratorImpl {
     }
 
     async deleteCategoryOrchestrated(categoryId: string) {
-        const performDelete = async (txSession: mongoose.ClientSession | null) => {
+        return this.unitOfWork.executeTransaction(async (txSession) => {
             const CategoryModel = require('../../models/Category').default;
             const category = txSession 
-                ? await CategoryModel.findById(categoryId).session(txSession)
+                ? await CategoryModel.findById(categoryId).session(txSession as any)
                 : await CategoryModel.findById(categoryId);
 
             if (!category) {
@@ -352,7 +353,7 @@ export class CatalogOrchestratorImpl {
                 category.isDeleted = true;
                 category.deletedAt = new Date();
                 category.isActive = false;
-                await category.save({ session: txSession });
+                await category.save({ session: txSession as any });
                 await this.cascadeCategoryDelete(String(category._id), txSession);
             } else {
                 category.isDeleted = true;
@@ -362,54 +363,12 @@ export class CatalogOrchestratorImpl {
                 await this.cascadeCategoryDelete(String(category._id));
             }
             return category;
-        };
-
-        const { getUserConnection } = require('../../config/db');
-        let session: mongoose.ClientSession | null = null;
-        try {
-            session = await getUserConnection().startSession();
-            if (session) {
-                session.startTransaction();
-                const category = await performDelete(session);
-                await session.commitTransaction();
-                return category;
-            }
-            return await performDelete(null);
-        } catch (e: unknown) {
-            if (session) {
-                try { await session.abortTransaction(); } catch { /* ignore */ }
-                try { await session.endSession(); } catch { /* ignore */ }
-                session = null;
-            }
-
-            const errorMessage = e instanceof Error ? e.message : String(e);
-            const isSessionError = /session|transaction|mongoclient/i.test(errorMessage);
-
-            if (isSessionError) {
-                logger.warn(`Transaction session failed (${errorMessage}). Retrying sequential soft-delete sessionless...`);
-                return performDelete(null);
-            }
-            throw e;
-        } finally {
-            if (session) {
-                try { await session.endSession(); } catch { /* ignore */ }
-            }
-        }
+        });
     }
 
     async deleteBrandOrchestrated(brandId: string) {
         const BrandModel = require('../../models/Brand').default;
         const softDeleteUpdate: Record<string, unknown> = { isDeleted: true, deletedAt: new Date(), isActive: false };
-
-        const performDelete = async (txSession: mongoose.ClientSession | null) => {
-            const brand = txSession 
-                ? await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true }).session(txSession) 
-                : await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true });
-
-            if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand: null };
-            const cascadeRes = await this.cascadeBrandDelete(brandId, txSession ?? undefined);
-            return { deletedModels: cascadeRes.deletedModels, deletedSpareParts: cascadeRes.deletedSpareParts, brand };
-        };
 
         const existingBrand = await BrandModel.findOne({ _id: brandId }).setOptions({ withDeleted: true });
         if (!existingBrand || existingBrand.isDeleted) {
@@ -422,36 +381,15 @@ export class CatalogOrchestratorImpl {
             throw new AppError('Brand cannot be deleted because dependencies exist', 409, 'DEPENDENCIES_EXIST', deps.details);
         }
 
-        const { getUserConnection } = require('../../config/db');
-        let session: mongoose.ClientSession | null = null;
-        try {
-            session = await getUserConnection().startSession();
-            if (session) {
-                session.startTransaction();
-                const r = await performDelete(session);
-                await session.commitTransaction();
-                return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
-            }
-            const r = await performDelete(null);
-            return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
-        } catch (e: unknown) {
-            if (session) {
-                try { await session.abortTransaction(); } catch { /* ignore */ }
-                try { await session.endSession(); } catch { /* ignore */ }
-                session = null;
-            }
-            const msg = e instanceof Error ? e.message : String(e);
-            if (/session|transaction|mongoclient/i.test(msg)) {
-                logger.warn(`Transaction session failed (${msg}). Retrying sequential...`);
-                const r = await performDelete(null);
-                return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
-            }
-            throw e;
-        } finally {
-            if (session) {
-                try { await session.endSession(); } catch { /* ignore */ }
-            }
-        }
+        return this.unitOfWork.executeTransaction(async (txSession) => {
+            const brand = txSession 
+                ? await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true }).session(txSession as any) 
+                : await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true });
+
+            if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand: null };
+            const cascadeRes = await this.cascadeBrandDelete(brandId, txSession ?? undefined);
+            return { brandId, deletedModels: cascadeRes.deletedModels, deletedSpareParts: cascadeRes.deletedSpareParts, alreadyDeleted: false };
+        });
     }
 }
 
@@ -488,10 +426,10 @@ export class CatalogOrchestrator {
     static async invalidateCatalogCache(opts?: { categoryIds?: (string | mongoose.Types.ObjectId)[], brandIds?: (string | mongoose.Types.ObjectId)[] }) {
         return this.instance.invalidateCatalogCache(opts);
     }
-    static async cascadeCategoryDelete(categoryId: string, session?: ClientSession) {
+    static async cascadeCategoryDelete(categoryId: string, session?: TransactionContext) {
         return this.instance.cascadeCategoryDelete(categoryId, session);
     }
-    static async cascadeBrandDelete(brandId: string, session?: ClientSession) {
+    static async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
         return this.instance.cascadeBrandDelete(brandId, session);
     }
     static async createCategory(data: Partial<ICategory>): Promise<ICategory> {
@@ -506,7 +444,7 @@ export class CatalogOrchestrator {
     static async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
         return this.instance.resolvePrimaryCategoryIdFromBrand(brandId);
     }
-    static async detachSparePartsFromModel(modelId: string, session?: ClientSession) {
+    static async detachSparePartsFromModel(modelId: string, session?: TransactionContext) {
         return this.instance.detachSparePartsFromModel(modelId, session);
     }
     static async deleteCategoryOrchestrated(categoryId: string) {
