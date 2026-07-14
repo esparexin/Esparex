@@ -1,5 +1,5 @@
 import { CatalogValidationService } from '../../services/catalog/CatalogValidationService';
-import { CategoryRepositoryPort, BrandRepositoryPort } from '../../domains/catalog';
+import { CategoryRepositoryPort, BrandRepositoryPort, ModelRepositoryPort, SparePartRepositoryPort } from '../../domains/catalog';
 
 describe('CatalogValidationService Mock-Based Testing', () => {
     const mockCategoryRepository = {
@@ -15,7 +15,22 @@ describe('CatalogValidationService Mock-Based Testing', () => {
         exists: jest.fn(),
     } as unknown as jest.Mocked<BrandRepositoryPort>;
 
-    const service = new CatalogValidationService(mockCategoryRepository, mockBrandRepository);
+    const mockModelRepository = {
+        findById: jest.fn(),
+        exists: jest.fn(),
+    } as unknown as jest.Mocked<ModelRepositoryPort>;
+
+    const mockSparePartRepository = {
+        findById: jest.fn(),
+        exists: jest.fn(),
+    } as unknown as jest.Mocked<SparePartRepositoryPort>;
+
+    const service = new CatalogValidationService(
+        mockCategoryRepository, 
+        mockBrandRepository,
+        mockModelRepository,
+        mockSparePartRepository
+    );
 
     beforeEach(() => {
         jest.clearAllMocks();

@@ -1,4 +1,3 @@
-import Model from '../../models/Model';
 import {
     CATALOG_APPROVAL_STATUS,
     type CatalogApprovalStatusValue,
@@ -18,6 +17,8 @@ import {
 import {
     CategoryRepositoryPort,
     BrandRepositoryPort,
+    ModelRepositoryPort,
+    SparePartRepositoryPort,
     ListingTypeValue
 } from '../../domains/catalog';
 
@@ -59,7 +60,9 @@ export interface CategoryValidationResult {
 export class CatalogValidationService {
     constructor(
         private readonly categoryRepository: CategoryRepositoryPort,
-        private readonly brandRepository: BrandRepositoryPort
+        private readonly brandRepository: BrandRepositoryPort,
+        private readonly modelRepository: ModelRepositoryPort,
+        private readonly sparePartRepository: SparePartRepositoryPort
     ) {}
 
     public static validateCatalogInput(options: {
@@ -131,19 +134,16 @@ export class CatalogValidationService {
         validateObjectIdOrThrow('modelId', modelId);
         if (brandId) validateObjectIdOrThrow('brandId', brandId);
 
-        const model = await Model.findOne({
-            _id: modelId,
-            isDeleted: { $ne: true },
-            deletedAt: null,
-            isActive: true,
-            approvalStatus: { $in: [CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.PENDING] },
-        }).select('brandId').lean();
+        const model = await this.modelRepository.findById(modelId);
+        
+        const isModelActive = model && model.isActive && !model.isDeleted &&
+            (model.approvalStatus === CATALOG_APPROVAL_STATUS.APPROVED || model.approvalStatus === CATALOG_APPROVAL_STATUS.PENDING);
 
-        if (!model) {
+        if (!isModelActive) {
             return { ok: false, reason: 'modelId refers to an invalid or inactive model.' };
         }
 
-        if (brandId && String((model as { brandId?: unknown }).brandId) !== brandId) {
+        if (brandId && model.brandId !== brandId) {
             return { ok: false, reason: 'modelId does not belong to the specified brandId.' };
         }
 
@@ -295,9 +295,13 @@ function getServiceInstance(): CatalogValidationService {
         // to avoid circular dependencies and static concrete imports in tests
         const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
         const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
+        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
+        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
         serviceInstance = new CatalogValidationService(
             new MongoCategoryRepositoryAdapter(),
-            new MongoBrandRepositoryAdapter()
+            new MongoBrandRepositoryAdapter(),
+            new MongoModelRepositoryAdapter(),
+            new MongoSparePartRepositoryAdapter()
         );
     }
     return serviceInstance;
