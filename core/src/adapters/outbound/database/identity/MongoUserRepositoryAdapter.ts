@@ -14,7 +14,10 @@ export class MongoUserRepositoryAdapter implements UserRepositoryPort {
     }
     public async updateUser(id: string, updates: any): Promise<any> {
         const safeId = typeof id === 'string' ? id : String(id);
-        return await User.findByIdAndUpdate(safeId, updates, { new: true, runValidators: true }).select('-password');
+        const safeUpdates = (updates && typeof updates === 'object' && Object.keys(updates).some(k => k.startsWith('$')))
+            ? updates
+            : { $set: updates ?? {} };
+        return await User.findByIdAndUpdate(safeId, safeUpdates, { new: true, runValidators: true }).select('-password');
     }
     public async removeUserFcmToken(userId: any, token: string): Promise<void> {
         const safeId = typeof userId === 'string' ? userId : String(userId ?? '');
