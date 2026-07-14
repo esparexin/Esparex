@@ -1,4 +1,4 @@
-import { Model, ModelRepositoryPort } from '../../../../domains/catalog/ports/ModelRepositoryPort';
+import { Model, ModelRepositoryPort } from '../../../../domains/catalog';
 import ModelMongoose from '../../../../models/Model';
 import { CatalogApprovalStatusValue } from '@esparex/shared';
 

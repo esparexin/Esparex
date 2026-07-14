@@ -1,4 +1,4 @@
-import { SparePart, SparePartRepositoryPort } from '../../../../domains/catalog/ports/SparePartRepositoryPort';
+import { SparePart, SparePartRepositoryPort } from '../../../../domains/catalog';
 import SparePartMongoose from '../../../../models/SparePart';
 import { CatalogApprovalStatusValue } from '@esparex/shared';
 

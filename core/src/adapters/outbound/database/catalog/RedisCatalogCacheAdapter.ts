@@ -1,4 +1,4 @@
-import { CatalogCachePort, InvalidateCatalogCacheOptions } from '../../../../domains/catalog/ports/CatalogCachePort';
+import { CatalogCachePort, InvalidateCatalogCacheOptions } from '../../../../domains/catalog';
 import { clearCachePattern } from '../../../../utils/redisCache';
 import logger from '../../../../utils/logger';
 

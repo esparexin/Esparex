@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CatalogUnitOfWorkPort, TransactionContext } from '../../../../domains/catalog/ports/CatalogUnitOfWorkPort';
+import { CatalogUnitOfWorkPort, TransactionContext } from '../../../../domains/catalog';
 import { getUserConnection } from '../../../../config/db';
 import logger from '../../../../utils/logger';
 
