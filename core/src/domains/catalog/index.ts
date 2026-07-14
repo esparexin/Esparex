@@ -11,3 +11,4 @@ export {
 } from './ports/CategoryRepositoryPort';
 export { Brand, BrandRepositoryPort } from './ports/BrandRepositoryPort';
 export { ListingTypeValue, ServiceSelectionMode } from '@esparex/shared';
+export { CatalogUnitOfWorkPort, TransactionContext } from './ports/CatalogUnitOfWorkPort';
