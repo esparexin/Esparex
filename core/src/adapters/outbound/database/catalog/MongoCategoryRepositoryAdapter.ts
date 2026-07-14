@@ -43,7 +43,7 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     }
 
     async findById(id: string): Promise<Category | null> {
-        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
+        const safeId = typeof id === 'string' ? id : String(id);
         const doc = await CategoryModel.findById(safeId).lean<DbCategory | null>().exec();
         return doc ? this.toDomain(doc) : null;
     }

@@ -27,7 +27,7 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
     }
 
     async findById(id: string): Promise<Brand | null> {
-        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
+        const safeId = typeof id === 'string' ? id : String(id);
         const doc = await BrandModel.findById(safeId).lean<DbBrand | null>().exec();
         return doc ? this.toDomain(doc) : null;
     }
