@@ -184,3 +184,7 @@ __pycache__/
 # Gradle
 .gradle/
 **/.gradle/
+
+# Temp workspace files
+tech-debt-insights.md
+.commandcode/

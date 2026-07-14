@@ -127,7 +127,7 @@ export const imageOptimizationWorker = shouldDisableQueueConnection
                         hdUrl = `${baseUrl}/${hdKey}`;
                         thumbUrl = `${baseUrl}/${thumbKey}`;
                         logger.info(`[ImageWorker] Target S3 key already exists (idempotency hit): ${hdKey}`);
-                    } catch (s3Err) {
+                    } catch {
                         // File not found on S3, needs optimization
                     }
 

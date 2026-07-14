@@ -371,7 +371,7 @@ export const geocode = async (req: Request, res: Response) => {
                 const validGeo = normalizeGeoPoint(coordsObj);
                 lng = validGeo.coordinates[0];
                 lat = validGeo.coordinates[1];
-            } catch (e) {
+            } catch {
                 return sendErrorResponse(req, res, 400, "Invalid coordinates");
             }
         } else {
