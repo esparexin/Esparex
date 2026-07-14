@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import User from '../../models/User';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
@@ -10,14 +10,14 @@ import logger from '../../utils/logger';
 
 
 export const assertOwnership = async (adId: string, userId: string): Promise<{ sellerId: mongoose.Types.ObjectId; status: string }> => {
-    const ad = await Ad.findById(adId).select('sellerId status').lean();
+    const ad = await getListingRepository().findById(adId);
     if (!ad) {
         throw new AppError('Ad not found', 404, 'NOT_FOUND');
     }
-    if (String(ad.sellerId) !== String(userId)) {
+    if (ad.sellerId !== userId) {
         throw new AppError('Unauthorized', 403, 'UNAUTHORIZED');
     }
-    return ad;
+    return { sellerId: new mongoose.Types.ObjectId(ad.sellerId), status: ad.status as string };
 };
 
 /**
@@ -50,10 +50,10 @@ export const validateSellerTypeThreshold = async (
         const config = await getSystemConfigForRead();
         const threshold = config?.listing?.thresholds?.proSparePartLimit ?? 5; // Default 5
 
-        const activeCount = await Ad.countDocuments({
-            sellerId: new mongoose.Types.ObjectId(sellerId),
+        const activeCount = await getListingRepository().count({
+            sellerId,
             listingType: LISTING_TYPE.SPARE_PART,
-            status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
+            status: { $in: [LISTING_STATUS.LIVE, 'pending'] } as any,
             isDeleted: false
         });
 

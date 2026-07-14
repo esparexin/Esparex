@@ -33,7 +33,7 @@ export const isValidAdStatus = (status: string): boolean => {
 };
 
 
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { mutateStatus } from './StatusMutationService';
 import { MS_IN_DAY, GOVERNANCE } from '../../config/constants';
 import logger from '../../utils/logger';
@@ -131,7 +131,7 @@ export const computeActiveExpiry = async (listingType: ListingTypeValue = LISTIN
 
 export const extendAdExpiry = async (id: string, daysToAdd: number, actorId?: string, actorType: 'user' | 'admin' | 'system' = 'admin'): Promise<Record<string, unknown> | null> => {
     // E2: Use typed lean generic instead of 'as any' cast
-    const ad = await Ad.findById(id).lean<{ expiresAt?: Date; status?: string }>();
+    const ad = await getListingRepository().findById(id);
     if (!ad) return null;
     const currentExpiry = ad.expiresAt ? new Date(ad.expiresAt).getTime() : Date.now();
     const newExpiresAt = new Date(currentExpiry + daysToAdd * MS_IN_DAY);
@@ -154,12 +154,11 @@ export const expireOutdatedAds = async (): Promise<number> => {
 };
 
 export const expireBoosts = async (): Promise<number> => {
-    const result = await Ad.updateMany(
+    const count = await getListingRepository().updateMany(
         { isSpotlight: true, spotlightExpiresAt: { $lt: new Date() } },
-        { $set: { isSpotlight: false } }
+        { isSpotlight: false }
     );
     
-    const count = result.modifiedCount || 0;
     if (count > 0) {
         await lifecycleEvents.dispatch('ad.spotlight.expired', { count, source: 'cron_expireBoosts' });
     }

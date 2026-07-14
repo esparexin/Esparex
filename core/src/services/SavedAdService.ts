@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import SavedAd from '../models/SavedAd';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import { hydrateAdMetadata, type HydratedAd } from './ad/AdAggregationService';
 import { sanitizePersistedImageUrls } from '../utils/s3';
 import { serializeDoc } from '../utils/serialize';
@@ -37,9 +37,11 @@ export const getSavedAds = async (userId: string, page: number, limit: number) =
     }
 
     const adIds = saved.filter((s) => s.adId).map((s) => s.adId);
-    const rawAds = await Ad.find({ _id: { $in: adIds } })
-        .select('title images price location categoryId brandId modelId listingType seoSlug status createdAt')
-        .lean<HydratedAd[]>();
+    const listings = await getListingRepository().find({ ids: adIds.map((id) => id.toString()) });
+    const rawAds: HydratedAd[] = listings.map((l) => ({
+        ...l,
+        _id: new mongoose.Types.ObjectId(l.id),
+    } as unknown as HydratedAd));
 
     await hydrateAdMetadata(rawAds);
 
@@ -76,21 +78,21 @@ export const getSavedAds = async (userId: string, page: number, limit: number) =
 };
 
 export const saveAd = async (userId: string, adId: string) => {
-    const ad = await Ad.findById(adId).select('_id').lean();
+    const ad = await getListingRepository().findById(adId);
     if (!ad) return null;
 
     await SavedAd.create({ userId, adId });
     void recordAdAnalyticsEvent(adId, 'favorite');
-    void Ad.findByIdAndUpdate(adId, { $inc: { 'views.favorites': 1 } });
+    void getListingRepository().updateOne(adId, { $inc: { 'views.favorites': 1 } } as any);
     return true;
 };
 
 export const unsaveAd = async (userId: string, adId: string) => {
     const deleted = await SavedAd.findOneAndDelete({ userId, adId });
     if (deleted) {
-        void Ad.findOneAndUpdate(
-            { _id: adId, 'views.favorites': { $gt: 0 } },
-            { $inc: { 'views.favorites': -1 } }
+        void getListingRepository().updateMany(
+            { ids: [adId], favoritesGreaterThan: 0 },
+            { $inc: { 'views.favorites': -1 } } as any
         );
     }
 };

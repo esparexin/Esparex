@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
+import User from '../models/User';
 import PhoneRevealLog from '../models/PhoneRevealLog';
 import PhoneRequest from '../models/PhoneRequest';
 import logger from '../utils/logger';
@@ -15,12 +16,6 @@ type SellerContact = {
     mobileVisibility?: string;
 };
 
-type ContactRevealEntity = {
-    sellerId?: SellerContact;
-    status?: string;
-    isDeleted?: boolean;
-    listingType?: string;
-} | null;
 
 /**
  * Mask phone number for display
@@ -104,19 +99,17 @@ export const getSellerPhone = async (
     const id = new mongoose.Types.ObjectId(String(entityId));
 
     try {
-        const entity = await Ad.findById(id)
-            .select('sellerId status isDeleted listingType')
-            .populate('sellerId', 'mobile status mobileVisibility')
-            .lean() as ContactRevealEntity;
+        const listing = await getListingRepository().findById(String(id));
+        if (!listing) return { error: 'Listing not found' };
 
-        if (!entity) return { error: 'Listing not found' };
-
-        const seller = entity.sellerId;
+        const seller = await User.findById(listing.sellerId)
+            .select('_id mobile status mobileVisibility')
+            .lean() as SellerContact | null;
         if (!seller) return { error: 'Seller not found' };
 
         const sellerPhone = seller.mobile;
-        const entityActive = entity.status === LISTING_STATUS.LIVE && !entity.isDeleted;
-        const resolvedEntityType = (entity.listingType as 'ad' | 'service' | 'spare_part') || (entityType === 'spare_part' ? 'spare_part' : 'ad');
+        const entityActive = listing.status === LISTING_STATUS.LIVE && !listing.isDeleted;
+        const resolvedEntityType = (listing.listingType as 'ad' | 'service' | 'spare_part') || (entityType === 'spare_part' ? 'spare_part' : 'ad');
 
         const isOwner = Boolean(buyerId && seller._id && buyerId === seller._id.toString());
 

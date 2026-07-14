@@ -91,7 +91,8 @@ describe("SavedAdService", () => {
             expect(mockSavedAd.findOneAndDelete).toHaveBeenCalledWith({ userId: "user_1", adId: "ad_1" });
             expect(mockAd.findOneAndUpdate).toHaveBeenCalledWith(
                 { _id: "ad_1", "views.favorites": { $gt: 0 } },
-                { $inc: { "views.favorites": -1 } }
+                { $inc: { "views.favorites": -1 } },
+                { runValidators: true, session: undefined }
             );
         });
 

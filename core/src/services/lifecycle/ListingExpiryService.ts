@@ -1,4 +1,4 @@
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { LISTING_STATUS } from '@esparex/shared';
 import { ACTOR_TYPE } from '@esparex/shared';
 import { mutateStatusesBulk } from './StatusMutationService';
@@ -13,13 +13,11 @@ export type ListingExpirySweepResult = {
 
 export class ListingExpiryService {
     static async runSweep(now: Date = new Date()): Promise<ListingExpirySweepResult> {
-        const expiringListings = await Ad.find({
+        const expiringListings = await getListingRepository().find({
             status: LISTING_STATUS.LIVE,
-            expiresAt: { $lte: now },
-            isDeleted: { $ne: true },
-        })
-            .select('_id')
-            .lean<Array<{ _id: unknown }>>();
+            expiresAt: { $lte: now } as any,
+            isDeleted: false as any,
+        });
 
         if (expiringListings.length === 0) {
             return {
@@ -30,16 +28,14 @@ export class ListingExpiryService {
         }
 
         const listingIds = expiringListings
-            .map((doc) => String(doc._id))
+            .map((doc) => doc.id)
             .filter((id) => id.length > 0);
 
-        await Ad.updateMany(
-            { _id: { $in: listingIds } },
+        await getListingRepository().updateMany(
+            { ids: listingIds },
             {
-                $set: {
-                    isSpotlight: false,
-                    isChatLocked: true,
-                },
+                isSpotlight: false,
+                isChatLocked: true,
             }
         );
 

@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
-import Ad from '../models/Ad';
+import { getListingRepository } from '../composition/listings';
 import SparePart from '../models/SparePart';
 import Brand from '../models/Brand';
 import { normalizeLocation } from './location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
-import { generateUniqueSlug } from '../utils/slugGenerator';
+import { generateUniqueSlugWithChecker } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
@@ -399,7 +399,17 @@ export class AdCreationService {
                 const { generateUniqueSparePartSlug } = await import('./SparePartListingService');
                 payload.seoSlug = await generateUniqueSparePartSlug(payload.title, adId);
             } else {
-                payload.seoSlug = await generateUniqueSlug(Ad, payload.title, undefined, adId);
+                payload.seoSlug = await generateUniqueSlugWithChecker(
+                    payload.title,
+                    async (candidate) => {
+                        const count = await getListingRepository().count({
+                            seoSlug: candidate,
+                            idsNotIn: adId ? [adId] : undefined
+                        });
+                        return count > 0;
+                    },
+                    undefined
+                );
             }
         }
 
@@ -420,7 +430,7 @@ export class AdCreationService {
             const { calculateServiceQuality } = await import('../utils/serviceQuality');
             let merged: any = { ...payload };
             if (partial && adId) {
-                const existing = await Ad.findById(adId).select('images priceMin price title description').lean();
+                const existing = await getListingRepository().findById(adId);
                 if (existing) {
                     merged = {
                         ...existing,

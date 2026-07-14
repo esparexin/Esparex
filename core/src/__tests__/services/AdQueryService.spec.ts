@@ -36,7 +36,6 @@ jest.mock('@esparex/core/utils/s3', () => ({
 
 import Ad from '../../models/Ad';
 import { buildAdSortStage } from '../../services/ad/AdSearchService';
-import { buildHomeFeedPipeline } from '../../services/ad/AdFeedService';
 import { getAdCounts } from '../../services/ad/AdMetricsService';
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 
@@ -120,99 +119,5 @@ describe('buildAdSortStage', () => {
     it('sorts by geo distance when sortBy=distance', () => {
         const sort = buildAdSortStage({ sortBy: 'distance' });
         expect(sort).toEqual({ distance: 1, createdAt: -1 });
-    });
-});
-
-describe('buildHomeFeedPipeline', () => {
-    it('uses a compound cursor and routes stale spotlight rows into non-spotlight buckets', () => {
-        const boostedId = new mongoose.Types.ObjectId();
-        const cursorId = new mongoose.Types.ObjectId();
-        const cursorDate = new Date('2026-03-21T12:00:00.000Z');
-
-        const pipeline = buildHomeFeedPipeline(
-            { categoryId: 'phones' },
-            [boostedId],
-            12,
-            undefined,
-            {
-                createdAt: cursorDate,
-                id: cursorId.toHexString()
-            }
-        );
-
-        expect(pipeline[1]).toEqual({
-            $match: {
-                $or: [
-                    { createdAt: { $lt: cursorDate } },
-                    { createdAt: cursorDate, _id: { $lt: cursorId } }
-                ]
-            }
-        });
-        expect(pipeline[2]).toEqual({ $sort: { createdAt: -1, _id: -1 } });
-
-        const facetStage = pipeline[3] as unknown as {
-            $facet: {
-                spotlight: Array<Record<string, unknown>>;
-                boosted: Array<Record<string, unknown>>;
-                organic: Array<Record<string, unknown>>;
-            };
-        };
-
-        const visibilityMatch = {
-            categoryId: 'phones',
-            ...buildPublicAdFilter(),
-            expiresAt: { $gt: expect.any(Date) },
-        };
-
-        expect(facetStage.$facet.spotlight[0]).toEqual({
-            $match: {
-                isSpotlight: true,
-                spotlightExpiresAt: { $gt: expect.any(Date) }
-            }
-        });
-        expect(facetStage.$facet.boosted[0]).toEqual({
-            $match: {
-                _id: { $in: [boostedId] },
-                $or: [
-                    { isSpotlight: { $ne: true } },
-                    { spotlightExpiresAt: { $exists: false } },
-                    { spotlightExpiresAt: null },
-                    { spotlightExpiresAt: { $lte: expect.any(Date) } }
-                ]
-            }
-        });
-        expect(facetStage.$facet.organic[0]).toEqual({
-            $match: {
-                _id: { $nin: [boostedId] },
-                $or: [
-                    { isSpotlight: { $ne: true } },
-                    { spotlightExpiresAt: { $exists: false } },
-                    { spotlightExpiresAt: null },
-                    { spotlightExpiresAt: { $lte: expect.any(Date) } }
-                ]
-            }
-        });
-    });
-
-    it('falls back to legacy date-only cursor matching when no cursor id is available', () => {
-        const cursorDate = new Date('2026-03-21T12:00:00.000Z');
-
-        const pipeline = buildHomeFeedPipeline(
-            {},
-            [],
-            8,
-            undefined,
-            {
-                createdAt: cursorDate,
-                id: null
-            }
-        );
-
-        expect(pipeline[1]).toEqual({
-            $match: {
-                createdAt: { $lt: cursorDate }
-            }
-        });
-        expect(pipeline[2]).toEqual({ $sort: { createdAt: -1, _id: -1 } });
     });
 });

@@ -53,6 +53,41 @@ export async function generateUniqueSlug(
         }
     }
 
-    // If we exhausted attempts, return a longer random slug to ensure uniqueness.
+    return `${baseSlug}-${nanoid(8)}`;
+}
+
+/**
+ * Decoupled slug generator that uses a callback to check existence.
+ */
+export async function generateUniqueSlugWithChecker(
+    title: string,
+    checkExists: (candidate: string) => Promise<boolean>,
+    oldSlug?: string
+): Promise<string> {
+    if (!title) return nanoid(10);
+
+    const baseSlug = slugify(title, {
+        lower: true,
+        strict: true,
+        trim: true,
+        replacement: '-',
+        remove: /[*+~.()'"!:@]/g,
+    });
+
+    const maxAttempts = 6;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const suffix = nanoid(5);
+        const candidate = `${baseSlug}-${suffix}`;
+
+        if (oldSlug && oldSlug === candidate) return oldSlug;
+
+        try {
+            const exists = await checkExists(candidate);
+            if (!exists) return candidate;
+        } catch {
+            return `${baseSlug}-${nanoid(8)}`;
+        }
+    }
+
     return `${baseSlug}-${nanoid(8)}`;
 }

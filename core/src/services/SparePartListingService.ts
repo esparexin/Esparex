@@ -1,12 +1,19 @@
 import type { IAd } from '../models/Ad';
 import type { Document } from 'mongoose';
-import AdModel from '../models/Ad';
-import { generateUniqueSlug } from '../utils/slugGenerator';
+import { getListingRepository } from '../composition/listings';
+import { generateUniqueSlugWithChecker } from '../utils/slugGenerator';
 
 export async function saveSparePartListing(listing: IAd & Document): Promise<IAd & Document> {
     return listing.save();
 }
 
 export async function generateUniqueSparePartSlug(title: string, listingId?: string): Promise<string> {
-    return generateUniqueSlug(AdModel, title, listingId);
+    return generateUniqueSlugWithChecker(
+        title,
+        async (candidate) => {
+            const count = await getListingRepository().count({ seoSlug: candidate, idsNotIn: listingId ? [listingId] : undefined });
+            return count > 0;
+        },
+        listingId
+    );
 }

@@ -98,6 +98,10 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
         let result: Record<string, unknown> | null = null;
 
         const executeOperations = async (activeSession: ClientSession) => {
+            if (isListingLifecycleDomain(domain)) {
+                return executeListingOperations(activeSession);
+            }
+            
             // 1. Resolve Model
             const Model = getModelForDomain(domain);
             const doc = await (Model as mongoose.Model<mongoose.Document>).findById(entityId).setOptions({ withDeleted: true }).session(activeSession) as (mongoose.Document & IStatusable) | null;
@@ -205,6 +209,67 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             }], { session: activeSession });
 
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
+        };
+
+        const executeListingOperations = async (activeSession: ClientSession) => {
+            const { getListingRepository } = await import('../../composition/listings');
+            const repo = getListingRepository();
+            const listing = await repo.findOne({ ids: [entityId.toString()], isDeleted: { $in: [true, false] } as any, session: activeSession });
+            
+            if (!listing) {
+                throw Object.assign(new Error(`Entity ${String(entityId)} not found in domain ${domain}`), { statusCode: 404 });
+            }
+
+            fromStatus = listing.status as string;
+            resolvedListingType = listing.listingType as string;
+
+            const resolvedDomain = resolveLifecycleDomain(domain, resolvedListingType);
+            try {
+                validateLifecycleTransition(resolvedDomain, fromStatus, toStatus);
+            } catch (error) {
+                if (!canBypassInvalidTransition({ error, actor, toStatus, resolvedDomain, metadata })) {
+                    throw error;
+                }
+            }
+            enforceLifecycleMutationPolicy({ domain: resolvedDomain, fromStatus, toStatus, actor, patch, metadata });
+
+            const updateDoc: Record<string, unknown> = {
+                status: toStatus,
+                statusChangedAt: new Date(),
+            };
+            if (reason) updateDoc.statusReason = reason;
+
+            const VALID_MODERATION_STATUSES = new Set(['auto_approved', 'held_for_review', 'manual_approved', 'rejected', 'community_hidden']);
+            const currentModerationStatus = listing.moderationStatus;
+            if (currentModerationStatus && !VALID_MODERATION_STATUSES.has(currentModerationStatus)) {
+                updateDoc.moderationStatus = 'manual_approved';
+            }
+
+            if (patch) {
+                for (const [key, value] of Object.entries(patch)) {
+                    updateDoc[key] = value;
+                }
+            }
+
+            const updated = await repo.updateOne(entityId.toString(), updateDoc as any, activeSession);
+
+            await StatusHistory.create([{
+                domain,
+                entityId: (entityId instanceof mongoose.Types.ObjectId) ? entityId : new mongoose.Types.ObjectId(String(entityId)),
+                fromStatus,
+                toStatus,
+                actorType: actor.type,
+                actorId: (actor.id && mongoose.Types.ObjectId.isValid(actor.id)) ? new mongoose.Types.ObjectId(actor.id) : undefined,
+                reason,
+                metadata: {
+                    ...metadata,
+                    ip: actor.ip,
+                    ua: actor.userAgent,
+                    mutationService: 'v1'
+                }
+            }], { session: activeSession });
+
+            return updated as any;
         };
 
         if (isInternalSession && session) {

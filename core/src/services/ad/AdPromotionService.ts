@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
-import Ad from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import { getUserConnection } from '../../config/db';
 import { LISTING_TYPE } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/shared';
@@ -21,7 +21,7 @@ export const promoteAdLogic = async (
 
     if (!mongoose.Types.ObjectId.isValid(id)) throw new AppError('Invalid Ad ID', 400);
 
-    const ad = await Ad.findById(id);
+    const ad = await getListingRepository().findById(id);
     if (!ad) return null;
 
     if (ad.listingType === LISTING_TYPE.SPARE_PART) {
@@ -43,7 +43,7 @@ export const promoteAdLogic = async (
         }
 
         if (!ad.isSpotlight) {
-            const activePromotions = await Ad.countDocuments({
+            const activePromotions = await getListingRepository().count({
                 sellerId: userId,
                 isSpotlight: true,
                 status: LISTING_STATUS.LIVE
@@ -94,13 +94,13 @@ export const promoteAdLogic = async (
 
             if (ad.isSpotlight) {
                 await Boost.updateOne(
-                    { entityId: ad._id, isActive: true },
+                    { entityId: ad.id, isActive: true },
                     { $set: { endsAt } },
                     { session }
                 );
             } else {
                 await Boost.create([{
-                    entityId: ad._id,
+                    entityId: ad.id,
                     entityType: 'ad',
                     boostType: type,
                     startsAt,
@@ -109,11 +109,16 @@ export const promoteAdLogic = async (
                 }], { session });
             }
 
-            ad.isSpotlight = true;
-            ad.spotlightExpiresAt = endsAt;
-            ad.spotlightWarningSentAt = undefined;
-            ad.spotlightWarningCount = 0;
-            await ad.save({ session });
+            await getListingRepository().updateOne(id, {
+                $set: {
+                    isSpotlight: true,
+                    spotlightExpiresAt: endsAt,
+                    spotlightWarningCount: 0
+                },
+                $unset: {
+                    spotlightWarningSentAt: 1
+                }
+            } as any, session);
         });
 
         setImmediate(() => {
