@@ -5,7 +5,6 @@ import { Category, Brand } from '../../domains/catalog';
 export type CategoryResult = Category & Record<string, unknown>;
 export type BrandResult = Brand & Record<string, unknown>;
 
-import Model from '../../models/Model';
 import SparePart from '../../models/SparePart';
 import ScreenSize from '../../models/ScreenSize';
 import { clearCachePattern } from '../../utils/redisCache';
@@ -148,38 +147,29 @@ export class CatalogOrchestratorImpl {
             modelOrFilters.push({ brandId: { $in: brandIdsToDelete } });
         }
 
-        const affectedModels = await Model.find({ $or: modelOrFilters })
-            .select('_id brandId categoryIds')
-            .session(txSession as any)
-            .lean<CascadeDoc[]>();
+        const affectedModels = await this.modelRepository.findByCategoryOrBrands(categoryId, brandIdsToDelete.map(id => String(id)), txSession);
 
         const modelIdsToDelete: mongoose.Types.ObjectId[] = [];
         const deletedBrandIdSet = new Set(brandIdsToDelete.map((id) => String(id)));
 
         for (const model of affectedModels) {
             if (model.brandId && deletedBrandIdSet.has(String(model.brandId))) {
-                modelIdsToDelete.push(model._id);
+                modelIdsToDelete.push(new mongoose.Types.ObjectId(model.id));
                 continue;
             }
 
-            const remainingCategoryIds = toUniqueCategoryObjectIds(model.categoryIds, categoryId);
+            const remainingCategoryIds = toUniqueCategoryObjectIds(model.categoryIds as any, categoryId);
             
             if (remainingCategoryIds.length === 0) {
-                modelIdsToDelete.push(model._id);
+                modelIdsToDelete.push(new mongoose.Types.ObjectId(model.id));
                 continue;
             }
 
-            await Model.updateOne(
-                { _id: model._id },
-                { $set: { categoryIds: remainingCategoryIds } }
-            ).session(txSession as any);
+            await this.modelRepository.updateCategoryIds(model.id, remainingCategoryIds.map(id => String(id)), txSession);
         }
 
         if (modelIdsToDelete.length > 0) {
-            await Model.updateMany(
-                { _id: { $in: modelIdsToDelete } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession as any);
+            await this.modelRepository.softDeleteMany(modelIdsToDelete.map(id => String(id)), txSession);
         }
 
         // 3) SpareParts: detach category when possible; soft-delete only if no category remains
@@ -246,17 +236,11 @@ export class CatalogOrchestratorImpl {
         const now = new Date();
 
         // Find all models associated with this brand
-        const models = await Model.find({ brandId })
-            .select('_id')
-            .session(txSession as any)
-            .lean<CascadeDoc[]>();
-        const modelIds = models.map((m) => m._id);
+        const models = await this.modelRepository.findByBrandId(brandId, txSession);
+        const modelIds = models.map((m) => new mongoose.Types.ObjectId(m.id));
 
         // Soft-delete those Models
-        const modelRes = await Model.updateMany(
-            { brandId },
-            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-        ).session(txSession as any);
+        const deletedModels = await this.modelRepository.softDeleteByBrandId(brandId, txSession);
 
         let deletedSpareParts = 0;
         // Soft-delete SpareParts linked to those models
@@ -279,7 +263,7 @@ export class CatalogOrchestratorImpl {
         logger.info(`Cascaded soft-delete for brand: ${brandId}`);
 
         return {
-            deletedModels: modelRes.modifiedCount || 0,
+            deletedModels,
             deletedSpareParts
         };
     }
