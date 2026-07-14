@@ -127,7 +127,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
         const db = await connectOpsDb();
 
         try {
-            const AdminBoundary = require('../../models/AdminBoundary').default;
+            const { adminBoundaryRepository } = require('../../../composition/location');
 
             if (!db) throw new Error('DB handle not available');
 
@@ -167,7 +167,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
         });
 
         // 2. Existing boundary count
-        const existingCount = await AdminBoundary.countDocuments({ level: 'state' });
+        const existingCount = await adminBoundaryRepository.countBoundaries({ level: 'state' });
 
         const matched: string[] = [];
         const unmatched: string[] = [];
@@ -201,7 +201,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
             matched.push(resolvedName);
 
             if (!isDryRun) {
-                await AdminBoundary.findOneAndUpdate(
+                await adminBoundaryRepository.upsertBoundary(
                     { locationId: location._id, level: 'state' },
                     {
                         $set: {
@@ -222,7 +222,7 @@ export const adminBoundaryIngestCommand: OpsCommand = {
 
         const finalCount = isDryRun
             ? existingCount
-            : await AdminBoundary.countDocuments({ level: 'state' });
+            : await adminBoundaryRepository.countBoundaries({ level: 'state' });
 
         context.emit('ops.command.admin-boundary-ingest.summary', {
             mode: isDryRun ? 'DRY_RUN' : 'APPLY',

@@ -1,5 +1,5 @@
 import { type HydratedDocument } from 'mongoose';
-import Location from '../../models/Location';
+import { locationRepository } from '../../composition/location';
 import type { ILocation } from '../../models/Location';
 import { getListingRepository } from '../../composition/listings';
 import type { ListingFilter } from '../../domains/listings/ports/ListingRepositoryPort';
@@ -11,7 +11,7 @@ const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;
 let hasWarnedLocationListHintFailure = false;
 
 /**
- * Handles read operations and paginated queries for the Location domain.
+ * Handles read operations and paginated queries for the Location domain via LocationRepositoryPort.
  */
 
 import { LocationCacheService } from './LocationCacheService';
@@ -23,7 +23,7 @@ export const findLocationById = async (id: string | undefined): Promise<Hydrated
     const cached = (await LocationCacheService.get(id)) as HydratedDocument<ILocation> | null;
     if (cached) return cached;
 
-    const location = await Location.findById(id);
+    const location = await locationRepository.findById(id);
     if (location) {
         // Run as side effect to avoid blocking response
         LocationCacheService.set(id, (location.toObject ? location.toObject() : location) as unknown as Record<string, unknown>).catch(() => {});
@@ -43,23 +43,24 @@ export const findLocationByIdLean = async <T>(id: string | undefined, select: st
         return cached as unknown as T;
     }
 
-    const location = await Location.findById(id).select(select).lean<T | null>();
+    const location = await locationRepository.findById(id).select(select).lean<T | null>();
     return location;
 };
 
 
-export const findActiveParentById = async (id: string) =>
-    Location.findOne({ _id: id, isActive: true })
+export const findActiveParentById = async (id: string): Promise<{ _id: unknown; level?: string; path?: unknown } | null> =>
+    locationRepository.findOne({ _id: id, isActive: true })
         .select('_id level path')
-        .lean();
+        .lean<{ _id: unknown; level?: string; path?: unknown } | null>();
 
 export const locationExists = async (id: string) =>
-    Location.exists({ _id: id, isActive: true });
+    locationRepository.exists({ _id: id, isActive: true });
 
-export const findLocationParent = async (parentId: unknown) =>
-    Location.findById(parentId)
+export const findLocationParent = async (parentId: unknown): Promise<{ _id: unknown; level?: string; path?: unknown; country?: string } | null> =>
+    locationRepository.findById(parentId)
         .select('_id level path country')
-        .lean();
+        .lean<{ _id: unknown; level?: string; path?: unknown; country?: string } | null>();
+
 
 export const findDuplicateLocation = async (
     name: string,
@@ -67,7 +68,7 @@ export const findDuplicateLocation = async (
     level: ILocation['level'],
     parentId: unknown
 ) =>
-    Location.findOne({
+    locationRepository.findOne({
         name: { $regex: new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
         country,
         level,
@@ -75,7 +76,7 @@ export const findDuplicateLocation = async (
     });
 
 export const getDistinctStateLocations = async () =>
-    Location.find({ isActive: true, level: 'state' })
+    locationRepository.findMany({ isActive: true, level: 'state' })
         .select('name')
         .lean<Array<{ name?: string }>>();
 
@@ -87,7 +88,7 @@ export const getLocationsPaginated = async (
     const hasAnyFilter = Object.keys(query).length > 0;
 
     const buildQuery = () =>
-        Location.find(query)
+        locationRepository.findMany(query)
             .select('_id name slug country level parentId path coordinates isActive verificationStatus createdAt updatedAt')
             .lean()
             .sort({ createdAt: -1 })
@@ -95,9 +96,9 @@ export const getLocationsPaginated = async (
             .limit(limit);
 
     const getTotal = async () => {
-        if (!hasAnyFilter) return Location.estimatedDocumentCount();
+        if (!hasAnyFilter) return locationRepository.estimatedDocumentCount();
         try {
-            return await Location.countDocuments(query).hint(LOCATION_LIST_HINT);
+            return await locationRepository.countDocuments(query).hint(LOCATION_LIST_HINT);
         } catch (error) {
             if (!hasWarnedLocationListHintFailure) {
                 hasWarnedLocationListHintFailure = true;
@@ -105,7 +106,7 @@ export const getLocationsPaginated = async (
                     error: error instanceof Error ? error.message : String(error),
                 });
             }
-            return Location.countDocuments(query);
+            return locationRepository.countDocuments(query);
         }
     };
 
@@ -131,8 +132,8 @@ export const getLocationsPaginated = async (
 export const getModerationQueuePaginated = async (page: number, limit: number) => {
     const query = { verificationStatus: LOCATION_STATUS.PENDING };
     const [total, locations] = await Promise.all([
-        Location.countDocuments(query).hint({ verificationStatus: 1, createdAt: 1 }),
-        Location.find(query)
+        locationRepository.countDocuments(query).hint({ verificationStatus: 1, createdAt: 1 }),
+        locationRepository.findMany(query)
             .select('_id name city district state country level coordinates isActive verificationStatus requestedBy createdAt')
             .lean()
             .populate('requestedBy', 'firstName lastName email')
@@ -142,6 +143,7 @@ export const getModerationQueuePaginated = async (page: number, limit: number) =
     ]);
     return { total, locations };
 };
+
 
 export const countAdsForLocation = async (query: Record<string, unknown>) =>
     getListingRepository().count(query as ListingFilter);

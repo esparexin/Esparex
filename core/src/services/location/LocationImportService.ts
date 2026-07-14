@@ -1,27 +1,28 @@
 import mongoose from 'mongoose';
-import { normalizeLocationInput } from '../../utils/locationInputNormalizer';
+import { normalizeLocationInput } from './_shared/locationServiceBase';
+import type { LocationLevel } from './_shared/locationServiceBase';
+import { locationRepository } from '../../composition/location';
 
-interface ImportResult {
+export interface LocationImportInput {
+    name: string;
+    city: string;
+    state: string;
+    level: LocationLevel;
+    coordinates: [number, number];
+    country?: string;
+    isActive?: boolean;
+    [key: string]: unknown;
+}
+
+export interface ImportResult {
     success: number;
     failed: number;
     errors: string[];
 }
 
-interface LocationImportInput {
-    name: string;
-    city: string;
-    state: string;
-    level: string;
-    coordinates: [number, number];
-    isActive?: boolean;
-    country?: string;
-    [key: string]: unknown;
-}
-
 export class LocationImportService {
     static async importLocations(data: LocationImportInput[]): Promise<ImportResult> {
         const result: ImportResult = { success: 0, failed: 0, errors: [] };
-        const Location = (await import('@esparex/core/models/Location')).default;
          
         const ops: unknown[] = [];
 
@@ -85,7 +86,7 @@ export class LocationImportService {
         if (ops.length > 0) {
             try {
                  
-                const bulkRes = await Location.bulkWrite(ops as Parameters<typeof Location.bulkWrite>[0]);
+                const bulkRes = await locationRepository.bulkWriteLocations(ops);
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             } catch (error) {
                 result.errors.push(`Bulk location write failed: ${String(error)}`);

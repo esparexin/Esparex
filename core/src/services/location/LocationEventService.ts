@@ -1,5 +1,6 @@
 import { Types } from 'mongoose';
-import LocationEvent, { ILocationEvent } from '../../models/LocationEvent';
+import { ILocationEvent } from '../../models/LocationEvent';
+import { locationEventRepository } from '../../composition/location';
 
 interface CreateLocationEventInput {
     source?: string;
@@ -26,5 +27,6 @@ export async function createLocationEvent(input: CreateLocationEventInput): Prom
         payload.userId = userId;
     }
 
-    return LocationEvent.create(payload);
+    return locationEventRepository.createLocationEvent(payload);
 }
+

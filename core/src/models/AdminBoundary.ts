@@ -1,6 +1,6 @@
 import { Model, Schema, Types } from 'mongoose';
 import { getUserConnection } from '../config/db';
-import { LOCATION_LEVELS, type LocationLevel } from '../utils/locationInputNormalizer';
+import { LOCATION_LEVELS, type LocationLevel } from '../utils/locationPrimitives';
 
 export interface IAdminBoundary {
     _id: Types.ObjectId;

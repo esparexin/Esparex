@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import { env } from '../../../config/env';
-import Location from '../../../models/Location';
+import { locationRepository } from '../../../composition/location';
 import { toTitleCase } from '../../../utils/stringUtils';
 import { normalizeGeoPoint } from '@esparex/shared';
+
 export { normalizeGeoPoint };
 import { CACHE_KEYS } from '../../../utils/redisCache';
 import { AppError } from '../../../utils/AppError';
@@ -279,7 +280,7 @@ export const resolveLocationFromDb = async (input: unknown): Promise<NormalizedL
             throw new AppError('Invalid location ID format', 400, 'INVALID_LOCATION_ID');
         }
 
-        const loc = await Location.findOne({ _id: rawLocationId, isActive: true }).lean();
+        const loc = await locationRepository.findOne({ _id: rawLocationId, isActive: true }).lean<LocationInputObject | null>();
         if (!loc) {
             throw new AppError('Invalid or inactive location', 404, 'LOCATION_NOT_FOUND');
         }
@@ -296,7 +297,7 @@ export const resolveLocationFromDb = async (input: unknown): Promise<NormalizedL
     const normalizedCityCandidate = normalizeLocationNameForSearch(cityCandidate);
     const cityRegex = new RegExp(`^${cityCandidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i');
     // city/state flat fields removed in Sprint 3 — query by name + level
-    const loc = await Location.findOne({
+    const loc = await locationRepository.findOne({
         isActive: true,
         $or: [
             { normalizedName: normalizedCityCandidate },
@@ -304,7 +305,7 @@ export const resolveLocationFromDb = async (input: unknown): Promise<NormalizedL
         ],
     })
         .sort({ priority: -1, createdAt: 1 })
-        .lean();
+        .lean<LocationInputObject | null>();
 
     if (!loc) return null;
 
@@ -328,20 +329,21 @@ export const roundCacheCoord = (value: number): string => Number(value.toFixed(3
 export const buildReverseGeocodeCacheKey = (lat: number, lng: number): string =>
     CACHE_KEYS.reverseGeocode(roundCacheCoord(lat), roundCacheCoord(lng));
 
-export const getActiveLocationById = async (locationId: unknown) => {
+export const getActiveLocationById = async (locationId: unknown): Promise<LocationInputObject | null> => {
     const objectId = toLocationObjectId(locationId);
     if (!objectId) return null;
 
-    return Location.findOne({ _id: objectId, isActive: true })
+    return locationRepository.findOne({ _id: objectId, isActive: true })
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
-        .lean();
+        .lean<LocationInputObject | null>();
 };
 
-export const getPublicCanonicalLocationById = async (locationId: unknown) => {
+export const getPublicCanonicalLocationById = async (locationId: unknown): Promise<LocationInputObject | null> => {
     const objectId = toLocationObjectId(locationId);
     if (!objectId) return null;
 
-    return Location.findOne(withPublicCanonicalLocationFilter({ _id: objectId }))
+    return locationRepository.findOne(withPublicCanonicalLocationFilter({ _id: objectId }))
         .select('name country level coordinates isPopular isActive verificationStatus parentId path')
-        .lean();
+        .lean<LocationInputObject | null>();
 };
+

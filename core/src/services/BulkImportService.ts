@@ -1,6 +1,6 @@
 import { ICategory } from '../models/Category';
 import { CatalogImportService } from './catalog/CatalogImportService';
-import { LocationImportService } from './location/LocationImportService';
+import { LocationImportService, type LocationImportInput } from './location/LocationImportService';
 
 interface ImportResult {
     success: number;
@@ -8,15 +8,6 @@ interface ImportResult {
     errors: string[];
 }
 
-interface LocationImportInput {
-    name: string;
-    city: string;
-    state: string;
-    level: string;
-    coordinates: [number, number];
-    isActive?: boolean;
-    [key: string]: unknown;
-}
 
 interface DeviceSeedInput {
     type: string;

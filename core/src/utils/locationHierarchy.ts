@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import Location from '../models/Location';
+import { locationRepository } from '../composition/location';
 import { escapeRegExp, toTitleCase } from './stringUtils';
 import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel } from './locationPrimitives';
 import { toObjectId } from './idUtils';
@@ -117,7 +117,7 @@ export const buildLocationSummary = (
 
 export const loadHierarchyMapForLocations = async (
     locations: Array<CanonicalLocationDoc | null | undefined>
-) => {
+): Promise<Map<string, CanonicalLocationDoc>> => {
     const hierarchyIds = new Set<string>();
 
     for (const location of locations) {
@@ -141,13 +141,13 @@ export const loadHierarchyMapForLocations = async (
         }
     }
 
-    const hierarchyLocations = hierarchyIds.size > 0
-        ? await Location.find({ _id: { $in: Array.from(hierarchyIds) } })
+    const hierarchyLocations: CanonicalLocationDoc[] = hierarchyIds.size > 0
+        ? await locationRepository.findMany({ _id: { $in: Array.from(hierarchyIds) } })
             .select('_id name country level parentId path')
-            .lean<CanonicalLocationDoc[]>()
+            .lean()
         : [];
 
-    return new Map(
+    return new Map<string, CanonicalLocationDoc>(
         hierarchyLocations.map((entry) => [String(entry._id), entry])
     );
 };
@@ -275,7 +275,7 @@ export const resolveParentLocation = async (params: {
 
     if (!parentQuery) return null;
 
-    const parent = await Location.findOne(parentQuery)
+    const parent = await locationRepository.findOne(parentQuery)
         .select('_id name level parentId path country priority isPopular createdAt')
         .sort({ isPopular: -1, priority: -1, createdAt: 1 })
         .lean<HierarchyLocationNode | null>();
@@ -289,7 +289,7 @@ export const resolveLocationPathIds = async (
     const objectId = toObjectId(locationId);
     if (!objectId) return [];
 
-    const start = await Location.findById(objectId)
+    const start = await locationRepository.findById(objectId)
         .select('_id parentId path')
         .lean<HierarchyLocationNode | null>();
     if (!start?._id) return [];
@@ -313,7 +313,7 @@ export const resolveLocationPathIds = async (
         }
         visited.add(key);
 
-        const parent = await Location.findById(currentParentId)
+        const parent = await locationRepository.findById(currentParentId)
             .select('_id parentId path')
             .lean<HierarchyLocationNode | null>();
         if (!parent?._id) break;
@@ -359,10 +359,10 @@ export const resolveLocationScope = async (params: {
     }
 
     if (deepestLevel === 'country' && country) {
-        const countryLocationIds = await Location.find({
+        const countryLocationIds = await locationRepository.distinct('_id', {
             isActive: true,
             country: toExactRegex(country),
-        }).distinct('_id');
+        });
 
         return {
             rootIds: countryLocationIds.map((value) => value instanceof mongoose.Types.ObjectId ? value : new mongoose.Types.ObjectId(String(value))),
@@ -393,7 +393,7 @@ export const resolveLocationScope = async (params: {
         }
     }
 
-    const candidates = await Location.find(query)
+    const candidates = await locationRepository.findMany(query)
         .select('_id name country level parentId path')
         .lean<CanonicalLocationDoc[]>();
 
@@ -427,13 +427,13 @@ export const resolveLocationScope = async (params: {
         };
     }
 
-    const locationIds = await Location.find({
+    const locationIds = await locationRepository.distinct('_id', {
         isActive: true,
         $or: [
             { _id: { $in: matchedRootIds } },
             { path: { $in: matchedRootIds } },
         ],
-    }).distinct('_id');
+    });
 
     return {
         rootIds: matchedRootIds,
