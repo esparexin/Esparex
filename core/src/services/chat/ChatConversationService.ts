@@ -1,7 +1,4 @@
-import { Types } from 'mongoose';
-import { Conversation } from '../../models/Conversation';
-import Ad from '../../models/Ad';
-import BlockedUser from '../../models/BlockedUser';
+import { chatRepository } from '../../composition/chat';
 import logger from '../../utils/logger';
 import { isListingChatClosed } from '../ChatAvailabilityService';
 import type { IConversationDTO } from "@esparex/shared";
@@ -15,7 +12,7 @@ export async function startConversation(
     adId: string,
     buyerId: string
 ): Promise<{ conversationId: string; isNew: boolean }> {
-    const ad = await Ad.findById(adId).select('sellerId status isDeleted isChatLocked').lean();
+    const ad = await chatRepository.getAdChatInfo(adId);
     if (!ad) throw Object.assign(new Error('Ad not found'), { status: 404 });
 
     const sellerId = String(ad.sellerId);
@@ -27,30 +24,22 @@ export async function startConversation(
         throw Object.assign(new Error('This ad is no longer available'), { status: 410 });
     }
 
-    const blockedRelationship = await BlockedUser.exists({
-        $or: [
-            { blockerId: new Types.ObjectId(buyerId), blockedId: new Types.ObjectId(sellerId) },
-            { blockerId: new Types.ObjectId(sellerId), blockedId: new Types.ObjectId(buyerId) },
-        ],
-    });
+    const blockedRelationship = await chatRepository.checkBlockRelationship(buyerId, sellerId);
     if (blockedRelationship) {
         logger.warn('[BlockGuard] Chat start denied due to block relationship', { buyerId, sellerId, adId });
         throw Object.assign(new Error('Chat unavailable due to block settings'), { status: 403, code: 'USER_BLOCKED' });
     }
 
-    const existing = await Conversation.findOne({ adId, buyerId }).lean();
+    const existing = await chatRepository.findExistingConversation(adId, buyerId);
     if (existing) {
-        await Conversation.updateOne(
-            { _id: existing._id },
-            { $pull: { deletedFor: new Types.ObjectId(buyerId) } }
-        );
+        await chatRepository.removeUserFromDeleted(String(existing._id), buyerId);
         return { conversationId: String(existing._id), isNew: false };
     }
 
-    const conv = await Conversation.create({
-        adId: new Types.ObjectId(adId),
-        buyerId: new Types.ObjectId(buyerId),
-        sellerId: new Types.ObjectId(sellerId),
+    const conv = await chatRepository.createConversation({
+        adId,
+        buyerId,
+        sellerId,
         isAdClosed: isListingChatClosed(ad),
     });
 
@@ -62,21 +51,7 @@ export async function listConversations(
     before?: string,
     view: 'active' | 'archived' = 'active'
 ) {
-    const query: Record<string, unknown> = {
-        $or: [{ buyerId: userId }, { sellerId: userId }],
-    };
-    query.deletedFor = view === 'archived' ? userId : { $ne: userId };
-    if (before) {
-        query.lastMessageAt = { $lt: new Date(before) };
-    }
-
-    const convs = await Conversation.find(query)
-        .sort({ lastMessageAt: -1 })
-        .limit(PAGE_SIZE_INBOX)
-        .populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked')
-        .populate('buyerId', 'name avatar')
-        .populate('sellerId', 'name avatar')
-        .lean();
+    const convs = await chatRepository.listConversations(userId, before, view);
 
     const lastConv = convs[convs.length - 1];
     const nextCursor =
@@ -94,14 +69,7 @@ export async function listConversations(
 }
 
 export async function getConversationForUser(conversationId: string, userId: string): Promise<IConversationDTO> {
-    const conv = await Conversation.findOne({
-        _id: conversationId,
-        $or: [{ buyerId: userId }, { sellerId: userId }],
-    })
-        .populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked')
-        .populate('buyerId', 'name avatar')
-        .populate('sellerId', 'name avatar')
-        .lean();
+    const conv = await chatRepository.getPopulatedConversation(conversationId, userId);
 
     if (!conv) {
         throw Object.assign(new Error('Conversation not found'), { status: 404 });
@@ -111,21 +79,18 @@ export async function getConversationForUser(conversationId: string, userId: str
 }
 
 export async function blockConversation(conversationId: string, userId: string) {
-    const conv = await Conversation.findById(conversationId).lean();
+    const conv = await chatRepository.findConversationById(conversationId);
     if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
 
     const isBuyer = String(conv.buyerId) === userId;
     const isSeller = String(conv.sellerId) === userId;
     if (!isBuyer && !isSeller) throw Object.assign(new Error('Forbidden'), { status: 403 });
 
-    await Conversation.updateOne(
-        { _id: conversationId },
-        { $set: { isBlocked: true, blockedBy: new Types.ObjectId(userId) } }
-    );
+    await chatRepository.blockConversation(conversationId, userId);
 }
 
 export async function assertConversationMember(conversationId: string, userId: string) {
-    const conv = await Conversation.findById(conversationId).lean();
+    const conv = await chatRepository.findConversationById(conversationId);
     if (!conv) throw Object.assign(new Error('Conversation not found'), { status: 404 });
 
     const isMember = String(conv.buyerId) === userId || String(conv.sellerId) === userId;
@@ -134,16 +99,10 @@ export async function assertConversationMember(conversationId: string, userId: s
 
 export async function hideConversation(conversationId: string, userId: string) {
     await assertConversationMember(conversationId, userId);
-    await Conversation.updateOne(
-        { _id: conversationId },
-        { $addToSet: { deletedFor: new Types.ObjectId(userId) } }
-    );
+    await chatRepository.addUserToDeleted(conversationId, userId);
 }
 
 export async function restoreConversation(conversationId: string, userId: string) {
     await assertConversationMember(conversationId, userId);
-    await Conversation.updateOne(
-        { _id: conversationId },
-        { $pull: { deletedFor: new Types.ObjectId(userId) } }
-    );
+    await chatRepository.removeUserFromDeleted(conversationId, userId);
 }

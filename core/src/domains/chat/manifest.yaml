@@ -1,0 +1,21 @@
+id: chat
+name: Chat Domain
+owner: marketplace
+business_owner: Marketplace
+technical_owner: Platform
+maintainer: Chat Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: high
+sla: tier-1
+since: "1.0"
+layer: domain
+reference: true
+depends_on:
+  - shared
+  - core/shared-kernel
+public_api:
+  facades: []
+  ports:
+    - ChatRepositoryPort
