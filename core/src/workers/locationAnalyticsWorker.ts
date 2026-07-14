@@ -140,7 +140,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
 
         let updateCount = 0;
         if (analyticsBulkOps.length > 0) {
-            const result = await locationAnalyticsRepository.bulkWriteAnalytics(analyticsBulkOps);
+            const result = (await locationAnalyticsRepository.bulkWriteAnalytics(analyticsBulkOps)) as { modifiedCount: number; upsertedCount: number };
             updateCount = result.modifiedCount + result.upsertedCount;
             logger.info(`Updated analytics for ${analyticsBulkOps.length} locations.`, { updateCount });
         } else {

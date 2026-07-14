@@ -1,5 +1,6 @@
-import Geofence from '../../../../models/Geofence';
+import Geofence, { type IGeofence } from '../../../../models/Geofence';
 import { GeofenceRepositoryPort } from '../../../../domains/location';
+import type { UpdateQuery } from 'mongoose';
 
 export class MongoGeofenceRepositoryAdapter implements GeofenceRepositoryPort {
     private isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -25,25 +26,25 @@ export class MongoGeofenceRepositoryAdapter implements GeofenceRepositoryPort {
         return sanitized;
     }
 
-    public async getAllGeofences(): Promise<any[]> {
+    public async getAllGeofences(): Promise<IGeofence[]> {
         return Geofence.find().sort({ createdAt: -1 });
     }
 
-    public async createGeofence(data: any): Promise<any> {
-        const sanitizedData = this.sanitizeForMongo(data);
-        return Geofence.create(sanitizedData);
+    public async createGeofence(data: Partial<IGeofence>): Promise<IGeofence> {
+        const sanitizedData = this.sanitizeForMongo(data) as Partial<IGeofence>;
+        return Geofence.create(sanitizedData) as unknown as Promise<IGeofence>;
     }
 
-    public async updateGeofence(id: string, data: any): Promise<any | null> {
+    public async updateGeofence(id: string, data: UpdateQuery<IGeofence>): Promise<IGeofence | null> {
         const sanitizedData = this.sanitizeForMongo(data);
-        return Geofence.findByIdAndUpdate(id, sanitizedData, { new: true });
+        return Geofence.findByIdAndUpdate(id, sanitizedData as UpdateQuery<IGeofence>, { new: true });
     }
 
-    public async deleteGeofence(id: string): Promise<any | null> {
+    public async deleteGeofence(id: string): Promise<IGeofence | null> {
         return Geofence.findByIdAndDelete(id);
     }
 
-    public async findIntersectingGeofences(coordinates: [number, number]): Promise<any[]> {
+    public async findIntersectingGeofences(coordinates: [number, number]): Promise<IGeofence[]> {
         return Geofence.find({
             boundary: {
                 $geoIntersects: {

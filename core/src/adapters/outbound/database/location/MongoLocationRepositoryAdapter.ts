@@ -1,58 +1,56 @@
 import mongoose, { type Query } from 'mongoose';
-import Location from '../../../../models/Location';
+import Location, { type ILocation } from '../../../../models/Location';
 import { LocationRepositoryPort } from '../../../../domains/location';
 
 export class MongoLocationRepositoryAdapter implements LocationRepositoryPort {
-    public findById(id: unknown): Query<any, any> {
+    public findById(id: unknown): Query<ILocation | null, ILocation> {
         if (typeof id === 'string' && !mongoose.Types.ObjectId.isValid(id)) {
-            return Location.findOne({ _id: new mongoose.Types.ObjectId() }) as Query<any, any>;
+            return Location.findOne({ _id: new mongoose.Types.ObjectId() }) as Query<ILocation | null, ILocation>;
         }
-        return Location.findById(id);
+        return Location.findById(id) as Query<ILocation | null, ILocation>;
     }
 
-    public findOne(query: any): Query<any, any> {
-        return Location.findOne(query);
+    public findOne(query: Record<string, unknown>): Query<ILocation | null, ILocation> {
+        return Location.findOne(query) as Query<ILocation | null, ILocation>;
     }
 
-    public findMany(query: any): Query<any[], any> {
-        return Location.find(query);
+    public findMany(query: Record<string, unknown>): Query<ILocation[], ILocation> {
+        return Location.find(query) as Query<ILocation[], ILocation>;
     }
 
-    public countDocuments(query: any): Query<number, any> {
-        return Location.countDocuments(query);
+    public countDocuments(query: Record<string, unknown>): Query<number, ILocation> {
+        return Location.countDocuments(query) as unknown as Query<number, ILocation>;
     }
 
-    public estimatedDocumentCount(): Query<number, any> {
-        return Location.estimatedDocumentCount();
+    public estimatedDocumentCount(): Query<number, ILocation> {
+        return Location.estimatedDocumentCount() as unknown as Query<number, ILocation>;
     }
 
-
-    public async exists(query: any): Promise<any> {
-        return Location.exists(query);
+    public async exists(query: Record<string, unknown>): Promise<{ _id: unknown } | null> {
+        return Location.exists(query) as Promise<{ _id: unknown } | null>;
     }
 
-    public async createLocation(data: any): Promise<any> {
-        return Location.create(data);
+    public async createLocation(data: Partial<ILocation>): Promise<ILocation> {
+        return Location.create(data) as unknown as Promise<ILocation>;
     }
 
-    public async createManyLocations(data: any[]): Promise<any[]> {
-        return Location.create(data);
+    public async createManyLocations(data: Partial<ILocation>[]): Promise<ILocation[]> {
+        return Location.create(data) as unknown as Promise<ILocation[]>;
     }
 
-    public async bulkWriteLocations(ops: any[]): Promise<any> {
+    public async bulkWriteLocations(ops: unknown[]): Promise<unknown> {
         return Location.bulkWrite(ops as Parameters<typeof Location.bulkWrite>[0]);
     }
 
-    public async aggregate(pipeline: any[]): Promise<any[]> {
-        return Location.aggregate(pipeline);
+    public async aggregate(pipeline: unknown[]): Promise<unknown[]> {
+        return Location.aggregate(pipeline as mongoose.PipelineStage[]);
     }
 
     public async distinctStates(): Promise<string[]> {
         return Location.distinct('name', { isActive: true, level: 'state' });
     }
 
-    public async distinct(field: string, query?: any): Promise<any[]> {
+    public async distinct(field: string, query?: Record<string, unknown>): Promise<unknown[]> {
         return Location.distinct(field, query ?? {});
     }
 }
-

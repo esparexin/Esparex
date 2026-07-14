@@ -86,7 +86,7 @@ export class LocationImportService {
         if (ops.length > 0) {
             try {
                  
-                const bulkRes = await locationRepository.bulkWriteLocations(ops);
+                const bulkRes = await locationRepository.bulkWriteLocations(ops) as { upsertedCount?: number; modifiedCount?: number; matchedCount?: number };
                 result.success = (bulkRes.upsertedCount || 0) + (bulkRes.modifiedCount || 0) + (bulkRes.matchedCount || 0);
             } catch (error) {
                 result.errors.push(`Bulk location write failed: ${String(error)}`);

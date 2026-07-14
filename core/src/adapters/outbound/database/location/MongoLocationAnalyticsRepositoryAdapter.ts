@@ -1,12 +1,13 @@
-import LocationAnalytics from '../../../../models/LocationAnalytics';
+import type { Query } from 'mongoose';
+import LocationAnalytics, { type ILocationAnalytics } from '../../../../models/LocationAnalytics';
 import { LocationAnalyticsRepositoryPort } from '../../../../domains/location';
 
 export class MongoLocationAnalyticsRepositoryAdapter implements LocationAnalyticsRepositoryPort {
-    public findAnalytics(query: any): any {
-        return LocationAnalytics.find(query);
+    public findAnalytics(query: Record<string, unknown>): Query<ILocationAnalytics[], ILocationAnalytics> {
+        return LocationAnalytics.find(query) as Query<ILocationAnalytics[], ILocationAnalytics>;
     }
 
-    public async bulkWriteAnalytics(ops: any[]): Promise<any> {
+    public async bulkWriteAnalytics(ops: unknown[]): Promise<unknown> {
         return LocationAnalytics.bulkWrite(ops as Parameters<typeof LocationAnalytics.bulkWrite>[0]);
     }
 

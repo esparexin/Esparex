@@ -23,7 +23,7 @@ export const findLocationById = async (id: string | undefined): Promise<Hydrated
     const cached = (await LocationCacheService.get(id)) as HydratedDocument<ILocation> | null;
     if (cached) return cached;
 
-    const location = await locationRepository.findById(id);
+    const location = await locationRepository.findById(id) as unknown as HydratedDocument<ILocation> | null;
     if (location) {
         // Run as side effect to avoid blocking response
         LocationCacheService.set(id, (location.toObject ? location.toObject() : location) as unknown as Record<string, unknown>).catch(() => {});

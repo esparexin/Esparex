@@ -1,3 +1,8 @@
+import type { ILocationEvent } from '../../../models/LocationEvent';
+
+/**
+ * @todo ARCH-118: Transitional dependency on Mongoose.
+ */
 export interface LocationEventRepositoryPort {
-    createLocationEvent(payload: Record<string, unknown>): Promise<any>;
+    createLocationEvent(payload: Partial<ILocationEvent>): Promise<ILocationEvent>;
 }
