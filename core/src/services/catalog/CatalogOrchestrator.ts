@@ -197,7 +197,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Create Category with cache invalidation
      */
-    async createCategory(data: CategoryResult): Promise<CategoryResult> {
+    async createCategory(data: any): Promise<CategoryResult> {
         const result = await this.categoryRepository.create(data);
         await this.invalidateCatalogCache({ categoryIds: [result.id] });
         return result as CategoryResult;
@@ -206,7 +206,7 @@ export class CatalogOrchestratorImpl {
     /**
      * Update Category with cache invalidation
      */
-    async updateCategory(id: string, data: CategoryResult): Promise<CategoryResult | null> {
+    async updateCategory(id: string, data: any): Promise<CategoryResult | null> {
         const result = await this.categoryRepository.update(id, data);
         if (result) await this.invalidateCatalogCache({ categoryIds: [id] });
         return result as CategoryResult;
@@ -320,10 +320,10 @@ export class CatalogOrchestrator {
     static async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
         return this.instance.cascadeBrandDelete(brandId, session);
     }
-    static async createCategory(data: CategoryResult): Promise<CategoryResult> {
+    static async createCategory(data: any): Promise<CategoryResult> {
         return this.instance.createCategory(data);
     }
-    static async updateCategory(id: string, data: CategoryResult): Promise<CategoryResult | null> {
+    static async updateCategory(id: string, data: any): Promise<CategoryResult | null> {
         return this.instance.updateCategory(id, data);
     }
     static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
