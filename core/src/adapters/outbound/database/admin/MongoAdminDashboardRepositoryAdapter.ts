@@ -95,6 +95,7 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
     }
 
     public async updateContactSubmissionById(id: string, status: string): Promise<any> {
+        // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
         return ContactSubmission.findByIdAndUpdate(id, { status }, { new: true });
     }
 

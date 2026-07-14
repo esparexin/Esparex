@@ -62,7 +62,6 @@ export const getContactSubmissionsPaginated = async (
 };
 
 export const updateContactSubmissionById = async (id: string, status: string) => {
-    // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
     return adminDashboardRepository.updateContactSubmissionById(id, status);
 };
 
