@@ -167,19 +167,36 @@ ci-lint-results.json
 .tooling/
 
 # -----------------------------------------------------------------------------
-# Graphify
+# Graphify — knowledge graph tooling
 # -----------------------------------------------------------------------------
+# Rule: NOTHING inside graphify-out/ is ever committed.
+# The entire directory (graph, reports, cache, backups, obsidian vault, exports)
+# is generated at runtime and must never appear in Git.
 
-# Generated knowledge graph
+# Primary output directory (covers all subdirectories including YYYY-MM-DD backups)
 graphify-out/
 
-# Python cache
+# Graphify internal state files (if created outside graphify-out/)
+.graphify/
+.graphify_python
+.graphify_root
+.graphify_*.json
+.graphify_*.txt
+
+# Graphify export formats (if generated outside graphify-out/)
+*.graphml
+cypher.txt
+graph.graphml
+graph.json
+GRAPH_REPORT.md
+
+# -----------------------------------------------------------------------------
+# Python runtime artifacts
+# -----------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Optional: local Graphify cache (if created outside graphify-out)
-.graphify/
+.venv/
 
 # Gradle
 .gradle/
@@ -188,3 +205,4 @@ __pycache__/
 # Temp workspace files
 tech-debt-insights.md
 .commandcode/
+
