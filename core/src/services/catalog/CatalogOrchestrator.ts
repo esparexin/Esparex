@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
-import Brand from '../../models/Brand';
+import { Category, Brand } from '../../domains/catalog';
+
+// @todo ARCH-118: Transitional types until all consumers are migrated to strict domain models.
+export type CategoryResult = Category & Record<string, unknown>;
+export type BrandResult = Brand & Record<string, unknown>;
+
 import Model from '../../models/Model';
 import SparePart from '../../models/SparePart';
 import ScreenSize from '../../models/ScreenSize';
@@ -111,27 +116,21 @@ export class CatalogOrchestratorImpl {
         const brandIdsToDelete: mongoose.Types.ObjectId[] = [];
 
         // 1) Brands: detach deleted category when other categories exist; soft-delete only true orphans.
-        const linkedBrands = await Brand.find({ categoryIds: categoryObjectId })
-            .select('_id categoryIds')
-            .session(txSession as any)
-            .lean<CascadeDoc[]>();
+        const linkedBrands = await this.brandRepository.findByCategory(categoryId, txSession);
 
         for (const brand of linkedBrands) {
-            const remainingCategoryIds = toUniqueCategoryObjectIds(brand.categoryIds, categoryId);
+            const remainingCategoryIds = toUniqueCategoryObjectIds(brand.categoryIds as any, categoryId);
             if (remainingCategoryIds.length === 0) {
-                brandIdsToDelete.push(brand._id);
+                brandIdsToDelete.push(new mongoose.Types.ObjectId(brand.id));
                 continue;
             }
 
             try {
-                await Brand.updateOne(
-                    { _id: brand._id },
-                    { $set: { categoryIds: remainingCategoryIds } }
-                ).session(txSession as any);
+                await this.brandRepository.updateCategoryIds(brand.id, remainingCategoryIds.map(id => String(id)), txSession);
             } catch (error) {
                 // Keep uniqueness intact; if remap collides, safely archive this duplicate branch.
                 if (isDuplicateKeyError(error)) {
-                    brandIdsToDelete.push(brand._id);
+                    brandIdsToDelete.push(new mongoose.Types.ObjectId(brand.id));
                     continue;
                 }
                 throw error;
@@ -139,10 +138,7 @@ export class CatalogOrchestratorImpl {
         }
 
         if (brandIdsToDelete.length > 0) {
-            await Brand.updateMany(
-                { _id: { $in: brandIdsToDelete } },
-                { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-            ).session(txSession as any);
+            await this.brandRepository.softDeleteMany(brandIdsToDelete.map(id => String(id)), txSession);
         }
 
         // 2) Models: never delete by brand sweep unless brand is actually archived.
@@ -291,19 +287,19 @@ export class CatalogOrchestratorImpl {
     /**
      * Create Category with cache invalidation
      */
-    async createCategory(data: any): Promise<any> {
+    async createCategory(data: CategoryResult): Promise<CategoryResult> {
         const result = await this.categoryRepository.create(data);
         await this.invalidateCatalogCache({ categoryIds: [result.id] });
-        return result;
+        return result as CategoryResult;
     }
 
     /**
      * Update Category with cache invalidation
      */
-    async updateCategory(id: string, data: any): Promise<any | null> {
+    async updateCategory(id: string, data: CategoryResult): Promise<CategoryResult | null> {
         const result = await this.categoryRepository.update(id, data);
         if (result) await this.invalidateCatalogCache({ categoryIds: [id] });
-        return result;
+        return result as CategoryResult;
     }
 
 
@@ -311,9 +307,9 @@ export class CatalogOrchestratorImpl {
      * Resolve all CategoryIDs from a BrandID
      */
     async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
-        const brand = await Brand.findById(brandId).select('categoryIds').lean();
+        const brand = await this.brandRepository.findById(brandId);
         if (!brand || !brand.categoryIds) return [];
-        return brand.categoryIds.map(id => id.toString());
+        return brand.categoryIds.map(id => String(id));
     }
 
     /**
@@ -336,7 +332,7 @@ export class CatalogOrchestratorImpl {
         logger.info(`Detached spare parts from model: ${modelId}`);
     }
 
-    async deleteCategoryOrchestrated(categoryId: string): Promise<any> {
+    async deleteCategoryOrchestrated(categoryId: string): Promise<CategoryResult> {
         return this.unitOfWork.executeTransaction(async (txSession) => {
             const category = await this.categoryRepository.findById(categoryId, txSession);
 
@@ -347,15 +343,12 @@ export class CatalogOrchestratorImpl {
             await this.categoryRepository.softDelete(categoryId, txSession);
             await this.cascadeCategoryDelete(categoryId, txSession);
 
-            return await this.categoryRepository.findById(categoryId, txSession);
+            return await this.categoryRepository.findById(categoryId, txSession) as CategoryResult;
         });
     }
 
     async deleteBrandOrchestrated(brandId: string) {
-        const BrandModel = require('../../models/Brand').default;
-        const softDeleteUpdate: Record<string, unknown> = { isDeleted: true, deletedAt: new Date(), isActive: false };
-
-        const existingBrand = await BrandModel.findOne({ _id: brandId }).setOptions({ withDeleted: true });
+        const existingBrand = await this.brandRepository.findById(brandId, true);
         if (!existingBrand || existingBrand.isDeleted) {
             return { brandId, deletedModels: 0, deletedSpareParts: 0, alreadyDeleted: true };
         }
@@ -368,8 +361,8 @@ export class CatalogOrchestratorImpl {
 
         return this.unitOfWork.executeTransaction(async (txSession) => {
             const brand = txSession 
-                ? await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true }).session(txSession as any) 
-                : await BrandModel.findByIdAndUpdate(brandId, softDeleteUpdate, { new: true });
+                ? await this.brandRepository.softDelete(brandId, txSession)
+                : await this.brandRepository.softDelete(brandId);
 
             if (!brand) return { deletedModels: 0, deletedSpareParts: 0, brand: null };
             const cascadeRes = await this.cascadeBrandDelete(brandId, txSession ?? undefined);
@@ -417,10 +410,10 @@ export class CatalogOrchestrator {
     static async cascadeBrandDelete(brandId: string, session?: TransactionContext) {
         return this.instance.cascadeBrandDelete(brandId, session);
     }
-    static async createCategory(data: any): Promise<any> {
+    static async createCategory(data: CategoryResult): Promise<CategoryResult> {
         return this.instance.createCategory(data);
     }
-    static async updateCategory(id: string, data: any): Promise<any | null> {
+    static async updateCategory(id: string, data: CategoryResult): Promise<CategoryResult | null> {
         return this.instance.updateCategory(id, data);
     }
     static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {

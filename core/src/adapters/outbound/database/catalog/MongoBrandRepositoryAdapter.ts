@@ -26,23 +26,63 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
         };
     }
 
-    async findById(id: string): Promise<Brand | null> {
+    async findById(id: string, includeDeleted?: boolean, tx?: unknown): Promise<Brand | null> {
         const safeId = typeof id === 'string' ? id : String(id);
-        const doc = await BrandModel.findById(safeId).lean<DbBrand | null>().exec();
+        const query = BrandModel.findById(safeId).lean<DbBrand | null>();
+        if (includeDeleted) query.setOptions({ withDeleted: true });
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
-    async findByNameAndCategory(name: string, categoryId: string): Promise<Brand | null> {
+    async findByNameAndCategory(name: string, categoryId: string, tx?: unknown): Promise<Brand | null> {
         const canonicalName = name.trim().toLowerCase().replace(/\s+/g, ' ');
-        const doc = await BrandModel.findOne({
+        const query = BrandModel.findOne({
             canonicalName,
             categoryIds: categoryId
-        }).lean<DbBrand | null>().exec();
+        }).lean<DbBrand | null>();
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
-    async exists(id: string): Promise<boolean> {
-        const doc = await BrandModel.findById(id).select('_id').lean().exec();
+    async findByCategory(categoryId: string, tx?: unknown): Promise<Brand[]> {
+        const query = BrandModel.find({ categoryIds: categoryId }).lean<DbBrand[]>();
+        if (tx) query.session(tx as any);
+        const docs = await query.exec();
+        return docs.map(doc => this.toDomain(doc));
+    }
+
+    async exists(id: string, tx?: unknown): Promise<boolean> {
+        const query = BrandModel.findById(id).select('_id').lean();
+        if (tx) query.session(tx as any);
+        const doc = await query.exec();
         return doc !== null;
+    }
+
+    async updateCategoryIds(brandId: string, categoryIds: string[], tx?: unknown): Promise<boolean> {
+        const query = BrandModel.updateOne(
+            { _id: brandId },
+            { $set: { categoryIds: categoryIds } }
+        );
+        if (tx) query.session(tx as any);
+        const res = await query.exec();
+        return res.modifiedCount > 0;
+    }
+
+    async softDelete(brandId: string, tx?: unknown): Promise<boolean> {
+        const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
+        const query = BrandModel.findByIdAndUpdate(brandId, update, { new: true });
+        if (tx) query.session(tx as any);
+        const res = await query.exec();
+        return !!res;
+    }
+
+    async softDeleteMany(brandIds: string[], tx?: unknown): Promise<number> {
+        const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
+        const query = BrandModel.updateMany({ _id: { $in: brandIds } }, { $set: update });
+        if (tx) query.session(tx as any);
+        const res = await query.exec();
+        return res.modifiedCount;
     }
 }
