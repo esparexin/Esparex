@@ -11,6 +11,16 @@ jest.mock("@esparex/core/config/db", () => ({
             }),
         }),
     }),
+    getAdminConnection: () => ({
+        models: {},
+        model: () => ({
+            find: jest.fn().mockReturnValue({
+                select: jest.fn().mockReturnValue({
+                    lean: jest.fn().mockResolvedValue([]),
+                }),
+            }),
+        }),
+    }),
 }));
 
 jest.mock("@esparex/core/models/Location", () => ({

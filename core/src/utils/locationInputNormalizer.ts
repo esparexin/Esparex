@@ -5,7 +5,7 @@ import { toTitleCase } from './stringUtils';
 import { toObjectId } from './idUtils';
 import { buildHierarchyPath } from './locationHierarchy';
 
-import Location from '../models/Location';
+import { locationRepository } from '../composition/location';
 import { resolveParentLocation } from './locationHierarchy';
 import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug } from './locationPrimitives';
 
@@ -121,7 +121,7 @@ export const normalizeLocationInput = async (
     let parentLocation: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null = null;
 
     if (parentId) {
-        parentLocation = await Location.findOne({ _id: parentId, isActive: true })
+        parentLocation = await locationRepository.findOne({ _id: parentId, isActive: true })
             .select('_id path')
             .lean<{ _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null>();
         if (!parentLocation) {
@@ -143,7 +143,7 @@ export const normalizeLocationInput = async (
     path = buildHierarchyPath(documentId, parentLocation);
 
     if (options.ensureUnique) {
-        const duplicate = await Location.findOne({
+        const duplicate = await locationRepository.findOne({
             isActive: true,
             normalizedName,
             level,

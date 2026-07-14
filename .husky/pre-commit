@@ -1,1 +1,2 @@
+node scripts/guard-generated-artifacts.js
 npx lint-staged

@@ -1,7 +1,7 @@
 import {
     mongoose,
-    Location,
-    AdminBoundary,
+    locationRepository,
+    adminBoundaryRepository,
     logger,
     CACHE_TTLS,
     getCache,
@@ -29,7 +29,7 @@ export { normalizeGeoPoint, normalizeCoordinates } from './_shared/locationServi
 const SNAP_THRESHOLD_KM = 7.5; // Confidence radius for snapping to city center
 const resolveBoundaryMatch = async (lat: number, lng: number): Promise<NormalizedLocationResponse | null> => {
     const point = { type: 'Point', coordinates: [lng, lat] as [number, number] };
-    const boundaries = await AdminBoundary.find({
+    const boundaries = await adminBoundaryRepository.findBoundaries({
         geometry: {
             $geoIntersects: {
                 $geometry: point
@@ -60,7 +60,7 @@ const resolveBoundaryMatch = async (lat: number, lng: number): Promise<Normalize
     // After identifying the state, find the nearest settlement within it.
     // Increased distance to 100km and removed strict boundary path requirement 
     // if a point match is found nearby, as some settlements might have inconsistent parent paths.
-    const nearestCity = await Location.findOne(withPublicCanonicalLocationFilter({
+    const nearestCity = await locationRepository.findOne(withPublicCanonicalLocationFilter({
         level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
         coordinates: {
             $near: {
@@ -117,7 +117,7 @@ const findNearestReverseGeocodeCandidate = async (
     lat: number,
     lng: number
 ): Promise<LocationInputObject | null> => {
-    const nearestSettlement = await Location.findOne(withPublicCanonicalLocationFilter({
+    const nearestSettlement = await locationRepository.findOne(withPublicCanonicalLocationFilter({
         level: { $in: REVERSE_GEOCODE_SETTLEMENT_LEVELS },
         coordinates: {
             $near: {
@@ -133,7 +133,7 @@ const findNearestReverseGeocodeCandidate = async (
         return nearestSettlement;
     }
 
-    return Location.findOne(withPublicCanonicalLocationFilter({
+    return locationRepository.findOne(withPublicCanonicalLocationFilter({
         level: { $in: REVERSE_GEOCODE_REGIONAL_LEVELS },
         coordinates: {
             $near: {

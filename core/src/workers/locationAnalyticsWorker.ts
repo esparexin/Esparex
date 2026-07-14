@@ -1,7 +1,6 @@
 import Ad from "../models/Ad";
 import User from "../models/User";
-import Location from "../models/Location";
-import LocationAnalytics from "../models/LocationAnalytics";
+import { locationRepository, locationAnalyticsRepository } from "../composition/location";
 import { LISTING_STATUS } from '@esparex/shared';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
@@ -23,11 +22,9 @@ export const runLocationAnalyticsJob = async () => {
 };
 
 /**
- * Refreshes LocationAnalytics for all active locations.
+ * Refreshes LocationAnalytics for all active locations via LocationAnalyticsRepositoryPort.
  * Computes adsCount, activeAdsCount, usersCount, searchCount, viewCount,
  * popularityScore, and isHotZone in a single consolidated write.
- *
- * Previously also wrote to LocationStats (now removed — merged here).
  */
 export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron') => {
     logger.info('Updating location analytics...', { triggeredBy });
@@ -48,9 +45,8 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
     const startTime = Date.now();
 
     try {
-        // Only need _id — city/state were only required for the removed LocationStats writes
-        const locations = await Location.find({ isActive: true }).select('_id').lean();
-        const locationIds = locations.map((loc) => loc._id);
+        const locations = await locationRepository.findMany({ isActive: true });
+        const locationIds = locations.map((loc: any) => loc._id);
 
         const [adCountsAgg, userCountsAgg, existingAnalyticsDocs] = await Promise.all([
             Ad.aggregate<{
@@ -81,9 +77,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
                     }
                 }
             ]),
-            LocationAnalytics.find({ locationId: { $in: locationIds } })
-                .select('locationId searchCount viewCount')
-                .lean()
+            locationAnalyticsRepository.findAnalytics({ locationId: { $in: locationIds } })
         ]);
 
         const adCountByLocationId = new Map<string, { adsCount: number; activeAdsCount: number }>();
@@ -106,7 +100,7 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
             });
         }
 
-        const analyticsBulkOps: Parameters<typeof LocationAnalytics.bulkWrite>[0] = [];
+        const analyticsBulkOps: any[] = [];
 
         for (const loc of locations) {
             const locationKey = String(loc._id);
@@ -146,12 +140,13 @@ export const updateLocationStats = async (triggeredBy: 'cron' | 'manual' = 'cron
 
         let updateCount = 0;
         if (analyticsBulkOps.length > 0) {
-            const result = await LocationAnalytics.bulkWrite(analyticsBulkOps);
+            const result = (await locationAnalyticsRepository.bulkWriteAnalytics(analyticsBulkOps)) as { modifiedCount: number; upsertedCount: number };
             updateCount = result.modifiedCount + result.upsertedCount;
             logger.info(`Updated analytics for ${analyticsBulkOps.length} locations.`, { updateCount });
         } else {
             logger.info('No location analytics to update.');
         }
+
 
         if (jobLog) {
             jobLog.status = 'success';

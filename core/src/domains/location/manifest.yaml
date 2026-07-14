@@ -1,0 +1,25 @@
+id: location
+name: Location Domain
+owner: marketplace
+business_owner: Marketplace
+technical_owner: Platform
+maintainer: Location Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: high
+sla: tier-1
+since: "1.0"
+layer: domain
+reference: false
+depends_on:
+  - shared
+  - core/shared-kernel
+public_api:
+  facades: []
+  ports:
+    - LocationRepositoryPort
+    - LocationAnalyticsRepositoryPort
+    - AdminBoundaryRepositoryPort
+    - GeofenceRepositoryPort
+    - LocationEventRepositoryPort

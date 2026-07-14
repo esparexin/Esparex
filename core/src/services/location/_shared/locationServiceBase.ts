@@ -11,7 +11,14 @@ export { default as https } from 'https';
 export { default as Location } from '../../../models/Location';
 export { default as AdminBoundary } from '../../../models/AdminBoundary';
 export { default as LocationAnalytics } from '../../../models/LocationAnalytics';
+export {
+    locationRepository,
+    locationAnalyticsRepository,
+    adminBoundaryRepository,
+    geofenceRepository
+} from '../../../composition/location';
 export { default as logger } from '../../../utils/logger';
+
 export { escapeRegExp, toTitleCase } from '../../../utils/stringUtils';
 export { formatLocationResponse } from '../../../lib/location/formatLocation';
 export { normalizeGeoPoint } from '@esparex/shared';
