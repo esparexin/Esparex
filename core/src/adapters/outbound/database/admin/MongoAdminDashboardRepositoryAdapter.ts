@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User from '../../../../models/User';
 import Ad from '../../../../models/Ad';
 import CatalogRequest, { CatalogRequestStatusValue } from '../../../../models/CatalogRequest';
@@ -95,8 +96,9 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
     }
 
     public async updateContactSubmissionById(id: string, status: string): Promise<any> {
+        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
         // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
-        return ContactSubmission.findByIdAndUpdate(id, { status }, { new: true });
+        return ContactSubmission.findByIdAndUpdate(safeId, { $set: { status: typeof status === 'string' ? status : String(status) } }, { new: true });
     }
 
     public async getLocationAnalyticsRawData(params: any): Promise<any> {

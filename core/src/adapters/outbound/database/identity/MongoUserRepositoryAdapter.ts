@@ -13,32 +13,39 @@ export class MongoUserRepositoryAdapter implements UserRepositoryPort {
             .lean<UserProfileData | null>();
     }
     public async updateUser(id: string, updates: any): Promise<any> {
-        return await User.findByIdAndUpdate(id, updates, { new: true, runValidators: true }).select('-password');
+        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
+        return await User.findByIdAndUpdate(safeId, updates, { new: true, runValidators: true }).select('-password');
     }
     public async removeUserFcmToken(userId: any, token: string): Promise<void> {
-        await User.findByIdAndUpdate(userId, { $pull: { fcmTokens: { token } } });
+        const safeId = typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : String(userId);
+        await User.findByIdAndUpdate(safeId, { $pull: { fcmTokens: { token: String(token ?? '') } } });
     }
     public async getUserById(userId: string): Promise<any> {
-        const user = await User.findById(userId).lean() as any;
+        const safeId = typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : String(userId);
+        const user = await User.findById(safeId).lean() as any;
         if (user && user.role) user.role = normalizeRole(user.role);
         return user;
     }
     public async getUserWithBusiness(userId: string): Promise<{ user: any; business: any }> {
+        const safeId = typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : String(userId);
         const [user, business] = await Promise.all([
-            User.findById(userId).select('-password -salt').lean() as any,
-            Business.findOne({ userId }).lean(),
+            User.findById(safeId).select('-password -salt').lean() as any,
+            Business.findOne({ userId: String(userId) }).lean(),
         ]);
         if (user && user.role) user.role = normalizeRole(user.role);
         return { user, business };
     }
     public async getUserPhoneVerification(userId: string): Promise<any> {
-        return User.findById(userId).select('isPhoneVerified mobile').lean();
+        const safeId = typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : String(userId);
+        return User.findById(safeId).select('isPhoneVerified mobile').lean();
     }
     public async findUserByEmail(email: string): Promise<any> {
-        return User.findOne({ email });
+        const safeEmail = typeof email === 'string' ? email : String(email ?? '');
+        return User.findOne({ email: safeEmail });
     }
     public async getUserAvatarById(userId: string): Promise<any> {
-        return User.findById(userId).select('avatar').lean();
+        const safeId = typeof userId === 'string' && mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : String(userId);
+        return User.findById(safeId).select('avatar').lean();
     }
     public async checkUserExistsById(userId: string): Promise<boolean> {
         const exists = await User.exists({ _id: new mongoose.Types.ObjectId(userId), isDeleted: { $ne: true } });

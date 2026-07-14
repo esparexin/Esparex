@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import {
     Category,
     CategoryRepositoryPort,
@@ -42,12 +43,14 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     }
 
     async findById(id: string): Promise<Category | null> {
-        const doc = await CategoryModel.findById(id).lean<DbCategory | null>().exec();
+        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
+        const doc = await CategoryModel.findById(safeId).lean<DbCategory | null>().exec();
         return doc ? this.toDomain(doc) : null;
     }
 
     async findBySlug(slug: string): Promise<Category | null> {
-        const doc = await CategoryModel.findOne({ slug }).lean<DbCategory | null>().exec();
+        const safeSlug = typeof slug === 'string' ? slug : String(slug ?? '');
+        const doc = await CategoryModel.findOne({ slug: safeSlug }).lean<DbCategory | null>().exec();
         return doc ? this.toDomain(doc) : null;
     }
 

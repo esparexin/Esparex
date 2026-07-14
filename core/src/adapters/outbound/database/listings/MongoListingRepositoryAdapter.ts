@@ -100,7 +100,10 @@ function toMongoId(id: unknown): unknown {
     if (typeof id === 'string' && mongoose.Types.ObjectId.isValid(id)) {
         return new mongoose.Types.ObjectId(id);
     }
-    return id;
+    if (typeof id === 'string' || typeof id === 'number') {
+        return id;
+    }
+    return String(id ?? '');
 }
 
 function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
@@ -274,7 +277,8 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
     }
 
     async findById(id: string): Promise<Listing | null> {
-        const doc = await resolveMongoQuery<DbListing | null>(AdModel.findById(toMongoId(id)));
+        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
+        const doc = await resolveMongoQuery<DbListing | null>(AdModel.findById(safeId));
         return doc ? toDomain(doc) : null;
     }
 
@@ -305,8 +309,9 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
     }
 
     async updateOne(id: string, update: ListingUpdate, session?: unknown): Promise<Listing | null> {
+        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
         const updateDoc = Object.keys(update).some(k => k.startsWith('$')) ? update : { $set: update };
-        const query = AdModel.findByIdAndUpdate(toMongoId(id), updateDoc, { new: true, runValidators: true, session: session as any });
+        const query = AdModel.findByIdAndUpdate(safeId, updateDoc, { new: true, runValidators: true, session: session as any });
         const doc = await resolveMongoQuery<DbListing | null>(query);
         return doc ? toDomain(doc) : null;
     }

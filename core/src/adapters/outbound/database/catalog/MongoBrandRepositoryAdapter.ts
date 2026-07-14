@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Brand, BrandRepositoryPort } from '../../../../domains/catalog';
 import BrandModel from '../../../../models/Brand';
 import { CatalogApprovalStatusValue } from '@esparex/shared';
@@ -26,7 +27,8 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
     }
 
     async findById(id: string): Promise<Brand | null> {
-        const doc = await BrandModel.findById(id).lean<DbBrand | null>().exec();
+        const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
+        const doc = await BrandModel.findById(safeId).lean<DbBrand | null>().exec();
         return doc ? this.toDomain(doc) : null;
     }
 
