@@ -29,6 +29,9 @@ jest.mock('@esparex/core/composition/listings', () => ({
         find: jest.fn().mockResolvedValue([]),
         insert: jest.fn(),
         updateMany: jest.fn()
+    }),
+    getListingUnitOfWork: jest.fn().mockReturnValue({
+        executeTransaction: jest.fn().mockImplementation((work) => work('mock-session'))
     })
 }));
 

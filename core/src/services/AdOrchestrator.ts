@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import type { IAd } from '../models/Ad';
-import { getListingRepository } from '../composition/listings';
-import { getUserConnection } from '../config/db';
+import { getListingRepository, getListingUnitOfWork } from '../composition/listings';
 import logger from '../utils/logger';
 import { AppError } from '../utils/AppError';
+
 
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
@@ -39,23 +39,20 @@ export interface AdOrchestrationContext {
  */
 export const createAd = async (data: Record<string, unknown>, context: AdOrchestrationContext): Promise<IAd | null> => {
     const start = Date.now();
-    const connection = getUserConnection();
-    const session = await connection.startSession();
-    
     const adId = new mongoose.Types.ObjectId();
     let createdAd: IAd | null = null;
 
     try {
         const listingType = (data.listingType as string) || LISTING_TYPE.AD;
 
-        await session.withTransaction(async () => {
+        await getListingUnitOfWork().executeTransaction(async (session) => {
             // 1. Atomic Slot Deduction
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const slotResult = await ListingSubmissionPolicy.reserveSlot({
                     userId: context.sellerId,
                     listingType: listingType as ListingTypeValue,
                     listingId: adId.toString(),
-                    session,
+                    session: session as any,
                     actor: 'user',
                 });
                 if (slotResult.source === 'idempotency_hit') {
@@ -95,7 +92,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload,
                 context.sellerId,
                 payload.imageHashes,
-                session
+                session as any
             );
 
             if (duplicateCheck.isDuplicate) {
@@ -106,7 +103,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     reason: duplicateCheck.reason,
                     duplicateFingerprint: buildDuplicateFingerprint(payload, context.sellerId),
                     details: { checkResult: duplicateCheck }
-                }, session);
+                }, session as any);
 
                 const { createDuplicateError } = await import('./AdValidationService');
                 throw createDuplicateError(duplicateCheck.reason);
@@ -239,7 +236,6 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             error: error instanceof Error ? error.message : String(error)
         });
         throw error;
-    } finally {
-        void session.endSession();
     }
 };
+

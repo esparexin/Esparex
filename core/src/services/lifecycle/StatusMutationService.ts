@@ -1,7 +1,7 @@
 import mongoose, { ClientSession } from 'mongoose';
-import { getUserConnection } from '../../config/db';
 import { 
     validateTransition as validateLifecycleTransition, 
+
     resolveLifecycleDomain,
     type ValidDomain 
 } from './LifecycleGuard';
@@ -28,8 +28,9 @@ export interface MutationRequest {
     reason?: string;
     patch?: Record<string, unknown>; // Status-specific updates like soldAt, rejectionReason
     metadata?: Record<string, unknown>; // Audit metadata
-    session?: ClientSession; // Optional external session
+    session?: unknown; // Optional external session
 }
+
 
 const toLower = (value: unknown): string =>
     typeof value === 'string' ? value.trim().toLowerCase() : '';
@@ -79,25 +80,15 @@ interface IStatusable {
  */
 export const mutateStatus = async (request: MutationRequest): Promise<Record<string, unknown> | null> => {
     const { domain, entityId, toStatus, actor, reason, patch, metadata, session: externalSession } = request;
-    const connection = getUserConnection();
-    
-    // Session management: Use provided session or manage lifecycle of a new one
-    let session = externalSession;
-    let isInternalSession = false;
-
-    if (!session) {
-        session = await connection.startSession();
-        isInternalSession = true;
-    }
-
     const startTime = Date.now();
+
     let fromStatus = 'unknown';
     let resolvedListingType: string | undefined;
 
     try {
         let result: Record<string, unknown> | null = null;
 
-        const executeOperations = async (activeSession: ClientSession) => {
+        const executeOperations = async (activeSession: any) => {
             if (isListingLifecycleDomain(domain)) {
                 return executeListingOperations(activeSession);
             }
@@ -189,7 +180,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                 }
             }
             
-            await doc.save({ session: activeSession });
+            await doc.save({ session: activeSession as any });
 
             // 5. Record Unified Status History
             await StatusHistory.create([{
@@ -206,12 +197,12 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                     ua: actor.userAgent,
                     mutationService: 'v1'
                 }
-            }], { session: activeSession });
+            }], { session: activeSession as any });
 
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };
 
-        const executeListingOperations = async (activeSession: ClientSession) => {
+        const executeListingOperations = async (activeSession: any) => {
             const { getListingRepository } = await import('../../composition/listings');
             const repo = getListingRepository();
             const listing = await repo.findOne({ ids: [entityId.toString()], isDeleted: { $in: [true, false] } as any, session: activeSession });
@@ -267,17 +258,18 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                     ua: actor.userAgent,
                     mutationService: 'v1'
                 }
-            }], { session: activeSession });
+            }], { session: activeSession as any });
 
             return updated as any;
         };
 
-        if (isInternalSession && session) {
-            await session.withTransaction(async () => {
-                result = await executeOperations(session);
+        if (externalSession) {
+            result = await executeOperations(externalSession);
+        } else {
+            const { getListingUnitOfWork } = await import('../../composition/listings');
+            result = await getListingUnitOfWork().executeTransaction(async (session) => {
+                return executeOperations(session);
             });
-        } else if (session) {
-            result = await executeOperations(session);
         }
 
         const duration = Date.now() - startTime;
@@ -384,10 +376,6 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
         });
         
         throw error;
-    } finally {
-        if (isInternalSession && session) {
-            await session.endSession();
-        }
     }
 };
 

@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import type { IAd } from '../../models/Ad';
-import { getListingRepository } from '../../composition/listings';
-import { getUserConnection } from '../../config/db';
+import { getListingRepository, getListingUnitOfWork } from '../../composition/listings';
+
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
@@ -17,21 +17,18 @@ export const updateAdLogic = async (
     adId: string,
     data: unknown,
     context: AdContext,
-    externalSession?: mongoose.ClientSession
+    externalSession?: unknown
 ): Promise<Record<string, unknown> | null> => {
     if (!mongoose.Types.ObjectId.isValid(adId)) return null;
 
     const id = new mongoose.Types.ObjectId(adId);
-    const connection = getUserConnection();
-    const session = externalSession || await connection.startSession();
-    const isInternalSession = !externalSession;
 
     try {
         let updatedAd: IAd | null = null;
         let oldPriceValue: number | undefined;
         let removedImagesCache: string[] = [];
         
-        const executeUpdate = async () => {
+        const executeUpdate = async (session: unknown) => {
             const ad = await getListingRepository().findOne({ ids: [adId], session });
             if (!ad) return;
 
@@ -147,10 +144,12 @@ export const updateAdLogic = async (
             }
         };
 
-        if (isInternalSession) {
-            await session.withTransaction(executeUpdate);
+        if (externalSession) {
+            await executeUpdate(externalSession);
         } else {
-            await executeUpdate();
+            await getListingUnitOfWork().executeTransaction(async (session) => {
+                await executeUpdate(session);
+            });
         }
 
         if (!updatedAd) return null;
@@ -180,7 +179,7 @@ export const updateAdLogic = async (
                                     price: String(updatedAdTyped.price) 
                                 },
                                 { adId: String(id), type: 'price_drop' }
-                            );
+                             );
                         }
                     }
                 } catch (err) {
@@ -212,9 +211,6 @@ export const updateAdLogic = async (
             adId
         });
         throw error;
-    } finally {
-        if (isInternalSession) {
-            await session.endSession();
-        }
     }
 };
+
