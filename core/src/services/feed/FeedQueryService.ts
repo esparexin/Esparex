@@ -1,17 +1,18 @@
 import mongoose from 'mongoose';
 import { env } from '../../config/env';
-import Ad from '../../models/Ad';
 import Boost from '../../models/Boost';
-import { buildAdMatchStage } from "../ad/AdSearchService";
-import { buildHomeFeedPipeline } from "../ad/AdFeedService";
-import type { AdFilters } from "../ad/_shared/adFilterHelpers";
-import { normalizeAdImagesForResponse } from "../adQuery/AdQueryHelpers";
-import { buildGeoNearStage, normalizeGeoInput } from '../../utils/mongoGeoUtils';
+import Category from '../../models/Category';
+import { getListingRepository } from '../../composition/listings';
+import type { ListingFilter, Listing } from '../../domains/listings/ports/ListingRepositoryPort';
+import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
+import { normalizeAdImagesForResponse } from '../adQuery/AdQueryHelpers';
+import { normalizeGeoInput } from '../../utils/mongoGeoUtils';
 import type { HomeFeedResponse } from "@esparex/shared";
 import logger from '../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
 import { LISTING_TYPE } from '@esparex/shared';
+import { toObjectId } from '../../utils/idUtils';
 import { 
     filterBeforeCursor, 
     mergeRankedFeed, 
@@ -33,30 +34,51 @@ export const buildHomeFeed = async (
     const startedAt = Date.now();
     
     // 1. Resolve Match Criteria
-    const baseFilters: AdFilters = {
+    const baseFilter: ListingFilter = {
         listingType: LISTING_TYPE.AD,
-        sortBy: 'newest',
-        ...(typeof input.location === 'string' && input.location.trim().length > 0
-            ? { location: input.location.trim() }
-            : {}),
-        ...(typeof input.locationId === 'string' && mongoose.Types.ObjectId.isValid(input.locationId)
-            ? { locationId: input.locationId }
-            : {}),
-        ...(typeof input.level === 'string'
-            ? { level: input.level }
-            : {}),
-        ...(typeof input.categoryId === 'string' && input.categoryId.trim().length > 0
-            ? { categoryId: input.categoryId.trim() }
-            : {}),
-        ...(typeof input.category === 'string' && input.category.trim().length > 0
-            ? { category: input.category.trim() }
-            : {})
     };
 
-    const matchStage = await buildAdMatchStage(baseFilters);
+    if (typeof input.locationId === 'string' && mongoose.Types.ObjectId.isValid(input.locationId)) {
+        baseFilter.locationId = input.locationId;
+    } else if (typeof input.location === 'string' && input.location.trim().length > 0) {
+        const safeLoc = input.location.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (input.level === 'state') {
+            baseFilter.locationState = { $regex: `^${safeLoc}$`, $options: 'i' };
+        } else if (input.level === 'city' || !input.level) {
+            baseFilter.locationCity = { $regex: `^${safeLoc}$`, $options: 'i' };
+        }
+    }
+
+    let resolvedCategoryId: string | undefined = undefined;
+    if (typeof input.categoryId === 'string' && input.categoryId.trim().length > 0) {
+        resolvedCategoryId = input.categoryId.trim();
+    } else if (typeof input.category === 'string' && input.category.trim().length > 0) {
+        const lookup = input.category.trim();
+        const found = await Category.findOne({
+            $or: [
+                { slug: lookup.toLowerCase() },
+                { name: { $regex: `^${lookup.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } }
+            ]
+        }).select('_id').lean<{ _id: mongoose.Types.ObjectId } | null>();
+        if (found) {
+            resolvedCategoryId = found._id.toString();
+        }
+    }
+
+    if (resolvedCategoryId) {
+        baseFilter.categoryId = resolvedCategoryId;
+    }
+
+    const visibilityFilter = buildPublicAdFilter() as unknown as Partial<ListingFilter>;
+    Object.assign(baseFilter, visibilityFilter);
+
+    if (cursor) {
+        baseFilter.cursorCreatedAt = cursor.createdAt;
+        if (cursor.id) baseFilter.cursorId = cursor.id;
+    }
 
     if (env.FEED_DEBUG) {
-        logger.debug(`[FeedDebug] Final Match Filter`, { matchStage });
+        logger.debug(`[FeedDebug] Final Match Filter`, { baseFilter });
     }
 
     // 2. Fetch Active Boosts (Fast Indexed Query)
@@ -76,7 +98,6 @@ export const buildHomeFeed = async (
         .map((entry) => entry.entityId)
         .filter((id): id is mongoose.Types.ObjectId => id instanceof mongoose.Types.ObjectId);
 
-    // 2.5 Resolve Geo Location ($geoNear MUST be the first stage if coordinates are present)
     const { lat, lng, hasGeo } = normalizeGeoInput(input.lat, input.lng);
     const normalizedLevel = typeof input.level === 'string' ? input.level.toLowerCase() : undefined;
     const shouldUseGeo = hasGeo && normalizedLevel !== 'state' && normalizedLevel !== 'country';
@@ -84,49 +105,69 @@ export const buildHomeFeed = async (
         ? Math.min(Math.max(Number(input.radiusKm) || 50, 1), 500) 
         : 0;
     
-    let geoStage: mongoose.PipelineStage | undefined = undefined;
-    if (shouldUseGeo) {
-        geoStage = buildGeoNearStage({
-            lng,
-            lat,
-            radiusKm: safeRadius,
-            query: matchStage
-        });
-        // Clear out matchStage so it doesn't run twice (geoStage incorporates it)
-        Object.keys(matchStage).forEach(key => delete matchStage[key]);
-    }
+    // 3. Unified Fetch via ListingRepositoryPort
+    const spotlightFilter: ListingFilter = {
+        ...baseFilter,
+        isSpotlight: true,
+        spotlightExpiresAt: { $gt: now }
+    };
+    
+    const nonSpotlightFilter: ListingFilter = {
+        ...baseFilter,
+        $or: [
+            { isSpotlight: { $ne: true } },
+            { spotlightExpiresAt: { $exists: false } },
+            { spotlightExpiresAt: null },
+            { spotlightExpiresAt: { $lte: now } }
+        ]
+    };
 
-    // 3. Unified Aggregation
-    const pipeline = buildHomeFeedPipeline(matchStage, boostedIds, limit, geoStage, cursor ?? undefined);
-    const [facetResults] = await Ad.aggregate<FeedFacetResult>(pipeline);
+    const boostedFilter: ListingFilter = {
+        ...nonSpotlightFilter,
+        ids: boostedIds.map(String)
+    };
+
+    const organicFilter: ListingFilter = {
+        ...nonSpotlightFilter,
+        idsNotIn: boostedIds.map(String)
+    };
+
+    const sortOption: Record<string, 1 | -1> = { createdAt: -1, _id: -1 };
+    
+    const fetch = async (filter: ListingFilter): Promise<readonly Listing[]> => {
+        if (shouldUseGeo && lat !== undefined && lng !== undefined) {
+            return getListingRepository().findWithinRadius(lng, lat, safeRadius, filter, sortOption, limit * 2);
+        }
+        return getListingRepository().findWithLimit(filter, sortOption, limit * 2);
+    };
+
+    const [spotlightListings, boostedListings, organicListings] = await Promise.all([
+        fetch(spotlightFilter),
+        fetch(boostedFilter),
+        fetch(organicFilter)
+    ]);
+
+    const toFeedAd = (l: Listing, overrides: { isSpotlight: boolean, isBoosted: boolean }) => ({
+        ...l,
+        _id: l.id,
+        ...overrides
+    });
 
     const spotlightAds = filterBeforeCursor(
-        (facetResults?.spotlight ?? []).map((ad) => ({
-            ...ad,
-            isSpotlight: true,
-            isBoosted: false
-        })),
+        spotlightListings.map(l => toFeedAd(l, { isSpotlight: true, isBoosted: false })),
         cursor
     );
     const boostedAds = filterBeforeCursor(
-        (facetResults?.boosted ?? []).map((ad) => ({
-            ...ad,
-            isSpotlight: false,
-            isBoosted: true
-        })),
+        boostedListings.map(l => toFeedAd(l, { isSpotlight: false, isBoosted: true })),
         cursor
     );
     const organicAds = filterBeforeCursor(
-        (facetResults?.organic ?? []).map((ad) => ({
-            ...ad,
-            isSpotlight: false,
-            isBoosted: false
-        })),
+        organicListings.map(l => toFeedAd(l, { isSpotlight: false, isBoosted: false })),
         cursor
     );
 
     // 4. Merge results
-    const merged = mergeRankedFeed(spotlightAds, boostedAds, organicAds, limit);
+    const merged = mergeRankedFeed(spotlightAds as Record<string, unknown>[], boostedAds as Record<string, unknown>[], organicAds as Record<string, unknown>[], limit);
 
     // 5. Fallback Logic
     let isFallbackResult = false;
