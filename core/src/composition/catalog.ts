@@ -2,6 +2,7 @@ import { MongoCategoryRepositoryAdapter } from '../adapters/outbound/database/ca
 import { MongoBrandRepositoryAdapter } from '../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter';
 import { MongoModelRepositoryAdapter } from '../adapters/outbound/database/catalog/MongoModelRepositoryAdapter';
 import { MongoSparePartRepositoryAdapter } from '../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter';
+import { MongoScreenSizeRepositoryAdapter } from '../adapters/outbound/database/catalog/MongoScreenSizeRepositoryAdapter';
 import { MongoCatalogUnitOfWorkAdapter } from '../adapters/outbound/database/catalog/MongoCatalogUnitOfWorkAdapter';
 import { RedisCatalogCacheAdapter } from '../adapters/outbound/database/catalog/RedisCatalogCacheAdapter';
 import { CatalogValidationService } from '../services/catalog/CatalogValidationService';
@@ -23,6 +24,7 @@ export function createCatalogOrchestrator(): CatalogOrchestratorImpl {
         new MongoCategoryRepositoryAdapter(),
         new MongoBrandRepositoryAdapter(),
         new MongoModelRepositoryAdapter(),
-        new MongoSparePartRepositoryAdapter()
+        new MongoSparePartRepositoryAdapter(),
+        new MongoScreenSizeRepositoryAdapter()
     );
 }

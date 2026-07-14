@@ -5,7 +5,7 @@ import { Category, Brand } from '../../domains/catalog';
 export type CategoryResult = Category & Record<string, unknown>;
 export type BrandResult = Brand & Record<string, unknown>;
 
-import ScreenSize from '../../models/ScreenSize';
+
 import { clearCachePattern } from '../../utils/redisCache';
 import logger from '../../utils/logger';
 import { isDuplicateKeyError } from '../../utils/errorHelpers';
@@ -17,7 +17,8 @@ import {
     CategoryRepositoryPort, 
     BrandRepositoryPort, 
     ModelRepositoryPort, 
-    SparePartRepositoryPort 
+    SparePartRepositoryPort,
+    ScreenSizeRepositoryPort
 } from '../../domains/catalog';
 
 type CascadeDoc = {
@@ -57,7 +58,8 @@ export class CatalogOrchestratorImpl {
         private readonly categoryRepository: CategoryRepositoryPort,
         private readonly brandRepository: BrandRepositoryPort,
         private readonly modelRepository: ModelRepositoryPort,
-        private readonly sparePartRepository: SparePartRepositoryPort
+        private readonly sparePartRepository: SparePartRepositoryPort,
+        private readonly screenSizeRepository: ScreenSizeRepositoryPort
     ) {}
     /**
      * Invalidate catalog caches, optionally scoped by category or brand
@@ -196,13 +198,10 @@ export class CatalogOrchestratorImpl {
         }
 
         // 4) ScreenSizes: singular category link; keep cascading delete.
-        const screenSizeFilter = brandIdsToDelete.length > 0
-            ? { $or: [{ categoryId: categoryObjectId }, { brandId: { $in: brandIdsToDelete } }] }
-            : { categoryId: categoryObjectId };
-        await ScreenSize.updateMany(
-            screenSizeFilter,
-            { $set: { isDeleted: true, isActive: false, deletedAt: now } }
-        ).session(txSession as any);
+        await this.screenSizeRepository.softDeleteByCriteria(
+            { categoryId, brandIds: brandIdsToDelete.map(id => String(id)) },
+            txSession
+        );
 
         await this.invalidateCatalogCache({ categoryIds: [categoryId], brandIds: brandIdsToDelete });
         logger.info('Cascaded category delete completed', {
@@ -346,13 +345,16 @@ function getServiceInstance(): CatalogOrchestratorImpl {
         const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
         const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
 
+        const { MongoScreenSizeRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoScreenSizeRepositoryAdapter');
+
         serviceInstance = new CatalogOrchestratorImpl(
             new MongoCatalogUnitOfWorkAdapter(),
             new RedisCatalogCacheAdapter(),
             new MongoCategoryRepositoryAdapter(),
             new MongoBrandRepositoryAdapter(),
             new MongoModelRepositoryAdapter(),
-            new MongoSparePartRepositoryAdapter()
+            new MongoSparePartRepositoryAdapter(),
+            new MongoScreenSizeRepositoryAdapter()
         );
     }
     return serviceInstance;
