@@ -1,4 +1,4 @@
-import CatalogRequest, { type ICatalogRequest } from '@esparex/core/models/CatalogRequest';
+import CatalogRequest from '@esparex/core/models/CatalogRequest';
 
 export interface CatalogRequestPayload {
     requestType: 'brand' | 'model';

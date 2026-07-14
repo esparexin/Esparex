@@ -8,7 +8,7 @@
 
 import BrandModelImport from '../../models/Brand';
 import CatalogModelImport from '../../models/Model';
-import AdModel from '../../models/Ad';
+import { getListingRepository } from '../../composition/listings';
 import SparePart from '../../models/SparePart';
 import CategoryModel from '../../models/Category';
 import ScreenSizeModel from '../../models/ScreenSize';
@@ -62,7 +62,7 @@ export const checkBrandInCategories = async (brandId: string, activeCategoryIds:
 export const checkBrandDependencies = async (id: string) => {
     const [modelsCount, listingsCount, sparePartsCount, screenSizesCount, smartAlertsCount] = await Promise.all([
         CatalogModelImport.countDocuments({ brandId: id }),
-        AdModel.countDocuments({ brandId: id }),
+        getListingRepository().count({ brandId: id }),
         SparePart.countDocuments({ brandId: id }),
         ScreenSizeModel.countDocuments({ brandId: id }),
         SmartAlertModel.countDocuments({ brandId: id })

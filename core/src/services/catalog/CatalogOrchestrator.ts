@@ -361,8 +361,8 @@ export class CatalogOrchestrator {
             return await performDelete(null);
         } catch (e: unknown) {
             if (session) {
-                try { await session.abortTransaction(); } catch (_) { /* ignore */ }
-                try { await session.endSession(); } catch (_) { /* ignore */ }
+                try { await session.abortTransaction(); } catch { /* ignore */ }
+                try { await session.endSession(); } catch { /* ignore */ }
                 session = null;
             }
 
@@ -376,7 +376,7 @@ export class CatalogOrchestrator {
             throw e;
         } finally {
             if (session) {
-                try { await session.endSession(); } catch (_) { /* ignore */ }
+                try { await session.endSession(); } catch { /* ignore */ }
             }
         }
     }
@@ -420,8 +420,8 @@ export class CatalogOrchestrator {
             return { brandId, deletedModels: r.deletedModels, deletedSpareParts: r.deletedSpareParts, alreadyDeleted: false };
         } catch (e: unknown) {
             if (session) {
-                try { await session.abortTransaction(); } catch (_) { /* ignore */ }
-                try { await session.endSession(); } catch (_) { /* ignore */ }
+                try { await session.abortTransaction(); } catch { /* ignore */ }
+                try { await session.endSession(); } catch { /* ignore */ }
                 session = null;
             }
             const msg = e instanceof Error ? e.message : String(e);
@@ -433,7 +433,7 @@ export class CatalogOrchestrator {
             throw e;
         } finally {
             if (session) {
-                try { await session.endSession(); } catch (_) { /* ignore */ }
+                try { await session.endSession(); } catch { /* ignore */ }
             }
         }
     }

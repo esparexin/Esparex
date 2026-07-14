@@ -22,8 +22,6 @@ import { CatalogResolutionPolicy, CatalogResolutionDecision } from '@esparex/cor
 import { resolveOrCreateBrand, resolveOrCreateModel } from '@esparex/core/services/catalogRequestApproval/resolvers';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 
-const REQUESTED_BY_PUBLIC_FIELDS = 'firstName lastName email mobile';
-
 const normalizeCatalogCanonicalName = (value: string): string =>
     value.trim().toLowerCase().replace(/\s+/g, ' ');
 

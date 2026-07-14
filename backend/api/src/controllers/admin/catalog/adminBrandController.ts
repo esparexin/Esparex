@@ -4,14 +4,13 @@ import { sendSuccessResponse } from '../../../utils/respond';
 import { handlePaginatedContent } from '../../../utils/contentHandler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { getUserConnection } from '@esparex/core/config/db';
-import { BrandModel, findBrandByFilter, checkBrandDependencies, findCategoryBySlugForCatalog } from '@esparex/core/services/catalog/CatalogBrandModelService';
+import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, hasAdminAccess, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { getCache, setCache } from '@esparex/core/utils/redisCache';
+import { getCache } from '@esparex/core/utils/redisCache';
 import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
 import { AppError } from '@esparex/core/utils/AppError';
 
