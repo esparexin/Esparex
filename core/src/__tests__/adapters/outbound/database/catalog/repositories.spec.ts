@@ -1,5 +1,5 @@
-import { MongoCategoryRepository } from '../../../../../adapters/outbound/database/catalog/MongoCategoryRepository';
-import { MongoBrandRepository } from '../../../../../adapters/outbound/database/catalog/MongoBrandRepository';
+import { MongoCategoryRepositoryAdapter } from '../../../../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter';
+import { MongoBrandRepositoryAdapter } from '../../../../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter';
 import CategoryModel from '../../../../../models/Category';
 import BrandModel from '../../../../../models/Brand';
 
@@ -39,8 +39,8 @@ describe('Catalog Outbound Database Repositories', () => {
         mockExec.mockReset();
     });
 
-    describe('MongoCategoryRepository', () => {
-        const repo = new MongoCategoryRepository();
+    describe('MongoCategoryRepositoryAdapter', () => {
+        const repo = new MongoCategoryRepositoryAdapter();
 
         it('should implement CategoryRepositoryPort', () => {
             expect(typeof repo.findById).toBe('function');
@@ -182,8 +182,8 @@ describe('Catalog Outbound Database Repositories', () => {
         });
     });
 
-    describe('MongoBrandRepository', () => {
-        const repo = new MongoBrandRepository();
+    describe('MongoBrandRepositoryAdapter', () => {
+        const repo = new MongoBrandRepositoryAdapter();
 
         it('should implement BrandRepositoryPort', () => {
             expect(typeof repo.findById).toBe('function');

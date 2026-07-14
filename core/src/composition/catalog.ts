@@ -1,10 +1,10 @@
-import { MongoCategoryRepository } from '../adapters/outbound/database/catalog/MongoCategoryRepository';
-import { MongoBrandRepository } from '../adapters/outbound/database/catalog/MongoBrandRepository';
+import { MongoCategoryRepositoryAdapter } from '../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter';
+import { MongoBrandRepositoryAdapter } from '../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter';
 import { CatalogValidationService } from '../services/catalog/CatalogValidationService';
 
 export function createCatalogValidationService(): CatalogValidationService {
     return new CatalogValidationService(
-        new MongoCategoryRepository(),
-        new MongoBrandRepository()
+        new MongoCategoryRepositoryAdapter(),
+        new MongoBrandRepositoryAdapter()
     );
 }

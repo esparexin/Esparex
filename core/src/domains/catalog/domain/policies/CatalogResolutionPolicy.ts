@@ -1,4 +1,4 @@
-import { CatalogValidationService } from '../../../../services/catalog/CatalogValidationService';
+import { CatalogValidationServiceShared } from '@esparex/shared';
 
 export enum CatalogResolutionDecision {
     AUTO_APPROVE = 'AUTO_APPROVE',
@@ -16,7 +16,7 @@ export interface CatalogResolutionContext {
 export class CatalogResolutionPolicy {
     public static evaluate(ctx: CatalogResolutionContext): CatalogResolutionDecision {
         // 1. Run through the validation pipeline in CatalogValidationService
-        const validation = CatalogValidationService.validateCatalogInput({
+        const validation = CatalogValidationServiceShared.validateCatalogInput({
             name: ctx.requestedName,
             requestType: ctx.requestType
         });

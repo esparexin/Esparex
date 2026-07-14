@@ -1,2 +1,2 @@
-export { MongoCategoryRepository } from './MongoCategoryRepository';
-export { MongoBrandRepository } from './MongoBrandRepository';
+export { MongoCategoryRepositoryAdapter } from './MongoCategoryRepositoryAdapter';
+export { MongoBrandRepositoryAdapter } from './MongoBrandRepositoryAdapter';

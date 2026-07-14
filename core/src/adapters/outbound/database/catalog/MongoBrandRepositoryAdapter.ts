@@ -12,7 +12,7 @@ interface DbBrand {
     approvalStatus: string;
 }
 
-export class MongoBrandRepository implements BrandRepositoryPort {
+export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
     private toDomain(doc: DbBrand): Brand {
         return {
             id: String(doc._id),

@@ -22,7 +22,7 @@ interface DbCategory {
     hasScreenSizes?: boolean;
 }
 
-export class MongoCategoryRepository implements CategoryRepositoryPort {
+export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     private toDomain(doc: DbCategory): Category {
         return {
             id: String(doc._id),

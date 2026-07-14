@@ -18,7 +18,6 @@ import {
 import {
     CategoryRepositoryPort,
     BrandRepositoryPort,
-    CategoryId,
     ListingTypeValue
 } from '../../domains/catalog';
 
@@ -294,11 +293,11 @@ function getServiceInstance(): CatalogValidationService {
     if (!serviceInstance) {
         // Fallback lazy initialization using dynamic import/require
         // to avoid circular dependencies and static concrete imports in tests
-        const { MongoCategoryRepository } = require('../../adapters/outbound/database/catalog/MongoCategoryRepository');
-        const { MongoBrandRepository } = require('../../adapters/outbound/database/catalog/MongoBrandRepository');
+        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
+        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
         serviceInstance = new CatalogValidationService(
-            new MongoCategoryRepository(),
-            new MongoBrandRepository()
+            new MongoCategoryRepositoryAdapter(),
+            new MongoBrandRepositoryAdapter()
         );
     }
     return serviceInstance;
