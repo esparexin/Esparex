@@ -146,3 +146,16 @@ To fix 404/403 errors during login/CSRF discovery, ensure the following environm
 | `@esparex/backend-api` | Render | `CSRF_SECRET` | *[Random 32-char string]* |
 
 **Note**: Admin routes are served from the unified API under `/api/v1/admin`.
+
+## Graphify
+
+Update the knowledge graph after significant architectural or code changes:
+
+```bash
+graphify update .
+graphify cluster-only .
+```
+
+Graphify outputs are generated locally in `graphify-out/` and are intentionally ignored by Git.
+Do not commit generated Graphify artifacts unless explicitly required.
+

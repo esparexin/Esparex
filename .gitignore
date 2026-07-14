@@ -165,3 +165,22 @@ ci-lint-results.json
 # Architecture platform generated outputs (reports, registry, metrics history)
 # These are intentionally git-ignored. Commit snapshots manually if desired.
 .tooling/
+
+# -----------------------------------------------------------------------------
+# Graphify
+# -----------------------------------------------------------------------------
+
+# Generated knowledge graph
+graphify-out/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Optional: local Graphify cache (if created outside graphify-out)
+.graphify/
+
+# Gradle
+.gradle/
+**/.gradle/

@@ -37,3 +37,21 @@ At the start of every execution, the AI must follow this exact bootstrap sequenc
 ## Modular Architecture Principle
 This bootstrap document defines the orchestration of skill loading and general governance order. To preserve modular architecture, do not copy or move the rules, checklists, or specific logic of individual skills here. Individual skills are the sole, authoritative source of truth for their respective domains.
 
+
+## Graphify Verification
+
+Before implementation:
+
+? Confirm Graphify MCP is connected.
+
+? Confirm Graphify Skill is loaded.
+
+? Use Graphify to discover:
+  - impacted files
+  - dependency paths
+  - repository ports
+  - composition roots
+  - cross-domain dependencies
+
+If Graphify is unavailable, report that explicitly and fall back to repository analysis.
+
