@@ -8,6 +8,14 @@ import { clearCachePattern } from '../../utils/redisCache';
 import logger from '../../utils/logger';
 import { isDuplicateKeyError } from '../../utils/errorHelpers';
 import { AppError } from '../../utils/AppError';
+import { 
+    CatalogUnitOfWorkPort, 
+    CatalogCachePort,
+    CategoryRepositoryPort, 
+    BrandRepositoryPort, 
+    ModelRepositoryPort, 
+    SparePartRepositoryPort 
+} from '../../domains/catalog';
 
 type CascadeDoc = {
     _id: mongoose.Types.ObjectId;
@@ -39,11 +47,19 @@ const toUniqueCategoryObjectIds = (
  * The Single Source of Truth (SSOT) for catalog domain orchestration.
  * Consolidates CRUD operations, cache management, and hierarchy integrity.
  */
-export class CatalogOrchestrator {
+export class CatalogOrchestratorImpl {
+    constructor(
+        private readonly unitOfWork: CatalogUnitOfWorkPort,
+        private readonly cacheService: CatalogCachePort,
+        private readonly categoryRepository: CategoryRepositoryPort,
+        private readonly brandRepository: BrandRepositoryPort,
+        private readonly modelRepository: ModelRepositoryPort,
+        private readonly sparePartRepository: SparePartRepositoryPort
+    ) {}
     /**
      * Invalidate catalog caches, optionally scoped by category or brand
      */
-    static async invalidateCatalogCache(opts?: { categoryIds?: (string | mongoose.Types.ObjectId)[], brandIds?: (string | mongoose.Types.ObjectId)[] }) {
+    async invalidateCatalogCache(opts?: { categoryIds?: (string | mongoose.Types.ObjectId)[], brandIds?: (string | mongoose.Types.ObjectId)[] }) {
         try {
             if (!opts || (!opts.categoryIds?.length && !opts.brandIds?.length)) {
                 await Promise.all([
@@ -88,7 +104,7 @@ export class CatalogOrchestrator {
     /**
      * Cascade Category soft-delete to Brands, Models, and deactivation of Parts
      */
-    static async cascadeCategoryDelete(categoryId: string, session?: ClientSession) {
+    async cascadeCategoryDelete(categoryId: string, session?: ClientSession) {
         const txSession = session || null;
         const now = new Date();
         const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
@@ -229,7 +245,7 @@ export class CatalogOrchestrator {
     /**
      * Cascade Brand soft-delete to Models and SpareParts
      */
-    static async cascadeBrandDelete(brandId: string, session?: ClientSession) {
+    async cascadeBrandDelete(brandId: string, session?: ClientSession) {
         const txSession = session || null;
         const now = new Date();
 
@@ -275,7 +291,7 @@ export class CatalogOrchestrator {
     /**
      * Create Category with cache invalidation
      */
-    static async createCategory(data: Partial<ICategory>): Promise<ICategory> {
+    async createCategory(data: Partial<ICategory>): Promise<ICategory> {
         const category = new Category(data);
         const result = await category.save();
         await this.invalidateCatalogCache({ categoryIds: [category._id] });
@@ -285,7 +301,7 @@ export class CatalogOrchestrator {
     /**
      * Update Category with cache invalidation
      */
-    static async updateCategory(id: string, data: Partial<ICategory>): Promise<ICategory | null> {
+    async updateCategory(id: string, data: Partial<ICategory>): Promise<ICategory | null> {
         const result = await Category.findByIdAndUpdate(id, data, { new: true });
         if (result) await this.invalidateCatalogCache({ categoryIds: [id] });
         return result;
@@ -295,7 +311,7 @@ export class CatalogOrchestrator {
     /**
      * Resolve all CategoryIDs from a BrandID
      */
-    static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
+    async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
         const brand = await Brand.findById(brandId).select('categoryIds').lean();
         if (!brand || !brand.categoryIds) return [];
         return brand.categoryIds.map(id => id.toString());
@@ -304,7 +320,7 @@ export class CatalogOrchestrator {
     /**
      * Resolve a deterministic primary CategoryID from a BrandID.
      */
-    static async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
+    async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
         const ids = await this.resolveCategoryIdsFromBrand(brandId);
         return ids.length > 0 ? (ids[0] ?? null) : null;
     }
@@ -312,7 +328,7 @@ export class CatalogOrchestrator {
     /**
      * Detach SpareParts from a specific Model
      */
-    static async detachSparePartsFromModel(modelId: string, session?: ClientSession) {
+    async detachSparePartsFromModel(modelId: string, session?: ClientSession) {
         await SparePart.updateMany(
             { modelId },
             { $set: { modelId: null, isActive: false } }
@@ -321,7 +337,7 @@ export class CatalogOrchestrator {
         logger.info(`Detached spare parts from model: ${modelId}`);
     }
 
-    static async deleteCategoryOrchestrated(categoryId: string) {
+    async deleteCategoryOrchestrated(categoryId: string) {
         const performDelete = async (txSession: mongoose.ClientSession | null) => {
             const CategoryModel = require('../../models/Category').default;
             const category = txSession 
@@ -381,7 +397,7 @@ export class CatalogOrchestrator {
         }
     }
 
-    static async deleteBrandOrchestrated(brandId: string) {
+    async deleteBrandOrchestrated(brandId: string) {
         const BrandModel = require('../../models/Brand').default;
         const softDeleteUpdate: Record<string, unknown> = { isDeleted: true, deletedAt: new Date(), isActive: false };
 
@@ -436,6 +452,68 @@ export class CatalogOrchestrator {
                 try { await session.endSession(); } catch { /* ignore */ }
             }
         }
+    }
+}
+
+let serviceInstance: CatalogOrchestratorImpl | null = null;
+
+export function initializeCatalogOrchestrator(instance: CatalogOrchestratorImpl) {
+    serviceInstance = instance;
+}
+
+function getServiceInstance(): CatalogOrchestratorImpl {
+    if (!serviceInstance) {
+        const { MongoCatalogUnitOfWorkAdapter } = require('../../adapters/outbound/database/catalog/MongoCatalogUnitOfWorkAdapter');
+        const { RedisCatalogCacheAdapter } = require('../../adapters/outbound/database/catalog/RedisCatalogCacheAdapter');
+        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
+        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
+        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
+        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
+
+        serviceInstance = new CatalogOrchestratorImpl(
+            new MongoCatalogUnitOfWorkAdapter(),
+            new RedisCatalogCacheAdapter(),
+            new MongoCategoryRepositoryAdapter(),
+            new MongoBrandRepositoryAdapter(),
+            new MongoModelRepositoryAdapter(),
+            new MongoSparePartRepositoryAdapter()
+        );
+    }
+    return serviceInstance;
+}
+
+export class CatalogOrchestrator {
+    private static get instance() { return getServiceInstance(); }
+
+    static async invalidateCatalogCache(opts?: { categoryIds?: (string | mongoose.Types.ObjectId)[], brandIds?: (string | mongoose.Types.ObjectId)[] }) {
+        return this.instance.invalidateCatalogCache(opts);
+    }
+    static async cascadeCategoryDelete(categoryId: string, session?: ClientSession) {
+        return this.instance.cascadeCategoryDelete(categoryId, session);
+    }
+    static async cascadeBrandDelete(brandId: string, session?: ClientSession) {
+        return this.instance.cascadeBrandDelete(brandId, session);
+    }
+    static async createCategory(data: Partial<ICategory>): Promise<ICategory> {
+        return this.instance.createCategory(data);
+    }
+    static async updateCategory(id: string, data: Partial<ICategory>): Promise<ICategory | null> {
+        return this.instance.updateCategory(id, data);
+    }
+    static async resolveCategoryIdsFromBrand(brandId: string): Promise<string[]> {
+        return this.instance.resolveCategoryIdsFromBrand(brandId);
+    }
+    static async resolvePrimaryCategoryIdFromBrand(brandId: string): Promise<string | null> {
+        return this.instance.resolvePrimaryCategoryIdFromBrand(brandId);
+    }
+    static async detachSparePartsFromModel(modelId: string, session?: ClientSession) {
+        return this.instance.detachSparePartsFromModel(modelId, session);
+    }
+    static async deleteCategoryOrchestrated(categoryId: string) {
+        return this.instance.deleteCategoryOrchestrated(categoryId);
+    }
+    static async deleteBrandOrchestrated(brandId: string) {
+        return this.instance.deleteBrandOrchestrated(brandId);
     }
 }
 
