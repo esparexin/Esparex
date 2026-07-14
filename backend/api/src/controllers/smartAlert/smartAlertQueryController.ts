@@ -1,7 +1,7 @@
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
-import { PaginatedResponse, ApiResponse } from "@esparex/shared";
+import { ApiResponse } from "@esparex/shared";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getErrorMessage, toAlertContract } from './shared';
 import { getSmartAlertsForUser } from '@esparex/core/services/SmartAlertQueryService';

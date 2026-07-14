@@ -1,82 +1,42 @@
-import User, { IUser } from '../models/User';
-import Business from '../models/Business';
-import BlockedUser from '../models/BlockedUser';
-import mongoose from 'mongoose';
-import { normalizeRole } from '../utils/roleNormalization';
-
+import { IUser } from '../models/User';
+import { userRepository } from '../composition/identity';
 
 export const updateUser = async (id: string, updates: Partial<IUser>) => {
-    return await User.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: true,
-    }).select('-password');
+    return await userRepository.updateUser(id, updates);
 };
 
 export const removeUserFcmToken = async (userId: unknown, token: string): Promise<void> => {
-    await User.findByIdAndUpdate(userId, {
-        $pull: { fcmTokens: { token } }
-    });
+    return await userRepository.removeUserFcmToken(userId, token);
 };
 
 export const getUserById = async (userId: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- lean() type is nominal; role normalization requires mutable indexable shape
-    const user = await User.findById(userId).lean() as any;
-    if (user && user.role) {
-        user.role = normalizeRole(user.role);
-    }
-    return user;
+    return await userRepository.getUserById(userId);
 };
 
 export const getUserWithBusiness = async (userId: string) => {
-    const [user, business] = await Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- lean() type is nominal; role normalization requires mutable indexable shape
-        User.findById(userId).select('-password -salt').lean() as any,
-        Business.findOne({ userId }).lean(),
-    ]);
-    if (user && user.role) {
-        user.role = normalizeRole(user.role);
-    }
-    return { user, business };
+    return await userRepository.getUserWithBusiness(userId);
 };
 
 export const getUserPhoneVerification = async (userId: string) => {
-    return User.findById(userId).select('isPhoneVerified mobile').lean();
+    return await userRepository.getUserPhoneVerification(userId);
 };
 
 export const findUserByEmail = async (email: string) => {
-    return User.findOne({ email });
+    return await userRepository.findUserByEmail(email);
 };
 
 export const getUserAvatarById = async (userId: string) => {
-    return User.findById(userId).select('avatar').lean();
+    return await userRepository.getUserAvatarById(userId);
 };
 
 export const checkUserExistsById = async (userId: string) => {
-    return User.exists({
-        _id: new mongoose.Types.ObjectId(userId),
-        isDeleted: { $ne: true }
-    });
+    return await userRepository.checkUserExistsById(userId);
 };
 
 export const blockUserById = async (blockerId: string, blockedUserId: string) => {
-    return BlockedUser.updateOne(
-        {
-            blockerId: new mongoose.Types.ObjectId(blockerId),
-            blockedId: new mongoose.Types.ObjectId(blockedUserId)
-        },
-        {
-            $setOnInsert: {
-                blockerId: new mongoose.Types.ObjectId(blockerId),
-                blockedId: new mongoose.Types.ObjectId(blockedUserId)
-            }
-        },
-        { upsert: true }
-    );
+    return await userRepository.blockUserById(blockerId, blockedUserId);
 };
 
 export const unblockUserById = async (blockerId: string, blockedUserId: string) => {
-    return BlockedUser.deleteOne({
-        blockerId: new mongoose.Types.ObjectId(blockerId),
-        blockedId: new mongoose.Types.ObjectId(blockedUserId)
-    });
+    return await userRepository.unblockUserById(blockerId, blockedUserId);
 };

@@ -1,4 +1,5 @@
 import SmartAlert from '../models/SmartAlert';
+import { getListingRepository } from '../composition/listings';
 import AlertDeliveryLog from '../models/AlertDeliveryLog';
 import { Types } from 'mongoose';
 import logger from '../utils/logger';
@@ -221,17 +222,16 @@ export const findMatchingGeoAlerts = async (
 
 export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
     try {
-        const Ad = (await import('@esparex/core/models/Ad')).default;
-        const ad = await Ad.findById(adId);
+        const ad = await getListingRepository().findById(adId.toString());
 
         if (!ad) {
             logger.warn(`[AlertMatch] Could not process alerts: Ad ${String(adId)} not found`);
             return;
         }
 
-        if (!ad.location || !ad.location.coordinates || !ad.location.coordinates.coordinates || ad.location.coordinates.coordinates.length !== 2) {
+        if (!ad.location || !ad.location.coordinates || ad.location.coordinates.length !== 2) {
             logger.error('REGRESSION: Ad missing valid coordinates for smart alerts matching', {
-                adId: ad._id,
+                adId: ad.id,
                 status: ad.status,
                 hasLocation: !!ad.location,
                 hasCoords: !!ad.location?.coordinates
@@ -239,11 +239,11 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
             return;
         }
 
-        const adCoords: [number, number] = [ad.location.coordinates.coordinates[0], ad.location.coordinates.coordinates[1]]; // [lng, lat]
+        const adCoords: [number, number] = [ad.location.coordinates[0], ad.location.coordinates[1]]; // [lng, lat]
 
         // Pass full ad as criteria to find exact matches + parent-path matches
         const locationParentIds: string[] = Array.isArray(ad.locationPath)
-            ? ad.locationPath.map((id: Types.ObjectId) => id.toString())
+            ? ad.locationPath.map((id: unknown) => String(id))
             : [];
 
         const matches = await findMatchingGeoAlerts(adCoords, {
@@ -259,12 +259,12 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
         });
 
         if (matches.length > 0) {
-            logger.info('[AlertMatch] Found matching smart alerts for new ad', { count: matches.length, adId: ad._id });
+            logger.info('[AlertMatch] Found matching smart alerts for new ad', { count: matches.length, adId: ad.id });
 
             // --- DUPLICATE GUARD: Filter out already delivered alerts ---
             const matchIds = matches.map(m => m._id);
             const alreadyDelivered = await AlertDeliveryLog.find({
-                adId: ad._id,
+                adId: ad.id,
                 alertId: { $in: matchIds }
             } as Record<string, unknown>).distinct('alertId');
 
@@ -272,7 +272,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
             const filteredMatches = matches.filter(m => !alreadyDelivered.some(id => id.toString() === m._id.toString()));
 
             if (filteredMatches.length === 0) {
-                logger.debug('[AlertMatch] All matching alerts already delivered for this ad via idempotency guard', { adId: ad._id });
+                logger.debug('[AlertMatch] All matching alerts already delivered for this ad via idempotency guard', { adId: ad.id });
                 return;
             }
 
@@ -293,7 +293,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
                     return NotificationIntent.fromSmartAlert(
                         match.userId.toString(),
                         match.name,
-                        ad._id.toString(),
+                        ad.id,
                         match._id.toString(),
                         channels
                     );
