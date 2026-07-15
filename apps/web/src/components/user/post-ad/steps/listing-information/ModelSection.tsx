@@ -11,7 +11,7 @@ import { cn } from "@/components/ui/utils";
 export function ModelSection() {
     const { requiresScreenSize } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts, listingId } = usePostAdFlow();
-    const { watch, setValue } = usePostAdAction();
+    const { watch, setValue, createAndSelectModel } = usePostAdAction();
     const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
@@ -60,6 +60,7 @@ export function ModelSection() {
                         value={modelId || modelNameValue} 
                         modelDisplayName={modelNameValue}
                         onChange={(mId, mName) => onModelChange(mId, mName)}
+                        onCreateModel={createAndSelectModel}
                         onBrandResolved={(rbId, rbName) => { 
                             setValue("brandId", rbId, { shouldDirty: true }); 
                             setValue("brand", rbName, { shouldDirty: true }); 

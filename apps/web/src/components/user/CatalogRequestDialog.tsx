@@ -29,6 +29,8 @@ interface CatalogRequestDialogProps {
     /** Optional: the listing ID that triggered this suggestion (edit-ad flow only). */
     listingId?: string;
     onSuccess?: (resolvedEntityId: string, name: string, decision: 'AUTO_APPROVE' | 'MANUAL_REVIEW' | 'REJECT', created: boolean) => void;
+    /** Optional custom orchestrator mutating and selecting directly (Layer 3 composed action) */
+    onSubmitRequest?: (name: string) => Promise<{ status: string; id?: string; message?: string }>;
 }
 
 export function CatalogRequestDialog({
@@ -40,6 +42,7 @@ export function CatalogRequestDialog({
     initialName = "",
     listingId,
     onSuccess,
+    onSubmitRequest,
 }: CatalogRequestDialogProps) {
 
     const [name, setName] = useState(initialName);
@@ -79,6 +82,26 @@ export function CatalogRequestDialog({
 
         setIsSubmitting(true);
         setErrorMessage(null);
+        if (onSubmitRequest) {
+            try {
+                const res = await onSubmitRequest(name.trim());
+                if (res.status === 'REJECTED' || res.status === 'ERROR') {
+                    setErrorMessage(res.message || "Suggestion rejected or failed.");
+                    notify.error(res.message || "Suggestion rejected or failed.");
+                    return;
+                }
+                if (res.status === 'MANUAL_REVIEW') {
+                    notify.info("Your suggestion has been submitted for review.");
+                }
+                onOpenChange(false);
+            } catch (error: unknown) {
+                setErrorMessage(mapErrorToMessage(error, "Network error. Please try again."));
+            } finally {
+                setIsSubmitting(false);
+            }
+            return;
+        }
+
         try {
             const result = await createCatalogRequest({
                 requestType,

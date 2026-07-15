@@ -19,6 +19,7 @@ const validRegistrationPayload = {
     idProof: "https://example.com/id-proof.pdf",
     businessProof: "https://example.com/business-proof.pdf",
     certificates: [],
+    images: ["https://example.com/shop-1.jpg"],
     shopImages: ["https://example.com/shop-1.jpg"],
 };
 
