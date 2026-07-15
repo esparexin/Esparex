@@ -1,0 +1,26 @@
+# Changelog
+
+All notable changes to the Esparex Platform will be documented in this file.
+
+---
+
+## [2.5.0] - 2026-07-15
+
+### Added
+- **Developer Architecture Guide (`ARCHITECTURE.md`):** Added a root-level guide documenting Bounded Context topology, Ports & Adapters naming suffixes, and implementation patterns (Repository, UnitOfWork, Caching, and Composition Roots).
+- **Bounded Context Migration Workflow (`.agents/workflows/bounded_context_migration.md`):** Established a repeatable 10-step template (Discovery, Repository Audit, Port Design, Adapter Implementation, UnitOfWork, Cache Decoupling, Controller Cleanup, Architecture Audit, Release Gate, and Pull Request) for all future domain modernizations.
+- **Listings Cache Boundary:** Introduced `ListingsCachePort` and its concrete `RedisListingsCacheAdapter` implementation to isolate Redis primitives.
+- **Listings Transaction Boundary:** Implemented `ListingUnitOfWorkPort` and `MongoListingUnitOfWorkAdapter` to encapsulate Mongoose sessions.
+
+### Changed
+- **Listings Bounded Context DDD Migration (#109):** Transitioned Listings services and controllers to DDD Ports & Adapters architecture. Removed direct database model (`AdModel`) and Mongoose/Redis client imports from core services and middleware utilities.
+- **Catalog Bounded Context DDD Migration (#108):** Successfully migrated Catalog core entity validations, middlewares, and controllers to decouple database frameworks.
+- **Workspace Configuration:** Updated root `README.md` and `.agents/AGENTS.md` guidelines to link to the new architecture standards.
+
+### Deferred (Future Modernization Candidates)
+- Auth Bounded Context Migration
+- Wallet Bounded Context Migration
+- Notifications Bounded Context Migration
+- Payments Bounded Context Migration
+- Smart Alerts Bounded Context Migration
+- Domain Port Purity Audit (Location ports importing Mongoose query types)
