@@ -160,9 +160,6 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
 
     // Clean query params
     const cleanQuery = { ...req.query };
-    delete cleanQuery.categoryId;
-    delete cleanQuery.category;
-    delete cleanQuery.listingType;
 
     return handlePaginatedContent(req, res, SparePartModel, {
         publicQuery,
@@ -207,9 +204,6 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
 
     // Clean query params
     const cleanQuery = { ...req.query };
-    delete cleanQuery.categoryId;
-    delete cleanQuery.category;
-    delete cleanQuery.listingType;
     delete cleanQuery.placement;
     delete cleanQuery.status;
 

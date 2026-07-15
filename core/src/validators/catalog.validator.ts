@@ -38,7 +38,7 @@ export const rejectionSchema = z.object({
 
 // Centralized Category Logic
 const categoryFields = {
-    categoryIds: z.array(requiredObjectIdSchema)
+    categoryIds: z.array(requiredObjectIdSchema).min(1, 'Spare part must be mapped to at least one category')
 };
 
 const catalogTextFields = {
