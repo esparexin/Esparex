@@ -358,3 +358,15 @@ Always:
 3. Cross-check results with Git and repository verification tools.
 4. State which Graphify interface was used (MCP or CLI).
 5. Never perform architecture analysis without Graphify unless Graphify is unavailable.
+
+---
+
+## Zero-Leakage Architecture Rule
+
+To maintain the integrity of the DDD Ports & Adapters architecture established in v2.5.0:
+
+1. **No direct infrastructure leakage:** No new code, application services, or orchestrators may import or reference Mongoose models directly. They must interact with database schemas strictly via domain-defined **Repository Ports**.
+2. **Abstract transaction boundaries:** All transaction control and session orchestration must go through **UnitOfWork Ports** using the opaque `session: unknown` signature. Direct references to Mongoose `ClientSession`, `startSession`, or `withTransaction` inside application services are strictly forbidden.
+3. **Intent-focused caching:** Caching invalidation and read operations must be declared as business intent behind dedicated **Cache Ports**. Direct imports of low-level `redisCache` helpers into core services are not allowed.
+4. **Enforced via composition:** All dependencies must be resolved and wired at the package boundary via factory functions inside **Composition Roots**.
+
