@@ -125,10 +125,53 @@ public_api:                 # Declared public barrel exports
 
 The Catalog context represents the baseline Reference Architecture for all bounded contexts in the Esparex codebase:
 
-- **Reference Commit**: `2860b4d`
+- **Reference Commit**: `2860b4d` (Catalog), `2912ca1a` (Listings)
 - **Modularity Checklist**:
   - **Public API**: Exposed strictly via barrel index [index.ts](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/src/domains/catalog/index.ts). No deep internal imports allowed.
   - **Decoupled Business Services**: Core domain validations/services contain zero mongoose, direct database model imports, or query builders.
   - **Ports & Adapters Separation**: Port interfaces define business capabilities ([CategoryRepositoryPort.ts](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/src/domains/catalog/ports/CategoryRepositoryPort.ts)). Concrete repositories ([MongoCategoryRepository.ts](file:///c:/Users/Administrator/Documents/GitHub/Esparex/core/src/adapters/outbound/database/catalog/MongoCategoryRepository.ts)) map raw database formats to domain models.
   - **Pure Entities**: Domain models mapped by adapters are plain, read-only JS/TS objects with immutable configuration.
   - **Dependency Guards**: Regressions are blocked automatically by Dependency Cruiser and circularity checks in CI.
+
+---
+
+## 7. Architecture Patterns & Conventions
+
+### UnitOfWork Pattern (Transaction Abstraction)
+To prevent leakage of database transaction details (like Mongoose `ClientSession`) into application services, we use the `UnitOfWork` pattern:
+- **Port**: `ListingUnitOfWorkPort` defines an `executeTransaction` method accepting an opaque session type.
+  ```typescript
+  export interface ListingUnitOfWorkPort {
+      executeTransaction<T>(work: (session: unknown) => Promise<T>): Promise<T>;
+  }
+  ```
+- **Adapter**: `MongoListingUnitOfWorkAdapter` implements the transaction using Mongoose's `session.withTransaction` internally.
+- **Application Services**: Consume the port via the composition root, passing `session` as `unknown` to ensure complete database framework independence:
+  ```typescript
+  await getListingUnitOfWork().executeTransaction(async (session) => {
+      await getListingRepository().updateOne(id, patch, session);
+  });
+  ```
+
+### Repository Pattern (Database Abstraction)
+All persistence-layer queries and commands are routed through a domain-defined Repository Port:
+- **Port**: `ListingRepositoryPort` defines standard CRUD and domain-specific query methods using plain TS objects.
+- **Adapter**: `MongoListingRepositoryAdapter` handles the Mongoose schema interaction, maps MongoDB documents using a `toDomain()` mapping function, and implements the queries.
+- **Controllers & Middlewares**: Call `getListingRepository().findOne(...)` instead of directly importing `AdModel` or writing raw Mongoose queries.
+
+### Cache Abstraction Pattern
+Rather than calling Redis client helpers (like `redisCache`) directly, the application layer declares its invalidation needs through a business-intent-focused cache port:
+- **Port**: `ListingsCachePort` exposes only business-intent invalidation methods:
+  ```typescript
+  export interface ListingsCachePort {
+      invalidateAdFeedCaches(): Promise<void>;
+      invalidatePublicAdCache(adId: string): Promise<void>;
+  }
+  ```
+- **Adapter**: `RedisListingsCacheAdapter` calls the low-level Redis caching helpers.
+- **Core Services & Listeners**: Call `getListingsCache().invalidateAdFeedCaches()` via the composition root, keeping business logic clean of infrastructure caching mechanics.
+
+### Composition Root Pattern
+Dependencies are wired together at the package boundary in a central composition root (`core/src/composition/<domain>.ts`):
+- Singleton instance factories (e.g. `getListingRepository()`, `getListingUnitOfWork()`, `getListingsCache()`) instantiate adapters and return their port interfaces.
+
