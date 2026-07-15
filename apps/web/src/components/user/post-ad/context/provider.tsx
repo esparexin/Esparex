@@ -83,7 +83,15 @@ export function PostAdProvider({
     const { setIsDirty } = useNavigation();
 
     useEffect(() => { const cleanup = suppressGoogleMapsRetryErrors(); return cleanup; }, []);
-    useEffect(() => { setIsDirty(form.formState.isDirty || listingImages.length > 0); }, [form.formState.isDirty, listingImages.length, setIsDirty]);
+    useEffect(() => {
+        // After a successful submission, the success modal becomes the terminal UI.
+        // The navigation guard must remain disabled until resetToCreateMode() starts a fresh session.
+        if (submittedAd) {
+            setIsDirty(false);
+            return;
+        }
+        setIsDirty(form.formState.isDirty || listingImages.length > 0);
+    }, [form.formState.isDirty, listingImages.length, setIsDirty, submittedAd]);
     useEffect(() => { return () => setIsDirty(false); }, [setIsDirty]);
 
     useEffect(() => {
@@ -109,7 +117,7 @@ export function PostAdProvider({
         setIsLoading(false);
     }, [clearCategoryDependents, setValue, loadBrandsForCategory, loadSparePartsForCategory, loadModelsForBrand, setListingImages]);
 
-    const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); (imagesHook as any).setListingImages([]); }, [form, imagesHook]);
+    const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); (imagesHook as any).setListingImages([]); setSubmittedAd(null); }, [form, imagesHook]);
     const { generateDescription } = usePostAdAiGeneration(form as any, categoryMap, availableSpareParts, setIsLoading, setFormError);
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form as any, availableSpareParts);
     const { nextStep, prevStep } = usePostAdStepNavigation({ form: form as any, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger });

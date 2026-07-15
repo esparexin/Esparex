@@ -428,4 +428,25 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
                 .first()
         ).toBeVisible({ timeout: 10_000 });
     });
+
+    // =========================================================================
+    // TEST 11: Navigation Guard Regression Test
+    // =========================================================================
+    test("11. Navigation Guard Regression Test", async ({ page }) => {
+        await gotoEditPage(page);
+
+        const saveBtn = page.locator('button:has-text("Save Changes")');
+        await expect(saveBtn).toBeVisible();
+        await saveBtn.click();
+
+        await expect(
+            page.locator("text=Updated Successfully").or(page.locator("text=Submitted Successfully"))
+        ).toBeVisible({ timeout: 10_000 });
+
+        const doneBtn = page.locator('button:has-text("Done")');
+        await expect(doneBtn).toBeVisible();
+        await doneBtn.click();
+
+        await expect(page.locator("text=Unsaved Changes")).not.toBeVisible();
+    });
 });
