@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./PostAdContext";
 import { StepOne } from "./steps/listing-information";
 import { StepTwo } from "./steps/listing-details";
@@ -21,6 +21,21 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { confirmNavigation } = useNavigation();
+
+  useEffect(() => {
+    const handleFocus = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")) {
+        if (window.innerWidth < 768) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+        }
+      }
+    };
+    document.addEventListener("focusin", handleFocus);
+    return () => document.removeEventListener("focusin", handleFocus);
+  }, []);
 
   const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
   const handleGoMyAds = useCallback(() => navigateTo("my-ads"), [navigateTo]);
