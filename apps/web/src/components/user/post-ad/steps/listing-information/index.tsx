@@ -5,7 +5,9 @@ import { CategorySection } from "./CategorySection";
 import { BrandSection } from "./BrandSection";
 import { ModelSection } from "./ModelSection";
 import { SpecificationSection } from "./SpecificationSection";
+import { ScreenSizeSection } from "./ScreenSizeSection";
 import { DeviceConditionSection } from "./DeviceConditionSection";
+import { SparePartsSection } from "./SparePartsSection";
 import { useLayoutEffect } from "react";
 
 export function StepOne() {
@@ -37,7 +39,13 @@ export function StepOne() {
             {categoryId && (
                 <div className="flex flex-col gap-6">
                     <SpecificationSection />
-                    <DeviceConditionSection />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                        <ScreenSizeSection />
+                        <DeviceConditionSection />
+                    </div>
+                    
+                    <SparePartsSection />
                 </div>
             )}
         </div>

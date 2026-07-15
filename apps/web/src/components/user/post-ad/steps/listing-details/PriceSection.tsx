@@ -29,8 +29,8 @@ export function PriceSection() {
 
     return (
         <section className="space-y-6">
-            <Field label="Set your price" required error={priceError as string}>
-                <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                <Field label="Set your price" required error={priceError as string}>
                     <div className="relative h-20">
                         <Input
                             {...register("price", { valueAsNumber: true })}
@@ -47,7 +47,9 @@ export function PriceSection() {
                             isFree ? "text-foreground-subtle" : "text-foreground-subtle"
                         )}>₹</span>
                     </div>
+                </Field>
 
+                <Field label="Giveaway option">
                     <div 
                         onClick={() => {
                             const nextVal = !isFree;
@@ -59,7 +61,7 @@ export function PriceSection() {
                             }
                         }}
                         className={cn(
-                            "flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all",
+                            "flex items-center justify-between p-4 h-20 rounded-2xl border-2 cursor-pointer transition-all",
                             isFree ? "bg-green-50 border-green-200 ring-2 ring-green-100" : "bg-white border-slate-100 hover:border-slate-200"
                         )}
                     >
@@ -87,8 +89,8 @@ export function PriceSection() {
                             {isFree && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
                     </div>
-                </div>
-            </Field>
+                </Field>
+            </div>
         </section>
     );
 }
