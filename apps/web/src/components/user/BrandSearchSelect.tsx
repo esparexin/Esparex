@@ -18,6 +18,8 @@ interface BrandSearchSelectProps {
     onChange: (brandId: string, brandName: string, requestId?: string) => void;
     categoryId: string;
     onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
+    /** Optional custom orchestrator handler (Layer 3 composed action) */
+    onCreateBrand?: (categoryId: string, name: string, listingId?: string) => Promise<{ status: string; id?: string; message?: string }>;
     /** Optional listing ID for traceability (edit-ad flow only). */
     listingId?: string;
     disabled?: boolean;
@@ -32,6 +34,7 @@ export function BrandSearchSelect({
     onChange,
     categoryId,
     onRequestSuccess,
+    onCreateBrand,
     listingId,
     disabled = false,
     placeholder = "Search brand...",
@@ -124,6 +127,18 @@ export function BrandSearchSelect({
             categoryId={categoryId}
             initialName={search}
             listingId={listingId}
+            onSubmitRequest={
+                onCreateBrand
+                    ? async (name) => {
+                          const res = await onCreateBrand(categoryId, name, listingId);
+                          if (res.status === 'SELECTED' || res.status === 'MANUAL_REVIEW') {
+                              setSearch("");
+                              setIsEditing(false);
+                          }
+                          return res;
+                      }
+                    : undefined
+            }
             onSuccess={async (resolvedEntityId, name, decision) => {
                 setSearch("");
                 setIsEditing(false);

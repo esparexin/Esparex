@@ -28,18 +28,35 @@ export function useCategoryDependents(
         return Boolean(category.hasScreenSizes);
     }, [selectedCategoryId, categoryMap]);
 
-    const handleCategoryChange = useCallback(async (id: string) => {
-        setFormError(null);
-        form.setValue("category", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        form.setValue("categoryId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-
-        form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+    /**
+     * Centralized clearing of all dependent fields child to Brand (models, screen sizes, spare parts, device condition).
+     */
+    const clearBrandDependents = useCallback(() => {
         form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
+    }, [form]);
+
+    /**
+     * Centralized clearing of all dependent fields child to Category (brand + child dependents).
+     */
+    const clearCategoryDependents = useCallback(() => {
+        form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        clearBrandDependents();
+    }, [form, clearBrandDependents]);
+
+    /**
+     * Explicit selection action for Category. Sets canonical form values, clears dependents, and triggers catalog queries.
+     */
+    const selectCategory = useCallback(async (id: string) => {
+        setFormError(null);
+        form.setValue("category", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("categoryId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+
+        clearCategoryDependents();
         setBrandIsPending(false);
         
         await Promise.all([
@@ -47,35 +64,64 @@ export function useCategoryDependents(
             loadSparePartsForCategory(id),
             loadCategorySchema(id)
         ]);
-    }, [form, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
+    }, [form, setFormError, clearCategoryDependents, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
 
-    const handleBrandChange = useCallback(async (name: string, requestId?: string) => {
-        const currentBrand = form.getValues("brand");
-        const brandChanged = currentBrand !== name;
+    /**
+     * Explicit selection action for Brand. Sets canonical form values, clears child dependents when changed, and triggers models query.
+     */
+    const selectBrand = useCallback(async (id: string, name: string) => {
+        const currentBrandId = form.getValues("brandId");
+        const currentBrandName = form.getValues("brand");
+        const brandChanged = currentBrandId !== id && currentBrandName !== name;
 
         setFormError(null);
         form.setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-
-        const brandObj = brandMap[name];
-        const brandId = sanitizeMongoObjectId(brandObj?.id || brandObj?._id) || requestId;
-        form.setValue("brandId", brandId ?? "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("brandId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         if (brandChanged) {
-            form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
-            form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
-            form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
-            form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
-            form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
+            clearBrandDependents();
         }
 
-        if (brandId) {
-            await loadModelsForBrand(brandId, selectedCategoryId);
+        if (id) {
+            await loadModelsForBrand(id, selectedCategoryId);
         } else {
             await loadModelsForBrand("", selectedCategoryId);
         }
         
         setBrandIsPending(false);
-    }, [form, brandMap, setFormError, setBrandIsPending, selectedCategoryId, loadModelsForBrand]);
+    }, [form, setFormError, clearBrandDependents, loadModelsForBrand, selectedCategoryId, setBrandIsPending]);
 
-    return { requiresScreenSize, handleCategoryChange, handleBrandChange };
+    /**
+     * Explicit selection action for Model. Sets canonical form values cleanly without HTTP queries or cache changes.
+     */
+    const selectModel = useCallback((id: string, name: string) => {
+        setFormError(null);
+        form.setValue("model", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("modelId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    }, [form, setFormError]);
+
+    /**
+     * Backward-compatible alias for existing callers.
+     */
+    const handleCategoryChange = selectCategory;
+
+    /**
+     * Backward-compatible handler for existing callers passing name + optional requestId.
+     */
+    const handleBrandChange = useCallback(async (name: string, requestId?: string) => {
+        const brandObj = brandMap[name];
+        const brandId = sanitizeMongoObjectId(brandObj?.id || brandObj?._id) || requestId || "";
+        return selectBrand(brandId, name);
+    }, [brandMap, selectBrand]);
+
+    return {
+        requiresScreenSize,
+        handleCategoryChange,
+        handleBrandChange,
+        selectCategory,
+        selectBrand,
+        selectModel,
+        clearBrandDependents,
+        clearCategoryDependents,
+    };
 }

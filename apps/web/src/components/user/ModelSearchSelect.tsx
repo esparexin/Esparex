@@ -22,6 +22,8 @@ interface ModelSearchSelectProps {
     /** Called with (modelId, modelName, requestId) on selection */
     onChange: (modelId: string, modelName: string, requestId?: string) => void;
     onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
+    /** Optional custom orchestrator handler (Layer 3 composed action) */
+    onCreateModel?: (brandId: string, categoryId: string, name: string, listingId?: string) => Promise<{ status: string; id?: string; message?: string }>;
     /** Reserved callback for parent brand sync in async catalog flows. */
     onBrandResolved?: (brandId: string, brandName: string) => void;
     /** Optional listing ID for traceability (edit-ad flow only). */
@@ -38,6 +40,7 @@ export function ModelSearchSelect({
     modelDisplayName = "",
     onChange,
     onRequestSuccess,
+    onCreateModel,
     listingId,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
@@ -52,18 +55,12 @@ export function ModelSearchSelect({
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
 
-    // Local selection bridges the gap during prop/context sync.
-    // Only consulted when selectedModel (from catalog) is not yet available.
-    const [localSelection, setLocalSelection] = useState<{ id: string; name: string } | null>(null);
-
-    // Resolve selected model name.
-    // Priority: matched model in list > local tentative selection > explicit displayName > raw value
+    // Resolve selected model name cleanly from React Query catalog SSOT or RHF prop value without local selection state.
     const selectedModel = useMemo(() => {
         return availableModels.find(m => m.id === value || m._id === value);
     }, [availableModels, value]);
 
-    // If selectedModel is present in the catalog, localSelection is superseded — no effect needed.
-    const selectedName = selectedModel?.name || (!selectedModel ? localSelection?.name : null) || modelDisplayName || value || "";
+    const selectedName = selectedModel?.name || modelDisplayName || value || "";
     useEffect(() => {
         if (!search || search.length < 2) return;
 
@@ -116,7 +113,6 @@ export function ModelSearchSelect({
     const handleSelect = (model: DeviceModel) => {
         const id = String(model.id || model._id);
         const name = model.name;
-        setLocalSelection({ id, name });
         onChange(id, name);
         setSearch("");
         setIsEditing(false);
@@ -163,6 +159,18 @@ export function ModelSearchSelect({
             parentBrandId={brandId}
             initialName={search}
             listingId={listingId}
+            onSubmitRequest={
+                onCreateModel
+                    ? async (name) => {
+                          const res = await onCreateModel(brandId, categoryId, name, listingId);
+                          if (res.status === 'SELECTED' || res.status === 'MANUAL_REVIEW') {
+                              setSearch("");
+                              setIsEditing(false);
+                          }
+                          return res;
+                      }
+                    : undefined
+            }
             onSuccess={async (resolvedEntityId, name, decision) => {
                 setSearch("");
                 setIsEditing(false);
@@ -207,7 +215,6 @@ export function ModelSearchSelect({
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                setLocalSelection(null);
                                 onChange("", "");
                                 setSearch("");
                                 setIsEditing(false);

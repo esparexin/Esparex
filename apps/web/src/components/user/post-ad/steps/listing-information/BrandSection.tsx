@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 export function BrandSection() {
     const { availableBrands, brandMap, brandIsPending, brandsError } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts, listingId } = usePostAdFlow();
-    const { watch, handleBrandChange, loadBrandsForCategory, refreshBrands } = usePostAdAction();
+    const { watch, handleBrandChange, loadBrandsForCategory, refreshBrands, createAndSelectBrand } = usePostAdAction();
     const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
@@ -52,6 +52,7 @@ export function BrandSection() {
                         value={brandNameValue} 
                         onChange={(_id, name) => onBrandChange(name, _id)} 
                         onRequestSuccess={() => refreshBrands()} 
+                        onCreateBrand={createAndSelectBrand}
                         disabled={brandIsPending || isEditMode} 
                         placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"} 
                         listingId={listingId} 
