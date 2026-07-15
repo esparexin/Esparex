@@ -82,7 +82,7 @@ export const getListingAnalytics = async (req: Request, res: Response) => {
         if (!listing) return;
 
         return sendSuccessResponse(res, {
-            id: listing._id,
+            id: listing.id,
             views: listing.views
         });
     } catch (error) {

@@ -27,7 +27,7 @@ export const markListingSold = async (req: Request, res: Response, next: NextFun
 
         const updatedListing = await mutateStatus({
             domain: 'ad',
-            entityId: listing._id.toString(),
+            entityId: listing.id,
             toStatus: LISTING_STATUS.SOLD,
             actor: {
                 type: ACTOR_TYPE.USER,
@@ -70,7 +70,7 @@ export const deactivateListing = async (req: Request, res: Response, next: NextF
 
         const updatedListing = await mutateStatus({
             domain: 'ad',
-            entityId: listing._id.toString(),
+            entityId: listing.id,
             toStatus: LISTING_STATUS.DEACTIVATED,
             actor: {
                 type: ACTOR_TYPE.USER,
@@ -107,7 +107,7 @@ export const activateListing = async (req: Request, res: Response, next: NextFun
 
         const updatedListing = await mutateStatus({
             domain: 'ad',
-            entityId: listing._id.toString(),
+            entityId: listing.id,
             toStatus: LISTING_STATUS.LIVE,
             actor: {
                 type: ACTOR_TYPE.USER,
@@ -149,7 +149,7 @@ export const deleteListing = async (req: Request, res: Response, next: NextFunct
         // the terminal transition. isDeleted:true drives the soft-delete query filter.
         await mutateStatus({
             domain: 'ad',
-            entityId: listing._id.toString(),
+            entityId: listing.id,
             toStatus: LISTING_STATUS.DELETED,
             actor: {
                 type: ACTOR_TYPE.USER,
@@ -236,7 +236,7 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
             return sendErrorResponse(req, res, 400, 'Only live listings can be promoted');
         }
 
-        return sendSuccessResponse(res, { listingId: listing._id.toString(), currentStatus: listing.status, listingType: listing.listingType }, 'Proceed to promotion checkout');
+        return sendSuccessResponse(res, { listingId: listing.id, currentStatus: listing.status, listingType: listing.listingType }, 'Proceed to promotion checkout');
     } catch (error) {
         next(error);
     }
@@ -267,7 +267,7 @@ export const markListingStatusSold = async (req: Request, res: Response, next: N
         // StatusHistory record, and automatic cache invalidation.
         const updatedListing = await mutateStatus({
             domain: 'ad',
-            entityId: listing._id.toString(),
+            entityId: listing.id,
             toStatus: LISTING_STATUS.SOLD,
             actor: {
                 type: ACTOR_TYPE.USER,

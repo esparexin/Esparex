@@ -37,7 +37,19 @@ jest.mock('@esparex/core/composition/listings', () => ({
         }),
         find: jest.fn().mockResolvedValue([]),
         insert: jest.fn(),
-        updateMany: jest.fn()
+        updateMany: jest.fn(),
+        updateOne: jest.fn().mockResolvedValue({
+            id: 'ad_1',
+            status: 'deactivated',
+            listingType: 'ad'
+        })
+    }),
+    getListingUnitOfWork: jest.fn().mockReturnValue({
+        executeTransaction: jest.fn().mockImplementation((work) => work('mock-session'))
+    }),
+    getListingsCache: jest.fn().mockReturnValue({
+        invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
+        invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined)
     })
 }));
 

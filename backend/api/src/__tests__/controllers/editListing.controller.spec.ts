@@ -78,7 +78,8 @@ const makeReq = (overrides: Partial<{
     user: { _id: USER_ID, role: 'user' },
     body: { title: 'Updated title', price: 45000 },
     params: { id: LISTING_ID },
-    listing: { _id: LISTING_ID, status: 'draft', listingType: 'ad' },
+    // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
+    listing: { id: LISTING_ID, _id: LISTING_ID, status: 'draft', listingType: 'ad' },
     ...overrides,
 } as unknown as Request);
 

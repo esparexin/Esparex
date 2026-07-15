@@ -30,10 +30,14 @@ jest.mock("@esparex/core/models/Business", () => ({
     },
 }));
 
-jest.mock("@esparex/core/utils/redisCache", () => ({
-    __esModule: true,
-    invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
-    invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined),
+jest.mock('@esparex/core/composition/listings', () => ({
+    getListingRepository: jest.fn().mockReturnValue({
+        findById: jest.fn().mockResolvedValue({ id: 'ad_123', title: 'Test Ad' })
+    }),
+    getListingsCache: jest.fn().mockReturnValue({
+        invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
+        invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined)
+    })
 }));
 
 jest.mock("@esparex/core/utils/logger", () => ({

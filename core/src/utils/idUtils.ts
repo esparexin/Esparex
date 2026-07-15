@@ -65,3 +65,12 @@ export const toObjectIdString = (value: unknown): string | null => {
     const oid = toObjectId(value);
     return oid ? oid.toHexString() : null;
 };
+
+/**
+ * Generates a new 24-character hexadecimal ID (compatible with Mongoose ObjectId)
+ * to allow ID generation in the application layer without leaking mongoose.
+ */
+export const generateId = (): string => {
+    return new mongoose.Types.ObjectId().toHexString();
+};
+

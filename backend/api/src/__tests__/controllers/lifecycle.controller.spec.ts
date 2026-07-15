@@ -88,7 +88,8 @@ const makeReq = (overrides: Partial<{
     params: { id: LISTING_ID },
     headers: { 'user-agent': 'TestAgent/1.0' },
     ip: '127.0.0.1',
-    listing: { _id: LISTING_ID, status: 'live', listingType: 'ad' },
+    // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
+    listing: { id: LISTING_ID, _id: LISTING_ID, status: 'live', listingType: 'ad' },
     ...overrides,
 } as unknown as Request);
 
@@ -102,7 +103,7 @@ const makeRes = (): Response => {
 
 const makeNext = (): NextFunction => jest.fn();
 
-const liveListing = () => ({ _id: LISTING_ID, status: 'live', listingType: 'ad' });
+const liveListing = () => ({ id: LISTING_ID, _id: LISTING_ID, status: 'live', listingType: 'ad' });
 
 // ─── markListingSold ──────────────────────────────────────────────────────────
 

@@ -67,5 +67,11 @@
   "shared/src/types/api.ts": 1,
   "shared/src/types/business.ts": 7,
   "shared/src/types/service.ts": 1,
-  "shared/src/utils/statusNormalization.ts": 1
+  "shared/src/utils/statusNormalization.ts": 1,
+  "backend/api/src/__tests__/controllers/editListing.controller.spec.ts": 1,
+  "backend/api/src/__tests__/controllers/lifecycle.controller.myStatusTabs.spec.ts": 1,
+  "backend/api/src/__tests__/controllers/lifecycle.controller.spec.ts": 1,
+  "backend/api/src/__tests__/controllers/listingRepost.spec.ts": 1,
+  "backend/api/src/__tests__/controllers/requireOwnedService.spec.ts": 1,
+  "backend/api/src/__tests__/controllers/stats.controller.analytics.spec.ts": 1
 }

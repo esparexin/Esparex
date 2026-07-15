@@ -107,7 +107,7 @@ async function runScenarioA(verifiedLocation: SmokeEntityWithId, validCategory: 
 
     await mutateStatus({
         domain: 'ad',
-        entityId: ad._id.toString(),
+        entityId: ad.id,
         toStatus: LISTING_STATUS.LIVE,
         actor: { type: 'admin', id: 'admin_1' },
         reason: 'Approval',
@@ -118,7 +118,7 @@ async function runScenarioA(verifiedLocation: SmokeEntityWithId, validCategory: 
         }
     });
 
-    const updatedAd = await Ad.findById(ad._id);
+    const updatedAd = await Ad.findById(ad.id);
     if (!updatedAd || updatedAd.status !== LISTING_STATUS.LIVE || !updatedAd.expiresAt) {
         throw new Error('Scenario A Failed: Transition to LIVE failed or expiresAt missing');
     }

@@ -10,3 +10,12 @@ export {
     type PaginatedResult,
     ListingRepositoryPort,
 } from './ports/ListingRepositoryPort';
+
+export {
+    type TransactionContext,
+    ListingUnitOfWorkPort,
+} from './ports/ListingUnitOfWorkPort';
+
+export { ListingsCachePort } from './ports/ListingsCachePort';
+
+
