@@ -327,6 +327,11 @@ Before adding any rule, instruction, workflow, or documentation, determine its o
 - Setup
 - Usage
 
+**ARCHITECTURE.md**
+- Architecture standard reference
+- Bounded Context Map
+- Pattern guidelines (Repository, UnitOfWork, Caching, Composition Root)
+
 Never duplicate content between files.
 
 If a new rule belongs to an existing owner, update that document instead of creating a new one.

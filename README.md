@@ -7,7 +7,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 - **`@esparex/apps-admin`** (`apps/admin`): Admin dashboard UI (Next.js)
 - **`@esparex/apps-web`** (`apps/web`): User-facing web application (Next.js)
 - **`@esparex/backend-api`** (`backend/api`): Unified API services (user + admin namespaces)
-- **`@esparex/core`** (`core`): Business logic, domain models, and DB services (Clean Architecture)
+- **`@esparex/core`** (`core`): Core business domain, domain models, and DB services structured under Hexagonal Ports & Adapters pattern. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed guidelines.
 - **`@esparex/shared`** (`shared`): Shared contracts, types, and utility constants
 - **`apps/mobile`** *(not an npm workspace)*: Capacitor shell that wraps `apps/web` for native iOS/Android deployment. It has no independent TypeScript build pipeline — it loads the web app via a configured server URL. Mobile-specific native code (Android/iOS) lives here. See `apps/mobile/capacitor.config.ts`.
 
@@ -15,11 +15,12 @@ Esparex is an npm workspaces monorepo with the following structure:
 
 - `apps/`: Presentation layer (UI only)
 - `backend/`: API gateway layer (routing + validation)
-- `core/`: The "Brain" — ONLY place for business logic and DB access
+- `core/`: The "Brain" — core business domains (`core/src/domains/`), outbound adapters (`core/src/adapters/`), and composition root factories (`core/src/composition/`). See [ARCHITECTURE.md](ARCHITECTURE.md).
 - `shared/`: SSOT for types, enums, and interfaces
 - `scripts/`: Repo governance, guardrails, and CI tooling
 - `ai-governance`: Canonical instructions for repo-aware AI agents
 - `docs/`: [Master Documentation Registry](docs/00-index.md)
+- `ARCHITECTURE.md`: Developer-facing guide to Ports & Adapters, UnitOfWork, Caching, and Composition Root conventions.
 
 > **Workspace Governance Rule**: Every top-level directory in this repository must either be a registered npm workspace (listed in the root `package.json` `workspaces` array), or explicitly documented as an infrastructure/runtime wrapper in this README. Undocumented directories are not permitted.
 >
