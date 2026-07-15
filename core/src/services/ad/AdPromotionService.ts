@@ -1,13 +1,11 @@
-import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
-import { getListingRepository } from '../../composition/listings';
-import { getUserConnection } from '../../config/db';
+import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../composition/listings';
 import { LISTING_TYPE } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LIFECYCLE_STATUS } from '@esparex/shared';
 import { consumeCredit } from '../wallet/WalletService';
-import { invalidateAdFeedCaches } from '../../utils/redisCache';
+import { isValidObjectId } from '../../utils/idUtils';
 
 export const promoteAdLogic = async (
     id: string,
@@ -19,7 +17,7 @@ export const promoteAdLogic = async (
     const Boost = (await import('@esparex/core/models/Boost')).default;
     const User = (await import('@esparex/core/models/User')).default;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) throw new AppError('Invalid Ad ID', 400);
+    if (!isValidObjectId(id)) throw new AppError('Invalid Ad ID', 400);
 
     const ad = await getListingRepository().findById(id);
     if (!ad) return null;
@@ -66,69 +64,62 @@ export const promoteAdLogic = async (
         throw new AppError('Ad expires before boost duration. Extend ad expiry first.', 400);
     }
 
-    const connection = getUserConnection();
-    const session = await connection.startSession();
+    await getListingUnitOfWork().executeTransaction(async (session) => {
+        if (!isAdmin) {
+            const promotionCost = Math.abs(Math.floor(days));
+            if (promotionCost === 0) throw new AppError('Promotion cost cannot be zero', 400, 'INVALID_PROMOTION_COST');
 
-    try {
-        await session.withTransaction(async () => {
-            if (!isAdmin) {
-                const promotionCost = Math.abs(Math.floor(days));
-                if (promotionCost === 0) throw new AppError('Promotion cost cannot be zero', 400, 'INVALID_PROMOTION_COST');
-
-                try {
-                    await consumeCredit({
-                        userId,
-                        creditType: 'spotlightCredits',
-                        amount: promotionCost,
-                        reason: `Ad promotion - ${days} days`,
-                        metadata: { adId: id, type, days },
-                        session
-                    });
-                } catch (error) {
-                    throw new AppError(
-                        error instanceof Error ? error.message : 'Insufficient spotlight credits',
-                        402
-                    );
-                }
-            }
-
-            if (ad.isSpotlight) {
-                await Boost.updateOne(
-                    { entityId: ad.id, isActive: true },
-                    { $set: { endsAt } },
-                    { session }
+            try {
+                await consumeCredit({
+                    userId,
+                    creditType: 'spotlightCredits',
+                    amount: promotionCost,
+                    reason: `Ad promotion - ${days} days`,
+                    metadata: { adId: id, type, days },
+                    session: session as any
+                });
+            } catch (error) {
+                throw new AppError(
+                    error instanceof Error ? error.message : 'Insufficient spotlight credits',
+                    402
                 );
-            } else {
-                await Boost.create([{
-                    entityId: ad.id,
-                    entityType: 'ad',
-                    boostType: type,
-                    startsAt,
-                    endsAt,
-                    isActive: true
-                }], { session });
             }
+        }
 
-            await getListingRepository().updateOne(id, {
-                $set: {
-                    isSpotlight: true,
-                    spotlightExpiresAt: endsAt,
-                    spotlightWarningCount: 0
-                },
-                $unset: {
-                    spotlightWarningSentAt: 1
-                }
-            } as any, session);
-        });
+        if (ad.isSpotlight) {
+            await Boost.updateOne(
+                { entityId: ad.id, isActive: true },
+                { $set: { endsAt } },
+                { session: session as any }
+            );
+        } else {
+            await Boost.create([{
+                entityId: ad.id,
+                entityType: 'ad',
+                boostType: type,
+                startsAt,
+                endsAt,
+                isActive: true
+            }], { session: session as any });
+        }
 
-        setImmediate(() => {
-            invalidateAdFeedCaches().catch((err: unknown) => {
-                logger.error('Failed to clear homepage cache after promotion', { error: String(err) });
-            });
+        await getListingRepository().updateOne(id, {
+            $set: {
+                isSpotlight: true,
+                spotlightExpiresAt: endsAt,
+                spotlightWarningCount: 0
+            },
+            $unset: {
+                spotlightWarningSentAt: 1
+            }
+        } as any, session as any);
+    });
+
+    setImmediate(() => {
+        getListingsCache().invalidateAdFeedCaches().catch((err: unknown) => {
+            logger.error('Failed to clear homepage cache after promotion', { error: String(err) });
         });
-    } finally {
-        await session.endSession();
-    }
+    });
 
     return ad;
 };

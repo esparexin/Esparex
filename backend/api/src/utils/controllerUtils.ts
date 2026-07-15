@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { IAuthUser } from '@esparex/core/types/auth';
 import { sendErrorResponse } from './errorResponse';
 import { getSingleParam } from './requestParams';
-import AdModel from '@esparex/core/models/Ad';
+import { getListingRepository } from '@esparex/core/composition/listings';
+import { ListingFilter } from '@esparex/core/domains/listings';
 
 /**
  * Shared Controller Helpers
@@ -27,17 +28,17 @@ export const getAndVerifyOwnedListing = async (
         return null;
     }
 
-    const query: Record<string, unknown> = {
-        _id: id,
-        sellerId: user._id,
+    const filter: ListingFilter = {
+        ids: [id],
+        sellerId: user._id.toString(),
         isDeleted: false,
     };
 
     if (options.listingType) {
-        query.listingType = options.listingType;
+        filter.listingType = options.listingType as any;
     }
 
-    const listing = await AdModel.findOne(query).select(options.select || '');
+    const listing = await getListingRepository().findOne(filter);
 
     if (!listing) {
         sendErrorResponse(req, res, 404, options.errorMessage || 'Listing not found or access denied');

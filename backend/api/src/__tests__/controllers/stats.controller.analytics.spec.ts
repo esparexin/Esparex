@@ -84,6 +84,8 @@ describe('stats.controller - Analytics & Stats', () => {
     describe('getListingAnalytics', () => {
         it('returns view analytics for a verified owned listing', async () => {
             const mockListing = {
+                // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
+                id: 'listing-456',
                 _id: 'listing-456',
                 views: { total: 100, unique: 80 }
             };

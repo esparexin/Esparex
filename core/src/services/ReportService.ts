@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 import Report, { ReportTargetTypeValue } from '../models/Report';
 import User from '../models/User';
 import Business from '../models/Business';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../utils/redisCache';
+import { getListingRepository, getListingsCache } from '../composition/listings';
 import logger from '../utils/logger';
 import { mutateStatus } from './lifecycle/StatusMutationService';
 import { ACTOR_TYPE } from '@esparex/shared';
-import { getListingRepository } from '../composition/listings';
 
 const ACTIVE_REPORT_STATUSES = ['open', 'pending', 'reviewed'] as const;
 
@@ -118,12 +117,12 @@ export const autoHideAdIfOverThreshold = async (
     });
 
     setImmediate(() => {
-        invalidateAdFeedCaches().catch((err: unknown) => {
+        getListingsCache().invalidateAdFeedCaches().catch((err: unknown) => {
             logger.error('Failed to clear feed cache after community auto-hide', {
                 error: String(err), adId: adId.toString(),
             });
         });
-        invalidatePublicAdCache(adId.toString()).catch((err: unknown) => {
+        getListingsCache().invalidatePublicAdCache(adId.toString()).catch((err: unknown) => {
             logger.error('Failed to clear ad cache after community auto-hide', {
                 error: String(err), adId: adId.toString(),
             });

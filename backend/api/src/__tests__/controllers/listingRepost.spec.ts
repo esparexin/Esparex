@@ -59,7 +59,8 @@ const makeReq = (overrides: Partial<Request> & { listing?: unknown } = {}): Requ
         user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1', toString: () => '65f0a1b2c3d4e5f6a7b8c9d1' },
         params: { id: '65f0a1b2c3d4e5f6a7b8c9d0' },
         body: {},
-        listing: { _id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'expired' },
+        // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
+        listing: { id: '65f0a1b2c3d4e5f6a7b8c9d0', _id: '65f0a1b2c3d4e5f6a7b8c9d0', status: 'expired' },
         ...overrides,
     } as unknown as Request);
 

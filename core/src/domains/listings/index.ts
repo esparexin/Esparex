@@ -16,3 +16,6 @@ export {
     ListingUnitOfWorkPort,
 } from './ports/ListingUnitOfWorkPort';
 
+export { ListingsCachePort } from './ports/ListingsCachePort';
+
+

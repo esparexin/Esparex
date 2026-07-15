@@ -18,7 +18,8 @@ describe('requireListingOwner middleware', () => {
     });
 
     it('calls next() and populates req.listing when getAndVerifyOwnedListing succeeds', async () => {
-        const mockListing = { _id: '123', title: 'Test ad' };
+        // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
+        const mockListing = { id: '123', _id: '123', title: 'Test ad' };
         mockGetAndVerifyOwnedListing.mockResolvedValue(mockListing);
 
         const req = {} as Request;

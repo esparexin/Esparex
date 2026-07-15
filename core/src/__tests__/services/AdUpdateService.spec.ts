@@ -32,6 +32,10 @@ jest.mock('@esparex/core/composition/listings', () => ({
     }),
     getListingUnitOfWork: jest.fn().mockReturnValue({
         executeTransaction: jest.fn().mockImplementation((work) => work('mock-session'))
+    }),
+    getListingsCache: jest.fn().mockReturnValue({
+        invalidateAdFeedCaches: jest.fn().mockResolvedValue(undefined),
+        invalidatePublicAdCache: jest.fn().mockResolvedValue(undefined)
     })
 }));
 

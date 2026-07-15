@@ -292,10 +292,11 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             // 🛡️ PRODUCTION HARDENING: Fire-and-forget cache invalidation
             // Cache bust runs independently — a Redis failure must NOT block
             // lifecycle event dispatch that downstream consumers depend on.
-            import('@esparex/core/utils/redisCache').then(({ invalidatePublicAdCache, invalidateAdFeedCaches }) => {
+            import('@esparex/core/composition/listings').then(({ getListingsCache }) => {
+                const listingsCache = getListingsCache();
                 return Promise.all([
-                    invalidatePublicAdCache(entityId.toString()),
-                    invalidateAdFeedCaches()
+                    listingsCache.invalidatePublicAdCache(entityId.toString()),
+                    listingsCache.invalidateAdFeedCaches()
                 ]);
             }).catch((cacheErr) => {
                 logger.error('Failed to bust cache during status mutation', { adId: entityId.toString(), cacheErr });

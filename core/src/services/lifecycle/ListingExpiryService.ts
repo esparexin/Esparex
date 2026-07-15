@@ -53,8 +53,8 @@ export class ListingExpiryService {
             source: 'ListingExpiryService',
         });
 
-        const { invalidateAdFeedCaches } = await import('../../utils/redisCache');
-        await invalidateAdFeedCaches();
+        const { getListingsCache } = await import('../../composition/listings');
+        await getListingsCache().invalidateAdFeedCaches();
 
         logger.info('[ListingExpiryService] Expiry sweep completed', {
             expiredCount,

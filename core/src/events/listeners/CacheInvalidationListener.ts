@@ -1,7 +1,7 @@
 import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
 import type { AdStatusChangedEvent } from '../LifecycleEventDispatcher';
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
+import { getListingsCache } from '../../composition/listings';
 import axios from 'axios';
 import { getFrontendInternalUrl } from '../../utils/appUrl';
 import { CircuitBreaker } from '../../utils/resilience';
@@ -36,9 +36,9 @@ export const registerCacheInvalidationListener = () => {
         logger.info(`[CacheInvalidationListener] Processing ad.lifecycle.changed for ad ${payload.adId}`);
         try {
             // Bust the global homepage/feed caching aggregations
-            await invalidateAdFeedCaches();
+            await getListingsCache().invalidateAdFeedCaches();
             // Bust the specific ad detail route caching
-            await invalidatePublicAdCache(payload.adId);
+            await getListingsCache().invalidatePublicAdCache(payload.adId);
             // Bust Next.js frontend cache
             await triggerNextJsRevalidation();
         } catch (error) {
@@ -54,7 +54,7 @@ export const registerCacheInvalidationListener = () => {
         try {
             // Bust feeds. Note: we do NOT loop and invalidate individual detail caches natively here
             // to avoid stampedes. The detail cache naturally expires, or we handle it progressively.
-            await invalidateAdFeedCaches();
+            await getListingsCache().invalidateAdFeedCaches();
             await triggerNextJsRevalidation();
         } catch (error) {
             logger.error(`[CacheInvalidationListener] Failed to invalidate bulk feed caches`, { error });
@@ -68,7 +68,7 @@ export const registerCacheInvalidationListener = () => {
         
         try {
             // Recalculates spotlight presence in feeds
-            await invalidateAdFeedCaches();
+            await getListingsCache().invalidateAdFeedCaches();
             await triggerNextJsRevalidation();
         } catch (error) {
             logger.error(`[CacheInvalidationListener] Failed to invalidate spotlight caches`, { error });

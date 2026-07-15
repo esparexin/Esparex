@@ -1,33 +1,28 @@
-import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
-import { getListingRepository } from '../../composition/listings';
-import { getUserConnection } from '../../config/db';
+import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../composition/listings';
 import { LISTING_STATUS } from '@esparex/shared';
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
 import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { normalizeAdStatus } from "../lifecycle/AdStatusService";
-import { invalidateAdFeedCaches, invalidatePublicAdCache } from '../../utils/redisCache';
+import { isValidObjectId } from '../../utils/idUtils';
+
 import { type ListingTypeValue } from '@esparex/shared';
 
 export const repostAdLogic = async (
     id: string,
     userId: string
 ): Promise<Record<string, unknown> | null> => {
-    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+    if (!isValidObjectId(id) || !isValidObjectId(userId)) {
         return null;
     }
 
     logger.info('[RepostLifecycle] Repost requested', { adId: id, userId });
 
-    const adId = new mongoose.Types.ObjectId(id);
-    const sellerObjectId = new mongoose.Types.ObjectId(userId);
-    const connection = getUserConnection();
-    const session = await connection.startSession();
     let updatedAd: Record<string, unknown> | null = null;
 
     try {
-        await session.withTransaction(async () => {
+        await getListingUnitOfWork().executeTransaction(async (session) => {
             const ad = await getListingRepository().findOne({
                 ids: [id],
                 sellerId: userId,
@@ -51,7 +46,7 @@ export const repostAdLogic = async (
                 userId,
                 listingType: (ad.listingType as ListingTypeValue),
                 listingId: id,
-                session,
+                session: session as any,
                 actor: 'user'
             });
 
@@ -101,7 +96,7 @@ export const repostAdLogic = async (
                         },
                     },
                 },
-                session,
+                session: session as any,
             });
             updatedAd = transitioned;
 
@@ -114,10 +109,10 @@ export const repostAdLogic = async (
         });
 
         setImmediate(() => {
-            invalidateAdFeedCaches().catch((err: unknown) => {
+            getListingsCache().invalidateAdFeedCaches().catch((err: unknown) => {
                 logger.error('Failed to clear feed cache after repost', { error: String(err), adId: id });
             });
-            invalidatePublicAdCache(id).catch((err: unknown) => {
+            getListingsCache().invalidatePublicAdCache(id).catch((err: unknown) => {
                 logger.error('Failed to clear public ad cache after repost', { error: String(err), adId: id });
             });
         });
@@ -130,7 +125,5 @@ export const repostAdLogic = async (
             error: error instanceof Error ? error.message : String(error)
         });
         throw error;
-    } finally {
-        await session.endSession();
     }
 };
