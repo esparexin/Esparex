@@ -10,7 +10,7 @@ import { cn } from "@/components/ui/utils";
 export function ModelSection() {
     const { requiresScreenSize } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
-    const { watch, setValue } = usePostAdAction();
+    const { watch, setValue, handleModelChange } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
@@ -26,12 +26,8 @@ export function ModelSection() {
     const modelError = (shouldShowFieldError("model") || shouldShowFieldError("modelId")) ? (errors.model?.message ?? errors.modelId?.message) : undefined;
 
     const onModelChange = useCallback((mId: string | null, mName: string) => {
-        const aid = mId || ""; 
-        setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
-        setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-        // Spare parts are automatically filtered by the provider's useEffect when availableSpareParts changes.
-        // Device condition is not affected by model change.
-    }, [setValue]);
+        handleModelChange(mId || "", mName);
+    }, [handleModelChange]);
 
     if (requiresScreenSize) return null;
 

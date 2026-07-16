@@ -22,6 +22,7 @@ export interface PostAdContextType {
     prevStep: () => void;
     handleCategoryChange: (id: string) => Promise<void>;
     handleBrandChange: (name: string, requestId?: string) => Promise<void>;
+    handleModelChange: (id: string, name: string) => void;
     brandIsPending: boolean;
     toggleSparePart: (partId: string) => void;
     toggleAllSpareParts: (selectAll: boolean) => void;
@@ -72,9 +73,9 @@ export interface PostAdContextType {
     resetToCreateMode: () => void;
 }
 
-export type PostAdStateContextType = Omit<PostAdContextType, "setCurrentStep" | "nextStep" | "prevStep" | "handleCategoryChange" | "handleBrandChange" | "toggleSparePart" | "toggleAllSpareParts" | "addImages" | "removeImage" | "setLocation" | "loadBrandsForCategory" | "loadModelsForBrand" | "loadSparePartsForCategory" | "loadCategorySchema" | "refreshBrands" | "generateDescription" | "submitAd" | "setUserHasInteracted" | "setLoadError" | "setFormError" | "setImageUploadError" | "setSubmittedAd" | "setValue" | "register" | "watch" | "initializeFromListing" | "resetToCreateMode">;
+export type PostAdStateContextType = Omit<PostAdContextType, "setCurrentStep" | "nextStep" | "prevStep" | "handleCategoryChange" | "handleBrandChange" | "handleModelChange" | "toggleSparePart" | "toggleAllSpareParts" | "addImages" | "removeImage" | "setLocation" | "loadBrandsForCategory" | "loadModelsForBrand" | "loadSparePartsForCategory" | "loadCategorySchema" | "refreshBrands" | "generateDescription" | "submitAd" | "setUserHasInteracted" | "setLoadError" | "setFormError" | "setImageUploadError" | "setSubmittedAd" | "setValue" | "register" | "watch" | "initializeFromListing" | "resetToCreateMode">;
 
-export type PostAdActionContextType = Pick<PostAdContextType, "setCurrentStep" | "nextStep" | "prevStep" | "handleCategoryChange" | "handleBrandChange" | "toggleSparePart" | "toggleAllSpareParts" | "addImages" | "removeImage" | "setLocation" | "loadBrandsForCategory" | "loadModelsForBrand" | "loadSparePartsForCategory" | "loadCategorySchema" | "refreshBrands" | "generateDescription" | "submitAd" | "setUserHasInteracted" | "setLoadError" | "setFormError" | "setImageUploadError" | "setSubmittedAd" | "setValue" | "register" | "watch" | "initializeFromListing" | "resetToCreateMode">;
+export type PostAdActionContextType = Pick<PostAdContextType, "setCurrentStep" | "nextStep" | "prevStep" | "handleCategoryChange" | "handleBrandChange" | "handleModelChange" | "toggleSparePart" | "toggleAllSpareParts" | "addImages" | "removeImage" | "setLocation" | "loadBrandsForCategory" | "loadModelsForBrand" | "loadSparePartsForCategory" | "loadCategorySchema" | "refreshBrands" | "generateDescription" | "submitAd" | "setUserHasInteracted" | "setLoadError" | "setFormError" | "setImageUploadError" | "setSubmittedAd" | "setValue" | "register" | "watch" | "initializeFromListing" | "resetToCreateMode">;
 
 export type PostAdCatalogState = {
     dynamicCategories: ListingCategory[];

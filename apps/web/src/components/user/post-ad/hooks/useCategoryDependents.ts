@@ -115,10 +115,15 @@ export function useCategoryDependents(
         return selectBrand(brandId, name);
     }, [brandMap, selectBrand]);
 
+    const handleModelChange = useCallback((id: string, name: string) => {
+        selectModel(id, name);
+    }, [selectModel]);
+
     return {
         requiresScreenSize,
         handleCategoryChange,
         handleBrandChange,
+        handleModelChange,
         selectCategory,
         selectBrand,
         selectModel,
