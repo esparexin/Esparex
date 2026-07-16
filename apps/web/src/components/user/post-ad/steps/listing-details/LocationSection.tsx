@@ -90,6 +90,7 @@ export function LocationSection() {
     }, [setContextLocation, setValue, setError]);
 
     useEffect(() => {
+        if (locationVal?.coordinates) return;
         if (userHasInteracted) return;
         if (hasSyncedRef.current) return;
         if (!locCity || !locCoordinates || !locState?.trim()) return;
@@ -131,6 +132,7 @@ export function LocationSection() {
         setContextLocation,
         setValue,
         userHasInteracted,
+        locationVal?.coordinates,
     ]);
 
     const { touchedFields, errors, submitCount } = form.formState;

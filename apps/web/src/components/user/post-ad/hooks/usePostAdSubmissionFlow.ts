@@ -9,7 +9,6 @@ import {
 import { UseFormReturn } from "react-hook-form";
 import { ListingImage } from "@/types/listing";
 import { createAdListing, updateAdListing } from "@/lib/api/user/listings/postingAPI";
-import { useImageUploadWorkflow } from "./useImageUploadWorkflow";
 import { usePostAdFormNormalization } from "./usePostAdFormNormalization";
 
 interface UsePostAdSubmissionFlowProps {
@@ -26,7 +25,6 @@ interface UsePostAdSubmissionFlowProps {
 export function usePostAdSubmissionFlow({
     form,
     listingImages,
-    setListingImages,
     isEditMode,
     editAdId,
     isLocationLocked,
@@ -57,19 +55,13 @@ export function usePostAdSubmissionFlow({
         onError: setFormError,
     });
 
-    const { submitAd, isInternalUploading } = useImageUploadWorkflow(
-        form,
-        listingImages,
-        setListingImages,
-        normalizeIdentityFieldsBeforeSubmit,
-        onValidSubmit,
-        setFormError,
-        setSubmittedAd
-    );
+    const submitAd = useCallback(() => {
+        normalizeIdentityFieldsBeforeSubmit();
+        return form.handleSubmit((data) => onValidSubmit(data))();
+    }, [normalizeIdentityFieldsBeforeSubmit, form, onValidSubmit]);
 
     return {
         submitAd,
         isSubmitting,
-        isInternalUploading,
     };
 }
