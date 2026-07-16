@@ -1,5 +1,5 @@
 import { useNotificationsQuery } from "@/hooks/queries";
-import { useNotificationSync } from "@/hooks/useNotificationSync";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { useLocationSelector } from "@/hooks/useLocationSelector";
 import { useHeaderSearch } from "@/hooks/useHeaderSearch";
 import { getHeaderLocationText } from "@/lib/location/locationService";
@@ -27,7 +27,7 @@ export function useSharedHeaderLogic({
     });
     const notifUnreadCount = typeof notificationsData?.unreadCount === 'number' ? notificationsData.unreadCount : 0;
 
-    useNotificationSync({ enabled: shouldFetchNotifications });
+    useRealtimeSync({ enabled: shouldFetchNotifications });
 
     // 2. Location Logic
     const locationProps = useLocationSelector({ mode: "header" });

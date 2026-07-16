@@ -81,7 +81,7 @@ export default function MobileHeader({ navigateTo, isLoggedIn, isAuthLoading = f
                             alt="Esparex"
                             width={512}
                             height={206}
-                            style={{ height: '28px', width: 'auto' }}
+                            className="h-7 w-auto"
                         />
                     </button>
 

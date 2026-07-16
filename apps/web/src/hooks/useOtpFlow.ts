@@ -104,6 +104,16 @@ export function useOtpFlow(
     const verifyingRef = useRef(false);
     const verifyOtpCodeRef = useRef<(otpValue: string) => void>(() => undefined);
 
+    const stepRef = useRef(step);
+    const mobileRef = useRef(mobile);
+    const newUserNameRef = useRef(newUserName);
+    const onLoginSuccessRef = useRef(onLoginSuccess);
+
+    useEffect(() => { stepRef.current = step; }, [step]);
+    useEffect(() => { mobileRef.current = mobile; }, [mobile]);
+    useEffect(() => { newUserNameRef.current = newUserName; }, [newUserName]);
+    useEffect(() => { onLoginSuccessRef.current = onLoginSuccess; }, [onLoginSuccess]);
+
     const isOtpStep = step === "enterNameAndOtp" || step === "enterOtp" || step === "locked";
     const requiresName = step === "enterNameAndOtp";
     const isValidMobile = mobile.length === 10 && validateIndianMobile(mobile);
@@ -239,7 +249,7 @@ export function useOtpFlow(
             setAuthError(null);
             let success = false;
             try {
-                const result = await authApi.login(formatMobileForApi(mobile));
+                const result = await authApi.login(formatMobileForApi(mobileRef.current));
                 if (!result.success) {
                     if (applyLockedState(result.lockUntil, options.lockReturnStep, result.error || "Too many failed attempts.")) return;
                     if (isRateLimitedError({ code: result.code, message: result.error })) {
@@ -268,13 +278,14 @@ export function useOtpFlow(
                 sendMachine(success ? "OTP_SENT" : "FAIL");
             }
         },
-        [applyLockedState, applyRateLimitState, mobile, transitionToOtpStep, sendMachine]
+        [applyLockedState, applyRateLimitState, transitionToOtpStep, sendMachine]
     );
 
     const handleMobileSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setAuthError(null);
-        if (!validateIndianMobile(mobile)) {
+        const currentMobile = mobileRef.current;
+        if (!validateIndianMobile(currentMobile)) {
             setMobileError("Please enter a valid 10-digit mobile number");
             mobileInputRef.current?.focus();
             return;
@@ -282,13 +293,14 @@ export function useOtpFlow(
         setMobileError("");
         setNameError("");
         await requestOtp({ lockReturnStep: "enterOtp", fallbackMessage: "Failed to send OTP. Please try again." });
-    }, [mobile, requestOtp]);
+    }, [requestOtp]);
 
     const verifyOtpCode = useCallback(
         async (otpValue: string) => {
             if (verifyingRef.current || isBlocked || isLocked || isVerifyRateLimited) return;
-            const authStepBeforeVerify = step;
-            if (authStepBeforeVerify === "enterNameAndOtp" && !newUserName.trim()) {
+            const authStepBeforeVerify = stepRef.current;
+            const currentName = newUserNameRef.current;
+            if (authStepBeforeVerify === "enterNameAndOtp" && !currentName.trim()) {
                 setNameError("Please enter your name to continue");
                 nameInputRef.current?.focus();
                 return;
@@ -309,9 +321,9 @@ export function useOtpFlow(
             let machineTransitioned = false;
             try {
                 const result = await authApi.verify(
-                    formatMobileForApi(mobile),
+                    formatMobileForApi(mobileRef.current),
                     otpValue,
-                    authStepBeforeVerify === "enterNameAndOtp" ? newUserName.trim() : undefined
+                    authStepBeforeVerify === "enterNameAndOtp" ? currentName.trim() : undefined
                 );
                 if (!result.success) {
                     if (applyLockedState(result.lockUntil, returnStep, result.error || "Too many failed attempts.")) return;
@@ -327,7 +339,7 @@ export function useOtpFlow(
                 haptics.success();
                 sendMachine("SUCCESS");
                 machineTransitioned = true;
-                onLoginSuccess({ requiresProfileSetup: authStepBeforeVerify === "enterNameAndOtp" || !result.user?.name });
+                onLoginSuccessRef.current({ requiresProfileSetup: authStepBeforeVerify === "enterNameAndOtp" || !result.user?.name });
             } catch (err: unknown) {
                 const meta = extractAuthMeta(err);
                 const message = mapAuthError(err, "Invalid OTP. Please try again.");
@@ -359,15 +371,15 @@ export function useOtpFlow(
                 if (!machineTransitioned) sendMachine("FAIL");
             }
         },
-        [applyLockedState, applyOtpExpiredState, applyRateLimitState, clearRateLimit, isBlocked, isLocked, isVerifyRateLimited, mobile, newUserName, onLoginSuccess, step, updateUser, sendMachine, setResendAvailableAtMs]
+        [applyLockedState, applyOtpExpiredState, applyRateLimitState, clearRateLimit, isBlocked, isLocked, isVerifyRateLimited, updateUser, sendMachine, setResendAvailableAtMs]
     );
 
     useEffect(() => { verifyOtpCodeRef.current = (nextOtpValue: string) => { void verifyOtpCode(nextOtpValue); }; }, [verifyOtpCode]);
 
     const handleResendOtp = useCallback(async () => {
         if (isSendingOTP || isVerifying || isBlocked || isLocked || isSendRateLimited) return;
-        await requestOtp({ lockReturnStep: resolveOtpReturnStep(step), fallbackMessage: "Resend failed. Please try again." });
-    }, [isSendingOTP, isVerifying, isBlocked, isLocked, isSendRateLimited, requestOtp, step]);
+        await requestOtp({ lockReturnStep: resolveOtpReturnStep(stepRef.current), fallbackMessage: "Resend failed. Please try again." });
+    }, [isSendingOTP, isVerifying, isBlocked, isLocked, isSendRateLimited, requestOtp]);
 
     const canResend = useMemo(
         () => isOtpStep && resendRemainingSeconds === 0 && !isLocked && !isBlocked && !isSendRateLimited,

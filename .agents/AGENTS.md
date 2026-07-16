@@ -370,3 +370,529 @@ To maintain the integrity of the DDD Ports & Adapters architecture established i
 3. **Intent-focused caching:** Caching invalidation and read operations must be declared as business intent behind dedicated **Cache Ports**. Direct imports of low-level `redisCache` helpers into core services are not allowed.
 4. **Enforced via composition:** All dependencies must be resolved and wired at the package boundary via factory functions inside **Composition Roots**.
 
+---
+
+# CODE-HYGIENE Skill
+
+## Purpose
+
+**Code-Hygiene** is a mandatory engineering governance skill that is automatically invoked for **every code-related request**. Its purpose is to prevent technical debt from entering the repository by continuously auditing code quality, architecture, maintainability, performance, and repository health before any code is generated, modified, or reviewed.
+
+This skill must execute before producing any code, edits, refactors, reviews, or implementation plans.
+
+---
+
+## Invocation Rules
+
+Automatically activate **Code-Hygiene** whenever the request involves:
+
+* Writing code
+* Editing existing code
+* Refactoring
+* Debugging
+* Reviewing code
+* Searching for code
+* Explaining code
+* Generating components
+* Creating APIs
+* Creating services
+* Creating utilities
+* Creating hooks
+* Creating schemas
+* Creating database models
+* Creating migrations
+* Creating tests
+* Creating documentation related to implementation
+* Repository-wide analysis
+* Pull Request review
+* Architecture review
+
+This skill is mandatory for every programming language and framework.
+
+---
+
+## Primary Goal
+
+Prevent technical debt from entering the repository instead of cleaning it later.
+
+The skill continuously validates:
+
+* Repository consistency
+* Architecture integrity
+* Code quality
+* Performance
+* Security
+* Accessibility
+* Maintainability
+* Scalability
+
+before any implementation is produced.
+
+---
+
+## Responsibilities
+
+### 1. Duplicate Detection
+
+Detect duplicate:
+
+* Functions
+* Methods
+* Classes
+* React Components
+* Hooks
+* Utility functions
+* API clients
+* DTOs
+* Interfaces
+* Types
+* Enums
+* Constants
+* Validation schemas
+* Business logic
+* Regex
+* SQL queries
+* MongoDB aggregations
+* Tailwind utilities
+* CSS rules
+* Configurations
+* API endpoints
+
+Perform semantic detection, not only exact text matching.
+
+If an equivalent implementation already exists, recommend reuse instead of creating another copy.
+
+### 2. Dead Code Detection
+
+Detect:
+
+* Unused functions
+* Unused variables
+* Unused exports
+* Unused interfaces
+* Unused types
+* Unused enums
+* Unused classes
+* Unused hooks
+* Unused reducers
+* Unused selectors
+* Unused contexts
+* Dead branches
+* Unreachable code
+* Never executed conditions
+* Deprecated implementations
+* Legacy compatibility code
+
+Recommend removal where safe.
+
+### 3. Import Hygiene
+
+Audit:
+
+* Unused imports
+* Duplicate imports
+* Circular imports
+* Incorrect import ordering
+* Wildcard imports
+* Relative import abuse
+
+Automatically organize imports into:
+
+1. Framework
+2. Third-party
+3. Internal packages
+4. Shared modules
+5. Feature modules
+6. Components
+7. Utilities
+8. Types
+9. Styles
+
+### 4. Dependency Hygiene
+
+Detect:
+
+* Unused dependencies
+* Duplicate packages
+* Multiple libraries solving the same problem
+* Deprecated libraries
+* Heavy packages
+* Security vulnerabilities
+* Version inconsistencies
+
+Recommend consolidation whenever possible.
+
+### 5. File Size Governance
+
+Evaluate every modified file.
+
+Recommended thresholds:
+
+Components
+* Ideal: <250 lines
+* Warning: 250–400
+* Critical: >400
+
+Pages
+* Ideal: <300
+* Critical: >500
+
+Hooks
+* Ideal: <200
+
+Services
+* Ideal: <350
+* Critical: >600
+
+Utilities
+* Ideal: <200
+
+If limits are exceeded, recommend decomposition.
+
+### 6. Complexity Analysis
+
+Measure:
+
+* Cyclomatic Complexity
+* Cognitive Complexity
+* Nesting Depth
+* Callback Depth
+* Switch Complexity
+* Conditional Chains
+* Function Length
+
+Recommend extraction when thresholds are exceeded.
+
+### 7. React Quality
+
+Detect missing:
+
+* useMemo
+* useCallback
+* memo
+* key props
+* Suspense
+* lazy loading
+* Error Boundaries
+* Loading states
+* Empty states
+* Error states
+* Stable dependencies
+* Memoized selectors
+
+Prevent unnecessary re-renders.
+
+### 8. Next.js Quality
+
+Audit:
+
+* Server Component opportunities
+* Unnecessary Client Components
+* Missing metadata
+* Missing Image optimization
+* Improper Link usage
+* Static rendering opportunities
+* Dynamic rendering misuse
+* Route organization
+* Layout usage
+* Caching strategy
+
+### 9. Performance Audit
+
+Detect:
+
+* Expensive renders
+* Re-render loops
+* Duplicate fetches
+* Repeated API calls
+* Missing pagination
+* Missing virtualization
+* Large bundles
+* Large images
+* Blocking operations
+* Memory leaks
+
+Recommend optimizations.
+
+### 10. Accessibility Audit
+
+Validate:
+
+* aria-label usage
+* alt attributes
+* Heading hierarchy
+* Button labels
+* Form labels
+* Keyboard navigation
+* Focus management
+* Dialog accessibility
+* Color contrast
+* Screen reader compatibility
+
+### 11. Security Audit
+
+Detect:
+
+* dangerouslySetInnerHTML
+* eval()
+* new Function()
+* Hardcoded secrets
+* JWT exposure
+* Unsafe localStorage usage
+* Missing validation
+* Weak sanitization
+* Open redirects
+* Injection risks
+* XSS
+* CSRF weaknesses
+* Authentication bypasses
+
+### 12. API Layer Audit
+
+Detect:
+
+* Duplicate endpoints
+* Duplicate services
+* Missing retry policies
+* Missing timeout
+* Missing cancellation
+* Missing loading state
+* Missing error handling
+* Duplicate API logic
+* Poor response validation
+
+### 13. State Management Audit
+
+Detect:
+
+* Duplicate state
+* Derived state
+* Props drilling
+* Context overuse
+* Reducer duplication
+* State explosion
+* Missing memoization
+
+### 14. Database Audit
+
+Detect:
+
+* Duplicate indexes
+* Missing indexes
+* N+1 queries
+* Duplicate aggregations
+* Missing transactions
+* Missing projections
+* Inefficient queries
+
+### 15. Architecture Validation
+
+Prevent:
+
+* Circular dependencies
+* Layer violations
+* Component importing services directly
+* UI importing database logic
+* Feature leakage
+* Shared logic duplication
+* Repository boundary violations
+* Improper folder placement
+
+### 16. Naming Audit
+
+Detect poor names such as:
+
+* Temp
+* Test
+* Helper
+* Util
+* Data2
+* Button1
+* Copy
+* Copy2
+* FinalFinal
+* NewComponent
+
+Recommend descriptive, domain-specific names.
+
+### 17. Folder Structure Audit
+
+Detect:
+
+* Empty folders
+* Dead folders
+* Duplicate folders
+* Misplaced files
+* Feature leakage
+* Inconsistent organization
+
+### 18. Code Style Audit
+
+Detect:
+
+* Long methods
+* Large JSX blocks
+* Deep nesting
+* Magic numbers
+* Repeated literals
+* Repeated strings
+* Tailwind duplication
+* Formatting inconsistencies
+
+### 19. Code Smell Detection
+
+Identify:
+
+* God Components
+* God Services
+* Long Parameter Lists
+* Primitive Obsession
+* Feature Envy
+* Data Clumps
+* Duplicate Switches
+* Shotgun Surgery
+* Temporary Fields
+* Speculative Generality
+* Large Classes
+* Anemic Models
+
+### 20. Testability Audit
+
+Verify:
+
+* Test coverage impact
+* Missing unit tests
+* Missing integration tests
+* Mockability
+* Dependency injection opportunities
+* Deterministic behavior
+
+### 21. Repository Impact Analysis
+
+Before modifying code, identify:
+
+* Dependent modules
+* Affected routes
+* Affected APIs
+* Shared components
+* Consumers
+* Breaking changes
+* Migration requirements
+
+Estimate implementation risk.
+
+### 22. Auto Refactoring Guidance
+
+For every issue found, provide:
+
+* Problem
+* Reason
+* Evidence
+* Severity
+* Impact
+* Recommendation
+* Estimated effort
+* Auto-fix strategy
+* Risk
+* Affected files
+
+Never report only "Problem Found."
+
+### 23. Repository Health Score
+
+Continuously calculate:
+
+* Overall Repository Health
+* Architecture
+* Maintainability
+* Duplication
+* Performance
+* Security
+* Accessibility
+* Code Quality
+* Testability
+* Technical Debt
+
+Provide scores from 0–100 with concise justification.
+
+### 24. Live IDE Protection
+
+Whenever files are:
+
+* Opened
+* Created
+* Generated by AI
+* Edited
+* Pasted
+* Saved
+* Renamed
+* Moved
+* Deleted
+* Committed
+* Reviewed
+
+Automatically perform:
+
+* Duplicate Scan
+* Dead Code Scan
+* Import Audit
+* Dependency Audit
+* Architecture Validation
+* Complexity Analysis
+* File Size Audit
+* Naming Audit
+* Security Scan
+* Performance Audit
+* Accessibility Audit
+* Repository Rule Validation
+* Testability Audit
+* Repository Impact Analysis
+
+### 25. Severity Classification
+
+Use consistent severity levels:
+
+* **Info** – Suggestion only
+* **Low** – Improvement recommended
+* **Medium** – Fix before merge if practical
+* **High** – Must be resolved before merge
+* **Critical** – Architecture, security, or integrity issue that blocks implementation
+
+---
+
+## Operating Principles
+
+Always:
+
+* Search the repository for existing implementations before generating new code.
+* Prefer reuse over duplication.
+* Preserve existing architecture unless a justified improvement is proposed.
+* Keep implementations cohesive and modular.
+* Minimize file growth.
+* Reduce complexity rather than adding abstraction unnecessarily.
+* Generate maintainable, testable, and readable code.
+* Explain architectural trade-offs when introducing new patterns.
+* Recommend safe, incremental refactoring instead of large-scale rewrites unless explicitly requested.
+
+---
+
+## Output Requirements
+
+For every code-related response, include a **Code Hygiene Summary** that reports:
+
+* Duplicate Detection
+* Dead Code Findings
+* Import Hygiene
+* Dependency Hygiene
+* File Size Status
+* Complexity Status
+* Architecture Compliance
+* Performance Concerns
+* Security Findings
+* Accessibility Findings
+* Testability Impact
+* Repository Impact
+* Overall Health Assessment
+
+If no issues are found, explicitly state that the proposed implementation complies with the Code-Hygiene standards based on the available repository context.
+

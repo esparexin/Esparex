@@ -73,7 +73,7 @@ const consoleFormat = winston.format.combine(
  * Create transports based on environment
  */
 const transports: winston.transport[] = [];
-const loggerLevel = process.env.LOG_LEVEL || (isProduction ? 'info' : 'info');
+const loggerLevel = process.env.LOG_LEVEL || 'info';
 
 // Console transport (always enabled except in tests)
 if (!shouldSilenceForTests) {
@@ -150,228 +150,79 @@ const winstonLogger = winston.createLogger({
 });
 
 /**
- * Wrapper to satisfy ../shared/observability.Logger interface
+ * Wrapper to satisfy the @esparex/shared Logger interface.
+ *
+ * Both the root adapter (delegates to the shared winstonLogger instance) and
+ * child adapters (wrap winston.Logger.child()) share the same per-method logic
+ * via the private withCorrelation() helper. This eliminates the 7-method
+ * duplication that previously existed in WinstonLoggerAdapterChild.
  */
 class WinstonLoggerAdapter implements BaseLogger {
-    get level(): string { return winstonLogger.level; }
+    constructor(private readonly wl: winston.Logger) {}
+    get level(): string { return this.wl.level; }
+
+    /**
+     * Appends the live correlationId from AsyncLocalStorage to every log call.
+     * Defined once here; WinstonLoggerAdapterChild re-uses it by composing
+     * a child WinstonLoggerAdapter rather than re-implementing every method.
+     */
+    private withCorrelation(details: unknown[]): LogDetails {
+        const base = details.length === 1 && typeof details[0] === 'object'
+            ? details[0] as LogDetails
+            : { meta: details };
+        return { ...base, correlationId: TraceContext.getCorrelationId() };
+    }
+
     log(level: LogLevel, message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.log(level, message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.log(level, message as string, this.withCorrelation(meta));
     }
     debug(message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.debug(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.debug(message as string, this.withCorrelation(meta));
     }
     info(message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.info(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.info(message as string, this.withCorrelation(meta));
     }
     warn(message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.warn(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.warn(message as string, this.withCorrelation(meta));
     }
+    /** Alias for warn() — satisfies the BaseLogger.warning() contract. */
     warning(message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.warn(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.warn(message as string, this.withCorrelation(meta));
     }
     error(message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.error(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.error(message as string, this.withCorrelation(meta));
     }
     http(message: unknown, ...meta: unknown[]): void {
-        const details = meta.length === 1 && typeof meta[0] === 'object' ? meta[0] as LogDetails : { meta };
-        winstonLogger.http(message as string, { ...details, correlationId: TraceContext.getCorrelationId() });
+        this.wl.http(message as string, this.withCorrelation(meta));
     }
     child(defaultMeta: LogDetails): BaseLogger {
-        return new WinstonLoggerAdapterChild(winstonLogger.child(defaultMeta));
+        return new WinstonLoggerAdapter(this.wl.child(defaultMeta));
     }
 }
 
-class WinstonLoggerAdapterChild implements BaseLogger {
-    constructor(private wLogger: winston.Logger) {}
-    get level(): string { return this.wLogger.level; }
-    log(level: LogLevel, message: unknown, ...meta: unknown[]): void {
-        this.wLogger.log(level, message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    debug(message: unknown, ...meta: unknown[]): void {
-        this.wLogger.debug(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    info(message: unknown, ...meta: unknown[]): void {
-        this.wLogger.info(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    warn(message: unknown, ...meta: unknown[]): void {
-        this.wLogger.warn(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    warning(message: unknown, ...meta: unknown[]): void {
-        this.wLogger.warn(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    error(message: unknown, ...meta: unknown[]): void {
-        this.wLogger.error(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    http(message: unknown, ...meta: unknown[]): void {
-        this.wLogger.http(message as string, ...meta, { correlationId: TraceContext.getCorrelationId() });
-    }
-    child(defaultMeta: LogDetails): BaseLogger {
-        return new WinstonLoggerAdapterChild(this.wLogger.child(defaultMeta));
-    }
-}
-
-const logger = new WinstonLoggerAdapter();
-
-/**
- * Log levels:
- * - error: 0 - Critical errors that need immediate attention
- * - warn: 1 - Warning messages
- * - info: 2 - General informational messages
- * - http: 3 - HTTP request logs
- * - debug: 4 - Detailed debug information
- */
-
-/**
- * Helper functions for common logging patterns
- */
-
-/**
- * Log HTTP request
- */
-export function logRequest(method: string, url: string, statusCode: number, duration: number, userId?: string) {
-    logger.http('HTTP Request', {
-        method,
-        url,
-        statusCode,
-        duration: `${duration}ms`,
-        userId,
-    });
-}
-
-/**
- * Log database query
- */
-export function logQuery(operation: string, collection: string, duration: number, error?: Error) {
-    if (error) {
-        logger.error('Database Query Failed', {
-            operation,
-            collection,
-            duration: `${duration}ms`,
-            error: error.message,
-            stack: error.stack,
-        });
-    } else {
-        logger.debug('Database Query', {
-            operation,
-            collection,
-            duration: `${duration}ms`,
-        });
-    }
-}
-
-/**
- * Log authentication event
- */
-export function logAuth(
-    event: 'login' | 'logout' | 'register' | 'failed',
-    userId?: string,
-    details: LogDetails = {}
-) {
-    logger.info('Authentication Event', {
-        event,
-        userId,
-        ...details,
-    });
-}
-
-/**
- * Log security event
- */
-export function logSecurity(
-    event: string,
-    severity: 'low' | 'medium' | 'high' | 'critical',
-    details: LogDetails = {}
-) {
-    logger.warn('Security Event', {
-        event,
-        severity,
-        ...details,
-    });
-}
-
-/**
- * Log external API call
- */
-export function logExternalAPI(service: string, endpoint: string, durationMs: number, success: boolean, error?: Error) {
-    // 📊 RECORD PROMETHEUS METRIC
-    import('./metrics.js').then(({ externalApiDuration: prometheusMetric }) => {
-        prometheusMetric.labels(service, endpoint, success ? 'success' : 'failed').observe(durationMs / 1000);
-    }).catch(() => {});
-
-    if (error) {
-        logger.error('External API Call Failed', {
-            service,
-            endpoint,
-            duration: `${durationMs}ms`,
-            error: error.message,
-        });
-    } else {
-        logger.debug('External API Call', {
-            service,
-            endpoint,
-            duration: `${durationMs}ms`,
-            success,
-        });
-    }
-}
-
-/**
- * Log business event
- */
-export function logBusiness(event: string, details: LogDetails = {}) {
-    logger.info('Business Event', {
-        event,
-        ...details,
-    });
-}
-
-/**
- * Log performance metric
- */
-export function logPerformance(metric: string, value: number, unit: string = 'ms') {
-    logger.debug('Performance Metric', {
-        metric,
-        value,
-        unit,
-    });
-}
-
-/**
- * Create a child logger with default metadata
- */
-export function createChildLogger(defaultMeta: LogDetails = {}) {
-    return logger.child(defaultMeta);
-}
-
-/**
- * Creates a request-contextual logger that automatically includes 
- * requestId and userId in all subsequent log entries.
- */
-export function withContext(req: { requestId?: string; user?: { id?: string; _id?: { toString(): string }; role?: string } }) {
-    const context: LogDetails = {};
-    if (req.requestId) context.requestId = req.requestId;
-    if (req.user) {
-        context.userId = req.user.id ?? req.user._id?.toString();
-        context.role = req.user.role;
-    }
-    return logger.child(context);
-}
+const logger = new WinstonLoggerAdapter(winstonLogger);
 
 
 /**
- * Stream for Morgan HTTP logger
+ * Helper functions for common logging patterns.
+ *
+ * The implementations live in `./logHelpers` to keep this file focused on the
+ * Winston instance and adapter class. All helpers are re-exported here so that
+ * existing callers importing from `@esparex/core/utils/logger` continue to work
+ * without any import path changes.
  */
-export const morganStream = {
-    write: (message: string) => {
-        logger.http(message.trim());
-    },
-};
+export {
+    logRequest,
+    logQuery,
+    logAuth,
+    logSecurity,
+    logExternalAPI,
+    logBusiness,
+    logPerformance,
+    createChildLogger,
+    withContext,
+    morganStream,
+} from './logHelpers';
 
 // Log startup
 if (!isTest && process.env.STARTUP_VERBOSE === 'true') {

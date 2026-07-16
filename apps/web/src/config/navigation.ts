@@ -2,7 +2,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   Building2,
-  ClipboardList,
   MessageSquare,
   User as UserIcon,
   Heart,
@@ -57,8 +56,7 @@ export type ProfileTabValue =
   | "plans"
   | "settings"
   | "smartalerts"
-  | "purchases"
-  | "suggestions";
+  | "purchases";
 
 export const PROFILE_TAB_ITEMS: Array<{
   value: ProfileTabValue;
@@ -74,7 +72,6 @@ export const PROFILE_TAB_ITEMS: Array<{
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
     { value: "purchases", label: "My Purchases", icon: Package },
-    { value: "suggestions", label: "My Suggestions", icon: ClipboardList },
     { value: "plans", label: "Plans", icon: CreditCard },
     { value: "settings", label: "Settings", icon: Settings },
   ];

@@ -9,7 +9,7 @@ import {
   applyRequestedLocationFilters,
   applyProximityLocationFilters,
   buildBaseBrowseFilters,
-} from "@/components/user/browseFilterBuilders";
+} from "@/lib/browse/browseFilterBuilders";
 import type { Category } from "@/lib/api/user/categories";
 import { getAdsPage, type Listing as SparePartListing, type ListingFilters as SparePartListingFilters, type ListingPageResult as SparePartListingPageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";

@@ -13,7 +13,6 @@ import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
-import { sendAdminError } from '../../../utils/adminBaseController';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
 
@@ -30,16 +29,15 @@ import {
 import { logAdminAction } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 
-export { 
-    sendAdminError,
-    sendSuccessResponse,
+export {
     sendCatalogError,
+    sendSuccessResponse,
+    handlePaginatedContent,
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     getActiveCategoryIds,
     validateActiveCategories,
-    handlePaginatedContent,
     deriveApprovalStatus
 };
 
@@ -116,11 +114,6 @@ export const getAdminActorId = (req: Request): string | undefined => {
     if (adminId && typeof (adminId as { toString?: unknown }).toString === 'function') return (adminId).toString();
     return undefined;
 };
-
-/**
- * Type-safe model wrapper
- */
-export const asModel = <T extends Document>(model: MongooseModel<T>): MongooseModel<T> => model;
 
 // sendCatalogError is imported and re-exported from "../../../utils/errorResponse" (line above)
 

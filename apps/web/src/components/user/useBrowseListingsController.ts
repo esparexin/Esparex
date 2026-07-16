@@ -23,7 +23,7 @@ import {
 } from "@/lib/publicBrowseRoutes";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
-import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
+import { usePersistedBrowseView } from "@/lib/browse/browseViewPreference";
 import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
 
 type BrowsePageResult<T> = {

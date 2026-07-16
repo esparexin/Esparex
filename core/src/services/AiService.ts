@@ -357,7 +357,7 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     const envAiModel = env.AI_MODEL;
     const envGeminiModel = env.GEMINI_MODEL;
     
-    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-flash-latest') : 'gpt-4o');
+    let model = aiConfig?.seo?.model || envAiModel || (geminiKey ? (envGeminiModel || 'gemini-2.5-flash') : 'gpt-4o');
 
 
 
@@ -365,7 +365,7 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     // If we have a Gemini key but the model doesn't look like a Gemini model, 
     // and we DON'T have an OpenAI key, force a Gemini fallback.
     if (geminiKey && !model.toLowerCase().startsWith('gemini') && !openAiKey) {
-        model = envGeminiModel || 'gemini-flash-latest';
+        model = envGeminiModel || 'gemini-2.5-flash';
     }
 
 

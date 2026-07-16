@@ -89,16 +89,11 @@ export function useCascadeConfirmation() {
   );
 
   const handleConfirm = useCallback(() => {
+    // Capture the action immediately before any side effects (setIsOpen → onOpenChange → onCancel) clear it
+    const action = actionRef.current;
+    actionRef.current = null;
     setIsOpen(false);
-    if (actionRef.current) {
-      // Execute in next tick to allow dialog to close cleanly
-      setTimeout(() => {
-        if (actionRef.current) {
-          actionRef.current();
-          actionRef.current = null;
-        }
-      }, 0);
-    }
+    action?.();
   }, []);
 
   const handleCancel = useCallback(() => {

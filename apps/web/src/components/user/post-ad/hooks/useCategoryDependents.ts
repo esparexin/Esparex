@@ -29,23 +29,24 @@ export function useCategoryDependents(
     }, [selectedCategoryId, categoryMap]);
 
     /**
-     * Centralized clearing of all dependent fields child to Brand (models, screen sizes, spare parts, device condition).
+     * Centralized clearing of dependent fields child to Brand (models only).
+     * Screen sizes, spare parts, and device condition are independent of brand and are not cleared.
      */
     const clearBrandDependents = useCallback(() => {
         form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
-        form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
     }, [form]);
 
     /**
-     * Centralized clearing of all dependent fields child to Category (brand + child dependents).
+     * Centralized clearing of all dependent fields child to Category (brand + model + screen size + spare parts + device condition).
      */
     const clearCategoryDependents = useCallback(() => {
         form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
         clearBrandDependents();
+        form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
+        form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
     }, [form, clearBrandDependents]);
 
     /**

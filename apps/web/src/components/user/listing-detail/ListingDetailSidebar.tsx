@@ -9,7 +9,7 @@ import type { UserPage } from "@/lib/routeUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AdTitlePriceCard } from "./AdTitlePriceCard";
-import { AdSellerCard } from "./AdSellerCard";
+import { SellerCard } from "./SellerCard";
 import { AdBusinessCard } from "./AdBusinessCard";
 import { AdSafetyTips } from "./AdSafetyTips";
 import { AdOwnerActions } from "./AdOwnerActions";
@@ -80,7 +80,7 @@ export function ListingDetailSidebar({
                 variant="desktop"
             />
 
-            <AdSellerCard
+            <SellerCard
                 ad={ad}
                 sellerDisplayName={sellerDisplayName}
                 isOwner={isOwner}

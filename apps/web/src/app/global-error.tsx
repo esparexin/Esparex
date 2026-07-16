@@ -197,15 +197,15 @@ export default function GlobalError({
           }
 
           .text-4xl {
-            font-size: 2.25rem;
+            font-size: var(--text-2xl);
           }
 
           .text-xl {
-            font-size: 1.25rem;
+            font-size: var(--text-xl);
           }
 
           .text-sm {
-            font-size: 0.875rem;
+            font-size: var(--text-sm);
           }
 
           .font-bold {

@@ -3,8 +3,6 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Z_INDEX } from "@/lib/zIndexConfig";
 import { useCascadeConfirmation } from "@/components/ui/cascade-confirm-dialog";
 import { getNestedFieldMeta } from "../common/utils";
 import { cn } from "@/components/ui/utils";
@@ -68,16 +66,26 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 pointer-events-none")}>
-                    <Select value={screenSize || undefined} onValueChange={onScreenSizeChange}>
-                        <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-foreground focus:border-primary transition-colors px-3 text-sm">
-                            <SelectValue placeholder="Select size" />
-                        </SelectTrigger>
-                        <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border-2 border-slate-100 shadow-xl">
-                            {availableSizes.map((size) => (
-                                <SelectItem key={size} value={size} className="font-medium py-2.5 px-3 text-sm">{size}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        {availableSizes.map((size) => {
+                            const isSelected = screenSize === size;
+                            return (
+                                <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => onScreenSizeChange(size)}
+                                    className={cn(
+                                        "flex h-11 items-center justify-center rounded-xl border text-sm font-bold transition-all duration-200 active:scale-[0.98]",
+                                        isSelected
+                                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                    )}
+                                >
+                                    {size}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </Field>
             )}
             

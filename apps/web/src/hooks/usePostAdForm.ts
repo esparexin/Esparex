@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AdPayloadSchema as postAdSchema, PartialAdPayloadSchema as partialAdSchema, AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
@@ -33,7 +32,7 @@ export function usePostAdForm(isEditMode: boolean = false) {
 
     const { register, control, handleSubmit, watch, setValue, trigger, formState: { errors } } = form;
  
-    return useMemo(() => ({
+    return {
         form,
         register,
         control,
@@ -42,5 +41,5 @@ export function usePostAdForm(isEditMode: boolean = false) {
         setValue,
         trigger,
         handleSubmit,
-    }), [form, register, control, errors, watch, setValue, trigger, handleSubmit]);
+    };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { BottomActionsBar } from "@/components/BottomActionsBar";
+import { BottomActionsBar } from "@/components/layout/BottomActionsBar";
 import { BackendStatusBanner } from "@/components/common/BackendStatusBanner";
 import { ConnectivityBanner } from "@/components/common/ConnectivityBanner";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
