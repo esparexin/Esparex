@@ -78,8 +78,6 @@ export const categorySchemaUpdateBodySchema = z.object({
     filters: z.array(z.unknown())
 }).strict();
 
-export const toggleCategoryStatusSchema = z.object({}).strict();
-
 // ==========================================
 // BRANDS & MODELS
 // ==========================================
