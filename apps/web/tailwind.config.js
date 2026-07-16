@@ -1,4 +1,35 @@
 /** @type {import('tailwindcss').Config} */
+const fs = require('fs');
+const path = require('path');
+
+function getZIndexes() {
+  try {
+    const filePath = path.join(__dirname, 'src', 'lib', 'zIndexConfig.ts');
+    const content = fs.readFileSync(filePath, 'utf8');
+    const match = content.match(/export const Z_INDEX = \{([\s\S]+?)\}\s*as\s*const;/);
+    if (!match) return {};
+    
+    const lines = match[1].split('\n');
+    const zIndex = {};
+    for (const line of lines) {
+      const cleaned = line.trim().replace(/\/\/.*/, '').trim();
+      if (!cleaned) continue;
+      const parts = cleaned.split(':');
+      if (parts.length >= 2) {
+        const key = parts[0].trim();
+        const value = parts[1].replace(/,$/, '').trim();
+        if (key && value && !isNaN(Number(value))) {
+          zIndex[key] = value;
+        }
+      }
+    }
+    return zIndex;
+  } catch (err) {
+    console.warn("Failed to load zIndexConfig for Tailwind: ", err.message);
+    return {};
+  }
+}
+
 const config = {
 	content: [
 		"./src/**/*.{js,ts,jsx,tsx}",
@@ -89,7 +120,8 @@ const config = {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
-			}
+			},
+			zIndex: getZIndexes(),
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

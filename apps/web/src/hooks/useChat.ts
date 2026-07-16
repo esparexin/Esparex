@@ -175,7 +175,11 @@ export function useChat({ conversationId, currentUserId, onConversationStateChan
 
   /* Polling lifecycle */
   useEffect(() => {
-    pollerRef.current = setInterval(poll, POLL_INTERVAL_MS);
+    pollerRef.current = setInterval(() => {
+      if (document.visibilityState !== "hidden") {
+        void poll();
+      }
+    }, POLL_INTERVAL_MS);
     return () => {
       if (pollerRef.current) {
         clearInterval(pollerRef.current);

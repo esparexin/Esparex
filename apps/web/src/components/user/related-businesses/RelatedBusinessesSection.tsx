@@ -111,7 +111,7 @@ export function RelatedBusinessesSection({
     return (
       <Card
         key={business.id}
-        className="w-64 flex-shrink-0 overflow-hidden border-0 shadow-sm rounded-2xl bg-white"
+        className="w-64 flex-shrink-0 overflow-hidden border-0 shadow-sm rounded-2xl bg-white scroll-snap-item"
       >
         <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 rounded-t-2xl">
           <Image
@@ -251,8 +251,7 @@ export function RelatedBusinessesSection({
       {!isLoading && !isError && businesses.length > 0 ? (
         <div
           ref={carouselRef}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-touch scroll-snap-x scroll-smooth"
         >
           {businesses.map(renderCard)}
         </div>

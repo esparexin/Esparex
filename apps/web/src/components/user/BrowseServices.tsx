@@ -11,7 +11,7 @@ import {
   applyRequestedLocationFilters,
   applyServiceLocationFilters,
   buildBaseBrowseFilters,
-} from "@/components/user/browseFilterBuilders";
+} from "@/lib/browse/browseFilterBuilders";
 import { getAdsPage, type Listing as Service, type ListingFilters as ServiceFilters, type ListingPageResult as ServicePageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
 import type { Category } from "@/lib/api/user/categories";

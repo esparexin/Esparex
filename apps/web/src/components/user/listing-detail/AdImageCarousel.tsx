@@ -8,7 +8,7 @@ import { Share2, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";
 import { MARKETPLACE_CARD_FILL_SIZES } from "@/lib/imageSizes";
 
-interface AdImageCarouselProps {
+export interface AdImageCarouselProps {
     images: string[];
     title: string;
     isFavorited: boolean;

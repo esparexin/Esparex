@@ -55,7 +55,7 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
                 <DialogContent
-                    style={{ zIndex: Z_INDEX.debugLayer, width: "min(22rem, calc(100vw - 3rem))" }}
+                    style={{ zIndex: Z_INDEX.dialogContent, width: "min(22rem, calc(100vw - 3rem))" }}
                     className="!rounded-2xl !p-4 sm:!max-w-md sm:!p-6"
                 >
                     <DialogHeader className="!mb-0 pr-8">

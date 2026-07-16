@@ -6,9 +6,8 @@ import {
   Edit2,
   TrendingUp,
   Trash2,
-  MessageCircle,
-  Phone,
 } from "lucide-react";
+import { ListingContactForm } from "./ListingContactForm";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -46,11 +45,6 @@ export function ListingBottomActions({
 }: ListingBottomActionsProps) {
   const pathname = usePathname();
   const policy = getMobileChromePolicy(pathname);
-  const phoneButtonLabel = isPhoneLoading
-    ? "Loading..."
-    : (revealedPhone || "Show number");
-  const showPhoneMessage = Boolean(phoneMessage);
-  const chatLockedMessage = "This listing is no longer accepting messages";
 
   if (variant === "hidden" || !policy.showContextActionBar) {
     return null;
@@ -195,9 +189,10 @@ export function ListingBottomActions({
 
   // Visitor Action Bar
   if (variant === "visitor") {
-    const showPhoneAction = Boolean(onRevealPhone);
-    const showChatAction = Boolean(onChatClick) && !isChatLocked;
-    const hasVisitorActions = showPhoneAction || showChatAction;
+    const hasVisitorActions = Boolean(onRevealPhone) || (Boolean(onChatClick) && !isChatLocked);
+    if (!hasVisitorActions) {
+      return null;
+    }
 
     return (
       <div className="md:hidden">
@@ -205,39 +200,16 @@ export function ListingBottomActions({
           className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)]"
           style={{ zIndex: Z_INDEX.listingBottomActions }}
         >
-          <div className={`grid gap-2 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>
-            {showPhoneAction ? (
-              <Button
-                variant="outline"
-                onClick={onRevealPhone}
-                disabled={isPhoneLoading}
-                aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
-              >
-                <Phone className="h-4 w-4" />
-                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
-              </Button>
-            ) : null}
-            {showChatAction ? (
-              <Button
-                onClick={onChatClick}
-                aria-label="Chat with seller"
-                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all"
-              >
-                <MessageCircle className="h-5 w-5" />
-                Chat
-              </Button>
-            ) : null}
-            {isChatLocked ? (
-              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-muted-foreground`}>
-                {chatLockedMessage}
-              </p>
-            ) : null}
-            {showPhoneMessage && (
-              <p className={`${hasVisitorActions ? "col-span-full" : ""} px-1 text-xs leading-4 text-muted-foreground`}>
-                {phoneMessage}
-              </p>
-            )}
+          <div className="px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <ListingContactForm
+              onChat={onChatClick}
+              onRevealPhone={onRevealPhone}
+              isPhoneLoading={isPhoneLoading}
+              revealedPhone={revealedPhone}
+              phoneMessage={phoneMessage}
+              isChatLocked={isChatLocked}
+              layout="flex"
+            />
           </div>
         </div>
       </div>

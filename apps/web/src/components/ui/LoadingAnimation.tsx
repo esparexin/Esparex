@@ -1,6 +1,6 @@
 export function LoadingAnimation() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+    <div aria-live="polite" role="status" className="fixed inset-0 z-50 flex items-center justify-center bg-white">
       <div className="relative">
         {/* Animated E Letter with Gradient */}
         <div
@@ -234,7 +234,7 @@ export function LoadingAnimation() {
 // Compact version for inline loading
 export function LoadingSpinner() {
   return (
-    <div className="inline-flex items-center justify-center">
+    <div aria-live="polite" role="status" className="inline-flex items-center justify-center">
       <div className="relative w-12 h-12 rounded-lg bg-gradient-to-br from-green-600 to-green-700 flex items-center justify-center shadow-lg">
         <div className="absolute inset-0 animate-spin-slow">
           <div className="w-full h-full border-2 border-transparent border-t-white/30 border-r-white/30 rounded-lg"></div>
@@ -263,7 +263,7 @@ export function LoadingSpinner() {
 // Minimal version for small spaces
 export function LoadingDot() {
   return (
-    <div className="inline-flex items-center gap-1">
+    <div aria-live="polite" role="status" className="inline-flex items-center gap-1">
       <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce"></div>
       <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce delay-100"></div>
       <div className="w-2 h-2 bg-green-600 rounded-full animate-bounce delay-200"></div>

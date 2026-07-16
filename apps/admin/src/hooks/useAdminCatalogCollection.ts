@@ -39,7 +39,6 @@ interface UseAdminCatalogCollectionOptions<
     deleteItem: (id: string) => Promise<AdminResponseLike>;
     deleteSuccessMessage: string;
     deleteErrorMessage: string;
-    _deleteConfirmMessage?: string;
     deleteStrategy?: "filter" | "refresh";
     initialPagination?: Partial<AdminListPagination>;
 }
@@ -123,7 +122,6 @@ export function useAdminCatalogCollection<
     deleteItem,
     deleteSuccessMessage,
     deleteErrorMessage,
-    _deleteConfirmMessage,
     deleteStrategy = "filter",
     initialPagination,
 }: UseAdminCatalogCollectionOptions<F, CreatePayload, UpdatePayload>, options?: { initialFilters?: Partial<F>; initialPagination?: Partial<AdminListPagination> }) {
