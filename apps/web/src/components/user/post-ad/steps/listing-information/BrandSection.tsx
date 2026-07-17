@@ -4,22 +4,16 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
-import { useCascadeConfirmation } from "@/components/ui/cascade-confirm-dialog";
 import { getNestedFieldMeta } from "../common/utils";
 import { Button } from "@/components/ui/button";
 
 export function BrandSection() {
     const { availableBrands, brandMap, brandIsPending, brandsError } = usePostAdCatalog();
-    const { isEditMode, form, stepValidationAttempts, listingId } = usePostAdFlow();
-    const { watch, handleBrandChange, loadBrandsForCategory, refreshBrands, createAndSelectBrand } = usePostAdAction();
-    const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
+    const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
+    const { watch, handleBrandChange, loadBrandsForCategory } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
-    const modelId = String(watch("modelId") ?? "");
-    const screenSize = String(watch("screenSize") || "");
-    const deviceCondition = String(watch("deviceCondition") || "");
-    const spareParts = (watch("spareParts") || []) as string[];
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;
@@ -30,14 +24,8 @@ export function BrandSection() {
 
     const onBrandChange = useCallback((name: string, rId?: string) => {
         if (isEditMode) return;
-        const affected: string[] = [];
-        if (modelId) affected.push("Model");
-        if (screenSize) affected.push("Screen Size");
-        if (deviceCondition) affected.push("Device Condition");
-        if (spareParts.length > 0) affected.push("Selected Spare Parts");
-        
-        withCascadeConfirmation("Brand", affected, () => handleBrandChange(name, rId));
-    }, [isEditMode, modelId, screenSize, deviceCondition, spareParts.length, handleBrandChange, withCascadeConfirmation]);
+        handleBrandChange(name, rId);
+    }, [isEditMode, handleBrandChange]);
 
     return (
         <section className="space-y-3">
@@ -51,11 +39,8 @@ export function BrandSection() {
                         categoryId={categoryId} 
                         value={brandNameValue} 
                         onChange={(_id, name) => onBrandChange(name, _id)} 
-                        onRequestSuccess={() => refreshBrands()} 
-                        onCreateBrand={createAndSelectBrand}
                         disabled={brandIsPending || isEditMode} 
                         placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"} 
-                        listingId={listingId} 
                     />
                 )}
                 {brandIsPending && availableBrands.length > 0 && (
@@ -79,7 +64,6 @@ export function BrandSection() {
                     </Button>
                 </div>
             )}
-            <ConfirmDialog {...dialogProps} />
         </section>
     );
 }
