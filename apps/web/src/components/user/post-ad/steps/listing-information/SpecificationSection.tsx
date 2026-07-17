@@ -3,9 +3,6 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Z_INDEX } from "@/lib/zIndexConfig";
-import { useCascadeConfirmation } from "@/components/ui/cascade-confirm-dialog";
 import { getNestedFieldMeta } from "../common/utils";
 import { cn } from "@/components/ui/utils";
 import { getVisibleAttributeFilters, renderAttributeField } from "../common/attribute-fields";
@@ -14,11 +11,9 @@ export function SpecificationSection() {
     const { categorySchema, requiresScreenSize, availableSizes } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
     const { watch, setValue } = usePostAdAction();
-    const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
 
     const attributes = watch("attributes") as Record<string, unknown> | undefined;
     const screenSize = String(watch("screenSize") || "");
-    const spareParts = (watch("spareParts") || []) as string[];
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;
@@ -28,14 +23,8 @@ export function SpecificationSection() {
     const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
 
     const onScreenSizeChange = useCallback((val: string) => {
-        const affected: string[] = [];
-        if (spareParts.length > 0) affected.push("Selected Spare Parts");
-
-        withCascadeConfirmation("Screen Size", affected, () => {
-            setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
-            setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
-        });
-    }, [spareParts.length, setValue, withCascadeConfirmation]);
+        setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
+    }, [setValue]);
 
     const updateAttribute = useCallback((id: string, value: unknown) => {
         const current = form.getValues("attributes") as Record<string, unknown> | undefined;
@@ -68,20 +57,28 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 pointer-events-none")}>
-                    <Select value={screenSize || undefined} onValueChange={onScreenSizeChange}>
-                        <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-bold text-foreground focus:border-primary transition-colors px-3 text-sm">
-                            <SelectValue placeholder="Select size" />
-                        </SelectTrigger>
-                        <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border-2 border-slate-100 shadow-xl">
-                            {availableSizes.map((size) => (
-                                <SelectItem key={size} value={size} className="font-medium py-2.5 px-3 text-sm">{size}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        {availableSizes.map((size) => {
+                            const isSelected = screenSize === size;
+                            return (
+                                <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => onScreenSizeChange(size)}
+                                    className={cn(
+                                        "flex h-11 items-center justify-center rounded-xl border text-sm font-bold transition-all duration-200 active:scale-[0.98]",
+                                        isSelected
+                                            ? "border-primary bg-primary/5 text-primary shadow-sm"
+                                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                    )}
+                                >
+                                    {size}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </Field>
             )}
-            
-            <ConfirmDialog {...dialogProps} />
         </div>
     );
 }

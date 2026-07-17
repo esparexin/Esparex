@@ -155,23 +155,9 @@ async function installPostAdCatalogMocks(page: Page) {
 async function installPostAdMutationMocks(
   page: Page,
   captures: {
-    catalogRequests: Record<string, unknown>[];
     listings: Record<string, unknown>[];
   }
 ) {
-  await page.route(/\/api\/v1\/catalog-requests\/?$/, async (route) => {
-    const payload = JSON.parse(route.request().postData() || "{}") as Record<string, unknown>;
-    captures.catalogRequests.push(payload);
-    await fulfillJson(route, envelope({
-      id: "64b000000000000000000101",
-      requestType: payload.requestType,
-      categoryId: payload.categoryId,
-      parentBrandId: payload.parentBrandId,
-      requestedName: payload.requestedName,
-      status: "pending",
-      createdAt: "2024-01-01T00:00:00.000Z",
-    }));
-  });
 
   await page.route(/\/api\/upload\/ad-image\/?$/, (route) =>
     fulfillJson(route, {
@@ -223,8 +209,7 @@ async function installPostAdMutationMocks(
 
 async function installPostAdSmokeMocks(
   page: Page,
-  captures = { catalogRequests: [], listings: [] } as {
-    catalogRequests: Record<string, unknown>[];
+  captures = { listings: [] } as {
     listings: Record<string, unknown>[];
   }
 ) {
@@ -238,38 +223,33 @@ async function installPostAdSmokeMocks(
 async function openPostAd(page: Page) {
   await page.goto("/post-ad", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("heading", { name: "Post Ad" })).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText("Step 1 of 4: Category")).toBeVisible();
-  await expect(page.getByRole("button", { name: smokeCategory.name })).toBeVisible();
+  await expect(page.getByText("Step 1 of 2: Listing Information")).toBeVisible();
+  await expect(page.getByRole("radio", { name: smokeCategory.name })).toBeVisible();
 }
 
 async function selectCategory(page: Page) {
-  await page.getByRole("button", { name: smokeCategory.name }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByText("Step 2 of 4: Brand & Model")).toBeVisible();
+  await page.getByRole("radio", { name: smokeCategory.name }).click();
 }
 
 async function selectApprovedBrandAndModel(page: Page) {
   await page.getByPlaceholder(/Search or select brand/i).fill("Apple");
-  await page.getByRole("button", { name: "Apple" }).click();
-  await expect(page.getByText("Apple").first()).toBeVisible();
+  await page.getByRole("option", { name: "Apple" }).click();
+  await expect(page.getByRole("textbox", { name: "Brand*" })).toHaveValue("Apple");
 
   await page.getByPlaceholder(/Search model/i).fill("iPhone");
-  await page.getByRole("button", { name: "iPhone 14" }).click();
-  await expect(page.getByText("iPhone 14").first()).toBeVisible();
+  await page.getByRole("option", { name: "iPhone 14" }).click();
+  await expect(page.getByRole("textbox", { name: "Model" })).toHaveValue("iPhone 14");
 }
 
 async function completeIdentitySteps(page: Page) {
   await selectCategory(page);
   await selectApprovedBrandAndModel(page);
 
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByText("Step 3 of 4: Details & Condition")).toBeVisible();
-
-  await page.getByRole("button", { name: "Battery" }).click();
-  await page.getByRole("button", { name: "Power On" }).click();
+  await page.getByRole("checkbox", { name: "Battery" }).click();
+  await page.getByRole("radio", { name: "Power On" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByText("Step 4 of 4: Listing Information")).toBeVisible();
+  await expect(page.getByText("Step 2 of 2: Listing Details")).toBeVisible();
 }
 
 async function attachSmokeScreenshot(page: Page, testInfo: TestInfo, name: string) {
@@ -327,44 +307,5 @@ test.describe("Post Ad authenticated smoke", () => {
       });
     }));
 
-  test("allows authenticated users to request a missing brand", async ({ page }, testInfo) =>
-    withRuntimeEvidence(page, testInfo, async () => {
-      const captures = await installPostAdSmokeMocks(page);
-      await openPostAd(page);
-      await selectCategory(page);
-
-      await page.getByPlaceholder(/Search or select brand/i).fill("Pear Phone");
-      await page.getByLabel("Suggest brand").click();
-      await expect(page.getByRole("dialog")).toContainText("Suggest a New Brand");
-      await page.getByRole("button", { name: "Submit Request" }).click();
-
-      await expect.poll(() => captures.catalogRequests.length).toBe(1);
-      expect(captures.catalogRequests[0]).toMatchObject({
-        requestType: "brand",
-        categoryId: CATEGORY_ID,
-        requestedName: "Pear Phone",
-      });
-    }));
-
-  test("allows authenticated users to request a missing model for an approved brand", async ({ page }, testInfo) =>
-    withRuntimeEvidence(page, testInfo, async () => {
-      const captures = await installPostAdSmokeMocks(page);
-      await openPostAd(page);
-      await selectCategory(page);
-
-      await page.getByPlaceholder(/Search or select brand/i).fill("Apple");
-      await page.getByRole("button", { name: "Apple" }).click();
-      await page.getByPlaceholder(/Search model/i).fill("Prototype 99");
-      await page.getByPlaceholder(/Search model/i).press("Enter");
-      await expect(page.getByRole("dialog")).toContainText("Suggest a New Model");
-      await page.getByRole("button", { name: "Submit Request" }).click();
-
-      await expect.poll(() => captures.catalogRequests.length).toBe(1);
-      expect(captures.catalogRequests[0]).toMatchObject({
-        requestType: "model",
-        categoryId: CATEGORY_ID,
-        parentBrandId: BRAND_ID,
-        requestedName: "Prototype 99",
-      });
-    }));
+  // Removed user brand/model suggestion tests as they are now disabled.
 });
