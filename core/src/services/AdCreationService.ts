@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import { AppError } from '../utils/AppError';
 import { getListingRepository } from '../composition/listings';
-import SparePart from '../models/SparePart';
-import Brand from '../models/Brand';
+import { getSparePartRepository, getBrandRepository } from '../composition/catalog';
+import { getUserRepository } from '../composition/identity';
 import { normalizeLocation } from './location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
@@ -111,17 +111,17 @@ export const validateSparePartsForCategory = async (
     const equivalentCategoryIds = await resolveEquivalentActiveCategoryIds(categoryId);
     const categoryScope = equivalentCategoryIds.length > 0 ? equivalentCategoryIds : [categoryId];
 
-    const validParts = await SparePart.find({
+    const validParts = await getSparePartRepository().findMany({
         _id: { $in: uniqueSparePartIds },
         categoryIds: { $in: categoryScope },
         isActive: true
-    }).select('_id name brandId').lean();
+    });
 
     if (validParts.length !== uniqueSparePartIds.length) {
         throw new AppError('One or more selected spare parts are invalid for the selected category.', 400);
     }
 
-    return validParts;
+    return validParts.map(part => ({ _id: part.id, name: part.name, brandId: part.brandId }));
 };
 
 /**
@@ -338,9 +338,9 @@ export class AdCreationService {
             const validParts = await validateSparePartsForCategory(payload.sparePartIds, cat);
             
             if (await isEnabled(FeatureFlag.ENABLE_SPAREPARTS_SNAPSHOT)) {
-                const brandIds = validParts.map((p) => p.brandId).filter(Boolean) as import('mongoose').Types.ObjectId[];
-                const brands = await Brand.find({ _id: { $in: brandIds } }).select('_id name').lean();
-                const brandMap = new Map(brands.map((b) => [String(b._id), b.name]));
+                const brandIds = validParts.map((p) => p.brandId).filter(Boolean) as string[];
+                const brands = await getBrandRepository().findMany({ _id: { $in: brandIds } });
+                const brandMap = new Map(brands.map((b) => [String(b.id), b.name]));
                 payload.sparePartsSnapshot = validParts.map((part) => ({
                     _id: part._id,
                     name: part.name,
