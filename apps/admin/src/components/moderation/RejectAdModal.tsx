@@ -10,14 +10,17 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 
-const REJECTION_REASONS = [
-    "Spam",
-    "Fraud",
-    "Wrong Category",
-    "Prohibited Item",
-    "Duplicate Listing",
-    "Other"
-] as const;
+import { REPORT_REASON, REPORT_REASON_VALUES } from "@esparex/shared";
+
+const REASON_LABELS: Record<string, string> = {
+    [REPORT_REASON.SPAM]: "Spam",
+    [REPORT_REASON.SCAM]: "Fraud/Scam",
+    [REPORT_REASON.PROHIBITED_ITEM]: "Prohibited Item",
+    [REPORT_REASON.OFFENSIVE_CONTENT]: "Offensive Content",
+    [REPORT_REASON.MISLEADING_INFO]: "Misleading Information",
+    [REPORT_REASON.SOLD_ELSEWHERE]: "Sold Elsewhere",
+    [REPORT_REASON.OTHER]: "Other",
+};
 
 type RejectAdModalProps = {
     open: boolean;
@@ -38,13 +41,14 @@ export function RejectAdModal({
     onClose,
     onSubmit
 }: RejectAdModalProps) {
-    const [reason, setReason] = useState<(typeof REJECTION_REASONS)[number]>("Spam");
+    const [reason, setReason] = useState<string>(REPORT_REASON.SPAM);
     const [comment, setComment] = useState("");
 
     const finalReason = useMemo(() => {
         const normalizedComment = comment.trim();
-        if (!normalizedComment) return reason;
-        return `${reason}: ${normalizedComment}`;
+        const label = REASON_LABELS[reason] || reason;
+        if (!normalizedComment) return label;
+        return `${label}: ${normalizedComment}`;
     }, [comment, reason]);
 
     return (
@@ -62,12 +66,12 @@ export function RejectAdModal({
                         <span>Rejection reason</span>
                         <select
                             value={reason}
-                            onChange={(event) => setReason(event.target.value as (typeof REJECTION_REASONS)[number])}
+                            onChange={(event) => setReason(event.target.value)}
                             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
                         >
-                            {REJECTION_REASONS.map((item) => (
+                            {REPORT_REASON_VALUES.map((item) => (
                                 <option key={item} value={item}>
-                                    {item}
+                                    {REASON_LABELS[item]}
                                 </option>
                             ))}
                         </select>

@@ -1,19 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { ModerationFilters, ModerationItem, ModerationPagination, ModerationSummary } from "@/components/moderation/moderationTypes";
+import { type ModerationFilters, type ModerationItem, type ModerationPagination, type ModerationSummary, DEFAULT_SUMMARY } from "@/components/moderation/moderationTypes";
 import { fetchAdminModerationAds, fetchAdminModerationSummary } from "@/lib/api/moderation";
 import { normalizeModerationAd } from "@/components/moderation/normalizeModerationAd";
 
 // ...existing code...
-
-type QueryState = {
-    items: ModerationItem[];
-    pagination: ModerationPagination;
-    summary: ModerationSummary;
-    isLoading: boolean;
-    error: string;
-};
 
 const DEFAULT_PAGINATION: ModerationPagination = {
     page: 1,
@@ -22,14 +14,12 @@ const DEFAULT_PAGINATION: ModerationPagination = {
     pages: 1
 };
 
-const DEFAULT_SUMMARY: ModerationSummary = {
-    total: 0,
-    pending: 0,
-    live: 0,
-    rejected: 0,
-    expired: 0,
-    sold: 0,
-    deactivated: 0
+type QueryState = {
+    items: ModerationItem[];
+    pagination: ModerationPagination;
+    summary: ModerationSummary;
+    isLoading: boolean;
+    error: string;
 };
 
 export function useAdminAdsQuery(input: {
