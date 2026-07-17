@@ -1,11 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import PostAdPageClient from "@/components/user/post-ad/PostAdPageClient";
-import {
-    API_ROUTES,
-    API_V1_BASE_PATH,
-    DEFAULT_LOCAL_API_ORIGIN,
-} from "@/lib/api/routes";
+import { API_ROUTES } from "@/lib/api/routes";
+import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 import { buildLoginUrl } from "@/lib/authHelpers";
 
 type PostingBalancePayload = {
@@ -20,9 +17,7 @@ type PostingBalanceResponse = {
     error?: string;
 };
 
-const API_BASE = (
-    process.env.NEXT_PUBLIC_API_URL || `${DEFAULT_LOCAL_API_ORIGIN}${API_V1_BASE_PATH}`
-).replace(/\/$/, "");
+const API_BASE = resolveRuntimeApiBaseUrl();
 
 const loginRedirectUrl = buildLoginUrl("/post-ad");
 

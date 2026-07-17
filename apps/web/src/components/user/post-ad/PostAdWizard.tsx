@@ -12,6 +12,8 @@ import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
 import { ValidationSummary } from "./steps/common/ValidationSummary";
 import { useNavigation } from "@/context/NavigationContext";
+import { useRouter } from "next/navigation";
+import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import type { PostAdWizardProps } from "./types";
 
 const STEP_LABELS = ["Listing Information", "Listing Details"];
@@ -21,9 +23,14 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { confirmNavigation } = useNavigation();
+  const router = useRouter();
 
   const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
-  const handleGoMyAds = useCallback(() => navigateTo("my-ads"), [navigateTo]);
+  const isAutoApproved = submittedAd?.status === 'live';
+  const handleGoMyAds = useCallback(() => {
+    const statusTab = isAutoApproved ? "live" : "pending";
+    void router.push(buildAccountListingRoute("ads", statusTab));
+  }, [router, isAutoApproved]);
   const handleClose = useCallback(() => {
     confirmNavigation(handleGoHome);
   }, [confirmNavigation, handleGoHome]);
@@ -56,12 +63,8 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         <ListingModalBody data-post-ad-scroll className="space-y-4">
           <ValidationSummary />
 
-          <div className={cn(currentStep !== 1 && "hidden")}>
-            <StepOne />
-          </div>
-          <div className={cn(currentStep !== 2 && "hidden")}>
-            <StepTwo />
-          </div>
+          {currentStep === 1 && <StepOne />}
+          {currentStep === 2 && <StepTwo />}
 
           {currentStep > 1 && !isEditMode ? (
             <div className="border-t border-slate-100 pt-2">

@@ -7,7 +7,6 @@ import { cn } from "@/components/ui/utils";
 import { MAX_AD_IMAGES } from "@shared";
 import Image from "next/image";
 import { getNestedFieldMeta } from "../common/utils";
-import { useCallback } from "react";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 
 export function ImageUploadSection() {
@@ -18,13 +17,8 @@ export function ImageUploadSection() {
     const { touchedFields, errors, submitCount } = form.formState;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
     const hasAttemptedSubmit = submitCount > 0;
-
-    const shouldShowFieldError = useCallback((path: string) => {
-        if (hasAttemptedSubmit || hasAttemptedStepValidation) return true;
-        return Boolean(getNestedFieldMeta(touchedFields, path));
-    }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields]);
-
-    const imagesError = shouldShowFieldError("images") ? getFirstFormErrorMessage(errors.images) : undefined;
+    const showFieldError = hasAttemptedSubmit || hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, "images"));
+    const imagesError = showFieldError ? getFirstFormErrorMessage(errors.images) : undefined;
 
     return (
         <section className="space-y-6">

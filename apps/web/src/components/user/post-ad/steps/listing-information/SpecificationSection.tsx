@@ -23,7 +23,7 @@ export function SpecificationSection() {
     const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
 
     const onScreenSizeChange = useCallback((val: string) => {
-        setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
+        setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
     }, [setValue]);
 
     const updateAttribute = useCallback((id: string, value: unknown) => {
@@ -32,7 +32,7 @@ export function SpecificationSection() {
     }, [form, setValue]);
 
     const dynamicAttributeFilters = getVisibleAttributeFilters(categorySchema, attributes);
-    
+
     if (dynamicAttributeFilters.length === 0 && !requiresScreenSize) {
         return null;
     }
@@ -46,9 +46,9 @@ export function SpecificationSection() {
                     </div>
                     <div className="space-y-3">
                         {dynamicAttributeFilters.map((f) => renderAttributeField(
-                            f, 
-                            getAttributeValue(attributes, f.id) ?? f.defaultValue, 
-                            shouldShowFieldError(`attributes.${f.id}`) ? (getNestedFieldMeta(errors, `attributes.${f.id}.message`) as string | undefined) : undefined, 
+                            f,
+                            getAttributeValue(attributes, f.id) ?? f.defaultValue,
+                            shouldShowFieldError(`attributes.${f.id}`) ? (getNestedFieldMeta(errors, `attributes.${f.id}.message`) as string | undefined) : undefined,
                             updateAttribute
                         ))}
                     </div>
