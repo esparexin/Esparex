@@ -21,7 +21,7 @@ const ListingRelatedBusinessesSection = dynamic(
 );
 import {
   deleteListing,
-  markAsSold,
+  markListingAsSold,
 } from "@/lib/api/user/listings";
 import { chatApi } from "@/lib/api/chatApi";
 import type { Listing as Ad } from "@/lib/api/user/listings";
@@ -220,7 +220,7 @@ export function ListingDetail({
         : platform === "outside"
         ? "sold_outside"
         : "no_longer_available";
-      const result = await markAsSold(ad.id, soldReason);
+      const result = await markListingAsSold(ad.id, soldReason);
       if (result) {
         setSoldOverride({
           adId: String(ad.id),

@@ -9,19 +9,11 @@ export function usePostAdValidation() {
         setFormError(null);
     }, []);
 
-    const setErrorMessage = useCallback((message: string | null) => {
-        setFormError(message);
-    }, []);
-
-    const setLoadErrorMessage = useCallback((message: string | null) => {
-        setLoadError(message);
-    }, []);
-
     return {
         loadError,
-        setLoadError: setLoadErrorMessage,
+        setLoadError,
         formError,
-        setFormError: setErrorMessage,
+        setFormError,
         clearErrors,
     };
 }

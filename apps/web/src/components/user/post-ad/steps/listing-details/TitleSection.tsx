@@ -26,7 +26,7 @@ function TitleCharCounter() {
 
 export function TitleSection() {
     const { register } = useFormContext<PostAdFormData>();
-    const { isLoading, form, stepValidationAttempts } = usePostAdFlow();
+    const { isGeneratingAI, form, stepValidationAttempts } = usePostAdFlow();
     const { generateDescription } = usePostAdAction();
 
     const { touchedFields, errors, submitCount } = form.formState;
@@ -56,10 +56,10 @@ export function TitleSection() {
                             variant="ghost"
                             size="sm"
                             onClick={() => generateDescription('title')}
-                            disabled={isLoading}
+                            disabled={isGeneratingAI}
                             className="absolute right-2 top-1/2 -translate-y-1/2 h-11 px-2 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-semibold"
                         >
-                            {isLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Suggest"}
+                            {isGeneratingAI ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Suggest"}
                         </Button>
                     </div>
                     <div className="flex justify-between items-center">
