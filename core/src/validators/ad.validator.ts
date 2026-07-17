@@ -69,7 +69,7 @@ export const createAdSchema = SharedAdPayloadSchema;
 /**
  * Update Ad Request Schema
  */
-export const updateAdSchema = SharedPartialAdPayloadSchema.passthrough();
+export const updateAdSchema = SharedPartialAdPayloadSchema;
 
 import { normalizeStatus } from "@esparex/shared";
 

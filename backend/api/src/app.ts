@@ -53,7 +53,7 @@ import invoiceRoutes from './routes/invoiceRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import reportRoutes from './routes/reportRoutes';
 import chatRoutes from './routes/chatRoutes';
-import catalogRequestRoutes from './routes/catalogRequestRoutes';
+// import catalogRequestRoutes from './routes/catalogRequestRoutes';
 import adminCatalogRequestRoutes from './routes/adminCatalogRequestRoutes';
 
 
@@ -206,18 +206,19 @@ app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
 
+// Request ID MUST be registered first — it establishes the TraceContext
+// (AsyncLocalStorage) used by every subsequent middleware and all log lines.
+// Registering it after metrics middlewares produces 'correlationId: no-context'.
+import requestIdMiddleware from './middleware/requestId';
+import { sentryRequestHandler, sentryTracingHandler } from './middleware/sentryErrorHandler';
 import { apiLatencyMiddleware, getApiReliabilitySummary, memoryUsageMiddleware } from './middleware/metricsMiddleware';
 import { getSystemMetricsSummary } from '@esparex/core/utils/systemMetricsSummary';
-app.use(apiLatencyMiddleware);
-app.use(memoryUsageMiddleware);
 
-// Sentry request handler - must be first middleware
-import { sentryRequestHandler, sentryTracingHandler } from './middleware/sentryErrorHandler';
-import requestIdMiddleware from './middleware/requestId';
-
-app.use(requestIdMiddleware); // Add request ID for tracking
+app.use(requestIdMiddleware); // FIRST: establishes correlationId in AsyncLocalStorage
 app.use(sentryRequestHandler); // Sentry request context
 app.use(sentryTracingHandler); // Sentry performance monitoring
+app.use(apiLatencyMiddleware);
+app.use(memoryUsageMiddleware);
 
 if (env.NODE_ENV !== 'test') {
     app.use(morgan('dev'));
@@ -382,7 +383,7 @@ app.use('/api/v1', verifyCsrfToken);
 // --- SSOT API Namespace ---
 app.use('/api/v1', rootRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
-app.use('/api/v1/catalog-requests', catalogRequestRoutes);
+// app.use('/api/v1/catalog-requests', catalogRequestRoutes);
 app.use('/api/v1/locations', locationRoutes);
 app.use('/api/v1/editorial', editorialRoutes);
 
