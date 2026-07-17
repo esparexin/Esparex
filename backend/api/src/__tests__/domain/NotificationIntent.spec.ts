@@ -1,4 +1,4 @@
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import { NotificationIntent } from "@esparex/core/domains/identity";
 import { NOTIFICATION_TYPE } from '@esparex/shared';
 
 describe("NotificationIntent", () => {

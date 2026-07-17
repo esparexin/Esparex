@@ -1,7 +1,7 @@
 import User from "../../models/User";
 import { Role } from '@esparex/shared';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
-import { NotificationIntent } from "../../domain/NotificationIntent";
+import { NotificationIntent } from "../../domains/identity";
 import { NotificationDispatcher } from "../notification/NotificationDispatcher";
 import logger from "../../utils/logger";
 

@@ -24,6 +24,7 @@ export default tseslint.config(
       "**/__tests__/**",
       "**/tests/**",
       "**/scratch/**",
+      "**/.venv/**",
       "**/*.spec.ts",
       "**/*.test.ts",
       "**/*.d.ts"

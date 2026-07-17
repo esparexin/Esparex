@@ -11,6 +11,7 @@ import * as Sentry from '@sentry/node';
 import { env, isProduction, isDevelopment } from './env';
 import logger from '../utils/logger';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- @sentry/profiling-node has no type declarations
 let nodeProfilingIntegration: any = null;
 try {
     nodeProfilingIntegration = require('@sentry/profiling-node').nodeProfilingIntegration;

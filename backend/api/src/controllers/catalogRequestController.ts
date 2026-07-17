@@ -9,7 +9,7 @@ import {
     markCatalogRequestDuplicate,
     rejectCatalogRequest,
 } from '@esparex/core/services/catalogRequestApprovalService';
-import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
+import { NotificationIntent } from '@esparex/core/domains/identity';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
 

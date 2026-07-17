@@ -5,7 +5,7 @@ export const updateUser = async (id: string, updates: Partial<IUser>) => {
     return await userRepository.updateUser(id, updates);
 };
 
-export const removeUserFcmToken = async (userId: unknown, token: string): Promise<void> => {
+export const removeUserFcmToken = async (userId: string, token: string): Promise<void> => {
     return await userRepository.removeUserFcmToken(userId, token);
 };
 

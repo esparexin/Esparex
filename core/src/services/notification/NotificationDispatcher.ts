@@ -3,7 +3,7 @@ import Notification from '../../models/Notification';
 import { NotificationVersionService } from './NotificationVersionService';
 import { getIO } from '../../config/socket';
 import { sendNotification } from './PushGatewayService';
-import { NotificationIntent } from '../../domain/NotificationIntent';
+import { NotificationIntent } from '../../domains/identity';
 import logger from '../../utils/logger';
 import { resolveNotificationDeliveryPlan } from './NotificationPreferenceService';
 import {

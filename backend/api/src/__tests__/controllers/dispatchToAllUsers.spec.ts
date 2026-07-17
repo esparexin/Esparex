@@ -18,7 +18,7 @@ jest.mock("@esparex/core/services/notification/NotificationDispatcher", () => ({
     },
 }));
 
-jest.mock("@esparex/core/domain/NotificationIntent", () => ({
+jest.mock("@esparex/core/domains/identity", () => ({
     NotificationIntent: {
         fromAdminBroadcast: jest.fn((userId, audienceId, title, body, kind, targetType) => ({
             userId,
@@ -37,7 +37,7 @@ jest.mock("../../utils/adminLogger", () => ({
 
 import NotificationLog from "@esparex/core/models/NotificationLog";
 import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import { NotificationIntent } from "@esparex/core/domains/identity";
 import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import type { Request, Response } from "express";
 import { sendNotification } from "../../controllers/admin/adminNotificationController";

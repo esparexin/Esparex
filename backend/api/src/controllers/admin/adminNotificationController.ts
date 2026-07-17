@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { NOTIFICATION_TYPE } from "@esparex/shared";
-import { NotificationIntent } from "@esparex/core/domain/NotificationIntent";
+import { NotificationIntent } from "@esparex/core/domains/identity";
 import {
     createNotificationLog,
     createScheduledNotification,

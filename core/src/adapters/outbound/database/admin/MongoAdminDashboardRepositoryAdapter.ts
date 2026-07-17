@@ -18,7 +18,7 @@ const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approve
 const CATALOG_REQUEST_MERGED_STATUS = 'merged' as CatalogRequestStatusValue;
 
 export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepositoryPort {
-    public async getCatalogHealthMetrics(): Promise<any> {
+    public async getCatalogHealthMetrics(): Promise<{ pendingRequests: number; averageResolutionHours: number; mergedRequests: number }> {
         const [counts, resolutionAgg] = await Promise.all([
             CatalogRequest.aggregate([{ $match: { status: { $in: [CATALOG_REQUEST_PENDING_STATUS] } } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
             CatalogRequest.aggregate([
@@ -28,7 +28,7 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
             ]),
         ]);
 
-        const findCount = (status: string) => counts.find((c: any) => c._id === status)?.count || 0;
+        const findCount = (status: string) => counts.find((c: { _id: string; count: number }) => c._id === status)?.count || 0;
         const pendingRequests = findCount(CATALOG_REQUEST_PENDING_STATUS);
         const mergedRequests = findCount(CATALOG_REQUEST_MERGED_STATUS);
         const avgTimeMs = resolutionAgg[0]?.avgTimeMs || 0;
@@ -37,7 +37,7 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
         return { pendingRequests, averageResolutionHours, mergedRequests };
     }
 
-    public async getDashboardOverviewStats(publicAdFilter: any): Promise<any> {
+    public async getDashboardOverviewStats(publicAdFilter: Record<string, unknown>): Promise<Record<string, unknown>> {
         const [totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth] = await Promise.all([
             User.countDocuments(),
             Ad.aggregate([
@@ -65,7 +65,7 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
         return { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth };
     }
 
-    public async getDashboardCardStats(publicAdFilter: any): Promise<any> {
+    public async getDashboardCardStats(publicAdFilter: Record<string, unknown>): Promise<Record<string, unknown>> {
         const [totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth] = await Promise.all([
             User.countDocuments(),
             Ad.aggregate([
@@ -84,24 +84,24 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
         return { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth };
     }
 
-    public async getRecentAdminLogs(limit: number): Promise<any[]> {
-        return AdminLog.find().sort({ createdAt: -1 }).limit(limit).populate('adminId', 'firstName lastName email').lean();
+    public async getRecentAdminLogs(limit: number): Promise<Record<string, unknown>[]> {
+        return AdminLog.find().sort({ createdAt: -1 }).limit(limit).populate('adminId', 'firstName lastName email').lean() as unknown as Record<string, unknown>[];
     }
 
-    public async getContactSubmissionsPaginated(query: any, skip: number, limit: number): Promise<[any[], number]> {
+    public async getContactSubmissionsPaginated(query: Record<string, unknown>, skip: number, limit: number): Promise<[Record<string, unknown>[], number]> {
         return Promise.all([
-            ContactSubmission.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
+            ContactSubmission.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }) as unknown as Record<string, unknown>[],
             ContactSubmission.countDocuments(query),
         ]);
     }
 
-    public async updateContactSubmissionById(id: string, status: string): Promise<any> {
+    public async updateContactSubmissionById(id: string, status: string): Promise<Record<string, unknown> | null> {
         const safeId = typeof id === 'string' ? id : String(id);
         // eslint-disable-next-line esparex/no-status-mutation-outside-status-mutation-service
-        return ContactSubmission.findByIdAndUpdate(safeId, { $set: { status: typeof status === 'string' ? status : String(status) } }, { new: true });
+        return ContactSubmission.findByIdAndUpdate(safeId, { $set: { status: typeof status === 'string' ? status : String(status) } }, { new: true }) as unknown as Record<string, unknown> | null;
     }
 
-    public async getLocationAnalyticsRawData(params: any): Promise<any> {
+    public async getLocationAnalyticsRawData(params: { sixMonthsAgo: Date; buildScopedLocationQuery: (extra?: Record<string, unknown>) => Record<string, unknown>; buildScopedAdQuery: (extra?: Record<string, unknown>) => Record<string, unknown>; buildScopedUserQuery: (extra?: Record<string, unknown>) => Record<string, unknown>; hotZoneQuery: Record<string, unknown> }): Promise<Record<string, unknown>> {
         const { sixMonthsAgo, buildScopedLocationQuery, buildScopedAdQuery, buildScopedUserQuery, hotZoneQuery } = params;
         const [totalLocations, totalAds, totalUsers, adsByLocationAgg, monthlyAds, monthlyUsers, monthlyLocs, topHotZonesRaw] = await Promise.all([
             Location.countDocuments(buildScopedLocationQuery()),
@@ -130,13 +130,13 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
         return { totalLocations, totalAds, totalUsers, adsByLocationAgg, monthlyAds, monthlyUsers, monthlyLocs, topHotZonesRaw };
     }
 
-    public async getHotZoneLocations(locationIds: string[]): Promise<any[]> {
+    public async getHotZoneLocations(locationIds: string[]): Promise<Record<string, unknown>[]> {
         if (locationIds.length === 0) return [];
-        return Location.find({ _id: { $in: locationIds } }).select('_id name country level parentId path').lean();
+        return Location.find({ _id: { $in: locationIds } }).select('_id name country level parentId path').lean() as unknown as Record<string, unknown>[];
     }
 
-    public async getAnalyticsLocations(locationIds: string[]): Promise<any[]> {
+    public async getAnalyticsLocations(locationIds: string[]): Promise<Record<string, unknown>[]> {
         if (locationIds.length === 0) return [];
-        return Location.find({ _id: { $in: locationIds } }).select('_id name country level parentId path').lean();
+        return Location.find({ _id: { $in: locationIds } }).select('_id name country level parentId path').lean() as unknown as Record<string, unknown>[];
     }
 }

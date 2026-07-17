@@ -71,10 +71,10 @@ const execBulk = async (ids: string[], actionName: string, fn: (id: string) => P
     return c;
 };
 
-export const adminBulkApproveBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'approve', (id) => approveAdminBusiness(id as any, actorId, logFn) as any);
-export const adminBulkRejectBusinesses = async (ids: string[], reason: string, actorId: string, logFn: AdminLogFn) => execBulk(ids, 'reject', (id) => rejectAdminBusiness(id as any, reason, actorId, logFn) as any);
+export const adminBulkApproveBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'approve', (id) => approveAdminBusiness(id, actorId, logFn));
+export const adminBulkRejectBusinesses = async (ids: string[], reason: string, actorId: string, logFn: AdminLogFn) => execBulk(ids, 'reject', (id) => rejectAdminBusiness(id, reason, actorId, logFn));
 export const adminBulkDeactivateBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'deactivate', (id) => suspendAdminBusiness(id, 'Deactivated by admin', actorId, logFn));
-export const adminBulkExpireBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'expire', (id) => expireAdminBusiness(id as any, actorId, logFn) as any);
+export const adminBulkExpireBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'expire', (id) => expireAdminBusiness(id, actorId, logFn));
 export const adminBulkRenewBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'renew', (id) => renewAdminBusiness(id, actorId, logFn));
 
 export const adminBulkResendBusinessWarnings = async (ids: string[], actorId: string, logFn: AdminLogFn) => {

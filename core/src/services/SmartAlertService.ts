@@ -282,7 +282,7 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
                 const batch = filteredMatches.slice(i, i + BATCH_SIZE);
 
                 // Extract loop arrays to decouple background execution out of the active batch window.
-                const { NotificationIntent } = await import('../domain/NotificationIntent');
+                const { NotificationIntent } = await import('../domains/identity');
                 const { NotificationDispatcher } = await import('./notification/NotificationDispatcher');
 
                 const intents = batch.map(match => {

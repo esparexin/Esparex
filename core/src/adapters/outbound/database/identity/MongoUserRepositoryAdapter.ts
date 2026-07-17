@@ -24,24 +24,24 @@ export class MongoUserRepositoryAdapter implements UserRepositoryPort {
             { new: true, runValidators: true }
         ).select('-password');
     }
-    public async removeUserFcmToken(userId: any, token: string): Promise<void> {
+    public async removeUserFcmToken(userId: string, token: string): Promise<void> {
         const safeId = typeof userId === 'string' ? userId : String(userId ?? '');
         await User.findByIdAndUpdate(safeId, { $pull: { fcmTokens: { token: String(token ?? '') } } });
     }
-    public async getUserById(userId: string): Promise<any> {
+    public async getUserById(userId: string): Promise<Record<string, unknown> | null> {
         const safeId = typeof userId === 'string' ? userId : String(userId);
-        const user = await User.findById(safeId).lean() as any;
-        if (user && user.role) user.role = normalizeRole(user.role);
+        const user = await User.findById(safeId).lean() as unknown as Record<string, unknown> | null;
+        if (user && user.role) user.role = normalizeRole(user.role as string);
         return user;
     }
-    public async getUserWithBusiness(userId: string): Promise<{ user: any; business: any }> {
+    public async getUserWithBusiness(userId: string): Promise<{ user: Record<string, unknown>; business: Record<string, unknown> }> {
         const safeId = typeof userId === 'string' ? userId : String(userId);
         const [user, business] = await Promise.all([
-            User.findById(safeId).select('-password -salt').lean() as any,
-            Business.findOne({ userId: String(userId) }).lean(),
+            User.findById(safeId).select('-password -salt').lean() as unknown as Record<string, unknown> | null,
+            Business.findOne({ userId: String(userId) }).lean() as unknown as Record<string, unknown> | null,
         ]);
-        if (user && user.role) user.role = normalizeRole(user.role);
-        return { user, business };
+        if (user && user.role) user.role = normalizeRole(user.role as string);
+        return { user: user ?? {}, business: business ?? {} };
     }
     public async getUserPhoneVerification(userId: string): Promise<any> {
         const safeId = typeof userId === 'string' ? userId : String(userId);

@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { redisConnection, shouldDisableQueueConnection } from '../queues/redisConnection';
 import { NotificationDispatcher } from '../services/notification/NotificationDispatcher';
-import { NotificationIntent } from '../domain/NotificationIntent';
+import { NotificationIntent } from '../domains/identity';
 import logger from '../utils/logger';
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';
 import { queueWorkerBackoffStrategy } from '../queues/queueDefaults';

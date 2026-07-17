@@ -180,37 +180,36 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
         ...(Array.isArray(locationScopeIds) ? { locationId: { $in: locationScopeIds } } : {}),
     };
 
-    const {
-        totalLocations,
-        totalAds,
-        totalUsers,
-        adsByLocationAgg,
-        monthlyAds,
-        monthlyUsers,
-        monthlyLocs,
-        topHotZonesRaw,
-    } = await getLocationAnalyticsRawData({
+    const rawResult = await getLocationAnalyticsRawData({
         sixMonthsAgo,
         buildScopedLocationQuery,
         buildScopedAdQuery,
         buildScopedUserQuery,
         hotZoneQuery,
     });
+    const totalLocations = rawResult.totalLocations as number;
+    const totalAds = rawResult.totalAds as number;
+    const totalUsers = rawResult.totalUsers as number;
+    const adsByLocationAgg = rawResult.adsByLocationAgg as Array<Record<string, unknown>>;
+    const monthlyAds = rawResult.monthlyAds as Array<Record<string, unknown>>;
+    const monthlyUsers = rawResult.monthlyUsers as Array<Record<string, unknown>>;
+    const monthlyLocs = rawResult.monthlyLocs as Array<Record<string, unknown>>;
+    const topHotZonesRaw = rawResult.topHotZonesRaw as Array<Record<string, unknown>>;
 
-    const hotZoneLocationIds = topHotZonesRaw.map((zone: any) => zone.locationId);
+    const hotZoneLocationIds = topHotZonesRaw.map((zone) => zone.locationId as string);
     const hotZoneLocations = await getHotZoneLocations(hotZoneLocationIds.map(String));
     const hotZoneHierarchyMap = await loadHierarchyMapForLocations(hotZoneLocations);
     const hotZoneLocationMap = new Map(
-        hotZoneLocations.map((location: any) => [String(location._id), location])
+        hotZoneLocations.map((location) => [String(location._id), location])
     );
-    const hotZones = topHotZonesRaw.map((zone: any) => {
+    const hotZones = topHotZonesRaw.map((zone) => {
         const location = hotZoneLocationMap.get(String(zone.locationId));
         const summary = location ? buildLocationSummary(location, hotZoneHierarchyMap) : undefined;
         return {
             _id: String(zone._id),
             city: summary?.city ?? '',
             state: summary?.state ?? '',
-            popularityScore: zone.popularityScore ?? 0,
+            popularityScore: (zone.popularityScore as number) ?? 0,
             isHotZone: true,
         };
     });
@@ -224,9 +223,9 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
         const m = d.getMonth() + 1;
         const y = d.getFullYear();
 
-        const ads = monthlyAds.find((a: any) => a._id.month === m && a._id.year === y)?.count || 0;
-        const users = monthlyUsers.find((u: any) => u._id.month === m && u._id.year === y)?.count || 0;
-        const locs = monthlyLocs.find((l: any) => l._id.month === m && l._id.year === y)?.count || 0;
+        const ads = monthlyAds.find((a) => (a._id as Record<string, unknown>).month === m && (a._id as Record<string, unknown>).year === y)?.count ?? 0;
+        const users = monthlyUsers.find((u) => (u._id as Record<string, unknown>).month === m && (u._id as Record<string, unknown>).year === y)?.count ?? 0;
+        const locs = monthlyLocs.find((l) => (l._id as Record<string, unknown>).month === m && (l._id as Record<string, unknown>).year === y)?.count ?? 0;
 
         trends.push({
             month: monthNames[m - 1],
@@ -237,7 +236,7 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     }
 
     const adsByLocationIds = adsByLocationAgg
-        .map((entry: any) => entry?._id as string | undefined)
+        .map((entry) => entry?._id as string | undefined)
         .filter((value: string | undefined): value is string => Boolean(value))
         .map((value: string) => String(value));
     const analyticsLocations = await getAnalyticsLocations(adsByLocationIds);

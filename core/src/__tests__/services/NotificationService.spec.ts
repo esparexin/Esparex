@@ -95,7 +95,7 @@ jest.mock("../../services/notification/NotificationPreferenceService", () => ({
 import User from "../../models/User";
 import Notification from "../../models/Notification";
 import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
-import { NotificationIntent } from "../../domain/NotificationIntent";
+import { NotificationIntent } from "../../domains/identity";
 import { 
     registerToken, 
     sendNotification, 

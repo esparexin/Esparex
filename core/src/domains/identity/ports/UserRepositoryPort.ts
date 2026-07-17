@@ -1,5 +1,5 @@
 export interface UserProfileData {
-    _id: any;
+    _id: string;
     name?: string;
     avatar?: string;
     createdAt?: Date;
@@ -13,14 +13,14 @@ export interface UserProfileData {
 
 export interface UserRepositoryPort {
     findActiveProfileById(id: string): Promise<UserProfileData | null>;
-    updateUser(id: string, updates: any): Promise<any>;
-    removeUserFcmToken(userId: any, token: string): Promise<void>;
-    getUserById(userId: string): Promise<any>;
-    getUserWithBusiness(userId: string): Promise<{ user: any; business: any }>;
-    getUserPhoneVerification(userId: string): Promise<any>;
-    findUserByEmail(email: string): Promise<any>;
-    getUserAvatarById(userId: string): Promise<any>;
+    updateUser(id: string, updates: Record<string, unknown>): Promise<Record<string, unknown>>;
+    removeUserFcmToken(userId: string, token: string): Promise<void>;
+    getUserById(userId: string): Promise<Record<string, unknown> | null>;
+    getUserWithBusiness(userId: string): Promise<{ user: Record<string, unknown>; business: Record<string, unknown> }>;
+    getUserPhoneVerification(userId: string): Promise<Record<string, unknown> | null>;
+    findUserByEmail(email: string): Promise<Record<string, unknown> | null>;
+    getUserAvatarById(userId: string): Promise<string | null>;
     checkUserExistsById(userId: string): Promise<boolean>;
-    blockUserById(blockerId: string, blockedUserId: string): Promise<any>;
-    unblockUserById(blockerId: string, blockedUserId: string): Promise<any>;
+    blockUserById(blockerId: string, blockedUserId: string): Promise<Record<string, unknown>>;
+    unblockUserById(blockerId: string, blockedUserId: string): Promise<Record<string, unknown>>;
 }

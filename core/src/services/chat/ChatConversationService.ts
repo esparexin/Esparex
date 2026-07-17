@@ -56,7 +56,7 @@ export async function listConversations(
     const lastConv = convs[convs.length - 1];
     const nextCursor =
         convs.length === PAGE_SIZE_INBOX && lastConv?.lastMessageAt
-            ? lastConv.lastMessageAt.toISOString()
+            ? (lastConv.lastMessageAt as Date).toISOString()
             : undefined;
 
     return {

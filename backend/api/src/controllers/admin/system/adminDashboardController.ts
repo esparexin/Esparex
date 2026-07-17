@@ -3,7 +3,7 @@ import { sendSuccessResponse, getPaginationParams, sendPaginatedResponse, sendAd
 import { getSingleParam } from '../../../utils/requestParams';
 import { escapeRegExp } from '@esparex/core/utils/stringUtils';
 
-import { redis } from '@esparex/core/lib/redis';
+import redis from '@esparex/core/config/redis';
 import { scanKeysByPattern } from '@esparex/core/utils/redisCache';
 import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
 import {

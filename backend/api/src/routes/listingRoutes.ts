@@ -11,7 +11,7 @@ import { validateObjectId } from "../middleware/validateObjectId";
 import { validateIdOrSlug } from "../middleware/validateIdOrSlug";
 import { searchLimiter, mutationLimiter } from "../middleware/rateLimiter";
 import { validateRequest } from "../middleware/validateRequest";
-import { updateAdSchema } from "@esparex/core/validators/ad.validator";
+import { updateAdSchema, createAdSchema } from "@esparex/core/validators/ad.validator";
 import { idempotencyMiddleware } from "../middleware/idempotency";
 import { requireListingOwner } from "../middleware/ownershipGuard";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/businessMiddleware";
@@ -46,7 +46,7 @@ router.get("/", extractUser, searchLimiter, getListingsController.getListings);
 
 // POST /api/v1/listings
 // Unified creation entry point
-router.post("/", protect, mutationLimiter, idempotencyMiddleware, requireVerifiedBusinessForServiceParts, createListingController.createListing);
+router.post("/", protect, mutationLimiter, idempotencyMiddleware, requireVerifiedBusinessForServiceParts, validateRequest(createAdSchema as unknown as ZodTypeAny), createListingController.createListing);
 
 // POST /api/v1/listings/upload-image
 router.post("/upload-image", protect, mutationLimiter, createListingController.uploadImage);

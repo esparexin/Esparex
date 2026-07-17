@@ -70,7 +70,7 @@ export async function sendMessage(
         unreadField,
         senderId,
         preview,
-        msg.createdAt
+        msg.createdAt as Date
     );
 
     // 📣 NOTIFY RECEIVER (Push + In-App)

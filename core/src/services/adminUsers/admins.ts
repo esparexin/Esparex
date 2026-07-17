@@ -28,7 +28,7 @@ export const updateAdminUser = async (userId: string, data: Record<string, unkno
     const user = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-password');
     if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     await logFn('UPDATE_USER', 'User', userId, { changes: Object.keys(data) });
-    return normalizeAdminManagedUser(user as any);
+    return normalizeAdminManagedUser(user.toObject() as unknown as Record<string, unknown>);
 };
 
 export const verifyUserById = async (id: string, isVerified: boolean, actorId: string, logFn: AdminLogFn) => {
@@ -36,7 +36,7 @@ export const verifyUserById = async (id: string, isVerified: boolean, actorId: s
     if (!user) throw new AppError('User not found', 404);
     await logFn('VERIFY_USER', 'User', String(user._id), { isVerified });
     setImmediate(() => void recalculateTrustScore(user._id).catch(() => {}));
-    return normalizeAdminManagedUser(user as any);
+    return normalizeAdminManagedUser(user.toObject() as unknown as Record<string, unknown>);
 };
 
 export const findAdminByEmail = async (email: string) => Admin.findOne({ email });
@@ -53,16 +53,16 @@ export const createAdminAccount = async (data: Record<string, unknown>, actorRol
     if (!ensureRoleAssignmentAllowed(actorRole, normalizedRole)) throw new AppError('Cannot assign a role higher than your own', 403);
     const permissions = Array.isArray(d.permissions) ? d.permissions.filter((v) => typeof v === 'string') : [];
     const newAdmin = await Admin.create({ firstName: nf, lastName: nl, email: normalizedEmail, mobile: d.mobile, password: d.password, role: normalizedRole as IAdmin['role'], permissions, status: USER_STATUS.LIVE });
-    const ao = newAdmin.toObject() as any; delete ao.password;
+    const ao = newAdmin.toObject() as unknown as Record<string, unknown>; delete ao.password;
     await logFn('CREATE_ADMIN', 'Admin', newAdmin._id.toString(), { role: normalizedRole, permissions });
     return ao;
 };
 
 export const updateAdminById = async (id: string, updateDataRaw: Record<string, unknown>, currentId: string, actorRole: string, logFn: AdminLogFn) => {
     const d = updateDataRaw as { firstName?: string; lastName?: string; email?: string; mobile?: string; permissions?: string[]; status?: string; password?: string; role?: string };
-    if (id === currentId && d.status && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(d.status as any)) throw new AppError('You cannot suspend/deactivate your own admin account', 400);
+    if (id === currentId && d.status && ([USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE] as string[]).includes(d.status)) throw new AppError('You cannot suspend/deactivate your own admin account', 400);
     if (id === currentId && d.role) throw new AppError('You cannot change your own role', 400);
-    if (d.status && [USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE].includes(d.status as any)) { if (await isLastActiveSuperAdmin(id)) throw new AppError(`Cannot suspend/deactivate the last active Super Admin`, 400); }
+    if (d.status && ([USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.INACTIVE] as string[]).includes(d.status)) { if (await isLastActiveSuperAdmin(id)) throw new AppError(`Cannot suspend/deactivate the last active Super Admin`, 400); }
     const updateData: Record<string, unknown> = {};
     if (d.firstName) updateData.firstName = d.firstName;
     if (d.lastName) updateData.lastName = d.lastName;
@@ -75,7 +75,7 @@ export const updateAdminById = async (id: string, updateDataRaw: Record<string, 
     if (await isLastActiveSuperAdmin(id) && d.role && d.role !== Role.SUPER_ADMIN) throw new AppError('Cannot downgrade the last active Super Admin', 400);
     const updatedAdmin = await Admin.findByIdAndUpdate(id, { $set: updateData }, { new: true }).select('-password');
     if (!updatedAdmin) throw new AppError('Admin not found', 404);
-    if (d.status && [USER_STATUS.INACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED].includes(d.status as any)) await revokeAdminSessionsForAdmin(id);
+    if (d.status && ([USER_STATUS.INACTIVE, USER_STATUS.SUSPENDED, USER_STATUS.BANNED] as string[]).includes(d.status)) await revokeAdminSessionsForAdmin(id);
     await logFn('UPDATE_ADMIN', 'Admin', String(id), { changes: Object.keys(updateData) });
     return updatedAdmin;
 };
@@ -85,9 +85,9 @@ export const softDeleteAdminById = async (id: string, currentId: string, logFn: 
     if (await isLastActiveSuperAdmin(id)) throw new AppError('Cannot delete the last active Super Admin', 400);
     const admin = await Admin.findById(id);
     if (!admin) throw new AppError('Admin not found', 404);
-    await (admin as any).softDelete();
+    await admin.softDelete();
     await revokeAdminSessionsForAdmin(id);
-    await logFn('DELETE_ADMIN', 'Admin', id, { email: (admin as any).email });
+    await logFn('DELETE_ADMIN', 'Admin', id, { email: admin.email });
     return admin;
 };
 
@@ -111,7 +111,7 @@ export const toggleAdminStatus = async (id: string, currentId: string, logFn: Ad
     admin.status = nextStatus;
     await admin.save();
     if (nextStatus === USER_STATUS.INACTIVE) await revokeAdminSessionsForAdmin(id);
-    const ao = admin.toObject(); delete (ao as any).password;
+    const ao = admin.toObject() as unknown as Record<string, unknown>; delete ao.password;
     await logFn('TOGGLE_ADMIN_STATUS', 'Admin', id, { status: nextStatus });
     return ao;
 };

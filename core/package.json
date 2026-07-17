@@ -20,8 +20,6 @@
     "./queues/*": "./dist/queues/*.js",
     "./jobs/*": "./dist/jobs/*.js",
     "./db/*": "./dist/db/*.js",
-    "./domain/NotificationIntent": "./dist/domain/NotificationIntent.js",
-    "./lib/redis": "./dist/lib/redis.js",
     "./lib/location/formatLocation": "./dist/lib/location/formatLocation.js"
   },
   "scripts": {
