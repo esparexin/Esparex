@@ -97,32 +97,23 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
             }
             form.clearErrors("images" as Path<T>);
 
-            // 1. Image Upload Pipeline (Sequential S3 Pre-upload)
-            const finalImageUrls: string[] = [];
-            for (let idx = 0; idx < imagesToProcess.length; idx++) {
-                const img = imagesToProcess[idx];
-                if (!img) continue;
-                if (img.isRemote) {
-                    finalImageUrls.push(img.preview);
-                    continue;
-                }
-                
-                // If it is a string and starts with http, it is already a URL (fallback)
-                if (typeof img.preview === 'string' && img.preview.startsWith('http')) {
-                    finalImageUrls.push(img.preview);
-                    continue;
+            // 1. Image Upload Pipeline (Parallel S3 Pre-upload)
+            const csrfToken = (await apiClient.getCsrfToken()) || "";
+            const headers = {
+                "x-csrf-token": csrfToken,
+            };
+
+            const uploadPromises = imagesToProcess.map(async (img, idx) => {
+                if (!img) return null;
+                if (img.isRemote || (typeof img.preview === 'string' && img.preview.startsWith('http'))) {
+                    return img.preview;
                 }
 
-                if (!img.file) continue;
+                if (!img.file) return null;
 
                 const formData = new FormData();
                 formData.append("image", img.file);
                 formData.append("folder", "ads");
-
-                const csrfToken = (await apiClient.getCsrfToken()) || "";
-                const headers = {
-                    "x-csrf-token": csrfToken,
-                };
 
                 const response = await fetch("/api/upload/ad-image", {
                     method: "POST",
@@ -137,8 +128,10 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                     throw new Error(payload?.error || `Failed to upload image ${idx + 1}. Please try again.`);
                 }
 
-                finalImageUrls.push(remoteUrl);
-            }
+                return remoteUrl;
+            });
+
+            const finalImageUrls = (await Promise.all(uploadPromises)).filter(Boolean) as string[];
 
             // 2. Payload Construction
             const location = data.location;
