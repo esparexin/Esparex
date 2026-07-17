@@ -50,7 +50,6 @@ import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { PurchasesTab } from "./profile/tabs/PurchasesTab";
 import { MyListingsTab } from "./profile/tabs/MyListingsTab";
-import { MySuggestionsTab } from "./profile/tabs/MySuggestionsTab";
 import { SavedAds } from "./SavedAds";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
 import { AccountHeader } from "./AccountHeader";
@@ -356,7 +355,6 @@ export function ProfileSettingsSidebar({
         />
       );
       case "purchases": return <PurchasesTab purchaseHistory={purchaseHistory} formatDate={formatDate} formatCurrency={formatPrice} setActiveTab={setActiveTabFromChild} loading={loadingPurchased} />;
-      case "suggestions": return <MySuggestionsTab />;
       default: return null;
     }
   };

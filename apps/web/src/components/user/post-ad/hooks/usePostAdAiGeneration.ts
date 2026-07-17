@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent } from "@/lib/api/user/ai";
@@ -11,9 +11,10 @@ export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
     categoryMap: Record<string, ListingCategory>,
     availableSpareParts: SparePart[],
-    setIsLoading: (isLoading: boolean) => void,
     setFormError: (error: string | null) => void
 ) {
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+
     const generateDescription = useCallback(async (targetField: 'title' | 'description') => {
         const { brand, model, screenSize, category, categoryId, deviceCondition, spareParts } = form.getValues();
         
@@ -28,7 +29,7 @@ export function usePostAdAiGeneration(
             .map(id => availableSpareParts.find(p => p.id === id || p._id === id)?.name)
             .filter((name): name is string => Boolean(name));
 
-        setIsLoading(true);
+        setIsGeneratingAI(true);
         try {
             const output = await generateAIContent({
                 type: 'generate',
@@ -56,9 +57,9 @@ export function usePostAdAiGeneration(
         } catch {
             setFormError(`AI generation failed. Please enter ${targetField} manually.`);
         } finally {
-            setIsLoading(false);
+            setIsGeneratingAI(false);
         }
-    }, [categoryMap, availableSpareParts, form, setFormError, setIsLoading]);
+    }, [categoryMap, availableSpareParts, form, setFormError, setIsGeneratingAI]);
 
-    return { generateDescription };
+    return { generateDescription, isGeneratingAI };
 }
