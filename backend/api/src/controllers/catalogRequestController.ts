@@ -10,6 +10,7 @@ import {
     rejectCatalogRequest,
 } from '@esparex/core/services/catalogRequestApprovalService';
 import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
+import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
 
 const getAdminActorId = (req: Request): string => {

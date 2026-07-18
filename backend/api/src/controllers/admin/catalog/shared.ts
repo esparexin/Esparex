@@ -16,6 +16,7 @@ import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from
 import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
 
 // Re-export SSOT validation helpers so controllers import from one place.
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import {
     ACTIVE_CATEGORY_QUERY,
     ACTIVE_BRAND_QUERY,
