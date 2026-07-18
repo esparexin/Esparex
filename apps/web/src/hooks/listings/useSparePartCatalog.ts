@@ -25,6 +25,8 @@ export function useSparePartCatalog({ listingType, onError }: UseSparePartCatalo
     const [isLoadingSpareParts, setIsLoadingSpareParts] = useState(false);
     const [sparePartsError, setSparePartsError] = useState<string | null>(null);
 
+    const SPARE_PARTS_TIMEOUT_MS = 15_000;
+
     const loadSparePartsForCategory = useCallback(async (categoryId: string) => {
         const normalizedCategoryId = sanitizeMongoObjectId(categoryId);
         if (!normalizedCategoryId) {
@@ -35,6 +37,9 @@ export function useSparePartCatalog({ listingType, onError }: UseSparePartCatalo
 
         setIsLoadingSpareParts(true);
         setSparePartsError(null);
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), SPARE_PARTS_TIMEOUT_MS);
 
         try {
             const resolvedListingType: ListingTypeValue =
@@ -56,6 +61,7 @@ export function useSparePartCatalog({ listingType, onError }: UseSparePartCatalo
             setSparePartsError(message);
             onError?.(message);
         } finally {
+            clearTimeout(timer);
             setIsLoadingSpareParts(false);
         }
     }, [listingType, onError]);

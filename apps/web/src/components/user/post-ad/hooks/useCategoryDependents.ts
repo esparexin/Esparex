@@ -29,20 +29,24 @@ export function useCategoryDependents(
     }, [selectedCategoryId, categoryMap]);
 
     /**
-     * Centralized clearing of dependent fields child to Brand (models only).
-     * Screen sizes, spare parts, and device condition are independent of brand and are not cleared.
+     * Centralized clearing of all dependent fields child to Brand (models, screen sizes, spare parts, device condition).
+     * Batches all setValues without validation first, then triggers a single validation pass.
      */
     const clearBrandDependents = useCallback(() => {
-        form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("model", "", { shouldValidate: false, shouldDirty: true });
+        form.setValue("modelId", "", { shouldValidate: false, shouldDirty: true });
+        form.setValue("screenSize", "", { shouldValidate: false, shouldDirty: true });
+        form.setValue("spareParts", [], { shouldValidate: false, shouldDirty: true });
+        form.setValue("deviceCondition", undefined, { shouldValidate: false, shouldDirty: true });
+        void form.trigger(["model", "modelId", "screenSize", "spareParts", "deviceCondition"]);
     }, [form]);
 
     /**
      * Centralized clearing of all dependent fields child to Category (brand + model + screen size + spare parts + device condition).
      */
     const clearCategoryDependents = useCallback(() => {
-        form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("brand", "", { shouldValidate: false, shouldDirty: true });
+        form.setValue("brandId", "", { shouldValidate: false, shouldDirty: true });
         clearBrandDependents();
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
@@ -51,6 +55,7 @@ export function useCategoryDependents(
 
     /**
      * Explicit selection action for Category. Sets canonical form values, clears dependents, and triggers catalog queries.
+     * Each async call is isolated so a failure in spare-parts or schema does not block brands or the UI.
      */
     const selectCategory = useCallback(async (id: string) => {
         setFormError(null);
@@ -58,13 +63,15 @@ export function useCategoryDependents(
         form.setValue("categoryId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
 
         clearCategoryDependents();
-        setBrandIsPending(false);
-        
-        await Promise.all([
+        setBrandIsPending(true);
+
+        await Promise.allSettled([
             loadBrandsForCategory(id),
-            loadSparePartsForCategory(id),
-            loadCategorySchema(id)
+            loadSparePartsForCategory(id).catch(() => {}),
+            loadCategorySchema(id).catch(() => {}),
         ]);
+
+        setBrandIsPending(false);
     }, [form, setFormError, clearCategoryDependents, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
 
     /**

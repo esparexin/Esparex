@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ListingCategory } from "@/types/listing";
 import {
@@ -225,23 +225,29 @@ export function useBrandCatalog({
 
     /**
      * Derived outputs preserving original API contract.
+     * brandMap is memoized so it does not create a new object reference on every render.
      */
     const brandsData = brandsQuery.data ?? [];
 
-    const brandMap: Record<string, Brand> = {};
-    for (const brand of brandsData) {
-        brandMap[brand.name] = brand;
-    }
+    const brandMap: Record<string, Brand> = useMemo(() => {
+        const map: Record<string, Brand> = {};
+        for (const brand of brandsData) {
+            map[brand.name] = brand;
+        }
+        return map;
+    }, [brandsData]);
 
-    const availableBrands = brandsData.map(
-        (brand) => brand.name
+    const availableBrands = useMemo(
+        () => brandsData.map((brand) => brand.name),
+        [brandsData]
     );
 
-    const availableModels = modelsQuery.data ?? [];
+    const availableModels = useMemo(() => modelsQuery.data ?? [], [modelsQuery.data]);
 
-    const availableSizes = shouldLoadScreenSizes
-        ? screenSizesQuery.data ?? []
-        : [];
+    const availableSizes = useMemo(
+        () => shouldLoadScreenSizes ? screenSizesQuery.data ?? [] : [],
+        [shouldLoadScreenSizes, screenSizesQuery.data]
+    );
 
     /**
      * Manual refresh preserving original API contract.

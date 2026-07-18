@@ -9,11 +9,16 @@ import type { CategorySchemaType } from "./catalogShared";
 export function useCategorySchemaCatalog() {
     const [categorySchema, setCategorySchema] = useState<CategorySchemaType | null>(null);
 
+    const CATEGORY_SCHEMA_TIMEOUT_MS = 15_000;
+
     const loadCategorySchema = useCallback(async (categoryId: string) => {
         if (!categoryId || !/^[0-9a-f]{24}$/i.test(categoryId)) {
             setCategorySchema(null);
             return;
         }
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), CATEGORY_SCHEMA_TIMEOUT_MS);
 
         try {
             const schema = await getCategorySchema(categoryId);
@@ -29,6 +34,8 @@ export function useCategorySchemaCatalog() {
         } catch (error) {
             logger.error(`[Catalog] Failed to load schema for ${categoryId}:`, error);
             setCategorySchema(null);
+        } finally {
+            clearTimeout(timer);
         }
     }, []);
 
