@@ -1,7 +1,7 @@
 import UserPlan from '../models/UserPlan';
 import Plan, { type IPlan } from '../models/Plan';
 import { type AdPostingSlotSource } from './AdSlotService';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/contracts';
 import { getListingRepository } from '../composition/listings';
 import { 
     AdSlotService, 

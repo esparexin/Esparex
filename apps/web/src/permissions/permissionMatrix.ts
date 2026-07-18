@@ -1,5 +1,6 @@
 export type Role = "user" | "business";
-import { BusinessStatusValue as BusinessStatus } from '@esparex/shared';
+
+import { BusinessStatusValue as BusinessStatus } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 export const PERMISSIONS = {

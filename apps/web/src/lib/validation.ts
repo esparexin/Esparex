@@ -4,8 +4,7 @@
  */
 
 import { createValidationError, EsparexError, sanitizeInput } from "./errorHandler";
-import { CONTACT_LIMITS } from "@esparex/shared";
-
+import { CONTACT_LIMITS } from "@esparex/contracts";
 // ============================================================================
 // VALIDATION RESULT
 // ============================================================================

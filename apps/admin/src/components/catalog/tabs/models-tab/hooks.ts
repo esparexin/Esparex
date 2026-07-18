@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getModels } from "@/lib/api/models";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import type { Model } from "@esparex/shared";
+import { Model } from "@esparex/contracts";
 
 export function useParentModelFetcher(
     initialBrandId: string,

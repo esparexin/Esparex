@@ -18,7 +18,9 @@
     "paths": {
       "@core/*": ["./src/*"],
       "@esparex/core/*": ["./src/*"],
-      "@esparex/shared": ["../shared/dist/index"]
+      "@esparex/shared": ["../shared/dist/index"],
+      "@esparex/contracts": ["../packages/contracts/dist/index"],
+      "@esparex/contracts/*": ["../packages/contracts/dist/*"]
     }
   },
   "include": [

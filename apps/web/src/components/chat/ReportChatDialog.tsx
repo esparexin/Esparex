@@ -1,6 +1,6 @@
 'use client';
 
-import type { ChatReportReasonValue } from '@esparex/shared';
+import { ChatReportReasonValue } from "@esparex/contracts";
 
 interface ReportReasonOption {
   value: ChatReportReasonValue;

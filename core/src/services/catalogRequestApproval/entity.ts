@@ -1,5 +1,5 @@
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
-import { CATALOG_STATUS } from '@esparex/shared';
+import { CATALOG_STATUS } from '@esparex/contracts';
 import { scoreModeratorTrust } from '../catalog/CatalogSearchGovernanceService';
 
 export const setEntityField = (entity: Record<string, unknown>, field: string, value: unknown): void => {

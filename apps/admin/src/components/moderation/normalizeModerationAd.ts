@@ -1,6 +1,6 @@
 import { MODERATION_STATUS_VALUES, type ModerationItem, type ModerationStatus } from "./moderationTypes";
-import type { ListingTypeValue } from '@esparex/shared';
-import { LISTING_TYPE_VALUES } from '@esparex/shared';
+import { ListingTypeValue } from "@esparex/contracts";
+import { LISTING_TYPE_VALUES } from "@esparex/contracts";
 import { normalizeGeoPoint } from "@/lib/location/display";
 
 const asString = (value: unknown): string | undefined =>

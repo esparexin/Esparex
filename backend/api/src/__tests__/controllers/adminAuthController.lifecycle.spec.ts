@@ -72,11 +72,7 @@ jest.mock("../../utils/adminLogger", () => ({
 
 
 import Admin from "@esparex/core/models/Admin";
-
-import {
-    USER_STATUS,
-} from '@esparex/shared';
-
+import { USER_STATUS } from "@esparex/contracts";
 import {
     revokeAdminSessionsForAdmin,
 } from "@esparex/core/services/AdminSessionService";

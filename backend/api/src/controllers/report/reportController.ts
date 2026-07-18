@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import type { ReportTargetTypeValue } from '@esparex/core/models/Report';
 import { respond } from "../../utils/respond";
-import { ApiResponse } from "@esparex/shared";
+import { ApiResponse } from "@esparex/contracts";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getSystemConfigDoc } from '@esparex/core/utils/systemConfigHelper';
 import {

@@ -6,7 +6,7 @@ import User from "@esparex/core/models/User";
 import { isTokenBlacklisted } from "@esparex/core/utils/redisCache";
 import { sendErrorResponse } from "../utils/errorResponse";
 import logger from '@esparex/core/utils/logger';
-import { Role } from '@esparex/shared';
+import { Role } from "@esparex/contracts";
 import { getAuthCookieOptions, getLegacyHostOnlyAuthCookieOptions } from '@esparex/core/utils/cookieHelper';
 import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
 

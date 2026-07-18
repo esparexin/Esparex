@@ -37,7 +37,7 @@ import {
     deriveApprovalStatus,
     sendValidationError
 } from './shared';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────

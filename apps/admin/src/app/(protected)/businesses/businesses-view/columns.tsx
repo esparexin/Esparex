@@ -3,7 +3,7 @@
 import { Building2, MapPin, Ban, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 import type { ColumnDef } from "@/components/ui/DataTable";
-import type { Business } from "@esparex/shared";
+import { Business } from "@esparex/contracts";
 import { BusinessTypesCell, BusinessActionButton, createBusinessStatusColumn, createBusinessActionsColumn } from "@/components/business/BusinessListPrimitives";
 
 export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: Business) => void; onDelete: (b: Business) => void; toggleSelect: (id: string) => void; toggleSelectAll: () => void; selectedIds: Set<string>; allCount: number; setSuspendTarget: (b: Business | null) => void; handleActivate: (id: string) => Promise<void> }): ColumnDef<Business>[] {

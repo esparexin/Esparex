@@ -1,10 +1,4 @@
-import { 
-    DEFAULT_IMAGE_PLACEHOLDER,
-    isLocalHttpHost, 
-    isAllowedRemoteHost, 
-    isValidS3Host 
-} from "@esparex/shared";
-
+import { DEFAULT_IMAGE_PLACEHOLDER, isLocalHttpHost, isAllowedRemoteHost, isValidS3Host } from "@esparex/shared";
 export { DEFAULT_IMAGE_PLACEHOLDER };
 
 const resolveApiOrigin = (): string => {

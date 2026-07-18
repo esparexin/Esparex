@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
-import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@esparex/shared';
+import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@esparex/contracts';
 import { normalizeObjectIdLike } from '../utils/idUtils';
 import { hasCatalogPollution } from '../utils/catalogGovernance';
 

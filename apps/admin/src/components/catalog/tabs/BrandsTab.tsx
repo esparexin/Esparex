@@ -32,7 +32,7 @@ import {
     CatalogRejectSuggestionForm,
     CatalogSearchInput,
 } from "@/components/catalog/CatalogUiPrimitives";
-import type { Brand } from "@esparex/shared";
+import { Brand } from "@esparex/contracts";
 
 export default function BrandsTab() {
     const searchParams = useSearchParams();

@@ -10,10 +10,7 @@ import {
     normalizeOptionalObjectId,
     sanitizeMongoObjectId,
 } from "@/lib/listings/locationUtils";
-import {
-    LISTING_TYPE,
-    type ListingTypeValue,
-} from '@esparex/shared';
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 
 interface UseSparePartCatalogProps {
     listingType: ListingTypeValue;

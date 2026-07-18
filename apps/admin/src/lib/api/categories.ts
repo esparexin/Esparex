@@ -1,7 +1,7 @@
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 import { buildQueryString } from "./queryParams";
-import type { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from "@esparex/contracts";
 
 export interface CategoryFilters {
     q?: string;

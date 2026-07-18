@@ -1,4 +1,4 @@
-import type { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from "@esparex/contracts";
 
 export interface UiAd {
     id: string;

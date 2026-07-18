@@ -124,8 +124,8 @@ import { generateUniqueSlug, generateUniqueSlugWithChecker } from '../../utils/s
 import { processImages } from '../../utils/imageProcessor';
 import { validateListingCategoryCapability } from '../../services/catalog/CatalogValidationService';
 import { AdContext } from '../../types/ad.types';
-import { LIFECYCLE_STATUS } from '@esparex/shared';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LIFECYCLE_STATUS } from '@esparex/contracts';
+import { LISTING_TYPE } from '@esparex/contracts';
 import SparePart from '../../models/SparePart';
 import Brand from '../../models/Brand';
 

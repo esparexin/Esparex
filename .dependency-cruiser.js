@@ -2,6 +2,33 @@
 module.exports = {
   forbidden: [
     {
+      name: 'domain-cannot-import-apps-or-services',
+      severity: 'error',
+      comment: 'Domain logic must not depend on apps or services.',
+      from: { path: '^packages/domain/' },
+      to: {
+        path: '^(apps/|services/)'
+      }
+    },
+    {
+      name: 'kernel-is-independent',
+      severity: 'error',
+      comment: 'Kernel cannot depend on domains, apps, or services.',
+      from: { path: '^packages/kernel/' },
+      to: {
+        path: '^(packages/domain/|apps/|services/)'
+      }
+    },
+    {
+      name: 'contracts-is-independent',
+      severity: 'error',
+      comment: 'Contracts cannot depend on domains, apps, or services.',
+      from: { path: '^packages/contracts/' },
+      to: {
+        path: '^(packages/domain/|apps/|services/)'
+      }
+    },
+    {
       name: 'validation-service-cannot-import-models-or-mongoose',
       severity: 'error',
       comment: 'CatalogValidationService must be completely decoupled from Mongoose and persistence models.',
@@ -100,6 +127,15 @@ module.exports = {
       to: {
         path: '^(core/|@esparex/core)',
         dependencyTypesNot: ['type-only']
+      }
+    },
+    {
+      name: 'no-new-legacy-shared-imports',
+      severity: 'warn',
+      comment: 'The shared package is frozen for the Contracts migration. No new imports are allowed. Use @esparex/contracts instead.',
+      from: {},
+      to: {
+        path: '^shared/src/'
       }
     }
   ],

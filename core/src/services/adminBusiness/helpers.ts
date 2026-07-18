@@ -1,6 +1,6 @@
 import { MS_IN_DAY } from '../../config/constants';
 import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
-import { BUSINESS_STATUS } from '@esparex/shared';
+import { BUSINESS_STATUS } from '@esparex/contracts';
 
 export interface AdminBusinessPaginationParams {
     status?: string; locationId?: string; search?: string; page?: number; limit?: number;

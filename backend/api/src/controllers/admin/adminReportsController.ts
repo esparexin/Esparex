@@ -3,9 +3,9 @@ import mongoose from 'mongoose';
 import logger from '@esparex/core/utils/logger';
 import { logAdminAction } from '../../utils/adminLogger';
 import { mutateStatus } from '@esparex/core/services/lifecycle/StatusMutationService';
-import { ACTOR_TYPE } from "@esparex/shared";
-import { AD_STATUS } from "@esparex/shared";
-import { REPORT_STATUS } from "@esparex/shared";
+import { ACTOR_TYPE } from "@esparex/contracts";
+import { AD_STATUS } from "@esparex/contracts";
+import { REPORT_STATUS } from "@esparex/contracts";
 import { getSingleParam } from '../../utils/requestParams';
 import {
     getPaginationParams,

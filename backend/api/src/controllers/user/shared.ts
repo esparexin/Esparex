@@ -1,5 +1,6 @@
 import { Request } from 'express';
-import { User as SharedUser, UserRole, BusinessStatus, Role, normalizeMobileVisibility } from '@esparex/shared';
+import { User as SharedUser, UserRole, BusinessStatus, Role } from "@esparex/contracts";
+import { normalizeMobileVisibility } from "@esparex/shared";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 
 type UploadedFile = {

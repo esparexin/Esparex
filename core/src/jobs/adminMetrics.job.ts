@@ -3,7 +3,7 @@ import AdminMetrics from '../models/AdminMetrics';
 import User from '../models/User';
 import Business from '../models/Business';
 import { USER_STATUS } from '@esparex/shared';
-import { BUSINESS_STATUS } from '@esparex/shared';
+import { BUSINESS_STATUS } from '@esparex/contracts';
 import { Role } from '@esparex/shared';
 
 export const runAdminMetricsJob = async () => {

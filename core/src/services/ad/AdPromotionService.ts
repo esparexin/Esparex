@@ -1,9 +1,9 @@
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../composition/listings';
-import { LISTING_TYPE } from '@esparex/shared';
-import { LISTING_STATUS } from '@esparex/shared';
-import { LIFECYCLE_STATUS } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/contracts';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { consumeCredit } from '../wallet/WalletService';
 import { isValidObjectId } from '../../utils/idUtils';
 

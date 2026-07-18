@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { sendSuccessResponse } from "../../utils/respond";
 import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
 import * as adImageService from '@esparex/core/services/AdImageService';
-import { normalizeListingLocation } from '@esparex/shared';
+import { normalizeListingLocation } from "@esparex/shared";
 import type { AuthUser } from '../../types/auth.types';
 
 const IMMUTABLE_SELLER_ID_MESSAGE =

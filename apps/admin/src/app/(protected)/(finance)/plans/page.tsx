@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ColumnDef } from "@/components/ui/DataTable";
-import type { Plan } from "@esparex/shared";
+import { Plan } from "@esparex/contracts";
 import {
     CreditCard,
     Search,

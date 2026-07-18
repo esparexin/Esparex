@@ -12,7 +12,7 @@ import {
     type ManagedUser,
 } from "@/components/system/users/userManagement";
 import { StatusChip } from "@/components/ui/StatusChip";
-import type { User } from "@esparex/shared";
+import { User } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@esparex/shared";
 import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "lucide-react";
 

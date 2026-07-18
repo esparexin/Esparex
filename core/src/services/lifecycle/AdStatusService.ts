@@ -1,6 +1,6 @@
-import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/shared';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
-import { LISTING_STATUS_VALUES } from '@esparex/shared';
+import { LIFECYCLE_STATUS, type LifecycleStatus } from '@esparex/contracts';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
+import { LISTING_STATUS_VALUES } from '@esparex/contracts';
 import { getSystemConfigForRead } from '../SystemConfigService';
 
 export type AdStatus = LifecycleStatus;

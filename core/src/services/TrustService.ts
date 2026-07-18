@@ -3,8 +3,8 @@ import User from '../models/User';
 import Ad from '../models/Ad';
 import Business from '../models/Business';
 import logger from '../utils/logger';
-import { LISTING_STATUS } from '@esparex/shared';
-import { BUSINESS_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { BUSINESS_STATUS } from '@esparex/contracts';
 
 /**
  * 🏆 OFFICIAL TRUST SCORE ENGINE (V1)

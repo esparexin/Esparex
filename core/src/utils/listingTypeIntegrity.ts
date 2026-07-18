@@ -1,4 +1,4 @@
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 
 type CategoryCapabilityInput = string[] | null | undefined;
 

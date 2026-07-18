@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import type { Document, Model } from 'mongoose';
-import { LISTING_TYPE_VALUES, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE_VALUES, ListingTypeValue } from "@esparex/contracts";
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../adminBaseController';
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';

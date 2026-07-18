@@ -1,4 +1,4 @@
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from "@esparex/contracts";
 import {
     getListingTypeCapability,
     getListingTypeRemediation,

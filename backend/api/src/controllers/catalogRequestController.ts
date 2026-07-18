@@ -12,7 +12,7 @@ import {
 } from '@esparex/core/services/catalogRequestApprovalService';
 import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
-import { NOTIFICATION_TYPE } from '@esparex/shared';
+import { NOTIFICATION_TYPE } from "@esparex/contracts";
 import { CatalogNotificationService } from '@esparex/core/services/catalog/CatalogNotificationService';
 import {
     validateBrandBelongsToCategory,

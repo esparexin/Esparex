@@ -12,7 +12,9 @@ module.exports = {
     '^@shared/(.*)$': '<rootDir>/../shared/src/$1',
     '^@shared$': '<rootDir>/../shared/src/index.ts',
     '^@esparex/shared/(.*)$': '<rootDir>/../shared/src/$1',
-    '^@esparex/shared$': '<rootDir>/../shared/src/index.ts'
+    '^@esparex/shared$': '<rootDir>/../shared/src/index.ts',
+    '^@esparex/contracts$': '<rootDir>/../packages/contracts/src/index.ts',
+    '^@esparex/contracts/(.*)$': '<rootDir>/../packages/contracts/src/$1'
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {

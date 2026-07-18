@@ -11,7 +11,7 @@ import { Listing, ListingFilter } from '../domains/listings';
 import logger from '../utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING

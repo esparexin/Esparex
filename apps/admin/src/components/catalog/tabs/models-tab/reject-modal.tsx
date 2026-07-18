@@ -1,6 +1,6 @@
 "use client";
 
-import type { Model } from "@esparex/shared";
+import { Model } from "@esparex/contracts";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { CatalogRejectSuggestionForm } from "@/components/catalog/CatalogUiPrimitives";
 

@@ -1,5 +1,5 @@
 import Business from '../../models/Business';
-import { ACTOR_TYPE } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/contracts';
 import { AppError } from '../../utils/AppError';
 import type { AdminLogFn } from '../AdminListingsService';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
@@ -14,7 +14,7 @@ export { approveAdminBusiness, rejectAdminBusiness, expireAdminBusiness };
 export const suspendAdminBusiness = async (id: string, reason: string, actorId: string, logFn: AdminLogFn) => {
     const finalReason = reason || 'Suspended by admin';
     const { mutateStatus } = await import('../lifecycle/StatusMutationService');
-    const { BUSINESS_STATUS } = await import('@esparex/shared');
+    const { BUSINESS_STATUS } = await import('@esparex/contracts');
     const business = await mutateStatus({ domain: 'business', entityId: id, toStatus: BUSINESS_STATUS.SUSPENDED, actor: { type: ACTOR_TYPE.ADMIN, id: actorId }, reason: finalReason, patch: { rejectionReason: finalReason } });
     if (!business) throw new AppError('Business not found', 404);
     await logFn('SUSPEND_BUSINESS', 'Business', id, { reason: finalReason });

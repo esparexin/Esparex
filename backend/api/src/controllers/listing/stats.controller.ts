@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import logger from '@esparex/core/utils/logger';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from "@esparex/contracts";
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
 import * as AdMetricsService from '@esparex/core/services/ad/AdMetricsService';
 

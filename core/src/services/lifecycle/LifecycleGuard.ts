@@ -1,5 +1,5 @@
-import { LIFECYCLE_STATUS } from '@esparex/shared';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LIFECYCLE_STATUS } from '@esparex/contracts';
+import { LISTING_TYPE } from '@esparex/contracts';
 
 /**
  * Ad Transitions

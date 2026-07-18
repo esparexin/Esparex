@@ -14,9 +14,9 @@ import { getAdminCookieOptions } from '@esparex/core/utils/cookieHelper';
 import { verifyAdminToken } from '@esparex/core/utils/auth';
 import type { IAuthUser } from '@esparex/core/types/auth';
 import { sendErrorResponse } from '../utils/errorResponse';
-import { Role } from '@esparex/shared';
+import { Role } from "@esparex/contracts";
 import { getAdminSessionTtlMs, validateAdminSession } from '@esparex/core/services/AdminSessionService';
-import { USER_STATUS } from '@esparex/shared';
+import { USER_STATUS } from "@esparex/contracts";
 import { normalizeAdminPermission, roleGrantsPermission } from '@esparex/core/constants/adminPermissions';
 import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
 

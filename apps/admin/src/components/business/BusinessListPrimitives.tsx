@@ -5,8 +5,7 @@ import { Eye, Pencil, Search, Trash2 } from "lucide-react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import type { BusinessAdminModalController } from "@/components/business/BusinessAdminModals";
-import type { Business } from "@esparex/shared";
-
+import { Business } from "@esparex/contracts";
 const STATUS_STYLES: Record<
     string,
     {

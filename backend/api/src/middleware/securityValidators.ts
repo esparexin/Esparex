@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { sendErrorResponse } from "../utils/errorResponse";
-import { isValidGeoPoint, DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from "@shared";
+import { isValidGeoPoint, DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from "@esparex/shared";
 import { z } from 'zod';
 
 /**

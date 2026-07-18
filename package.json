@@ -7,8 +7,10 @@
   },
   "packageManager": "npm@10.9.7",
   "workspaces": [
-    "apps/admin",
-    "apps/web",
+    "apps/*",
+    "packages/*",
+    "packages/domain/*",
+    "services/*",
     "backend/api",
     "core",
     "shared"

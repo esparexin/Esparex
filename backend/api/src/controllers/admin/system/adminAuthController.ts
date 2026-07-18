@@ -30,7 +30,7 @@ import speakeasy from 'speakeasy';
 import { emailService } from '@esparex/core/services/EmailService';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { comparePassword, generateAdminToken, verifyAdminToken } from '@esparex/core/utils/auth';
-import { USER_STATUS } from '@esparex/shared';
+import { USER_STATUS } from "@esparex/contracts";
 import { getSingleParam } from '../../../utils/requestParams';
 import {
     createAdminSession,

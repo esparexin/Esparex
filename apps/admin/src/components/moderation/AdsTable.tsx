@@ -7,8 +7,7 @@ import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";
 import { DataTable, ColumnDef } from "@/components/ui/DataTable";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
-import type { ListingTypeValue } from "@esparex/shared";
-
+import { ListingTypeValue } from "@esparex/contracts";
 // ── Risk badge helpers ────────────────────────────────────────────────────────
 const riskColor = (score: number) => {
     if (score >= 70) return "bg-red-100 text-red-700";

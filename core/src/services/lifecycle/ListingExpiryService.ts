@@ -1,6 +1,6 @@
 import { getListingRepository } from '../../composition/listings';
-import { LISTING_STATUS } from '@esparex/shared';
-import { ACTOR_TYPE } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { ACTOR_TYPE } from '@esparex/contracts';
 import { mutateStatusesBulk } from './StatusMutationService';
 import { lifecycleEvents } from '../../events';
 import logger from '../../utils/logger';

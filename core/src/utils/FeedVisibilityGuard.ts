@@ -1,4 +1,4 @@
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import { getStatusMatchCriteria } from './statusQueryMapper';
 
 /**

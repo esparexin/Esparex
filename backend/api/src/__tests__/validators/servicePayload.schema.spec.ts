@@ -1,8 +1,4 @@
-import {
-    PartialServicePayloadSchema,
-    ServicePayloadSchema,
-} from "@shared";
-
+import { PartialServicePayloadSchema, ServicePayloadSchema } from "@esparex/contracts";
 describe("service payload contract", () => {
     const canonicalServiceTypeId = "507f1f77bcf86cd799439011";
 

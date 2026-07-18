@@ -22,7 +22,7 @@ import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingS
 import { useRouter } from "next/navigation";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import { usePostSparePartFormOrchestration } from "./hooks/usePostSparePartFormOrchestration";
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from "@esparex/contracts";
 
 function PostSparePartTitleField({ register, error }: { register: ReturnType<UseFormRegister<PostSparePartFormValues>>; error?: string }) {
     const title = useWatch({ name: "title" }) as string || "";

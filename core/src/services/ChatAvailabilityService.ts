@@ -1,5 +1,5 @@
-import { LISTING_STATUS } from '@esparex/shared';
-import type { LifecycleStatus } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import type { LifecycleStatus } from '@esparex/contracts';
 import type { ClientSession } from 'mongoose';
 import { Conversation } from '../models/Conversation';
 import logger from '../utils/logger';

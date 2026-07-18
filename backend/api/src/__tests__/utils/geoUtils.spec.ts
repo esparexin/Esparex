@@ -1,10 +1,4 @@
-
-import {
-    normalizeGeoPoint,
-    isValidGeoPoint,
-    hasValidCoordinateArray,
-} from "@shared";
-
+import { normalizeGeoPoint, isValidGeoPoint, hasValidCoordinateArray } from "@esparex/shared";
 describe('normalizeGeoPoint', () => {
     it('returns a GeoJSON Point for valid [lng, lat] tuple input', () => {
         const result = normalizeGeoPoint([78.96, 20.59]);

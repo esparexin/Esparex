@@ -114,7 +114,7 @@ describe('lifecycle.controller — markListingStatusSold', () => {
                 domain: 'ad',
                 entityId: LISTING_ID,
                 toStatus: 'sold',
-                actor: expect.objectContaining({ type: 'USER', id: USER_ID }),
+                actor: expect.objectContaining({ type: 'user', id: USER_ID }),
                 patch: expect.objectContaining({ isSold: true, isChatLocked: true }),
             })
         );

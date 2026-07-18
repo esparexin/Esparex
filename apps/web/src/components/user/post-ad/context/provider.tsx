@@ -7,7 +7,7 @@ import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { suppressGoogleMapsRetryErrors } from "@/lib/suppress-google-maps-errors";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 import { useNavigation } from "@/context/NavigationContext";
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from "@esparex/contracts";
 import { useBrandCatalog } from "@/hooks/listings/useBrandCatalog";
 import { useCategorySchemaCatalog } from "@/hooks/listings/useCategorySchemaCatalog";
 import { useListingCategories } from "@/hooks/listings/useListingCategories";

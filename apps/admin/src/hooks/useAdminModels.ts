@@ -1,6 +1,6 @@
 import { createModel, deleteModel, getModels, updateModel, toggleModelStatus, approveModel, rejectModel } from "@/lib/api/models";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
-import type { Model, CreateModelDTO, UpdateModelDTO } from "@esparex/shared";
+import { Model, CreateModelDTO, UpdateModelDTO } from "@esparex/contracts";
 import { useCallback } from "react";
 
 

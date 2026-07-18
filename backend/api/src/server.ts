@@ -14,7 +14,7 @@ import { waitForRedisReady } from '@esparex/core/config/redis';
 import { assertDuplicateRolloutReadiness } from '@esparex/core/services/DuplicateRolloutGuard';
 import { startScheduler, stopScheduler } from '@esparex/core/services/SchedulerBoot';
 import Admin from '@esparex/core/models/Admin';
-import { USER_STATUS } from '@esparex/shared';
+import { USER_STATUS } from "@esparex/contracts";
 import { createServer } from 'http';
 import { initializeEventDispatcher } from '@esparex/core/events';
 import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core/utils/startupValidator';

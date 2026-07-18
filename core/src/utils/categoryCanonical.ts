@@ -7,7 +7,7 @@ type CategoryLite = {
     name?: string;
 };
 
-import { CATALOG_STATUS, type CatalogStatusValue } from '@esparex/shared';
+import { CATALOG_STATUS, type CatalogStatusValue } from '@esparex/contracts';
 
 const ACTIVE_CATEGORY_QUERY = {
     isActive: true,

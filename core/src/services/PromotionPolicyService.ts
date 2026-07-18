@@ -1,5 +1,5 @@
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
+import { LISTING_STATUS } from '@esparex/contracts';
 
 export interface PromotionPolicyResult {
     allowed: boolean;

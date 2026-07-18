@@ -13,9 +13,11 @@ export const LocationLevelSchema = z.enum([
 ]);
 
 
-export const LocationEventSourceSchema = z.enum(['app', 'gps', 'manual', 'ip', 'network', 'cache', 'unknown']);
-export const LocationEventReasonSchema = z.enum(['initial', 'refresh', 'correction', 'permission_denied', 'timeout', 'fallback', 'manual']);
-export const LocationEventTypeSchema = z.enum(['set', 'update', 'clear', 'detect']);
+import { LOCATION_EVENT_SOURCES, LOCATION_EVENT_REASONS, LOCATION_EVENT_TYPES } from "../constants/locationEvents";
+
+export const LocationEventSourceSchema = z.enum(LOCATION_EVENT_SOURCES);
+export const LocationEventReasonSchema = z.enum(LOCATION_EVENT_REASONS);
+export const LocationEventTypeSchema = z.enum(LOCATION_EVENT_TYPES);
 
 export const LogLocationEventSchema = z.object({
     source: LocationEventSourceSchema,

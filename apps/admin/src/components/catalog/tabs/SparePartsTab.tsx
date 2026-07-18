@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Wrench, AlertTriangle, Loader2 } from "lucide-react";
-import { LISTING_TYPE } from "@esparex/shared";
+import { LISTING_TYPE } from "@esparex/contracts";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import {
@@ -24,7 +24,7 @@ import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { useAdminSpareParts } from "@/hooks/useAdminSparePartCatalog";
 import { categorySupportsSpareParts, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
-import type { SparePart } from "@esparex/shared";
+import { SparePart } from "@esparex/contracts";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useSearchParams } from "next/navigation";
 

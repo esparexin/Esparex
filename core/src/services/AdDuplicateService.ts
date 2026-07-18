@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { getListingRepository } from '../composition/listings';
 import { ListingFilter } from '../domains/listings';
 import DuplicateEvent from '../models/DuplicateEvent';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import logger from '../utils/logger';
 
 // ─────────────────────────────────────────────────

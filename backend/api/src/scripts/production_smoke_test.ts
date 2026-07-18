@@ -10,15 +10,14 @@
 import mongoose from 'mongoose';
 import * as AdOrchestrator from '@esparex/core/services/AdOrchestrator';
 import { ViewBufferingService } from '@esparex/core/services/ViewBufferingService';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from "@esparex/contracts";
 import User from '@esparex/core/models/User';
 import Ad from '@esparex/core/models/Ad';
 import Location from '@esparex/core/models/Location';
 import { connectDB } from '@esparex/core/config/db';
 import redis from '@esparex/core/config/redis';
 import logger from '@esparex/core/utils/logger';
-import { Role } from '@esparex/shared';
-
+import { Role } from "@esparex/contracts";
 // 🧪 MOCK: Override logger to capture smoke test output
 const logs: string[] = [];
 const originalInfo = logger.info;
@@ -30,8 +29,7 @@ logger.info = (message: string, ...meta: unknown[]) => {
 };
 
 import Category from '@esparex/core/models/Category';
-import { CATALOG_STATUS } from '@esparex/shared';
-
+import { CATALOG_STATUS } from "@esparex/contracts";
 const DUMMY_LOCATION_COORDS = { type: 'Point' as const, coordinates: [77.5946, 12.9716] };
 type SmokeEntityWithId = { _id: mongoose.Types.ObjectId };
 

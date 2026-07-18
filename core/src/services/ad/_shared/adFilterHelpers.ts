@@ -7,7 +7,7 @@
 
 import mongoose, { PipelineStage } from 'mongoose';
 import BlockedUser from '../../../models/BlockedUser';
-import { type ListingTypeValue } from '@esparex/shared';
+import { type ListingTypeValue } from '@esparex/contracts';
 import logger from '../../../utils/logger';
 
 

@@ -14,7 +14,7 @@ import { nanoid } from 'nanoid';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
 import { sendAdminError } from '../../../utils/adminBaseController';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
 
 // Re-export SSOT validation helpers so controllers import from one place.

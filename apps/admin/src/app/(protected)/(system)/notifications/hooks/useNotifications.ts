@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { 
-    ADMIN_NOTIFICATION_TARGET_TYPE, 
-    ADMIN_NOTIFICATION_TOPIC_OPTIONS 
-} from "@esparex/shared";
+import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";

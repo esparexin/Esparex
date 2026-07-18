@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { ObjectIdSchema } from "@shared";
-import { LISTING_TYPE_VALUES } from '@esparex/shared';
-
+import { LISTING_TYPE_VALUES } from "@esparex/contracts";
 /**
  * Common Admin Validation Schemas
  * Used to provide pre-submit guards for admin management forms.

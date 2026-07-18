@@ -6,7 +6,7 @@ import {
     sendPaginatedResponse,
     sendAdminError
 } from '../../utils/adminBaseController';
-import { USER_STATUS, UserStatusValue } from "@esparex/shared";
+import { USER_STATUS, UserStatusValue } from "@esparex/contracts";
 import * as adminUsersService from '@esparex/core/services/AdminUsersService';
 import { logAdminActionDirect } from '../../utils/adminLogger';
 import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';

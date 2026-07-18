@@ -1,6 +1,5 @@
 import type { User, UserNotificationSettings } from "@/types/User";
-import type { MobileVisibilityValue } from "@esparex/shared";
-
+import { MobileVisibilityValue } from "@esparex/contracts";
 export type MobileVisibility = MobileVisibilityValue;
 
 export type ProfileFormData = {

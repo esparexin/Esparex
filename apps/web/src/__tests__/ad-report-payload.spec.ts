@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_REASON } from '@esparex/shared';
-
+import { REPORT_REASON } from "@esparex/contracts";
 import { buildAdReportPayload, normalizeReportTargetId } from "@/lib/listings/adReportPayload";
 
 describe("ad report payload", () => {

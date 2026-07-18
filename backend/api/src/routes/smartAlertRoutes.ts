@@ -4,7 +4,7 @@ import { protect } from '../middleware/authMiddleware';
 import { mutationLimiter } from '../middleware/rateLimiter';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
-import { SmartAlertCreateSchema, SmartAlertUpdateSchema, SavedSearchCreateSchema } from "@shared";
+import { SmartAlertCreateSchema, SmartAlertUpdateSchema, SavedSearchCreateSchema } from "@esparex/contracts";
 import { deprecateMethod } from '../middleware/deprecations';
 import type { ZodTypeAny } from 'zod';
 

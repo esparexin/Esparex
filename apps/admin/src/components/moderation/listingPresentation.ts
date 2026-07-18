@@ -1,4 +1,4 @@
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 import type { ModerationItem } from "./moderationTypes";
 
 type ListingPresentation = {

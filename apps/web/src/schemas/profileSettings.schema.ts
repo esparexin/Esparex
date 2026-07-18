@@ -1,7 +1,6 @@
 import { z } from "zod";
-
-import { MOBILE_VISIBILITY, BUSINESS_LIMITS } from "@esparex/shared";
-
+import { MOBILE_VISIBILITY } from "@esparex/contracts";
+import { BUSINESS_LIMITS } from "@esparex/contracts";
 import { DELETE_ACCOUNT_REASONS } from "@/components/user/profile/types";
 
 import { trimString, optionalTrimmedString } from "@shared";

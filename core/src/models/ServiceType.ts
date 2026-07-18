@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '@esparex/shared';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '@esparex/contracts';
 import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,

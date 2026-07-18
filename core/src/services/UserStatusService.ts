@@ -8,8 +8,8 @@ import { logAdminActionDirect } from '../utils/adminLogger';
 import logger from '../utils/logger';
 
 import { USER_STATUS, UserStatusValue } from '@esparex/shared';
-import { LISTING_STATUS } from '@esparex/shared';
-import { ACTOR_TYPE } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { ACTOR_TYPE } from '@esparex/contracts';
 import { mutateStatuses } from './lifecycle/StatusMutationService';
 import { AppError } from '../utils/AppError';
 import type { AdminLogFn } from '../utils/adminLogger';

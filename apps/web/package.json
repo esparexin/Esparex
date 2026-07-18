@@ -26,6 +26,7 @@
     "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
   },
   "dependencies": {
+    "@esparex/contracts": "workspace:*",
     "@esparex/shared": "*",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",

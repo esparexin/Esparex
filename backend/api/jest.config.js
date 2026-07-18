@@ -20,6 +20,8 @@ module.exports = {
         // Shared package aliases (source of truth for tests)
         '^@shared$': '<rootDir>/../../shared/src/index.ts',
         '^@esparex/shared$': '<rootDir>/../../shared/src/index.ts',
+        '^@esparex/contracts$': '<rootDir>/../../packages/contracts/src/index.ts',
+        '^@esparex/contracts/(.*)$': '<rootDir>/../../packages/contracts/src/$1',
 
         // Resolve all core aliases to built JS so controller/service mocks target identical module paths
         '^@esparex/core$': '<rootDir>/../../core/dist/index.js',

@@ -7,7 +7,9 @@
     "paths": {
       "@esparex/core/*": ["core/src/*"],
       "@esparex/shared": ["shared/src"],
-      "@esparex/shared/*": ["shared/src/*"]
+      "@esparex/shared/*": ["shared/src/*"],
+      "@esparex/contracts": ["packages/contracts/src"],
+      "@esparex/contracts/*": ["packages/contracts/src/v1/*"]
     },
     "strict": true,
     "noImplicitAny": true,
