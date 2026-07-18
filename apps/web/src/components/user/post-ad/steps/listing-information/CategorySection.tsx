@@ -8,22 +8,21 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 
 import { getNestedFieldMeta } from "../common/utils";
+import { useState } from "react";
+import { Drawer } from "@/components/ui/drawer";
+import { useIsMobile } from "@/components/ui/useMobile";
+import { ChevronDown } from "lucide-react";
 
 export function CategorySection() {
     const { dynamicCategories } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
     const { watch, handleCategoryChange } = usePostAdAction();
-
+    const isMobile = useIsMobile();
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
-    const brandIdValue = String(watch("brandId") ?? "");
-    const modelId = String(watch("modelId") ?? "");
-    const screenSize = String(watch("screenSize") || "");
-    const deviceCondition = String(watch("deviceCondition") || "");
-    const spareParts = (watch("spareParts") || []) as string[];
-
-    const { touchedFields } = form.formState;
-    const { errors } = form.formState;
+    const selectedCategory = dynamicCategories.find(c => c.id === categoryId);
+    const { touchedFields, errors } = form.formState;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]);
 
     const shouldShowFieldError = useCallback((path: string) => hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, path)), [hasAttemptedStepValidation, touchedFields]);
@@ -32,36 +31,64 @@ export function CategorySection() {
     const onCategoryClick = useCallback((catId: string) => {
         if (isEditMode) return;
         handleCategoryChange(catId);
+        setDrawerOpen(false);
     }, [isEditMode, handleCategoryChange]);
+
+    const GridContent = (
+        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+            {dynamicCategories.map((cat) => {
+                const Icon = cat.icon || CircuitBoard;
+                const selected = cat.id === categoryId;
+                return (
+                    <Button 
+                        key={cat.id} 
+                        type="button" 
+                        variant={selected ? "default" : "outline"} 
+                        onClick={() => onCategoryClick(cat.id)} 
+                        disabled={isEditMode && !selected}
+                        className={cn(
+                            "flex flex-col items-center justify-center gap-1 h-20 py-2 px-1 rounded-xl transition-all duration-200 border-2", 
+                            selected ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-white hover:bg-slate-50 border-slate-100", 
+                            isEditMode && "opacity-60 cursor-not-allowed"
+                        )}
+                    >
+                        <Icon className={cn("w-6 h-6", selected ? "text-primary-foreground" : "text-foreground-subtle")} aria-hidden="true" focusable="false" />
+                        <span className={cn("text-[10px] sm:text-xs font-semibold text-center leading-tight w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary", !selected && "whitespace-normal break-words line-clamp-2")}>
+                            {cat.name}
+                        </span>
+                    </Button>
+                );
+            })}
+        </div>
+    );
 
     return (
         <section className="space-y-3">
             <Field error={categoryError as string} label="Select Category" required>
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                    {dynamicCategories.map((cat) => {
-                        const Icon = cat.icon || CircuitBoard;
-                        const selected = cat.id === categoryId;
-                        return (
-                            <Button 
-                                key={cat.id} 
-                                type="button" 
-                                variant={selected ? "default" : "outline"} 
-                                onClick={() => onCategoryClick(cat.id)} 
-                                disabled={isEditMode && !selected}
-                                className={cn(
-                                    "flex flex-col items-center gap-1 h-auto py-2 px-1 rounded-xl transition-all duration-200 border-2", 
-                                    selected ? "bg-primary text-primary-foreground border-primary" : "bg-white hover:bg-slate-50 border-slate-100", 
-                                    isEditMode && "opacity-60 cursor-not-allowed"
-                                )}
+                {isMobile ? (
+                    <Drawer 
+                        title="Select a Category" 
+                        open={drawerOpen} 
+                        onOpenChange={setDrawerOpen}
+                        trigger={
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full justify-between h-12 px-4 rounded-xl border-slate-200 bg-white"
+                                disabled={isEditMode}
                             >
-                                <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")} aria-hidden="true" focusable="false" />
-                                <span className={cn("text-xs font-semibold text-center leading-tight truncate w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary")}>
-                                    {cat.name}
+                                <span className={selectedCategory ? "text-foreground font-medium" : "text-muted-foreground"}>
+                                    {selectedCategory ? selectedCategory.name : "Choose a category..."}
                                 </span>
+                                <ChevronDown className="w-4 h-4 opacity-50" />
                             </Button>
-                        );
-                    })}
-                </div>
+                        }
+                    >
+                        {GridContent}
+                    </Drawer>
+                ) : (
+                    GridContent
+                )}
             </Field>
         </section>
     );

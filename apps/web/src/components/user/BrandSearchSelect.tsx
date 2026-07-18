@@ -6,6 +6,8 @@ import { CatalogValidationServiceShared } from "@esparex/shared";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
+import { Drawer } from "@/components/ui/drawer";
+import { useIsMobile } from "@/components/ui/useMobile";
 
 import { CatalogRequestDialog } from "./CatalogRequestDialog";
 
@@ -45,6 +47,7 @@ export function BrandSearchSelect({
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
+    const isMobile = useIsMobile();
 
     // value is always the brand *display name* (same as ModelSearchSelect pattern).
     // For brands in the catalog, brandMap[name].id gives the ObjectId.
@@ -236,33 +239,57 @@ export function BrandSearchSelect({
                 </p>
             ) : null}
 
-            {/* Dropdown — only shown once fixed position is calculated */}
-            {search && filtered.length > 0 && dropdownStyle && (
-                <>
-                    <div
-                        style={{ zIndex: Z_INDEX.brandSearchBackdrop }}
-                        className="fixed inset-0"
-                        onPointerDown={() => setSearch("")}
-                    />
-                    <div
-                        style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent, position: "fixed" }}
-                        className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
+            {/* Dropdown or Drawer */}
+            {search && filtered.length > 0 && (
+                isMobile ? (
+                    <Drawer 
+                        title="Select a Brand" 
+                        open={true} 
+                        onOpenChange={(open) => !open && setSearch("")}
                     >
-                        {filtered.slice(0, 10).map((b) => (
-                            <button
-                                key={b}
-                                type="button"
-                                onPointerDown={(e) => {
-                                    e.preventDefault();
-                                    handleSelect(b);
-                                }}
-                                className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
-                            >
-                                {b}
-                            </button>
-                        ))}
-                    </div>
-                </>
+                        <div className="flex flex-col gap-1 pb-4">
+                            {filtered.slice(0, 15).map((b) => (
+                                <button
+                                    key={b}
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleSelect(b);
+                                    }}
+                                    className="w-full px-4 py-3 text-left text-base font-medium text-foreground transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl"
+                                >
+                                    {b}
+                                </button>
+                            ))}
+                        </div>
+                    </Drawer>
+                ) : (dropdownStyle && (
+                    <>
+                        <div
+                            style={{ zIndex: Z_INDEX.brandSearchBackdrop }}
+                            className="fixed inset-0"
+                            onPointerDown={() => setSearch("")}
+                        />
+                        <div
+                            style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent, position: "fixed" }}
+                            className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
+                        >
+                            {filtered.slice(0, 10).map((b) => (
+                                <button
+                                    key={b}
+                                    type="button"
+                                    onPointerDown={(e) => {
+                                        e.preventDefault();
+                                        handleSelect(b);
+                                    }}
+                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
+                                >
+                                    {b}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                ))
             )}
 
             {requestDialog}

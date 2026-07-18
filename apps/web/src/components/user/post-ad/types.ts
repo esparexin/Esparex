@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-import type { GeoJSONPoint } from "@/types/location";
 import { UserPage } from "@/lib/routeUtils";
 
 

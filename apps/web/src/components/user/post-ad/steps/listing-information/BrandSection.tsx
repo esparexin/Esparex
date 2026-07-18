@@ -16,10 +16,6 @@ export function BrandSection() {
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
-    const modelId = String(watch("modelId") ?? "");
-    const screenSize = String(watch("screenSize") || "");
-    const deviceCondition = String(watch("deviceCondition") || "");
-    const spareParts = (watch("spareParts") || []) as string[];
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;

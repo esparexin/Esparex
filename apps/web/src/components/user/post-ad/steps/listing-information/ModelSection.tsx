@@ -19,8 +19,6 @@ export function ModelSection() {
     const brandIdValue = String(watch("brandId") ?? "");
     const modelId = String(watch("modelId") ?? "");
     const modelNameValue = String(watch("model") ?? "");
-    const deviceCondition = String(watch("deviceCondition") || "");
-    const spareParts = (watch("spareParts") || []) as string[];
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;

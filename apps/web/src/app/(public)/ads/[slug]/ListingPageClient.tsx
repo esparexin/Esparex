@@ -2,9 +2,10 @@
 import { useCallback } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { ListingDetail } from '@/components/user/ListingDetail';
-import { isValidAdIdentifier } from "@/lib/api/user/listings";
-import { useLoginCallback } from '@/hooks/useLoginCallback';
 import type { Listing as Ad } from '@/lib/api/user/listings';
+import { useLoginCallback } from '@/hooks/useLoginCallback';
+
+const isValidAdIdentifier = (id: string) => /^[0-9a-fA-F]{24}$/.test(id);
 import { getPageRoute, type SellerType, type UserPage } from '@/lib/routeUtils';
 
 // Note: Title management is now handled by Server Component Metadata, 

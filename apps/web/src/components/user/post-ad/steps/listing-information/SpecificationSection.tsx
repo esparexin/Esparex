@@ -18,7 +18,6 @@ export function SpecificationSection() {
 
     const attributes = watch("attributes") as Record<string, unknown> | undefined;
     const screenSize = String(watch("screenSize") || "");
-    const spareParts = (watch("spareParts") || []) as string[];
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;

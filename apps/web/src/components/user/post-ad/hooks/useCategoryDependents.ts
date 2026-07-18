@@ -32,10 +32,10 @@ export function useCategoryDependents(
      * Centralized clearing of all dependent fields child to Brand (models, screen sizes, spare parts, device condition).
      */
     const clearBrandDependents = useCallback(() => {
-        form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
+        form.setValue("model", "", { shouldDirty: true });
+        form.setValue("modelId", "", { shouldDirty: true });
+        form.setValue("screenSize", "", { shouldDirty: true });
+        form.setValue("spareParts", [], { shouldDirty: true });
         form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
     }, [form]);
 
@@ -43,8 +43,8 @@ export function useCategoryDependents(
      * Centralized clearing of all dependent fields child to Category (brand + child dependents).
      */
     const clearCategoryDependents = useCallback(() => {
-        form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("brand", "", { shouldDirty: true });
+        form.setValue("brandId", "", { shouldDirty: true });
         clearBrandDependents();
     }, [form, clearBrandDependents]);
 

@@ -117,6 +117,19 @@ export function useListingImages({
         });
     }, []);
 
+    const setMainImage = useCallback((index: number) => {
+        if (index <= 0) return;
+        setListingImages(prev => {
+            if (index >= prev.length) return prev;
+            const copy = [...prev];
+            const [item] = copy.splice(index, 1);
+            if (item) {
+                copy.unshift(item);
+            }
+            return copy;
+        });
+    }, []);
+
     const clearImages = useCallback(() => {
         setListingImages(prev => {
             prev.forEach(img => {
@@ -145,6 +158,7 @@ export function useListingImages({
         setImageUploadError,
         addImages,
         removeImage,
+        setMainImage,
         clearImages,
     }), [
         listingImages, 

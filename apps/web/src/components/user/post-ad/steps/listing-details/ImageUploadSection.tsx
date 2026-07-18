@@ -11,9 +11,9 @@ import { useCallback } from "react";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 
 export function ImageUploadSection() {
-    const { listingImages, isUploadingImages } = usePostAdImages();
+    const { listingImages, isUploadingImages, imageUploadError } = usePostAdImages();
     const { form, stepValidationAttempts } = usePostAdFlow();
-    const { addImages, removeImage } = usePostAdAction();
+    const { addImages, removeImage, setMainImage } = usePostAdAction();
 
     const { touchedFields, errors, submitCount } = form.formState;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
@@ -25,6 +25,7 @@ export function ImageUploadSection() {
     }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields]);
 
     const imagesError = shouldShowFieldError("images") ? getFirstFormErrorMessage(errors.images) : undefined;
+    const combinedError = imageUploadError || imagesError;
 
     return (
         <section className="space-y-6">
@@ -33,10 +34,10 @@ export function ImageUploadSection() {
                 <p className="text-xs text-foreground-subtle font-medium italic">Photos should be clear and product-focused</p>
             </div>
 
-            <Field error={imagesError}>
+            <Field error={combinedError}>
                 <div className="grid grid-cols-3 gap-3">
                     {listingImages.map((img, idx) => (
-                        <div key={img.id} className="aspect-square relative group rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm">
+                        <div key={img.id} className="aspect-square relative group rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm transition-all hover:border-primary/50">
                             <Image 
                                 src={img.preview} 
                                 alt="Listing" 
@@ -44,14 +45,30 @@ export function ImageUploadSection() {
                                 className="object-cover" 
                                 unoptimized={true}
                             />
-                            <button
-                                type="button"
-                                onClick={() => removeImage(idx)}
-                                aria-label="Remove image"
-                                className="absolute top-2 right-2 p-2 bg-black/60 text-white rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
-                            >
-                                <X className="w-3 h-3" />
-                            </button>
+                            
+                            {/* Overlay Controls */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                                <div className="flex justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={() => removeImage(idx)}
+                                        aria-label="Remove image"
+                                        className="p-1.5 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
+                                {idx !== 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMainImage(idx)}
+                                        className="w-full py-1 text-2xs font-bold text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider"
+                                    >
+                                        Set as Main
+                                    </button>
+                                )}
+                            </div>
+
                             {idx === 0 && (
                                 <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-xs font-semibold text-center py-1">MAIN PHOTO</div>
                             )}

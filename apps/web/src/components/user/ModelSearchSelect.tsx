@@ -6,6 +6,8 @@ import { CatalogValidationServiceShared } from "@esparex/shared";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
+import { Drawer } from "@/components/ui/drawer";
+import { useIsMobile } from "@/components/ui/useMobile";
 import { usePostAd } from "@/components/user/post-ad/PostAdContext";
 import type { DeviceModel } from "@/lib/api/user/masterData";
 import { CatalogRequestDialog } from "./CatalogRequestDialog";
@@ -54,6 +56,7 @@ export function ModelSearchSelect({
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
     const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
+    const isMobile = useIsMobile();
 
     // Resolve selected model name cleanly from React Query catalog SSOT or RHF prop value without local selection state.
     const selectedModel = useMemo(() => {
@@ -298,34 +301,60 @@ export function ModelSearchSelect({
                 </p>
             ) : null}
 
-            {(isEditing || search) && availableModels.length > 0 && dropdownStyle && (
-                <>
-                    <div
-                        style={{ zIndex: Z_INDEX.brandSearchBackdrop }}
-                        className="fixed inset-0"
-                        onClick={() => {
-                            setIsEditing(false);
-                            setSearch("");
+            {(isEditing || search) && availableModels.length > 0 && (
+                isMobile ? (
+                    <Drawer 
+                        title="Select a Model" 
+                        open={true} 
+                        onOpenChange={(open) => {
+                            if (!open) {
+                                setIsEditing(false);
+                                setSearch("");
+                            }
                         }}
-                    />
-                    <div
-                        style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent }}
-                        className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"
                     >
-                        <div className="overflow-y-auto max-h-[280px] p-1.5 space-y-1">
+                        <div className="flex flex-col gap-1 pb-4 px-2">
                             {availableModels.map((m) => (
                                 <button
                                     key={String(m.id || m._id)}
                                     type="button"
                                     onClick={() => handleSelect(m)}
-                                    className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-primary/5 hover:text-primary active:bg-primary/10 flex items-center justify-between group rounded-lg"
+                                    className="w-full px-4 py-3 text-left text-base font-semibold text-slate-700 transition-all hover:bg-slate-50 active:bg-slate-100 rounded-xl"
                                 >
-                                    <span>{m.name}</span>
+                                    {m.name}
                                 </button>
                             ))}
                         </div>
-                    </div>
-                </>
+                    </Drawer>
+                ) : (dropdownStyle && (
+                    <>
+                        <div
+                            style={{ zIndex: Z_INDEX.brandSearchBackdrop }}
+                            className="fixed inset-0"
+                            onClick={() => {
+                                setIsEditing(false);
+                                setSearch("");
+                            }}
+                        />
+                        <div
+                            style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent }}
+                            className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"
+                        >
+                            <div className="overflow-y-auto max-h-[280px] p-1.5 space-y-1">
+                                {availableModels.map((m) => (
+                                    <button
+                                        key={String(m.id || m._id)}
+                                        type="button"
+                                        onClick={() => handleSelect(m)}
+                                        className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-primary/5 hover:text-primary active:bg-primary/10 flex items-center justify-between group rounded-lg"
+                                    >
+                                        <span>{m.name}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                ))
             )}
 
             {requestDialog}
