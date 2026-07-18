@@ -47,6 +47,13 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
         return doc !== null;
     }
 
+    async findMany(filter?: Record<string, unknown>, tx?: unknown): Promise<SparePart[]> {
+        const query = SparePartMongoose.find(filter || {}).lean<DbSparePart[]>();
+        if (tx) query.session(tx as any);
+        const docs = await query.exec();
+        return docs.map(doc => this.toDomain(doc));
+    }
+
     async findByCategoryOrBrands(categoryId: string, brandIds: string[], tx?: unknown): Promise<SparePart[]> {
         const sparePartOrFilters: Array<Record<string, unknown>> = [{ categoryIds: categoryId }];
         if (brandIds.length > 0) {

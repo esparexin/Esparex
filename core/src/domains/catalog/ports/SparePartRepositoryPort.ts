@@ -29,6 +29,9 @@ export interface SparePartRepositoryPort {
     softDeleteByBrandId(brandId: string, tx?: unknown): Promise<number>;
     softDeleteByModelIds(modelIds: string[], tx?: unknown): Promise<number>;
 
+    // Generic query
+    findMany(filter?: Record<string, unknown>, tx?: unknown): Promise<SparePart[]>;
+
     // Relationship
     updateCategoryIds(sparePartId: string, categoryIds: string[], tx?: unknown): Promise<boolean>;
     clearModelReferences(modelId: string, tx?: unknown): Promise<number>;

@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { createHash } from 'crypto';
 import mongoose from 'mongoose';
-import { enforceCreateAdIdempotency, enforceCreateServiceIdempotency } from '../../middleware/idempotency';
+import { enforceCreateListingIdempotency } from '../../middleware/idempotency';
 import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
 
 jest.mock('@esparex/core/models/IdempotencyRequest', () => ({
@@ -74,7 +74,7 @@ const makeRes = (): MockResponse => {
     return res;
 };
 
-describe('enforceCreateAdIdempotency', () => {
+describe('enforceCreateListingIdempotency (scope: POST:/api/v1/ads)', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockedIdempotencyModel.updateOne.mockResolvedValue({ acknowledged: true });
@@ -87,7 +87,7 @@ describe('enforceCreateAdIdempotency', () => {
         const res = makeRes();
         const next = jest.fn();
 
-        await enforceCreateAdIdempotency(req, res, next);
+        await enforceCreateListingIdempotency('POST:/api/v1/ads')(req, res, next);
 
         expect(res.statusCode).toBe(400);
         expect(res.payload).toMatchObject({
@@ -115,7 +115,7 @@ describe('enforceCreateAdIdempotency', () => {
             }),
         });
 
-        await enforceCreateAdIdempotency(req, res, next);
+        await enforceCreateListingIdempotency('POST:/api/v1/ads')(req, res, next);
 
         expect(res.statusCode).toBe(409);
         expect(res.payload).toMatchObject({
@@ -144,7 +144,7 @@ describe('enforceCreateAdIdempotency', () => {
             }),
         });
 
-        await enforceCreateAdIdempotency(req, res, next);
+        await enforceCreateListingIdempotency('POST:/api/v1/ads')(req, res, next);
 
         expect(res.statusCode).toBe(429);
         expect(res.payload).toMatchObject({
@@ -175,7 +175,7 @@ describe('enforceCreateAdIdempotency', () => {
             }),
         });
 
-        await enforceCreateServiceIdempotency(req, res, next);
+        await enforceCreateListingIdempotency('POST:/api/v1/services')(req, res, next);
 
         expect(mockedIdempotencyModel.findOne).toHaveBeenCalledWith({
             userId,

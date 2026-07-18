@@ -26,6 +26,13 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
         };
     }
 
+    async findMany(filter?: Record<string, unknown>, tx?: unknown): Promise<Brand[]> {
+        const query = BrandModel.find(filter || {}).lean<DbBrand[]>();
+        if (tx) query.session(tx as any);
+        const docs = await query.exec();
+        return docs.map(doc => this.toDomain(doc));
+    }
+
     async findById(id: string, includeDeleted?: boolean, tx?: unknown): Promise<Brand | null> {
         const safeId = typeof id === 'string' ? id : String(id);
         const query = BrandModel.findById(safeId).lean<DbBrand | null>();

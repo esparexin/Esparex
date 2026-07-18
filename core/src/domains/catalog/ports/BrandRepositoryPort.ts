@@ -18,4 +18,5 @@ export interface BrandRepositoryPort {
     updateCategoryIds(brandId: string, categoryIds: string[], tx?: unknown): Promise<boolean>;
     softDelete(brandId: string, tx?: unknown): Promise<boolean>;
     softDeleteMany(brandIds: string[], tx?: unknown): Promise<number>;
+    findMany(filter?: Record<string, unknown>, tx?: unknown): Promise<Brand[]>;
 }
