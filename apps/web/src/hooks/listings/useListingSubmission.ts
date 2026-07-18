@@ -73,6 +73,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
     onError,
 }: UseListingSubmissionProps<T, R>) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [imageUploadProgress, setImageUploadProgress] = useState<Record<number, 'pending' | 'uploading' | 'completed' | 'error'>>({});
     const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
     const { setIsDirty } = useNavigation();
 
@@ -103,6 +104,11 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                 "x-csrf-token": csrfToken,
             };
 
+            // Track per-image upload progress
+            setImageUploadProgress(
+                Object.fromEntries(imagesToProcess.map((_, idx) => [idx, 'pending' as const]))
+            );
+
             const uploadPromises = imagesToProcess.map(async (img, idx) => {
                 if (!img) return null;
                 if (img.isRemote || (typeof img.preview === 'string' && img.preview.startsWith('http'))) {
@@ -110,6 +116,8 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                 }
 
                 if (!img.file) return null;
+
+                setImageUploadProgress(prev => ({ ...prev, [idx]: 'uploading' }));
 
                 const formData = new FormData();
                 formData.append("image", img.file);
@@ -125,9 +133,11 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                 const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
 
                 if (!response.ok || !remoteUrl) {
+                    setImageUploadProgress(prev => ({ ...prev, [idx]: 'error' }));
                     throw new Error(payload?.error || `Failed to upload image ${idx + 1}. Please try again.`);
                 }
 
+                setImageUploadProgress(prev => ({ ...prev, [idx]: 'completed' }));
                 return remoteUrl;
             });
 
@@ -233,6 +243,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
     return {
         onValidSubmit,
         isSubmitting,
+        imageUploadProgress,
         idempotencyKey,
         resetIdempotency
     };

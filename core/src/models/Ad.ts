@@ -60,15 +60,6 @@ export interface IAd extends Document, ISoftDeleteDocument {
         locationId?: Types.ObjectId;
     };
     locationPath: Types.ObjectId[];
-    // ⚠️ DEPRECATED: Views are now tracked in the 'AdMetrics' collection.
-    // Fields preserved for backward compatibility during migration.
-    views: {
-        total: number;
-        unique: number;
-        favorites: number;
-        chats: number;
-        lastViewedAt?: Date;
-    };
     deviceCondition?: 'power_on' | 'power_off';
     isSpotlight: boolean;
     isChatLocked: boolean;
@@ -215,13 +206,6 @@ const AdSchema: Schema = new Schema({
         locationId: { type: Schema.Types.ObjectId, ref: 'Location' }, // Canonical Reference — SSOT
     },
     locationPath: [{ type: Schema.Types.ObjectId, ref: 'Location' }],
-    views: {
-        total: { type: Number, default: 0 },
-        unique: { type: Number, default: 0 },
-        favorites: { type: Number, default: 0 },
-        chats: { type: Number, default: 0 },
-        lastViewedAt: { type: Date }
-    },
     deviceCondition: { type: String, enum: ['power_on', 'power_off'] },
     isSpotlight: { type: Boolean, default: false },
     isChatLocked: { type: Boolean, default: false },

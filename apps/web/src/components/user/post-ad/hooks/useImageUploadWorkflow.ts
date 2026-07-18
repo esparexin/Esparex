@@ -4,7 +4,6 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { ListingImage } from "@/types/listing";
 import logger from "@/lib/logger";
 import { notify } from "@/lib/feedback";
-import { apiClient } from "@/lib/api/client";
 
 export function useImageUploadWorkflow<T>(
     form: UseFormReturn<PostAdFormData>,

@@ -6,8 +6,6 @@ import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "../utils/errorResponse";
 
 const MAX_KEY_LENGTH = 128;
-const IDEMPOTENCY_SCOPE_CREATE_AD = 'POST:/api/v1/ads';
-const IDEMPOTENCY_SCOPE_CREATE_SERVICE = 'POST:/api/v1/services';
 const IDEMPOTENCY_TTL_HOURS = 24;
 const UUID_V4_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -227,10 +225,6 @@ const buildCreateListingIdempotencyGuard = (scope: string) => async (req: Reques
 };
 
 export const enforceCreateListingIdempotency = (scope: string) => buildCreateListingIdempotencyGuard(scope);
-export const enforceCreateAdIdempotency = buildCreateListingIdempotencyGuard(IDEMPOTENCY_SCOPE_CREATE_AD);
-export const enforceCreateServiceIdempotency = buildCreateListingIdempotencyGuard(IDEMPOTENCY_SCOPE_CREATE_SERVICE);
-
-export default enforceCreateAdIdempotency;
 
 /**
  * SSOT Generic Idempotency Middleware

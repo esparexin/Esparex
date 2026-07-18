@@ -55,6 +55,7 @@ export function useListingImages({
         }
 
         setIsUploadingImages(true);
+        const createdUrls: string[] = [];
         try {
             const processedFiles: { file: File, hash: string }[] = [];
             for (const file of imageFiles) {
@@ -91,15 +92,23 @@ export function useListingImages({
                 return;
             }
 
-            const newListingImages: ListingImage[] = compressedFiles.map(item => ({
-                id: crypto.randomUUID(),
-                preview: URL.createObjectURL(item.file),
-                file: item.file as File,
-                isRemote: false,
-                hash: item.hash
-            }));
+            const newListingImages: ListingImage[] = compressedFiles.map(item => {
+                const url = URL.createObjectURL(item.file);
+                createdUrls.push(url);
+                return {
+                    id: crypto.randomUUID(),
+                    preview: url,
+                    file: item.file as File,
+                    isRemote: false,
+                    hash: item.hash
+                };
+            });
 
             setListingImages(prev => [...prev, ...newListingImages]);
+        } catch (e) {
+            // Revoke any Object URLs created before the error to prevent leaks
+            createdUrls.forEach(url => URL.revokeObjectURL(url));
+            throw e;
         } finally {
             setIsUploadingImages(false);
         }

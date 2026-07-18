@@ -27,6 +27,7 @@ export function usePostAdForm(isEditMode: boolean = false) {
             location: { city: "" } as PostAdFormData["location"],
             spareParts: [],
             deviceCondition: undefined,
+            images: [],
         }
     });
 

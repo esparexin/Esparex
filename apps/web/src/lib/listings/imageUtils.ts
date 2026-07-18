@@ -1,3 +1,5 @@
+import { MAX_AD_IMAGE_BYTES } from '@esparex/shared';
+
 /**
  * 🖼️ Image Utilities for Listings
  */
@@ -15,8 +17,11 @@ export const generateFileHash = async (file: File): Promise<string> => {
 /**
  * Standard compression options for listing images.
  */
+// ~90% of the hard gate to leave margin for variance
+const COMPRESSION_TARGET_MB = (MAX_AD_IMAGE_BYTES / (1024 * 1024)) * 0.9;
+
 export const LISTING_IMAGE_COMPRESSION_OPTIONS = {
-    maxSizeMB: 4.5,
+    maxSizeMB: COMPRESSION_TARGET_MB,
     maxWidthOrHeight: 1920,
     useWebWorker: false,
 };

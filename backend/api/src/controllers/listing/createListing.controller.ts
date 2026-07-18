@@ -64,7 +64,6 @@ const presignBodySchema = z.object({
         'image/jpg',
         'image/png',
         'image/webp',
-        'image/gif',
     ]),
 });
 

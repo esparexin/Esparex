@@ -96,6 +96,8 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
         expired: ensureNumber(data.expired, 'expired'),
         sold: ensureNumber(data.sold, 'sold'),
         deactivated: ensureNumber(data.deactivated, 'deactivated'),
+        active: ensureNumber(data.active, 'active'),
+        approved: ensureNumber(data.approved, 'approved'),
     };
 }
 
@@ -125,8 +127,24 @@ export async function fetchAdminAdDetail(adId: string): Promise<UnknownRecord> {
     throw new Error("Listing not found or the server returned an unexpected response.");
 }
 
+/**
+ * Approve a listing — transitions it from pending-review to live.
+ * NOTE: Both `approveAdminAd` and `activateAdminAd` POST to the same
+ * `LISTING_APPROVE` endpoint. The backend treats them identically:
+ * both set status → active and moderationStatus → approved/live.
+ */
 export async function approveAdminAd(adId: string): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_APPROVE(adId), { method: "POST" });
+}
+
+/**
+ * Reactivate a previously-approved listing (e.g. after deactivation).
+ * @see approveAdminAd — shares the same LISTING_APPROVE endpoint.
+ */
+export async function activateAdminAd(adId: string): Promise<void> {
+    await adminFetch(ADMIN_ROUTES.LISTING_APPROVE(adId), {
+        method: "POST",
+    });
 }
 
 export async function rejectAdminAd(adId: string, rejectionReason: string): Promise<void> {
@@ -138,12 +156,6 @@ export async function rejectAdminAd(adId: string, rejectionReason: string): Prom
 
 export async function deactivateAdminAd(adId: string): Promise<void> {
     await adminFetch(ADMIN_ROUTES.LISTING_DEACTIVATE(adId), {
-        method: "POST",
-    });
-}
-
-export async function activateAdminAd(adId: string): Promise<void> {
-    await adminFetch(ADMIN_ROUTES.LISTING_APPROVE(adId), {
         method: "POST",
     });
 }

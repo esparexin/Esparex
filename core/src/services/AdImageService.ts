@@ -8,6 +8,7 @@
 import mongoose, { ClientSession } from 'mongoose';
 import { createHash } from 'crypto';
 import AdImage from '../models/AdImage';
+import { MAX_AD_IMAGE_BYTES } from '@esparex/shared';
 import { deleteFromS3Url } from '../utils/s3';
 import { processSingleImage } from '../utils/imageProcessor';
 import logger from '../utils/logger';
@@ -36,7 +37,7 @@ export interface ProcessedImage {
 }
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/heic', 'image/heif'];
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE = MAX_AD_IMAGE_BYTES;
 
 // ─────────────────────────────────────────────────
 // IMAGE HASHING & VALIDATION

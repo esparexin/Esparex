@@ -33,7 +33,8 @@ const optionalObjectId = z.preprocess(
 /* ────────────────────────────────────────────── */
 export const BaseAdPayloadSchema = z.object({
     categoryId: optionalObjectId, // Canonical
-    sparePartId: optionalObjectId, // Canonical — matches Ad.sparePartId model field
+    /** @deprecated UI no longer surfaces sparePartId. Kept for API backward compatibility. */
+    sparePartId: optionalObjectId,
     serviceTypeIds: z.array(optionalObjectId).optional(), // Unified support for service types
     brandId: optionalObjectId, // Canonical
     modelId: optionalObjectId, // Canonical
@@ -84,6 +85,13 @@ export const BaseAdPayloadSchema = z.object({
         .optional(),
     deviceCondition: z.enum(['power_on', 'power_off']).optional(),
     isFree: z.boolean().default(false),
+
+    // Admin / service-listing fields (used by admin detail/update views)
+    condition: z.enum(['new', 'used', 'refurbished']).optional(),
+    priceMin: z.number().min(0).max(10_000_000).optional(),
+    priceMax: z.number().min(0).max(10_000_000).optional(),
+    diagnosticFee: z.number().min(0).optional(),
+    deviceType: z.string().max(50).optional(),
 });
 
 /* ────────────────────────────────────────────── */

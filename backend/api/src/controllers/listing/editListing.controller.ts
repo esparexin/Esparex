@@ -5,7 +5,7 @@ import * as AdMutationService from '@esparex/core/services/AdMutationService';
 import type { AuthUser } from '../../types/auth.types';
 
 /**
- * PUT /api/v1/listings/:id/edit
+ * PATCH /api/v1/listings/:id/edit
  */
 export const editListing = async (req: Request, res: Response, next: NextFunction) => {
     try {

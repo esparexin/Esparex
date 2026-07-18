@@ -32,7 +32,6 @@ export interface PreparedPayload {
     description?: string;
     price?: number;
     images?: string[];
-    thumbnails?: string[];
     locationId?: unknown;
     location?: Record<string, unknown>;
     locationPath?: string[];
