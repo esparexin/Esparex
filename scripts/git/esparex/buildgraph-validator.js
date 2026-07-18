@@ -2,6 +2,12 @@
  * BUILDGRAPH-001 & Workspace Dependency Resolution Validator
  * Ensures that the NPM workspace dependency graph and the TypeScript
  * project reference graph are 100% synchronized and acyclic (DAG).
+ *
+ * BUILDGRAPH-002 — Execution Model Consistency Validator
+ * Ensures that every composite project with project references has a
+ * type-check strategy that guarantees referenced declaration outputs exist.
+ * This prevents TS6305 errors where tsc --noEmit cannot resolve composite
+ * project declarations because they were never emitted.
  */
 
 const fs = require('fs');
@@ -143,6 +149,35 @@ function runBuildGraphValidation() {
     for (const pkgName of packageMap.keys()) {
         if (!visited.has(pkgName)) {
             checkCycle(pkgName);
+        }
+    }
+
+    // Step 4: BUILDGRAPH-002 — Execution Model Consistency Check
+    // Every composite project with project references must have a type-check
+    // strategy that produces (or pre-builds) the declaration files its
+    // referenced dependencies need.
+    for (const [pkgName, pkgData] of packageMap.entries()) {
+        const { pkgJson, tsconfigJson, relDir } = pkgData;
+        if (!tsconfigJson) continue;
+
+        const isComposite = tsconfigJson.compilerOptions && tsconfigJson.compilerOptions.composite === true;
+        const hasReferences = tsconfigJson.references && tsconfigJson.references.length > 0;
+        const typeCheckScript = (pkgJson.scripts && pkgJson.scripts['type-check']) || '';
+
+        if (isComposite && hasReferences) {
+            // Composite packages with references must NOT use bare tsc --noEmit
+            // because tsc --noEmit suppresses all declaration output, making
+            // downstream composite references unresolvable (TS6305).
+            const isBareNoEmit = /^tsc\s+--noEmit\s*$/.test(typeCheckScript.trim());
+
+            if (isBareNoEmit) {
+                errors.push(
+                    `[BUILDGRAPH-002] Execution model mismatch in "${pkgName}" (${relDir}): ` +
+                    `package is composite with project references but type-check script ` +
+                    `is bare "tsc --noEmit". Composite references require declaration outputs. ` +
+                    `Use "npm run build -w <dependency> && tsc --noEmit" or "tsc -b --noEmit" instead.`
+                );
+            }
         }
     }
 
