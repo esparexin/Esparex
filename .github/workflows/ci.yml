@@ -37,10 +37,10 @@ jobs:
       NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -77,7 +77,7 @@ jobs:
         run: cp -r apps/web/.next apps/web/next-build
 
       - name: Upload Web Build Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: web-build-artifacts
           path: apps/web/next-build
@@ -107,10 +107,10 @@ jobs:
       NEXT_PUBLIC_LOCAL_DEV_AUTH: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Setup Node 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -124,7 +124,7 @@ jobs:
         working-directory: apps/web
 
       - name: Download Web Build Artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: web-build-artifacts
           path: apps/web/next-build
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload test artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-listing-edit
           path: apps/web/test-results/
