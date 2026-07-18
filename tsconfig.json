@@ -20,6 +20,7 @@
   },
   "files": [],
   "references": [
+    { "path": "./packages/contracts" },
     { "path": "./core" },
     { "path": "./shared" },
     { "path": "./backend/api" },

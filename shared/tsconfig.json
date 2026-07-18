@@ -5,11 +5,12 @@
     "moduleResolution": "node16",
     "baseUrl": ".",
     "paths": {
-      "@esparex/contracts": ["../packages/contracts/dist/index"],
-      "@esparex/contracts/*": ["../packages/contracts/dist/*"]
+      "@esparex/contracts": ["../packages/contracts/src/index"],
+      "@esparex/contracts/*": ["../packages/contracts/src/v1/*"]
     },
     "rootDir": "./src",
     "outDir": "./dist",
+    "composite": true,
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -18,6 +19,9 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "references": [
+    { "path": "../packages/contracts" }
+  ],
+  "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["node_modules", "dist"]
 }
