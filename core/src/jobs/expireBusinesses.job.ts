@@ -4,8 +4,8 @@ import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 import { expireBusinesses } from '../services/business/BusinessLifecycleService';
 import { cascadeExpireBusinessListings } from '../services/AdminBusinessService';
 import { dispatchTemplatedNotification } from '../services/NotificationService';
-import { ACTOR_TYPE } from '@esparex/shared';
-import { BUSINESS_STATUS } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/contracts';
+import { BUSINESS_STATUS } from '@esparex/contracts';
 
 export const runExpireBusinessesJob = async () => {
     await runWithDistributedJobLock(

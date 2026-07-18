@@ -5,7 +5,7 @@ import type { Category } from "@shared";
 import { useToast } from "@/context/ToastContext";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";
-import type { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from "@esparex/contracts";
 
 interface UseAdminCategoriesOptions {
     initialPagination?: Partial<AdminListPagination>;

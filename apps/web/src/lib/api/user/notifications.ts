@@ -1,5 +1,4 @@
-import type { NotificationTypeValue } from '@esparex/shared';
-
+import { NotificationTypeValue } from "@esparex/contracts";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "../routes";
 

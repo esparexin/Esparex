@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 import Ad from '../models/Ad';
 import { getAds } from './ad/AdAggregationService';
 import { getAnyAdById } from './ad/AdDetailService';
-import { LISTING_STATUS } from '@esparex/shared';
-import { LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/contracts';
 import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
 
 export const MODERATION_STATUSES = [
@@ -111,7 +111,7 @@ type RawAggregationRow = {
     count: number;
 };
 
-const createEmptyStatusMap = () => ({
+const createEmptyStatusMap = (): Record<ModerationStatus, number> => ({
     pending: 0,
     live: 0,
     active: 0,
@@ -122,7 +122,9 @@ const createEmptyStatusMap = () => ({
     deactivated: 0,
 });
 
-const createEmptyCounts = () => ({
+type ModerationCounts = { total: number } & Record<ModerationStatus, number>;
+
+const createEmptyCounts = (): ModerationCounts => ({
     total: 0,
     ...createEmptyStatusMap(),
 });
@@ -200,13 +202,20 @@ for (const type of LISTING_TYPE_VALUES) {
     byListingType[type].live = publicLiveCounts.byListingType[type];
 }
 
-return {
-    total,
-    ...byStatus,
-    spotlight,
-    byStatus,
-    byListingType,
-};
+    return {
+        total,
+        pending: byStatus.pending,
+        live: byStatus.live,
+        active: byStatus.active,
+        approved: byStatus.approved,
+        rejected: byStatus.rejected,
+        expired: byStatus.expired,
+        sold: byStatus.sold,
+        deactivated: byStatus.deactivated,
+        spotlight,
+        byStatus,
+        byListingType,
+    };
 };
 
 type PublicLiveAggregationRow = {

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
-import { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from '@esparex/contracts';
 
 export const findServiceForUpdate = async (
     id: string,

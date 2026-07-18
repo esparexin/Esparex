@@ -7,13 +7,13 @@ import { normalizeLocation } from './location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
 import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
 import { generateUniqueSlugWithChecker } from '../utils/slugGenerator';
-import { LIFECYCLE_STATUS } from '@esparex/shared';
+import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';
 import { processImages } from '../utils/imageProcessor';
 import { sanitizeStoredImageUrls } from '../utils/s3';
 import { AdContext } from '../types/ad.types';
 import { computeActiveExpiry } from './lifecycle/AdStatusService';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { FeatureFlag, isEnabled } from '../config/featureFlags';
 import { computeListingQualityScore } from '../utils/adQualityScorer';
 import { 

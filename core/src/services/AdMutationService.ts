@@ -1,5 +1,5 @@
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../composition/listings';
-import { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from '@esparex/contracts';
 import { AdContext } from '../types/ad.types';
 import { mutateStatus } from './lifecycle/StatusMutationService';
 

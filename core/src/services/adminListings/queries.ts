@@ -8,7 +8,7 @@ import {
     type ListingModerationFilters,
 } from '../ListingModerationQueryService';
 import { isValidListingType } from '../ListingModerationQueryService';
-import type { ListingTypeValue } from '@esparex/shared';
+import type { ListingTypeValue } from '@esparex/contracts';
 import {
     parsePositiveInt, asString, asNumber, resolveListingTypeFilter, validateListingId,
 } from './helpers';

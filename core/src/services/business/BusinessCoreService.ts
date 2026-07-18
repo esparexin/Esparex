@@ -1,15 +1,15 @@
 import mongoose from 'mongoose';
 import Business from '../../models/Business';
-import { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from '@esparex/contracts';
 import User from '../../models/User';
 import Ad from '../../models/Ad';
 import { normalizeAdImagesForResponse } from "../adQuery/AdQueryHelpers";
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import { AppError } from '../../utils/AppError';
 import { getUserConnection } from '../../config/db';
 import logger from '../../utils/logger';
 import { normalizeLocation } from "../location/LocationNormalizer";
-import { BUSINESS_STATUS } from '@esparex/shared';
+import { BUSINESS_STATUS } from '@esparex/contracts';
 import { processImages } from '../../utils/imageProcessor';
 
 import {

@@ -8,14 +8,14 @@
  */
 
 import mongoose from "mongoose";
-import { LIFECYCLE_STATUS } from "@esparex/shared";
+import { LIFECYCLE_STATUS } from "@esparex/contracts";
 import { connectDB } from "@esparex/core/config/db";
 import User from "@esparex/core/models/User";
 import Business from "@esparex/core/models/Business";
 import Ad from "@esparex/core/models/Ad";
 import Category from "@esparex/core/models/Category";
-import { USER_STATUS } from '@esparex/shared';
-import { CATALOG_STATUS } from '@esparex/shared';
+import { USER_STATUS } from "@esparex/contracts";
+import { CATALOG_STATUS } from "@esparex/contracts";
 
 async function run(): Promise<void> {
     console.info("[seed] Connecting to MongoDB...");

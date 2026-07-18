@@ -15,8 +15,8 @@ import { mutateStatus } from './lifecycle/StatusMutationService';
 import { computeActiveExpiry } from './lifecycle/AdStatusService';
 import { enqueueImageOptimization } from '../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
+import { LISTING_STATUS } from '@esparex/contracts';
 import type { AdContext } from '../types/ad.types';
 
 export interface AdOrchestrationContext {

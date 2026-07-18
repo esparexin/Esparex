@@ -1,9 +1,5 @@
-import type {
-    CanonicalGeoPoint as SharedCanonicalGeoPoint,
-    Location as SharedLocation,
-    LocationLevel as SharedLocationLevel
-} from "@esparex/shared";
-
+import { CanonicalGeoPoint as SharedCanonicalGeoPoint, LocationLevel as SharedLocationLevel } from "@esparex/contracts";
+import { Location as SharedLocation } from "@esparex/shared";
 /**
  * PR-3: Location Contract Normalization
  *

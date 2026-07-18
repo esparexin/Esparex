@@ -1,6 +1,7 @@
 "use client";
 
-import { BUSINESS_STATUS, type Business } from "@esparex/shared";
+import { BUSINESS_STATUS } from "@esparex/contracts";
+import { Business } from "@esparex/contracts";
 import {
     X,
     Building2,

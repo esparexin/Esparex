@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install --include=dev",
+  "installCommand": "node -v && npm -v && pwd && npm install --include=dev",
   "buildCommand": "NEXT_DISABLE_WEBPACK_CACHE=1 next build",
   "outputDirectory": ".next",
   "env": {

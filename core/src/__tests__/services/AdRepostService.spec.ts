@@ -77,7 +77,7 @@ import { repostAdLogic } from '../../services/ad/AdRepostService';
 import Ad from '../../models/Ad';
 import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy';
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 
 import { getListingRepository } from '@esparex/core/composition/listings';
 

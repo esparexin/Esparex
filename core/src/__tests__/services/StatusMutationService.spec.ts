@@ -120,7 +120,7 @@ jest.mock("@esparex/core/utils/logger", () => ({
     default: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 
-import { ACTOR_TYPE } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/contracts';
 import Ad from "../../models/Ad";
 import { mutateStatusesBulk } from "../../services/lifecycle/StatusMutationService";
 import { validateTransition } from "../../services/lifecycle/LifecycleGuard";

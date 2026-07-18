@@ -3,8 +3,8 @@ import type { EsparexRequestConfig } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "@/lib/api/routes";
 export type { Location } from "@esparex/shared";
-import type { Location } from "@esparex/shared";
 
+import { Location } from "@esparex/shared";
 /* -------------------------------------------------------------------------- */
 /* SEARCH LOCATIONS (TEXT SEARCH)                                             */
 /* -------------------------------------------------------------------------- */

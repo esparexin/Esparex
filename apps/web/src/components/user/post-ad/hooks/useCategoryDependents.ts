@@ -33,16 +33,15 @@ export function useCategoryDependents(
      * Screen sizes, spare parts, and device condition are independent of brand and are not cleared.
      */
     const clearBrandDependents = useCallback(() => {
-        form.setValue("model", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("modelId", "", { shouldValidate: true, shouldDirty: true });
+      
     }, [form]);
 
     /**
      * Centralized clearing of all dependent fields child to Category (brand + model + screen size + spare parts + device condition).
      */
     const clearCategoryDependents = useCallback(() => {
-        form.setValue("brand", "", { shouldValidate: true, shouldDirty: true });
-        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true });
+        form.setValue("brand", "", { shouldDirty: true });
+        form.setValue("brandId", "", { shouldDirty: true });
         clearBrandDependents();
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });

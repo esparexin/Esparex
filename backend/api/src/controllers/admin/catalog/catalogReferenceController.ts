@@ -41,7 +41,7 @@ import {
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
 } from '@esparex/core/services/catalog/CatalogReferenceService';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString } from './inputCoercion';
 
 // ── Generic CRUD Helpers ───────────────────────────────────────────────────

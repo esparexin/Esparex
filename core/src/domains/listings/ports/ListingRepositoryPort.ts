@@ -1,4 +1,4 @@
-import type { ListingTypeValue, AdStatusValue } from '@esparex/shared';
+import type { ListingTypeValue, AdStatusValue } from '@esparex/contracts';
 
 // ─── Domain Types ───────────────────────────────────────────────────────────
 

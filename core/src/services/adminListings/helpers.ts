@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import { getAdForModerationById } from '../ad/AdDetailService';
 import { isValidListingType } from '../ListingModerationQueryService';
-import { ACTOR_TYPE } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/contracts';
 
 export const parsePositiveInt = (value: unknown, fallback: number, bounds: { min: number; max: number }) => {
     const parsed = Number(value);

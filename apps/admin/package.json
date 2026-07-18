@@ -7,7 +7,9 @@
           "node": ">=22.0.0 <23"
     },
     "scripts": {
-          "dev": "next dev -p 3001",
+        "clean": "node ../../scripts/kill-port.js 3001",
+        "predev": "npm run clean",
+        "dev": "next dev -p 3001",
           "build": "cross-env NEXT_DISABLE_WEBPACK_CACHE=1 next build --webpack",
           "start": "next start -p 3001",
           "type-check": "tsc --noEmit",
@@ -22,6 +24,7 @@
           "guard:unused-imports": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0 --rule \"unused-imports/no-unused-imports:error\""
     },
     "dependencies": {
+          "@esparex/contracts": "*",
           "@esparex/shared": "*",
           "@hookform/resolvers": "^5.2.2",
           "@radix-ui/react-dialog": "^1.1.15",

@@ -1,5 +1,5 @@
-import { LISTING_STATUS } from '@esparex/shared';
-import { ACTOR_TYPE } from "@esparex/shared";
+import { LISTING_STATUS } from '@esparex/contracts';
+import { ACTOR_TYPE } from "@esparex/contracts";
 import { enforceLifecycleMutationPolicy } from '../../services/lifecycle/LifecyclePolicyGuard';
 
 describe('LifecyclePolicyGuard repost invariants', () => {

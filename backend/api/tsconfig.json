@@ -15,8 +15,11 @@
     "resolveJsonModule": true,
     "lib": ["ES2023", "DOM"],
     "paths": {
-      "@shared": ["./../../shared/dist/index"],
-      "@esparex/shared": ["./../../shared/dist/index"],
+      "@/*": ["src/*"],
+      "@shared": ["../../shared/dist/index"],
+      "@esparex/shared": ["../../shared/dist/index"],
+      "@esparex/contracts": ["../../packages/contracts/dist/index"],
+      "@esparex/contracts/*": ["../../packages/contracts/dist/*"],
       "@esparex/core": ["./../../core/dist/index.d.ts"],
       "@esparex/core/*": ["./../../core/dist/*"]
     }

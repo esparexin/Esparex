@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '@esparex/shared';
-import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '@esparex/shared';
+import { LISTING_TYPE, LISTING_TYPE_VALUES, type ListingTypeValue } from '@esparex/contracts';
+import { CATALOG_STATUS, CATALOG_STATUS_VALUES, type CatalogStatusValue } from '@esparex/contracts';
 import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,

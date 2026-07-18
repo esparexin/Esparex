@@ -4,11 +4,11 @@ import type { ListingFilter } from '../domains/listings/ports/ListingRepositoryP
 import AdAnalytics from '../models/AdAnalytics';
 import Category from '../models/Category';
 import { getCache, setCache } from '../utils/redisCache';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import logger from '../utils/logger';
 import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
 import { toObjectId } from '../utils/idUtils';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/contracts';
 
 type AnalyticsEventType = 'view' | 'favorite';
 

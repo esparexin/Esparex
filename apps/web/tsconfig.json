@@ -24,6 +24,12 @@
       ],
       "@esparex/shared": [
         "../../shared/src/index.ts"
+      ],
+      "@esparex/contracts": [
+        "../../packages/contracts/src"
+      ],
+      "@esparex/contracts/*": [
+        "../../packages/contracts/src/*"
       ]
     },
     /* Linting */

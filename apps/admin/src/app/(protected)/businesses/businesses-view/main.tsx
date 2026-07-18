@@ -7,7 +7,7 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
-import type { Business } from "@esparex/shared";
+import { Business } from "@esparex/contracts";
 import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
 import { BusinessListModals, buildBusinessModalController, BusinessListTable, BusinessSearchToolbar } from "@/components/business/BusinessListPrimitives";
 import { buildColumns } from "./columns";

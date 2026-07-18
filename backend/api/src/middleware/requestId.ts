@@ -9,7 +9,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
-import { TraceContext } from "@shared";
+import { TraceContext } from "@esparex/shared";
 import { setReliabilityContext } from '@esparex/core/utils/reliabilityContext';
 
 /**

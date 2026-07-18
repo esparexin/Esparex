@@ -1,4 +1,4 @@
-import { BUSINESS_STATUS, BusinessStatusValue } from '@esparex/shared';
+import { BUSINESS_STATUS, BusinessStatusValue } from '@esparex/contracts';
 
 /**
  * Legacy compatibility:

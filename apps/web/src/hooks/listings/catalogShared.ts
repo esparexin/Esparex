@@ -4,7 +4,7 @@ import { getCategoryIcon } from "@/utils/getCategoryIcon";
 import type { ScreenSize } from "@/lib/api/user/masterData";
 import type { Category } from "@/lib/api/user/categories";
 import type { ListingCategory } from "@/types/listing";
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 import type { CategoryFilter } from "@shared";
 
 export interface CategorySchemaType {

@@ -12,7 +12,7 @@ import {
     repostListing,
     type Listing,
 } from "@/lib/api/user/listings";
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from "@esparex/contracts";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import type { User } from "@/types/User";
 

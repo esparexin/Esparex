@@ -1,9 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, Loader2, Send, X } from "lucide-react";
-import { 
-    ADMIN_NOTIFICATION_TOPIC_OPTIONS 
-} from "@esparex/shared";
+import { ADMIN_NOTIFICATION_TOPIC_OPTIONS } from "@esparex/contracts";
 import type { NotificationRecipient } from "../hooks/useNotifications";
 
 interface BroadcastComposerProps {

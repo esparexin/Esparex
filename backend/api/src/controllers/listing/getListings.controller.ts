@@ -11,12 +11,12 @@ import * as trendingService from '@esparex/core/services/TrendingService';
 
 import { z } from 'zod';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from "@esparex/contracts";
 import { respond } from "../../utils/respond";
-import type { PaginatedResponse, HomeFeedResponse, ApiResponse, Ad } from "@esparex/shared";
+import { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@esparex/contracts";
+import { Ad } from "@esparex/shared";
 import type { AuthUser } from '../../types/auth.types';
-import type { ListingTypeValue } from '@esparex/shared';
-
+import { ListingTypeValue } from "@esparex/contracts";
 const isRecord = (value: unknown): value is Record<string, unknown> =>
     Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 

@@ -14,7 +14,7 @@ import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { deriveCatalogLifecycleStatus, getEntityCategoryIds, hasCategoryOverlap, resolveModalAssignableCategoryState, toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
 import { CatalogCategoryTags, CatalogEntityCell, CatalogEditDeleteActions, CatalogActiveToggleButton, CatalogActionsRow, CatalogActionIconButton, CatalogSearchInput, CatalogAsyncComboboxFilter } from "@/components/catalog/CatalogUiPrimitives";
-import type { Model } from "@esparex/shared";
+import { Model } from "@esparex/contracts";
 import type { ModelFormData } from "./types";
 import { useParentModelFetcher, useVariantModelFetcher } from "./hooks";
 import { ModelsFormRenderer } from "./form";

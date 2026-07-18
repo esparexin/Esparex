@@ -1,15 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-
-import {
-    initialPopupQueueState,
-    popupQueueReducer,
-} from '@esparex/shared';
-import type {
-    PopupState,
-    QueuedPopup,
-} from '@esparex/shared';
+import { initialPopupQueueState, popupQueueReducer } from "@esparex/shared";
+import { PopupState, QueuedPopup } from "@esparex/shared";
 
 interface UsePopupQueueOptions {
     subscribe: (listener: (popup: PopupState | null) => void) => () => void;

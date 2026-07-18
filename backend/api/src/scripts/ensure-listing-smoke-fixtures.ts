@@ -25,15 +25,13 @@
 import mongoose from "mongoose";
 import * as fs from "node:fs";
 import * as path from "node:path";
-
-import { LISTING_STATUS, LISTING_TYPE, type ListingTypeValue, USER_STATUS, MOBILE_VISIBILITY } from '@esparex/shared';
+import { LISTING_STATUS, LISTING_TYPE, ListingTypeValue, USER_STATUS, MOBILE_VISIBILITY } from "@esparex/shared";
 import { connectDB } from "@esparex/core/config/db";
 import Ad from "@esparex/core/models/Ad";
 import User from "@esparex/core/models/User";
 import Category from "@esparex/core/models/Category";
-import { CATALOG_STATUS } from '@esparex/shared';
-import { MODERATION_STATUS } from '@esparex/shared';
-
+import { CATALOG_STATUS } from "@esparex/contracts";
+import { MODERATION_STATUS } from "@esparex/contracts";
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
 /* -------------------------------------------------------------------------- */

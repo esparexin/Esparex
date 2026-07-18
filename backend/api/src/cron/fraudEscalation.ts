@@ -6,8 +6,7 @@ import FraudScore from '@esparex/core/models/FraudScore';
 import User from '@esparex/core/models/User';
 import logger from '@esparex/core/utils/logger';
 import { runWithDistributedJobLock } from '@esparex/core/utils/distributedJobLock';
-import { USER_STATUS } from '@esparex/shared';
-
+import { USER_STATUS } from "@esparex/contracts";
 const FRAUD_ESCALATION_INTERVAL_MS = 60 * 60 * 1000; // 1h
 const FRAUD_ESCALATION_STARTUP_DELAY_MS = 20_000;
 const FRAUD_ESCALATION_LOCK_TTL_MS = 15 * 60 * 1000;

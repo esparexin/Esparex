@@ -3,7 +3,7 @@ import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useToast } from "@/context/ToastContext";
-import type { Plan } from "@esparex/shared";
+import { Plan } from "@esparex/contracts";
 
 export function useSubscriptionPlans() {
     const { showToast } = useToast();

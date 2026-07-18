@@ -528,4 +528,3 @@ export const apiClient = new Proxy({} as APIClient, {
     }
 });
 
-export default apiClient;

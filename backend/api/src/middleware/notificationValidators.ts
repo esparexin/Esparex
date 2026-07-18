@@ -1,10 +1,6 @@
 import { z } from "zod";
-
-import {
-    ADMIN_NOTIFICATION_TARGET_TYPE,
-    ADMIN_NOTIFICATION_TOPIC_VALUES,
-    NOTIFICATION_TYPE_VALUES,
-} from '@esparex/shared';
+import { NOTIFICATION_TYPE_VALUES } from "@esparex/contracts";
+import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_VALUES } from "@esparex/shared";
 import { commonSchemas, sanitizeString } from "@esparex/core/validators/common";
 
 const adminNotificationTargetTypeEnum = z.enum([
@@ -64,7 +60,7 @@ export const adminNotificationSendSchema = z
         }
 
         if (value.targetType === ADMIN_NOTIFICATION_TARGET_TYPE.USERS) {
-            if (!value.userIds || value.userIds.length === 0) {
+            if (!value.userIds || (value.userIds as string[]).length === 0) {
                 ctx.addIssue({
                     code: z.ZodIssueCode.custom,
                     path: ["userIds"],

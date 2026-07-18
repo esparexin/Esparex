@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertTriangle, Loader2 } from "lucide-react";
-import type { Model } from "@esparex/shared";
+import { Model } from "@esparex/contracts";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 

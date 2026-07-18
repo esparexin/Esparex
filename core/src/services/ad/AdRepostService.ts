@@ -1,13 +1,13 @@
 import { AppError } from '../../utils/AppError';
 import logger from '../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../composition/listings';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import { ListingSubmissionPolicy } from '../ListingSubmissionPolicy';
 import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { normalizeAdStatus } from "../lifecycle/AdStatusService";
 import { isValidObjectId } from '../../utils/idUtils';
 
-import { type ListingTypeValue } from '@esparex/shared';
+import { type ListingTypeValue } from '@esparex/contracts';
 
 export const repostAdLogic = async (
     id: string,

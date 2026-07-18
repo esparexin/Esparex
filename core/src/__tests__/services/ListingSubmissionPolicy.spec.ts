@@ -31,7 +31,7 @@ jest.mock('../../services/PlanService', () => ({
 import { ListingSubmissionPolicy, type ListingSubmissionPolicyInput } from '../../services/ListingSubmissionPolicy';
 import { AdSlotService } from '../../services/AdSlotService';
 import { checkPostLimit } from '../../services/PlanService';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/contracts';
 
 // ── Typed mock handles ────────────────────────────────────────────────────────
 

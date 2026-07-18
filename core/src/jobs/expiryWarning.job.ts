@@ -6,10 +6,10 @@ import logger from '../utils/logger';
 import Business from '../models/Business';
 import Ad from '../models/Ad';
 import SmartAlert from '../models/SmartAlert';
-import { BUSINESS_STATUS } from '@esparex/shared';
-import { LISTING_STATUS } from '@esparex/shared';
+import { BUSINESS_STATUS } from '@esparex/contracts';
+import { LISTING_STATUS } from '@esparex/contracts';
 import { dispatchTemplatedNotification } from '../services/NotificationService';
-import { ACTOR_TYPE } from '@esparex/shared';
+import { ACTOR_TYPE } from '@esparex/contracts';
 import AdminLog from '../models/AdminLog';
 
 const expiryWarningQueue = shouldDisableQueueConnection

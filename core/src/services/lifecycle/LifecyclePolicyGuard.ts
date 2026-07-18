@@ -1,5 +1,5 @@
-import { LISTING_STATUS } from '@esparex/shared';
-import { ACTOR_TYPE, type ActorMetadata } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { ACTOR_TYPE, type ActorMetadata } from '@esparex/contracts';
 
 type ListingDomain = 'ad' | 'service' | 'spare_part_listing';
 

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from "@esparex/contracts";
 import * as AdMutationService from '@esparex/core/services/AdMutationService';
 import { collectImmutableFieldErrors, hasOwnField } from '@esparex/core/utils/immutableFieldErrors';
 import type { AuthUser } from '../../types/auth.types';

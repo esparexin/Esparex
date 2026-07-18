@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { userRepository } from '../composition/identity';
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import * as AdAggregationService from './ad/AdAggregationService';
 
 export type SellerPublicUser = {

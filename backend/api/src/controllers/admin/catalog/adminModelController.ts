@@ -3,7 +3,7 @@ import logger from '@esparex/core/utils/logger';
 import { sendSuccessResponse } from '../../../utils/respond';
 import { handlePaginatedContent } from '../../../utils/contentHandler';
 import mongoose from 'mongoose';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { CatalogModel, findCategoryBySlugForCatalog, getActiveBrandIds, checkBrandInCategories, checkModelDependencies, findModelByFilter, findModelBySlug } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import { validateBrandIsActive } from '@esparex/core/services/catalog/CatalogValidationService';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';

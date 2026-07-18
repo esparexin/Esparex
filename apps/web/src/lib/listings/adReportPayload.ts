@@ -1,5 +1,4 @@
-import type { ReportReasonValue } from '@esparex/shared';
-
+import { ReportReasonValue } from "@esparex/contracts";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;

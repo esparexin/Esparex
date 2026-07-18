@@ -3,8 +3,7 @@ import { getAdsPage, getMyListings, getMyListingsStats, deleteListing as deleteA
 import { apiClient } from '@/lib/api/client';
 import { fetchUserApiJson } from '@/lib/api/user/server';
 import { EsparexError, ErrorCategory, ErrorSeverity } from "@/lib/errorHandler";
-import { LISTING_TYPE } from '@esparex/shared';
-
+import { LISTING_TYPE } from "@esparex/contracts";
 // We mock the API Client since it's the layer right below our ads api service
 vi.mock('@/lib/api/client', () => {
     return {

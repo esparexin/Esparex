@@ -2,7 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from '../../routes';
 import { toApiResult } from '@/lib/api/result';
 import logger from "@/lib/logger";
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 import { normalizeListing, stripEmptyObjectIdFields, type Listing } from './normalizer';
 
 function getDeleteListingEndpoint(id: string | number): string {
@@ -110,6 +110,7 @@ export const markListingAsSold = async (
         throw e;
     }
 };
+
 /**
  * Deactivates a live listing.
  */

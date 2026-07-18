@@ -1,7 +1,7 @@
 import Ad from "../models/Ad";
 import User from "../models/User";
 import { locationRepository, locationAnalyticsRepository } from "../composition/location";
-import { LISTING_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 

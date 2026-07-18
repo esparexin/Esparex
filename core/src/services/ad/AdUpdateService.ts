@@ -5,8 +5,8 @@ import { type Listing } from '../../domains/listings';
 import { isValidObjectId } from '../../utils/idUtils';
 
 
-import { LISTING_STATUS } from '@esparex/shared';
-import { LIFECYCLE_STATUS } from '@esparex/shared';
+import { LISTING_STATUS } from '@esparex/contracts';
+import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { NOTIFICATION_TYPE } from '@esparex/shared';
 import { AdContext } from '../../types/ad.types';
 import { generateUniqueSlugWithChecker } from '../../utils/slugGenerator';

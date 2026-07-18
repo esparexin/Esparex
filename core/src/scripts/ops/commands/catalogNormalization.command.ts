@@ -1,7 +1,7 @@
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 import Brand from '../../../models/Brand';
 import Category from '../../../models/Category';
-import { CATALOG_STATUS, CatalogStatusValue } from '@esparex/shared';
+import { CATALOG_STATUS, CatalogStatusValue } from '@esparex/contracts';
 import { connectDB } from '../../../config/db';
 
 export const catalogNormalizationCommand: OpsCommand = {

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import type { Model, Brand } from "@esparex/shared";
+import { Model, Brand } from "@esparex/contracts";
 import type { ModelFormData } from "./types";
 import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";

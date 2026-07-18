@@ -1,4 +1,5 @@
-import { CATALOG_STATUS, hasCatalogPollution, assertCleanCatalogText } from '@esparex/shared';
+import { CATALOG_STATUS } from '@esparex/contracts';
+import { hasCatalogPollution, assertCleanCatalogText } from '@esparex/shared';
 
 export { hasCatalogPollution, assertCleanCatalogText };
 

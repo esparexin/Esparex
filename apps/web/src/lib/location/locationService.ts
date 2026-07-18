@@ -4,10 +4,7 @@ import {
     reverseGeocode as reverseGeocodeApi,
 } from "@/lib/api/user/locations";
 import { detectLocationByIP } from "@/lib/api/ipGeolocation";
-import {
-    createPoint,
-    toCanonicalGeoPoint,
-} from "@esparex/shared";
+import { createPoint, toCanonicalGeoPoint } from "@esparex/shared";
 import {
     getDisplayLocationLabel,
     getHeaderLocationText,

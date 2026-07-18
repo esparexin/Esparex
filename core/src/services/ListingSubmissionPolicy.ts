@@ -1,6 +1,6 @@
 import type { ClientSession } from 'mongoose';
 import { AdSlotService, type AdPostingSlotSource } from './AdSlotService';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { checkPostLimit } from './PlanService';
 import type { ListingRepositoryPort } from '../domains/listings';
 

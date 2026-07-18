@@ -10,8 +10,8 @@ import {
     rejectCatalogRequest,
 } from '@esparex/core/services/catalogRequestApprovalService';
 import { NotificationIntent } from '@esparex/core/domain/NotificationIntent';
+import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import { NotificationDispatcher } from '@esparex/core/services/notification/NotificationDispatcher';
-import { NOTIFICATION_TYPE } from '@esparex/shared';
 
 const getAdminActorId = (req: Request): string => {
     const actorId = req.admin?._id ?? req.user?._id ?? req.user?.id;

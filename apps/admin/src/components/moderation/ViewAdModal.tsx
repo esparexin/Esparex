@@ -6,7 +6,8 @@ import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";
 import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
-import { LIFECYCLE_STATUS, type ListingTypeValue } from "@esparex/shared";
+import { LIFECYCLE_STATUS } from "@esparex/contracts";
+import { ListingTypeValue } from "@esparex/contracts";
 import {
     Dialog,
     DialogContent,

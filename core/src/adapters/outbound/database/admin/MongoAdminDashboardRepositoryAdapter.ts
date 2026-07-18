@@ -10,7 +10,7 @@ import ContactSubmission from '../../../../models/ContactSubmission';
 import Location from '../../../../models/Location';
 import LocationAnalytics from '../../../../models/LocationAnalytics';
 import AdminLog from '../../../../models/AdminLog';
-import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS } from '@esparex/shared';
+import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS } from '@esparex/contracts';
 import { AdminDashboardRepositoryPort } from '../../../../domains/admin';
 
 const CATALOG_REQUEST_PENDING_STATUS = 'pending' as CatalogRequestStatusValue;

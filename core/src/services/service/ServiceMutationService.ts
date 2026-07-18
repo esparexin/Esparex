@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/contracts';
 import { resolveCategoryId } from "@esparex/shared";
 import type { IBusiness } from '../../models/Business';
 import type { IAuthUser } from '../../types/auth';

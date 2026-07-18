@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import logger from "@/lib/logger";
 import { TOAST_MESSAGES } from "@/config/toastMessages";
-import type { ListingTypeValue } from '@esparex/shared';
+import { ListingTypeValue } from "@esparex/contracts";
 import { useCategoriesQuery } from "@/hooks/queries/useCategoriesQuery";
 import { buildDynamicCategories } from "./catalogShared";
 

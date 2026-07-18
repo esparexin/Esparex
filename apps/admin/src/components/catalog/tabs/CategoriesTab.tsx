@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Edit, Trash2, Monitor, AlignJustify, AlertTriangle, Loader2 } from "lucide-react";
-import { LISTING_TYPE, type ListingTypeValue } from "@esparex/shared";
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import {
     CatalogActionsRow,
@@ -23,8 +23,7 @@ import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { adminCategorySchema } from "@/schemas/admin.schemas";
-import type { Category } from "@esparex/shared";
-
+import { Category } from "@esparex/contracts";
 type CategoryFormData = {
     name: string;
     icon?: string;

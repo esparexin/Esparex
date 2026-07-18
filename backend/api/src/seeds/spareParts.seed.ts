@@ -4,8 +4,7 @@ import Category from "@esparex/core/models/Category";
 import slugify from "slugify";
 import logger from '@esparex/core/utils/logger';
 import { escapeRegExp } from '@esparex/core/utils/stringUtils';
-import { LISTING_TYPE } from '@esparex/shared';
-
+import { LISTING_TYPE } from "@esparex/contracts";
 type SparePartSeed = {
     name: string;
     type: "PRIMARY" | "SECONDARY";

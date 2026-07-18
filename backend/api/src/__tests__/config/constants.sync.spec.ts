@@ -8,7 +8,6 @@
 
 import { GOVERNANCE } from '@esparex/core/config/constants';
 import { AD_LIMITS } from "@esparex/shared";
-
 describe('GOVERNANCE / shared constants sync', () => {
     it('GOVERNANCE.AD does not redefine AD_LIMITS.MAX_IMAGES', () => {
         expect((GOVERNANCE.AD as Record<string, unknown>).MAX_IMAGES).toBeUndefined();

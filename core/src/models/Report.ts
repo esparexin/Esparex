@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 import { REPORT_STATUS, REPORT_STATUS_VALUES, ReportStatusValue } from '@esparex/shared';
-import { REPORT_REASON_VALUES, ReportReasonValue } from '@esparex/shared';
+import { REPORT_REASON_VALUES, ReportReasonValue } from '@esparex/contracts';
 
 export const REPORT_TARGET_TYPE_VALUES = ['ad', 'chat', 'user', 'business'] as const;
 export type ReportTargetTypeValue = (typeof REPORT_TARGET_TYPE_VALUES)[number];

@@ -1,9 +1,7 @@
-
-
-export interface GeoJSONPoint {
-    type: 'Point';
-    coordinates: [number, number]; // [longitude, latitude]
-}
+// GeoJSONPoint is the canonical type from @esparex/contracts
+// Re-exported here so geoUtils consumers get it via a single import
+export type { GeoJSONPoint } from '@esparex/contracts';
+import type { GeoJSONPoint } from '@esparex/contracts';
 
 
 export const MIN_RADIUS_KM = 1;

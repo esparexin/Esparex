@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import AdModel from '../../../../models/Ad';
-import { LISTING_STATUS, LISTING_TYPE, SERVICE_STATUS, INVENTORY_STATUS } from '@esparex/shared';
+import { LISTING_STATUS, LISTING_TYPE, SERVICE_STATUS, INVENTORY_STATUS } from '@esparex/contracts';
 
 import {
     type ActiveListingCountFilter,

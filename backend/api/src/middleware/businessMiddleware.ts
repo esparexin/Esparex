@@ -4,7 +4,7 @@ import Business from '@esparex/core/models/Business';
 import { isBusinessPublishedStatus } from '@esparex/core/utils/businessStatus';
 import { sendErrorResponse } from "../utils/errorResponse";
 import logger from '@esparex/core/utils/logger';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from "@esparex/contracts";
 
 /**
  * Resolve businessStatus for the current request user.

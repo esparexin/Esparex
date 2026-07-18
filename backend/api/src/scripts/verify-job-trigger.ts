@@ -13,8 +13,8 @@ import { expireBusinesses } from "@esparex/core/services/business/BusinessLifecy
 import { cascadeExpireBusinessListings } from "@esparex/core/services/AdminBusinessService";
 import Business from "@esparex/core/models/Business";
 import Ad from "@esparex/core/models/Ad";
-import { BUSINESS_STATUS } from '@esparex/shared';
-import { LIFECYCLE_STATUS } from '@esparex/shared';
+import { BUSINESS_STATUS } from "@esparex/contracts";
+import { LIFECYCLE_STATUS } from "@esparex/contracts";
 import { runExpiryWarningJob } from "@esparex/core/jobs/expiryWarning.job";
 
 async function run(): Promise<void> {

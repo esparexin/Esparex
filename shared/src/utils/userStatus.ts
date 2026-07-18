@@ -1,4 +1,4 @@
-import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from "../enums/userStatus";
+import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from "@esparex/contracts";
 
 const validUserStatuses = new Set<string>(USER_STATUS_VALUES);
 

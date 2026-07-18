@@ -11,7 +11,7 @@ import type { HomeFeedResponse } from "@esparex/shared";
 import logger from '../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';
-import { LISTING_TYPE } from '@esparex/shared';
+import { LISTING_TYPE } from '@esparex/contracts';
 import { toObjectId } from '../../utils/idUtils';
 import { 
     filterBeforeCursor, 

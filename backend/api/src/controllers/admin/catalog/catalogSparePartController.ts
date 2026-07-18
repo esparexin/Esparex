@@ -42,9 +42,9 @@ import {
     sparePartUpdateSchema
 } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 import { getCache, setCache } from '@esparex/core/utils/redisCache';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString, toStringArray } from './inputCoercion';
 
 // ── Cache helpers ──────────────────────────────────────────────────────────

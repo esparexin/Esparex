@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { CategoryData } from "@/lib/api/categories";
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 
 /**
  * A shared hook to consistently resolve which categories can be assigned to models/brands/spare-parts.

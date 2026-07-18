@@ -10,10 +10,8 @@ import {
   syncBrowserPushRegistration,
 } from "@/lib/notifications/webPush";
 import logger from "@/lib/logger";
-import {
-  MOBILE_VISIBILITY,
-  normalizeMobileVisibility as normalizeSharedMobileVisibility,
-} from "@esparex/shared";
+import { MOBILE_VISIBILITY } from "@esparex/contracts";
+import { normalizeMobileVisibility as normalizeSharedMobileVisibility } from "@esparex/shared";
 import type { User } from "@/types/User";
 import type {
   MobileVisibility,

@@ -9,8 +9,8 @@ import { enforceLifecycleMutationPolicy } from './LifecyclePolicyGuard';
 import StatusHistory from '../../models/StatusHistory';
 import AdminMetrics from '../../models/AdminMetrics';
 import logger from '../../utils/logger';
-import { ActorMetadata, ACTOR_TYPE } from '@esparex/shared';
-import { LISTING_STATUS } from '@esparex/shared';
+import { ActorMetadata, ACTOR_TYPE } from '@esparex/contracts';
+import { LISTING_STATUS } from '@esparex/contracts';
 import { lifecycleEvents } from '../../events';
 
 // Import domain models

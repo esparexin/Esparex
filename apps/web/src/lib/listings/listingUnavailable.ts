@@ -2,8 +2,7 @@ import { isAPIError } from "@/lib/api/APIError";
 import type { AccountListingSection } from "@/lib/accountListingRoutes";
 import { buildAccountListingRoute } from "@/lib/accountListingRoutes";
 import { EsparexError } from "@/lib/errorHandler";
-import { LISTING_TYPE } from '@esparex/shared';
-
+import { LISTING_TYPE } from "@esparex/contracts";
 export const DEFAULT_LISTING_UNAVAILABLE_MESSAGE =
   "This listing is no longer available. It may have been removed, expired, or already sold.";
 

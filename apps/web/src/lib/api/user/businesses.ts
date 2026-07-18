@@ -7,8 +7,8 @@ import {
 } from '@/lib/status/statusNormalization';
 
 // --- Types ---
-
-import type { Business as SharedBusiness, Service as SharedService } from "@esparex/shared";
+import { Business as SharedBusiness } from "@esparex/contracts";
+import { Service as SharedService } from "@esparex/contracts";
 import type { Ad } from '@/schemas/ad.schema';
 
 // Re-export shared types for local use, adding any frontend-specific extensions if needed

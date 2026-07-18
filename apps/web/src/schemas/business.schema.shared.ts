@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { CONTACT_LIMITS } from "@esparex/shared";
-
+import { CONTACT_LIMITS } from "@esparex/contracts";
 const ALLOWED_ID_PROOF_TYPES = ["aadhaar", "pan", "driving_license", "voter_id"] as const;
 
 export const BUSINESS_IMAGE_MIME_TYPES = [

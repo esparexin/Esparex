@@ -2,8 +2,7 @@ import { apiClient } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
 import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
-
-import type { Plan } from "@esparex/shared";
+import { Plan } from "@esparex/contracts";
 export type { Plan };
 
 export interface PlanQuery {

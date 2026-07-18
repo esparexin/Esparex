@@ -1,5 +1,5 @@
-import { AD_STATUS } from "@esparex/shared";
-import { LISTING_TYPE } from "@esparex/shared";
+import { AD_STATUS } from "@esparex/contracts";
+import { LISTING_TYPE } from "@esparex/contracts";
 import type {
     ModerationListingType,
     ModerationStatus,
