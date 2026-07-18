@@ -4,15 +4,11 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
-
 import { getNestedFieldMeta } from "../common/utils";
 import { Button } from "@/components/ui/button";
 
 export function BrandSection() {
     const { availableBrands, brandMap, brandIsPending, brandsError } = usePostAdCatalog();
-    const { isEditMode, form, stepValidationAttempts, listingId } = usePostAdFlow();
-    const { watch, handleBrandChange, loadBrandsForCategory, refreshBrands, createAndSelectBrand } = usePostAdAction();
-
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
@@ -41,11 +37,8 @@ export function BrandSection() {
                         categoryId={categoryId} 
                         value={brandNameValue} 
                         onChange={(_id, name) => onBrandChange(name, _id)} 
-                        onRequestSuccess={() => refreshBrands()} 
-                        onCreateBrand={createAndSelectBrand}
                         disabled={brandIsPending || isEditMode} 
                         placeholder={brandIsPending ? "Loading brands…" : "Search or select brand"} 
-                        listingId={listingId} 
                     />
                 )}
                 {brandIsPending && availableBrands.length > 0 && (

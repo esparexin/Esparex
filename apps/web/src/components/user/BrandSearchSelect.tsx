@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, type CSSProperties } from "react";
-import { Search, Plus, Minus } from "@/icons/IconRegistry";
-import { CatalogValidationServiceShared } from "@esparex/shared";
+import { Search, Minus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
 import { Drawer } from "@/components/ui/drawer";
 import { useIsMobile } from "@/components/ui/useMobile";
 
-import { CatalogRequestDialog } from "./CatalogRequestDialog";
 
 interface BrandSearchSelectProps {
     brands: string[];
@@ -19,11 +17,6 @@ interface BrandSearchSelectProps {
     /** Called with (brandId, brandName, requestId) on selection */
     onChange: (brandId: string, brandName: string, requestId?: string) => void;
     categoryId: string;
-    onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
-    /** Optional custom orchestrator handler (Layer 3 composed action) */
-    onCreateBrand?: (categoryId: string, name: string, listingId?: string) => Promise<{ status: string; id?: string; message?: string }>;
-    /** Optional listing ID for traceability (edit-ad flow only). */
-    listingId?: string;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -35,16 +28,12 @@ export function BrandSearchSelect({
     value,
     onChange,
     categoryId,
-    onRequestSuccess,
-    onCreateBrand,
-    listingId,
     disabled = false,
     placeholder = "Search brand...",
     className,
 }: BrandSearchSelectProps) {
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
-    const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
     const isMobile = useIsMobile();
@@ -99,65 +88,7 @@ export function BrandSearchSelect({
 
     const canRequestBrand = Boolean(categoryId);
 
-    const trimmedSearch = search.trim();
-    const hasExactApprovedMatch = useMemo(() => {
-        return brands.some((b) => b.toLowerCase() === trimmedSearch.toLowerCase());
-    }, [brands, trimmedSearch]);
 
-    const isSearchValid = useMemo(() => {
-        if (!trimmedSearch) return false;
-        return CatalogValidationServiceShared.validateCatalogInput({ name: search, requestType: "brand" }).ok;
-    }, [search, trimmedSearch]);
-
-    const showSuggestButton =
-        trimmedSearch.length > 0 &&
-        !hasExactApprovedMatch &&
-        !disabled &&
-        canRequestBrand;
-
-    const handleOpenRequestDialog = () => {
-        if (!canRequestBrand || !isSearchValid) {
-            return;
-        }
-        setIsRequestDialogOpen(true);
-    };
-
-    const requestDialog = (
-        <CatalogRequestDialog
-            open={isRequestDialogOpen}
-            onOpenChange={setIsRequestDialogOpen}
-            requestType="brand"
-            categoryId={categoryId}
-            initialName={search}
-            listingId={listingId}
-            onSubmitRequest={
-                onCreateBrand
-                    ? async (name) => {
-                          const res = await onCreateBrand(categoryId, name, listingId);
-                          if (res.status === 'SELECTED' || res.status === 'MANUAL_REVIEW') {
-                              setSearch("");
-                              setIsEditing(false);
-                          }
-                          return res;
-                      }
-                    : undefined
-            }
-            onSuccess={async (resolvedEntityId, name, decision) => {
-                setSearch("");
-                setIsEditing(false);
-                if (decision === 'AUTO_APPROVE') {
-                    if (onRequestSuccess) {
-                        await onRequestSuccess(resolvedEntityId, name);
-                    }
-                    onChange(resolvedEntityId, name);
-                } else {
-                    if (onRequestSuccess) {
-                        await onRequestSuccess(resolvedEntityId, name);
-                    }
-                }
-            }}
-        />
-    );
 
     // ── Selected state (Inline Trailing Action: Minus) ─────────────────────
     if (selectedName && !isEditing) {
@@ -194,7 +125,6 @@ export function BrandSearchSelect({
                         </button>
                     )}
                 </div>
-                {requestDialog}
             </div>
         );
     }
@@ -209,29 +139,8 @@ export function BrandSearchSelect({
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder={placeholder}
                     disabled={disabled}
-                    className={cn("pl-9", showSuggestButton ? "pr-10" : "pr-4")}
+                    className={cn("pl-9", "pr-4")}
                 />
-                {showSuggestButton && (
-                    <button
-                        type="button"
-                        disabled={!isSearchValid}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleOpenRequestDialog();
-                        }}
-                        className={cn(
-                            "absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary",
-                            !isSearchValid
-                                ? "opacity-40 cursor-not-allowed text-slate-300"
-                                : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
-                        )}
-                        aria-label="Suggest brand"
-                        title="Suggest brand"
-                    >
-                        <Plus className="w-[18px] h-[18px]" />
-                    </button>
-                )}
             </div>
             {search && !canRequestBrand ? (
                 <p className="mt-1 px-1 text-xs font-semibold text-amber-700">
@@ -291,8 +200,6 @@ export function BrandSearchSelect({
                     </>
                 ))
             )}
-
-            {requestDialog}
         </div>
     );
 }

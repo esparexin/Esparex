@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useLayoutEffect, useMemo, useEffect, type CSSProperties } from "react";
-import { Search, Loader2, Plus, Minus } from "@/icons/IconRegistry";
-import { CatalogValidationServiceShared } from "@esparex/shared";
+import { Search, Loader2, Minus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Z_INDEX } from "@/lib/zIndexConfig";
@@ -10,7 +9,6 @@ import { Drawer } from "@/components/ui/drawer";
 import { useIsMobile } from "@/components/ui/useMobile";
 import { usePostAd } from "@/components/user/post-ad/PostAdContext";
 import type { DeviceModel } from "@/lib/api/user/masterData";
-import { CatalogRequestDialog } from "./CatalogRequestDialog";
 
 interface ModelSearchSelectProps {
     brandId: string;
@@ -23,13 +21,8 @@ interface ModelSearchSelectProps {
     modelDisplayName?: string;
     /** Called with (modelId, modelName, requestId) on selection */
     onChange: (modelId: string, modelName: string, requestId?: string) => void;
-    onRequestSuccess?: (requestId: string, name: string) => void | Promise<void>;
-    /** Optional custom orchestrator handler (Layer 3 composed action) */
-    onCreateModel?: (brandId: string, categoryId: string, name: string, listingId?: string) => Promise<{ status: string; id?: string; message?: string }>;
     /** Reserved callback for parent brand sync in async catalog flows. */
     onBrandResolved?: (brandId: string, brandName: string) => void;
-    /** Optional listing ID for traceability (edit-ad flow only). */
-    listingId?: string;
     disabled?: boolean;
     placeholder?: string;
     className?: string;
@@ -41,9 +34,6 @@ export function ModelSearchSelect({
     value,
     modelDisplayName = "",
     onChange,
-    onRequestSuccess,
-    onCreateModel,
-    listingId,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
@@ -55,8 +45,6 @@ export function ModelSearchSelect({
     const [isLoading, setIsLoading] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
-    const [isRequestDialogOpen, setIsRequestDialogOpen] = useState(false);
-    const isMobile = useIsMobile();
 
     // Resolve selected model name cleanly from React Query catalog SSOT or RHF prop value without local selection state.
     const selectedModel = useMemo(() => {
@@ -124,76 +112,7 @@ export function ModelSearchSelect({
     const hasCanonicalBrandId = /^[0-9a-f]{24}$/i.test(brandId);
     const canRequestModel = Boolean(categoryId) && hasCanonicalBrandId;
 
-    const trimmedSearch = search.trim();
-    const hasExactApprovedMatch = useMemo(() => {
-        return availableModels.some((m) => m.name.toLowerCase() === trimmedSearch.toLowerCase());
-    }, [availableModels, trimmedSearch]);
 
-    const isSearchValid = useMemo(() => {
-        if (!trimmedSearch) return false;
-        return CatalogValidationServiceShared.validateCatalogInput({ name: search, requestType: "model" }).ok;
-    }, [search, trimmedSearch]);
-
-    const showSuggestButton =
-        trimmedSearch.length > 0 &&
-        !hasExactApprovedMatch &&
-        !isLoading &&
-        !disabled &&
-        canRequestModel;
-
-    const handleAddNew = () => {
-        const trimmed = search.trim();
-        if (!trimmed) return;
-        if (!categoryId) {
-            return;
-        }
-        if (!hasCanonicalBrandId || !isSearchValid) {
-            return;
-        }
-        setIsRequestDialogOpen(true);
-    };
-
-    const requestDialog = (
-        <CatalogRequestDialog
-            open={isRequestDialogOpen}
-            onOpenChange={setIsRequestDialogOpen}
-            requestType="model"
-            categoryId={categoryId}
-            parentBrandId={brandId}
-            initialName={search}
-            listingId={listingId}
-            onSubmitRequest={
-                onCreateModel
-                    ? async (name) => {
-                          const res = await onCreateModel(brandId, categoryId, name, listingId);
-                          if (res.status === 'SELECTED' || res.status === 'MANUAL_REVIEW') {
-                              setSearch("");
-                              setIsEditing(false);
-                          }
-                          return res;
-                      }
-                    : undefined
-            }
-            onSuccess={async (resolvedEntityId, name, decision) => {
-                setSearch("");
-                setIsEditing(false);
-                if (decision === 'AUTO_APPROVE') {
-                    if (onRequestSuccess) {
-                        await onRequestSuccess(resolvedEntityId, name);
-                    } else {
-                        await loadModelsForBrand(brandId, categoryId);
-                    }
-                    onChange(resolvedEntityId, name);
-                } else {
-                    if (onRequestSuccess) {
-                        await onRequestSuccess(resolvedEntityId, name);
-                    } else {
-                        await loadModelsForBrand(brandId, categoryId);
-                    }
-                }
-            }}
-        />
-    );
 
     // ── Selected State (Inline Trailing Action: Minus) ─────────────────────
     if (selectedName && !isEditing) {
@@ -230,7 +149,6 @@ export function ModelSearchSelect({
                         </button>
                     )}
                 </div>
-                {requestDialog}
             </div>
         );
     }
@@ -255,10 +173,6 @@ export function ModelSearchSelect({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter" && search.length >= 2 && showSuggestButton && isSearchValid) {
-                            e.preventDefault();
-                            handleAddNew();
-                        }
                         if (e.key === "Escape") {
                             setIsEditing(false);
                             setSearch("");
@@ -270,30 +184,9 @@ export function ModelSearchSelect({
                     className={cn(
                         "pl-10 h-12 text-sm font-medium border-slate-200/80 rounded-xl transition-all",
                         "focus-visible:ring-2 focus-visible:ring-primary/10 focus-visible:border-primary shadow-sm",
-                        showSuggestButton ? "pr-12" : "pr-4"
+                        "pr-4"
                     )}
                 />
-                {showSuggestButton && (
-                    <button
-                        type="button"
-                        disabled={!isSearchValid}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleAddNew();
-                        }}
-                        className={cn(
-                            "absolute right-3.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:text-primary",
-                            !isSearchValid
-                                ? "opacity-40 cursor-not-allowed text-slate-300"
-                                : "text-slate-400 hover:text-slate-600 hover:bg-slate-100"
-                        )}
-                        aria-label="Suggest model"
-                        title="Suggest model"
-                    >
-                        <Plus className="w-[18px] h-[18px]" />
-                    </button>
-                )}
             </div>
             {search && !canRequestModel ? (
                 <p className="mt-1 px-1 text-xs font-semibold text-amber-700">
@@ -357,7 +250,6 @@ export function ModelSearchSelect({
                 ))
             )}
 
-            {requestDialog}
         </div>
     );
 }

@@ -1,15 +1,4 @@
 import { UserPage } from "@/lib/routeUtils";
-
-
-
-
-
-
-
-
-
-
-
 export interface PostAdWizardProps {
   navigateTo: (
     page: UserPage,
