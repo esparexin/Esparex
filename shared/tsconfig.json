@@ -3,6 +3,11 @@
     "target": "ES2022",
     "module": "Node16",
     "moduleResolution": "node16",
+    "baseUrl": ".",
+    "paths": {
+      "@esparex/contracts": ["../packages/contracts/dist/index"],
+      "@esparex/contracts/*": ["../packages/contracts/dist/*"]
+    },
     "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
