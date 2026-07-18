@@ -8,20 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 
 import { getNestedFieldMeta } from "../common/utils";
-import { useState } from "react";
-import { Drawer } from "@/components/ui/drawer";
-import { useIsMobile } from "@/components/ui/useMobile";
-import { ChevronDown } from "lucide-react";
 
 export function CategorySection() {
     const { dynamicCategories } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
     const { watch, handleCategoryChange } = usePostAdAction();
-    const isMobile = useIsMobile();
-    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
-    const selectedCategory = dynamicCategories.find(c => c.id === categoryId);
     const { touchedFields, errors } = form.formState;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]);
 
@@ -31,7 +24,6 @@ export function CategorySection() {
     const onCategoryClick = useCallback((catId: string) => {
         if (isEditMode) return;
         handleCategoryChange(catId);
-        setDrawerOpen(false);
     }, [isEditMode, handleCategoryChange]);
 
     const GridContent = (
@@ -65,30 +57,7 @@ export function CategorySection() {
     return (
         <section className="space-y-3">
             <Field error={categoryError as string} label="Select Category" required>
-                {isMobile ? (
-                    <Drawer 
-                        title="Select a Category" 
-                        open={drawerOpen} 
-                        onOpenChange={setDrawerOpen}
-                        trigger={
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="w-full justify-between h-12 px-4 rounded-xl border-slate-200 bg-white"
-                                disabled={isEditMode}
-                            >
-                                <span className={selectedCategory ? "text-foreground font-medium" : "text-muted-foreground"}>
-                                    {selectedCategory ? selectedCategory.name : "Choose a category..."}
-                                </span>
-                                <ChevronDown className="w-4 h-4 opacity-50" />
-                            </Button>
-                        }
-                    >
-                        {GridContent}
-                    </Drawer>
-                ) : (
-                    GridContent
-                )}
+                {GridContent}
             </Field>
         </section>
     );
