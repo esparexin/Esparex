@@ -3,6 +3,7 @@ import logger from '../../utils/logger';
 import { getListingRepository, getListingUnitOfWork } from '../../composition/listings';
 import { type Listing } from '../../domains/listings';
 import { isValidObjectId } from '../../utils/idUtils';
+import { collectImmutableFieldErrors, hasOwnField } from '../../utils/immutableFieldErrors';
 
 
 import { LISTING_STATUS } from '@esparex/shared';
@@ -13,6 +14,25 @@ import { generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
 import { mutateStatus } from '../lifecycle/StatusMutationService';
 import { enqueueImageOptimization } from '../../queues/imageQueue';
+
+const LOCKED_AD_EDIT_FIELD_MESSAGES: Record<string, string> = {
+    categoryId: 'Category cannot be changed while editing a listing.',
+    brandId: 'Brand cannot be changed while editing a listing.',
+    modelId: 'Model cannot be changed while editing a listing.',
+    screenSize: 'Screen size cannot be changed while editing a listing.',
+    spareParts: 'Spare-part mapping cannot be changed while editing a listing.',
+    deviceCondition: 'Device condition cannot be changed while editing a listing.',
+    listingType: 'Listing type cannot be changed while editing a listing.',
+    sellerId: 'Seller cannot be changed while editing a listing.',
+    sellerType: 'Seller type cannot be changed while editing a listing.',
+    status: 'Status cannot be changed while editing a listing.',
+    moderationStatus: 'Moderation status cannot be changed while editing a listing.',
+    approvedAt: 'Approval metadata cannot be changed while editing a listing.',
+    approvedBy: 'Approval metadata cannot be changed while editing a listing.',
+    isDeleted: 'Deletion state cannot be changed while editing a listing.',
+    deletedAt: 'Deletion state cannot be changed while editing a listing.',
+    expiresAt: 'Expiry cannot be changed while editing a listing.',
+};
 
 export const updateAdLogic = async (
     adId: string,
@@ -30,6 +50,25 @@ export const updateAdLogic = async (
         const executeUpdate = async (session: unknown) => {
             const ad = await getListingRepository().findOne({ ids: [adId], session });
             if (!ad) return;
+
+            const body = data as Record<string, unknown>;
+            const lockErrors = collectImmutableFieldErrors(body, LOCKED_AD_EDIT_FIELD_MESSAGES);
+            
+            // Lifecycle Guard: Location is immutable once live or pending
+            if (
+                ad.status === LISTING_STATUS.LIVE
+                && (hasOwnField(body, 'location') || hasOwnField(body, 'locationId'))
+            ) {
+                lockErrors.push({
+                    field: hasOwnField(body, 'location') ? 'location' : 'locationId',
+                    message: 'Location cannot be changed once a listing is live or under review.',
+                    code: 'IMMUTABLE_FIELD',
+                });
+            }
+
+            if (lockErrors.length > 0) {
+                throw new AppError('Validation failed', 400, 'LOCKED_FIELDS', lockErrors);
+            }
 
             oldPriceValue = ad.price;
 

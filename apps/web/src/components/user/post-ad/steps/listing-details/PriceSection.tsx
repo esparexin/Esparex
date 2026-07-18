@@ -49,6 +49,10 @@ export function PriceSection() {
                     </div>
 
                     <div 
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={!!isFree}
+                        aria-label={isFree ? "Mark as paid" : "Mark as free"}
                         onClick={() => {
                             const nextVal = !isFree;
                             setValue("isFree", nextVal);
@@ -56,6 +60,18 @@ export function PriceSection() {
                                 setValue("price", 0, { shouldValidate: true });
                             } else {
                                 trigger("price");
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                const nextVal = !isFree;
+                                setValue("isFree", nextVal);
+                                if (nextVal) {
+                                    setValue("price", 0, { shouldValidate: true });
+                                } else {
+                                    trigger("price");
+                                }
                             }
                         }}
                         className={cn(
@@ -70,8 +86,9 @@ export function PriceSection() {
                             )}>
                                 <Checkbox
                                     id="isFree-check"
-                                    className="hidden"
+                                    className="sr-only"
                                     checked={!!isFree}
+                                    onCheckedChange={() => {}}
                                 />
                                 <span className="font-bold text-xs">FREE</span>
                             </div>

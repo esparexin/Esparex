@@ -196,18 +196,21 @@ export default function AdsView({ listingType }: AdsViewProps) {
                     extraFilters={
                         <>
                             <input
+                                aria-label="Filter by seller ID"
                                 value={filters.sellerId}
                                 onChange={(e) => updateFilter("sellerId", e.target.value)}
                                 placeholder="Seller ID"
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-32"
                             />
                             <input
+                                aria-label="Filter by location ID"
                                 value={filters.locationId}
                                 onChange={(e) => updateFilter("locationId", e.target.value)}
                                 placeholder="Location ID"
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-44"
                             />
                             <select
+                                aria-label="Sort order"
                                 value={filters.sort}
                                 onChange={(e) => updateFilter("sort", e.target.value as ModerationFilters["sort"])}
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
@@ -217,12 +220,14 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                 ))}
                             </select>
                             <input
+                                aria-label="Date from"
                                 type="date"
                                 value={filters.dateFrom}
                                 onChange={(e) => updateFilter("dateFrom", e.target.value)}
                                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
                             />
                             <input
+                                aria-label="Date to"
                                 type="date"
                                 value={filters.dateTo}
                                 onChange={(e) => updateFilter("dateTo", e.target.value)}
@@ -232,6 +237,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                             {/* Expiry Warning Filters */}
                             <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
                                 <select
+                                    aria-label="Expiry warning status filter"
                                     value={filters.expiryWarningStatus}
                                     onChange={(e) => updateFilter("expiryWarningStatus", e.target.value as ModerationFilters["expiryWarningStatus"])}
                                     className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
@@ -241,6 +247,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     <option value="not_sent">Not Sent</option>
                                 </select>
                                 <input
+                                    aria-label="Expiring within days"
                                     type="number"
                                     value={filters.expiringWithinDays}
                                     onChange={(e) => updateFilter("expiringWithinDays", e.target.value)}
@@ -252,6 +259,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                             {/* Spotlight Warning Filters */}
                             <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
                                 <select
+                                    aria-label="Spotlight warning status filter"
                                     value={filters.spotlightWarningStatus}
                                     onChange={(e) => updateFilter("spotlightWarningStatus", e.target.value as ModerationFilters["spotlightWarningStatus"])}
                                     className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
@@ -261,6 +269,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     <option value="not_sent">Not Sent</option>
                                 </select>
                                 <input
+                                    aria-label="Spotlight expiring within days"
                                     type="number"
                                     value={filters.spotlightExpiringWithinDays}
                                     onChange={(e) => updateFilter("spotlightExpiringWithinDays", e.target.value)}

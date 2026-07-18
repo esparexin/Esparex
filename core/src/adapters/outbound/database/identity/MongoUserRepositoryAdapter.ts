@@ -34,6 +34,12 @@ export class MongoUserRepositoryAdapter implements UserRepositoryPort {
         if (user && user.role) user.role = normalizeRole(user.role as string);
         return user;
     }
+    public async getUserRoleById(userId: string): Promise<{ role: string; isSuspended?: boolean } | null> {
+        const safeId = typeof userId === 'string' ? userId : String(userId);
+        const user = await User.findById(safeId).select('role isSuspended').lean() as { role?: string; isSuspended?: boolean } | null;
+        if (!user) return null;
+        return { role: normalizeRole(user.role ?? 'user'), isSuspended: user.isSuspended };
+    }
     public async getUserWithBusiness(userId: string): Promise<{ user: Record<string, unknown>; business: Record<string, unknown> }> {
         const safeId = typeof userId === 'string' ? userId : String(userId);
         const [user, business] = await Promise.all([

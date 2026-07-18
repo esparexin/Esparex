@@ -16,6 +16,7 @@ export interface UserRepositoryPort {
     updateUser(id: string, updates: Record<string, unknown>): Promise<Record<string, unknown>>;
     removeUserFcmToken(userId: string, token: string): Promise<void>;
     getUserById(userId: string): Promise<Record<string, unknown> | null>;
+    getUserRoleById(userId: string): Promise<{ role: string; isSuspended?: boolean } | null>;
     getUserWithBusiness(userId: string): Promise<{ user: Record<string, unknown>; business: Record<string, unknown> }>;
     getUserPhoneVerification(userId: string): Promise<Record<string, unknown> | null>;
     findUserByEmail(email: string): Promise<Record<string, unknown> | null>;

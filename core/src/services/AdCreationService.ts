@@ -443,6 +443,9 @@ export class AdCreationService {
             payload.listingQualityScore = computeListingQualityScore(payload);
         }
 
+        // Sanitize out root-level locationId so it does not reach persistence layer
+        delete payload.locationId;
+
         return payload;
     }
 }

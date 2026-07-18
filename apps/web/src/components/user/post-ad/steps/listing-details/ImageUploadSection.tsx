@@ -33,7 +33,7 @@ export function ImageUploadSection() {
                         <div key={img.id} className="aspect-square relative group rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm">
                             <Image 
                                 src={img.preview} 
-                                alt="Listing" 
+                                alt={`Product photo ${idx + 1}`}
                                 fill
                                 className="object-cover" 
                                 unoptimized={true}
@@ -41,7 +41,7 @@ export function ImageUploadSection() {
                             <button
                                 type="button"
                                 onClick={() => removeImage(idx)}
-                                aria-label="Remove image"
+                                aria-label={`Remove image ${idx + 1}`}
                                 className="absolute top-2 right-2 p-2 bg-black/60 text-white rounded-full opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                             >
                                 <X className="w-3 h-3" />
@@ -61,6 +61,7 @@ export function ImageUploadSection() {
                                 type="file"
                                 multiple
                                 accept="image/*"
+                                aria-label="Add product photos"
                                 className="hidden"
                                 onChange={(e) => addImages(Array.from(e.target.files || []))}
                                 disabled={isUploadingImages}

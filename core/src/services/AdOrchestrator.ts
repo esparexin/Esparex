@@ -44,6 +44,16 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
     let createdAd: Listing | null = null;
 
     try {
+        // SSOT: Security guard to prevent seller impersonation
+        if (Object.prototype.hasOwnProperty.call(data, 'sellerId')) {
+            throw new AppError(
+                '`sellerId` is not accepted on user listing mutations. The authenticated session determines ownership.',
+                400,
+                'IMMUTABLE_SELLER_ID',
+                [{ field: 'sellerId', message: 'sellerId is not accepted on user listing mutations.' }]
+            );
+        }
+
         const listingType = (data.listingType as string) || LISTING_TYPE.AD;
 
         await getListingUnitOfWork().executeTransaction(async (session) => {

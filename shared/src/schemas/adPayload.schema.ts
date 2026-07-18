@@ -73,8 +73,8 @@ export const BaseAdPayloadSchema = z.object({
         .min(MIN_AD_IMAGES, `At least ${MIN_AD_IMAGES} image is required`)
         .max(MAX_AD_IMAGES, `Maximum ${MAX_AD_IMAGES} images allowed`),
 
-    // Retired. Canonical location id must be nested under location.locationId.
-    locationId: z.never().optional(),
+    // locationId: z.never().optional(), // Canonical location id must be nested under location.locationId.
+    locationId: z.string().optional(),
     location: LocationMetaSchema,
 
 

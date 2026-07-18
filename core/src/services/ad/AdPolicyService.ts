@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../utils/AppError';
 import { getListingRepository } from '../../composition/listings';
-import User from '../../models/User';
+import { userRepository } from '../../composition/identity';
 import { LISTING_STATUS } from '@esparex/shared';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
 import { Role } from '@esparex/shared';
@@ -34,7 +34,7 @@ export const validateSellerTypeThreshold = async (
     }
 
     try {
-        const user = await User.findById(sellerId).select('role').lean();
+        const user = await userRepository.getUserRoleById(sellerId);
         if (!user) return { ok: false, reason: 'Seller not found', code: 'SELLER_NOT_FOUND' };
 
         // Business accounts have no threshold limits on spare parts
