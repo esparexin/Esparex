@@ -1,10 +1,11 @@
 // Esparex Shared Package Entry Point
 // Export common schemas, enums, constants and utilities
 
-// ============================================================================
-// @esparex/contracts — SSOT for all DTOs, schemas, enums, and wire types
-// Consumers of @esparex/shared continue to work transparently via this proxy.
-// ============================================================================
+/**
+ * @deprecated The contracts proxy re-export is a temporary compatibility layer.
+ * All consumers must import directly from `@esparex/contracts`.
+ * This proxy export will be removed in Phase 2.
+ */
 export * from '@esparex/contracts';
 
 // CONSTANTS: only bannedWords remains exclusively in @esparex/shared (business logic)

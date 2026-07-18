@@ -20,7 +20,7 @@ No other top-level directories are permitted. Adding one requires an update to t
 
 ---
 
-## Standard S2 — Import Boundary Standard `v1.0`
+## Standard S2 — Import Boundary Standard `v1.1`
 
 | Import direction | Status | Enforcement |
 |---|---|---|
@@ -32,16 +32,19 @@ No other top-level directories are permitted. Adding one requires an update to t
 | `@esparex/core` → `@esparex/backend-api` | ❌ Forbidden | CI: `no-upstream-core-to-api` |
 | `@esparex/backend-api` → `@esparex/core` | ✅ Permitted | Convention |
 | `@esparex/backend-api` → `@esparex/shared` | ✅ Permitted | Convention |
+| `*` → `@esparex/contracts` | ✅ Permitted | Convention |
+| `@esparex/contracts` → `*` | ❌ Forbidden | CI: `contracts-is-independent` |
 
 Any change to this Standard requires updating `.dependency-cruiser.js` and an ADR.
 
 ---
 
-## Standard S3 — Package Content Standard `v1.0`
+## Standard S3 — Package Content Standard `v1.1`
 
 | Package | Permitted content | Prohibited content |
 |---|---|---|
-| `@esparex/shared` | Pure TypeScript, Zod schemas, enums, constants, Web-API-compatible utilities | React hooks, Node.js APIs, Mongoose, Express, business logic |
+| `@esparex/contracts` | Pure type declarations, Zod DTO schemas, enums, API request/response contracts, event payloads, public type aliases | Business logic, service classes, repositories, database models, Mongoose/MongoDB code, any infrastructure dependencies |
+| `@esparex/shared` | Pure TypeScript, Web-API-compatible utility functions, frozen legacy schemas (deprecated) | React hooks, Node.js APIs, Mongoose, Express, core business logic |
 | `@esparex/core` | Domain services, Mongoose models, queues, workers, infrastructure config | HTTP routes, Express middleware, HTTP request/response types |
 | `@esparex/backend-api` | HTTP routes, Express middleware, controllers, input validators | Direct Mongoose queries bypassing core services |
 | `apps/*` | UI components, pages, API client hooks, frontend utilities | Backend imports, direct database access, domain business logic |
@@ -106,7 +109,7 @@ Triggers are **composite signals**, not single metrics. File count is one signal
 | Standard | Version | Date | Summary of Change |
 |---|---|---|---|
 | S1 Package Ownership | v1.0 | 2026-07-13 | Initial — workspace + infrastructure-wrapper classification |
-| S2 Import Boundary | v1.0 | 2026-07-13 | Initial — 8 direction rules with CI enforcement status |
-| S3 Package Content | v1.0 | 2026-07-13 | Initial — permitted/prohibited content per package |
+| S2 Import Boundary | v1.1 | 2026-07-18 | Add @esparex/contracts independent leaf boundary rules |
+| S3 Package Content | v1.1 | 2026-07-18 | Add @esparex/contracts permitted/prohibited classification |
 | S4 ADR Requirement | v1.0 | 2026-07-13 | Initial — 6 conditions requiring an ADR |
-| S5 Complexity Trigger | v1.0 | 2026-07-13 | Initial — composite multi-signal triggers replacing single file-count threshold |
+| S5 Complexity Trigger | v1.0 | 2026-07-13 | Initial — composite multi-signal triggers |0 | 2026-07-13 | Initial — composite multi-signal triggers replacing single file-count threshold |

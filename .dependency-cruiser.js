@@ -22,10 +22,10 @@ module.exports = {
     {
       name: 'contracts-is-independent',
       severity: 'error',
-      comment: 'Contracts cannot depend on domains, apps, or services.',
+      comment: 'Contracts cannot depend on domains, apps, services, shared, core, or backend packages.',
       from: { path: '^packages/contracts/' },
       to: {
-        path: '^(packages/domain/|apps/|services/)'
+        path: '^(packages/(?!contracts)|apps/|shared/|core/|backend/)'
       }
     },
     {
