@@ -68,6 +68,7 @@
   "shared/src/types/business.ts": 7,
   "shared/src/types/service.ts": 1,
   "shared/src/utils/statusNormalization.ts": 1,
+  "shared/src/index.ts": 2,
   "backend/api/src/__tests__/controllers/editListing.controller.spec.ts": 1,
   "backend/api/src/__tests__/controllers/lifecycle.controller.myStatusTabs.spec.ts": 1,
   "backend/api/src/__tests__/controllers/lifecycle.controller.spec.ts": 1,
