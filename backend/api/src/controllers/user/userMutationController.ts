@@ -90,7 +90,7 @@ export const updateMe = async (
       return;
     }
 
-    const currentUser = await getUserAvatarById(userId);
+    const currentUser = await getUserAvatarById(userId) as { avatar?: string } | null;
     const oldAvatarUrl = typeof currentUser?.avatar === 'string' ? currentUser.avatar : null;
     let oldAvatarDeleted = false;
 

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import inject from 'light-my-request';
 import mongoose from 'mongoose';
+import rateLimit from 'express-rate-limit';
 import { enforceCreateListingIdempotency } from '../../middleware/idempotency';
 import IdempotencyRequest from '@esparex/core/models/IdempotencyRequest';
 
@@ -104,7 +105,13 @@ describe('POST /api/v1/ads idempotency integration', () => {
             req.user = { _id: userId } as Request['user'];
             next();
         });
-        app.post('/api/v1/ads', enforceCreateListingIdempotency('POST:/api/v1/ads'), (req: Request, res: Response) => {
+        const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000,
+            max: 100,
+            standardHeaders: false,
+            legacyHeaders: false,
+        });
+        app.post('/api/v1/ads', limiter, enforceCreateListingIdempotency('POST:/api/v1/ads'), (req: Request, res: Response) => {
             return res.status(201).json({
                 success: true,
                 data: { id: 'ad-123', title: req.body.title },

@@ -109,7 +109,7 @@ export class AuthController {
 
             const { fcmToken } = (req.body ?? {}) as { fcmToken?: string };
             if (fcmToken && (req.user)?._id) {
-                await removeUserFcmToken((req.user)._id, fcmToken);
+                await removeUserFcmToken(String((req.user)._id), fcmToken);
             }
 
             res.clearCookie('esparex_auth', getLegacyHostOnlyAuthCookieOptions(0));

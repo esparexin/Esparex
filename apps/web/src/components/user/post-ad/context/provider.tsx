@@ -70,16 +70,9 @@ export function PostAdProvider({
     const { listingImages, setListingImages } = imagesHook;
     const { listingLocation, setLocation, coordinates, locationDisplay } = locationHook;
     const { loadError, setLoadError, formError, setFormError } = validationHook;
-    const { requiresScreenSize, handleCategoryChange, handleBrandChange, selectBrand, selectModel, clearCategoryDependents } = useCategoryDependents(
-        form, categoryMap, brandMap, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema, loadModelsForBrand
+    const { requiresScreenSize, handleCategoryChange, handleBrandChange, handleModelChange, clearCategoryDependents } = useCategoryDependents(
+        form as any, categoryMap, brandMap as any, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema, loadModelsForBrand
     );
-    const { createAndSelectBrand, createAndSelectModel } = useCatalogMutations({
-        ensureBrandVisible,
-        ensureModelVisible,
-        selectBrand,
-        selectModel,
-    });
-    const imageCount = listingImages.length;
     const { setIsDirty } = useNavigation();
 
     useEffect(() => { const cleanup = suppressGoogleMapsRetryErrors(); return cleanup; }, []);
@@ -88,8 +81,8 @@ export function PostAdProvider({
             setIsDirty(false);
             return;
         }
-        setIsDirty(form.formState.isDirty || imageCount > 0);
-    }, [form.formState.isDirty, imageCount, setIsDirty, submittedAd]);
+        setIsDirty(form.formState.isDirty || listingImages.length > 0);
+    }, [form.formState.isDirty, listingImages.length, setIsDirty, submittedAd]);
     useEffect(() => { return () => setIsDirty(false); }, [setIsDirty]);
 
     useEffect(() => {
@@ -138,10 +131,10 @@ export function PostAdProvider({
     }, [clearCategoryDependents, form, loadBrandsForCategory, loadSparePartsForCategory, loadModelsForBrand, setListingImages]);
 
     const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); imagesHook.setListingImages([]); setSubmittedAd(null); }, [form, imagesHook]);
-    const { generateDescription } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setIsLoading, setFormError);
-    const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form, availableSpareParts);
-    const { nextStep, prevStep } = usePostAdStepNavigation({ form, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, trigger });
-    const { submitAd, isSubmitting, isInternalUploading } = usePostAdSubmissionFlow({ form, listingImages, setListingImages, isEditMode, editAdId, isLocationLocked, setFormError, setSubmittedAd });
+    const { generateDescription, isGeneratingAI } = usePostAdAiGeneration(form as any, categoryMap, availableSpareParts, setFormError);
+    const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form as any, availableSpareParts);
+    const { nextStep, prevStep } = usePostAdStepNavigation({ form: form as any, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, trigger });
+    const { submitAd, isSubmitting } = usePostAdSubmissionFlow({ form: form as any, listingImages, setListingImages, isEditMode, editAdId, isLocationLocked, setFormError, setSubmittedAd });
     const { addImages, removeImage } = imagesHook;
 
     const catalogState = useMemo<PostAdCatalogState>(() => ({ dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending }), [dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending]);

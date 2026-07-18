@@ -24,10 +24,11 @@ const sendDashboardError = (req: Request, res: Response, error: unknown) => {
 export const getStats = async (req: Request, res: Response) => {
     try {
         const publicAdFilter = buildPublicAdFilter();
-        const { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth } =
-            await getDashboardOverviewStats(publicAdFilter);
+        const result =
+            await getDashboardOverviewStats(publicAdFilter) as { totalUsers: number; unifiedStats: Array<Record<string, unknown>>; pendingModels: number; openReports: number; pendingBusinesses: number; totalRevenueAgg: Array<{ total: number }>; catalogHealth: unknown };
+        const { totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth } = result;
 
-        const stats = unifiedStats[0];
+        const stats = unifiedStats[0] as unknown as { totalAds: Array<{ count: number }>; activeAds: Array<{ count: number }>; pendingAds: Array<{ count: number }>; totalServices: Array<{ count: number }>; activeServices: Array<{ count: number }>; pendingServices: Array<{ count: number }>; rejectedServices: Array<{ count: number }>; totalSpareParts: Array<{ count: number }>; activeSpareParts: Array<{ count: number }>; pendingSpareParts: Array<{ count: number }> };
         const totalAds = stats.totalAds[0]?.count || 0;
         const activeAds = stats.activeAds[0]?.count || 0;
         const pendingAds = stats.pendingAds[0]?.count || 0;
@@ -71,11 +72,12 @@ export const getStats = async (req: Request, res: Response) => {
 export const getDashboardStats = async (req: Request, res: Response) => {
     try {
         const publicAdFilter = buildPublicAdFilter();
-        const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth } =
-            await getDashboardCardStats(publicAdFilter);
+        const cardResult =
+            await getDashboardCardStats(publicAdFilter) as { totalUsers: number; adStats: Array<Record<string, unknown>>; totalReports: number; totalBusinesses: number; totalRevenueAgg: Array<{ total: number }>; catalogHealth: unknown };
+        const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth } = cardResult;
 
-        const activeAds = adStats[0].live[0]?.count || 0;
-        const pendingAds = adStats[0].pending[0]?.count || 0;
+        const activeAds = (adStats[0] as unknown as { live: Array<{ count: number }>; pending: Array<{ count: number }> }).live[0]?.count || 0;
+        const pendingAds = (adStats[0] as unknown as { live: Array<{ count: number }>; pending: Array<{ count: number }> }).pending[0]?.count || 0;
 
         const revenue = totalRevenueAgg[0]?.total || 0;
         sendSuccessResponse(res, {
@@ -103,7 +105,7 @@ export const getRecentActivity = async (req: Request, res: Response) => {
         const activity = logs.map(log => {
             const admin = (log.adminId || {}) as { firstName?: string; lastName?: string };
             return {
-                title: log.action.replace(/_/g, ' '),
+                title: (log.action as string).replace(/_/g, ' '),
                 description: `${admin?.firstName || 'Admin'} ${admin?.lastName || ''} - ${log.targetType} ${String(log.targetId || '')}`,
                 time: log.createdAt
             };

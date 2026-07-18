@@ -39,7 +39,7 @@ export const registerBusiness = async (req: Request, res: Response) => {
             mobile: user.mobile
         };
 
-        const business = await businessCoreService.registerBusiness(verifiedPayload, authUser._id.toString());
+        const business = await businessCoreService.registerBusiness(verifiedPayload as Parameters<typeof businessCoreService.registerBusiness>[0], authUser._id.toString());
 
         const response = respond<ApiResponse<Business>>({
             success: true,
