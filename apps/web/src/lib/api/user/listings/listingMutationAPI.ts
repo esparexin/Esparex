@@ -110,7 +110,7 @@ export const markListingAsSold = async (
         throw e;
     }
 };
-export const markAsSold = markListingAsSold;
+
 /**
  * Deactivates a live listing.
  */

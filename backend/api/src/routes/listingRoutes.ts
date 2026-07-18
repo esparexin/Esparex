@@ -49,11 +49,7 @@ router.get("/", extractUser, searchLimiter, getListingsController.getListings);
 // Unified creation entry point
 router.post("/", protect, mutationLimiter, idempotencyMiddleware, requireVerifiedBusinessForServiceParts, createListingController.createListing);
 
-// POST /api/v1/listings/upload-image
-router.post("/upload-image", protect, mutationLimiter, createListingController.uploadImage);
 
-// POST /api/v1/listings/upload-presign
-router.post("/upload-presign", protect, mutationLimiter, createListingController.getUploadPresignedUrl);
 
 // GET /api/v1/listings/mine/stats
 // Unified fetch for user's listing counts across all types

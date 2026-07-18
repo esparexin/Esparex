@@ -120,7 +120,7 @@ export function isValidListingIdentifier(value: string | number): boolean {
     return LISTING_SLUG_PATTERN.test(identifier.toLowerCase());
 }
 
-export const isValidAdIdentifier = isValidListingIdentifier;
+
 
 export function extractId(value: unknown): string | undefined {
     if (typeof value === 'string' || typeof value === 'number') {

@@ -75,9 +75,6 @@ export interface PostAdContextType {
     resetToCreateMode: () => void;
 }
 
-export type PostAdStateContextType = Omit<PostAdContextType, "setCurrentStep" | "nextStep" | "prevStep" | "handleCategoryChange" | "handleBrandChange" | "createAndSelectBrand" | "createAndSelectModel" | "toggleSparePart" | "toggleAllSpareParts" | "addImages" | "removeImage" | "setLocation" | "loadBrandsForCategory" | "loadModelsForBrand" | "loadSparePartsForCategory" | "loadCategorySchema" | "refreshBrands" | "generateDescription" | "submitAd" | "setUserHasInteracted" | "setLoadError" | "setFormError" | "setImageUploadError" | "setSubmittedAd" | "setValue" | "register" | "watch" | "initializeFromListing" | "resetToCreateMode">;
-
-export type PostAdActionContextType = Pick<PostAdContextType, "setCurrentStep" | "nextStep" | "prevStep" | "handleCategoryChange" | "handleBrandChange" | "createAndSelectBrand" | "createAndSelectModel" | "toggleSparePart" | "toggleAllSpareParts" | "addImages" | "removeImage" | "setLocation" | "loadBrandsForCategory" | "loadModelsForBrand" | "loadSparePartsForCategory" | "loadCategorySchema" | "refreshBrands" | "generateDescription" | "submitAd" | "setUserHasInteracted" | "setLoadError" | "setFormError" | "setImageUploadError" | "setSubmittedAd" | "setValue" | "register" | "watch" | "initializeFromListing" | "resetToCreateMode">;
 
 export type PostAdCatalogState = {
     dynamicCategories: ListingCategory[];
