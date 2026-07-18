@@ -1,45 +1,48 @@
 # Esparex Platform Master Roadmap
 
-This roadmap defines the prioritization of work streams following the successful completion of the Contracts Migration milestone.
+This roadmap defines the prioritization of work streams organized by key business Programs.
 
 ---
 
-## Phase 1.1 — Proxy Removal & Warning Cleanup (Target: 1-2 days)
-
-* **Objective:** Achieve zero Dependency Cruiser warnings and completely clean up the legacy contracts compatibility layer.
+## Program 1 — Platform Foundation ✅
+* **Status:** Completed
+* **Focus:** Decoupling, Type safety, and boundary enforcement.
 * **Deliverables:**
-  - Audit and replace all imports of `@esparex/shared` targeting enums/schemas with `@esparex/contracts`.
-  - Remove deprecated proxy re-exports from `shared/src/index.ts`.
-  - Promote the Cruiser rule `no-new-legacy-shared-imports` from warning to error.
-  - Recheck type integrity, verify that warnings drop to 0, and update baseline report.
+  - Decoupled `backend/api` from `core` (DDD Core separation).
+  - Consolidated enums, DTOs, and schemas into `@esparex/contracts` (SSOT leaf).
+  - Removed legacy folders from `@esparex/shared` (cleanup).
+  - Setup automated pre-commit and routing guards (Husky, lint-staged).
+  - Documented initial repository baseline.
 
 ---
 
-## Phase 2 — Product Quality & UX Sprint (Target: 1 week)
-
-* **Objective:** Polish key user-facing journeys and dashboard workflows to maximize engagement and maintainability.
-* **Workstreams:**
-  - **Post Ad Experience:** Streamline wizard steps, add autosave/draft recovery, resolve validation inconsistencies between client forms and backend validators, and optimize image upload loading states.
-  - **Admin Dashboard:** Audit category/brand/model operations, clean up duplicate admin hooks, and remove legacy REST controllers.
-  - **Events Module:** Finalize event creation forms, booking ticket availability state machine, and lifecycle consistency.
-
----
-
-## Phase 3 — Continuous Governance & Testing (Target: Ongoing)
-
-* **Objective:** Build robust QA gates and health metrics dashboard.
-* **Deliverables:**
-  - Run Repository Health Audit v2 to compile technical backlog.
-  - Integrate Playwright end-to-end smoke test coverage for listing and checkout paths.
-  - Implement automated visual regression checks for admin dashboard.
-  - Establish CI checks to fail PRs on compilation errors or dependency violations.
+## Program 2 — Product Excellence 🚀
+* **Status:** Active
+* **Focus:** User Journeys, Conversion funnels, Dashboard usability, and UX polish.
+* **Active Projects:**
+  - **Post Ad 2.0:** End-to-end audit and implementation of the listing creation wizard. Streamline selections (Category -> Brand -> Model -> Parts), improve image upload states, implement draft auto-recovery, and align Zod validation.
+  - **Marketplace Browsing:** Optimize search filters, favorites watchlist, search matching performance, and Related listings.
+  - **Admin Dashboard:** Restructure category metadata management workflows, simplify catalog operations to bulk actions, and clean up duplicate admin hooks.
+  - **Events Module:** Complete event creation forms, booking ticket availability states, and event lifecycle integrations.
 
 ---
 
-## Phase 4 — Scale & AI Intelligence (Target: Long-Term)
+## Program 3 — Operational Excellence 📋
+* **Status:** Planned
+* **Focus:** Infrastructure reliability, telemetry, caching performance, and load testing.
+* **Backlog Projects:**
+  - Setup OpenTelemetry dashboards for Express REST latency and Mongoose queries.
+  - Configure Sentry transaction tracking and BullMQ queue reliability metrics.
+  - Audit Redis caching strategies to establish dedicated cache invalidate ports.
+  - Conduct scale and API load testing drills.
 
-* **Objective:** Leverage platform stability to ship advanced features.
-* **Deliverables:**
-  - AI-assisted catalog categorization from listing titles.
-  - Automatic duplicate listing and spam detection.
-  - Seller analytics dashboard and price suggestions engine.
+---
+
+## Program 4 — AI & Intelligence 🧠
+* **Status:** Future
+* **Focus:** Next-generation ML/AI integrations to drive seller velocity and marketplace safety.
+* **Backlog Projects:**
+  - Auto-categorize listings using semantic text embeddings of titles.
+  - Match uploaded listing images against the spare-parts catalog reference database.
+  - Implement real-time automated fraud/spam checks on listing creation.
+  - Provide smart pricing suggestions to sellers based on historical marketplace data.
