@@ -142,6 +142,10 @@ last*.json
 .jscpd-report/
 test-results/
 frontend/test-results/
+# Test artifacts and screenshots that AI CI tools may choke on
+**/test.png
+**/test-*.png
+**/playwright-*.png
 
 # Keep only example/template env files — never real values
 # *.env.example and *.env.*.example are intentionally tracked
