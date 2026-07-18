@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { ModelSearchSelect } from "@/components/user/ModelSearchSelect";
-import { useCascadeConfirmation } from "@/components/ui/cascade-confirm-dialog";
+
 import { getNestedFieldMeta } from "../common/utils";
 import { cn } from "@/components/ui/utils";
 
@@ -12,7 +12,7 @@ export function ModelSection() {
     const { requiresScreenSize } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts, listingId } = usePostAdFlow();
     const { watch, setValue, createAndSelectModel } = usePostAdAction();
-    const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
+
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
@@ -30,18 +30,12 @@ export function ModelSection() {
     const modelError = (shouldShowFieldError("model") || shouldShowFieldError("modelId")) ? (errors.model?.message ?? errors.modelId?.message) : undefined;
 
     const onModelChange = useCallback((mId: string | null, mName: string) => {
-        const affected: string[] = [];
-        if (deviceCondition) affected.push("Device Condition");
-        if (spareParts.length > 0) affected.push("Selected Spare Parts");
-
-        withCascadeConfirmation("Model", affected, () => {
-            const aid = mId || ""; 
-            setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
-            setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
-            setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true }); 
-            setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
-        });
-    }, [deviceCondition, spareParts.length, setValue, withCascadeConfirmation]);
+        const aid = mId || ""; 
+        setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
+        setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
+        setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true }); 
+        setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
+    }, [setValue]);
 
     if (requiresScreenSize) return null;
 
@@ -69,7 +63,6 @@ export function ModelSection() {
                     />
                 )}
             </Field>
-            <ConfirmDialog {...dialogProps} />
         </section>
     );
 }

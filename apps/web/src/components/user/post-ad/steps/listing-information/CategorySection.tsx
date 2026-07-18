@@ -6,14 +6,14 @@ import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { useCascadeConfirmation } from "@/components/ui/cascade-confirm-dialog";
+
 import { getNestedFieldMeta } from "../common/utils";
 
 export function CategorySection() {
     const { dynamicCategories } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
     const { watch, handleCategoryChange } = usePostAdAction();
-    const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
+
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandIdValue = String(watch("brandId") ?? "");
@@ -31,15 +31,8 @@ export function CategorySection() {
 
     const onCategoryClick = useCallback((catId: string) => {
         if (isEditMode) return;
-        const affected: string[] = [];
-        if (brandIdValue) affected.push("Brand");
-        if (modelId) affected.push("Model");
-        if (screenSize) affected.push("Screen Size");
-        if (deviceCondition) affected.push("Device Condition");
-        if (spareParts.length > 0) affected.push("Selected Spare Parts");
-        
-        withCascadeConfirmation("Category", affected, () => handleCategoryChange(catId));
-    }, [isEditMode, brandIdValue, modelId, screenSize, deviceCondition, spareParts.length, handleCategoryChange, withCascadeConfirmation]);
+        handleCategoryChange(catId);
+    }, [isEditMode, handleCategoryChange]);
 
     return (
         <section className="space-y-3">
@@ -70,7 +63,6 @@ export function CategorySection() {
                     })}
                 </div>
             </Field>
-            <ConfirmDialog {...dialogProps} />
         </section>
     );
 }

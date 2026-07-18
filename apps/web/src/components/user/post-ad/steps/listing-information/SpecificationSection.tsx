@@ -5,7 +5,7 @@ import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context"
 import { Field } from "@/components/ui/field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Z_INDEX } from "@/lib/zIndexConfig";
-import { useCascadeConfirmation } from "@/components/ui/cascade-confirm-dialog";
+
 import { getNestedFieldMeta } from "../common/utils";
 import { cn } from "@/components/ui/utils";
 import { getVisibleAttributeFilters, renderAttributeField } from "../common/attribute-fields";
@@ -14,7 +14,7 @@ export function SpecificationSection() {
     const { categorySchema, requiresScreenSize, availableSizes } = usePostAdCatalog();
     const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
     const { watch, setValue } = usePostAdAction();
-    const { withCascadeConfirmation, ConfirmDialog, dialogProps } = useCascadeConfirmation();
+
 
     const attributes = watch("attributes") as Record<string, unknown> | undefined;
     const screenSize = String(watch("screenSize") || "");
@@ -28,14 +28,9 @@ export function SpecificationSection() {
     const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
 
     const onScreenSizeChange = useCallback((val: string) => {
-        const affected: string[] = [];
-        if (spareParts.length > 0) affected.push("Selected Spare Parts");
-
-        withCascadeConfirmation("Screen Size", affected, () => {
-            setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
-            setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
-        });
-    }, [spareParts.length, setValue, withCascadeConfirmation]);
+        setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
+        setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
+    }, [setValue]);
 
     const updateAttribute = useCallback((id: string, value: unknown) => {
         const current = form.getValues("attributes") as Record<string, unknown> | undefined;
@@ -81,7 +76,6 @@ export function SpecificationSection() {
                 </Field>
             )}
             
-            <ConfirmDialog {...dialogProps} />
         </div>
     );
 }
