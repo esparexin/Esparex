@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 
 export function BrandSection() {
     const { availableBrands, brandMap, brandIsPending, brandsError } = usePostAdCatalog();
+    const { watch, handleBrandChange, loadBrandsForCategory } = usePostAdAction();
+    const { form, stepValidationAttempts, isEditMode } = usePostAdFlow();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");

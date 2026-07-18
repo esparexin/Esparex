@@ -120,3 +120,6 @@ export type PostAdFlowState = {
     mode: 'create' | 'edit';
     listingId?: string;
 };
+
+export type PostAdStateContextType = Omit<PostAdContextType, 'setCurrentStep' | 'nextStep' | 'prevStep' | 'handleCategoryChange' | 'handleBrandChange' | 'handleModelChange' | 'toggleSparePart' | 'toggleAllSpareParts' | 'addImages' | 'removeImage' | 'setMainImage' | 'setLocation' | 'loadBrandsForCategory' | 'loadModelsForBrand' | 'loadSparePartsForCategory' | 'loadCategorySchema' | 'refreshBrands' | 'generateDescription' | 'submitAd' | 'setUserHasInteracted' | 'setLoadError' | 'setFormError' | 'setImageUploadError' | 'setSubmittedAd' | 'setValue' | 'register' | 'watch' | 'initializeFromListing' | 'resetToCreateMode'>;
+export type PostAdActionContextType = Pick<PostAdContextType, 'setCurrentStep' | 'nextStep' | 'prevStep' | 'handleCategoryChange' | 'handleBrandChange' | 'handleModelChange' | 'toggleSparePart' | 'toggleAllSpareParts' | 'addImages' | 'removeImage' | 'setMainImage' | 'setLocation' | 'loadBrandsForCategory' | 'loadModelsForBrand' | 'loadSparePartsForCategory' | 'loadCategorySchema' | 'refreshBrands' | 'generateDescription' | 'submitAd' | 'setUserHasInteracted' | 'setLoadError' | 'setFormError' | 'setImageUploadError' | 'setSubmittedAd' | 'setValue' | 'register' | 'watch' | 'initializeFromListing' | 'resetToCreateMode'>;

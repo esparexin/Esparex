@@ -114,12 +114,24 @@ export function PostAdProvider({
     const { generateDescription, isGeneratingAI } = usePostAdAiGeneration(form as any, categoryMap, availableSpareParts, setFormError);
     const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form as any, availableSpareParts);
     const { nextStep, prevStep } = usePostAdStepNavigation({ form: form as any, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger });
+    const { submitAd, isSubmitting } = usePostAdSubmissionFlow({
+        form: form as any,
+        listingImages,
+        setListingImages: imagesHook.setListingImages,
+        isEditMode,
+        editAdId: listingId,
+        isLocationLocked,
+        setFormError,
+        setSubmittedAd,
+    });
 
     const catalogState = useMemo<PostAdCatalogState>(() => ({ dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending }), [dynamicCategories, categoryMap, availableBrands, brandMap, availableModels, availableSizes, availableSpareParts, isLoadingSpareParts, categorySchema, requiresScreenSize, sparePartsError, brandsError, brandIsPending]);
     const locationState = useMemo<PostAdLocationState>(() => ({ listingLocation, locationDisplay: locationDisplay || "", coordinates, isLocationLocked }), [listingLocation, locationDisplay, coordinates, isLocationLocked]);
     const imagesState = useMemo<PostAdImagesState>(() => ({ listingImages, isUploadingImages: imagesHook.isUploadingImages, imageUploadError: imagesHook.imageUploadError }), [listingImages, imagesHook.isUploadingImages, imagesHook.imageUploadError]);
     const flowState = useMemo<PostAdFlowState>(() => ({ currentStep, stepValidationAttempts, isLoading, isGeneratingAI, isSubmitting, isEditMode, userHasInteracted, loadError, formError, submittedAd, form, control, errors, mode, listingId }), [currentStep, stepValidationAttempts, isLoading, isGeneratingAI, isSubmitting, isEditMode, userHasInteracted, loadError, formError, submittedAd, form, control, errors, mode, listingId]);
     const stateValue = useMemo<PostAdStateContextType>(() => ({ ...flowState, ...catalogState, ...locationState, ...imagesState }), [flowState, catalogState, locationState, imagesState]);
+
+    const actionValue = useMemo<PostAdActionContextType>(() => ({ setCurrentStep, nextStep, prevStep, handleCategoryChange, handleBrandChange, handleModelChange, toggleSparePart, toggleAllSpareParts, addImages: imagesHook.addImages, removeImage: imagesHook.removeImage, setMainImage: imagesHook.setMainImage, setLocation, loadBrandsForCategory, loadModelsForBrand, loadSparePartsForCategory, loadCategorySchema, refreshBrands, generateDescription, submitAd, setUserHasInteracted, setLoadError, setFormError, setImageUploadError: imagesHook.setImageUploadError, setSubmittedAd, setValue, register, watch, initializeFromListing, resetToCreateMode }), [setCurrentStep, nextStep, prevStep, handleCategoryChange, handleBrandChange, handleModelChange, toggleSparePart, toggleAllSpareParts, imagesHook.addImages, imagesHook.removeImage, imagesHook.setMainImage, setLocation, loadBrandsForCategory, loadModelsForBrand, loadSparePartsForCategory, loadCategorySchema, refreshBrands, generateDescription, submitAd, setUserHasInteracted, setLoadError, setFormError, imagesHook.setImageUploadError, setSubmittedAd, setValue, register, watch, initializeFromListing, resetToCreateMode]);
 
     return (
         <PostAdContextShell catalogState={catalogState} locationState={locationState} imagesState={imagesState} flowState={flowState} actionValue={actionValue} stateValue={stateValue}>

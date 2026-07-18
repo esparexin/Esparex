@@ -40,6 +40,7 @@ export function ModelSearchSelect({
 }: ModelSearchSelectProps) {
     const { availableModels, loadModelsForBrand } = usePostAd();
     
+    const isMobile = useIsMobile();
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
