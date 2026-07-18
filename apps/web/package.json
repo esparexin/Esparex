@@ -7,6 +7,8 @@
     "node": ">=22.0.0 <23"
   },
   "scripts": {
+    "clean": "node ../../scripts/kill-port.js 3000",
+    "predev": "npm run clean",
     "dev": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next dev -p 3000",
     "build": "cross-env SKIP_ENV_VALIDATION=true NEXT_DISABLE_WEBPACK_CACHE=1 next build --webpack",
     "analyze:routes": "node scripts/analyze-next-build.cjs",
