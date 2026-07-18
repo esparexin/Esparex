@@ -68,7 +68,7 @@
     "@aws-sdk/s3-request-presigner": "^3.975.0",
     "@bull-board/api": "^6.20.3",
     "@bull-board/express": "^6.20.3",
-    "@esparex/contracts": "workspace:*",
+    "@esparex/contracts": "*",
     "@esparex/core": "*",
     "@esparex/shared": "*",
     "@sentry/node": "^10.51.0",
