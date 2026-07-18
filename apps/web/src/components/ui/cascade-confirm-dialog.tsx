@@ -89,15 +89,14 @@ export function useCascadeConfirmation() {
   );
 
   const handleConfirm = useCallback(() => {
+    const action = actionRef.current;
     setIsOpen(false);
-    if (actionRef.current) {
+    if (action) {
       // Execute in next tick to allow dialog to close cleanly
       setTimeout(() => {
-        if (actionRef.current) {
-          actionRef.current();
-          actionRef.current = null;
-        }
+        action();
       }, 0);
+      actionRef.current = null;
     }
   }, []);
 
