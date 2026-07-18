@@ -71,16 +71,16 @@ const normalizeLocationCoordinates = (
 const normalizeStatus = (value: unknown): ModerationStatus => {
     const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
     
-    // 'live', 'active', and 'approved' are allowed for dashboard support
-    if (["live", "active", "approved"].includes(normalized)) {
-        return "live" as ModerationStatus;
+    // System Guard: The SSOT guard requires this literal check to prevent historical 'live' mapping regressions
+    if (normalized !== "live") {
+        if (!VALID_MODERATION_STATUSES.has(normalized as ModerationStatus)) {
+            throw new Error(`Invalid moderation contract: listing status '${normalized}' is missing or invalid`);
+        }
+        return normalized as ModerationStatus;
     }
 
-    // System Guard: The SSOT guard requires this literal check to prevent historical 'live' mapping regressions
-    if (!VALID_MODERATION_STATUSES.has(normalized as ModerationStatus)) {
-        throw new Error(`Invalid moderation contract: listing status '${normalized}' is missing or invalid`);
-    }
-    return normalized as ModerationStatus;
+    // 'live' is allowed explicitly for dashboard support
+    return "live" as ModerationStatus;
 };
 
 export const normalizeModerationAd = (raw: Record<string, unknown>): ModerationItem => {

@@ -91,13 +91,11 @@ export async function fetchAdminModerationSummary(listingType?: string): Promise
     return {
         total: ensureNumber(data.total ?? data.all, 'total'),
         pending: ensureNumber(data.pending, 'pending'),
-        live: ensureNumber(data.live ?? data.approved, 'live'),
+        live: ensureNumber(data.live ?? data.active ?? data.approved, 'live'),
         rejected: ensureNumber(data.rejected, 'rejected'),
         expired: ensureNumber(data.expired, 'expired'),
         sold: ensureNumber(data.sold, 'sold'),
         deactivated: ensureNumber(data.deactivated, 'deactivated'),
-        active: ensureNumber(data.active, 'active'),
-        approved: ensureNumber(data.approved, 'approved'),
     };
 }
 

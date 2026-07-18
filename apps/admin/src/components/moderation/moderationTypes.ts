@@ -7,8 +7,6 @@ export const MODERATION_STATUS_VALUES = [
     LIFECYCLE_STATUS.DEACTIVATED,
     LIFECYCLE_STATUS.SOLD,
     LIFECYCLE_STATUS.EXPIRED,
-    "active",
-    "approved",
 ] as const;
 
 export type ModerationStatus = (typeof MODERATION_STATUS_VALUES)[number];
@@ -84,8 +82,6 @@ export type ModerationSummary = {
     expired: number;
     sold: number;
     deactivated: number;
-    active: number;
-    approved: number;
 };
 
 export const DEFAULT_SUMMARY: ModerationSummary = {
@@ -96,8 +92,6 @@ export const DEFAULT_SUMMARY: ModerationSummary = {
     expired: 0,
     sold: 0,
     deactivated: 0,
-    active: 0,
-    approved: 0,
 };
 
 export type ModerationPagination = {

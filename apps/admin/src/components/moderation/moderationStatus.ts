@@ -7,9 +7,7 @@ export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {
     rejected: "Rejected",
     deactivated: "Deactivated",
     sold: "Sold",
-    expired: "Expired",
-    active: "Active",
-    approved: "Approved"
+    expired: "Expired"
 };
 
 export const MODERATION_STATUS_BADGES: Record<ModerationStatus, string> = {
@@ -18,9 +16,7 @@ export const MODERATION_STATUS_BADGES: Record<ModerationStatus, string> = {
     rejected: "bg-red-100 text-red-700 border-red-200",
     deactivated: "bg-orange-100 text-orange-700 border-orange-200",
     sold: "bg-blue-100 text-blue-700 border-blue-200",
-    expired: "bg-slate-100 text-slate-600 border-slate-200",
-    active: "bg-teal-100 text-teal-700 border-teal-200",
-    approved: "bg-green-100 text-green-700 border-green-200"
+    expired: "bg-slate-100 text-slate-600 border-slate-200"
 };
 
 export const MODERATION_STATUSES: ModerationStatus[] = [

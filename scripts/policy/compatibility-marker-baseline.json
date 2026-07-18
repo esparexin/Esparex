@@ -54,7 +54,7 @@
   "apps/web/src/__tests__/ad-report-payload.spec.ts": 2,
   "apps/web/src/__tests__/business-normalization.spec.ts": 1,
   "apps/web/src/__tests__/listing-normalization.spec.ts": 5,
-  "shared/src/schemas/adPayload.schema.ts": 2,
+  "shared/src/schemas/adPayload.schema.ts": 1,
   "apps/admin/src/components/catalog/DeviceCatalogTabs.tsx": 1,
   "apps/admin/src/components/layout/AdminHeader.tsx": 1,
   "shared/src/contracts/api/adminRoutes.ts": 2,
