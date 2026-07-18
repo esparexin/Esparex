@@ -206,3 +206,6 @@ __pycache__/
 tech-debt-insights.md
 .commandcode/
 
+
+.agents/skills/
+.scratch/
