@@ -1,4 +1,4 @@
-import { ListingLocation } from "../types/location";
+import { ListingLocation } from "@esparex/contracts";
 import { normalizeGeoPoint } from "../utils/geoUtils";
 
 /**
