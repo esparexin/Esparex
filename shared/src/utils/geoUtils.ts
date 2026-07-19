@@ -4,9 +4,7 @@ export type { GeoJSONPoint } from '@esparex/contracts';
 import type { GeoJSONPoint } from '@esparex/contracts';
 
 
-export const MIN_RADIUS_KM = 1;
-export const MAX_RADIUS_KM = 500;
-export const DEFAULT_RADIUS_KM = 50;
+
 
 /**
  * Calculates the Haversine distance between two points in kilometers.

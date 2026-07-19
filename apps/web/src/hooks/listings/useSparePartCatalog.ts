@@ -6,10 +6,8 @@ import {
     getSpareParts,
     type SparePart,
 } from "@/lib/api/user/masterData";
-import {
-    normalizeOptionalObjectId,
-    sanitizeMongoObjectId,
-} from "@/lib/listings/locationUtils";
+import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 
 interface UseSparePartCatalogProps {

@@ -3,7 +3,7 @@ import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@esparex/contracts';
 import { normalizeObjectIdLike } from '../utils/idUtils';
-import { hasCatalogPollution } from '../utils/catalogGovernance';
+import { validateCatalogName } from '@esparex/shared';
 
 // Shared Helpers
 const objectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, 'Invalid ObjectId format');
@@ -23,12 +23,12 @@ const cleanCatalogText = (maxLength: number) => z.string()
     .trim()
     .min(1)
     .max(maxLength)
-    .refine((value) => !hasCatalogPollution(value), 'Catalog text cannot contain HTML, stack traces, build logs, or runtime error output');
+    .refine((value) => validateCatalogName(value).ok, (value) => ({ message: validateCatalogName(value).reason || 'Invalid catalog text' }));
 
 const optionalCleanCatalogText = (maxLength: number) => z.string()
     .trim()
     .max(maxLength)
-    .refine((value) => !hasCatalogPollution(value), 'Catalog text cannot contain HTML, stack traces, build logs, or runtime error output')
+    .refine((value) => validateCatalogName(value).ok, (value) => ({ message: validateCatalogName(value).reason || 'Invalid catalog text' }))
     .optional();
 
 // Common rejection schema

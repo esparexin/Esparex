@@ -68,7 +68,7 @@ jest.mock('@esparex/shared', () => {
     };
 });
 
-jest.mock('../../utils/categoryCanonical', () => ({
+jest.mock('@esparex/core/services/catalog/CatalogCategoryService', () => ({
     resolveEquivalentActiveCategoryIds: jest.fn().mockResolvedValue([]),
 }));
 

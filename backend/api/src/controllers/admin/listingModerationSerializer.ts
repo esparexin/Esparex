@@ -104,7 +104,7 @@ export const serializeLifecycleActionResponse = (params: {
     metadata: params.metadata,
 });
 
-export const serializeListingCountsResponse = (counts: {
+export interface ModerationListingCounts {
     total: number;
     pending: number;
     live: number;
@@ -114,6 +114,9 @@ export const serializeListingCountsResponse = (counts: {
     expired: number;
     sold: number;
     deactivated: number;
+}
+
+export const serializeListingCountsResponse = (counts: ModerationListingCounts & {
     byStatus: {
         pending: number;
         live: number;
@@ -124,17 +127,7 @@ export const serializeListingCountsResponse = (counts: {
         sold: number;
         deactivated: number;
     };
-    byListingType: Record<ModerationListingType, {
-        total: number;
-        pending: number;
-        live: number;
-        active: number;
-        approved: number;
-        rejected: number;
-        expired: number;
-        sold: number;
-        deactivated: number;
-    }>;
+    byListingType: Record<ModerationListingType, ModerationListingCounts>;
 }) => ({
     total: counts.total,
     all: counts.total,
@@ -149,27 +142,8 @@ export const serializeListingCountsResponse = (counts: {
     byListingType: counts.byListingType,
 });
 
-export const serializeLegacyCountsAdapter = (counts: {
-    total: number;
-    pending: number;
-    live: number;
-    active: number;
-    approved: number;
-    rejected: number;
-    expired: number;
-    sold: number;
-    deactivated: number;
-    byListingType: Record<ModerationListingType, {
-        total: number;
-        pending: number;
-        live: number;
-        active: number;
-        approved: number;
-        rejected: number;
-        expired: number;
-        sold: number;
-        deactivated: number;
-    }>;
+export const serializeLegacyCountsAdapter = (counts: ModerationListingCounts & {
+    byListingType: Record<ModerationListingType, ModerationListingCounts>;
 }) => ({
     total: counts.total,
     all: counts.total,

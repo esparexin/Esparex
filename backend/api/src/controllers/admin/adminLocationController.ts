@@ -2,37 +2,10 @@ import { Request, Response } from 'express';
 import {
     sendPaginatedResponse,
     sendSuccessResponse,
-    sendAdminError as sendBaseAdminError
+    sendAdminError as sendBaseAdminError,
+    buildLogFn
 } from '../../utils/adminBaseController';
 import * as adminLocationService from '@esparex/core/services/AdminLocationService';
-import { logAdminActionDirect } from '../../utils/adminLogger';
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
-import type { IAuthUser } from '@esparex/core/types/auth';
-
-// ---------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------
-
-const getActorId = (req: Request): string =>
-    (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';
-
-const getIp = (req: Request): string =>
-    (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
-
-const getUserAgent = (req: Request): string =>
-    (req.headers['user-agent'] as string) || '';
-
-const buildLogFn = (req: Request): AdminLogFn =>
-    (action, targetType, targetId, metadata) =>
-        logAdminActionDirect(
-            getActorId(req),
-            action,
-            targetType,
-            targetId,
-            metadata,
-            getIp(req),
-            getUserAgent(req)
-        );
 
 // ---------------------------------------------------------
 // Controllers

@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo } from "react";
 
 import { AppPopup } from "@/components/system/AppPopup";
 import { recordNotificationEvent } from "@/lib/analytics/notificationAnalytics";
-import { usePopupQueue } from "@/components/ui/popup/usePopupQueue";
+import { usePopupQueue } from "@esparex/ui";
 import {
   createUnifiedPopupBus,
   type PopupState,

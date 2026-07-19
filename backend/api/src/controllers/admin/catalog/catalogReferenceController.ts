@@ -7,6 +7,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+import { invalidateItemCatalogCache } from './shared';
 import {
     sendCatalogError,
     QueryRecord,
@@ -132,7 +133,7 @@ export const createServiceType = async (req: Request, res: Response) => {
             });
             return Promise.resolve(payload);
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -150,7 +151,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
             });
             return Promise.resolve(payload);
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -160,7 +161,7 @@ export const updateServiceType = async (req: Request, res: Response) => {
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, ServiceTypeModel, {
         auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -170,7 +171,7 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
 export const deleteServiceType = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, ServiceTypeModel, checkServiceTypeDependencies, {
         auditAction: 'SERVICE_TYPE_DELETE',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -290,7 +291,7 @@ export const createScreenSize = async (req: Request, res: Response) => {
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -317,7 +318,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
             if (!relation.ok) throw new Error(relation.reason || 'Invalid relation');
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -327,7 +328,7 @@ export const updateScreenSize = async (req: Request, res: Response) => {
 export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, ScreenSizeModel, {
         auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -337,6 +338,6 @@ export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
 export const deleteScreenSize = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, ScreenSizeModel, undefined, {
         auditAction: 'SCREEN_SIZE_DELETE',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };

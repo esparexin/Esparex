@@ -2,7 +2,7 @@
  
 import { useState, useCallback, useMemo } from "react";
 import type { ListingLocation } from "@/types/listing";
-import { normalizeListingLocation } from "@/lib/listings/locationUtils";
+import { LocationFacade } from "@esparex/shared";
 import type { GeoJSONPoint } from "@/types/location";
  
 interface UseListingLocationProps {
@@ -21,7 +21,7 @@ export function useListingLocation({ onLocationChange }: UseListingLocationProps
         coordinates: GeoJSONPoint | null | undefined,
         meta?: { city?: string; state?: string; id?: string }
     ) => {
-        const normalized = normalizeListingLocation({
+        const normalized = LocationFacade.normalize({
             display,
             coordinates,
             city: meta?.city,

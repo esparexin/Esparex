@@ -4,7 +4,7 @@ import { usePostAdImages, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { X, Upload, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
-import { MAX_AD_IMAGES } from "@shared";
+import { MAX_AD_IMAGES } from "@esparex/contracts";
 import Image from "next/image";
 import { getNestedFieldMeta } from "../common/utils";
 import { useCallback } from "react";

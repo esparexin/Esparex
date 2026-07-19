@@ -1,12 +1,12 @@
 import {
     CATALOG_APPROVAL_STATUS,
     type CatalogApprovalStatusValue,
-    CatalogValidationServiceShared,
     type CatalogValidator,
     CharacterValidator,
     LengthValidator,
     SpamValidator,
-    ReservedWordValidator
+    ReservedWordValidator,
+    CatalogFacade,
 } from '@esparex/shared';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';
 import {
@@ -69,7 +69,12 @@ export class CatalogValidationService {
         name: string;
         requestType: 'brand' | 'model';
     }): { ok: boolean; reason?: string } {
-        return CatalogValidationServiceShared.validateCatalogInput(options);
+        if (options.requestType === 'brand') {
+            return CatalogFacade.brand.validate.validateBrandName(options.name);
+        } else if (options.requestType === 'model') {
+            return CatalogFacade.model.validate.validateModelName(options.name);
+        }
+        return { ok: false, reason: 'Invalid catalog request type' };
     }
 
     async getActiveCategoryIds(requestedCategoryIds?: string[]): Promise<string[]> {
@@ -402,10 +407,3 @@ export function deriveApprovalStatus(options: {
     return ((approvalStatus as string) || fallback) as CatalogApprovalStatusValue;
 }
 
-export {
-    type CatalogValidator,
-    CharacterValidator,
-    LengthValidator,
-    SpamValidator,
-    ReservedWordValidator,
-};

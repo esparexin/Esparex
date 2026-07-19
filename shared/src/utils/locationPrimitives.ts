@@ -1,8 +1,8 @@
 import slugify from 'slugify';
 
-export const LOCATION_LEVELS = ['country', 'state', 'district', 'city', 'area', 'village'] as const;
-export type LocationLevel = (typeof LOCATION_LEVELS)[number];
+import { LocationLevel } from "@esparex/contracts";
 
+export const LOCATION_LEVELS = ['country', 'state', 'district', 'city', 'area', 'village'] as const;
 const asString = (value: unknown): string => {
     if (typeof value === 'string') return value;
     if (value === undefined || value === undefined) return '';

@@ -11,7 +11,7 @@ import {
     type DeviceModel,
 } from "@/lib/api/user/masterData";
 import logger from "@/lib/logger";
-import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { normalizeScreenSizeOptions } from "./catalogShared";
 
 interface UseBrandCatalogProps {

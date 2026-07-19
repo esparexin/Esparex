@@ -134,6 +134,54 @@ export const SparePartSchema = CreateSparePartSchema.extend({
 });
 
 /* ────────────────────────────────────────────── */
+/* SERVICE TYPE                                   */
+/* ────────────────────────────────────────────── */
+export const CreateServiceTypeSchema = z.object({
+    name: z.string().min(2),
+    displayName: z.string().min(2).optional(),
+    canonicalName: z.string().min(2).max(120).optional(),
+    slug: SlugSchema.optional(),
+    aliases: z.array(z.string().min(1).max(120)).optional(),
+    synonyms: z.array(z.string().min(1).max(120)).optional(),
+    categoryIds: z.array(ObjectIdSchema).min(1),
+    filters: z.array(CategoryFilterSchema).optional(),
+    isActive: z.boolean().default(true),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
+}).strict();
+
+export const UpdateServiceTypeSchema = CreateServiceTypeSchema.partial();
+
+export const ServiceTypeSchema = CreateServiceTypeSchema.extend({
+    id: z.string(),
+    isDeleted: z.boolean(),
+});
+
+/* ────────────────────────────────────────────── */
+/* SCREEN SIZE                                    */
+/* ────────────────────────────────────────────── */
+export const CreateScreenSizeSchema = z.object({
+    size: z.string().min(1),
+    name: z.string().min(1).optional(),
+    displayName: z.string().min(1).optional(),
+    canonicalName: z.string().min(1).max(120).optional(),
+    slug: SlugSchema.optional(),
+    aliases: z.array(z.string().min(1).max(120)).optional(),
+    synonyms: z.array(z.string().min(1).max(120)).optional(),
+    value: z.number(),
+    categoryId: ObjectIdSchema,
+    brandId: ObjectIdSchema.optional(),
+    isActive: z.boolean().default(true),
+    approvalStatus: z.enum([CATALOG_APPROVAL_STATUS.PENDING, CATALOG_APPROVAL_STATUS.APPROVED, CATALOG_APPROVAL_STATUS.REJECTED]).optional(),
+}).strict();
+
+export const UpdateScreenSizeSchema = CreateScreenSizeSchema.partial();
+
+export const ScreenSizeSchema = CreateScreenSizeSchema.extend({
+    id: z.string(),
+    isDeleted: z.boolean(),
+});
+
+/* ────────────────────────────────────────────── */
 /* TYPES                                          */
 /* ────────────────────────────────────────────── */
 export type CategoryFilter = z.infer<typeof CategoryFilterSchema>;
@@ -152,3 +200,11 @@ export type Model = z.infer<typeof ModelSchema>;
 export type CreateSparePartDTO = z.infer<typeof CreateSparePartSchema>;
 export type UpdateSparePartDTO = z.infer<typeof UpdateSparePartSchema>;
 export type SparePart = z.infer<typeof SparePartSchema>;
+
+export type CreateServiceTypeDTO = z.infer<typeof CreateServiceTypeSchema>;
+export type UpdateServiceTypeDTO = z.infer<typeof UpdateServiceTypeSchema>;
+export type ServiceType = z.infer<typeof ServiceTypeSchema>;
+
+export type CreateScreenSizeDTO = z.infer<typeof CreateScreenSizeSchema>;
+export type UpdateScreenSizeDTO = z.infer<typeof UpdateScreenSizeSchema>;
+export type ScreenSize = z.infer<typeof ScreenSizeSchema>;
