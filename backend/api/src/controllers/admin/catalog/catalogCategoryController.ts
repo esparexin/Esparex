@@ -12,7 +12,7 @@ import {
     categoryParentExists,
     updateCategorySchemaById,
 } from '@esparex/core/services/catalog/CatalogCategoryService';
-import CategoryModel from '@esparex/core/models/Category';
+import mongoose from 'mongoose';
 import { adminDashboardRepository } from '@esparex/core/composition/admin';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
@@ -53,7 +53,7 @@ export const getCategories = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = {};
     applyCatalogStatusFilter(adminQuery, rawStatus);
 
-    return handlePaginatedContent(req, res, CategoryModel, {
+    return handlePaginatedContent(req, res, 'Category', {
         searchFields: ['name', 'slug'],
         defaultSort: { name: 1 },
         publicQuery: { ...ACTIVE_CATEGORY_QUERY },
@@ -259,7 +259,11 @@ export const updateCategory = async (req: Request, res: Response) => {
  * Toggle category active status
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, CategoryModel, {
+    return handleCatalogToggleStatus(req, res, 'Category',
+        async (id) => mongoose.model('Category').findById(id),
+        async (id, data) => mongoose.model('Category').findByIdAndUpdate(id, data, { new: true }),
+        false, true,
+        {
         auditAction: 'TOGGLE_CATEGORY_STATUS',
         postOp: (item) => {
             clearCategoryCanonicalCache();

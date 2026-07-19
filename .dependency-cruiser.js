@@ -133,13 +133,18 @@ module.exports = {
       name: 'no-new-legacy-shared-imports',
       severity: 'warn',
       comment: 'The shared package is frozen for the Contracts migration. No new imports are allowed. Use @esparex/contracts instead.',
-      from: {},
+      from: {
+        pathNot: '^shared/src/'
+      },
       to: {
         path: '^shared/src/'
       }
     }
   ],
   options: {
+    exclude: {
+      path: '(^|/)(dist|build|coverage|\\.next|node_modules|\\.eslintcache)($|/)'
+    },
     doNotFollow: {
       path: 'node_modules'
     },

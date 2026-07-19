@@ -49,6 +49,9 @@ const mockQuery = {
     })
 };
 
+// Ensure mongoose.model('SparePart') returns the mocked SparePartModel
+jest.spyOn(mongoose, 'model').mockReturnValue(SparePartModel as any);
+
 describe("catalogSparePartController Category Filtering & Caching", () => {
     let mockRes: Response;
     let mockJson: jest.Mock;
