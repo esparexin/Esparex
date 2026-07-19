@@ -283,17 +283,77 @@ Exit Criteria
 | PASS | Branch on remote AND draft PR open and linked to Issue |
 | FAIL | Either missing — create, push, open, then re-check |
 
-Phase 7 — Live Repository Discovery
+Phase 7 — Live Repository Discovery (Repository Intelligence & Risk Management)
 Classification: Execution Phase
 
 Only live source code and live git output are authoritative. Documentation, comments, and prior conversation are not evidence of current state.
 
 Process
-Answer explicitly: What exists? Where is SSOT? What depends on it? Can it be reused? What will break? Is there already an Issue?
-Map for task scope: folder structure, workspace config, components (apps/*/src/components/), hooks (apps/*/src/hooks/), domain services (core/src/services/), routes (backend/api/src/routes/), controllers, middleware, utilities (core/src/utils/, shared/src/), validators (core/src/validators/), types (shared/src/types/), constants (shared/src/constants/), models (core/src/models/), test coverage.
+Perform a tiered Repository Intelligence audit before implementation to prevent architectural drift. Do not guess.
+
+### Execution Tiers
+Execute only the tiers applicable to the task's classification (determined in Phase 2):
+
+Tier 1 — Always Required (every task):
+1. Repository Summary
+2. Git Status & Branch Validation
+3. Existing Implementation Search
+4. Duplicate Logic Check
+5. Impact Analysis
+6. Verification Plan
+
+Tier 2 — Required for Code Changes (added to Tier 1):
+7. API Mapping
+8. Branch Divergence Audit (Compare against develop/main)
+9. Git History Audit (Recent commits, merges, blame history, related issues/PRs)
+10. Environment Audit (.env.example vs runtime configuration)
+11. CI/CD Audit (Lint, typecheck, tests, build, security scans)
+12. Required Tests
+
+Tier 3 — Required for Architectural Changes (added to Tier 1 & 2):
+13. Database Audit (Schema, indexes, pending migrations)
+14. Provider Discovery Audit (AI, Payment, Email, Auth providers)
+15. Deployment Impact (Web, Admin, API, Worker, Redis, MongoDB, BullMQ, etc.)
+16. Rollback & Migration Strategy
+17. Feature Flag Strategy
+18. Security Review
+
+Tier 4 — Required Only When Applicable:
+19. Specialized Audits (Payment, Authentication, AI, Geo, Notification, Background worker, Infrastructure)
+
+### Evidence Requirement
+For each audit item, evidence must be presented rather than conclusions.
+Format:
+- Command: `git status`
+- Result: `Working tree clean`
+- Conclusion: Safe to continue.
+
+### Output Artifacts
+The final report must contain:
+1. The tiered audit results (with evidence).
+2. Repository Risk Score:
+   | Category | Status |
+   | --- | --- |
+   | Git | ✅ / ⚠️ / ❌ |
+   | Repository | ✅ / ⚠️ / ❌ |
+   | Architecture | ✅ / ⚠️ / ❌ |
+   | API | ✅ / ⚠️ / ❌ |
+   | Database | ✅ / ⚠️ / ❌ |
+   | Environment | ✅ / ⚠️ / ❌ |
+   | CI | ✅ / ⚠️ / ❌ |
+   | Security | ✅ / ⚠️ / ❌ |
+   | Rollback | ✅ / ⚠️ / ❌ |
+   **Overall Risk**: 🟢 Low | 🟡 Medium | 🔴 High
+3. Confidence Assessment:
+   - **Confidence Level**: High (95–100%) | Medium (75–94%) | Low (<75%)
+   - **Confirmed**: What is verified by live evidence.
+   - **Inferred**: What is assumed.
+   - **Needs Verification**: What must be checked.
+   *Note: If confidence is below 90% for architectural changes, additional discovery is mandatory before modifying code.*
+
 Exit Criteria
-| PASS | Live map complete; all Phase 1 assumptions verified |
-| FAIL | Source inaccessible or assumption verification contradicts the plan |
+| PASS | Repository Intelligence audit completed matching the required tier, Risk Score and Confidence >= 90% established |
+| FAIL | Source inaccessible, missing evidence, or Confidence < 90% for architectural changes |
 
 Phase 8 — Policy Engine
 Classification: Execution Phase
