@@ -18,6 +18,55 @@ import logger from '../../utils/logger';
 // from models/ directly.
 export { default as CategoryModel } from '../../models/Category';
 
+import { CATALOG_STATUS, type CatalogStatusValue } from '@esparex/contracts';
+import { CatalogFacade } from '@esparex/shared';
+
+const ACTIVE_CATEGORY_QUERY = {
+    isActive: true,
+    isDeleted: { $ne: true },
+    status: CATALOG_STATUS.LIVE as CatalogStatusValue
+};
+
+const CACHE_TTL_MS = 60 * 1000;
+let activeCategoryCache: { at: number; categories: any[] } | null = null;
+
+const getActiveCategories = async () => {
+    const now = Date.now();
+    if (activeCategoryCache && now - activeCategoryCache.at < CACHE_TTL_MS) {
+        return activeCategoryCache.categories;
+    }
+
+    const categories = await Category.find(ACTIVE_CATEGORY_QUERY).select('_id slug name').lean();
+    activeCategoryCache = { at: now, categories };
+    return categories;
+};
+
+export const clearCategoryCanonicalCache = () => {
+    activeCategoryCache = null;
+};
+
+export const resolveEquivalentActiveCategoryIds = async (categoryId: string): Promise<string[]> => {
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) return [];
+
+    const sourceCategory = await Category.findById(categoryId).select('_id slug name').lean<any>();
+    if (!sourceCategory) return [];
+
+    const sourceKeys = CatalogFacade.category.normalize.categoryKeys(sourceCategory.slug, sourceCategory.name);
+    if (sourceKeys.size === 0) return [String(sourceCategory._id)];
+
+    const activeCategories = await getActiveCategories();
+    const matches = activeCategories
+        .filter((category) => CatalogFacade.category.normalize.keysOverlap(sourceKeys, CatalogFacade.category.normalize.categoryKeys(category.slug, category.name)))
+        .map((category) => String(category._id));
+
+    // Always keep the requested category id as a fallback contract guard.
+    if (!matches.includes(String(sourceCategory._id))) {
+        matches.push(String(sourceCategory._id));
+    }
+
+    return matches;
+};
+
 // ─── Catalog-wide counts ──────────────────────────────────────────────────────
 
 const CATALOG_COUNT_MAX_TIME_MS = 1500;

@@ -1,4 +1,4 @@
-import { CatalogValidationServiceShared } from '@esparex/shared';
+import { CatalogFacade } from '@esparex/shared';
 
 export enum CatalogResolutionDecision {
     AUTO_APPROVE = 'AUTO_APPROVE',
@@ -15,21 +15,16 @@ export interface CatalogResolutionContext {
 
 export class CatalogResolutionPolicy {
     public static evaluate(ctx: CatalogResolutionContext): CatalogResolutionDecision {
-        // 1. Run through the validation pipeline in CatalogValidationService
-        const validation = CatalogValidationServiceShared.validateCatalogInput({
-            name: ctx.requestedName,
-            requestType: ctx.requestType
-        });
+        // 1. Validate name via CatalogFacade (single source of truth)
+        const validation = ctx.requestType === 'brand'
+            ? CatalogFacade.brand.validate.validateBrandName(ctx.requestedName)
+            : CatalogFacade.model.validate.validateModelName(ctx.requestedName);
 
         if (!validation.ok) {
             return CatalogResolutionDecision.REJECT;
         }
 
         // 2. Resolve policy decisions (extensible to check user trust limits)
-        if (ctx.requestType === 'brand') {
-            return CatalogResolutionDecision.AUTO_APPROVE;
-        } else {
-            return CatalogResolutionDecision.AUTO_APPROVE;
-        }
+        return CatalogResolutionDecision.AUTO_APPROVE;
     }
 }

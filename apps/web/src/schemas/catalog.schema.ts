@@ -4,6 +4,8 @@ import {
     BrandSchema as SharedBrandSchema,
     ModelSchema as SharedModelSchema,
     SparePartSchema as SharedSparePartSchema,
+    ServiceTypeSchema as SharedServiceTypeSchema,
+    ScreenSizeSchema as SharedScreenSizeSchema,
 } from "@shared";
 
 // Category Schema
@@ -22,10 +24,9 @@ export const DeviceConditionSchema = z.object({
 
 export const SparePartSchema = SharedSparePartSchema.passthrough();
 
-export const ScreenSizeSchema = z.object({
-    id: z.string(),
-    size: z.string(),
-}).passthrough();
+export const ServiceTypeSchema = SharedServiceTypeSchema.passthrough();
+
+export const ScreenSizeSchema = SharedScreenSizeSchema.passthrough();
 
 // Type inference
 export type Category = z.infer<typeof CategorySchema>;
@@ -33,4 +34,5 @@ export type Brand = z.infer<typeof BrandSchema>;
 export type Model = z.infer<typeof ModelSchema>;
 export type DeviceCondition = z.infer<typeof DeviceConditionSchema>;
 export type SparePart = z.infer<typeof SparePartSchema>;
+export type ServiceType = z.infer<typeof ServiceTypeSchema>;
 export type ScreenSize = z.infer<typeof ScreenSizeSchema>;

@@ -18,7 +18,7 @@ import {
     findSparePartById,
     checkSparePartDependencies,
 } from '@esparex/core/services/catalog/CatalogSparePartService';
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
+import { resolveEquivalentActiveCategoryIds } from '@esparex/core/services/catalog/CatalogCategoryService';
 import {
     sendCatalogError,
     QueryRecord,

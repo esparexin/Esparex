@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import logger from "@/lib/logger";
 import { getServiceTypes, type ServiceType } from "@/lib/api/user/masterData";
-import { normalizeOptionalObjectId } from "@/lib/listings/locationUtils";
+import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 interface UseServiceTypeCatalogProps {
     onError?: (msg: string) => void;
