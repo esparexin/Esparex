@@ -370,3 +370,33 @@ To maintain the integrity of the DDD Ports & Adapters architecture established i
 3. **Intent-focused caching:** Caching invalidation and read operations must be declared as business intent behind dedicated **Cache Ports**. Direct imports of low-level `redisCache` helpers into core services are not allowed.
 4. **Enforced via composition:** All dependencies must be resolved and wired at the package boundary via factory functions inside **Composition Roots**.
 
+---
+
+## Strict Milestone Execution Rule
+
+No new feature, refactor, or domain migration starts until all approved architectural, naming, and governance violations for the current milestone are resolved or formally deferred.
+
+## Audit Finding Classification Policy
+
+No recommendation from an audit may be implemented solely because it appears in the report. Every finding must be classified as one of:
+- **Mandatory**: Violates an approved repository standard, architectural rule, governance policy, or documented ADR. Mandatory findings must be fixed immediately.
+- **Recommended**: Improves consistency but is optional. Recommended findings require an explicit, approved implementation plan.
+- **Accepted Deviation**: Not aligned with repository standards or provides no measurable benefit, but represents a conscious design decision or framework requirement. Accepted deviations are documented and left unchanged.
+
+## Repository Standards Source of Truth
+
+Every naming convention, architectural rule, directory convention, and dependency rule must have a single documented source of truth.
+
+If a standard is not documented in AGENTS.md, GOVERNANCE.md, an approved ADR, or another designated governance document, it cannot be enforced as Mandatory.
+
+## Repository Standard Evolution
+
+Repository standards are versioned. Any new Mandatory standard must:
+- Include written rationale
+- Define migration strategy
+- Identify affected packages
+- Receive approval
+- Update governance documentation
+
+No new Mandatory rule may be enforced retroactively without an approved migration plan.
+
