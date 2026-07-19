@@ -61,26 +61,34 @@ export const registerBusiness = async (req: Request, res: Response) => {
     }
 };
 
+async function verifyBusinessOwnership(req: Request, res: Response, id: string) {
+    const user = req.user;
+    if (!user) {
+        sendErrorResponse(req, res, 401, 'Unauthorized');
+        return { business: null, user: null };
+    }
+
+    const business = await businessCoreService.getBusinessById(id);
+    if (!business) {
+        sendErrorResponse(req, res, 404, 'Business not found');
+        return { business: null, user: null };
+    }
+
+    if (business.userId.toString() !== user._id.toString() && !['admin', 'super_admin'].includes(user.role)) {
+        sendErrorResponse(req, res, 403, 'Unauthorized');
+        return { business: null, user: null };
+    }
+
+    return { business, user };
+}
+
 export const updateBusiness = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID format' });
         if (!id) return;
-        const user = req.user;
-        if (!user) {
-            sendErrorResponse(req, res, 401, 'Unauthorized');
-            return;
-        }
-
-        const business = await businessCoreService.getBusinessById(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
-
-        if (business.userId.toString() !== user._id.toString() && !['admin', 'super_admin'].includes(user.role)) {
-            sendErrorResponse(req, res, 403, 'Unauthorized');
-            return;
-        }
+        
+        const { business, user } = await verifyBusinessOwnership(req, res, id);
+        if (!business || !user) return;
 
         // Allow pending edits - users can update their application before admin review
         // Status remains 'pending' so admin still needs to approve
@@ -232,22 +240,9 @@ export const renewBusiness = async (req: Request, res: Response) => {
     try {
         const id = getSingleParam(req, res, 'id', { error: 'Invalid Business ID format' });
         if (!id) return;
-        const user = req.user;
-        if (!user) {
-            sendErrorResponse(req, res, 401, 'Unauthorized');
-            return;
-        }
-
-        const business = await businessCoreService.getBusinessById(id);
-        if (!business) {
-            sendErrorResponse(req, res, 404, 'Business not found');
-            return;
-        }
-
-        if (business.userId.toString() !== user._id.toString() && !['admin', 'super_admin'].includes(user.role)) {
-            sendErrorResponse(req, res, 403, 'Unauthorized');
-            return;
-        }
+        
+        const { business, user } = await verifyBusinessOwnership(req, res, id);
+        if (!business || !user) return;
 
         const actorType: ActorTypeValue = user.role === 'admin' || user.role === 'super_admin' ? 'admin' : 'user';
         const updated = await businessLifecycleService.renewBusiness(id, {

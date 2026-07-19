@@ -12,28 +12,13 @@ import logger from "@/lib/logger";
 import { getMyBusiness, updateBusiness, type Business as UserBusiness, type CreateBusinessDTO } from "@/lib/api/user/businesses";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { BusinessProfileWizard } from "../BusinessProfileWizard";
-import { useBusinessWizardBridge, getBusinessWizardFieldsForStep } from "../useBusinessWizardBridge";
 import { businessEditSchema, type BusinessEditFormData, type BusinessEditFormInput } from "@/schemas/businessEditPayload.schema";
 import type { User } from "@/types/User";
-import type { FieldErrors, Path, FieldValues, UseFormReturn, UseFormSetValue } from "react-hook-form";
 import type { SubmissionStatus } from "./types";
 import { buildBusinessPayloadBase, asOptionalString, joinAddressParts } from "./helpers";
 import { processStagedFiles } from "./upload";
 
-function useProfileWizardController<TFormShape extends FieldValues>(form: UseFormReturn<TFormShape>, options: { requireDocuments: boolean }) {
-    const [currentStep, setCurrentStep] = useState(0);
-    const [formError, setFormError] = useState<string | null>(null);
-    const { trigger, watch, setValue, formState: { errors, isSubmitting } } = form;
-    const formData = watch();
-    const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({ formData: formData as TFormShape, errors: errors as FieldErrors<TFormShape>, setValue: setValue as unknown as UseFormSetValue<TFormShape> });
-    const handleNext = async () => {
-        if (formError) setFormError(null);
-        const isValid = await trigger(getBusinessWizardFieldsForStep(currentStep, { requireDocuments: options.requireDocuments }) as Path<TFormShape>[]);
-        if (!isValid) return;
-        setCurrentStep((prev) => prev + 1);
-    };
-    return { currentStep, setCurrentStep, formError, setFormError, isSubmitting, legacyFormData, setLegacyFormData, handleNext };
-}
+import { useProfileWizardController } from "./hooks";
 
 function mapBusinessToEditDefaults(business: UserBusiness): BusinessEditFormInput {
     const fullAddress = asOptionalString(business.location.address) || joinAddressParts(business.location.shopNo, business.location.street, business.location.landmark, business.location.city, business.location.state, business.location.pincode);

@@ -90,6 +90,22 @@ export const getChatList = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+function validateConversationId(req: Request, res: Response): string | null {
+  const conversationId = String(req.params.id ?? '');
+  if (!conversationId) {
+    sendErrorResponse(req, res, 400, 'Missing conversation id');
+    return null;
+  }
+
+  if (!Types.ObjectId.isValid(conversationId)) {
+    sendErrorResponse(req, res, 400, 'Invalid ID Format', {
+      details: { message: `Parameter 'id' must be a valid ObjectId` }
+    });
+    return null;
+  }
+  return conversationId;
+}
+
 /* -------------------------------------------------------------------------- */
 /* GET /api/v1/chat/:id                                                        */
 /* -------------------------------------------------------------------------- */
@@ -97,18 +113,8 @@ export const getChatList = async (req: Request, res: Response): Promise<void> =>
 export const getChatConversation = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
-    const conversationId = String(req.params.id ?? '');
-    if (!conversationId) {
-      sendErrorResponse(req, res, 400, 'Missing conversation id');
-      return;
-    }
-
-    if (!Types.ObjectId.isValid(conversationId)) {
-      sendErrorResponse(req, res, 400, 'Invalid ID Format', {
-        details: { message: `Parameter 'id' must be a valid ObjectId` }
-      });
-      return;
-    }
+    const conversationId = validateConversationId(req, res);
+    if (!conversationId) return;
 
     const conversation = await getConversationForUser(conversationId, userId);
     res.json(respond({ success: true, data: conversation }));
@@ -126,18 +132,8 @@ export const getChatConversation = async (req: Request, res: Response): Promise<
 export const getConversationMessages = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = getUserId(req);
-    const conversationId = String(req.params.id ?? '');
-    if (!conversationId) {
-      sendErrorResponse(req, res, 400, 'Missing conversation id');
-      return;
-    }
-
-    if (!Types.ObjectId.isValid(conversationId)) {
-      sendErrorResponse(req, res, 400, 'Invalid ID Format', {
-        details: { message: `Parameter 'id' must be a valid ObjectId` }
-      });
-      return;
-    }
+    const conversationId = validateConversationId(req, res);
+    if (!conversationId) return;
 
     const parsed = messagesQuerySchema.safeParse(req.query);
     if (!parsed.success) {
