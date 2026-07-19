@@ -71,7 +71,7 @@ export const Z_INDEX = {
  * Type-safe z-index getter
  * Ensures all z-index values are explicitly defined
  */
-export type ZIndexKey = keyof typeof Z_INDEX;
+type ZIndexKey = keyof typeof Z_INDEX;
 
 /**
  * Validates that z-index value exists in config
