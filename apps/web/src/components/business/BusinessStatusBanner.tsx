@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-import type { BusinessStatusValue } from "@shared";
+import type { BusinessStatusValue } from "@esparex/contracts";
 
 interface BusinessStatusBannerProps {
     status: BusinessStatusValue;

@@ -1,6 +1,6 @@
 "use client";
 
-import type { CategoryFilter } from "@shared";
+import type { CategoryFilter } from "@esparex/contracts";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

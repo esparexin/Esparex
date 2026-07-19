@@ -1,4 +1,4 @@
-import type { IConversationDTO } from "@esparex/shared";
+import type { IConversationDTO } from "@esparex/contracts";
 import { isListingChatClosed } from '../ChatAvailabilityService';
 import type { IChatAttachment } from '../../models/ChatMessage';
 

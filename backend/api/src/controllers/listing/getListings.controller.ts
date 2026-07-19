@@ -14,7 +14,7 @@ import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '
 import { LISTING_STATUS } from "@esparex/contracts";
 import { respond } from "../../utils/respond";
 import { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@esparex/contracts";
-import { Ad } from "@esparex/shared";
+import { Ad } from "@esparex/contracts";
 import type { AuthUser } from '../../types/auth.types';
 import { ListingTypeValue } from "@esparex/contracts";
 const isRecord = (value: unknown): value is Record<string, unknown> =>

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import mongoose from 'mongoose';
-import { PAYMENT_STATUS } from '@esparex/shared';
+import { PAYMENT_STATUS } from '@esparex/contracts';
 import { commonSchemas } from './common';
 
 const objectIdSchema = z.string().refine(v => mongoose.isValidObjectId(v), 'Invalid ObjectId format');

@@ -16,8 +16,8 @@ import {
   SmartAlertCreateSchema,
   SmartAlertUpdateSchema,
   type SmartAlertCreatePayload,
-  sanitizeMongoObjectId
-} from "@shared";
+} from "@esparex/contracts";
+import { sanitizeMongoObjectId } from "@shared";
 import type { SmartAlertListItem, SmartAlertFieldErrors, SmartAlertFormData, SmartAlertItem } from "@/components/user/profile/types";
 import { smartAlertFormSchema } from "@/schemas/smartAlertForm.schema";
 import { toCanonicalGeoPoint } from "@esparex/shared";

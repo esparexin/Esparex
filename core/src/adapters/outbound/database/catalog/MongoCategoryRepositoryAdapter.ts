@@ -7,7 +7,7 @@ import {
     ServiceSelectionMode
 } from '../../../../domains/catalog';
 import CategoryModel from '../../../../models/Category';
-import { CATALOG_APPROVAL_STATUS, CatalogApprovalStatusValue } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS, CatalogApprovalStatusValue } from '@esparex/contracts';
 
 interface DbCategory {
     _id: unknown;

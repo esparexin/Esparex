@@ -1,4 +1,4 @@
-import { PLAN_STATUS } from '@esparex/shared';
+import { PLAN_STATUS } from '@esparex/contracts';
 import { calculateUserPlan } from '../PlanEngine';
 import { UserPlanModel, PlanModel } from '../PlanService';
 import { consumeCredit, credit as creditWallet, WalletModel } from '../wallet/WalletService';

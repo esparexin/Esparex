@@ -1,4 +1,4 @@
-import { type Ad, AdSchema } from "@shared";
+import { type Ad, AdSchema } from "@esparex/contracts";
 import { type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 
 import { LISTING_TYPE, LISTING_TYPE_VALUES } from '@esparex/contracts';
 import { normalizeObjectIdLike } from '../utils/idUtils';

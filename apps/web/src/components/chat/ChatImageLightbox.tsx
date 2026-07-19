@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import type { ChatAttachment } from "@shared";
+import type { ChatAttachment } from "@esparex/contracts";
 
 interface ChatImageLightboxProps {
   images: ChatAttachment[];

@@ -4,7 +4,7 @@ import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
     type CatalogApprovalStatusValue,
-} from '@esparex/shared';
+} from '@esparex/contracts';
 import softDeletePlugin from '../utils/softDeletePlugin';
 import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
 import { getUserConnection } from '../config/db';

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { NOTIFICATION_TYPE_VALUES } from "@esparex/contracts";
-import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_VALUES } from "@esparex/shared";
+import { ADMIN_NOTIFICATION_TARGET_TYPE, ADMIN_NOTIFICATION_TOPIC_VALUES } from "@esparex/contracts";
 import { commonSchemas, sanitizeString } from "@esparex/core/validators/common";
 
 const adminNotificationTargetTypeEnum = z.enum([

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
-import { Business as SharedBusiness } from "@esparex/shared";
+import { Business as SharedBusiness } from "@esparex/contracts";
 import { hasValidCoordinateArray } from '@esparex/shared';
 import { BUSINESS_STATUS, BUSINESS_STATUS_VALUES } from '@esparex/contracts';
 import { ID_PROOF_TYPE_VALUES, type IdProofTypeValue } from '@esparex/contracts';

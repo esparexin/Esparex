@@ -2,12 +2,12 @@ import { Schema, Document, Model, Types } from 'mongoose';
 import { hasValidCoordinateArray } from '@esparex/shared';
 import {
   MOBILE_VISIBILITY,
-  normalizeMobileVisibility,
-} from "@esparex/shared";
+} from "@esparex/contracts";
+import { normalizeMobileVisibility } from "@esparex/shared";
 import { getUserConnection } from '../config/db';
-import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@esparex/shared';
+import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from '@esparex/contracts';
 
-import { Role, ROLE_VALUES } from '@esparex/shared';
+import { Role, ROLE_VALUES } from '@esparex/contracts';
 import { normalizeRole } from '../utils/roleNormalization';
 
 export interface GeoJSONPoint {

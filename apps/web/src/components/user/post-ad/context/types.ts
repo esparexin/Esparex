@@ -3,7 +3,7 @@
 import type { SparePart, DeviceModel, Brand } from "@/lib/api/user/masterData";
 import type { UseFormReturn, Control, FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import type { CategoryFilter } from "@shared";
+import type { CategoryFilter } from "@esparex/contracts";
 import type { Listing } from "@/lib/api/user/listings/normalizer";
 import type { GeoJSONPoint } from "@/types/location";
 import type { ListingImage, ListingCategory, ListingLocation } from "@/types/listing";

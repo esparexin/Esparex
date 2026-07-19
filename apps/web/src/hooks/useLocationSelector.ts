@@ -2,7 +2,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocationData, useLocationDispatch } from "@/context/LocationContext";
-import { normalizeGeoPoint, type GeoJSONPoint } from "@shared";
+import { normalizeGeoPoint } from "@shared";
+import type { GeoJSONPoint } from "@esparex/contracts";
 import { useDismissableLayer } from "@/hooks/useDismissableLayer";
 
 export interface SelectorLocationMeta {

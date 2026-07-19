@@ -1,7 +1,7 @@
 import { API_ROUTES } from "@/lib/api/routes";
 import { apiClient } from "@/lib/api/client";
 import type { SmartAlert } from "@/hooks/useSmartAlerts";
-import type { SmartAlertCreatePayload } from "@shared";
+import type { SmartAlertCreatePayload } from "@esparex/contracts";
 
 const normalizeSmartAlert = (raw: unknown): SmartAlert | null => {
   if (!raw || typeof raw !== "object") return null;

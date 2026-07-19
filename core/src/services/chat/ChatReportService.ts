@@ -1,5 +1,5 @@
 import { chatRepository } from '../../composition/chat';
-import type { ChatReportReasonValue } from '@esparex/shared';
+import type { ChatReportReasonValue } from '@esparex/contracts';
 
 export async function reportConversation(
     conversationId: string,

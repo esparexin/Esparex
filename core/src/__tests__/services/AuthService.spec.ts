@@ -95,8 +95,8 @@ import UserPlan from '../../models/UserPlan';
 import Business from '../../models/Business';
 import { generateToken } from '../../utils/auth';
 import { verifyOtpHash } from '../../utils/otpSecurity';
-import { Role } from '@esparex/shared';
-import { USER_STATUS } from '@esparex/shared';
+import { Role } from '@esparex/contracts';
+import { USER_STATUS } from '@esparex/contracts';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 

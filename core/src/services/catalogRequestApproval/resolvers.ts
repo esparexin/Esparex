@@ -1,5 +1,5 @@
 import { type ClientSession, type Types } from 'mongoose';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import { CATALOG_STATUS } from '@esparex/contracts';
 import Brand from '../../models/Brand';
 import CatalogModel from '../../models/Model';

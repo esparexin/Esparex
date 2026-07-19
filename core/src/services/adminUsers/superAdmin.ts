@@ -1,5 +1,5 @@
 import Admin from '../../models/Admin';
-import { USER_STATUS, Role } from '@esparex/shared';
+import { USER_STATUS, Role } from '@esparex/contracts';
 
 export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> => {
     const [targetAdmin, superAdminCount] = await Promise.all([

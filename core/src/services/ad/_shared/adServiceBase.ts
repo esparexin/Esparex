@@ -27,7 +27,7 @@ export { buildAdFilterFromCriteria } from '../../../utils/adFilterHelper';
 export type { AdFilterCriteria } from '../../../utils/adFilterHelper';
 export { getCache, setCache, getMultiCache, setMultiCache, CACHE_KEYS } from '../../../utils/redisCache';
 export { buildPublicAdFilter } from '../../../utils/FeedVisibilityGuard';
-export { LISTING_TYPE, type ListingTypeValue } from '@esparex/shared';
+export { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 export { default as logger } from '../../../utils/logger';
 export { default as RankingTelemetry } from '../../../models/RankingTelemetry';
 export { v4 as uuidv4 } from 'uuid';
@@ -38,7 +38,7 @@ export {
     normalizeAdImagesForResponse,
 } from '../../adQuery/AdQueryHelpers';
 export type { SortStage } from '../../adQuery/AdQueryHelpers';
-export { LISTING_STATUS } from '@esparex/shared';
+export { LISTING_STATUS } from '@esparex/contracts';
 export { FeatureFlag, isEnabled } from '../../../config/featureFlags';
 export { default as AdminMetrics } from '../../../models/AdminMetrics';
 export { isBusinessPublishedStatus } from '../../../utils/businessStatus';

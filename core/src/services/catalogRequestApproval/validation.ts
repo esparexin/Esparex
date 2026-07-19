@@ -5,7 +5,7 @@ import Category from '../../models/Category';
 import Brand from '../../models/Brand';
 import { AppError } from '../../utils/AppError';
 import { ACTIVE_CATEGORY_QUERY, normalizeCatalogCanonicalName } from '../catalog/CatalogValidationService';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import type { ICatalogRequest } from '../../models/CatalogRequest';
 import CatalogRequest from '../../models/CatalogRequest';
 

@@ -6,7 +6,7 @@ import {
   type ChatReportStatusValue,
   CHAT_REPORT_REASON_VALUES,
   type ChatReportReasonValue,
-} from '@esparex/shared';
+} from '@esparex/contracts';
 
 /* -------------------------------------------------------------------------- */
 /* Interface                                                                   */

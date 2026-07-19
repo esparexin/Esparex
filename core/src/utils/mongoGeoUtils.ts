@@ -2,12 +2,14 @@ import { PipelineStage } from 'mongoose';
 import { 
     isValidLngLat, 
     normalizeGeoPoint,
+    haversineDistance
+} from '@esparex/shared';
+import {
     type GeoJSONPoint,
     MIN_RADIUS_KM,
     MAX_RADIUS_KM,
     DEFAULT_RADIUS_KM,
-    haversineDistance
-} from '@esparex/shared';
+} from '@esparex/contracts';
 
 export { haversineDistance };
 

@@ -7,7 +7,7 @@ import { isValidObjectId } from '../../utils/idUtils';
 
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
-import { NOTIFICATION_TYPE } from '@esparex/shared';
+import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import { AdContext } from '../../types/ad.types';
 import { generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';

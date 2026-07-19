@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { smartAlertCriteriaSchema, smartAlertBodySchema } from "@shared";
+import { smartAlertCriteriaSchema, smartAlertBodySchema } from "@esparex/contracts";
 
 // criteriaSchema has .superRefine, so it's a ZodEffects. Use .innerType() to get ZodObject.
 const criteriaSchema = smartAlertCriteriaSchema instanceof z.ZodEffects ? smartAlertCriteriaSchema.innerType() : smartAlertCriteriaSchema;

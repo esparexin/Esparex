@@ -4,7 +4,7 @@ import {
     BrandSchema as SharedBrandSchema,
     ModelSchema as SharedModelSchema,
     SparePartSchema as SharedSparePartSchema,
-} from "@shared";
+} from "@esparex/contracts";
 
 // Category Schema
 export const CategorySchema = SharedCategorySchema.passthrough();

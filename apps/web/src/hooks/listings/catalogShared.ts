@@ -5,7 +5,7 @@ import type { ScreenSize } from "@/lib/api/user/masterData";
 import type { Category } from "@/lib/api/user/categories";
 import type { ListingCategory } from "@/types/listing";
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
-import type { CategoryFilter } from "@shared";
+import type { CategoryFilter } from "@esparex/contracts";
 
 export interface CategorySchemaType {
     categoryId: string;

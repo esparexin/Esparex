@@ -2,9 +2,9 @@ import logger from '../utils/logger';
 import AdminMetrics from '../models/AdminMetrics';
 import User from '../models/User';
 import Business from '../models/Business';
-import { USER_STATUS } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/contracts';
 import { BUSINESS_STATUS } from '@esparex/contracts';
-import { Role } from '@esparex/shared';
+import { Role } from '@esparex/contracts';
 
 export const runAdminMetricsJob = async () => {
     logger.info('Starting AdminMetrics cron job...');

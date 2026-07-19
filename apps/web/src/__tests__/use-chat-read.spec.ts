@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { IMessageDTO } from "@shared";
+import type { IMessageDTO } from "@esparex/contracts";
 import { shouldMarkConversationRead } from '@/hooks/useChat';
 
 function makeMessage(overrides: Partial<IMessageDTO> = {}): IMessageDTO {

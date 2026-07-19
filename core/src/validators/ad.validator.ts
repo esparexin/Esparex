@@ -12,7 +12,7 @@ import {
     AdPayloadSchema as SharedAdPayloadSchema,
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema,
     coordinatesSchema
-} from "@esparex/shared";
+} from "@esparex/contracts";
 
 /**
  * Seller type enum

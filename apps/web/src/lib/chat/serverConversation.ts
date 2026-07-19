@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { buildUserApiUrl } from '@/lib/api/user/server';
 import { USER_ROUTES } from '@/lib/api/routes';
-import type { IConversationDTO, IConversationResponse } from "@shared";
+import type { IConversationDTO, IConversationResponse } from "@esparex/contracts";
 
 export async function fetchServerConversation(conversationId: string): Promise<IConversationDTO | null> {
   try {

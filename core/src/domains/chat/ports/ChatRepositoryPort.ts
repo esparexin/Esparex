@@ -1,4 +1,4 @@
-import type { ChatReportReasonValue } from '@esparex/shared';
+import type { ChatReportReasonValue } from '@esparex/contracts';
 
 export interface ChatRepositoryPort {
     findConversationById(conversationId: string): Promise<any>;

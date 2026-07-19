@@ -4,7 +4,7 @@ import {
     CATALOG_APPROVAL_STATUS,
     CATALOG_APPROVAL_STATUS_VALUES,
     CatalogApprovalStatusValue,
-} from '@esparex/shared';
+} from '@esparex/contracts';
 import {
     applyCatalogNamingDefaults,
 } from '../services/catalog/CatalogValidationService';

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BasePlanPayloadSchema } from "@shared";
+import { BasePlanPayloadSchema } from "@esparex/contracts";
 
 const planShape = BasePlanPayloadSchema.shape;
 

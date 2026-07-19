@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LogLocationEventSchema as SharedLogLocationEventSchema } from "@esparex/shared";
+import { LogLocationEventSchema as SharedLogLocationEventSchema } from "@esparex/contracts";
 import { commonSchemas } from './common';
 
 export const logLocationEventSchema = SharedLogLocationEventSchema.extend({

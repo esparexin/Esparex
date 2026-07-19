@@ -10,7 +10,7 @@ import type {
   IConversationListResponse,
   IMessageListResponse,
   IChatSendResponse,
-} from "@shared";
+} from "@esparex/contracts";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */

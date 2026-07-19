@@ -1,4 +1,4 @@
-import { Brand, CreateBrandDTO, UpdateBrandDTO } from "@shared";
+import { Brand, CreateBrandDTO, UpdateBrandDTO } from "@esparex/contracts";
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 import { buildQueryString } from "./queryParams";

@@ -1,7 +1,7 @@
 import { chatRepository } from '../../composition/chat';
 import logger from '../../utils/logger';
 import { isListingChatClosed } from '../ChatAvailabilityService';
-import type { IConversationDTO } from "@esparex/shared";
+import type { IConversationDTO } from "@esparex/contracts";
 import {
     PAGE_SIZE_INBOX,
     toConversationDto,

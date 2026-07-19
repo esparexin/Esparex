@@ -7,7 +7,7 @@
  * DO NOT inline status chip UI in individual screens — use this component.
  */
 
-import { API_KEY_STATUS, CHAT_STATUS, LIFECYCLE_STATUS, REPORT_STATUS } from "@shared";
+import { API_KEY_STATUS, CHAT_STATUS, LIFECYCLE_STATUS, REPORT_STATUS } from "@esparex/contracts";
 
 export type StatusValue =
     | typeof LIFECYCLE_STATUS.PENDING

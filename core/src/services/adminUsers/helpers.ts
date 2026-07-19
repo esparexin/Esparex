@@ -1,4 +1,5 @@
-import { USER_STATUS, Role, normalizeUserStatus } from '@esparex/shared';
+import { USER_STATUS, Role } from '@esparex/contracts';
+import { normalizeUserStatus } from '@esparex/shared';
 
 const ACTIVE_USER_STATUS_QUERY = USER_STATUS.LIVE;
 const ADMIN_ROLE_RANK: Record<string, number> = { [Role.MODERATOR]: 40, [Role.ADMIN]: 70, [Role.SUPER_ADMIN]: 100 };

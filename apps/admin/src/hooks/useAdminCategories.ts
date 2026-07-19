@@ -1,7 +1,7 @@
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 import { useCallback, useState } from "react";
 import { getCategories, toggleCategoryStatus, deleteCategory, createCategory, updateCategory } from "@/lib/api/categories";
-import type { Category } from "@shared";
+import type { Category } from "@esparex/contracts";
 import { useToast } from "@/context/ToastContext";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";

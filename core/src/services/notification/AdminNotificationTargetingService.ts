@@ -6,7 +6,7 @@ import {
     ADMIN_NOTIFICATION_TOPIC_VALUES,
     type AdminNotificationTargetTypeValue,
     type AdminNotificationTopicValue,
-} from "@esparex/shared";
+} from "@esparex/contracts";
 import User from "../../models/User";
 
 type NotificationTargetParams = {
@@ -15,8 +15,8 @@ type NotificationTargetParams = {
     userIds?: string[];
 };
 
-import { USER_STATUS } from '@esparex/shared';
-import { Role } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/contracts';
+import { Role } from '@esparex/contracts';
 
 const ACTIVE_USER_QUERY: Record<string, unknown> = {
     isDeleted: { $ne: true },

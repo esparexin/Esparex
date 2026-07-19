@@ -1,7 +1,7 @@
 import User from '../../models/User';
 import Ad from '../../models/Ad';
 import AdminMetrics from '../../models/AdminMetrics';
-import { USER_STATUS, Role } from '@esparex/shared';
+import { USER_STATUS, Role } from '@esparex/contracts';
 import { hashPassword } from '../../utils/auth';
 import { AppError } from '../../utils/AppError';
 import type { AdminLogFn } from '../AdminListingsService';

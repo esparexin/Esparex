@@ -7,7 +7,7 @@ import type { ListingFilter, Listing } from '../../domains/listings/ports/Listin
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 import { normalizeAdImagesForResponse } from '../adQuery/AdQueryHelpers';
 import { normalizeGeoInput } from '../../utils/mongoGeoUtils';
-import type { HomeFeedResponse } from "@esparex/shared";
+import type { HomeFeedResponse } from "@esparex/contracts";
 import logger from '../../utils/logger';
 import { FeedDecisionEngine } from '../FeedDecisionEngine';
 import { HomeFeedRequest, ParsedHomeFeedCursor } from './FeedCursorService';

@@ -3,7 +3,7 @@ import {
     AdPayloadSchema as SharedAdPayloadSchema,
     BaseAdPayloadSchema as SharedBaseAdPayloadSchema,
     PartialAdPayloadSchema as SharedPartialAdPayloadSchema,
-} from "@shared";
+} from "@esparex/contracts";
 
 // Re-export shared schemas directly so frontend form code consumes the same
 // contract objects without rebuilding them locally.

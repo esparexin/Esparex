@@ -2,9 +2,11 @@ import {
     CHAT_STATUS,
     LIFECYCLE_STATUS,
     USER_STATUS,
+    type User,
+} from "@esparex/contracts";
+import {
     isActiveUserStatus,
     normalizeUserStatus,
-    type User,
 } from "@shared";
 
 export type ManagedUser = User & {

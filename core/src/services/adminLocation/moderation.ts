@@ -1,4 +1,4 @@
-import { LOCATION_STATUS } from '@esparex/shared';
+import { LOCATION_STATUS } from '@esparex/contracts';
 import logger from '../../utils/logger';
 import { AppError } from '../../utils/AppError';
 import { findLocationById } from '../location/LocationQueryService';

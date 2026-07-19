@@ -1,4 +1,4 @@
-import { LIFECYCLE_STATUS } from "@shared";
+import { LIFECYCLE_STATUS } from "@esparex/contracts";
 import type { ModerationStatus } from "./moderationTypes";
 
 export const MODERATION_STATUS_LABELS: Record<ModerationStatus, string> = {

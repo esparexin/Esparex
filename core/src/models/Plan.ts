@@ -2,7 +2,7 @@ import { Schema, Document } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
 import { applyToJSONTransform } from '../utils/schemaOptions';
-import type { Plan as SharedPlan } from "@esparex/shared";
+import type { Plan as SharedPlan } from "@esparex/contracts";
 
 export interface IPlan extends Document, Omit<SharedPlan, "id" | "createdAt" | "updatedAt"> {
     createdByAdmin: Schema.Types.ObjectId;

@@ -1,4 +1,4 @@
-import { CatalogApprovalStatusValue } from '@esparex/shared';
+import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 export interface Brand {
     readonly id: string;

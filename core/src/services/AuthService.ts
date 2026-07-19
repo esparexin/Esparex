@@ -13,8 +13,8 @@ import { hashOtp, verifyOtpHash } from '../utils/otpSecurity';
 import { env } from '../config/env';
 import { 
     USER_STATUS 
-} from '@esparex/shared';
-import { Role } from '@esparex/shared';
+} from '@esparex/contracts';
+import { Role } from '@esparex/contracts';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 

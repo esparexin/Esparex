@@ -4,7 +4,7 @@ import type { ILocation } from '../../models/Location';
 import { getListingRepository } from '../../composition/listings';
 import type { ListingFilter } from '../../domains/listings/ports/ListingRepositoryPort';
 import User from '../../models/User';
-import { LOCATION_STATUS } from '@esparex/shared';
+import { LOCATION_STATUS } from '@esparex/contracts';
 import logger from '../../utils/logger';
 
 const LOCATION_LIST_HINT = { isActive: 1, createdAt: -1 } as const;

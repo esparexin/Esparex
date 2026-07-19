@@ -9,7 +9,7 @@ import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import CatalogModel from '../../models/Model';
 import { getListingRepository } from '../../composition/listings';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 
 // ─── Category slug resolution ─────────────────────────────────────────────────
 

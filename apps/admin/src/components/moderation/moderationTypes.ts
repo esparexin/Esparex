@@ -1,4 +1,4 @@
-import { LIFECYCLE_STATUS, type ListingTypeValue } from "@shared";
+import { LIFECYCLE_STATUS, type ListingTypeValue } from "@esparex/contracts";
 
 export const MODERATION_STATUS_VALUES = [
     LIFECYCLE_STATUS.PENDING,

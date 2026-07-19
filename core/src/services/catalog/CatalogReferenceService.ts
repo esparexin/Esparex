@@ -9,7 +9,7 @@ import ScreenSizeModelImport from '../../models/ScreenSize';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import { getListingRepository } from '../../composition/listings';
-import { CATALOG_APPROVAL_STATUS, type AdStatusValue } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS, type AdStatusValue } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
 // ─── Category slug resolution ─────────────────────────────────────────────────

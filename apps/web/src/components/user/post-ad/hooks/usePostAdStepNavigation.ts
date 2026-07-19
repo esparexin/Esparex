@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useCallback } from "react";
 import { Path, UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import type { CategoryFilter } from "@shared";
+import type { CategoryFilter } from "@esparex/contracts";
 
 interface UsePostAdStepNavigationProps {
     form: UseFormReturn<PostAdFormData>;

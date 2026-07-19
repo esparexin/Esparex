@@ -4,10 +4,11 @@ import User from '../models/User';
 import PhoneRevealLog from '../models/PhoneRevealLog';
 import PhoneRequest from '../models/PhoneRequest';
 import logger from '../utils/logger';
-import { MOBILE_VISIBILITY, normalizeMobileVisibility } from "@esparex/shared";
+import { normalizeMobileVisibility } from "@esparex/shared";
+import { MOBILE_VISIBILITY } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
-import { USER_STATUS } from '@esparex/shared';
-import { REQUEST_STATUS } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/contracts';
+import { REQUEST_STATUS } from '@esparex/contracts';
 
 type SellerContact = {
     _id?: mongoose.Types.ObjectId;

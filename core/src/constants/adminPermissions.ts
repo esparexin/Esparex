@@ -1,4 +1,4 @@
-import { Role } from '@esparex/shared';
+import { Role } from '@esparex/contracts';
 
 export type AdminRole = Role;
 

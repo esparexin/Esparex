@@ -23,7 +23,7 @@
 import mongoose from 'mongoose';
 import { OpsCommand, OpsExecutionContext, OpsCommandResult } from '../../../types';
 import { CATALOG_STATUS } from '@esparex/contracts';
-import { USER_STATUS } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/contracts';
 import { connectOpsDb } from './commandUtils';
 import { closeDB } from '../../../config/db';
 import { installCatalogPromotionListener } from '../../../events/listeners/CatalogPromotionListener';

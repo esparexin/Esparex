@@ -1,4 +1,4 @@
-import { CatalogApprovalStatusValue } from '@esparex/shared';
+import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 export interface ScreenSize {
     readonly id: string;

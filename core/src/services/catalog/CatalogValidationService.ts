@@ -1,6 +1,8 @@
 import {
     CATALOG_APPROVAL_STATUS,
     type CatalogApprovalStatusValue,
+} from '@esparex/contracts';
+import {
     CatalogValidationServiceShared,
     type CatalogValidator,
     CharacterValidator,

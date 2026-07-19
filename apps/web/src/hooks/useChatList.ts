@@ -7,7 +7,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { chatApi, type ConversationListView } from "@/lib/api/chatApi";
 import { CHAT_INBOX_UPDATED_EVENT } from '@/lib/chatEvents';
-import type { IConversationDTO } from "@shared";
+import type { IConversationDTO } from "@esparex/contracts";
 
 const POLL_INTERVAL_MS = 10_000;
 

@@ -7,7 +7,7 @@ import SmartAlert from '../models/SmartAlert';
 import { logAdminActionDirect } from '../utils/adminLogger';
 import logger from '../utils/logger';
 
-import { USER_STATUS, UserStatusValue } from '@esparex/shared';
+import { USER_STATUS, UserStatusValue } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { mutateStatuses } from './lifecycle/StatusMutationService';

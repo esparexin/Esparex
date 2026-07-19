@@ -1,4 +1,4 @@
-import { NOTIFICATION_TYPE, type NotificationTypeValue } from '@esparex/shared';
+import { NOTIFICATION_TYPE, type NotificationTypeValue } from '@esparex/contracts';
 
 import User from "../../models/User";
 

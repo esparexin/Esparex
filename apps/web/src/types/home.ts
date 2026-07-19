@@ -13,7 +13,7 @@ export interface NormalizedLocation {
     coordinates?: GeoJSONPoint;
 }
 
-export type { Ad as ApiAd, Category as ApiCategory } from "@esparex/shared";
+export type { Ad as ApiAd, Category as ApiCategory } from "@esparex/contracts";
 
 
 // The shape used by UI components (AdCard, etc.)

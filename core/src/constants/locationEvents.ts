@@ -5,4 +5,4 @@ export {
     type LocationEventReason,
     type LocationEventSource,
     type LocationEventType,
-} from "@esparex/shared";
+} from "@esparex/contracts";

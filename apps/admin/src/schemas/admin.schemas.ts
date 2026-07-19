@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ObjectIdSchema } from "@shared";
+import { ObjectIdSchema } from "@esparex/contracts";
 import { LISTING_TYPE_VALUES } from "@esparex/contracts";
 /**
  * Common Admin Validation Schemas

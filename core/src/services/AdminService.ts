@@ -1,11 +1,11 @@
 import Admin, { IAdmin } from '../models/Admin';
 import { Types } from 'mongoose';
 import AdminLog from '../models/AdminLog';
-import { USER_STATUS } from '@esparex/shared';
+import { USER_STATUS } from '@esparex/contracts';
 import logger from '../utils/logger';
 import { env } from '../config/env';
 import { escapeRegExp } from '../utils/stringUtils';
-import { Role } from '@esparex/shared';
+import { Role } from '@esparex/contracts';
 import { normalizeRole } from '../utils/roleNormalization';
 
 export const seedAdmin = async (email: string) => {

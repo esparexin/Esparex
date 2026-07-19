@@ -9,8 +9,8 @@ import ServiceType from '../models/ServiceType';
 import SparePart from '../models/SparePart';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LISTING_TYPE } from '@esparex/contracts';
-import { MODERATION_STATUS } from '@esparex/shared';
-import { MOBILE_VISIBILITY } from "@esparex/shared";
+import { MODERATION_STATUS } from '@esparex/contracts';
+import { MOBILE_VISIBILITY } from "@esparex/contracts";
 import logger from '../utils/logger';
 
 type ListingFixtureType = 'ad' | 'service' | 'spare_part';

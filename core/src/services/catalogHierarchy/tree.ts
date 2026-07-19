@@ -8,7 +8,7 @@ import ScreenSize from '../../models/ScreenSize';
 import { getActiveCategoryIds } from '../catalog/CatalogValidationService';
 import { slugifyCatalogValue } from '../../utils/catalogGovernance';
 import type { AnyBulkWriteOperation } from 'mongoose';
-import type { HierarchyTreeResponse } from '@esparex/shared';
+import type { HierarchyTreeResponse } from '@esparex/contracts';
 import type { ModelHierarchyDoc, HierarchyIssue, HierarchyReport, ModelDeletionImpact, ModelHierarchyRepairPlan } from './types';
 import { MAX_MODEL_TREE_DEPTH } from './constants';
 import { getEffectiveParentId, modelSelect, getLineageKey } from './validation';
@@ -209,7 +209,7 @@ export async function repairStaleModelHierarchy(options: { dryRun?: boolean } = 
 }
 
 export async function activateValidRecords(): Promise<{ brands: number; spareParts: number; screenSizes: number }> {
-    const { CATALOG_APPROVAL_STATUS } = await import('@esparex/shared');
+    const { CATALOG_APPROVAL_STATUS } = await import('@esparex/contracts');
     const validCatIds = new Set(await getActiveCategoryIds());
 
     const inactiveBrands = await Brand.find({ isDeleted: { $ne: true }, deletedAt: null, isActive: false, approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED, needsReview: { $ne: true }, categoryIds: { $exists: true, $not: { $size: 0 } } }).select('_id categoryIds').lean();

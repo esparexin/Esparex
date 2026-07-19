@@ -18,7 +18,7 @@ import {
 } from './savedSearch/SavedSearchMatchService';
 import { SavedSearchRateService } from './savedSearch/SavedSearchRateService';
 
-import type { SavedSearchCreatePayload } from "@esparex/shared";
+import type { SavedSearchCreatePayload } from "@esparex/contracts";
 
 const toSavedSearchContract = (search: SavedSearchRecord & { id?: string; userId: Types.ObjectId; createdAt?: Date }) => ({
     id: search._id?.toString() || search.id || '',

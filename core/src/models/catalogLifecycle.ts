@@ -1,4 +1,4 @@
-import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import { deriveApprovalStatus } from '../services/catalog/CatalogValidationService';
 
 /**

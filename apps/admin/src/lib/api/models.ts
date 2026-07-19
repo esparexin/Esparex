@@ -1,4 +1,4 @@
-import { Model, CreateModelDTO, UpdateModelDTO } from "@shared";
+import { Model, CreateModelDTO, UpdateModelDTO } from "@esparex/contracts";
 import { adminFetch } from "./adminClient";
 import { ADMIN_ROUTES } from "./routes";
 

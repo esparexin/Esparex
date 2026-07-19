@@ -1,6 +1,6 @@
 import { API_ROUTES } from "@/lib/api/routes";
 import { apiClient } from "@/lib/api/client";
-import type { SavedSearchCreatePayload } from "@shared";
+import type { SavedSearchCreatePayload } from "@esparex/contracts";
 
 export interface SavedSearch {
   id: string;

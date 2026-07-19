@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { commonSchemas, sanitizeString } from './common';
 import { normalizeTo10Digits } from '../utils/phoneUtils';
-import { BUSINESS_LIMITS } from "@esparex/shared";
+import { BUSINESS_LIMITS } from "@esparex/contracts";
 import { validateText } from "@esparex/shared";
 import { ID_PROOF_TYPE_VALUES } from '@esparex/contracts';
 import { BUSINESS_STATUS } from '@esparex/contracts';

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { CheckCircle2, User as UserIcon, X } from "lucide-react";
-import { REPORT_STATUS } from "@shared";
+import { REPORT_STATUS } from "@esparex/contracts";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import {

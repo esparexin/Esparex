@@ -2,7 +2,7 @@ import {
     CatalogApprovalStatusValue,
     ListingTypeValue,
     ServiceSelectionMode
-} from '@esparex/shared';
+} from '@esparex/contracts';
 
 // Currently an alias.
 // Can later become a branded type or value object.

@@ -2,7 +2,7 @@
 import { Schema, Document, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import type { Model } from "mongoose";
-import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from '@esparex/shared';
+import { PAYMENT_STATUS, PAYMENT_STATUS_VALUES, PaymentStatusValue } from '@esparex/contracts';
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
 export interface IInvoice extends Document {

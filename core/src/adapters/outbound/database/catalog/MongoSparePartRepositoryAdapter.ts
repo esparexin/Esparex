@@ -1,6 +1,6 @@
 import { SparePart, SparePartRepositoryPort } from '../../../../domains/catalog';
 import SparePartMongoose from '../../../../models/SparePart';
-import { CatalogApprovalStatusValue } from '@esparex/shared';
+import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 interface DbSparePart {
     _id: unknown;

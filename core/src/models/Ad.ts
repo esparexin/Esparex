@@ -2,9 +2,9 @@ import { Schema, Model, Document, Types, type ClientSession } from 'mongoose';
 import softDeletePlugin, { ISoftDeleteDocument } from '../utils/softDeletePlugin';
 
 import { LISTING_STATUS, LISTING_STATUS_VALUES } from '@esparex/contracts';
-import { type AdStatusValue } from '@esparex/shared';
+import { type AdStatusValue } from '@esparex/contracts';
 import { LISTING_TYPE, LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/contracts';
-import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/shared';
+import { MODERATION_STATUS, MODERATION_STATUS_VALUES, type ModerationStatusValue } from '@esparex/contracts';
 import { getUserConnection } from '../config/db';
 import { syncConversationAvailabilityForListing } from '../services/ChatAvailabilityService';
 import { generateUniqueSlug } from '../utils/slugGenerator';

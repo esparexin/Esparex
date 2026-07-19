@@ -1,4 +1,4 @@
-import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS } from "@shared";
+import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS } from "@esparex/contracts";
 
 export type AdminRole = "superAdmin" | "admin" | "moderator";
 export const ADMIN_STATUS_OPTIONS = [

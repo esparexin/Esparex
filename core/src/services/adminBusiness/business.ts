@@ -3,7 +3,7 @@ import Ad from '../../models/Ad';
 import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
 import { publishedBusinessStatusQuery } from '../../utils/businessStatus';
 import { BUSINESS_STATUS, LISTING_STATUS, LISTING_TYPE, ACTOR_TYPE } from '@esparex/contracts';
-import type { ActorMetadata } from '@esparex/shared';
+import type { ActorMetadata } from '@esparex/contracts';
 import { mutateStatuses, mutateStatus } from '../lifecycle/StatusMutationService';
 import { AppError } from '../../utils/AppError';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';

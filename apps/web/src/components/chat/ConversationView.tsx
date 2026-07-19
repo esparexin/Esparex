@@ -11,7 +11,7 @@ import { ChatInput } from './ChatInput';
 import { QuickReplies } from './QuickReplies';
 import { ChatReadOnly } from './ChatReadOnly';
 import { ChatActionsMenu } from './ChatActionsMenu';
-import type { IConversationDTO } from "@shared";
+import type { IConversationDTO } from "@esparex/contracts";
 import { formatAppDate, formatStableNumber } from '@/lib/formatters';
 
 interface ConversationViewProps {

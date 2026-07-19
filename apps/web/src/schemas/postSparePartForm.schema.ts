@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
     BaseSparePartPayloadSchema,
     PartialSparePartPayloadSchema,
-} from "@shared";
+} from "@esparex/contracts";
 
 const stringId = z.string().optional();
 const requiredStringId = z.string().min(1, "Required");
