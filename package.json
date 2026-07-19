@@ -9,8 +9,6 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "packages/domain/*",
-    "services/*",
     "backend/api",
     "core",
     "shared"

@@ -1,1 +1,0 @@
-export const domainsearch = true;
