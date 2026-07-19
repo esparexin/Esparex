@@ -68,7 +68,3 @@ export * from './observability/types';
 export { getLogger } from './observability/index';
 export { createUniversalLogger } from './observability/logger';
 
-// IMAGE DOMAIN REGISTRY
-import * as imageDomainRegistry from './constants/image-domain-registry.json';
-export { imageDomainRegistry };
-export default imageDomainRegistry;

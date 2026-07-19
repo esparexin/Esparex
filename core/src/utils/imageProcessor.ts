@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import sharp from 'sharp';
 import logger from './logger';
 import { env } from '../config/env';
-import imageDomainRegistry from "@esparex/shared";
+import { imageDomainRegistry } from "@esparex/shared";
 
 let hasWarnedMissingS3InTest = false;
 const MAX_IMAGE_DIMENSION = 1600;
