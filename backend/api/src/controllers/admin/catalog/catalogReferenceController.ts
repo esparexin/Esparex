@@ -22,7 +22,7 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus,
     applyCatalogStatusFilter
-} from './shared';
+} from './adminCatalogHelpers';
 import { validateScreenSizeRelations } from '@esparex/core/services/catalog/CatalogValidationService';
 import {
     screenSizeCreateSchema,
@@ -39,8 +39,7 @@ import {
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
 } from '@esparex/core/services/catalog/CatalogReferenceService';
-import ServiceTypeModel from '@esparex/core/models/ServiceType';
-import ScreenSizeModel from '@esparex/core/models/ScreenSize';
+
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString } from './inputCoercion';
 
@@ -84,7 +83,7 @@ export const getServiceTypes = async (req: Request, res: Response) => {
     delete queryParams.categoryId;
     delete queryParams.categoryIds;
 
-    return handlePaginatedContent(req, res, ServiceTypeModel, {
+    return handlePaginatedContent(req, res, 'ServiceType', {
         populate: isAdminView ? undefined : 'categoryIds',
         adminQuery,
         publicQuery,
@@ -122,7 +121,9 @@ export const getServiceTypeById = async (req: Request, res: Response) => {
  * Create new service type
  */
 export const createServiceType = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, ServiceTypeModel, serviceTypeCreateSchema, {
+    return handleCatalogCreate(req, res, 'ServiceType', serviceTypeCreateSchema,
+        async (data) => mongoose.model('ServiceType').create(data),
+        {
         auditAction: 'SERVICE_TYPE_CREATE',
         preOp: (payload) => {
             payload.approvalStatus = deriveApprovalStatus({
@@ -140,7 +141,10 @@ export const createServiceType = async (req: Request, res: Response) => {
  * Update existing service type
  */
 export const updateServiceType = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, ServiceTypeModel, serviceTypeUpdateSchema, {
+    return handleCatalogUpdate(req, res, 'ServiceType', serviceTypeUpdateSchema,
+        async (id) => mongoose.model('ServiceType').findById(id),
+        async (id, data) => mongoose.model('ServiceType').findByIdAndUpdate(id, data, { new: true }),
+        {
         auditAction: 'SERVICE_TYPE_UPDATE',
         preUpdate: (id, payload) => {
             payload.approvalStatus = deriveApprovalStatus({
@@ -158,7 +162,11 @@ export const updateServiceType = async (req: Request, res: Response) => {
  * Toggle service type active status
  */
 export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, ServiceTypeModel, {
+    return handleCatalogToggleStatus(req, res, 'ServiceType',
+        async (id) => mongoose.model('ServiceType').findById(id),
+        async (id, data) => mongoose.model('ServiceType').findByIdAndUpdate(id, data, { new: true }),
+        false, true,
+        {
         auditAction: 'TOGGLE_SERVICE_TYPE_STATUS',
         postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
@@ -168,7 +176,9 @@ export const toggleServiceTypeStatus = async (req: Request, res: Response) => {
  * Delete service type (soft delete with dependency check)
  */
 export const deleteServiceType = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, ServiceTypeModel, checkServiceTypeDependencies, {
+    return handleCatalogDelete(req, res, 'ServiceType',
+        async (id, data) => mongoose.model('ServiceType').findByIdAndUpdate(id, data, { new: true }),
+        checkServiceTypeDependencies, {
         auditAction: 'SERVICE_TYPE_DELETE',
         postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
@@ -235,7 +245,7 @@ export const getScreenSizes = async (req: Request, res: Response) => {
     delete queryParams.categoryIds;
     delete queryParams.brandId;
 
-    return handlePaginatedContent(req, res, ScreenSizeModel, {
+    return handlePaginatedContent(req, res, 'ScreenSize', {
         adminQuery,
         publicQuery,
         searchFields: ['name', 'size'],
@@ -272,7 +282,9 @@ export const getScreenSizeById = async (req: Request, res: Response) => {
  * Create new screen size
  */
 export const createScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, ScreenSizeModel, screenSizeCreateSchema, {
+    return handleCatalogCreate(req, res, 'ScreenSize', screenSizeCreateSchema,
+        async (data) => mongoose.model('ScreenSize').create(data),
+        {
         auditAction: 'SCREEN_SIZE_CREATE',
         preOp: async (payload) => {
             if (!payload.name && payload.size) payload.name = `${String(payload.size)} Screen Size`;
@@ -298,7 +310,10 @@ export const createScreenSize = async (req: Request, res: Response) => {
  * Update existing screen size
  */
 export const updateScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, ScreenSizeModel, screenSizeUpdateSchema, {
+    return handleCatalogUpdate(req, res, 'ScreenSize', screenSizeUpdateSchema,
+        async (id) => mongoose.model('ScreenSize').findById(id),
+        async (id, data) => mongoose.model('ScreenSize').findByIdAndUpdate(id, data, { new: true }),
+        {
         auditAction: 'SCREEN_SIZE_UPDATE',
         preUpdate: async (id, payload, existingSize) => {
             if (!payload.name && payload.size) payload.name = `${String(payload.size)} Screen Size`;
@@ -325,7 +340,11 @@ export const updateScreenSize = async (req: Request, res: Response) => {
  * Toggle screen size active status
  */
 export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, ScreenSizeModel, {
+    return handleCatalogToggleStatus(req, res, 'ScreenSize',
+        async (id) => mongoose.model('ScreenSize').findById(id),
+        async (id, data) => mongoose.model('ScreenSize').findByIdAndUpdate(id, data, { new: true }),
+        false, true,
+        {
         auditAction: 'TOGGLE_SCREEN_SIZE_STATUS',
         postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });
@@ -335,7 +354,9 @@ export const toggleScreenSizeStatus = async (req: Request, res: Response) => {
  * Delete screen size (soft delete)
  */
 export const deleteScreenSize = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, ScreenSizeModel, undefined, {
+    return handleCatalogDelete(req, res, 'ScreenSize',
+        async (id, data) => mongoose.model('ScreenSize').findByIdAndUpdate(id, data, { new: true }),
+        undefined, {
         auditAction: 'SCREEN_SIZE_DELETE',
         postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
     });

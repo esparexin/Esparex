@@ -1,21 +1,12 @@
-/**
- * Shared utilities for catalog controllers
- * Extracted from original catalog.content.controller.ts
- *
- * Validation logic is delegated to CatalogValidationService (SSOT).
- * Re-exports keep existing controller imports stable.
- */
-
+import mongoose, { Document } from 'mongoose';
 import { Request, Response } from 'express';
-import { Document, Model as MongooseModel } from 'mongoose';
 import { z } from 'zod';
 import slugify from 'slugify';
 import { nanoid } from 'nanoid';
+import logger from '@esparex/core/utils/logger';
 import { respond, sendSuccessResponse } from "../../../utils/respond";
 import { sendErrorResponse as sendContractErrorResponse, sendCatalogError } from "../../../utils/errorResponse";
 import { isDuplicateKeyError } from '@esparex/core/utils/errorHelpers';
-
-// Re-export SSOT validation helpers so controllers import from one place.
 import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import {
     ACTIVE_CATEGORY_QUERY,
@@ -25,9 +16,13 @@ import {
     validateActiveCategories,
     deriveApprovalStatus,
 } from '@esparex/core/services/catalog/CatalogValidationService';
-
 import { logAdminAction } from '../../../utils/adminLogger';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
+import { toOptionalString } from './inputCoercion';
+import { setCache } from '@esparex/core/utils/redisCache';
+import { getVariantsAndModelsForParentModels, getBrandModelsForDuplicateCheck } from '@esparex/core/services/catalog/CatalogBrandModelService';
+import { validateModelHierarchyMutation } from '@esparex/core/services/catalog/CatalogHierarchyService';
+import { detectDuplicateCandidates } from '@esparex/core/services/catalog/CatalogSearchGovernanceService';
 
 export {
     sendCatalogError,
@@ -38,7 +33,8 @@ export {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     getActiveCategoryIds,
     validateActiveCategories,
-    deriveApprovalStatus
+    deriveApprovalStatus,
+    isDuplicateKeyError
 };
 
 export type CatalogRequest = Request & {
@@ -47,11 +43,6 @@ export type CatalogRequest = Request & {
 };
 
 export type QueryRecord = Record<string, unknown>;
-
-const hasSchemaPath = (
-    model: { schema: { path(field: string): unknown } },
-    path: string
-): boolean => Boolean(model.schema.path(path));
 
 export type CatalogStatusFilterToken =
     | 'live'
@@ -115,8 +106,6 @@ export const getAdminActorId = (req: Request): string | undefined => {
     return undefined;
 };
 
-// sendCatalogError is imported and re-exported from "../../../utils/errorResponse" (line above)
-
 /**
  * Send Zod validation error response mapping issues to field-level details
  */
@@ -142,9 +131,6 @@ export const sendEmptyPublicList = (res: Response) => {
     }));
 };
 
-// isDuplicateKeyError imported from errorHelpers (SSOT)
-export { isDuplicateKeyError };
-
 /* ======================================================
    GENERIC CATALOG CRUD HANDLERS
 ====================================================== */
@@ -155,8 +141,9 @@ export { isDuplicateKeyError };
 export async function handleCatalogCreate<T extends Document>(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    entityName: string,
     schema: z.ZodTypeAny,
+    createOp: (data: Partial<T>) => Promise<T>,
     options: {
         auditAction?: string;
         slugifyName?: boolean;
@@ -184,18 +171,18 @@ export async function handleCatalogCreate<T extends Document>(
             data.slug = slugify(data.name as string, { lower: true, strict: true }) + '-' + nanoid(6);
         }
 
-        const item = await model.create(data as unknown as Partial<T>);
+        const item = await createOp(data as unknown as Partial<T>);
 
         if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { data });
+            void logAdminAction(req, options.auditAction, entityName as Parameters<typeof logAdminAction>[2], item._id, { data });
         }
 
-        return sendSuccessResponse(res, item, `${model.modelName} created successfully`);
+        return sendSuccessResponse(res, item, `${entityName} created successfully`);
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendContractErrorResponse(req, res, 400, `${model.modelName} already exists`);
+            return sendContractErrorResponse(req, res, 400, `${entityName} already exists`);
         }
         return sendCatalogError(req, res, error);
     }
@@ -207,13 +194,14 @@ export async function handleCatalogCreate<T extends Document>(
 export async function handleCatalogUpdate<T extends Document>(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    entityName: string,
     schema: z.ZodTypeAny,
+    findByIdOp: (id: string) => Promise<T | null>,
+    updateOp: (id: string, data: Partial<T>) => Promise<T | null>,
     options: {
         auditAction?: string;
         slugifyName?: boolean;
         preUpdate?: (id: string, payload: Record<string, unknown>, existing: T) => Promise<Record<string, unknown>>;
-        updateOp?: (id: string, data: Record<string, unknown>, existing: T) => Promise<T | unknown>;
         postOp?: (item: T) => void | Promise<void>;
     } = {}
 ) {
@@ -223,9 +211,9 @@ export async function handleCatalogUpdate<T extends Document>(
         }
 
         const id = String(req.params.id);
-        const existing = await model.findById(id);
+        const existing = await findByIdOp(id);
         if (!existing) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${entityName} not found`);
         }
 
         let payload: Record<string, unknown> = req.body as Record<string, unknown>;
@@ -243,21 +231,19 @@ export async function handleCatalogUpdate<T extends Document>(
             data.slug = slugify(data.name as string, { lower: true, strict: true });
         }
 
-        const item = options.updateOp
-            ? await options.updateOp(id, data, existing)
-            : await model.findByIdAndUpdate(id, data as unknown as Partial<T>, { new: true });
+        const item = await updateOp(id, data as unknown as Partial<T>);
         
-        if (options.postOp) void options.postOp(item as T);
+        if (options.postOp && item) void options.postOp(item as T);
 
         if (options.auditAction) {
             const auditItem = item as { _id?: string | { toString: () => string } } | null;
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], auditItem?._id, { updates: data });
+            void logAdminAction(req, options.auditAction, entityName as Parameters<typeof logAdminAction>[2], auditItem?._id, { updates: data });
         }
 
-        return sendSuccessResponse(res, item, `${model.modelName} updated successfully`);
+        return sendSuccessResponse(res, item, `${entityName} updated successfully`);
     } catch (error) {
         if (isDuplicateKeyError(error)) {
-            return sendContractErrorResponse(req, res, 400, `${model.modelName} already exists`);
+            return sendContractErrorResponse(req, res, 400, `${entityName} already exists`);
         }
         return sendCatalogError(req, res, error);
     }
@@ -269,7 +255,11 @@ export async function handleCatalogUpdate<T extends Document>(
 export async function handleCatalogToggleStatus<T extends Document>(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    entityName: string,
+    findByIdOp: (id: string) => Promise<T | null>,
+    updateOp: (id: string, data: Partial<T>) => Promise<T | null>,
+    hasCategoryIds: boolean = false,
+    hasApprovalStatus: boolean = false,
     options: { 
         auditAction?: string;
         postOp?: (item: T) => void | Promise<void>;
@@ -280,15 +270,15 @@ export async function handleCatalogToggleStatus<T extends Document>(
             return sendContractErrorResponse(req, res, 403, 'Admin access required');
         }
 
-        const item = await model.findById(req.params.id);
+        const item = await findByIdOp(String(req.params.id));
         if (!item) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${entityName} not found`);
         }
 
         const isActive = !(item as T & { isActive?: boolean }).isActive;
         const typedItem = item as T & { approvalStatus?: unknown; isActive?: boolean; categoryIds?: string[] };
 
-        if (isActive && hasSchemaPath(model, 'categoryIds') && (!typedItem.categoryIds || typedItem.categoryIds.length === 0)) {
+        if (isActive && hasCategoryIds && (!typedItem.categoryIds || typedItem.categoryIds.length === 0)) {
             return sendContractErrorResponse(req, res, 400, 'Cannot activate brand/model with no assigned categories');
         }
 
@@ -298,19 +288,19 @@ export async function handleCatalogToggleStatus<T extends Document>(
             fallback: CATALOG_APPROVAL_STATUS.APPROVED,
         });
         const nextState: Record<string, unknown> = { isActive };
-        if (hasSchemaPath(model, 'approvalStatus')) {
+        if (hasApprovalStatus) {
             nextState.approvalStatus = approvalStatus;
         }
 
-        await model.findByIdAndUpdate(req.params.id, nextState);
+        await updateOp(String(req.params.id), nextState as Partial<T>);
         
         if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { isActive, approvalStatus });
+            void logAdminAction(req, options.auditAction, entityName as Parameters<typeof logAdminAction>[2], item._id, { isActive, approvalStatus });
         }
 
-        return sendSuccessResponse(res, nextState, `${model.modelName} status updated to ${isActive ? 'active' : 'inactive'}`);
+        return sendSuccessResponse(res, nextState, `${entityName} status updated to ${isActive ? 'active' : 'inactive'}`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
@@ -322,7 +312,8 @@ export async function handleCatalogToggleStatus<T extends Document>(
 export async function handleCatalogDelete<T extends Document>(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    entityName: string,
+    updateOp: (id: string, data: Partial<T>) => Promise<T | null>,
     checkDependencies?: (id: string) => Promise<{ count: number; details: unknown }>,
     options: { 
         auditAction?: string;
@@ -339,7 +330,7 @@ export async function handleCatalogDelete<T extends Document>(
         if (checkDependencies) {
             const deps = await checkDependencies(id);
             if (deps.count > 0) {
-                return sendContractErrorResponse(req, res, 400, `Cannot delete ${model.modelName} with active dependencies`, { details: deps.details });
+                return sendContractErrorResponse(req, res, 400, `Cannot delete ${entityName} with active dependencies`, { details: deps.details });
             }
         }
 
@@ -349,18 +340,18 @@ export async function handleCatalogDelete<T extends Document>(
             isActive: false,
         };
 
-        const item = await model.findByIdAndUpdate(id, softDeleteUpdate, { new: true });
+        const item = await updateOp(id, softDeleteUpdate as Partial<T>);
         if (!item) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${entityName} not found`);
         }
 
         if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id);
+            void logAdminAction(req, options.auditAction, entityName as Parameters<typeof logAdminAction>[2], item._id);
         }
 
-        return sendSuccessResponse(res, null, `${model.modelName} deleted successfully`);
+        return sendSuccessResponse(res, null, `${entityName} deleted successfully`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
@@ -372,8 +363,9 @@ export async function handleCatalogDelete<T extends Document>(
 export async function handleCatalogReview<T extends Document>(
     req: Request,
     res: Response,
-    model: MongooseModel<T>,
+    entityName: string,
     action: 'APPROVE' | 'REJECT',
+    updateOp: (id: string, data: Partial<T>) => Promise<T | null>,
     schema?: z.ZodTypeAny,
     options: { 
         auditAction?: string;
@@ -403,20 +395,100 @@ export async function handleCatalogReview<T extends Document>(
             };
         }
 
-
-        const item = await model.findByIdAndUpdate(req.params.id, { $set: updates }, { new: true });
+        const item = await updateOp(String(req.params.id), updates as Partial<T>);
         if (!item) {
-            return sendContractErrorResponse(req, res, 404, `${model.modelName} not found`);
+            return sendContractErrorResponse(req, res, 404, `${entityName} not found`);
         }
 
         if (options.postOp) void options.postOp(item as T);
 
         if (options.auditAction) {
-            void logAdminAction(req, options.auditAction, model.modelName as Parameters<typeof logAdminAction>[2], item._id, { updates });
+            void logAdminAction(req, options.auditAction, entityName as Parameters<typeof logAdminAction>[2], item._id, { updates });
         }
 
-        return sendSuccessResponse(res, item, `${model.modelName} ${action.toLowerCase()}d successfully`);
+        return sendSuccessResponse(res, item, `${entityName} ${action.toLowerCase()}d successfully`);
     } catch (error) {
         return sendCatalogError(req, res, error);
     }
 }
+
+/* ======================================================
+   ADMIN CATALOG SHARED HELPERS
+====================================================== */
+
+export const CATALOG_CACHE_TTL = 300;
+
+export const normalizeCacheValue = (value: unknown): string => {
+    if (Array.isArray(value)) return value.map(normalizeCacheValue).join(',');
+    if (value === undefined || value === null || value === '') return 'all';
+    return encodeURIComponent(String(value));
+};
+
+export const catalogCacheKey = {
+    brands: (categoryId: string) => `catalog:brands:${normalizeCacheValue(categoryId)}`,
+    models: (params: {
+        categoryId?: unknown; brandId?: unknown; parentModelId?: unknown; variantModelId?: unknown;
+        includeVariants?: unknown; treeView?: unknown; search?: unknown; q?: unknown;
+        page?: unknown; limit?: unknown; sort?: unknown;
+    }) => ['catalog:models', `category=${normalizeCacheValue(params.categoryId)}`, `brand=${normalizeCacheValue(params.brandId)}`,
+        `parent=${normalizeCacheValue(params.parentModelId)}`, `variant=${normalizeCacheValue(params.variantModelId)}`,
+        `includeVariants=${normalizeCacheValue(params.includeVariants)}`, `treeView=${normalizeCacheValue(params.treeView)}`,
+        `search=${normalizeCacheValue(params.search ?? params.q)}`, `page=${normalizeCacheValue(params.page ?? 1)}`,
+        `limit=${normalizeCacheValue(params.limit ?? 100)}`, `sort=${normalizeCacheValue(params.sort ?? 'name')}`,
+    ].join(':'),
+};
+
+export const normalizeOptionalObjectIdQuery = (value: unknown): string | undefined => {
+    const raw = Array.isArray(value) ? value[0] : value;
+    if (typeof raw !== 'string') return undefined;
+    const normalized = raw.trim();
+    if (!normalized || normalized === 'all') return undefined;
+    return mongoose.Types.ObjectId.isValid(normalized) ? normalized : undefined;
+};
+
+export const normalizeBooleanQuery = (value: unknown): boolean => {
+    const raw = Array.isArray(value) ? value[0] : value;
+    return raw === true || raw === 'true' || raw === '1';
+};
+
+export const populateModelVariants = async (items: unknown[]) => {
+    const modelIds = items.map((item) => { const m = item as { _id?: unknown; id?: unknown }; return m._id ?? m.id; }).filter(Boolean).map(String);
+    if (modelIds.length === 0) return items;
+    const [variantDocs, variantModelDocs] = await getVariantsAndModelsForParentModels(modelIds);
+    const variantsByModelId = new Map<string, unknown[]>();
+    for (const v of variantDocs) { const mid = String((v as { modelId?: unknown }).modelId ?? ''); if (!mid) continue; const ex = variantsByModelId.get(mid) ?? []; ex.push(v); variantsByModelId.set(mid, ex); }
+    const variantModelsByParentId = new Map<string, unknown[]>();
+    for (const vm of variantModelDocs) { const pid = String((vm as { variantOfModelId?: unknown }).variantOfModelId ?? ''); if (!pid) continue; const ex = variantModelsByParentId.get(pid) ?? []; ex.push(vm); variantModelsByParentId.set(pid, ex); }
+    return items.map((item) => {
+        const plain = typeof (item as { toObject?: () => unknown }).toObject === 'function' ? (item as { toObject: () => Record<string, unknown> }).toObject() : { ...(item as Record<string, unknown>) };
+        const id = String(plain._id ?? plain.id ?? '');
+        return { ...plain, variants: variantsByModelId.get(id) ?? [], variantModels: variantModelsByParentId.get(id) ?? [] };
+    });
+};
+
+export const applyModelHierarchyPayload = async (payload: Record<string, unknown>, options: { existingModel?: unknown } = {}) => {
+    const normalizedPayload = {
+        ...payload,
+        brandId: toOptionalString(payload.brandId) ?? payload.brandId,
+        parentModelId: payload.parentModelId === null ? null : toOptionalString(payload.parentModelId) ?? payload.parentModelId,
+        variantOfModelId: payload.variantOfModelId === null ? null : toOptionalString(payload.variantOfModelId) ?? payload.variantOfModelId,
+    };
+    return validateModelHierarchyMutation(normalizedPayload, { existingModel: options.existingModel as any });
+};
+
+export const logModelDuplicateCandidates = async (req: Request, payload: Record<string, unknown>, options: { excludeId?: string } = {}) => {
+    const name = String(payload.displayName ?? payload.name ?? payload.canonicalName ?? '').trim();
+    const brandId = toOptionalString(payload.brandId);
+    if (!name || !brandId) return;
+    const candidates = await getBrandModelsForDuplicateCheck(brandId, options.excludeId);
+    const dupes = detectDuplicateCandidates(name, candidates as unknown as Record<string, unknown>[]);
+    if (dupes.length > 0) logger.warn('[CatalogSearch] Potential model duplicate candidates detected', { requestPath: req.originalUrl || req.path, candidateCount: dupes.length, input: name, candidates: dupes });
+};
+
+export const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
+    const originalJson = res.json.bind(res);
+    res.json = (body: unknown) => {
+        if (res.statusCode >= 200 && res.statusCode < 300) setCache(cacheKey, body, CATALOG_CACHE_TTL).catch(() => {});
+        return originalJson(body);
+    };
+};

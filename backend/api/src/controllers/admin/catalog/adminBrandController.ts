@@ -5,14 +5,14 @@ import { handlePaginatedContent } from '../../../utils/contentHandler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/services/catalog/CatalogBrandModelService';
-import BrandModel from '@esparex/core/models/Brand';
+
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, hasAdminAccess, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
+import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, hasAdminAccess, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './adminCatalogHelpers';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
 import { getCache } from '@esparex/core/utils/redisCache';
-import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogShared';
+import { catalogCacheKey, applyCacheWriteThrough } from './adminCatalogHelpers';
 import { AppError } from '@esparex/core/utils/AppError';
 
 export const getBrands = async (req: Request, res: Response) => {
@@ -43,7 +43,7 @@ export const getBrands = async (req: Request, res: Response) => {
     const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
     applyCatalogStatusFilter(adminCategoryFilter, rawStatus);
-    return handlePaginatedContent(req, res, BrandModel, {
+    return handlePaginatedContent(req, res, 'Brand', {
         searchFields: ['name', 'canonicalName', 'aliases'],
         publicQuery: { ...CATALOG_PUBLIC_VISIBILITY_QUERY, ...categoryFilter },
         adminQuery: adminCategoryFilter, queryParams,
@@ -70,7 +70,9 @@ export const getBrandBySlug = async (req: Request, res: Response) => {
 };
 
 export const createBrand = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, BrandModel, brandCreateSchema, {
+    return handleCatalogCreate(req, res, 'Brand', brandCreateSchema,
+        async (data) => mongoose.model('Brand').create(data),
+        {
         auditAction: 'BRAND_CREATE', slugifyName: true,
         preOp: async (payload) => {
             const categoryIds = Array.isArray(payload.categoryIds) ? (payload.categoryIds as string[]).map(String) : [];
@@ -86,7 +88,10 @@ export const createBrand = async (req: Request, res: Response) => {
 };
 
 export const updateBrand = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, BrandModel, brandUpdateSchema, {
+    return handleCatalogUpdate(req, res, 'Brand', brandUpdateSchema,
+        async (id) => mongoose.model('Brand').findById(id),
+        async (id, data) => mongoose.model('Brand').findByIdAndUpdate(id, data, { new: true }),
+        {
         auditAction: 'BRAND_RENAME',
         preUpdate: async (_id, payload, oldBrand) => {
             const typedOld = oldBrand as { categoryIds?: unknown[]; approvalStatus?: unknown; isActive?: boolean };
@@ -103,7 +108,11 @@ export const updateBrand = async (req: Request, res: Response) => {
 };
 
 export const toggleBrandStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, BrandModel, {
+    return handleCatalogToggleStatus(req, res, 'Brand',
+        async (id) => mongoose.model('Brand').findById(id),
+        async (id, data) => mongoose.model('Brand').findByIdAndUpdate(id, data, { new: true }),
+        true, true,
+        {
         auditAction: 'TOGGLE_BRAND_STATUS',
         postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
     });
@@ -144,6 +153,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
     }
 };
 
-export const approveBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const approveBrand = (req: Request, res: Response) => handleCatalogReview(req, res, 'Brand', 'APPROVE', async (id, data) => mongoose.model('Brand').findByIdAndUpdate(id, data, { new: true }), undefined, { auditAction: 'APPROVE_BRAND', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
 
-export const rejectBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const rejectBrand = (req: Request, res: Response) => handleCatalogReview(req, res, 'Brand', 'REJECT', async (id, data) => mongoose.model('Brand').findByIdAndUpdate(id, data, { new: true }), rejectionSchema, { auditAction: 'REJECT_BRAND', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
