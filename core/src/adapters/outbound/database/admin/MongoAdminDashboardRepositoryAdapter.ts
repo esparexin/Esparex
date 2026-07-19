@@ -12,6 +12,12 @@ import LocationAnalytics from '../../../../models/LocationAnalytics';
 import AdminLog from '../../../../models/AdminLog';
 import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS } from '@esparex/contracts';
 import { AdminDashboardRepositoryPort } from '../../../../domains/admin';
+import Category from '../../../../models/Category';
+import Brand from '../../../../models/Brand';
+import SparePart from '../../../../models/SparePart';
+import ServiceType from '../../../../models/ServiceType';
+import ScreenSize from '../../../../models/ScreenSize';
+import logger from '../../../../utils/logger';
 
 const CATALOG_REQUEST_PENDING_STATUS = 'pending' as CatalogRequestStatusValue;
 const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged', 'resolved'];
@@ -138,5 +144,29 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
     public async getAnalyticsLocations(locationIds: string[]): Promise<any[]> {
         if (locationIds.length === 0) return [];
         return Location.find({ _id: { $in: locationIds } }).select('_id name country level parentId path').lean();
+    }
+
+    public async getCatalogEntityCounts(): Promise<Record<string, number>> {
+        const nonDeletedFilter = { isDeleted: { $ne: true } };
+
+        const countCollection = async (model: any, name: string): Promise<number> => {
+            try {
+                return await model.countDocuments(nonDeletedFilter).hint({ isDeleted: 1 }).exec();
+            } catch (error) {
+                logger.warn(`Failed to count ${name} using hint`, { error });
+                return await model.countDocuments(nonDeletedFilter).exec();
+            }
+        };
+
+        const [categories, brands, models, spareParts, serviceTypes, screenSizes] = await Promise.all([
+            countCollection(Category, 'Category'),
+            countCollection(Brand, 'Brand'),
+            countCollection(CatalogModel, 'Model'),
+            countCollection(SparePart, 'SparePart'),
+            countCollection(ServiceType, 'ServiceType'),
+            countCollection(ScreenSize, 'ScreenSize')
+        ]);
+
+        return { categories, brands, models, spareParts, serviceTypes, screenSizes };
     }
 }

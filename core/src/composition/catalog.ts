@@ -8,23 +8,31 @@ import { RedisCatalogCacheAdapter } from '../adapters/outbound/database/catalog/
 import { CatalogValidationService } from '../services/catalog/CatalogValidationService';
 import { CatalogOrchestratorImpl } from '../services/catalog/CatalogOrchestrator';
 
+export const categoryRepository = new MongoCategoryRepositoryAdapter();
+export const brandRepository = new MongoBrandRepositoryAdapter();
+export const modelRepository = new MongoModelRepositoryAdapter();
+export const sparePartRepository = new MongoSparePartRepositoryAdapter();
+export const screenSizeRepository = new MongoScreenSizeRepositoryAdapter();
+export const catalogUnitOfWork = new MongoCatalogUnitOfWorkAdapter();
+export const catalogCache = new RedisCatalogCacheAdapter();
+
 export function createCatalogValidationService(): CatalogValidationService {
     return new CatalogValidationService(
-        new MongoCategoryRepositoryAdapter(),
-        new MongoBrandRepositoryAdapter(),
-        new MongoModelRepositoryAdapter(),
-        new MongoSparePartRepositoryAdapter()
+        categoryRepository,
+        brandRepository,
+        modelRepository,
+        sparePartRepository
     );
 }
 
 export function createCatalogOrchestrator(): CatalogOrchestratorImpl {
     return new CatalogOrchestratorImpl(
-        new MongoCatalogUnitOfWorkAdapter(),
-        new RedisCatalogCacheAdapter(),
-        new MongoCategoryRepositoryAdapter(),
-        new MongoBrandRepositoryAdapter(),
-        new MongoModelRepositoryAdapter(),
-        new MongoSparePartRepositoryAdapter(),
-        new MongoScreenSizeRepositoryAdapter()
+        catalogUnitOfWork,
+        catalogCache,
+        categoryRepository,
+        brandRepository,
+        modelRepository,
+        sparePartRepository,
+        screenSizeRepository
     );
 }

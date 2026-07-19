@@ -21,18 +21,21 @@ interface DbCategory {
     serviceSelectionMode?: 'single' | 'multi';
     approvalStatus: string;
     hasScreenSizes?: boolean;
+    filters?: unknown[];
 }
 
 export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     private toDomain(doc: DbCategory): Category {
         return {
             id: String(doc._id),
+            _id: String(doc._id),
             name: doc.name,
             displayName: doc.displayName,
             canonicalName: doc.canonicalName,
             slug: doc.slug,
             isActive: doc.isActive,
             isDeleted: doc.isDeleted,
+            filters: doc.filters || [],
             configuration: {
                 listingTypes: (doc.listingType || []) as ListingTypeValue[],
                 serviceSelectionMode: (doc.serviceSelectionMode || 'multi') as ServiceSelectionMode,
@@ -98,5 +101,16 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
         if (tx) query.session(tx as any);
         const res = await query.exec();
         return res.modifiedCount > 0;
+    }
+
+    async findActive(tx?: unknown): Promise<Category[]> {
+        const query = CategoryModel.find({
+            isActive: true,
+            isDeleted: { $ne: true },
+            approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
+        }).lean<DbCategory[]>();
+        if (tx) query.session(tx as any);
+        const docs = await query.exec();
+        return docs.map(doc => this.toDomain(doc));
     }
 }
