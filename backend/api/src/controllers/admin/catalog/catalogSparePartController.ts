@@ -34,7 +34,7 @@ import {
     applyCatalogStatusFilter,
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
-} from './shared';
+} from './adminCatalogHelpers';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
 import {

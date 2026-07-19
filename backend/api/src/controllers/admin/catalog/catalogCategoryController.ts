@@ -36,7 +36,7 @@ import {
     applyCatalogStatusFilter,
     deriveApprovalStatus,
     sendValidationError
-} from './shared';
+} from './adminCatalogHelpers';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 

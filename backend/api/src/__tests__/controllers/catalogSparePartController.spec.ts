@@ -27,8 +27,8 @@ jest.mock("@esparex/core/utils/categoryCanonical", () => ({
 }));
 
 // Mock shared catalog controller helper functions
-jest.mock("../../controllers/admin/catalog/shared", () => {
-    const original = jest.requireActual("../../controllers/admin/catalog/shared");
+jest.mock("../../controllers/admin/catalog/adminCatalogHelpers", () => {
+    const original = jest.requireActual("../../controllers/admin/catalog/adminCatalogHelpers");
     return {
         ...original,
         validateActiveCategories: jest.fn().mockResolvedValue({ ok: true }),

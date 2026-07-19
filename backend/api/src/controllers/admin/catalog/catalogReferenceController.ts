@@ -22,7 +22,7 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus,
     applyCatalogStatusFilter
-} from './shared';
+} from './adminCatalogHelpers';
 import { validateScreenSizeRelations } from '@esparex/core/services/catalog/CatalogValidationService';
 import {
     screenSizeCreateSchema,

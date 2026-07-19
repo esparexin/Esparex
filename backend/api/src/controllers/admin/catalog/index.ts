@@ -68,5 +68,5 @@ export {
 } from './catalogReferenceController';
 
 // Export shared utilities
-export { hasAdminAccess, getAdminActorId, sendCatalogError } from './shared';
-export type { CatalogRequest, QueryRecord } from './shared';
+export { hasAdminAccess, getAdminActorId, sendCatalogError } from './adminCatalogHelpers';
+export type { CatalogRequest, QueryRecord } from './adminCatalogHelpers';
