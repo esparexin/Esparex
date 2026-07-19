@@ -6,7 +6,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "@/icons/IconRegistry";
-import { MAX_AD_TITLE_CHARS } from "@shared";
+import { MAX_AD_TITLE_CHARS } from "@esparex/contracts";
 import { cn } from "@/components/ui/utils";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { getNestedFieldMeta } from "../common/utils";
