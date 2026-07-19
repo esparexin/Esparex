@@ -11,9 +11,6 @@ import CatalogModel from '../../models/Model';
 import { getListingRepository } from '../../composition/listings';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
-// Re-export model instance for generic handler calls in the controller layer
-export const SparePartModel = SparePartImport;
-
 // ─── Category slug resolution ─────────────────────────────────────────────────
 
 /** Resolve a category ObjectId string from a URL slug (with optional extra filter). */

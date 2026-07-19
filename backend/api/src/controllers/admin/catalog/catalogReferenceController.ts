@@ -32,8 +32,6 @@ import {
 } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
 import {
-    ServiceTypeModel,
-    ScreenSizeModel,
     findCategoryBySlug,
     findActiveCategoryBySlug,
     findServiceTypeById,
@@ -41,6 +39,8 @@ import {
     findScreenSizeById,
     getActiveBrandsForScreenSizes,
 } from '@esparex/core/services/catalog/CatalogReferenceService';
+import ServiceTypeModel from '@esparex/core/models/ServiceType';
+import ScreenSizeModel from '@esparex/core/models/ScreenSize';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { toOptionalString } from './inputCoercion';
 

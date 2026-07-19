@@ -17,11 +17,7 @@ import VariantModelImport from '../../models/Variant';
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
 import { getModelDeletionImpact } from './CatalogHierarchyService';
 
-// Re-export model instances for generic handler calls in the controller layer
-export const BrandModel = BrandModelImport;
-export const CatalogModel = CatalogModelImport;
-
-// ─── Category helpers (needed by brand/model context) ─────────────────────────
+// Category helpers (needed by brand/model context) ─────────────────────────
 
 /** Resolve a category by slug, with optional extra filter (e.g. active-only). */
 export const findCategoryBySlugForCatalog = async (

@@ -17,6 +17,7 @@ export interface CategoryConfiguration {
 
 export interface Category {
     readonly id: CategoryId;
+    readonly _id?: string;
     readonly name: string;
     readonly displayName: string;
     readonly canonicalName: string;
@@ -24,6 +25,7 @@ export interface Category {
     readonly isActive: boolean;
     readonly isDeleted: boolean;
     readonly configuration: CategoryConfiguration;
+    readonly filters?: readonly unknown[];
 }
 
 export interface CategoryRepositoryPort {
@@ -34,4 +36,5 @@ export interface CategoryRepositoryPort {
     create(data: Partial<Category> | any, tx?: unknown): Promise<Category>;
     update(id: string, data: Partial<Category> | any, tx?: unknown): Promise<Category | null>;
     softDelete(id: string, tx?: unknown): Promise<boolean>;
+    findActive(tx?: unknown): Promise<Category[]>;
 }

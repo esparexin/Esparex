@@ -70,6 +70,7 @@ describe('Catalog Outbound Database Repositories', () => {
             expect(CategoryModel.findById).toHaveBeenCalledWith('65fa29c9d2c1f2e165fa29c9');
             expect(result).toEqual({
                 id: '65fa29c9d2c1f2e165fa29c9',
+                _id: '65fa29c9d2c1f2e165fa29c9',
                 name: 'Electronics',
                 displayName: 'Electronics Display',
                 canonicalName: 'electronics',
@@ -81,7 +82,8 @@ describe('Catalog Outbound Database Repositories', () => {
                     serviceSelectionMode: 'single',
                     approvalStatus: 'approved',
                     hasScreenSizes: true,
-                }
+                },
+                filters: []
             });
 
             expect(result?.constructor).toBe(Object);
@@ -116,6 +118,7 @@ describe('Catalog Outbound Database Repositories', () => {
             expect(CategoryModel.findOne).toHaveBeenCalledWith({ slug: 'electronics-slug' });
             expect(result).toEqual({
                 id: '65fa29c9d2c1f2e165fa29c9',
+                _id: '65fa29c9d2c1f2e165fa29c9',
                 name: 'Electronics',
                 displayName: 'Electronics Display',
                 canonicalName: 'electronics',
@@ -127,7 +130,8 @@ describe('Catalog Outbound Database Repositories', () => {
                     serviceSelectionMode: 'multi',
                     approvalStatus: 'approved',
                     hasScreenSizes: false,
-                }
+                },
+                filters: []
             });
             expect(result?.constructor).toBe(Object);
         });

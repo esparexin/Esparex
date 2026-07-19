@@ -8,4 +8,5 @@ export interface AdminDashboardRepositoryPort {
     getLocationAnalyticsRawData(params: any): Promise<any>;
     getHotZoneLocations(locationIds: string[]): Promise<any[]>;
     getAnalyticsLocations(locationIds: string[]): Promise<any[]>;
+    getCatalogEntityCounts(): Promise<Record<string, number>>;
 }

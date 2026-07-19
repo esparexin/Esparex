@@ -8,12 +8,12 @@ import { Request, Response } from 'express';
 import slugify from 'slugify';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
-    CategoryModel,
-    getCatalogEntityCounts,
     findCategoryById,
     categoryParentExists,
     updateCategorySchemaById,
 } from '@esparex/core/services/catalog/CatalogCategoryService';
+import CategoryModel from '@esparex/core/models/Category';
+import { adminDashboardRepository } from '@esparex/core/composition/admin';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import { sendSuccessResponse } from "../../../utils/respond";
@@ -74,7 +74,7 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
             return;
         }
 
-        const counts = await getCatalogEntityCounts();
+        const counts = await adminDashboardRepository.getCatalogEntityCounts();
 
         // Cache for 1 hour — catalog counts change infrequently
         await setCache(CACHE_KEY, counts, CACHE_TTLS.CATEGORIES);

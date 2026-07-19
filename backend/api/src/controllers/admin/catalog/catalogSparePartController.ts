@@ -11,13 +11,13 @@ import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { sendSuccessResponse } from "../../../utils/respond";
 import {
-    SparePartModel,
     findCategoryIdBySlug,
     getActiveBrandIdsForCategories,
     getActiveModelIdsForCategories,
     findSparePartById,
     checkSparePartDependencies,
 } from '@esparex/core/services/catalog/CatalogSparePartService';
+import SparePartModel from '@esparex/core/models/SparePart';
 import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
 import {
     sendCatalogError,
