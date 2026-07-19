@@ -7,6 +7,7 @@ import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { CatalogModel, findCategoryBySlugForCatalog, getActiveBrandIds, checkBrandInCategories, checkModelDependencies, findModelByFilter, findModelBySlug } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import { validateBrandIsActive } from '@esparex/core/services/catalog/CatalogValidationService';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+import { invalidateItemCatalogCache } from './shared';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, getActiveCategoryIds, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogDelete, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
 import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
@@ -109,7 +110,7 @@ export const createModel = async (req: Request, res: Response) => {
             void logModelDuplicateCandidates(req, hierarchyPayload).catch((err) => logger.debug('[CatalogSearch] Duplicate candidate check skipped', { error: String(err) }));
             return hierarchyPayload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
@@ -136,24 +137,24 @@ export const updateModel = async (req: Request, res: Response) => {
             logger.info('[CatalogHierarchy] Model hierarchy mutation committed', { modelId: id, durationMs: result.metrics.durationMs, descendantScanCount: result.metrics.descendantScanCount, cascadeUpdateCount: result.metrics.cascadeUpdateCount });
             return result.item;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
 export const toggleModelStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, CatalogModel, {
         auditAction: 'TOGGLE_MODEL_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
 export const deleteModel = async (req: Request, res: Response) => {
     return handleCatalogDelete(req, res, CatalogModel, checkModelDependencies, {
         auditAction: 'MODEL_DELETE',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
-export const approveModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const approveModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL', postOp: invalidateItemCatalogCache });
 
-export const rejectModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const rejectModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL', postOp: invalidateItemCatalogCache });

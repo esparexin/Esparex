@@ -420,3 +420,10 @@ export async function handleCatalogReview<T extends Document>(
         return sendCatalogError(req, res, error);
     }
 }
+
+import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+
+export const invalidateItemCatalogCache = (item: any) => void CatalogOrchestrator.invalidateCatalogCache({
+    categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []),
+    brandIds: item.brandId ? [item.brandId] : []
+});

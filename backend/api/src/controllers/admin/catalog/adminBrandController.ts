@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+import { invalidateItemCatalogCache } from './shared';
 import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, hasAdminAccess, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
@@ -80,7 +81,7 @@ export const createBrand = async (req: Request, res: Response) => {
             if (!catVal.ok) throw new Error(`Invalid or inactive categories: ${catVal.invalidCategoryIds.join(', ')}`);
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
@@ -97,14 +98,14 @@ export const updateBrand = async (req: Request, res: Response) => {
             if (!catVal.ok) throw new Error(`Invalid or inactive categories: ${catVal.invalidCategoryIds.join(', ')}`);
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
 export const toggleBrandStatus = async (req: Request, res: Response) => {
     return handleCatalogToggleStatus(req, res, BrandModel, {
         auditAction: 'TOGGLE_BRAND_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
@@ -143,6 +144,6 @@ export const deleteBrand = async (req: Request, res: Response) => {
     }
 };
 
-export const approveBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const approveBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'APPROVE', undefined, { auditAction: 'APPROVE_BRAND', postOp: invalidateItemCatalogCache });
 
-export const rejectBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const rejectBrand = (req: Request, res: Response) => handleCatalogReview(req, res, BrandModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_BRAND', postOp: invalidateItemCatalogCache });
