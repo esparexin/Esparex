@@ -34,15 +34,3 @@ export function adaptLocationInput(raw: unknown): ListingLocation | null {
     locationId
   };
 }
-
-/**
- * Legacy Alias for Backend Compatibility
- */
-export const normalizeListingLocation = adaptLocationInput;
-
-export function formatLocationDisplay(location: ListingLocation | null): string {
-  if (!location) return "";
-  if (location.display) return location.display;
-  const parts = [location.city, location.state].filter(Boolean);
-  return parts.join(", ");
-}

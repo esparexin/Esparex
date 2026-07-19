@@ -4,9 +4,9 @@
  */
 
 import { type GeoJSONPoint, normalizeGeoPoint } from "../utils/geoUtils";
-import { MONGOOSE_OBJECT_ID_REGEX, sanitizeMongoObjectId } from "../validators/mongo";
+import { sanitizeMongoObjectId } from "../validators/mongo";
 
-export { MONGOOSE_OBJECT_ID_REGEX, sanitizeMongoObjectId };
+export { sanitizeMongoObjectId };
 
 export type ListingLocation = {
   locationId?: string;
