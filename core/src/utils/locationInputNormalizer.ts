@@ -7,7 +7,8 @@ import { buildHierarchyPath } from './locationHierarchy';
 
 import { locationRepository } from '../composition/location';
 import { resolveParentLocation } from './locationHierarchy';
-import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug } from './locationPrimitives';
+import { LOCATION_LEVELS, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug } from '@esparex/shared';
+import type { LocationLevel } from '@esparex/contracts';
 
 export { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug };
 
