@@ -79,8 +79,9 @@ export const getUserManagementOverview = async (req: Request, res: Response) => 
 
 export const getAdmins = async (req: Request, res: Response) => {
     try {
-        const admins = await adminUsersService.getAdmins();
-        sendSuccessResponse(res, admins);
+        const { page, limit, skip } = getPaginationParams(req);
+        const { data, total } = await adminUsersService.getAdmins({ skip, limit });
+        sendPaginatedResponse(res, data, total, page, limit);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

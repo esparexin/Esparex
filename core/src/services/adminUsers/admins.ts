@@ -9,7 +9,15 @@ import { revokeAdminSessionsForAdmin } from '../AdminSessionService';
 import { normalizeAdminManagedUser, ALLOWED_ADMIN_ROLES, ensureRoleAssignmentAllowed } from './helpers';
 import { isLastActiveSuperAdmin } from './superAdmin';
 
-export const getAdmins = async () => Admin.find().select('-password');
+export const getAdmins = async (pagination: { skip?: number; limit?: number } = {}) => {
+    const skip = pagination.skip ?? 0;
+    const limit = pagination.limit ?? 50;
+    const [admins, total] = await Promise.all([
+        Admin.find().select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit),
+        Admin.countDocuments(),
+    ]);
+    return { data: admins, total };
+};
 export const getAdminByIdForAdmin = async (id: string) => Admin.findById(id).select('-password');
 export const getUserByIdForAdmin = async (id: string) => User.findById(id).select('-password');
 

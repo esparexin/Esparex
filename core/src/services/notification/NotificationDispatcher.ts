@@ -1,3 +1,4 @@
+import { pLimit } from '../../utils/pLimit';
 import { notificationDeliveryQueue } from '../../queues/adQueue';
 import Notification from '../../models/Notification';
 import { NotificationVersionService } from './NotificationVersionService';
@@ -236,34 +237,33 @@ export class NotificationDispatcher {
     }
 
     /**
-     * Batch API for worker optimisation
+     * Batch API for worker optimisation.
+     * Dispatches intents with bounded concurrency to avoid overwhelming Redis/BullMQ.
      */
     static async bulkDispatch(
         intents: NotificationIntent[],
         options: DispatchOptions = {}
     ): Promise<NotificationBulkDispatchResult> {
-        // Simple Promise.all dispatcher. 
-        // Note: For massive scale, this would break into chunks of X or use Notification.insertMany
-        // with `ordered: false` to silently catch duplicates en-masse, then dispatch the successful inserts.
+        const limit = pLimit(5);
         let successCount = 0;
         let skippedCount = 0;
         let failureCount = 0;
 
-        const promises = intents.map(async (intent) => {
-            try {
-                const result = await this.dispatch(intent, options);
-                if (result.skipped) {
-                    skippedCount += 1;
-                    return;
+        await Promise.all(intents.map(intent =>
+            limit(async () => {
+                try {
+                    const result = await this.dispatch(intent, options);
+                    if (result.skipped) {
+                        skippedCount += 1;
+                        return;
+                    }
+                    successCount += 1;
+                } catch (err: unknown) {
+                    failureCount += 1;
+                    logger.warn(`[Dispatcher:Bulk] Single intent failed inside batch`, { dedupKey: intent.dedupKey, error: (err as Error).message });
                 }
-                successCount += 1;
-            } catch (err: unknown) {
-                failureCount += 1;
-                logger.warn(`[Dispatcher:Bulk] Single intent failed inside batch`, { dedupKey: intent.dedupKey, error: (err as Error).message });
-            }
-        });
-
-        await Promise.all(promises);
+            })
+        ));
         return { successCount, skippedCount, failureCount };
     }
 }

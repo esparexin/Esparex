@@ -124,7 +124,14 @@ export class ViewBufferingService {
         if (shouldDisableRedis) return 0;
         
         try {
-            const keys = await redis.keys(`${this.BUFFER_PREFIX}*`);
+            const keys: string[] = [];
+            let cursor = '0';
+            do {
+                const [nextCursor, batch] = await redis.scan(cursor, 'MATCH', `${this.BUFFER_PREFIX}*`, 'COUNT', 100);
+                cursor = nextCursor;
+                keys.push(...batch);
+            } while (cursor !== '0');
+
             let flushedCount = 0;
             
             for (const key of keys) {

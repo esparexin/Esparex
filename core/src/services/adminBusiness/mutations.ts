@@ -1,3 +1,4 @@
+import { pLimit } from '../../utils/pLimit';
 import Business from '../../models/Business';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { AppError } from '../../utils/AppError';
@@ -64,11 +65,18 @@ export const deleteAdminBusiness = async (id: string, actorId: string, logFn: Ad
     return true;
 };
 
+const ADMIN_BULK_CONCURRENCY = 5;
+
 const execBulk = async (ids: string[], actionName: string, fn: (id: string) => Promise<unknown>): Promise<number> => {
     if (!Array.isArray(ids) || !ids.length) return 0;
-    let c = 0;
-    for (const id of ids) { try { await fn(id); c++; } catch (err) { logger.error(`Bulk ${actionName} failed for business ${id}:`, err); } }
-    return c;
+    const limit = pLimit(ADMIN_BULK_CONCURRENCY);
+    const results = await Promise.all(ids.map(id =>
+        limit(async () => {
+            try { await fn(id); return true; }
+            catch (err) { logger.error(`Bulk ${actionName} failed for business ${id}:`, err); return false; }
+        })
+    ));
+    return results.filter(Boolean).length;
 };
 
 export const adminBulkApproveBusinesses = async (ids: string[], actorId: string, logFn: AdminLogFn) => execBulk(ids, 'approve', (id) => approveAdminBusiness(id as any, actorId, logFn) as any);
@@ -79,16 +87,25 @@ export const adminBulkRenewBusinesses = async (ids: string[], actorId: string, l
 
 export const adminBulkResendBusinessWarnings = async (ids: string[], actorId: string, logFn: AdminLogFn) => {
     if (!Array.isArray(ids) || ids.length === 0) throw new AppError('A non-empty list of business IDs is required', 400);
+    const businesses = await Business.find({ _id: { $in: ids } });
+    const bizById = new Map(businesses.map(b => [b._id.toString(), b]));
     const results: Array<{ id: string; success: boolean; message?: string }> = [];
+    const bulkOps: Array<{
+        updateOne: {
+            filter: { _id: typeof businesses[0]['_id'] };
+            update: { $set: Record<string, unknown>; $inc?: { expiryWarningCount: number } };
+        };
+    }> = [];
     for (const id of ids) {
+        const biz = bizById.get(id);
+        if (!biz) { results.push({ id, success: false, message: 'Business not found' }); continue; }
         try {
-            const biz = await Business.findById(id);
-            if (!biz) throw new AppError('Business not found', 404);
             await dispatchTemplatedNotification(biz.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_EXPIRY_WARNING_3D', { name: biz.name, date: biz.expiresAt?.toLocaleDateString() || 'N/A' }, { businessId: biz._id.toString() });
-            biz.expiryWarningSentAt = new Date(); biz.expiryWarningCount = (biz.expiryWarningCount || 0) + 1; biz.lastExpiryWarningChannel = 'in-app'; await biz.save();
+            bulkOps.push({ updateOne: { filter: { _id: biz._id }, update: { $set: { expiryWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' }, $inc: { expiryWarningCount: 1 } } } });
             await logFn('expiry_warning_resent', 'ExpiryWarning', id, { entityType: 'Business', adminId: actorId });
             results.push({ id, success: true });
         } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
     }
+    if (bulkOps.length > 0) await Business.bulkWrite(bulkOps, { ordered: false });
     return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };
