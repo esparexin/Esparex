@@ -11,6 +11,7 @@ import {
 } from '../../utils/adminBaseController';
 import { USER_STATUS, UserStatusValue } from "@esparex/contracts";
 import * as adminUsersService from '@esparex/core/services/AdminUsersService';
+import { isValidObjectId } from '@esparex/core/utils/idUtils';
 
 // ---------------------------------------------------------
 // Controllers
@@ -85,9 +86,11 @@ export const getUserById = async (req: Request, res: Response) => {
 
 export const verifyUser = async (req: Request, res: Response) => {
     try {
+        const targetId = req.params.id as string;
+        if (!isValidObjectId(targetId)) return sendAdminError(req, res, 'Invalid user id', 400);
         const { isVerified: verified } = req.body as { isVerified: boolean };
         const user = await adminUsersService.verifyUserById(
-            req.params.id as string,
+            targetId,
             verified,
             getActorId(req),
             buildLogFn(req)
@@ -115,8 +118,8 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
     try {
-        const { id: userId } = req.params;
-        if (!userId || typeof userId !== 'string') {
+        const userId = req.params.id as string;
+        if (!userId || !isValidObjectId(userId)) {
             return sendAdminError(req, res, 'Invalid user id', 400);
         }
         const user = await adminUsersService.updateAdminUser(
@@ -130,6 +133,7 @@ export const updateUser = async (req: Request, res: Response) => {
         sendAdminError(req, res, error);
     }
 };
+
 
 export const updateUserStatus = async (req: Request, res: Response) => {
     try {
@@ -172,8 +176,8 @@ export const createAdmin = async (req: Request, res: Response) => {
 
 export const updateAdmin = async (req: Request, res: Response) => {
     try {
-        const targetId = typeof req.params.id === 'string' ? req.params.id : '';
-        if (!targetId) {
+        const targetId = typeof req.params.id === 'string' ? req.params.id : String(req.params.id ?? '');
+        if (!targetId || !isValidObjectId(targetId)) {
             return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         const updatedAdmin = await adminUsersService.updateAdminById(
@@ -192,7 +196,7 @@ export const updateAdmin = async (req: Request, res: Response) => {
 export const deleteAdmin = async (req: Request, res: Response) => {
     try {
         const targetId = typeof req.params.id === 'string' ? req.params.id : '';
-        if (!targetId) {
+        if (!targetId || !isValidObjectId(targetId)) {
             return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         await adminUsersService.softDeleteAdminById(targetId, getActorId(req), buildLogFn(req));
@@ -205,7 +209,7 @@ export const deleteAdmin = async (req: Request, res: Response) => {
 export const deactivateAdmin = async (req: Request, res: Response) => {
     try {
         const targetId = typeof req.params.id === 'string' ? req.params.id : '';
-        if (!targetId) {
+        if (!targetId || !isValidObjectId(targetId)) {
             return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         const admin = await adminUsersService.deactivateAdminById(targetId, getActorId(req), buildLogFn(req));
@@ -218,7 +222,7 @@ export const deactivateAdmin = async (req: Request, res: Response) => {
 export const toggleAdminStatus = async (req: Request, res: Response) => {
     try {
         const targetId = typeof req.params.id === 'string' ? req.params.id : '';
-        if (!targetId) {
+        if (!targetId || !isValidObjectId(targetId)) {
             return sendAdminError(req, res, 'Invalid admin id', 400);
         }
         const adminObj = await adminUsersService.toggleAdminStatus(targetId, getActorId(req), buildLogFn(req));
@@ -230,7 +234,9 @@ export const toggleAdminStatus = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
     try {
-        await userStatusService.updateUserStatus(req.params.id as string, USER_STATUS.DELETED, {
+        const targetId = req.params.id as string;
+        if (!isValidObjectId(targetId)) return sendAdminError(req, res, 'Invalid user id', 400);
+        await userStatusService.updateUserStatus(targetId, USER_STATUS.DELETED, {
             actor: 'ADMIN',
             logFn: buildLogFn(req),
             reason: 'Admin Soft Delete'
