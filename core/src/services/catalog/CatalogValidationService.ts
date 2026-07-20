@@ -1,14 +1,7 @@
 import {
     CATALOG_APPROVAL_STATUS,
     type CatalogApprovalStatusValue,
-} from '@esparex/contracts';
-import {
-    CatalogValidationServiceShared,
-    type CatalogValidator,
-    CharacterValidator,
-    LengthValidator,
-    SpamValidator,
-    ReservedWordValidator
+    CatalogFacade,
 } from '@esparex/shared';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';
 import {
@@ -71,7 +64,12 @@ export class CatalogValidationService {
         name: string;
         requestType: 'brand' | 'model';
     }): { ok: boolean; reason?: string } {
-        return CatalogValidationServiceShared.validateCatalogInput(options);
+        if (options.requestType === 'brand') {
+            return CatalogFacade.brand.validate.validateBrandName(options.name);
+        } else if (options.requestType === 'model') {
+            return CatalogFacade.model.validate.validateModelName(options.name);
+        }
+        return { ok: false, reason: 'Invalid catalog request type' };
     }
 
     async getActiveCategoryIds(requestedCategoryIds?: string[]): Promise<string[]> {
@@ -295,17 +293,15 @@ function getServiceInstance(): CatalogValidationService {
     if (!serviceInstance) {
         // Fallback lazy initialization using dynamic import/require
         // to avoid circular dependencies and static concrete imports in tests
-        const {
-            categoryRepository,
-            brandRepository,
-            modelRepository,
-            sparePartRepository
-        } = require('../../composition/catalog');
+        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
+        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
+        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
+        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
         serviceInstance = new CatalogValidationService(
-            categoryRepository,
-            brandRepository,
-            modelRepository,
-            sparePartRepository
+            new MongoCategoryRepositoryAdapter(),
+            new MongoBrandRepositoryAdapter(),
+            new MongoModelRepositoryAdapter(),
+            new MongoSparePartRepositoryAdapter()
         );
     }
     return serviceInstance;
@@ -406,10 +402,3 @@ export function deriveApprovalStatus(options: {
     return ((approvalStatus as string) || fallback) as CatalogApprovalStatusValue;
 }
 
-export {
-    type CatalogValidator,
-    CharacterValidator,
-    LengthValidator,
-    SpamValidator,
-    ReservedWordValidator,
-};

@@ -3,7 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { ListingCategory } from "@/types/listing";
-import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import type { Brand } from "@/lib/api/user/masterData";
 

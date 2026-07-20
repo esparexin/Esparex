@@ -492,3 +492,10 @@ export const applyCacheWriteThrough = (res: Response, cacheKey: string) => {
         return originalJson(body);
     };
 };
+
+import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+
+export const invalidateItemCatalogCache = (item: any) => void CatalogOrchestrator.invalidateCatalogCache({
+    categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []),
+    brandIds: item.brandId ? [item.brandId] : []
+});

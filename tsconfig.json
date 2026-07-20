@@ -9,7 +9,9 @@
       "@esparex/shared": ["shared/src"],
       "@esparex/shared/*": ["shared/src/*"],
       "@esparex/contracts": ["packages/contracts/src"],
-      "@esparex/contracts/*": ["packages/contracts/src/v1/*"]
+      "@esparex/contracts/*": ["packages/contracts/src/v1/*"],
+      "@esparex/ui": ["packages/ui/src"],
+      "@esparex/ui/*": ["packages/ui/src/*"]
     },
     "strict": true,
     "noImplicitAny": true,
@@ -21,6 +23,7 @@
   "files": [],
   "references": [
     { "path": "./packages/contracts" },
+    { "path": "./packages/ui" },
     { "path": "./core" },
     { "path": "./shared" },
     { "path": "./backend/api" },

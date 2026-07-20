@@ -1,10 +1,11 @@
 import type { Request, Response } from 'express';
 import {
     sendSuccessResponse,
-    sendAdminError
+    sendAdminError,
+    buildLogFn,
+    getActorId
 } from '../../utils/adminBaseController';
 import * as adminListingsService from '@esparex/core/services/AdminListingsService';
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
 import {
     serializeLegacyCountsAdapter,
     serializeLifecycleActionResponse,
@@ -12,37 +13,10 @@ import {
     serializeModerationDetailResponse,
     serializeModerationListResponse,
 } from './listingModerationSerializer';
-import { logAdminActionDirect } from '../../utils/adminLogger';
-import type { IAuthUser } from '@esparex/core/types/auth';
 
 // ---------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------
-
-const getActorId = (req: Request): string =>
-    (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';
-
-const getIp = (req: Request): string =>
-    (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
-
-const getUserAgent = (req: Request): string =>
-    (req.headers['user-agent'] as string) || '';
-
-/**
- * Builds the AdminLogFn callback for this request.
- * The service calls this to write audit logs without needing req.
- */
-const buildLogFn = (req: Request): AdminLogFn =>
-    (action, targetType, targetId, metadata) =>
-        logAdminActionDirect(
-            getActorId(req),
-            action,
-            targetType,
-            targetId,
-            metadata,
-            getIp(req),
-            getUserAgent(req)
-        );
 
 const sendLifecycleResponse = (
     res: Response,

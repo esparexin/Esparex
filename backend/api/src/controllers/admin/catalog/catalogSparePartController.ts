@@ -17,8 +17,7 @@ import {
     findSparePartById,
     checkSparePartDependencies,
 } from '@esparex/core/services/catalog/CatalogSparePartService';
-
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
+import { resolveEquivalentActiveCategoryIds } from '@esparex/core/services/catalog/CatalogCategoryService';
 import {
     sendCatalogError,
     QueryRecord,
@@ -34,8 +33,8 @@ import {
     applyCatalogStatusFilter,
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
-} from './adminCatalogHelpers';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+} from './shared';
+import { invalidateItemCatalogCache } from './shared';
 import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
 import {
     sparePartCreateSchema,
@@ -255,7 +254,7 @@ export const createSparePart = async (req: Request, res: Response) => {
             
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -294,7 +293,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
 
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -308,7 +307,7 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
         true, true,
         {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -320,7 +319,7 @@ export const deleteSparePart = async (req: Request, res: Response) => {
         async (id, data) => mongoose.model('SparePart').findByIdAndUpdate(id, data, { new: true }),
         checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 

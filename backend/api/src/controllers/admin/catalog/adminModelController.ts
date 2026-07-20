@@ -4,11 +4,11 @@ import { sendSuccessResponse } from '../../../utils/respond';
 import { handlePaginatedContent } from '../../../utils/contentHandler';
 import mongoose from 'mongoose';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
-import { findCategoryBySlugForCatalog, getActiveBrandIds, checkBrandInCategories, checkModelDependencies, findModelByFilter, findModelBySlug } from '@esparex/core/services/catalog/CatalogBrandModelService';
-
+import { CatalogModel, findCategoryBySlugForCatalog, getActiveBrandIds, checkBrandInCategories, checkModelDependencies, findModelByFilter, findModelBySlug } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import { validateBrandIsActive } from '@esparex/core/services/catalog/CatalogValidationService';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, getActiveCategoryIds, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogDelete, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './adminCatalogHelpers';
+import { invalidateItemCatalogCache } from './shared';
+import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, getActiveCategoryIds, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogDelete, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { toOptionalString, toStringArray } from './inputCoercion';
 import { modelCreateSchema, modelUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
@@ -112,7 +112,7 @@ export const createModel = async (req: Request, res: Response) => {
             void logModelDuplicateCandidates(req, hierarchyPayload).catch((err) => logger.debug('[CatalogSearch] Duplicate candidate check skipped', { error: String(err) }));
             return hierarchyPayload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
@@ -140,7 +140,12 @@ export const updateModel = async (req: Request, res: Response) => {
             void logModelDuplicateCandidates(req, hierarchyPayload, { excludeId: _id }).catch((err) => logger.debug('[CatalogSearch] Duplicate check skipped', { error: String(err) }));
             return hierarchyPayload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        updateOp: async (id, data) => {
+            const result = await updateModelHierarchyTransactionally(id, data);
+            logger.info('[CatalogHierarchy] Model hierarchy mutation committed', { modelId: id, durationMs: result.metrics.durationMs, descendantScanCount: result.metrics.descendantScanCount, cascadeUpdateCount: result.metrics.cascadeUpdateCount });
+            return result.item;
+        },
+        postOp: invalidateItemCatalogCache,
     });
 };
 
@@ -151,7 +156,7 @@ export const toggleModelStatus = async (req: Request, res: Response) => {
         true, true,
         {
         auditAction: 'TOGGLE_MODEL_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
@@ -160,10 +165,10 @@ export const deleteModel = async (req: Request, res: Response) => {
         async (id, data) => mongoose.model('Model').findByIdAndUpdate(id, data, { new: true }),
         checkModelDependencies, {
         auditAction: 'MODEL_DELETE',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }),
+        postOp: invalidateItemCatalogCache,
     });
 };
 
-export const approveModel = (req: Request, res: Response) => handleCatalogReview(req, res, 'Model', 'APPROVE', async (id, data) => mongoose.model('Model').findByIdAndUpdate(id, data, { new: true }), undefined, { auditAction: 'APPROVE_MODEL', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const approveModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'APPROVE', undefined, { auditAction: 'APPROVE_MODEL', postOp: invalidateItemCatalogCache });
 
-export const rejectModel = (req: Request, res: Response) => handleCatalogReview(req, res, 'Model', 'REJECT', async (id, data) => mongoose.model('Model').findByIdAndUpdate(id, data, { new: true }), rejectionSchema, { auditAction: 'REJECT_MODEL', postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] }) });
+export const rejectModel = (req: Request, res: Response) => handleCatalogReview(req, res, CatalogModel, 'REJECT', rejectionSchema, { auditAction: 'REJECT_MODEL', postOp: invalidateItemCatalogCache });

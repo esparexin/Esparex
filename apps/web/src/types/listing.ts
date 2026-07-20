@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react";
-import type { GeoJSONPoint } from "@/types/location";
 
 export interface ListingImage {
     id: string;
@@ -20,12 +19,4 @@ export interface ListingCategory {
     serviceSelectionMode?: 'single' | 'multi';
 }
 
-export interface ListingLocation {
-    display: string;
-    city: string;
-    state: string;
-    country?: string;
-    locationId?: string;
-    coordinates?: GeoJSONPoint;
-    isSnapped?: boolean;
-}
+export type { ListingLocation } from "@esparex/contracts";

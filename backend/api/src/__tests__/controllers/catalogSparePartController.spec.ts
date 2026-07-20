@@ -22,7 +22,7 @@ jest.mock("@esparex/core/services/catalog/CatalogSparePartService", () => {
 });
 
 // Mock category canonical equivalent resolver
-jest.mock("@esparex/core/utils/categoryCanonical", () => ({
+jest.mock('@esparex/core/services/catalog/CatalogCategoryService', () => ({
     resolveEquivalentActiveCategoryIds: jest.fn().mockImplementation(async (id) => [id])
 }));
 

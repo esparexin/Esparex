@@ -9,7 +9,7 @@ import { Search, Filter } from "lucide-react";
  * DO NOT build ad-hoc filter cards in individual screens — use this component.
  */
 
-export type StatusOption = {
+type StatusOption = {
     value: string;
     label: string;
 };

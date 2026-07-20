@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { Brand, BrandRepositoryPort } from '../../../../domains/catalog';
 import BrandModel from '../../../../models/Brand';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';

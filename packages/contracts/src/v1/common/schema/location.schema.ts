@@ -66,3 +66,12 @@ export const LocationMetaSchema = z.object({
 export type LocationMeta = z.infer<typeof LocationMetaSchema>;
 export type LogLocationEvent = z.infer<typeof LogLocationEventSchema>;
 export type AppLocationSchemaValue = z.infer<typeof AppLocationSchema>;
+
+export const ListingLocationSchema = z.object({
+    display: z.string().trim().min(1),
+    locationId: z.string().trim().min(1).optional(),
+    city: z.string().trim().min(1),
+    state: z.string().trim().min(1),
+    country: z.string().trim().min(1),
+    coordinates: coordinatesSchema.optional(),
+});

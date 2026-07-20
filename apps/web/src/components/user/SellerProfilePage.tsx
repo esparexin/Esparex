@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
-import { formatLocationDisplay } from "@/lib/listings/locationUtils";
+import { LocationFacade } from "@esparex/shared";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { BackButton } from "@/components/common/BackButton";
 
@@ -23,7 +23,7 @@ const buildAdHref = (ad: Ad): string => {
 };
 
 const toLocationLabel = (profile: SellerProfilePayload): string => {
-    return formatLocationDisplay(profile.user.location);
+    return LocationFacade.format(profile.user.location);
 };
 
 export function SellerProfilePage({ profile }: SellerProfilePageProps) {

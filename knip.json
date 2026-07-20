@@ -84,6 +84,27 @@
     "shared": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
+    },
+    "packages/*": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
     }
-  }
+  },
+  "ignore": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/.turbo/**",
+    "**/.scratch/**",
+    "**/.agents/**",
+    "**/.venv/**",
+    "**/test-results/**",
+    "**/playwright-report/**",
+    "**/__snapshots__/**",
+    "**/*.snap",
+    "**/.eslintcache",
+    "**/storybook-static/**",
+    "**/public/build/**"
+  ]
 }

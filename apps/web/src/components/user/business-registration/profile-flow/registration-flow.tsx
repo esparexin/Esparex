@@ -9,28 +9,13 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import { registerBusiness, type CreateBusinessDTO } from "@/lib/api/user/businesses";
 import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { BusinessProfileWizard } from "../BusinessProfileWizard";
-import { useBusinessWizardBridge, getBusinessWizardFieldsForStep } from "../useBusinessWizardBridge";
 import { businessRegistrationSchema, type BusinessRegistrationFormData, type BusinessRegistrationFormInput } from "@/schemas/businessRegistration.schema";
 import type { User } from "@/types/User";
-import type { FieldErrors, Path, FieldValues, UseFormReturn, UseFormSetValue } from "react-hook-form";
 import type { SubmissionStatus } from "./types";
 import { buildBusinessPayloadBase, mapBusinessToCreateDefaults } from "./helpers";
 import { processStagedFiles } from "./upload";
 
-function useProfileWizardController<TFormShape extends FieldValues>(form: UseFormReturn<TFormShape>, options: { requireDocuments: boolean }) {
-    const [currentStep, setCurrentStep] = useState(0);
-    const [formError, setFormError] = useState<string | null>(null);
-    const { trigger, watch, setValue, formState: { errors, isSubmitting } } = form;
-    const formData = watch();
-    const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({ formData: formData as TFormShape, errors: errors as FieldErrors<TFormShape>, setValue: setValue as unknown as UseFormSetValue<TFormShape> });
-    const handleNext = async () => {
-        if (formError) setFormError(null);
-        const isValid = await trigger(getBusinessWizardFieldsForStep(currentStep, { requireDocuments: options.requireDocuments }) as Path<TFormShape>[]);
-        if (!isValid) return;
-        setCurrentStep((prev) => prev + 1);
-    };
-    return { currentStep, setCurrentStep, formError, setFormError, isSubmitting, legacyFormData, setLegacyFormData, handleNext };
-}
+import { useProfileWizardController } from "./hooks";
 
 export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onClose }: {
     user: User | null; onRefreshUser?: () => void | Promise<void>; onComplete?: () => void; onClose?: () => void;

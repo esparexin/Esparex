@@ -12,7 +12,6 @@ export { normalizeMobileVisibility } from './constants/mobileVisibility';
 export * from './utils/formatters';
 export * from './utils/statusNormalization';
 export * from './utils/userStatus';
-export * from './utils/categoryFilters';
 export * from './utils/securityPatterns';
 export * from './utils/resolveCategoryId';
 // geoUtils — radius constants are now in @esparex/contracts; export only utility functions
@@ -23,8 +22,6 @@ export {
     hasValidCoordinateArray, isValidGeoPoint, normalizeGeoPoint,
     getLatitude, getLongitude, hasCoordinates, createPoint, toCanonicalGeoPoint
 } from './utils/geoUtils';
-// locationPrimitives functions (LOCATION_LEVELS, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug)
-// LocationLevel type is now provided by @esparex/contracts above
 export {
     LOCATION_LEVELS,
     normalizeLocationLevel,
@@ -32,16 +29,25 @@ export {
     buildLocationSlug
 } from './utils/locationPrimitives';
 export * from './utils/textValidator';
-export * from './utils/catalogNamingValidator';
 export * from './utils/planEntitlements';
-// listingUtils functions (sanitizeMongoObjectId, resolveCanonicalLocationId, normalizeListingLocation, formatLocationDisplay)
-// ListingLocation type is now provided by @esparex/contracts above
-export {
-    sanitizeMongoObjectId, resolveCanonicalLocationId,
-    normalizeListingLocation, formatLocationDisplay
-} from './listingUtils/locationUtils';
+// listingUtils functions
+export { sanitizeMongoObjectId } from './validators/mongo';
 export * from './listingUtils/imageUtils';
-export { adaptLocationInput } from './location/location.utils';
+
+export { adaptLocationInput } from './location/location.normalize';
+export { LocationFacade } from './location';
+
+export { CatalogFacade, validateCatalogName, hasCatalogPollution } from './catalog';
+export {
+    type CatalogValidator,
+    CharacterValidator,
+    LengthValidator,
+    SpamValidator,
+    ReservedWordValidator,
+    assertCleanCatalogText,
+} from './catalog/common/validation';
+
+
 
 // POPUP (remain in @esparex/shared)
 export * from './popup/popupCore';
@@ -61,7 +67,3 @@ export * from './observability/types';
 export { getLogger } from './observability/index';
 export { createUniversalLogger } from './observability/logger';
 
-// IMAGE DOMAIN REGISTRY
-import * as imageDomainRegistry from './constants/image-domain-registry.json';
-export { imageDomainRegistry };
-export default imageDomainRegistry;

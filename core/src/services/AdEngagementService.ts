@@ -7,7 +7,7 @@
 
 import mongoose from 'mongoose';
 import { getListingRepository } from '../composition/listings';
-import { Listing, ListingFilter } from '../domains/listings';
+import { ListingFilter } from '../domains/listings';
 import logger from '../utils/logger';
 import { touchLocationAnalytics } from './location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from './TrendingService';

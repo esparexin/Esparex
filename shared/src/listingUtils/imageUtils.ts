@@ -1,4 +1,4 @@
-import imageDomainRegistry from '../constants/image-domain-registry.json';
+import { imageDomainRegistry } from "@esparex/contracts";
 
 export const DEFAULT_IMAGE_PLACEHOLDER = imageDomainRegistry.placeholderImageUrl;
 

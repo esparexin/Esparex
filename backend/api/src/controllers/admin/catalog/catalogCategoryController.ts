@@ -18,9 +18,8 @@ import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import { sendSuccessResponse } from "../../../utils/respond";
 import type { ICategory } from '@esparex/core/models/Category';
-// import { categorySpecificFilters } from '../../constants/categorySchema'; // Deprecated - migrating to DB
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
-import { clearCategoryCanonicalCache } from '@esparex/core/utils/categoryCanonical';
+import { clearCategoryCanonicalCache } from '@esparex/core/services/catalog/CatalogCategoryService';
 // Note: constants/categorySchema was removed; category filters are now DB-stored.
 import {
     categoryCreateSchema,
