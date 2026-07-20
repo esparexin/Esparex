@@ -8,12 +8,12 @@ import { Request, Response } from 'express';
 import slugify from 'slugify';
 import { handlePaginatedContent } from "../../../utils/contentHandler";
 import {
+    CategoryModel,
+    getCatalogEntityCounts,
     findCategoryById,
     categoryParentExists,
     updateCategorySchemaById,
 } from '@esparex/core/services/catalog/CatalogCategoryService';
-import mongoose from 'mongoose';
-import { adminDashboardRepository } from '@esparex/core/composition/admin';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { AppError } from '@esparex/core/utils/AppError';
 import { sendSuccessResponse } from "../../../utils/respond";
@@ -35,7 +35,7 @@ import {
     applyCatalogStatusFilter,
     deriveApprovalStatus,
     sendValidationError
-} from './adminCatalogHelpers';
+} from './shared';
 import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 
@@ -52,7 +52,7 @@ export const getCategories = async (req: Request, res: Response) => {
     const adminQuery: QueryRecord = {};
     applyCatalogStatusFilter(adminQuery, rawStatus);
 
-    return handlePaginatedContent(req, res, 'Category', {
+    return handlePaginatedContent(req, res, CategoryModel, {
         searchFields: ['name', 'slug'],
         defaultSort: { name: 1 },
         publicQuery: { ...ACTIVE_CATEGORY_QUERY },
@@ -73,7 +73,7 @@ export const getCategoryCounts = async (req: Request, res: Response) => {
             return;
         }
 
-        const counts = await adminDashboardRepository.getCatalogEntityCounts();
+        const counts = await getCatalogEntityCounts();
 
         // Cache for 1 hour — catalog counts change infrequently
         await setCache(CACHE_KEY, counts, CACHE_TTLS.CATEGORIES);
@@ -258,11 +258,7 @@ export const updateCategory = async (req: Request, res: Response) => {
  * Toggle category active status
  */
 export const toggleCategoryStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, 'Category',
-        async (id) => mongoose.model('Category').findById(id),
-        async (id, data) => mongoose.model('Category').findByIdAndUpdate(id, data, { new: true }),
-        false, true,
-        {
+    return handleCatalogToggleStatus(req, res, CategoryModel, {
         auditAction: 'TOGGLE_CATEGORY_STATUS',
         postOp: (item) => {
             clearCategoryCanonicalCache();

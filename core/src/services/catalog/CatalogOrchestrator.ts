@@ -286,24 +286,23 @@ export function initializeCatalogOrchestrator(instance: CatalogOrchestratorImpl)
 
 function getServiceInstance(): CatalogOrchestratorImpl {
     if (!serviceInstance) {
-        const {
-            catalogUnitOfWork,
-            catalogCache,
-            categoryRepository,
-            brandRepository,
-            modelRepository,
-            sparePartRepository,
-            screenSizeRepository
-        } = require('../../composition/catalog');
+        const { MongoCatalogUnitOfWorkAdapter } = require('../../adapters/outbound/database/catalog/MongoCatalogUnitOfWorkAdapter');
+        const { RedisCatalogCacheAdapter } = require('../../adapters/outbound/database/catalog/RedisCatalogCacheAdapter');
+        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
+        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
+        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
+        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
+
+        const { MongoScreenSizeRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoScreenSizeRepositoryAdapter');
 
         serviceInstance = new CatalogOrchestratorImpl(
-            catalogUnitOfWork,
-            catalogCache,
-            categoryRepository,
-            brandRepository,
-            modelRepository,
-            sparePartRepository,
-            screenSizeRepository
+            new MongoCatalogUnitOfWorkAdapter(),
+            new RedisCatalogCacheAdapter(),
+            new MongoCategoryRepositoryAdapter(),
+            new MongoBrandRepositoryAdapter(),
+            new MongoModelRepositoryAdapter(),
+            new MongoSparePartRepositoryAdapter(),
+            new MongoScreenSizeRepositoryAdapter()
         );
     }
     return serviceInstance;

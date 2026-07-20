@@ -1,6 +1,13 @@
 // Esparex Shared Package Entry Point
 // Export common schemas, enums, constants and utilities
 
+/**
+ * @deprecated The contracts proxy re-export is a temporary compatibility layer.
+ * All consumers must import directly from `@esparex/contracts`.
+ * This proxy export will be removed in Phase 2.
+ */
+export * from '@esparex/contracts';
+
 // CONSTANTS: only bannedWords remains exclusively in @esparex/shared (business logic)
 // adLimits, fieldLimits, adminNotificationTargets, mobileVisibility constants,
 // locationEvents, notificationRetention are all now in @esparex/contracts above.

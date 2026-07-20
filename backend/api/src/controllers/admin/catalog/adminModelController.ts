@@ -15,7 +15,7 @@ import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
 import { MAX_MODEL_TREE_DEPTH } from '@esparex/core/services/catalog/CatalogHierarchyService';
 import { updateModelHierarchyTransactionally } from '@esparex/core/services/catalog/CatalogHierarchyService';
 import { getCache } from '@esparex/core/utils/redisCache';
-import { catalogCacheKey, applyCacheWriteThrough, normalizeOptionalObjectIdQuery, normalizeBooleanQuery, populateModelVariants, applyModelHierarchyPayload, logModelDuplicateCandidates } from './adminCatalogHelpers';
+import { catalogCacheKey, applyCacheWriteThrough, normalizeOptionalObjectIdQuery, normalizeBooleanQuery, populateModelVariants, applyModelHierarchyPayload, logModelDuplicateCandidates } from './adminCatalogShared';
 
 export const getModels = async (req: Request, res: Response) => {
     const isAdminView = req.originalUrl.includes('/admin');
@@ -61,7 +61,7 @@ export const getModels = async (req: Request, res: Response) => {
     if (treeView && !parentModelId && !variantModelId) { publicQuery.variantOfModelId = { $in: [null] }; publicQuery.treeDepth = { $lte: MAX_MODEL_TREE_DEPTH }; }
     if (categoryObjectId) Object.assign(publicQuery, CategoryQueryBuilder.forPlural().withFilters({ categoryIds: [categoryObjectId] }).build());
     if (!isAdminView && brandObjectId) { const be = await checkBrandInCategories(brandObjectId, activeCategoryIds); if (!be) return sendEmptyPublicList(res); }
-    return handlePaginatedContent(req, res, 'Model', {
+    return handlePaginatedContent(req, res, CatalogModel, {
         populate: isAdminView ? undefined : 'brandId categoryIds parentModelId variantOfModelId',
         adminQuery, publicQuery, searchFields: ['name', 'displayName', 'canonicalName', 'slug', 'aliases', 'synonyms'],
         queryParams: { ...(req.query as QueryRecord) }, transformResponse: includeVariants ? populateModelVariants : undefined,
@@ -89,9 +89,7 @@ export const getModelBySlug = async (req: Request, res: Response) => {
 };
 
 export const createModel = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, 'Model', modelCreateSchema,
-        async (data) => mongoose.model('Model').create(data),
-        {
+    return handleCatalogCreate(req, res, CatalogModel, modelCreateSchema, {
         auditAction: 'MODEL_CREATE',
         preOp: async (payload) => {
             const brandId = toOptionalString(payload.brandId);
@@ -117,14 +115,8 @@ export const createModel = async (req: Request, res: Response) => {
 };
 
 export const updateModel = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, 'Model', modelUpdateSchema,
-        async (id) => mongoose.model('Model').findById(id),
-        async (id, data) => {
-            const result = await updateModelHierarchyTransactionally(id, data);
-            logger.info('[CatalogHierarchy] Model hierarchy mutation committed', { modelId: id, durationMs: result.metrics.durationMs, descendantScanCount: result.metrics.descendantScanCount, cascadeUpdateCount: result.metrics.cascadeUpdateCount });
-            return result.item;
-        },
-        {
+    return handleCatalogUpdate(req, res, CatalogModel, modelUpdateSchema, {
+        auditAction: 'MODEL_RENAME',
         preUpdate: async (_id, payload, existingModel) => {
             const brandId = toOptionalString(payload.brandId);
             const categoryIds = toStringArray(payload.categoryIds);
@@ -150,20 +142,14 @@ export const updateModel = async (req: Request, res: Response) => {
 };
 
 export const toggleModelStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, 'Model',
-        async (id) => mongoose.model('Model').findById(id),
-        async (id, data) => mongoose.model('Model').findByIdAndUpdate(id, data, { new: true }),
-        true, true,
-        {
+    return handleCatalogToggleStatus(req, res, CatalogModel, {
         auditAction: 'TOGGLE_MODEL_STATUS',
         postOp: invalidateItemCatalogCache,
     });
 };
 
 export const deleteModel = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, 'Model',
-        async (id, data) => mongoose.model('Model').findByIdAndUpdate(id, data, { new: true }),
-        checkModelDependencies, {
+    return handleCatalogDelete(req, res, CatalogModel, checkModelDependencies, {
         auditAction: 'MODEL_DELETE',
         postOp: invalidateItemCatalogCache,
     });
