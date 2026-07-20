@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import Ad from '../models/Ad';
-import { getAds } from '../domains/listings/application/ad/ad/AdAggregationService';
-import { getAnyAdById } from '../domains/listings/application/ad/ad/AdDetailService';
+import Ad from '../../../../models/Ad';
+import { getAds } from '../../../../domains/listings/application/ad/ad/AdAggregationService';
+import { getAnyAdById } from '../../../../domains/listings/application/ad/ad/AdDetailService';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LISTING_TYPE_VALUES, ListingTypeValue } from '@esparex/contracts';
-import { buildPublicAdFilter } from '../utils/FeedVisibilityGuard';
+import { buildPublicAdFilter } from '../../../../utils/FeedVisibilityGuard';
 
 export const MODERATION_STATUSES = [
     LISTING_STATUS.PENDING,

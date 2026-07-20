@@ -1,1 +1,1 @@
-export * from "../domains/listings/domain/policies/ListingSubmissionPolicy";
+export * from "../domains/listings/application/policies/ListingSubmissionPolicy";

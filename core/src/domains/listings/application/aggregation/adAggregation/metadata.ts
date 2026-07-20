@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CACHE_KEYS, getMultiCache, setMultiCache } from '../../domains/listings/application/ad/ad/_shared/adServiceBase';
+import { CACHE_KEYS, getMultiCache, setMultiCache } from '../../../../../domains/listings/application/ad/ad/_shared/adServiceBase';
 
 type MetadataRef = mongoose.Types.ObjectId | string;
 type MetadataEntity = Record<string, unknown> & {
@@ -8,12 +8,12 @@ type MetadataEntity = Record<string, unknown> & {
     name?: string;
     slug?: string;
 };
-import Category from '../../models/Category';
-import Brand from '../../models/Brand';
-import Model from '../../models/Model';
-import SparePart from '../../models/SparePart';
-import ServiceType from '../../models/ServiceType';
-import Ad from '../../models/Ad';
+import Category from '../../../../../models/Category';
+import Brand from '../../../../../models/Brand';
+import Model from '../../../../../models/Model';
+import SparePart from '../../../../../models/SparePart';
+import ServiceType from '../../../../../models/ServiceType';
+import Ad from '../../../../../models/Ad';
 import type { HydratedAd } from './types';
 
 async function fetchMetadataWithCache<T>(

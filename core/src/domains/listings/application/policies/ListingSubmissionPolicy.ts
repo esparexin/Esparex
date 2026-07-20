@@ -67,7 +67,7 @@ export class ListingSubmissionPolicy {
 
     static async reserveSlot(input: ListingSubmissionPolicyInput): Promise<ListingSubmissionReservation> {
         if (!ListingSubmissionPolicy.#defaultInstance) {
-            const { getListingRepository } = require('../composition/listings');
+            const { getListingRepository } = require('../../../../composition/listings');
             ListingSubmissionPolicy.#defaultInstance = new ListingSubmissionPolicy(
                 getListingRepository()
             );

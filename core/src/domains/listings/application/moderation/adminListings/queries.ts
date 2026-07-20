@@ -1,5 +1,5 @@
 import type { AdminListingsQuery } from './types';
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../../../../utils/AppError';
 import {
     listModerationListings,
     getModerationListingById,

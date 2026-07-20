@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import Ad from '../../models/Ad';
-import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../../domains/listings/application/ad/ad/_shared/adServiceBase';
-import type { AdsListResult, AdFilters, UnknownRecord, AggregationStage, PaginationOptions, PublicQueryOptions, SortStage } from '../../domains/listings/application/ad/ad/_shared/adServiceBase';
-import { buildAdMatchStage, buildAdSortStage } from '../../domains/listings/application/ad/ad/AdSearchService';
+import Ad from '../../../../../models/Ad';
+import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../../../../../domains/listings/application/ad/ad/_shared/adServiceBase';
+import type { AdsListResult, AdFilters, UnknownRecord, AggregationStage, PaginationOptions, PublicQueryOptions, SortStage } from '../../../../../domains/listings/application/ad/ad/_shared/adServiceBase';
+import { buildAdMatchStage, buildAdSortStage } from '../../../../../domains/listings/application/ad/ad/AdSearchService';
 import type { HydratedAd, TelemetryAd } from './types';
 import { hydrateAdMetadata } from './metadata';
 

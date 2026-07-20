@@ -10,7 +10,7 @@ import { generateId } from '../../../../utils/idUtils';
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
 import { analyzeFraudRisk, FraudContext } from '../../../../services/FraudDetectionService';
 import { AdCreationService } from './AdCreationService';
-import { ListingSubmissionPolicy } from '../../domain/policies/ListingSubmissionPolicy';
+import { ListingSubmissionPolicy } from '../../application/policies/ListingSubmissionPolicy';
 import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
 import { computeActiveExpiry } from '../../../../services/lifecycle/AdStatusService';
 import { enqueueImageOptimization } from '../../../../queues/imageQueue';

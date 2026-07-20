@@ -2,7 +2,7 @@ import { AppError } from '../../../../../utils/AppError';
 import logger from '../../../../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
 import { LISTING_STATUS } from '@esparex/contracts';
-import { ListingSubmissionPolicy } from '../../../domain/policies/ListingSubmissionPolicy';
+import { ListingSubmissionPolicy } from '../../../application/policies/ListingSubmissionPolicy';
 import { mutateStatus } from '../../../../../services/lifecycle/StatusMutationService';
 import { normalizeAdStatus } from "../../../../../services/lifecycle/AdStatusService";
 import { isValidObjectId } from '../../../../../utils/idUtils';

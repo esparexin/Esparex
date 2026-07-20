@@ -1,7 +1,7 @@
-import { pLimit } from '../../utils/pLimit';
-import { AppError } from '../../utils/AppError';
-import { dispatchTemplatedNotification } from '../NotificationService';
-import Ad from '../../models/Ad';
+import { pLimit } from '../../../../../utils/pLimit';
+import { AppError } from '../../../../../utils/AppError';
+import { dispatchTemplatedNotification } from '../../../../../services/NotificationService';
+import Ad from '../../../../../models/Ad';
 import type { AdminLogFn } from './types';
 import {
     adminApproveListing, adminRejectListing, adminDeactivateListing,

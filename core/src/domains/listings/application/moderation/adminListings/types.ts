@@ -1,4 +1,4 @@
-import type { AdminLogTargetType } from '../../utils/adminLogger';
+import type { AdminLogTargetType } from '../../../../../utils/adminLogger';
 
 export type AdminLogFn = (
     action: string,
