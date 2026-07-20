@@ -1,293 +1,260 @@
-# Repository Intelligence Report
+# Repository Intelligence Audit — Definitive Report
 
-**Initiative:** Kernel Audit & Refinement  
-**Phase:** 1 — Repository Intelligence Audit  
+**Branch:** `chore/kernel-audit-refinement`  
 **Date:** 2026-07-20  
-**Branch:** `chore/kernel-audit-refinement`
+**Method:** Automated analysis (JSCPD, knip, depcruise) + manual verification  
 
 ---
 
-## 1. Repository Structure
+## Priority Legend
 
-### 1.1 Workspace Inventory
-
-| Layer | Packages | Status |
-|-------|----------|--------|
-| **Applications** | `apps/admin`, `apps/web` | Active |
-| **Mobile** | `apps/mobile` (Capacitor, not an npm workspace) | Active |
-| **API Gateway** | `backend/api` | Active |
-| **Core Domain** | `core` (Hexagonal + DDD, 87 services, 60 models) | Active |
-| **Shared Contracts** | `shared`, `packages/contracts` | Active |
-| **UI** | `packages/ui` | Active |
-| **Stub Packages (empty)** | `packages/config`, `packages/feature-flags`, `packages/logger`, `packages/observability`, `packages/platform`, `packages/sdk`, `packages/testing`, `packages/validation`, `packages/kernel` | **9 packages, all `index.ts` only** |
-| **Domain Stubs (empty)** | `packages/domain/admin`, `packages/domain/ai`, `packages/domain/analytics`, `packages/domain/audit`, `packages/domain/authentication`, `packages/domain/authorization`, `packages/domain/businesses`, `packages/domain/catalog`, `packages/domain/chat`, `packages/domain/identity`, `packages/domain/listings`, `packages/domain/media`, `packages/domain/notifications`, `packages/domain/payments`, `packages/domain/reports`, `packages/domain/search`, `packages/domain/smart-alerts`, `packages/domain/users`, `packages/domain/workflow` | **19 packages, all `index.ts` only** |
-
-### 1.2 Internal Dependency Graph
-
-```
-@esparex/apps-web     → contracts, shared, ui
-@esparex/apps-admin   → contracts, shared, ui
-@esparex/backend-api  → contracts, shared, core
-@esparex/core         → contracts, shared
-@esparex/shared       → contracts
-@esparex/ui           → shared
-```
-
-**28 internal packages are never imported by any consumer** — all domain stubs + 9 stub packages.
+| Severity | Meaning | Action |
+|----------|---------|--------|
+| 🔴 **P0** | High impact, safe to fix | Do next |
+| 🟡 **P1** | Medium impact, refactoring needed | Plan after P0 |
+| 🔵 **P2** | Low impact, incremental improvement | Schedule opportunistically |
+| ⚪ **P3** | Informational / future | Track only |
 
 ---
 
-## 2. Large Files & Hotspots
+## 1. Duplicate Code
 
-### 2.1 Largest Source Files (>500 lines)
+### 1.1 Mongoose Catalog Entity Models — ~70% Boilerplate
 
-| Lines | File | Concern |
-|-------|------|---------|
-| 1,380 | `apps/web/src/styles/chat.css` | Very large static CSS — could benefit from modularization |
-| 580 | `core/src/config/db.ts` | Database configuration sprawl |
-| 555 | `apps/web/src/components/user/ListingDetail.tsx` | Largest React component — consider decomposition |
-| 547 | `apps/web/src/context/AuthContext.tsx` | Large context — consider splitting |
-| 543 | `apps/admin/src/app/(protected)/(catalog)/locations/page.tsx` | Large admin page |
-| 530 | `apps/web/src/lib/api/client.ts` | Large API client |
-| 529 | `apps/web/src/lib/location/locationService.ts` | — |
-| 529 | `apps/web/src/components/user/SavedAds.tsx` | — |
-| 529 | `apps/web/src/components/location/LocationSelector.tsx` | — |
-| 519 | `core/src/models/Ad.ts` | Largest model |
-| 516 | `apps/admin/src/app/(protected)/ads/AdsView.tsx` | — |
-| 512 | `tooling/architecture/lib/reporter.ts` | — |
-| 512 | `apps/web/src/lib/validation.ts` | — |
-| 505 | `apps/web/src/context/LocationContext.tsx` | — |
-| 501 | `core/src/services/SmartAlertService.ts` | — |
+| # | Files | Duplicate Lines | Type |
+|---|-------|-----------------|------|
+| 1 | `core/src/models/{Brand,Category,Model,ScreenSize,ServiceType,Variant}.ts` | ~250 of 360 per file | Identical template: interface + schema + indexes + hooks |
 
-### 2.2 Build Artifacts (can be gitignored)
+Each file follows the exact same pattern: `I{Entity} extends Document` with `name, displayName, canonicalName, slug, aliases, synonyms, marketplaceTrust`, identical text index weights, canonical name unique index, pre-save hook.
 
-| File | Size | Action |
-|------|------|--------|
-| `graphify-out/graph.json` | 15 MB | Consider gitignoring |
-| `graphify-out/.graphify_detect.json` | 405 KB | Consider gitignoring |
-| `graphify-out/cache/stat-index.json` | 390 KB | Consider gitignoring |
-| `graphify-out/manifest.json` | 349 KB | Consider gitignoring |
-| `eslint-baseline.json` | 1.0 MB | **Keep** — used for CI enforcement |
-| `ci-lint-results.json` | 1.4 MB | Consider gitignoring |
-| `apps/admin/tsconfig.tsbuildinfo` | 342 KB | Should be gitignored |
-| `apps/web/tsconfig.tsbuildinfo` | 376 KB | Should be gitignored |
-| `.eslintcache/{web,core}` | ~500 KB combined | Already partially gitignored |
+**Recommendation:** Extract a `BaseCatalogEntity` factory or generic model.  
+**Severity:** 🟡 **P1**
 
-**Note:** `tsconfig.tsbuildinfo` files are already in `.gitignore` but still present in the working tree (previously committed). They will stop being tracked after one more commit.
+### 1.2 Catalog Normalizers — 90% Identical
 
----
+| # | Files | Duplicate Lines | Type |
+|---|-------|-----------------|------|
+| 2 | `shared/src/catalog/{brand,model,screenSize,serviceType,sparePart}/normalize.ts` | ~11 lines each | Same `normalize{Entity}Name()` and `build{Entity}Slug()` functions |
 
-## 3. Code Quality Signals
+**Recommendation:** Consolidate into a single `catalog/normalize.ts` utility.  
+**Severity:** 🟡 **P1**
 
-### 3.1 Technical Debt Markers
+### 1.3 Unit Of Work Adapters — 87% Identical
 
-| Category | Count | Details |
-|----------|-------|---------|
-| `TODO` | 1 | `core/src/services/ListingSubmissionPolicy.ts:53` |
-| `FIXME` | 0 | Clean |
-| `HACK` | 0 | Clean |
-| `XXX` | 0 | Clean |
-| `@deprecated` | 18 | 8 files, mostly in shared contracts + location |
-| `@ts-ignore`/`@ts-expect-error` | 0 | Clean (ignoring generated `.next` files) |
-| `console.log` (production) | ~50 | ~8 files: kernel/Result.ts, validateEnv.ts, tooling/*, logger.ts, verify-architecture.ts |
-| Commented-out code | 16 | 8 files |
+| # | Files | Duplicate Lines | Type |
+|---|-------|-----------------|------|
+| 3 | `core/src/adapters/outbound/database/{catalog,listings}/Mongo*UnitOfWorkAdapter.ts` | 35 of 40 lines | `executeTransaction()` body is byte-for-byte identical |
 
-### 3.2 `console.log` in Production Code
+**Recommendation:** Merge with interface parameterization.  
+**Severity:** 🟡 **P1**
 
-| File | Lines | Priority |
-|------|-------|----------|
-| `packages/kernel/src/domain/Result.ts:25` | 1 | Low — Result pattern debug log |
-| `core/src/config/validateEnv.ts:171-180` | 10 | **Medium** — diagnostic logs in production path |
-| `shared/src/observability/logger.ts:114` | 1 | Low — HTTP log formatter |
-| `tooling/architecture/report.ts:80` | 1 | Low — CLI tool output |
-| `tooling/architecture/verify-architecture.ts` | ~10 | Low — CLI tool output |
-| `tooling/architecture/generate-domain.ts` | ~10 | Low — CLI tool output |
-| `tooling/architecture/registry.ts:121` | 1 | Low — CLI tool output |
-| `tooling/architecture/index.ts` | ~16 | Low — CLI tool output |
+### 1.4 Reliability Context vs Trace — AsyncLocalStorage Wrapper
+
+| # | Files | Duplicate Lines | Type |
+|---|-------|-----------------|------|
+| 4 | `core/src/utils/reliabilityContext.ts` ↔ `shared/src/observability/trace.ts` | 26 lines | Same `AsyncLocalStorage` wrapper with `globalThis.window` fallback |
+
+**Recommendation:** Consolidate into a single shared utility.  
+**Severity:** 🔵 **P2**
+
+### 1.5 Admin Catalog Tab Components — 30-40% Copy-Paste
+
+| # | Files | Duplicate Lines | Type |
+|---|-------|-----------------|------|
+| 5 | `apps/admin/src/components/catalog/tabs/{BrandsTab,ScreenSizesTab,ServiceTypesTab}.tsx` | ~80 of 250+ each | Identical table columns, filter/sort bars, action rows, mutation patterns |
+
+**Recommendation:** Create shared `AdminCatalogTab` base component.  
+**Severity:** 🔵 **P2**
+
+### 1.6 Location Selector — Internal Duplicate
+
+| # | File | Duplicate Lines | Type |
+|---|------|-----------------|------|
+| 6 | `apps/web/src/components/location/LocationSelector.tsx` | 15 lines | Two identical result-item rendering blocks |
+
+**Severity:** 🔵 **P2**
 
 ---
 
-## 4. Dependencies
+## 2. Duplicate Types & Interfaces
 
-### 4.1 Version Conflicts
+### 🔴 P0
 
-| Package | Version 1 | Workspace | Version 2 | Workspace |
-|---------|-----------|-----------|-----------|-----------|
-| `@bull-board/api` | `^7.0.0` | core | `^6.20.3` | backend/api |
-| `@bull-board/express` | `^7.0.0` | core | `^6.20.3` | backend/api |
-| `@sentry/node` | `^8.26.0` | shared | `^10.51.0` | core, backend/api |
-| `uuid` | `^9.0.0` | shared/observability | `^13.0.0` | core, backend/api |
-| `lucide-react` | `^0.473.0` | packages/ui | `^0.562.0` | apps/web, apps/admin |
-| `slugify` | `^1.6.9` | shared | `^1.6.6` | core, backend/api |
-| `zod` | `^3.22.4` | packages/contracts | `^3.25.76` | shared, core, backend, apps |
-| `react-hook-form` | `^7.72.1` | apps/admin | `^7.69.0` | apps/web |
-| `recharts` | `^3.7.0` | apps/admin | `^3.5.1` | apps/web |
+| # | Type | Locations | Problem |
+|---|------|-----------|---------|
+| 7 | **`cn()` utility** | `apps/web/src/lib/utils.ts` + `apps/web/src/components/ui/utils.ts` | 100% identical function — copy-paste oversight |
 
-**Critical:** `@bull-board` version mismatch (v6 vs v7) between backend/api and core likely causes runtime errors if both are loaded.
+### 🟡 P1
 
-### 4.2 Outdated / Legacy Dependencies
-
-| Package | Version | Issue |
-|---------|---------|-------|
-| `speakeasy` | `^2.0.0` | Unmaintained since 2017 — replace with `otplib` |
-| `heic2any` | `^0.0.4` | Pre-1.0, no stable release |
-| `crypto-js` | `^4.2.0` | Not actively maintained, security concerns |
-| `tsconfig-paths` | `^3.15.0` | Major version behind (v4 available) |
-| `@types/nanoid` | `^2.1.0` | Incompatible with nanoid v3 API |
-
-### 4.3 Unused / Suspicious Dependencies
-
-| Package | In Workspace | Issue |
-|---------|-------------|-------|
-| `@types/validator` | root | Not imported anywhere |
-| `@types/js-yaml` | root | Not imported anywhere |
-| `@emnapi/runtime` | root (optional) | Leftover? |
-| `pm2` | root | No script or config references it |
-| `semantic-release` | root | No `.releaserc` found |
-| `@types/ioredis` | backend/api | ioredis v5 ships own types |
-| `csv-parser` | backend/api | Verify if still used |
-
-### 4.4 Missing `@types/*`
-
-| Missing | For Package | In Workspace |
-|---------|-------------|-------------|
-| `@types/bcryptjs` | bcryptjs | core, backend/api |
-| `@types/dotenv` | dotenv | core, backend/api, apps/web |
-| `@types/sanitize-html` | sanitize-html | core (present in backend/api) |
-
-### 4.5 Misclassified Dependencies
-
-| Package | Workspace | Should Be |
-|---------|-----------|-----------|
-| `ts-node` | backend/api devDeps | `dependencies` (used in runtime scripts) |
-| `tsconfig-paths` | backend/api devDeps | `dependencies` (runtime registration) |
-| `nodemon` | backend/api devDeps | Correct (dev only) |
+| # | Type | Locations | Problem |
+|---|------|-----------|---------|
+| 8 | **`AdminUser`** | `packages/contracts/src/v1/admin/dto/admin.ts` vs `apps/admin/src/types/admin.ts` | Different shapes: `name` vs `firstName+lastName`, loose `role: string` vs union, missing fields |
+| 9 | **`ScreenSize`** | `packages/contracts`, `apps/admin/src/types`, `apps/web/src/lib/api/user/masterData.ts`, `apps/web/src/schemas` | 4 variants with different field sets |
+| 10 | **`Brand`** | `packages/contracts`, `apps/web/src/lib/api/user/masterData.ts`, `apps/web/src/schemas` | 3 variants — canonical has 10 fields, masterData only has 4 |
+| 11 | **`DeviceModel`** | `packages/contracts`, `apps/web/src/lib/api/user/masterData.ts` | masterData uses singular `categoryId` vs canonical's plural `categoryIds` |
+| 12 | **`ListingLocation`** | `packages/contracts/src/v1/common/dto/location.ts` vs `apps/web/src/types/listing.ts` | Near-identical shape defined in two places |
 
 ---
 
-## 5. TypeScript Configuration
+## 3. Duplicate Validation Logic
 
-### 5.1 Module System Fragmentation
+### 🔴 P0
 
-| Module System | Packages | Count |
-|--------------|----------|-------|
-| `NodeNext` | root, packages/contracts, packages/ui, all stubs, all domain stubs | ~30 |
-| `Node16` | shared | 1 |
-| `commonjs` | core, backend/api, tooling/architecture | 3 |
-| `bundler` + `esnext` | apps/web, apps/admin | 2 |
+| # | Validation Type | Locations | Impact |
+|---|----------------|-----------|--------|
+| 13 | **Common schemas (9 pairs)** | `packages/contracts/src/v1/common/schema/common.schemas.ts` vs `core/src/validators/common.ts` | ObjectId, phone, email, URL, price, pagination, sort, dateRange, coordinates — all duplicated with slight drift |
+| 14 | **Catalog entity schemas (6 pairs)** | `packages/contracts/src/v1/catalog/schema/catalog.schema.ts` vs `core/src/validators/catalog.validator.ts` | Category/Brand/Model/SparePart/ServiceType/ScreenSize — independently maintained with field count mismatches |
+| 15 | **`coordinatesSchema` (3 copies)** | `packages/contracts/schema/coordinates.schema.ts` + `core/src/validators/business.validator.ts` + `core/src/validators/common.ts` | Business validator explicitly acknowledges the duplication in a comment (line 38) |
 
-### 5.2 Strict Mode Gaps
+### 🟡 P1
 
-| Flag | Enabled In | Missing From |
-|------|-----------|-------------|
-| `noUncheckedIndexedAccess` | apps/web, apps/admin | core, backend/api, shared |
-| `noImplicitOverride` | apps/web, apps/admin | core, backend/api, shared |
-| `noUnusedLocals`/`noUnusedParameters` | apps/web | Everyone else |
-| `exactOptionalPropertyTypes` | apps/web (strict tsconfig) | Everyone else |
-| `forceConsistentCasingInFileNames` | apps/web, apps/admin | core, backend/api |
+| # | Validation Type | Locations | Impact |
+|---|----------------|-----------|--------|
+| 16 | **Admin catalog schemas** | `packages/contracts/catalog.schema.ts` vs `apps/admin/src/schemas/admin.schemas.ts` | Simpler validation, no text content checks, no slug format enforcement |
 
-### 5.3 Other Issues
+---
 
-| Issue | Detail |
+## 4. Architecture Violations
+
+### ⚪ P3 (Low Risk, Already Documented)
+
+| # | Finding | Location | Detail |
+|---|---------|----------|--------|
+| 17 | **435 `no-new-legacy-shared-imports` warnings** | Throughout | Expected — `shared` is frozen during contracts migration. All pass with `warning` severity |
+| 18 | **6 controllers import models directly** | `backend/api/src/controllers/*` | `import type { IModel } from '@esparex/core/models/Model'` violates `no-direct-model-imports-in-controllers` rule |
+| 19 | **4 type-only deep domain port imports** | `core/src/services/*` | Exempted by depcruise `dependencyTypesNot: ['type-only']` but not clean |
+
+### ✅ Clean
+
+| Check | Result |
 |-------|--------|
-| `DOM` lib in backend | `backend/api/tsconfig.json` includes `"DOM"` — unnecessary for Node.js |
-| `composite: false` in core | Prevents project reference graph from core → contracts |
-| Duplicated `paths` | Same aliases defined in 6 tsconfigs with different resolutions |
-| `skipLibCheck: true` everywhere | Hides `.d.ts` type issues |
+| Circular dependencies | **None detected** — fully acyclic graph |
+| `apps/` → `core/` or `backend/` | **0 violations** |
+| `packages/` → `apps/` or `backend/` | **0 violations** |
+| `shared/` → `core/` | **0 violations** |
 
 ---
 
-## 6. Security
+## 5. Dead & Unused Code
 
-### 🔴 CRITICAL: Hardcoded Credentials in `.env`
+### 🔴 P0 — Verified Unused, Safe to Remove
 
-`core/.env` and `backend/api/.env` contain:
+| # | Item | Location | Notes |
+|---|------|----------|-------|
+| 20 | **`shared/src/constants/bannedWords.ts`** | Knip-verified unused | — |
+| 21 | **`shared/src/constants/mobileVisibility.ts`** | Knip-verified unused | — |
+| 22 | **`shared/src/contracts/api/adminRoutes.ts`** | Knip-verified unused | Superseded by `packages/contracts` |
+| 23 | **`shared/src/contracts/api/basePaths.ts`** | Knip-verified unused | Superseded by `packages/contracts` |
+| 24 | **`shared/src/contracts/api/resourceNames.ts`** | Knip-verified unused | Superseded by `packages/contracts` |
+| 25 | **`shared/src/contracts/api/userRoutes.ts`** | Knip-verified unused | Superseded by `packages/contracts` |
+| 26 | **`shared/src/listingUtils/imageUtils.ts`** | Knip-verified unused | — |
+| 27 | **`shared/src/listingUtils/locationUtils.ts`** | Knip-verified unused | — |
+| 28 | **`shared/src/location/location.utils.ts`** | Knip-verified unused | — |
+| 29 | **`shared/src/observability/*` (5 files)** | Knip-verified unused | Superseded by `@esparex/observability` package |
+| 30 | **`shared/src/popup/*` (3 files)** | Knip-verified unused | Superseded by `@esparex/ui/src/popup/` |
+| 31 | **`shared/src/utils/*` (14 files)** | Knip-verified unused | Various migrated utility files |
+| 32 | **`shared/src/validators/mongo.ts`** | Knip-verified unused | — |
 
-| Secret | Value Pattern |
-|--------|---------------|
-| `MONGODB_URI` | Connection string with user/password |
-| `ADMIN_MONGODB_URI` | Connection string with user/password |
-| `REDIS_URL` | URL with password |
-| `AWS_ACCESS_KEY_ID` | Plaintext key |
-| `AWS_SECRET_ACCESS_KEY` | Plaintext secret |
-| `JWT_SECRET` | Base64-encoded secret |
-| `REFRESH_TOKEN_SECRET` | Base64-encoded secret |
-| `CSRF_SECRET` | Base64-encoded secret |
+Total: **~30 unused files** in `shared/` alone. These are post-migration artifacts from when logic was moved out of `shared` into `packages/contracts` or `@esparex/observability`.
 
-These files are **version-controlled** (not in `.gitignore`). While likely development-only credentials, they represent a significant security risk.
+### 🟡 P1
 
----
+| # | Item | Location | Notes |
+|---|------|----------|-------|
+| 33 | **`backend/api/src/controllers/boost/`** | No route binds to it | Dangling controller directory |
+| 34 | **`backend/api/src/controllers/wallet/`** | No route binds to it | Dangling controller directory |
+| 35 | **`scripts/kill-port.js`** | Not in any package.json | Orphaned utility script |
+| 36 | **`scripts/e2e-mock-api.mjs`** | Not in any package.json | Orphaned test helper |
+| 37 | **`scripts/audit-mongodb-inventory.js`** | Not in any package.json | One-off audit |
+| 38 | **3 catalog remediation scripts** | Not in any package.json | `catalog-null-canonical-remediation.js`, `catalog-parity-convergence.js`, `catalog-status-remediation.js`, `catalog-strict-collision-remediation.js` — one-off migrations left behind |
+| 39 | **`backend/api/src/scripts/backup-database.ts`** | Thin delegator to core | 24-line wrapper that could be removed |
+| 40 | **`backend/api/src/scripts/verify-backup.ts`** | Same delegation pattern | Same as above |
+| 41 | **`apps/mobile/`** | Stub, not a workspace | Capacitor config only, never built |
 
-## 7. Configuration
+### 🔵 P2
 
-| Issue | Detail | Severity |
-|-------|--------|----------|
-| `knip.json` schema mismatch | Config targets `knip@5` but installed `knip@^6.26.0` | 🟡 HIGH |
-| `.npmrc` conflict | `engine-strict=true` followed by `engine-strict=false` on adjacent lines | 🔵 LOW |
-| `NEXT_PUBLIC_HMAC_SECRET` | Used in API client but not documented in any `.env.example` | 🔵 LOW |
-| `BACKEND_INTERNAL_URL` | Used in sitemap.ts + playwright config but no `.env.example` entry | 🔵 LOW |
-| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Used in webPush.ts but no `.env.example` | 🔵 LOW |
-
----
-
-## 8. Unused/Orphaned Files
-
-| Path | Reason |
-|------|--------|
-| `.scratch/` | Temp fix scripts, likely post-migration cleanup |
-| `scratch/` | Same |
-| `git-mcp/` | Empty directory |
-| `audit-reports/` | Historical JSCPD/Knip reports — static artifacts |
-| `graphify-out/` | Knowledge graph output — generated artifact |
-| `build.log` | Build output log |
-| `tests.log` | Test output log |
-| `type_check.log` | Type check output log |
-| `ci-lint-results.json` | CI artifact |
-
----
-
-## 9. Summary of Actionable Findings
-
-### 🔴 Critical (must fix)
-
-| # | Finding | Location |
-|---|---------|----------|
-| 1 | Hardcoded DB/Redis/AWS credentials in version control | `core/.env`, `backend/api/.env` |
-| 2 | `@bull-board` major version mismatch (v6 vs v7) | `backend/api` vs `core` |
-
-### 🟡 High Priority
-
-| # | Finding | Recommendation |
-|---|---------|---------------|
-| 3 | 28 empty stub packages registered in workspace | Archive or populate |
-| 4 | 3 different module systems — risk of build breaks | Harmonize to unified strategy |
-| 5 | `knip.json` targeting v5 but v6 installed | Regenerate config |
-| 6 | `ts-node`/`tsconfig-paths` in devDeps but used at runtime | Move to `dependencies` |
-| 7 | `console.log` in production validation path | Replace with proper logger |
-| 8 | `speakeasy` unmaintained since 2017 | Replace with `otplib` |
-
-### 🟡 Medium Priority
-
-| # | Finding | Recommendation |
-|---|---------|---------------|
-| 9 | 19 version conflicts across workspaces | Reconcile to single versions |
-| 10 | Missing `@types` for bcryptjs, dotenv, sanitize-html | Add type packages |
-| 11 | `DOM` lib in backend tsconfig | Remove from `backend/api` |
-| 12 | `composite: false` in core | Enable for project references |
-| 13 | Strict mode gaps in backend packages | Enable `noUncheckedIndexedAccess` + `noImplicitOverride` |
-| 14 | `slugify`, `uuid` version drift | Unify across workspaces |
-
-### 🔵 Low Priority
-
-| # | Finding | Recommendation |
-|---|---------|---------------|
-| 15 | Build artifacts tracked in git: `tsbuildinfo`, `graphify-out/`, logs | Add to `.gitignore`, clean with `git rm` |
-| 16 | 1 TODO and 18 @deprecated markers | Address at convenience |
-| 17 | Missing `.env.example` entries for 3 env vars | Document |
-| 18 | `.npmrc` engine-strict conflict | Fix |
-| 19 | 900+ line chat.css | Consider modularization |
-| 20 | DOM lib in backend, minor tsconfig inconsistencies | Incremental fixes |
+| # | Item | Location | Notes |
+|---|------|----------|-------|
+| 42 | **`shared/src/geo/`** | Empty directory | No files |
+| 43 | **`.husky/_/`** | Legacy husky v5 artifacts | Deprecated internals alongside modern hooks |
+| 44 | **`docs/migrations/contracts/PHASE_4_1_REPORT.md.metadata.json`** | Stray metadata | JSON sidecar file for a migration report |
+| 45 | **Unused deps: `eslint-config-next`** | `apps/web/package.json` | Knip-verified |
+| 46 | **Unused deps: `eslint-plugin-react-hooks`** | `apps/web/package.json` | Knip-verified |
+| 47 | **Unused deps: `slugify`** | `shared/package.json` | Knip-verified |
+| 48 | **Unused deps: `zod`** | `shared/package.json` | Knip-verified |
 
 ---
 
-*End of Repository Intelligence Report — generated 2026-07-20*
+## 6. Oversized Files
+
+### 🔵 P2
+
+| # | File | Lines | Concern |
+|---|------|-------|---------|
+| 49 | `apps/web/src/styles/chat.css` | 1,380 | Largest single CSS file — modularize? |
+| 50 | `core/src/config/db.ts` | 580 | Config sprawl |
+| 51 | `apps/web/src/components/user/ListingDetail.tsx` | 555 | Largest React component |
+| 52 | `apps/web/src/context/AuthContext.tsx` | 547 | Large context |
+| 53 | `apps/admin/src/app/(protected)/(catalog)/locations/page.tsx` | 543 | Large admin page |
+| 54 | `apps/web/src/lib/api/client.ts` | 530 | Large API client |
+| 55 | `core/src/models/Ad.ts` | 519 | Largest model |
+| +8 more | Various | 500-512 | See below for full list |
+
+Full list: `db.ts`, `ListingDetail.tsx`, `AuthContext.tsx`, `locations/page.tsx`, `client.ts`, `locationService.ts`, `SavedAds.tsx`, `LocationSelector.tsx`, `Ad.ts`, `AdsView.tsx`, `reporter.ts`, `validation.ts`, `LocationContext.tsx`, `SmartAlertService.ts`, `StatusMutationService.ts`
+
+---
+
+## 7. TODO & Technical Debt
+
+### 🟡 P1
+
+| # | File | Line | Content |
+|---|------|------|---------|
+| 56 | `core/src/services/ListingSubmissionPolicy.ts` | 53 | `// TODO(PR-E): Replace with ListingRepositoryPort.countActiveBySeller()` |
+
+### ⚪ P3
+
+| # | Category | Count | Location |
+|---|----------|-------|----------|
+| 57 | `@deprecated` tags | 18 | 8 files (shared/contracts enums, location types) |
+| 58 | `console.log` in production | ~50 calls | 8 files (CLI tools, validateEnv diagnostics) |
+
+---
+
+## 8. Prioritized Action Plan
+
+### 🔴 Do Next (Safe, Verified)
+
+| Order | Item | Effort | Impact |
+|-------|------|--------|--------|
+| 1 | Remove 30 unused files in `shared/` | Small | Reduces dead code, clarifies boundaries |
+| 2 | Remove duplicate `cn()` in `apps/web/src/lib/utils.ts` (re-export from `components/ui/utils.ts`) | Trivial | Eliminates exact duplicate |
+| 3 | Remove `boost/` and `wallet/` unwired controllers | Small | Removes dangling code |
+| 4 | Remove orphaned scripts (7 items) | Small | Cleans up scripts/ |
+| 5 | Remove unused deps (4) | Small | Cleans package.json |
+| 6 | Remove empty `shared/src/geo/`, legacy `.husky/_/`, stray metadata | Trivial | Housekeeping |
+
+### 🟡 Plan Next (Refactoring)
+
+| Order | Item | Effort | Impact |
+|-------|------|--------|--------|
+| 7 | Consolidate 9 validation schema pairs between `core` and `contracts` | Medium | Eliminates validation drift |
+| 8 | Consolidate 6 Mongoose catalog models → `BaseCatalogEntity` | Medium | Reduces 60% boilerplate |
+| 9 | Consolidate 5 catalog normalizers into single utility | Small | Eliminates 90% copy-paste |
+| 10 | Align `AdminUser`, `ScreenSize`, `Brand`, `DeviceModel` type definitions | Medium | SSOT for types |
+| 11 | Merge 2 UnitOfWork adapters | Small | Eliminates 87% duplication |
+| 12 | Remove `backend/api` thin wrapper scripts | Trivial | Cleanup |
+
+### 🔵 Schedule Later (Incremental)
+
+| Order | Item | Effort | Impact |
+|-------|------|--------|--------|
+| 13 | Create shared `AdminCatalogTab` base component | Medium | Reduces copy-paste in admin |
+| 14 | Consolidate `reliabilityContext.ts` / `trace.ts` | Small | Eliminates AsyncLocalStorage duplication |
+| 15 | Modularize `chat.css` (1,380 lines) | Small | CSS maintainability |
+| 16 | Decompose largest components (`ListingDetail.tsx`, `AuthContext.tsx`) | Medium | Component maintainability |
+| 17 | Address 6 direct model imports in controllers | Small | Architecture compliance |
+
+---
+
+*End of Repository Intelligence Audit — 2026-07-20*
