@@ -8,8 +8,8 @@ ${context.workingParts ? `- Working Spare Parts: ${String(context.workingParts)}
 
 Rules:
 1. Return strict JSON: {"title": "...", "description": "..."}.
-2. The Title should be concise (50-70 characters).
-3. The Description should be persuasive, highlighting the brand, model, and condition.
+2. The Title must be between 10-60 characters, concise and keyword-rich.
+3. The Description must be between 20-500 characters, persuasive and detailed.
 4. If working spare parts are provided, mention them as a value-add for the buyer.
 5. Provide a realistic title and description based on the context.`;
 
