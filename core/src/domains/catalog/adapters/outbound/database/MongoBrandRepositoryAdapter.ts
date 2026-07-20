@@ -1,5 +1,5 @@
-import { Brand, BrandRepositoryPort } from '../../../../domains/catalog';
-import BrandModel from '../../../../models/Brand';
+import { Brand, BrandRepositoryPort } from '../../..';
+import BrandModel from '../../../../../models/Brand';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 interface DbBrand {

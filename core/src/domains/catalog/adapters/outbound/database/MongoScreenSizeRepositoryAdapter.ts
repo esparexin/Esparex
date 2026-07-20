@@ -1,5 +1,5 @@
-import { ScreenSizeBulkDeleteCriteria, ScreenSizeRepositoryPort } from '../../../../domains/catalog';
-import ScreenSizeMongoose from '../../../../models/ScreenSize';
+import { ScreenSizeBulkDeleteCriteria, ScreenSizeRepositoryPort } from '../../..';
+import ScreenSizeMongoose from '../../../../../models/ScreenSize';
 
 export class MongoScreenSizeRepositoryAdapter implements ScreenSizeRepositoryPort {
     async softDeleteByCriteria(criteria: ScreenSizeBulkDeleteCriteria, tx?: unknown): Promise<number> {

@@ -1,5 +1,5 @@
-import { SparePart, SparePartRepositoryPort } from '../../../../domains/catalog';
-import SparePartMongoose from '../../../../models/SparePart';
+import { SparePart, SparePartRepositoryPort } from '../../..';
+import SparePartMongoose from '../../../../../models/SparePart';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 interface DbSparePart {

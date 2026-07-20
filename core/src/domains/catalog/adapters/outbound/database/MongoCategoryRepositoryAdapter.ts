@@ -4,8 +4,8 @@ import {
     CategoryId,
     ListingTypeValue,
     ServiceSelectionMode
-} from '../../../../domains/catalog';
-import CategoryModel from '../../../../models/Category';
+} from '../../..';
+import CategoryModel from '../../../../../models/Category';
 import { CATALOG_APPROVAL_STATUS, CatalogApprovalStatusValue } from '@esparex/contracts';
 
 interface DbCategory {

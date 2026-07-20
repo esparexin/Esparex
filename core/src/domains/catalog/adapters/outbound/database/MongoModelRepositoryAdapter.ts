@@ -1,5 +1,5 @@
-import { Model, ModelRepositoryPort } from '../../../../domains/catalog';
-import ModelMongoose from '../../../../models/Model';
+import { Model, ModelRepositoryPort } from '../../..';
+import ModelMongoose from '../../../../../models/Model';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';
 
 interface DbModel {

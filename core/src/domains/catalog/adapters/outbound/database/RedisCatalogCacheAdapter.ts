@@ -1,6 +1,6 @@
-import { CatalogCachePort, InvalidateCatalogCacheOptions } from '../../../../domains/catalog';
-import { clearCachePattern } from '../../../../utils/redisCache';
-import logger from '../../../../utils/logger';
+import { CatalogCachePort, InvalidateCatalogCacheOptions } from '../../..';
+import { clearCachePattern } from '../../../../../utils/redisCache';
+import logger from '../../../../../utils/logger';
 
 export class RedisCatalogCacheAdapter implements CatalogCachePort {
     async invalidateCatalogCache(opts?: InvalidateCatalogCacheOptions): Promise<void> {
