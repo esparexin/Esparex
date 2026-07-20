@@ -52,6 +52,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         title={isEditMode ? "Edit Ad" : "Post Ad"} 
         subtitle={isEditMode ? undefined : stepSubtitle}
         onClose={handleClose}
+        fullScreen
       >
         <ListingModalBody data-post-ad-scroll className="space-y-4">
           <ValidationSummary />
