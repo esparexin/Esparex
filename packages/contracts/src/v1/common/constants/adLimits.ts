@@ -1,6 +1,6 @@
 export const AD_LIMITS = {
     MIN_IMAGES: 1,
-    MAX_IMAGES: 6,
+    MAX_IMAGES: 5,
     MAX_IMAGE_BYTES: 5 * 1024 * 1024,
     MIN_TITLE_CHARS: 10,
     MAX_TITLE_CHARS: 60,
