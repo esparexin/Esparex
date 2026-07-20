@@ -1,4 +1,4 @@
-jest.mock('@esparex/core/services/wallet/WalletService', () => ({
+jest.mock('@esparex/core/domains/payments/application/WalletService', () => ({
     getWallet: jest.fn(),
     TransactionModel: {
         find: jest.fn(),
@@ -11,12 +11,12 @@ jest.mock('@esparex/core/services/AdSlotService', () => ({
 }));
 
 import { getAdPostingBalance } from '../../services/AdSlotService';
-import { getWallet, TransactionModel } from '../../services/wallet/WalletService';
+import { getWallet, TransactionModel } from '../../domains/payments/application/WalletService';
 import {
     getPostingBalanceByUserId,
     getTransactionHistoryByUserId,
     getWalletSummaryByUserId,
-} from '../../services/wallet/WalletQueryService';
+} from '../../domains/payments/application/WalletQueryService';
 
 const mockedGetWallet = getWallet as jest.Mock;
 const mockedGetAdPostingBalance = getAdPostingBalance as jest.Mock;
