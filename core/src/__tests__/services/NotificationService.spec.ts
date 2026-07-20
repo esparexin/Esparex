@@ -69,7 +69,7 @@ jest.mock("../../utils/queueWrapper", () => ({
     addJobWithTrace: mockAddJobWithTrace,
 }));
 
-jest.mock("../../services/notification/NotificationVersionService", () => ({
+jest.mock("../../domains/notifications/application/NotificationVersionService", () => ({
     NotificationVersionService: {
         incrementVersion: mockIncrementVersion,
     },
@@ -85,7 +85,7 @@ jest.mock("../../config/socket", () => ({
 
 
 
-jest.mock("../../services/notification/NotificationPreferenceService", () => ({
+jest.mock("../../domains/notifications/application/NotificationPreferenceService", () => ({
     resolveNotificationDeliveryPlan: jest.fn().mockResolvedValue({
         suppress: false,
         channels: ['in-app', 'push']
@@ -94,7 +94,7 @@ jest.mock("../../services/notification/NotificationPreferenceService", () => ({
 
 import User from "../../models/User";
 import Notification from "../../models/Notification";
-import { NotificationDispatcher } from "../../services/notification/NotificationDispatcher";
+import { NotificationDispatcher } from "../../domains/notifications/application/NotificationDispatcher";
 import { NotificationIntent } from "../../domain/NotificationIntent";
 import { 
     registerToken, 
@@ -185,7 +185,7 @@ describe("NotificationService & Dispatcher", () => {
         });
 
         it("suppresses notification if user preference says so", async () => {
-            const { resolveNotificationDeliveryPlan } = require("../../services/notification/NotificationPreferenceService");
+            const { resolveNotificationDeliveryPlan } = require("../../domains/notifications/application/NotificationPreferenceService");
             resolveNotificationDeliveryPlan.mockResolvedValueOnce({ suppress: true });
 
             const intent = new NotificationIntent({
