@@ -3,7 +3,7 @@ import { LISTING_TYPE, LISTING_TYPE_VALUES } from "../../listings/enums/listingT
 import { CATALOG_APPROVAL_STATUS } from "../enums/catalogApprovalStatus";
 
 // Base Validations
-export const ObjectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, "Invalid ObjectId");
+export const ObjectIdSchema = z.string().regex(/^[0-9a-f]{24}$/i, "Invalid ObjectId");
 const SlugSchema = z.string().min(2).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Invalid slug format");
 
 export const CategoryFilterSchema = z.object({
