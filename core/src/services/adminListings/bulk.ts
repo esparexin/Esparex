@@ -1,3 +1,4 @@
+import { pLimit } from '../../utils/pLimit';
 import { AppError } from '../../utils/AppError';
 import { dispatchTemplatedNotification } from '../NotificationService';
 import Ad from '../../models/Ad';
@@ -8,21 +9,26 @@ import {
 } from './mutations';
 import { validateListingId } from './helpers';
 
+const ADMIN_BULK_CONCURRENCY = 5;
+
 const executeAdminListingsBulkOperation = async <T>(
     ids: string[],
     actionFn: (id: string) => Promise<T>,
     includeResults: boolean = true
 ) => {
     if (!Array.isArray(ids) || ids.length === 0) throw new AppError('A non-empty list of listing IDs is required', 400);
-    const results: Array<{ id: string; success: boolean; message?: string; statusCode?: number; listing?: unknown }> = [];
-    for (const id of ids) {
-        try {
-            const updated = await actionFn(id);
-            results.push({ id, success: true, listing: (updated as any)?.listing || updated });
-        } catch (error) {
-            results.push({ id, success: false, message: error instanceof Error ? error.message : String(error), statusCode: (error as any).statusCode || 500 });
-        }
-    }
+    const limit = pLimit(ADMIN_BULK_CONCURRENCY);
+    const tasks = ids.map(id =>
+        limit(async () => {
+            try {
+                const updated = await actionFn(id);
+                return { id, success: true as const, listing: (updated as any)?.listing || updated };
+            } catch (error) {
+                return { id, success: false as const, message: error instanceof Error ? error.message : String(error), statusCode: (error as any).statusCode || 500 };
+            }
+        })
+    );
+    const results = await Promise.all(tasks);
     const response: any = { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length };
     if (includeResults) response.results = results;
     return response;

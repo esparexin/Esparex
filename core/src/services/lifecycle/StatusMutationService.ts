@@ -1,4 +1,5 @@
 import mongoose, { ClientSession } from 'mongoose';
+import { pLimit } from '../../utils/pLimit';
 import { 
     validateTransition as validateLifecycleTransition, 
 
@@ -380,19 +381,18 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
     }
 };
 
+const MUTATE_STATUSES_CONCURRENCY = 5;
+
 /**
  * 🛠️ Bulk Status Mutation Service
- * Processes multiple entity transitions.
- * 
- * NOTE: For production safety and audit granularity, we process each mutation 
- * individually to ensure full LifecycleGuard validation and unique audit trails.
+ * Processes multiple entity transitions with bounded concurrency.
+ *
+ * Each mutation is fully independent (different entity, own transaction),
+ * so concurrent execution is safe while preserving per-mutation audit trails.
  */
 export const mutateStatuses = async (requests: MutationRequest[]): Promise<(Record<string, unknown> | null)[]> => {
-    const results: (Record<string, unknown> | null)[] = [];
-    for (const request of requests) {
-        results.push(await mutateStatus(request));
-    }
-    return results;
+    const limit = pLimit(MUTATE_STATUSES_CONCURRENCY);
+    return Promise.all(requests.map(request => limit(() => mutateStatus(request))));
 };
 
 export const mutateStatusesBulk = async (
