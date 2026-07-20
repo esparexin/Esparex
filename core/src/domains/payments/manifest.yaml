@@ -1,0 +1,44 @@
+domain: payments
+owner: Core Platform
+version: 1.0
+
+exports:
+  - PaymentProcessingService
+  - WalletService
+  - WalletQueryService
+  - InvoiceService
+  - PlanService
+  - TransactionService
+  - RevenueAnalytics
+
+depends_on:
+  - contracts
+  - shared
+
+events:
+  - PaymentCompleted
+  - PaymentFailed
+  - InvoiceGenerated
+  - WalletCredited
+  - WalletDebited
+  - PlanActivated
+  - PlanExpired
+
+ports:
+  - TransactionRepositoryPort
+  - InvoiceRepositoryPort
+  - WalletRepositoryPort
+  - PlanRepositoryPort
+  - UserReadRepositoryPort
+  - BusinessReadRepositoryPort
+  - PaymentGatewayPort
+  - DocumentStoragePort
+  - UnitOfWorkPort
+
+adapters:
+  - MongoTransactionRepository
+  - MongoInvoiceRepository
+  - MongoWalletRepository
+  - MongoPlanRepository
+  - RazorpayAdapter
+  - S3DocumentStorageAdapter
