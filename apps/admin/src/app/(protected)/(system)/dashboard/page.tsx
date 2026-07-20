@@ -1,12 +1,13 @@
 "use client";
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { adminFetch } from "@/lib/api/adminClient";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { TrendsChart, type TrendPoint } from "@/components/dashboard/TrendsChart";
+import type { TrendPoint } from "@/components/dashboard/TrendsChart";
 import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign, Wrench, Package } from "lucide-react";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
@@ -16,6 +17,15 @@ import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import { fetchAuditLogs } from "@/lib/api/auditLogs";
 import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
+
+const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px] flex items-center justify-center">
+      <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest animate-pulse">Loading Chart...</span>
+    </div>
+  ),
+});
 
 interface CatalogHealthMetrics {
   pendingRequests: number;
