@@ -28,8 +28,12 @@ export const adminUpdatePlan = (planId: string, payload: Record<string, unknown>
 export const adminGetPlans = (query: Record<string, unknown>): Promise<IPlan[]> =>
     Plan.find(query).sort({ createdAt: -1 });
 
-export const getPlanById = (planId: string): Promise<IPlan | null> =>
-    Plan.findById(planId);
+export const getPlanById = (planId: string): Promise<IPlan | null> => {
+    if (!mongoose.Types.ObjectId.isValid(planId)) {
+        return Promise.resolve(null);
+    }
+    return Plan.findById(new mongoose.Types.ObjectId(planId));
+};
 
 export const adminGetPlanById = getPlanById;
 
@@ -37,10 +41,25 @@ export const getActivePlans = async (query: Record<string, unknown>) => {
     return Plan.find(query).sort({ price: 1 });
 };
 
-export const findPlanByIdOrCode = async (planId: string) => {
-    const plan = await Plan.findById(planId).catch(() => null);
-    if (plan) return plan;
-    return Plan.findOne({ code: planId });
+export const findPlanByIdOrCode = async (value: unknown): Promise<IPlan | null> => {
+    if (typeof value !== 'string') {
+        return null;
+    }
+
+    const normalized = value.trim();
+
+    if (!normalized) {
+        return null;
+    }
+
+    if (mongoose.Types.ObjectId.isValid(normalized)) {
+        const plan = await Plan.findById(new mongoose.Types.ObjectId(normalized));
+        if (plan) {
+            return plan;
+        }
+    }
+
+    return Plan.findOne({ code: { $eq: normalized } });
 };
 
 export const upsertUserPlan = async (

@@ -2,6 +2,7 @@ import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 import {
     checkTransactionVelocity,
     findPendingTransaction,
@@ -23,14 +24,28 @@ import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
 export const createPaymentOrder = async (req: Request, res: Response) => {
     try {
         if (!req.user) return sendErrorResponse(req, res, 401, 'Unauthorized');
-        const { planId } = req.body as { planId?: string };
 
-        if (!planId) return sendErrorResponse(req, res, 400, 'Plan ID required');
+        // Receive as unknown — never trust client shape
+        const { planId } = req.body as { planId?: unknown };
+
+        if (typeof planId !== 'string') {
+            return sendErrorResponse(req, res, 400, 'Plan ID required');
+        }
+
+        const normalizedPlanId = planId.trim();
+
+        if (!normalizedPlanId) {
+            return sendErrorResponse(req, res, 400, 'Plan ID required');
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(normalizedPlanId)) {
+            return sendErrorResponse(req, res, 400, 'Invalid Plan ID');
+        }
 
         const user = await getUserForPayment((req.user)._id);
         if (!user) return sendErrorResponse(req, res, 404, 'User not found');
 
-        const plan = await getPlanById(planId);
+        const plan = await getPlanById(normalizedPlanId);
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
         const razorpayConfig = await getRazorpayRuntimeConfig();
         if (!razorpayConfig.enabled) {
