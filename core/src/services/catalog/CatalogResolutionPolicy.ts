@@ -1,5 +1,1 @@
-export {
-    CatalogResolutionPolicy,
-    CatalogResolutionDecision,
-    type CatalogResolutionContext
-} from '../../domains/catalog';
+export * from "../../domains/catalog/application/services/CatalogResolutionPolicy";

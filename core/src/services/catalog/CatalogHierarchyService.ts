@@ -1,1 +1,1 @@
-export * from '../catalogHierarchy';
+export * from "../../domains/catalog/application/services/CatalogHierarchyService";

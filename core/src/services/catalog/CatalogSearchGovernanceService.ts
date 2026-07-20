@@ -1,1 +1,1 @@
-export * from '../catalogSearch';
+export * from "../../domains/catalog/application/services/CatalogSearchGovernanceService";
