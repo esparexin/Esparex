@@ -36,6 +36,11 @@ const mockGetPlanById = getPlanById as jest.Mock;
 const mockGetRazorpayClient = getRazorpayClient as jest.Mock;
 const mockGetRazorpayRuntimeConfig = getRazorpayRuntimeConfig as jest.Mock;
 
+// A well-formed 24-char hex ObjectId used across all test cases.
+// The controller now validates ObjectId format before reaching the service layer,
+// so tests must supply a valid Id — the getPlanById mock ensures no DB call is made.
+const VALID_PLAN_OID = '64a1f2e3b4c5d6e7f8a9b0c1';
+
 describe('PaymentMutationController — createPaymentOrder', () => {
     let req: Partial<Request>;
     let res: Partial<Response>;
@@ -44,7 +49,7 @@ describe('PaymentMutationController — createPaymentOrder', () => {
         jest.clearAllMocks();
         req = {
             user: { _id: 'user_123' } as any,
-            body: { planId: 'plan_123' },
+            body: { planId: VALID_PLAN_OID },
             headers: {}
         };
         res = {
