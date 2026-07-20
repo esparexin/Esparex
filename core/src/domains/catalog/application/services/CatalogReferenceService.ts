@@ -12,6 +12,7 @@ import { getListingRepository } from '../../../../composition/listings';
 import { CATALOG_APPROVAL_STATUS, type AdStatusValue } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
+import { normalizeSlug } from '../../../../utils/stringUtils';
 // Re-export model instances for generic handler calls in the controller layer
 export const ServiceTypeModel = ServiceTypeModelImport;
 export const ScreenSizeModel = ScreenSizeModelImport;
@@ -19,12 +20,18 @@ export const ScreenSizeModel = ScreenSizeModelImport;
 // ─── Category slug resolution ─────────────────────────────────────────────────
 
 /** Resolve a category by slug — no active filter (admin view). */
-export const findCategoryBySlug = async (slug: string) =>
-    CategoryModel.findOne({ slug });
+export const findCategoryBySlug = async (slug: string) => {
+    const safe = normalizeSlug(slug);
+    if (!safe) return null;
+    return CategoryModel.findOne({ slug: { $eq: safe } });
+};
 
 /** Resolve a category by slug — with active filter (public view). */
-export const findActiveCategoryBySlug = async (slug: string) =>
-    CategoryModel.findOne({ slug, ...ACTIVE_CATEGORY_QUERY });
+export const findActiveCategoryBySlug = async (slug: string) => {
+    const safe = normalizeSlug(slug);
+    if (!safe) return null;
+    return CategoryModel.findOne({ slug: { $eq: safe }, ...ACTIVE_CATEGORY_QUERY });
+};
 
 // ─── Service type queries ─────────────────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { AppError } from '../../../../utils/AppError';
+import { sanitizePlainText } from '../../../../utils/stringUtils';
 import { getListingRepository } from '../../../../composition/listings';
 import SparePart from '../../../../models/SparePart';
 import Brand from '../../../../models/Brand';
@@ -191,9 +192,9 @@ export class AdCreationService {
             payload.deviceType = typeof source.deviceType === 'string' ? source.deviceType : undefined;
         }
 
-        if (payload.title) payload.title = payload.title.replace(/<[^>]*>?/gm, '').trim();
+        if (payload.title) payload.title = sanitizePlainText(payload.title, 300);
         if (payload.description) {
-            payload.description = payload.description.replace(/<[^>]*>?/gm, '').trim();
+            payload.description = sanitizePlainText(payload.description);
             if (payload.description.length < 20) throw new AppError('Description must be at least 20 characters.', 400);
         }
 

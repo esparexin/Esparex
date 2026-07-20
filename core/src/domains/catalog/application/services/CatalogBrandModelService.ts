@@ -16,6 +16,7 @@ import SmartAlertModel from '../../../../models/SmartAlert';
 import VariantModelImport from '../../../../models/Variant';
 import { ACTIVE_CATEGORY_QUERY, ACTIVE_BRAND_QUERY } from './CatalogValidationService';
 import { getModelDeletionImpact } from './CatalogHierarchyService';
+import { normalizeSlug } from '../../../../utils/stringUtils';
 
 // Re-export model instances for generic handler calls in the controller layer
 export const BrandModel = BrandModelImport;
@@ -27,7 +28,11 @@ export const CatalogModel = CatalogModelImport;
 export const findCategoryBySlugForCatalog = async (
     slug: string,
     extraQuery: Record<string, unknown> = {}
-) => CategoryModel.findOne({ slug, ...extraQuery });
+) => {
+    const safe = normalizeSlug(slug);
+    if (!safe) return null;
+    return CategoryModel.findOne({ slug: { $eq: safe }, ...extraQuery });
+};
 
 /** Check whether a category parent exists (used in createCategory / updateCategory). */
 export const categoryExistsById = async (id: string) =>

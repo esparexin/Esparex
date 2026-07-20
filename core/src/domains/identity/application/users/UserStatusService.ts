@@ -6,6 +6,7 @@ import Business from '../../../../models/Business';
 import SmartAlert from '../../../../models/SmartAlert';
 import { logAdminActionDirect } from '../../../../utils/adminLogger';
 import logger from '../../../../utils/logger';
+import { toObjectId } from '../../../../utils/idUtils';
 
 import { USER_STATUS, UserStatusValue } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
@@ -42,10 +43,17 @@ export const updateUserStatus = async (
     const isRestrictive = ([USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[])
         .includes(newStatus);
 
+    // Validate userId before any DB operation
+    const normalizedUserId = toObjectId(userId);
+    if (!normalizedUserId) throw new AppError('Invalid user ID', 400, 'INVALID_USER_ID');
+
     const updateData: Record<string, unknown> = {
         status: newStatus,
         statusChangedAt: new Date(),
-        statusReason: context.reason
+        // Sanitize reason: ensure it's a string, trim, and cap length
+        statusReason: typeof context.reason === 'string'
+            ? context.reason.trim().slice(0, 500)
+            : undefined,
     };
 
     if (newStatus === USER_STATUS.DELETED) {
@@ -62,7 +70,7 @@ export const updateUserStatus = async (
     // closing the propagation-delay window from the Redis status cache.
     if (isRestrictive) {
         const user = await User.findByIdAndUpdate(
-            userId,
+            normalizedUserId,
             { ...updateData, $inc: { tokenVersion: 1 } },
             { new: true }
         );
@@ -140,7 +148,7 @@ export const updateUserStatus = async (
     }
 
     // Non-restrictive transitions (e.g. ACTIVE) — no tokenVersion bump needed
-    const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    const user = await User.findByIdAndUpdate(normalizedUserId, updateData, { new: true });
     if (!user) throw new Error('User not found');
 
     // --- Admin Logging ---

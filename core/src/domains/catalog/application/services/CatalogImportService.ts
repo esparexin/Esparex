@@ -6,6 +6,7 @@ import Brand from '../../../../models/Brand';
 import Model from '../../../../models/Model';
 import CatalogOrchestrator from '../services/CatalogOrchestrator';
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+import { escapeRegExp } from '../../../../utils/stringUtils';
 
 interface ImportResult {
     success: number;
@@ -227,7 +228,7 @@ export class CatalogImportService {
                  const catId = categoryMap[device.type.toLowerCase()];
                  const brandSlug = device.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
                  const brand = await Brand.findOneAndUpdate(
-                    { name: { $regex: new RegExp(`^${device.brand}$`, 'i') } },
+                    { name: { $regex: new RegExp(`^${escapeRegExp(device.brand)}$`, 'i') } },
                     {
                         $setOnInsert: {
                             name: device.brand,
