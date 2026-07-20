@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import User from '../../../../models/User';
-import Business from '../../../../models/Business';
-import BlockedUser from '../../../../models/BlockedUser';
-import { UserRepositoryPort, UserProfileData } from '../../../../domains/identity';
-import { normalizeRole } from '../../../../utils/roleNormalization';
+import User from '../../../../../models/User';
+import Business from '../../../../../models/Business';
+import BlockedUser from '../../../../../models/BlockedUser';
+import { UserRepositoryPort, UserProfileData } from '../../../ports/UserRepositoryPort';
+import { normalizeRole } from '../../../application/roles/roleNormalization';
 
 export class MongoUserRepositoryAdapter implements UserRepositoryPort {
     public async findActiveProfileById(id: string): Promise<UserProfileData | null> {

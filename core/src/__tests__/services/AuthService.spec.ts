@@ -62,7 +62,7 @@ jest.mock('../../models/Business', () => ({
     }
 }));
 
-jest.mock('../../utils/auth', () => ({
+jest.mock('../../domains/identity/application/auth/auth', () => ({
     generateToken: jest.fn().mockReturnValue('mock-jwt-token'),
 }));
 
@@ -93,7 +93,7 @@ import Otp from '../../models/Otp';
 import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
 import Business from '../../models/Business';
-import { generateToken } from '../../utils/auth';
+import { generateToken } from '../../domains/identity/application/auth/auth';
 import { verifyOtpHash } from '../../utils/otpSecurity';
 import { Role } from '@esparex/contracts';
 import { USER_STATUS } from '@esparex/contracts';

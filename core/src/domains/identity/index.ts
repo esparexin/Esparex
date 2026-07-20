@@ -7,3 +7,4 @@ export * from "./application/users/AdminUsersService";
 export * from "./application/sessions/AdminSessionService";
 export * from "./application/roles/roleNormalization";
 export * from "./adapters/outbound/database/MongoUserRepositoryAdapter";
+export * from './ports/UserRepositoryPort';

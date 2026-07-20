@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
-import { userRepository } from '../composition/identity';
+import { userRepository } from '../../../../composition/identity';
 import { LISTING_STATUS } from '@esparex/contracts';
-import * as AdAggregationService from './ad/AdAggregationService';
+import * as AdAggregationService from '../../../../services/ad/AdAggregationService';
 
 export type SellerPublicUser = {
     id: string;

@@ -1,10 +1,10 @@
-import User from '../../models/User';
-import Ad from '../../models/Ad';
-import AdminMetrics from '../../models/AdminMetrics';
+import User from '../../../../../models/User';
+import Ad from '../../../../../models/Ad';
+import AdminMetrics from '../../../../../models/AdminMetrics';
 import { USER_STATUS, Role } from '@esparex/contracts';
-import { hashPassword } from '../../utils/auth';
-import { AppError } from '../../utils/AppError';
-import type { AdminLogFn } from '../AdminListingsService';
+import { hashPassword } from '../../auth/auth';
+import { AppError } from '../../../../../utils/AppError';
+import type { AdminLogFn } from '../../../../../services/AdminListingsService';
 import type { UserFilters } from './types';
 import { ACTIVE_USER_STATUS_QUERY, buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';
 

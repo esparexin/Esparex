@@ -1,5 +1,5 @@
-import { IUser } from '../models/User';
-import { userRepository } from '../composition/identity';
+import { IUser } from '../../../../models/User';
+import { userRepository } from '../../../../composition/identity';
 
 export const updateUser = async (id: string, updates: Partial<IUser>) => {
     return await userRepository.updateUser(id, updates);

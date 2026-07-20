@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import { env } from '../config/env';
+import { env } from '../../../../config/env';
 import { Types } from 'mongoose';
-import { normalizeRole } from './roleNormalization';
+import { normalizeRole } from '../roles/roleNormalization';
 
 const JWT_SECRET = env.JWT_SECRET;
 const ADMIN_JWT_SECRET = env.ADMIN_JWT_SECRET || env.JWT_SECRET;

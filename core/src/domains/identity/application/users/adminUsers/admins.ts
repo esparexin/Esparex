@@ -1,11 +1,11 @@
-import Admin, { IAdmin } from '../../models/Admin';
-import User from '../../models/User';
+import Admin, { IAdmin } from '../../../../../models/Admin';
+import User from '../../../../../models/User';
 import { USER_STATUS, Role } from '@esparex/contracts';
-import { hashPassword } from '../../utils/auth';
-import { AppError } from '../../utils/AppError';
-import type { AdminLogFn } from '../AdminListingsService';
-import { recalculateTrustScore } from '../TrustService';
-import { revokeAdminSessionsForAdmin } from '../AdminSessionService';
+import { hashPassword } from '../../auth/auth';
+import { AppError } from '../../../../../utils/AppError';
+import type { AdminLogFn } from '../../../../../services/AdminListingsService';
+import { recalculateTrustScore } from '../../../../../services/TrustService';
+import { revokeAdminSessionsForAdmin } from '../../sessions/AdminSessionService';
 import { normalizeAdminManagedUser, ALLOWED_ADMIN_ROLES, ensureRoleAssignmentAllowed } from './helpers';
 import { isLastActiveSuperAdmin } from './superAdmin';
 
