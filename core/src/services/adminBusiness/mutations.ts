@@ -106,6 +106,6 @@ export const adminBulkResendBusinessWarnings = async (ids: string[], actorId: st
             results.push({ id, success: true });
         } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
     }
-    if (bulkOps.length > 0) await Business.bulkWrite(bulkOps);
+    if (bulkOps.length > 0) await Business.bulkWrite(bulkOps, { ordered: false });
     return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };

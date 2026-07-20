@@ -72,7 +72,7 @@ export const adminBulkResendListingWarnings = async (ids: string[], actorId: str
             results.push({ id, success: true });
         } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
     }
-    if (bulkOps.length > 0) await Ad.bulkWrite(bulkOps);
+    if (bulkOps.length > 0) await Ad.bulkWrite(bulkOps, { ordered: false });
     return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };
 
@@ -98,6 +98,6 @@ export const adminBulkResendSpotlightWarnings = async (ids: string[], actorId: s
             results.push({ id, success: true });
         } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
     }
-    if (bulkOps.length > 0) await Ad.bulkWrite(bulkOps);
+    if (bulkOps.length > 0) await Ad.bulkWrite(bulkOps, { ordered: false });
     return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };
