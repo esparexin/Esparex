@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MIN_AD_IMAGES, MAX_AD_IMAGES, MAX_AD_SPARE_PARTS } from '../../common/constants/adLimits';
+import { MIN_AD_IMAGES, MAX_AD_IMAGES, MAX_AD_SPARE_PARTS, MIN_AD_TITLE_CHARS, MAX_AD_TITLE_CHARS, MIN_AD_DESCRIPTION_CHARS, MAX_AD_DESCRIPTION_CHARS } from '../../common/constants/adLimits';
 import { LocationMetaSchema } from '../../common/schema/location.schema';
 import { validatedTextSchema } from '../../common/schema/text.schema';
 import { LISTING_TYPE_VALUES } from '../enums/listingType';
@@ -36,15 +36,15 @@ export const BaseAdPayloadSchema = z.object({
     // Uses centralized text validation (bans profanity, gibberish, etc.)
     title: validatedTextSchema({
         fieldName: 'Title',
-        minLength: 10,
-        maxLength: 100,
+        minLength: MIN_AD_TITLE_CHARS,
+        maxLength: MAX_AD_TITLE_CHARS,
         }),
 
     // Uses centralized text validation (bans profanity, gibberish, etc.)
     description: validatedTextSchema({
         fieldName: 'Description',
-        minLength: 20,
-        maxLength: 500,
+        minLength: MIN_AD_DESCRIPTION_CHARS,
+        maxLength: MAX_AD_DESCRIPTION_CHARS,
         }),
 
     price: z.preprocess(
@@ -54,7 +54,7 @@ export const BaseAdPayloadSchema = z.object({
     images: z
         .array(z.string())
         .min(1, `At least ${MIN_AD_IMAGES} image is required`)
-        .max(5, `Maximum ${MAX_AD_IMAGES} images allowed`),
+        .max(MAX_AD_IMAGES, `Maximum ${MAX_AD_IMAGES} images allowed`),
 
     // Retired. Canonical location id must be nested under location.locationId.
     locationId: z.never().optional(),

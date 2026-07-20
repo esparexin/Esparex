@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useCallback } from "react";
 import { Path, UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { CategoryFilter } from "@esparex/contracts";
+import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 
 interface UsePostAdStepNavigationProps {
     form: UseFormReturn<PostAdFormData>;
@@ -83,6 +84,7 @@ export function usePostAdStepNavigation({
         }
 
         if (hasErrors) {
+            trackPostAdEvent({ event: "validation_error", step: currentStep });
             requestAnimationFrame(() => {
                 const firstError = document.querySelector(".text-destructive");
                 const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
@@ -109,6 +111,7 @@ export function usePostAdStepNavigation({
 
         const isValid = await trigger(fieldsToValidate);
         if (isValid) {
+            trackPostAdEvent({ event: "step_completed", step: currentStep });
             if (currentStep < maxStep) {
                 setCurrentStep((prev) => prev + 1);
                 document.querySelector("[data-post-ad-scroll]")?.scrollTo({ top: 0, behavior: "smooth" });
@@ -116,6 +119,7 @@ export function usePostAdStepNavigation({
             return;
         }
 
+        trackPostAdEvent({ event: "validation_error", step: currentStep });
         requestAnimationFrame(() => {
             const firstError = document.querySelector(".text-destructive");
             const scrollTarget = firstError?.closest("[data-field]") ?? firstError;

@@ -3,9 +3,11 @@ import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { generateAIContent } from "@/lib/api/user/ai";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
+import { MAX_AD_TITLE_CHARS, MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
 import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
+import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 
 export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
@@ -44,18 +46,23 @@ export function usePostAdAiGeneration(
             });
             if (output) {
                 if (targetField === 'title' && output.title) {
-                    form.setValue("title", output.title, { shouldValidate: true });
+                    const truncated = output.title.slice(0, MAX_AD_TITLE_CHARS);
+                    form.setValue("title", truncated, { shouldValidate: true });
                     form.trigger("title");
                     notify.success("Title generated successfully!");
+                    trackPostAdEvent({ event: "ai_title_generated" });
                 }
                 if (targetField === 'description' && output.description) {
-                    form.setValue("description", output.description, { shouldValidate: true });
+                    const truncated = output.description.slice(0, MAX_AD_DESCRIPTION_CHARS);
+                    form.setValue("description", truncated, { shouldValidate: true });
                     form.trigger("description");
                     notify.success("Description generated successfully!");
+                    trackPostAdEvent({ event: "ai_description_generated" });
                 }
             }
         } catch {
             setFormError(`AI generation failed. Please enter ${targetField} manually.`);
+            trackPostAdEvent({ event: "ai_generation_failure", field: targetField });
         } finally {
             setIsGeneratingAI(false);
         }

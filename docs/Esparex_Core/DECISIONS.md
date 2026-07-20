@@ -4,6 +4,21 @@ This document tracks all high-level architectural decisions and their current st
 
 ---
 
+## Repository Architecture Baseline
+
+Intended package responsibilities after completion of Phase 2C:
+
+| Package              | Responsibility                                                           |
+| -------------------- | ------------------------------------------------------------------------ |
+| `@esparex/contracts` | DTOs, types, enums, schemas, contract constants                          |
+| `@esparex/shared`    | Utilities, helpers, observability, popup infrastructure, route constants |
+| `core`               | Business logic                                                           |
+| `backend/api`        | HTTP API, controllers, integrations                                      |
+| `apps/web`           | Frontend application                                                     |
+| `apps/admin`         | Admin application                                                        |
+
+---
+
 ## Active Architectural Decision Records
 
 ### [ADR-001: The Policy Engine](../../.agents/decisions/ADR-001-policy-engine.md)
@@ -41,3 +56,53 @@ This document tracks all high-level architectural decisions and their current st
 ### [ADR-009: Integration Event Strategy](../../.agents/decisions/ADR-009-integration-strategy.md)
 * **Status:** Accepted  
 * **Decision:** Standardizes cross-domain communication via typed integration events (declared in `@esparex/contracts`) and processed asynchronously by Redis-backed background queues (BullMQ).
+
+---
+
+## Phase 2D — Repository Convergence & Public API Simplification
+
+### Status
+Planned
+
+### Context
+
+Phases 2A–2C completed the migration from the transitional
+`@esparex/shared` → `@esparex/contracts` architecture.
+
+The repository now enforces direct imports from
+`@esparex/contracts`, and the transitional proxy has been removed.
+
+The remaining work is architectural simplification rather than
+migration.
+
+### Goals
+
+- Validate package boundaries.
+- Review all public package barrels (`index.ts`).
+- Remove unnecessary compatibility layers.
+- Eliminate proxy-style re-export barrels.
+- Keep package APIs intentional and minimal.
+- Preserve runtime behavior.
+
+### Primary Candidate
+
+`apps/web/src/types/User.ts`
+
+Current state:
+- Re-exports entire `@esparex/contracts`
+- Re-exports entire `@esparex/shared`
+- Only two symbols are consumed: `User`, `UserNotificationSettings`
+
+**Decision:** Unless an application-level public API is intentionally required, remove the barrel and migrate consumers to direct imports from `@esparex/contracts`.
+
+### Decision Rule
+
+Keep a barrel only if it defines an intentional application or package public API. Remove barrels that simply forward another package without adding semantic value.
+
+### Success Criteria
+
+- Explicit dependency graph.
+- No compatibility proxy layers.
+- Minimal public APIs.
+- No duplicate exports.
+- No runtime changes.

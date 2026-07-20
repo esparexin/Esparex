@@ -5,6 +5,7 @@ import { AIProviderFactory } from './ai/AIProviderFactory';
 import { getAiConfig } from '../config/ai';
 import { generateListingPromptV1, identifyDevicePromptV1 } from '../prompts/listings/v1';
 import { moderateAdPromptV1 } from '../prompts/moderation/v1';
+import { MAX_AD_TITLE_CHARS, MAX_AD_DESCRIPTION_CHARS } from '@esparex/contracts';
 import { AIProviderError } from './ai/types';
 
 export type AIRequestType = 'identify' | 'generate' | 'moderate';
@@ -115,8 +116,8 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
         if (type === 'generate') {
             const prompt = generateListingPromptV1(context);
             const schema = z.object({
-                title: z.string(),
-                description: z.string()
+                title: z.string().max(MAX_AD_TITLE_CHARS),
+                description: z.string().max(MAX_AD_DESCRIPTION_CHARS)
             });
 
             const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });

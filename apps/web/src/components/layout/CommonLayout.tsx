@@ -31,7 +31,14 @@ export function CommonLayout({
 }: CommonLayoutProps) {
     const pathname = usePathname();
     const chatRoute = isChatRoute(pathname);
-    const hasMobileBottomNav = !chatRoute && getMobileChromePolicy(pathname).showMobileBottomNav;
+    const segments = pathname?.split("/").filter(Boolean) ?? [];
+    const isWizardRoute =
+        segments[0] === "post-ad" ||
+        segments[0] === "edit-ad" ||
+        segments[0] === "post-service" ||
+        (segments[0] === "account" && segments[1] === "business" && segments[2] === "apply");
+    const hideShellExtras = chatRoute || isWizardRoute;
+    const hasMobileBottomNav = !hideShellExtras && getMobileChromePolicy(pathname).showMobileBottomNav;
     const header = suspenseHeader ? (
         <Suspense fallback={null}>
             <HeaderWrapper />
@@ -43,16 +50,16 @@ export function CommonLayout({
     return (
         <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>
             <BottomBarProvider>
-                <div className={chatRoute ? "flex h-dvh flex-col overflow-hidden overflow-x-clip" : "flex min-h-screen flex-col overflow-x-clip"}>
+                <div className={hideShellExtras ? "flex h-dvh flex-col overflow-hidden overflow-x-clip" : "flex min-h-screen flex-col overflow-x-clip"}>
                     <ScrollSentinel />
-                    {!chatRoute && header}
+                    {!hideShellExtras && header}
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
-                    <main className={chatRoute ? "flex-1 min-h-0" : hasMobileBottomNav ? "flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" : "flex-1"}>
+                    <main className={hideShellExtras ? "flex-1 min-h-0" : hasMobileBottomNav ? "flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" : "flex-1"}>
                         {children}
                     </main>
-                    {!chatRoute && <BusinessPostFAB />}
-                    {!chatRoute && <Footer currentYear={currentYear} />}
+                    {!hideShellExtras && <BusinessPostFAB />}
+                    {!hideShellExtras && <Footer currentYear={currentYear} />}
                 </div>
             </BottomBarProvider>
         </UserAppProviders>

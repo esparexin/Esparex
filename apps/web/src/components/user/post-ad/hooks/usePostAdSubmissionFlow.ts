@@ -9,6 +9,7 @@ import {
 import { UseFormReturn } from "react-hook-form";
 import { ListingImage } from "@/types/listing";
 import { createAdListing, updateAdListing } from "@/lib/api/user/listings/postingAPI";
+import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import { usePostAdFormNormalization } from "./usePostAdFormNormalization";
 
 interface UsePostAdSubmissionFlowProps {
@@ -36,12 +37,26 @@ export function usePostAdSubmissionFlow({
         isLocationLocked
     );
 
-    const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }) => {
+    const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }): Promise<Listing> => {
+        trackPostAdEvent({ event: "publish_clicked", metadata: { isEditMode } });
         const listingData = payload as unknown as Partial<Listing>;
-        return (isEditMode && editAdId)
+        const result = (isEditMode && editAdId)
             ? updateAdListing(editAdId, buildEditAdPayload(payload) as Partial<Listing>)
             : createAdListing(listingData, options);
+        return result as Promise<Listing>;
     }, [buildEditAdPayload, editAdId, isEditMode]);
+
+    const handleSuccess = useCallback((ad: Listing) => {
+        trackPostAdEvent({ event: "publish_success", metadata: { adId: ad.id } });
+        setSubmittedAd(ad);
+    }, [setSubmittedAd]);
+
+    const handleError = useCallback((error: string | null) => {
+        if (error) {
+            trackPostAdEvent({ event: "publish_failure", metadata: { error } });
+        }
+        setFormError(error);
+    }, [setFormError]);
 
     const { onValidSubmit, isSubmitting } = useListingSubmission({
         form,
@@ -51,8 +66,8 @@ export function usePostAdSubmissionFlow({
         schema: postAdSchema,
         partialSchema: partialAdSchema,
         submitFn: submitAdApiCall,
-        onSuccess: (ad) => setSubmittedAd(ad),
-        onError: setFormError,
+        onSuccess: handleSuccess,
+        onError: handleError,
     });
 
     const submitAd = useCallback(() => {
