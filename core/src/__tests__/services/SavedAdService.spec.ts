@@ -17,7 +17,7 @@ jest.mock("@esparex/core/models/Ad", () => ({
     },
 }));
 
-jest.mock("@esparex/core/services/ad/AdAggregationService", () => ({
+jest.mock("@esparex/core/domains/listings/application/aggregation/adAggregation", () => ({
     hydrateAdMetadata: jest.fn().mockResolvedValue(undefined),
 }));
 
