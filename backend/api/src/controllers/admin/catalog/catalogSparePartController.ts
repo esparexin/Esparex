@@ -11,14 +11,14 @@ import mongoose from 'mongoose';
 import slugify from 'slugify';
 import { sendSuccessResponse } from "../../../utils/respond";
 import {
+    SparePartModel,
     findCategoryIdBySlug,
     getActiveBrandIdsForCategories,
     getActiveModelIdsForCategories,
     findSparePartById,
     checkSparePartDependencies,
 } from '@esparex/core/services/catalog/CatalogSparePartService';
-
-import { resolveEquivalentActiveCategoryIds } from '@esparex/core/utils/categoryCanonical';
+import { resolveEquivalentActiveCategoryIds } from '@esparex/core/services/catalog/CatalogCategoryService';
 import {
     sendCatalogError,
     QueryRecord,
@@ -34,8 +34,8 @@ import {
     applyCatalogStatusFilter,
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
-} from './adminCatalogHelpers';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
+} from './shared';
+import { invalidateItemCatalogCache } from './shared';
 import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
 import {
     sparePartCreateSchema,
@@ -161,7 +161,7 @@ const getSparePartsPublic = async (req: Request, res: Response) => {
     // Clean query params
     const cleanQuery = { ...req.query };
 
-    return handlePaginatedContent(req, res, 'SparePart', {
+    return handlePaginatedContent(req, res, SparePartModel, {
         publicQuery,
         queryParams: cleanQuery,
         searchFields: ['name', 'canonicalName', 'aliases'],
@@ -207,7 +207,7 @@ const getSparePartsAdmin = async (req: Request, res: Response) => {
     delete cleanQuery.placement;
     delete cleanQuery.status;
 
-    return handlePaginatedContent(req, res, 'SparePart', {
+    return handlePaginatedContent(req, res, SparePartModel, {
         adminQuery,
         queryParams: cleanQuery,
         searchFields: ['name', 'canonicalName', 'aliases'],
@@ -227,9 +227,7 @@ export const getSpareParts = async (req: Request, res: Response) => {
  * Create new spare part (admin only)
  */
 export const createSparePart = async (req: Request, res: Response) => {
-    return handleCatalogCreate(req, res, 'SparePart', sparePartCreateSchema,
-        async (data) => mongoose.model('SparePart').create(data),
-        {
+    return handleCatalogCreate(req, res, SparePartModel, sparePartCreateSchema, {
         auditAction: 'SPARE_PART_CREATE',
         slugifyName: true,
         preOp: async (payload) => {
@@ -255,7 +253,7 @@ export const createSparePart = async (req: Request, res: Response) => {
             
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -263,10 +261,7 @@ export const createSparePart = async (req: Request, res: Response) => {
  * Update existing spare part
  */
 export const updateSparePart = async (req: Request, res: Response) => {
-    return handleCatalogUpdate(req, res, 'SparePart', sparePartUpdateSchema,
-        async (id) => mongoose.model('SparePart').findById(id),
-        async (id, data) => mongoose.model('SparePart').findByIdAndUpdate(id, data, { new: true }),
-        {
+    return handleCatalogUpdate(req, res, SparePartModel, sparePartUpdateSchema, {
         auditAction: 'SPARE_PART_UPDATE',
         preUpdate: async (id, payload, existingPart) => {
             if (payload.name) payload.slug = slugify(payload.name as string, { lower: true, strict: true });
@@ -294,7 +289,7 @@ export const updateSparePart = async (req: Request, res: Response) => {
 
             return payload;
         },
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -302,13 +297,9 @@ export const updateSparePart = async (req: Request, res: Response) => {
  * Toggle spare part status
  */
 export const toggleSparePartStatus = async (req: Request, res: Response) => {
-    return handleCatalogToggleStatus(req, res, 'SparePart',
-        async (id) => mongoose.model('SparePart').findById(id),
-        async (id, data) => mongoose.model('SparePart').findByIdAndUpdate(id, data, { new: true }),
-        true, true,
-        {
+    return handleCatalogToggleStatus(req, res, SparePartModel, {
         auditAction: 'TOGGLE_SPARE_PART_STATUS',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 
@@ -316,11 +307,9 @@ export const toggleSparePartStatus = async (req: Request, res: Response) => {
  * Delete spare part (soft delete with dependency check)
  */
 export const deleteSparePart = async (req: Request, res: Response) => {
-    return handleCatalogDelete(req, res, 'SparePart',
-        async (id, data) => mongoose.model('SparePart').findByIdAndUpdate(id, data, { new: true }),
-        checkSparePartDependencies, {
+    return handleCatalogDelete(req, res, SparePartModel, checkSparePartDependencies, {
         auditAction: 'SPARE_PART_DELETE',
-        postOp: (item: any) => void CatalogOrchestrator.invalidateCatalogCache({ categoryIds: item.categoryIds || (item.categoryId ? [item.categoryId] : []), brandIds: item.brandId ? [item.brandId] : [] })
+        postOp: invalidateItemCatalogCache
     });
 };
 

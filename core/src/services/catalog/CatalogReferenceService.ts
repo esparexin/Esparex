@@ -9,9 +9,13 @@ import ScreenSizeModelImport from '../../models/ScreenSize';
 import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import { getListingRepository } from '../../composition/listings';
-import { CATALOG_APPROVAL_STATUS, type AdStatusValue } from '@esparex/contracts';
+import { CATALOG_APPROVAL_STATUS, type AdStatusValue } from '@esparex/shared';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTIVE_CATEGORY_QUERY } from './CatalogValidationService';
+// Re-export model instances for generic handler calls in the controller layer
+export const ServiceTypeModel = ServiceTypeModelImport;
+export const ScreenSizeModel = ScreenSizeModelImport;
+
 // ─── Category slug resolution ─────────────────────────────────────────────────
 
 /** Resolve a category by slug — no active filter (admin view). */

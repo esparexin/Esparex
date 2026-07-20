@@ -3,6 +3,11 @@ import { API_ROUTES } from "../routes";
 import logger from "@/lib/logger";
 import { unwrapApiPayload } from "@/lib/api/result";
 import { ListingTypeValue } from "@esparex/contracts";
+import type { Brand as ContractBrand, ScreenSize as ContractScreenSize, DeviceModel as ContractDeviceModel } from "@esparex/contracts";
+
+export type Brand = Pick<ContractBrand, 'id' | 'name'> & { _id?: string; categoryIds?: string[] };
+export type DeviceModel = Pick<ContractDeviceModel, 'id' | 'name'> & { _id?: string; brandId?: string; categoryId?: string; status?: string };
+export type ScreenSize = Pick<ContractScreenSize, 'id' | 'size' | 'name'> & { _id?: string; categoryId?: string };
 
 /**
  * Category Data API
@@ -19,30 +24,6 @@ import { ListingTypeValue } from "@esparex/contracts";
 /* -------------------------------------------------------------------------- */
 /* TYPES                                                                      */
 /* -------------------------------------------------------------------------- */
-
-export interface Brand {
-    id?: string;
-    _id?: string;
-    name: string;
-    categoryIds?: string[];
-}
-
-export interface DeviceModel {
-    id?: string;
-    _id?: string;
-    name: string;
-    brandId?: string;
-    categoryId?: string;
-    status?: string;
-}
-
-export interface ScreenSize {
-    id?: string;
-    _id?: string;
-    size: string;
-    name?: string;
-    categoryId?: string;
-}
 
 export interface SparePart {
     id?: string;

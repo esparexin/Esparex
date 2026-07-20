@@ -5,7 +5,7 @@ import Category, { ICategory } from '../../models/Category';
 import Brand from '../../models/Brand';
 import Model from '../../models/Model';
 import CatalogOrchestrator from '../catalog/CatalogOrchestrator';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 
 interface ImportResult {
     success: number;

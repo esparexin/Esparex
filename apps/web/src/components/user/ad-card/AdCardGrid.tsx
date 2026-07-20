@@ -13,7 +13,7 @@ import {
   getPlanBadge,
 } from "./shared";
 
-export interface AdCardGridProps {
+interface AdCardGridProps {
   ad: AdCardData;
   isSaved?: boolean;
   onToggleSave?: (adId: string | number, e: React.MouseEvent) => void;

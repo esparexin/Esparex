@@ -1,5 +1,5 @@
 import type { ServiceType } from "@/lib/api/user/masterData";
-import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import type { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { PostSparePartFormValues } from "@/schemas/postSparePartForm.schema";
 import type { ServiceListingFormData } from "@/schemas/serviceListingPayload.schema";

@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import { locationRepository } from '../composition/location';
 import { escapeRegExp, toTitleCase } from './stringUtils';
-import { LOCATION_LEVELS, type LocationLevel, normalizeLocationLevel } from './locationPrimitives';
+import { LOCATION_LEVELS, normalizeLocationLevel } from '@esparex/shared';
+import type { LocationLevel } from '@esparex/contracts';
 import { toObjectId } from './idUtils';
 /**
  * Builds a canonical location hierarchy path (array of ObjectIds) from self to root.

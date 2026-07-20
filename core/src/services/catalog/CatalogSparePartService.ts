@@ -9,7 +9,10 @@ import CategoryModel from '../../models/Category';
 import BrandModel from '../../models/Brand';
 import CatalogModel from '../../models/Model';
 import { getListingRepository } from '../../composition/listings';
-import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
+import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
+
+// Re-export model instance for generic handler calls in the controller layer
+export const SparePartModel = SparePartImport;
 
 // ─── Category slug resolution ─────────────────────────────────────────────────
 

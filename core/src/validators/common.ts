@@ -49,12 +49,12 @@ export const commonSchemas = {
     /**
      * Email validation
      */
-    email: z.string().email('Invalid email format').toLowerCase(),
+    email: z.string().email('Invalid email format').max(255, 'Email too long').toLowerCase(),
 
     /**
      * URL validation
      */
-    url: z.string().url('Invalid URL format'),
+    url: z.string().url('Invalid URL format').max(2048, 'URL too long'),
 
     /**
      * Price validation
@@ -72,9 +72,16 @@ export const commonSchemas = {
     coordinates: z.object({
         type: z.literal('Point'),
         coordinates: z.tuple([
-            z.number().min(-180).max(180),
-            z.number().min(-90).max(90)
-        ])
+            z.number().min(-180).max(180).refine(Number.isFinite, 'Longitude must be finite'),
+            z.number().min(-90).max(90).refine(Number.isFinite, 'Latitude must be finite'),
+        ]).superRefine((value, ctx) => {
+            if (value[0] === 0 && value[1] === 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Coordinates [0,0] are not allowed',
+                });
+            }
+        }),
     }),
 };
 

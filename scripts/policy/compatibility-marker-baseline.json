@@ -50,7 +50,7 @@
   "apps/web/src/lib/api/validateApiEnv.ts": 1,
   "apps/web/src/lib/logic/routes.ts": 2,
   "apps/web/src/types/home.ts": 1,
-  "apps/web/src/types/location.ts": 1,
+  "apps/web/src/types/location.ts": 4,
   "apps/web/src/__tests__/ad-report-payload.spec.ts": 2,
   "apps/web/src/__tests__/business-normalization.spec.ts": 1,
   "apps/web/src/__tests__/listing-normalization.spec.ts": 5,
@@ -61,7 +61,6 @@
   "shared/src/enums/adStatus.ts": 2,
   "shared/src/enums/businessStatus.ts": 1,
   "shared/src/enums/catalogStatus.ts": 1,
-  "shared/src/location/location.utils.ts": 3,
   "shared/src/schemas/sparePartPayload.schema.ts": 1,
   "shared/src/types/admin.ts": 1,
   "shared/src/types/api.ts": 1,
@@ -74,5 +73,6 @@
   "backend/api/src/__tests__/controllers/lifecycle.controller.spec.ts": 1,
   "backend/api/src/__tests__/controllers/listingRepost.spec.ts": 1,
   "backend/api/src/__tests__/controllers/requireOwnedService.spec.ts": 1,
-  "backend/api/src/__tests__/controllers/stats.controller.analytics.spec.ts": 1
+  "backend/api/src/__tests__/controllers/stats.controller.analytics.spec.ts": 1,
+  "shared/src/location/location.normalize.ts": 2
 }

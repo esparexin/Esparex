@@ -4,41 +4,13 @@ import {
     sendSuccessResponse,
     getPaginationParams,
     sendPaginatedResponse,
-    sendAdminError
+    sendAdminError,
+    getActorRole,
+    getActorId,
+    buildLogFn
 } from '../../utils/adminBaseController';
 import { USER_STATUS, UserStatusValue } from "@esparex/contracts";
 import * as adminUsersService from '@esparex/core/services/AdminUsersService';
-import { logAdminActionDirect } from '../../utils/adminLogger';
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
-import type { IAuthUser } from '@esparex/core/types/auth';
-
-// ---------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------
-
-const getActorId = (req: Request): string =>
-    (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';
-
-const getActorRole = (req: Request): string =>
-    ((req.user as IAuthUser)?.role) ?? '';
-
-const getIp = (req: Request): string =>
-    (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
-
-const getUserAgent = (req: Request): string =>
-    (req.headers['user-agent'] as string) || '';
-
-const buildLogFn = (req: Request): AdminLogFn =>
-    (action, targetType, targetId, metadata) =>
-        logAdminActionDirect(
-            getActorId(req),
-            action,
-            targetType,
-            targetId,
-            metadata,
-            getIp(req),
-            getUserAgent(req)
-        );
 
 // ---------------------------------------------------------
 // Controllers

@@ -1,37 +1,9 @@
 import { Request, Response } from 'express';
-import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginatedResponse } from '../../utils/adminBaseController';
+import { sendSuccessResponse, sendAdminError, getPaginationParams, sendPaginatedResponse, buildLogFn, getActorId } from '../../utils/adminBaseController';
 import { serializeBusinessForAdmin } from './business/shared';
 import * as adminBusinessService from '@esparex/core/services/AdminBusinessService';
 import { normalizeBusinessStatus } from '@esparex/core/utils/businessStatus';
 import { BUSINESS_STATUS } from "@esparex/contracts";
-import { logAdminActionDirect } from '../../utils/adminLogger';
-import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
-import type { IAuthUser } from '@esparex/core/types/auth';
-
-// ---------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------
-
-const getActorId = (req: Request): string =>
-    (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';
-
-const getIp = (req: Request): string =>
-    (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
-
-const getUserAgent = (req: Request): string =>
-    (req.headers['user-agent'] as string) || '';
-
-const buildLogFn = (req: Request): AdminLogFn =>
-    (action, targetType, targetId, metadata) =>
-        logAdminActionDirect(
-            getActorId(req),
-            action,
-            targetType,
-            targetId,
-            metadata,
-            getIp(req),
-            getUserAgent(req)
-        );
 
 // ---------------------------------------------------------
 // Controllers

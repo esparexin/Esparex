@@ -5,7 +5,7 @@ import SparePart from '../models/SparePart';
 import Brand from '../models/Brand';
 import { normalizeLocation } from './location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
-import { resolveEquivalentActiveCategoryIds } from '../utils/categoryCanonical';
+import { resolveEquivalentActiveCategoryIds } from './catalog/CatalogCategoryService';
 import { generateUniqueSlugWithChecker } from '../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { resolveLocationPathIds } from '../utils/locationHierarchy';

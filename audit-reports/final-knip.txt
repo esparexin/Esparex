@@ -1,0 +1,664 @@
+Unused files (47)
+apps/mobile/capacitor.config.ts                                           
+eslint.config.mjs                                                         
+scripts/audit-mongodb-inventory.js                                        
+scripts/catalog-null-canonical-remediation.js                             
+scripts/catalog-parity-convergence.js                                     
+scripts/catalog-status-remediation.js                                     
+scripts/catalog-strict-collision-remediation.js                           
+scripts/e2e-mock-api.mjs                                                  
+scripts/eslint-rules/index.js                                             
+scripts/eslint-rules/no-status-mutation-outside-status-mutation-service.js
+shared/src/constants/bannedWords.ts                                       
+shared/src/constants/mobileVisibility.ts                                  
+shared/src/contracts/api/adminRoutes.ts                                   
+shared/src/contracts/api/basePaths.ts                                     
+shared/src/contracts/api/resourceNames.ts                                 
+shared/src/contracts/api/userRoutes.ts                                    
+shared/src/listingUtils/imageUtils.ts                                     
+shared/src/listingUtils/locationUtils.ts                                  
+shared/src/location/location.utils.ts                                     
+shared/src/observability/index.ts                                         
+shared/src/observability/logger.ts                                        
+shared/src/observability/trace.ts                                         
+shared/src/observability/types.ts                                         
+shared/src/popup/popupCore.ts                                             
+shared/src/popup/popupEvents.ts                                           
+shared/src/popup/popupQueue.ts                                            
+shared/src/utils/catalogNamingValidator.ts                                
+shared/src/utils/categoryFilters.ts                                       
+shared/src/utils/formatters.ts                                            
+shared/src/utils/geoUtils.ts                                              
+shared/src/utils/locationPrimitives.ts                                    
+shared/src/utils/planEntitlements.ts                                      
+shared/src/utils/resolveCategoryId.ts                                     
+shared/src/utils/securityPatterns.ts                                      
+shared/src/utils/statusNormalization.ts                                   
+shared/src/utils/textValidator.ts                                         
+shared/src/utils/userStatus.ts                                            
+shared/src/validators/mongo.ts                                            
+tooling/architecture/checks/barrels.ts                                    
+tooling/architecture/checks/boundaries.ts                                 
+tooling/architecture/checks/cycles.ts                                     
+tooling/architecture/checks/isolation.ts                                  
+tooling/architecture/checks/manifest.ts                                   
+tooling/architecture/checks/naming.ts                                     
+tooling/architecture/lib/scanner.ts                                       
+tooling/architecture/templates/default/index.ts                           
+tools/templates/domain-package/src/index.ts                               
+Unused dependencies (4)
+eslint-config-next         apps/web/package.json:72:6
+eslint-plugin-react-hooks  apps/web/package.json:73:6
+slugify                    shared/package.json:20:6  
+zod                        shared/package.json:21:6  
+Unlisted dependencies (3)
+js-yaml  tooling/architecture/lib/manifest.ts:17:18       
+ajv      tooling/architecture/lib/manifest.ts:18:17       
+js-yaml  tooling/architecture/verify-architecture.ts:24:18
+Unlisted binaries (4)
+eslint  apps/admin/package.json        
+eslint  core/package.json              
+eslint  package.json                   
+tsc     packages/contracts/package.json
+Unresolved imports (4)
+../src/config/db        backend/api/scripts/rename_index_names_to_idx_prefix.ts:4:66
+../src/models/registry  backend/api/scripts/rename_index_names_to_idx_prefix.ts:5:8 
+../src/config/db        backend/api/scripts/sync_ad_indexes.ts:8:27                 
+../src/models/User      backend/api/scripts/syncUserIndexes.ts:21:13                
+Unused exports (454)
+BusinessStatusBadge                                           function  …nents/business/BusinessListPrimitives.tsx:38:17
+getUniqueIds                                                  function  …/components/catalog/catalogDomainUtils.ts:36:17
+splitAssignableCategoryIds                                    function  …/components/catalog/catalogDomainUtils.ts:46:17
+CatalogNameCategoryFields                                     function  …nts/catalog/CatalogNameCategoryFields.tsx:15:17
+getListingTypeIcon                                            function  …catalog/primitives/CatalogCategoryIcon.tsx:5:17
+CatalogBoundSearchCategoryFilters                             function  …tives/CatalogSearchAndCategoryFilters.tsx:22:17
+CatalogStatusBadge                                            function  …catalog/primitives/CatalogStatusBadge.tsx:10:17
+CatalogCategoryFilter                                                   …src/components/catalog/primitives/index.ts:6:10
+CatalogStatusBadge                                                      …src/components/catalog/primitives/index.ts:8:10
+CatalogBoundSearchCategoryFilters                                       …rc/components/catalog/primitives/index.ts:12:43
+getListingTypeIcon                                                      …rc/components/catalog/primitives/index.ts:18:31
+sparePartsMasterTabs                                                    …c/components/layout/adminModuleTabSets.ts:37:14
+getAdminModuleByPath                                          function  …src/components/layout/adminNavigation.ts:169:17
+DEFAULT_SUMMARY                                                         …/components/moderation/moderationTypes.ts:87:14
+ADMIN_STATUS_OPTIONS                                                    …components/system/adminUsers/adminUsers.ts:4:14
+DEFAULT_EDIT_FORM                                                       …omponents/system/adminUsers/adminUsers.ts:52:14
+normalizeManagedUserStatus                                    function  …components/system/users/userManagement.ts:38:17
+useAdminPopup                                                 function  …/admin/src/context/AdminPopupProvider.tsx:48:17
+extractAdminApiErrorMessage                                   function  …in/src/hooks/useAdminCatalogCollection.ts:49:17
+buildAdminListQuery                                           function  …in/src/hooks/useAdminCatalogCollection.ts:53:17
+fetchAdminCatalogPage                                         function  …in/src/hooks/useAdminCatalogCollection.ts:73:23
+categorySupportsListingType                                             …dmin/src/hooks/useAssignableCategories.ts:32:14
+mergeAdminSearchParams                                                  apps/admin/src/lib/adminUiRoutes.ts:24:14       
+getAdminCatalogRequestById                                    function  apps/admin/src/lib/api/catalogRequests.ts:82:23 
+getAdminCatalogRequestStats                                   function  apps/admin/src/lib/api/catalogRequests.ts:116:23
+bulkApproveAdminCatalogRequests                               function  apps/admin/src/lib/api/catalogRequests.ts:122:23
+rejectAdminAd                                                 function  apps/admin/src/lib/api/moderation.ts:132:23     
+bulkDeactivateAds                                             function  apps/admin/src/lib/api/moderation.ts:210:23     
+bulkExpireAds                                                 function  apps/admin/src/lib/api/moderation.ts:217:23     
+getServiceTypeById                                            function  apps/admin/src/lib/api/serviceTypes.ts:23:23    
+emitAdminErrorPopup                                           function  apps/admin/src/lib/popup/popupEvents.ts:17:17   
+adminServiceModerationSchema                                            apps/admin/src/schemas/admin.schemas.ts:18:14   
+toDetectedSelection                                                     …/location/locationSelectorCore.helpers.ts:39:14
+AlertDialogPortal                                                       …ps/web/src/components/ui/alert-dialog.tsx:147:3
+AlertDialogOverlay                                                      …ps/web/src/components/ui/alert-dialog.tsx:148:3
+AlertDialogTrigger                                                      …ps/web/src/components/ui/alert-dialog.tsx:149:3
+badgeVariants                                                           apps/web/src/components/ui/badge.tsx:46:17      
+CardFooter                                                              apps/web/src/components/ui/card.tsx:87:3        
+CardAction                                                              apps/web/src/components/ui/card.tsx:89:3        
+DialogClose                                                             apps/web/src/components/ui/dialog.tsx:198:3     
+DialogTrigger                                                           apps/web/src/components/ui/dialog.tsx:206:3     
+DropdownMenuPortal                                                      …s/web/src/components/ui/dropdown-menu.tsx:243:3
+DropdownMenuGroup                                                       …s/web/src/components/ui/dropdown-menu.tsx:246:3
+DropdownMenuCheckboxItem                                                …s/web/src/components/ui/dropdown-menu.tsx:249:3
+DropdownMenuRadioGroup                                                  …s/web/src/components/ui/dropdown-menu.tsx:250:3
+DropdownMenuRadioItem                                                   …s/web/src/components/ui/dropdown-menu.tsx:251:3
+DropdownMenuShortcut                                                    …s/web/src/components/ui/dropdown-menu.tsx:253:3
+DropdownMenuSub                                                         …s/web/src/components/ui/dropdown-menu.tsx:254:3
+DropdownMenuSubTrigger                                                  …s/web/src/components/ui/dropdown-menu.tsx:255:3
+DropdownMenuSubContent                                                  …s/web/src/components/ui/dropdown-menu.tsx:256:3
+FieldContext                                                            apps/web/src/components/ui/field.tsx:14:14      
+User                                                                    apps/web/src/components/ui/icons.ts:2:5         
+MailOpen                                                                apps/web/src/components/ui/icons.ts:3:5         
+Phone                                                                   apps/web/src/components/ui/icons.ts:4:5         
+MapPin                                                                  apps/web/src/components/ui/icons.ts:5:5         
+Package                                                                 apps/web/src/components/ui/icons.ts:6:5         
+ShoppingCart                                                            apps/web/src/components/ui/icons.ts:7:5         
+Bell                                                                    apps/web/src/components/ui/icons.ts:8:5         
+FileText                                                                apps/web/src/components/ui/icons.ts:13:5        
+CheckCircle2                                                            apps/web/src/components/ui/icons.ts:14:5        
+Building2                                                               apps/web/src/components/ui/icons.ts:15:5        
+Save                                                                    apps/web/src/components/ui/icons.ts:16:5        
+PlusCircle                                                              apps/web/src/components/ui/icons.ts:17:5        
+Eye                                                                     apps/web/src/components/ui/icons.ts:18:5        
+Heart                                                                   apps/web/src/components/ui/icons.ts:19:5        
+MessageSquare                                                           apps/web/src/components/ui/icons.ts:20:5        
+XCircle                                                                 apps/web/src/components/ui/icons.ts:21:5        
+LayoutDashboard                                                         apps/web/src/components/ui/icons.ts:24:5        
+Edit2                                                                   apps/web/src/components/ui/icons.ts:27:5        
+CheckCheck                                                              apps/web/src/components/ui/icons.ts:28:5        
+EyeOff                                                                  apps/web/src/components/ui/icons.ts:29:5        
+ArrowLeft                                                               apps/web/src/components/ui/icons.ts:30:5        
+CreditCard                                                              apps/web/src/components/ui/icons.ts:31:5        
+Clock                                                                   apps/web/src/components/ui/icons.ts:32:5        
+LoadingAnimation                                              function  …web/src/components/ui/LoadingAnimation.tsx:1:17
+LoadingDot                                                    function  …b/src/components/ui/LoadingAnimation.tsx:264:17
+SelectGroup                                                             apps/web/src/components/ui/select.tsx:204:3     
+SelectLabel                                                             apps/web/src/components/ui/select.tsx:206:3     
+SelectScrollDownButton                                                  apps/web/src/components/ui/select.tsx:207:3     
+SelectScrollUpButton                                                    apps/web/src/components/ui/select.tsx:208:3     
+SelectSeparator                                                         apps/web/src/components/ui/select.tsx:209:3     
+SheetTrigger                                                            apps/web/src/components/ui/sheet.tsx:137:3      
+SheetClose                                                              apps/web/src/components/ui/sheet.tsx:138:3      
+SheetHeader                                                             apps/web/src/components/ui/sheet.tsx:140:3      
+SheetFooter                                                             apps/web/src/components/ui/sheet.tsx:141:3      
+AdCardDashboard                                                         …mponents/user/ad-card/AdCardDashboard.tsx:26:14
+AdCardDashboard                                                         …/web/src/components/user/ad-card/index.tsx:4:10
+useAdCardNavigation                                           function  …eb/src/components/user/ad-card/shared.tsx:33:17
+toAdRecord                                                    function  …eb/src/components/user/ad-card/shared.tsx:65:17
+resolveAdImageUrl                                             function  …eb/src/components/user/ad-card/shared.tsx:69:17
+resolveAdId                                                   function  …eb/src/components/user/ad-card/shared.tsx:79:17
+buildPriceSummary                                                       …ponents/user/hooks/useBrowseEmptyState.ts:20:14
+NOTIFICATION_META                                                       …/components/user/NotificationItemCard.tsx:22:14
+PostAdStateContext                                                      …c/components/user/post-ad/context/index.ts:3:10
+PostAdActionContext                                                     …c/components/user/post-ad/context/index.ts:3:30
+PostAdCatalogContext                                                    …c/components/user/post-ad/context/index.ts:3:51
+PostAdLocationContext                                                   …c/components/user/post-ad/context/index.ts:3:73
+PostAdImagesContext                                                     …c/components/user/post-ad/context/index.ts:3:96
+PostAdFlowContext                                                       …/components/user/post-ad/context/index.ts:3:117
+PostAdContextShell                                                      …/components/user/post-ad/context/index.ts:3:136
+extractEntityId                                                         …omponents/user/shared/listingFormShared.ts:9:14
+appendListingImages                                                     …mponents/user/shared/listingFormShared.ts:19:14
+removeListingImageById                                                  …mponents/user/shared/listingFormShared.ts:34:14
+SOLD_REASON_OPTIONS                                                     …omponents/user/shared/SoldReasonDialog.tsx:6:14
+DEFAULT_CATEGORY_VISUAL                                                 apps/web/src/config/categoryVisuals.ts:30:14    
+CATEGORY_VISUALS                                                        apps/web/src/config/categoryVisuals.ts:36:14    
+getNavigationRole                                             function  apps/web/src/config/navigation.ts:209:17        
+isBusinessVerified                                            function  apps/web/src/config/navigation.ts:220:17        
+PROTECTED_ROUTE_PREFIXES                                                apps/web/src/config/protectedRoutes.ts:9:14     
+PROTECTED_USER_PAGE_KEYS                                                apps/web/src/config/protectedRoutes.ts:10:14    
+SEARCH_LOCATION_STORAGE_KEY                                             …eb/src/context/hooks/useLocationStorage.ts:9:14
+LOCATION_PERMISSION_BLOCKED_KEY                                         …b/src/context/hooks/useLocationStorage.ts:12:14
+useLocationActions                                            function  apps/web/src/context/LocationContext.tsx:489:17 
+usePopupContext                                               function  apps/web/src/context/PopupProvider.tsx:60:17    
+AppError                                                                apps/web/src/errors/FrontendAppError.ts:15:30   
+canEditBusiness                                               function  apps/web/src/guards/businessGuards.ts:5:17      
+canPublishBusiness                                            function  apps/web/src/guards/businessGuards.ts:12:17     
+isBusinessPending                                             function  apps/web/src/guards/businessGuards.ts:22:17     
+isRejectedBusiness                                            function  apps/web/src/guards/businessGuards.ts:31:17     
+getErrorPayload                                                         …/web/src/hooks/profile/validationMapper.ts:9:14
+normalizeFieldName                                                      …web/src/hooks/profile/validationMapper.ts:17:14
+useCategoryDetailQuery                                                  …b/src/hooks/queries/useCategoriesQuery.ts:19:14
+useCategorySchemaQuery                                                  …b/src/hooks/queries/useCategoriesQuery.ts:31:14
+useMyListingsQuery                                                      …web/src/hooks/queries/useListingsQuery.ts:37:14
+useUserQuery                                                            apps/web/src/hooks/queries/useUserQuery.ts:9:14 
+OTP_LENGTH                                                              apps/web/src/hooks/useOtpFlow.ts:31:10          
+RESEND_COOLDOWN_SECONDS                                                 apps/web/src/hooks/useOtpFlow.ts:31:22          
+Home                                                                    apps/web/src/icons/IconRegistry.ts:20:5         
+User                                                                    apps/web/src/icons/IconRegistry.ts:22:5         
+Phone                                                                   apps/web/src/icons/IconRegistry.ts:23:5         
+Mail                                                                    apps/web/src/icons/IconRegistry.ts:24:5         
+Settings                                                                apps/web/src/icons/IconRegistry.ts:26:5         
+Menu                                                                    apps/web/src/icons/IconRegistry.ts:28:5         
+ArrowLeft                                                               apps/web/src/icons/IconRegistry.ts:29:5         
+ArrowRight                                                              apps/web/src/icons/IconRegistry.ts:30:5         
+ChevronLeft                                                             apps/web/src/icons/IconRegistry.ts:31:5         
+ChevronRight                                                            apps/web/src/icons/IconRegistry.ts:32:5         
+Plus                                                                    apps/web/src/icons/IconRegistry.ts:33:5         
+Edit2                                                                   apps/web/src/icons/IconRegistry.ts:42:5         
+Trash2                                                                  apps/web/src/icons/IconRegistry.ts:43:5         
+Share2                                                                  apps/web/src/icons/IconRegistry.ts:44:5         
+Eye                                                                     apps/web/src/icons/IconRegistry.ts:45:5         
+MoreVertical                                                            apps/web/src/icons/IconRegistry.ts:46:5         
+UploadCloud                                                             apps/web/src/icons/IconRegistry.ts:48:5         
+Filter                                                                  apps/web/src/icons/IconRegistry.ts:49:5         
+Heart                                                                   apps/web/src/icons/IconRegistry.ts:50:5         
+MessageCircle                                                           apps/web/src/icons/IconRegistry.ts:51:5         
+VolumeX                                                                 apps/web/src/icons/IconRegistry.ts:52:5         
+EyeOff                                                                  apps/web/src/icons/IconRegistry.ts:53:5         
+Image                                                                   apps/web/src/icons/IconRegistry.ts:54:5         
+Download                                                                apps/web/src/icons/IconRegistry.ts:55:5         
+Shield                                                                  apps/web/src/icons/IconRegistry.ts:57:5         
+ShieldOff                                                               apps/web/src/icons/IconRegistry.ts:58:5         
+Lock                                                                    apps/web/src/icons/IconRegistry.ts:59:5         
+Unlock                                                                  apps/web/src/icons/IconRegistry.ts:60:5         
+Camera                                                                  apps/web/src/icons/IconRegistry.ts:61:5         
+ChevronDown                                                             apps/web/src/icons/IconRegistry.ts:63:5         
+ChevronUp                                                               apps/web/src/icons/IconRegistry.ts:64:5         
+Maximize                                                                apps/web/src/icons/IconRegistry.ts:65:5         
+AlertTriangle                                                           apps/web/src/icons/IconRegistry.ts:75:5         
+Info                                                                    apps/web/src/icons/IconRegistry.ts:78:5         
+HelpCircle                                                              apps/web/src/icons/IconRegistry.ts:79:5         
+Drone                                                                   apps/web/src/icons/IconRegistry.ts:86:5         
+Smartphone                                                              apps/web/src/icons/IconRegistry.ts:87:5         
+Tablet                                                                  apps/web/src/icons/IconRegistry.ts:88:5         
+Laptop                                                                  apps/web/src/icons/IconRegistry.ts:89:5         
+Monitor                                                                 apps/web/src/icons/IconRegistry.ts:90:5         
+Tv                                                                      apps/web/src/icons/IconRegistry.ts:91:5         
+Cpu                                                                     apps/web/src/icons/IconRegistry.ts:92:5         
+HardDrive                                                               apps/web/src/icons/IconRegistry.ts:93:5         
+Headphones                                                              apps/web/src/icons/IconRegistry.ts:94:5         
+Speaker                                                                 apps/web/src/icons/IconRegistry.ts:95:5         
+Watch                                                                   apps/web/src/icons/IconRegistry.ts:96:5         
+Store                                                                   apps/web/src/icons/IconRegistry.ts:104:5        
+Package                                                                 apps/web/src/icons/IconRegistry.ts:105:5        
+ShoppingCart                                                            apps/web/src/icons/IconRegistry.ts:106:5        
+CreditCard                                                              apps/web/src/icons/IconRegistry.ts:107:5        
+DollarSign                                                              apps/web/src/icons/IconRegistry.ts:108:5        
+Tag                                                                     apps/web/src/icons/IconRegistry.ts:109:5        
+Award                                                                   apps/web/src/icons/IconRegistry.ts:111:5        
+Star                                                                    apps/web/src/icons/IconRegistry.ts:112:5        
+Users                                                                   apps/web/src/icons/IconRegistry.ts:113:5        
+Facebook                                                                apps/web/src/icons/IconRegistry.ts:120:5        
+Twitter                                                                 apps/web/src/icons/IconRegistry.ts:121:5        
+Instagram                                                               apps/web/src/icons/IconRegistry.ts:122:5        
+Linkedin                                                                apps/web/src/icons/IconRegistry.ts:123:5        
+TestTube2                                                               apps/web/src/icons/IconRegistry.ts:130:5        
+ShoppingBag                                                             apps/web/src/icons/IconRegistry.ts:131:5        
+Calendar                                                                apps/web/src/icons/IconRegistry.ts:133:5        
+CalendarClock                                                           apps/web/src/icons/IconRegistry.ts:134:5        
+XCircle                                                                 apps/web/src/icons/IconRegistry.ts:136:5        
+RefreshCw                                                               apps/web/src/icons/IconRegistry.ts:137:5        
+MoreHorizontal                                                          apps/web/src/icons/IconRegistry.ts:138:5        
+RotateCcw                                                               apps/web/src/icons/IconRegistry.ts:139:5        
+BarChart3                                                               apps/web/src/icons/IconRegistry.ts:140:5        
+Activity                                                                apps/web/src/icons/IconRegistry.ts:141:5        
+UserCheck                                                               apps/web/src/icons/IconRegistry.ts:142:5        
+FileCheck                                                               apps/web/src/icons/IconRegistry.ts:143:5        
+Send                                                                    apps/web/src/icons/IconRegistry.ts:144:5        
+ShieldAlert                                                             apps/web/src/icons/IconRegistry.ts:145:5        
+MessageSquare                                                           apps/web/src/icons/IconRegistry.ts:146:5        
+Flag                                                                    apps/web/src/icons/IconRegistry.ts:147:5        
+Edit                                                                    apps/web/src/icons/IconRegistry.ts:148:5        
+Ban                                                                     apps/web/src/icons/IconRegistry.ts:149:5        
+GripVertical                                                            apps/web/src/icons/IconRegistry.ts:150:5        
+FolderTree                                                              apps/web/src/icons/IconRegistry.ts:151:5        
+Grid3x3                                                                 apps/web/src/icons/IconRegistry.ts:152:5        
+File                                                                    apps/web/src/icons/IconRegistry.ts:153:5        
+Copy                                                                    apps/web/src/icons/IconRegistry.ts:154:5        
+Save                                                                    apps/web/src/icons/IconRegistry.ts:155:5        
+Database                                                                apps/web/src/icons/IconRegistry.ts:156:5        
+Server                                                                  apps/web/src/icons/IconRegistry.ts:157:5        
+Zap                                                                     apps/web/src/icons/IconRegistry.ts:158:5        
+ArrowUp                                                                 apps/web/src/icons/IconRegistry.ts:159:5        
+ArrowDown                                                               apps/web/src/icons/IconRegistry.ts:160:5        
+Radius                                                                  apps/web/src/icons/IconRegistry.ts:161:5        
+Ruler                                                                   apps/web/src/icons/IconRegistry.ts:162:5        
+Crosshair                                                               apps/web/src/icons/IconRegistry.ts:163:5        
+FileCode                                                                apps/web/src/icons/IconRegistry.ts:164:5        
+MailOpen                                                                apps/web/src/icons/IconRegistry.ts:165:5        
+Sparkles                                                                apps/web/src/icons/IconRegistry.ts:166:5        
+Palette                                                                 apps/web/src/icons/IconRegistry.ts:167:5        
+Key                                                                     apps/web/src/icons/IconRegistry.ts:168:5        
+Code                                                                    apps/web/src/icons/IconRegistry.ts:169:5        
+Brain                                                                   apps/web/src/icons/IconRegistry.ts:170:5        
+Power                                                                   apps/web/src/icons/IconRegistry.ts:171:5        
+PowerOff                                                                apps/web/src/icons/IconRegistry.ts:172:5        
+Flame                                                                   apps/web/src/icons/IconRegistry.ts:173:5        
+FileJson                                                                apps/web/src/icons/IconRegistry.ts:174:5        
+Link                                                                    apps/web/src/icons/IconRegistry.ts:175:5        
+ExternalLink                                                            apps/web/src/icons/IconRegistry.ts:176:5        
+Bell                                                                    apps/web/src/icons/IconRegistry.ts:177:5        
+Map                                                                     apps/web/src/icons/IconRegistry.ts:178:5        
+Globe                                                                   apps/web/src/icons/IconRegistry.ts:179:12       
+Navigation                                                              apps/web/src/icons/IconRegistry.ts:180:5        
+List                                                                    apps/web/src/icons/IconRegistry.ts:181:5        
+Link2                                                                   apps/web/src/icons/IconRegistry.ts:182:5        
+Settings2                                                               apps/web/src/icons/IconRegistry.ts:184:5        
+Sliders                                                                 apps/web/src/icons/IconRegistry.ts:185:5        
+ToggleLeft                                                              apps/web/src/icons/IconRegistry.ts:186:5        
+ToggleRight                                                             apps/web/src/icons/IconRegistry.ts:187:5        
+MousePointer2                                                           apps/web/src/icons/IconRegistry.ts:188:5        
+Briefcase                                                               apps/web/src/icons/IconRegistry.ts:189:5        
+FileSpreadsheet                                                         apps/web/src/icons/IconRegistry.ts:190:5        
+Hash                                                                    apps/web/src/icons/IconRegistry.ts:192:5        
+CheckSquare                                                             apps/web/src/icons/IconRegistry.ts:193:5        
+Folder                                                                  apps/web/src/icons/IconRegistry.ts:194:5        
+Radio                                                                   apps/web/src/icons/IconRegistry.ts:195:5        
+Images                                                                  apps/web/src/icons/IconRegistry.ts:196:5        
+History                                                                 apps/web/src/icons/IconRegistry.ts:197:5        
+Type                                                                    apps/web/src/icons/IconRegistry.ts:198:5        
+Bot                                                                     apps/web/src/icons/IconRegistry.ts:199:5        
+UserX                                                                   apps/web/src/icons/IconRegistry.ts:200:5        
+MessageSquareWarning                                                    apps/web/src/icons/IconRegistry.ts:201:5        
+Target                                                                  apps/web/src/icons/IconRegistry.ts:202:5        
+TrendingDown                                                            apps/web/src/icons/IconRegistry.ts:203:5        
+Hexagon                                                                 apps/web/src/icons/IconRegistry.ts:204:5        
+Circle                                                                  apps/web/src/icons/IconRegistry.ts:205:5        
+Layout                                                                  apps/web/src/icons/IconRegistry.ts:206:5        
+Megaphone                                                               apps/web/src/icons/IconRegistry.ts:207:5        
+DraftingCompass                                                         apps/web/src/icons/IconRegistry.ts:208:5        
+getNotificationMetrics                                        function  …rc/lib/analytics/notificationAnalytics.ts:45:17
+getTopErrors                                                  function  …rc/lib/analytics/notificationAnalytics.ts:54:17
+getTopFailingEndpoints                                        function  …rc/lib/analytics/notificationAnalytics.ts:60:17
+resetNotificationMetrics                                      function  …rc/lib/analytics/notificationAnalytics.ts:66:17
+createApiErrorResult                                                    apps/web/src/lib/api/result.ts:130:14           
+API_RESOURCE_NAMES                                                      apps/web/src/lib/api/routes.ts:4:3              
+getBusinessListings                                                     apps/web/src/lib/api/user/businesses.ts:372:14  
+getNearbyAdsPage                                                        …/api/user/listings/listingDiscoveryAPI.ts:10:14
+getSearchSuggestions                                                    …/api/user/listings/listingDiscoveryAPI.ts:36:14
+getAds                                                                  …api/user/listings/listingDiscoveryAPI.ts:260:14
+getListingImagePresignedUrl                                             …/lib/api/user/listings/listingMediaAPI.ts:17:14
+uploadFileToS3                                                          …/lib/api/user/listings/listingMediaAPI.ts:32:14
+OBJECT_ID_PATTERN                                                       …b/src/lib/api/user/listings/normalizer.ts:12:14
+LISTING_SLUG_PATTERN                                                    …b/src/lib/api/user/listings/normalizer.ts:13:14
+RESERVED_LISTING_IDENTIFIERS                                            …b/src/lib/api/user/listings/normalizer.ts:14:14
+extractId                                                     function  …/src/lib/api/user/listings/normalizer.ts:125:17
+unwrapListingPayload                                          function  …/src/lib/api/user/listings/normalizer.ts:247:17
+createEmptyPagination                                         function  …ps/web/src/lib/api/user/listingsShared.ts:40:17
+lookupPincode                                                           apps/web/src/lib/api/user/locations.ts:25:14    
+getStates                                                               apps/web/src/lib/api/user/locations.ts:69:14    
+getCitiesByState                                                        apps/web/src/lib/api/user/locations.ts:79:14    
+getAreasByCity                                                          apps/web/src/lib/api/user/locations.ts:93:14    
+createSavedSearch                                                       apps/web/src/lib/api/user/savedSearches.ts:56:14
+isObjectIdToken                                                         …c/lib/browse/browseFilterNormalization.ts:16:14
+CHAT_INBOX_ROUTE                                                        apps/web/src/lib/chatUiRoutes.ts:3:14           
+createDataError                                                         …ps/web/src/lib/error-handler/factories.ts:35:14
+createAuthError                                                         …ps/web/src/lib/error-handler/factories.ts:40:14
+handleError                                                             apps/web/src/lib/error-handler/handler.ts:6:14  
+withErrorHandling                                                       apps/web/src/lib/error-handler/handler.ts:19:14 
+retryAsync                                                              apps/web/src/lib/error-handler/handler.ts:26:14 
+createFileUploadError                                                   apps/web/src/lib/error-handler/index.ts:2:33    
+createNetworkError                                                      apps/web/src/lib/error-handler/index.ts:2:56    
+createDataError                                                         apps/web/src/lib/error-handler/index.ts:2:76    
+createAuthError                                                         apps/web/src/lib/error-handler/index.ts:2:93    
+errorLogger                                                             apps/web/src/lib/error-handler/index.ts:3:10    
+handleError                                                             apps/web/src/lib/error-handler/index.ts:4:10    
+withErrorHandling                                                       apps/web/src/lib/error-handler/index.ts:4:23    
+retryAsync                                                              apps/web/src/lib/error-handler/index.ts:4:42    
+validateFile                                                            apps/web/src/lib/error-handler/index.ts:5:10    
+checkOnlineStatus                                                       apps/web/src/lib/error-handler/index.ts:6:10    
+requireOnline                                                           apps/web/src/lib/error-handler/index.ts:6:29    
+checkOnlineStatus                                                       apps/web/src/lib/error-handler/online.ts:1:14   
+requireOnline                                                           apps/web/src/lib/error-handler/online.ts:3:14   
+validateFile                                                            …ps/web/src/lib/error-handler/validation.ts:6:14
+isNetworkError                                                function  apps/web/src/lib/errorMapper.ts:184:17          
+isAuthError                                                   function  apps/web/src/lib/errorMapper.ts:195:17          
+APP_LOCALE                                                              apps/web/src/lib/formatters.ts:4:14             
+APP_TIME_ZONE                                                           apps/web/src/lib/formatters.ts:5:14             
+formatStableTime                                                        apps/web/src/lib/formatters.ts:27:14            
+formatStableDateTime                                                    apps/web/src/lib/formatters.ts:40:14            
+haptic                                                        function  apps/web/src/lib/haptics.ts:41:17               
+isRenderableImageUrl                                                    apps/web/src/lib/image/imageUrl.ts:38:14        
+parseListingSlugParam                                         function  …eb/src/lib/listings/listingDetailPage.tsx:50:17
+getAccountListingSectionForType                               function  …eb/src/lib/listings/listingUnavailable.ts:57:17
+resolveCanonicalLocationId                                              apps/web/src/lib/listings/locationUtils.ts:16:5 
+normalizeStringTokenList                                                …/lib/listings/postingFormNormalization.ts:32:14
+normalizeObjectIdList                                                   …/lib/listings/postingFormNormalization.ts:48:14
+resolveNumericField                                                     …/lib/listings/postingFormNormalization.ts:56:14
+isGenericLocationLabel                                        function  …ps/web/src/lib/location/locationLabels.ts:39:17
+formatLocation                                                function  …/web/src/lib/location/locationService.ts:510:17
+getDisplayLocationLabel                                                 …s/web/src/lib/location/locationService.ts:524:5
+CACHE_KEYS                                                              apps/web/src/lib/locationCache.ts:27:14         
+canCall                                                                 apps/web/src/lib/logic/bottomBarActions.ts:35:14
+canEdit                                                                 apps/web/src/lib/logic/bottomBarActions.ts:36:14
+canPromote                                                              apps/web/src/lib/logic/bottomBarActions.ts:37:14
+isAdOwner                                                               apps/web/src/lib/logic/ownership.ts:37:14       
+OTP_EXPIRED_CODE                                                        apps/web/src/lib/otpHelpers.ts:6:14             
+RATE_LIMIT_ERROR_CODES                                                  apps/web/src/lib/otpHelpers.ts:9:14             
+extractRawAuthMessage                                                   apps/web/src/lib/otpHelpers.ts:40:14            
+inferPublicBrowseTypeFromPathname                                       apps/web/src/lib/publicBrowseRoutes.ts:119:14   
+isCanonicalSlug                                               function  apps/web/src/lib/seo/canonicalSlugs.ts:37:17    
+normalizeServiceStatus                                        function  …web/src/lib/status/statusNormalization.ts:31:17
+normalizePartStatus                                           function  …web/src/lib/status/statusNormalization.ts:38:17
+normalizePartCondition                                        function  …web/src/lib/status/statusNormalization.ts:51:17
+ValidationRules                                                         apps/web/src/lib/validation.ts:36:14            
+validateBusinessName                                                    apps/web/src/lib/validation.ts:181:14           
+validateEmail                                                           apps/web/src/lib/validation.ts:216:14           
+validateMobile                                                          apps/web/src/lib/validation.ts:244:14           
+validateGSTNumber                                                       apps/web/src/lib/validation.ts:265:14           
+validatePincode                                                         apps/web/src/lib/validation.ts:296:14           
+validateURL                                                             apps/web/src/lib/validation.ts:317:14           
+validateDescription                                                     apps/web/src/lib/validation.ts:351:14           
+validateTagline                                                         apps/web/src/lib/validation.ts:379:14           
+validateRequired                                                        apps/web/src/lib/validation.ts:403:14           
+validateLength                                                          apps/web/src/lib/validation.ts:419:14           
+validateForm                                                            apps/web/src/lib/validation.ts:456:14           
+businessProfileValidationRules                                          apps/web/src/lib/validation.ts:479:14           
+businessProfileOptionalValidationRules                                  apps/web/src/lib/validation.ts:488:14           
+createFieldValidator                                                    apps/web/src/lib/validation.ts:502:14           
+getZIndex                                                     function  apps/web/src/lib/zIndexConfig.ts:79:17          
+zIndexStyle                                                   function  apps/web/src/lib/zIndexConfig.ts:87:17          
+AdSchema                                                                apps/web/src/schemas/ad.schema.ts:4:14          
+BaseAdPayloadSchema                                                     apps/web/src/schemas/adPayload.schema.ts:10:14  
+BUSINESS_IMAGE_MIME_TYPES                                               …/web/src/schemas/business.schema.shared.ts:5:14
+BUSINESS_DOCUMENT_MIME_TYPES                                            …web/src/schemas/business.schema.shared.ts:14:14
+BUSINESS_UPLOAD_MAX_BYTES                                               …web/src/schemas/business.schema.shared.ts:19:14
+businessImageFileValidator                                              …web/src/schemas/business.schema.shared.ts:41:14
+businessDocumentFileValidator                                           …web/src/schemas/business.schema.shared.ts:42:14
+businessFileValidator                                                   …web/src/schemas/business.schema.shared.ts:43:14
+sanitizedBusinessText                                                   …web/src/schemas/business.schema.shared.ts:65:14
+CategorySchema                                                          apps/web/src/schemas/catalog.schema.ts:10:14    
+BrandSchema                                                             apps/web/src/schemas/catalog.schema.ts:12:14    
+ModelSchema                                                             apps/web/src/schemas/catalog.schema.ts:14:14    
+DeviceConditionSchema                                                   apps/web/src/schemas/catalog.schema.ts:16:14    
+SparePartSchema                                                         apps/web/src/schemas/catalog.schema.ts:23:14    
+ScreenSizeSchema                                                        apps/web/src/schemas/catalog.schema.ts:25:14    
+coordinatesSchema                                                       apps/web/src/schemas/location.schema.ts:3:3     
+updateInvoiceStatus                     adminInvoices                   …trollers/admin/adminInvoiceController.ts:237:14
+adminCreateListing                      adminListings                   …trollers/admin/adminListingsController.ts:53:14
+adminUpdateListing                      adminListings                   …trollers/admin/adminListingsController.ts:66:14
+adminGetListingCountsLegacyAdapter      adminListings                   …rollers/admin/adminListingsController.ts:192:14
+createStateLocation                     adminLocations                  …trollers/admin/adminLocationController.ts:14:14
+createCityLocation                      adminLocations                  …trollers/admin/adminLocationController.ts:25:14
+createAreaLocation                      adminLocations                  …trollers/admin/adminLocationController.ts:36:14
+reverseGeocode                          adminLocations                  …trollers/admin/adminLocationController.ts:56:14
+createUser                              adminUsersController            …ontrollers/admin/adminUsersController.ts:102:14
+updateUser                              adminUsersController            …ontrollers/admin/adminUsersController.ts:115:14
+toggleAdminStatus                       adminUsersController            …ontrollers/admin/adminUsersController.ts:217:14
+deleteUser                              adminUsersController            …ontrollers/admin/adminUsersController.ts:230:14
+findBusinessByIdentifier                                                …i/src/controllers/admin/business/shared.ts:1:10
+serializeBusiness                                                       …pi/src/controllers/admin/business/shared.ts:3:5
+serializeBusinessForOwner                                               …pi/src/controllers/admin/business/shared.ts:5:5
+sanitizeBusinessForPublic                                               …pi/src/controllers/admin/business/shared.ts:6:5
+resolveDuplicateBusinessMessage                                         …i/src/controllers/admin/business/shared.ts:10:5
+CATALOG_CACHE_TTL                                                       …llers/admin/catalog/adminCatalogShared.ts:10:14
+normalizeCacheValue                                                     …llers/admin/catalog/adminCatalogShared.ts:12:14
+hasAdminAccess                          adminCatalog                    …pi/src/controllers/admin/catalog/index.ts:71:10
+getAdminActorId                         adminCatalog                    …pi/src/controllers/admin/catalog/index.ts:71:26
+sendCatalogError                        adminCatalog                    …pi/src/controllers/admin/catalog/index.ts:71:43
+ACTIVE_BRAND_QUERY                                                      …pi/src/controllers/admin/catalog/shared.ts:37:5
+isDuplicateKeyError                                                     …/src/controllers/admin/catalog/shared.ts:146:10
+PlanModel                                                               …d/api/src/controllers/admin/plan/shared.ts:5:10
+UserPlanModel                                                           …d/api/src/controllers/admin/plan/shared.ts:5:21
+PLAN_SCALAR_FIELDS                                                      …/api/src/controllers/admin/plan/shared.ts:18:14
+login                                   adminSystem                     …lers/admin/system/adminAuthController.ts:364:14
+logout                                  adminSystem                     …lers/admin/system/adminAuthController.ts:365:14
+getRateLimitMetrics                     adminSystem                     …admin/system/adminDashboardController.ts:165:14
+login                                   adminSystem                     …/api/src/controllers/admin/system/index.ts:14:5
+logout                                  adminSystem                     …/api/src/controllers/admin/system/index.ts:15:5
+getRateLimitMetrics                     adminSystem                     …/api/src/controllers/admin/system/index.ts:34:5
+serializeBusiness                                                       …kend/api/src/controllers/business/shared.ts:3:5
+DEFAULT_LOCATION_CONFIG                 locationController              …ontrollers/location/locationController.ts:43:14
+getLocationConfig                       locationController              …ontrollers/location/locationController.ts:53:14
+formatLocationResponse                  locationController              …ontrollers/location/locationController.ts:80:14
+SmartAlertModel                                                         …d/api/src/controllers/smartAlert/shared.ts:1:10
+restrictTo                                                              …end/api/src/middleware/authMiddleware.ts:217:14
+adminOnly                                                               …end/api/src/middleware/authMiddleware.ts:238:14
+requireBusinessApproved                                                 …/api/src/middleware/businessMiddleware.ts:34:14
+requireVerifiedBusiness                                                 …/api/src/middleware/businessMiddleware.ts:74:14
+generateCsrfToken                                             function  …kend/api/src/middleware/csrfProtection.ts:32:17
+enforceCreateListingIdempotency                                         backend/api/src/middleware/idempotency.ts:229:14
+default                                                       variable  backend/api/src/middleware/idempotency.ts:233:16
+adminNotificationSendSchema                                             …/src/middleware/notificationValidators.ts:43:14
+adminNotificationHistoryQuerySchema                                     …/src/middleware/notificationValidators.ts:73:14
+adminNotificationRecipientQuerySchema                                   …/src/middleware/notificationValidators.ts:79:14
+getOtpGuardState                                              function  backend/api/src/middleware/otpGuard.ts:169:17   
+otpHealthCheck                                                function  backend/api/src/middleware/otpGuard.ts:176:17   
+resolveUserOrMobile                                                     …pi/src/middleware/rate-limiter/factory.ts:23:14
+authLoginLimiter                                                        …i/src/middleware/rate-limiter/limiters.ts:14:14
+authRegisterLimiter                                                     …i/src/middleware/rate-limiter/limiters.ts:15:14
+adPostLimiter                                                           …i/src/middleware/rate-limiter/limiters.ts:16:14
+phoneRevealLimiter                                                      …i/src/middleware/rate-limiter/limiters.ts:21:14
+catalogSuggestionLimiter                                                …i/src/middleware/rate-limiter/limiters.ts:34:14
+requestIdMiddleware                                           function  backend/api/src/middleware/requestId.ts:36:17   
+validateSmartAlert                                                      …api/src/middleware/securityValidators.ts:188:14
+validateSearchParams                                                    …api/src/middleware/securityValidators.ts:377:14
+default                                                                 …api/src/middleware/sentryErrorHandler.ts:302:16
+validateObjectIds                                             function  …nd/api/src/middleware/validateObjectId.ts:84:17
+validateBodyObjectId                                          function  …d/api/src/middleware/validateObjectId.ts:129:17
+commonSchemas                                                           …end/api/src/middleware/validateRequest.ts:16:10
+sanitizeString                                                          …end/api/src/middleware/validateRequest.ts:16:25
+validateFile                                                  function  …nd/api/src/middleware/validateRequest.ts:149:17
+default                                                       function  …nd/api/src/middleware/validateRequest.ts:186:16
+respond                                                                 …ckend/api/src/utils/adminBaseController.ts:3:10
+getIp                                                                   …kend/api/src/utils/adminBaseController.ts:27:14
+getUserAgent                                                            …kend/api/src/utils/adminBaseController.ts:30:14
+checkPermission                                                         …kend/api/src/utils/adminBaseController.ts:44:14
+AdminLogFn                                                              backend/api/src/utils/adminLogger.ts:43:52      
+ensureAdminCatalogModel                                                 …d/api/src/utils/content-handler/helpers.ts:9:14
+readAdminCatalogPage                                                    …/api/src/utils/content-handler/helpers.ts:19:14
+ScreenSize                                                              core/src/domains/catalog/index.ts:19:10         
+verifyAllBackups                                                        core/src/scripts/verify-backup.ts:206:24        
+SEVERITY                                                                scripts/git/shared.js:152:67                    
+walkDirectory                                                 function  tooling/architecture/lib/filesystem.ts:24:17    
+getDomainBarrel                                               function  tooling/architecture/lib/filesystem.ts:79:17    
+toUnixPath                                                    function  tooling/architecture/lib/filesystem.ts:128:17   
+getDomainName                                                 function  tooling/architecture/lib/filesystem.ts:135:17   
+countFiles                                                    function  tooling/architecture/lib/filesystem.ts:143:17   
+listSubdirectories                                            function  tooling/architecture/lib/filesystem.ts:152:17   
+loadManifest                                                  function  tooling/architecture/lib/manifest.ts:74:17      
+validateDependencyReferences                                  function  tooling/architecture/lib/manifest.ts:129:17     
+detectCircularDependencies                                    function  tooling/architecture/lib/manifest.ts:154:17     
+generateRegistry                                              function  tooling/architecture/registry.ts:104:23         
+Unused exported types (103)
+SettingsSaveHandler                              type       …/app/(protected)/(system)/settings/components/types.ts:4:13
+CategoryAssignmentOption                         interface  …min/src/components/catalog/CategoryAssignmentField.tsx:7:18
+SelectOption                                     type       apps/admin/src/components/catalog/primitives/index.ts:23:15 
+NamedEntityOption                                type       apps/admin/src/components/catalog/primitives/index.ts:23:29 
+AdminModuleKey                                   type       apps/admin/src/components/layout/adminNavigation.ts:19:13   
+StatusValue                                      type       apps/admin/src/components/ui/StatusChip.tsx:12:13           
+CatalogRequestType                               type       apps/admin/src/lib/api/catalogRequests.ts:5:13              
+CatalogRequestUserRef                            interface  apps/admin/src/lib/api/catalogRequests.ts:8:18              
+CatalogRequestStatsBucket                        interface  apps/admin/src/lib/api/catalogRequests.ts:50:18             
+CatalogRequestStats                              interface  apps/admin/src/lib/api/catalogRequests.ts:59:18             
+AdminPagination                                  type       apps/admin/src/lib/api/parseAdminResponse.ts:3:13           
+PopupAction                                      type       apps/admin/src/lib/popup/popupEvents.ts:11:15               
+PopupType                                        type       apps/admin/src/lib/popup/popupEvents.ts:11:40               
+ModerationThresholds                             type       apps/admin/src/types/systemConfig.ts:1:13                   
+DetectedLocationShape                            type       …c/components/location/locationSelectorCore.helpers.ts:35:13
+SpecificFilter                                   type       apps/web/src/components/search/SearchFiltersPanel.tsx:23:13 
+FieldContextValue                                interface  apps/web/src/components/ui/field.tsx:7:18                   
+TextareaProps                                    type       apps/web/src/components/ui/textarea.tsx:5:13                
+AdCardDashboardProps                             interface  …s/web/src/components/user/ad-card/AdCardDashboard.tsx:15:18
+BrowseVirtualizedListProps                       type       apps/web/src/components/user/BrowseResultsPanel.tsx:12:13   
+PostAdContextType                                type       apps/web/src/components/user/post-ad/context/index.ts:6:15  
+PostAdCatalogState                               type       apps/web/src/components/user/post-ad/context/index.ts:6:34  
+PostAdLocationState                              type       apps/web/src/components/user/post-ad/context/index.ts:6:54  
+PostAdImagesState                                type       apps/web/src/components/user/post-ad/context/index.ts:6:75  
+PostAdFlowState                                  type       apps/web/src/components/user/post-ad/context/index.ts:6:94  
+MyAdsStatus                                      type       apps/web/src/components/user/profile/types.ts:110:13        
+MetaBadge                                        interface  apps/web/src/components/user/shared/ListingItem.tsx:9:18    
+Tag                                              interface  apps/web/src/components/user/shared/ListingItem.tsx:15:18   
+NavigationRole                                   type       apps/web/src/config/navigation.ts:25:13                     
+NavigationSection                                type       apps/web/src/config/navigation.ts:27:13                     
+NavigationItem                                   interface  apps/web/src/config/navigation.ts:29:18                     
+LocationCoordinates                              type       apps/web/src/context/LocationContext.tsx:33:13              
+LocationActionsContextType                       type       apps/web/src/context/LocationContext.tsx:70:13              
+AuthStep                                         type       apps/web/src/hooks/useOtpFlow.ts:14:15                      
+OtpEntryStep                                     type       apps/web/src/hooks/useOtpFlow.ts:14:25                      
+AuthError                                        type       apps/web/src/hooks/useOtpFlow.ts:14:39                      
+RateLimitScope                                   type       apps/web/src/hooks/useOtpFlow.ts:14:50                      
+ListingType                                      type       apps/web/src/hooks/useUserListingManagement.ts:9:13         
+IconName                                         type       apps/web/src/icons/IconRegistry.ts:282:13                   
+NotificationMetrics                              interface  apps/web/src/lib/analytics/notificationAnalytics.ts:11:18   
+AuthPayloadFields                                interface  apps/web/src/lib/api/auth.ts:6:18                           
+PresignedUploadResult                            interface  apps/web/src/lib/api/user/listings/listingMediaAPI.ts:7:18  
+PlanSnapshot                                     interface  apps/web/src/lib/api/user/transactions.ts:6:18              
+SellerListingSummary                             type       apps/web/src/lib/api/user/users.ts:54:13                    
+SellerPublicUser                                 type       apps/web/src/lib/api/user/users.ts:60:13                    
+ErrorHandlerOptions                              interface  apps/web/src/lib/error-handler/handler.ts:4:18              
+RetryOptions                                     interface  apps/web/src/lib/error-handler/handler.ts:24:18             
+ErrorHandlerOptions                              type       apps/web/src/lib/error-handler/index.ts:7:15                
+RetryOptions                                     type       apps/web/src/lib/error-handler/index.ts:7:36                
+FileValidationOptions                            type       apps/web/src/lib/error-handler/index.ts:8:15                
+FileValidationOptions                            interface  apps/web/src/lib/error-handler/validation.ts:4:18           
+ApiError                                         interface  apps/web/src/lib/errorMapper.ts:9:18                        
+LocationDetectFailureReason                      type       apps/web/src/lib/location/locationService.ts:172:13         
+LocationDetectFailure                            type       apps/web/src/lib/location/locationService.ts:181:13         
+RouteKey                                         type       apps/web/src/lib/logic/routes.ts:25:13                      
+RazorpayHandlerResponse                          type       apps/web/src/lib/payments/razorpay.ts:3:13                  
+PublicListingType                                type       apps/web/src/lib/publicListingRoutes.ts:4:13                
+AdStatus                                         type       apps/web/src/lib/status/statusNormalization.ts:8:13         
+ServiceStatus                                    type       apps/web/src/lib/status/statusNormalization.ts:9:13         
+PartStatus                                       type       apps/web/src/lib/status/statusNormalization.ts:10:13        
+ValidationResult                                 interface  apps/web/src/lib/validation.ts:12:18                        
+FormValidationRules                              interface  apps/web/src/lib/validation.ts:448:18                       
+FormValidationErrors                             interface  apps/web/src/lib/validation.ts:452:18                       
+Role                                             type       apps/web/src/permissions/permissionMatrix.ts:1:13           
+AdFormExtras                                     type       apps/web/src/schemas/adPayload.schema.ts:17:13              
+BaseAdPayload                                    type       apps/web/src/schemas/adPayload.schema.ts:28:13              
+PartialAdPayload                                 type       apps/web/src/schemas/adPayload.schema.ts:29:13              
+Brand                                            type       apps/web/src/schemas/catalog.schema.ts:32:13                
+Model                                            type       apps/web/src/schemas/catalog.schema.ts:33:13                
+DeviceCondition                                  type       apps/web/src/schemas/catalog.schema.ts:34:13                
+SparePart                                        type       apps/web/src/schemas/catalog.schema.ts:35:13                
+ScreenSize                                       type       apps/web/src/schemas/catalog.schema.ts:36:13                
+ProfileSettingsFormValues                        type       apps/web/src/schemas/profileSettings.schema.ts:57:13        
+DeleteAccountFormValues                          type       apps/web/src/schemas/profileSettings.schema.ts:58:13        
+SmartAlertFormValues                             type       apps/web/src/schemas/smartAlertForm.schema.ts:31:13         
+NormalizedLocation                               interface  apps/web/src/types/home.ts:3:18                             
+ApiAd                                            type       apps/web/src/types/home.ts:16:21                            
+ApiCategory                                      type       apps/web/src/types/home.ts:16:40                            
+CategoryData                                     interface  apps/web/src/types/home.ts:56:18                            
+CanonicalLocation                                type       apps/web/src/types/location.ts:20:13                        
+BusinessStatsPayload                             type       backend/api/src/controllers/admin/business/shared.ts:9:10   
+CatalogRequest               adminCatalog        type       backend/api/src/controllers/admin/catalog/index.ts:72:15    
+QueryRecord                  adminCatalog        type       backend/api/src/controllers/admin/catalog/index.ts:72:31    
+CatalogRequest               adminCatalog        type       backend/api/src/controllers/admin/catalog/shared.ts:44:13   
+CatalogStatusFilterToken                         type       backend/api/src/controllers/admin/catalog/shared.ts:56:13   
+LocationLike                 locationController  type       …nd/api/src/controllers/location/locationController.ts:34:13
+FraudRequest                                     interface  backend/api/src/middleware/fraudMiddleware.ts:13:18         
+ApiResponseEnvelope                              interface  backend/api/src/utils/apiResponse.ts:5:18                   
+CachedPaginatedPayload                           type       backend/api/src/utils/content-handler/types.ts:12:13        
+ErrorResponseContract                            interface  backend/api/src/utils/errorResponse.ts:14:18                
+CategoryConfiguration                            interface  …e/src/domains/catalog/ports/CategoryRepositoryPort.ts:11:18
+ScreenSize                                       interface  …/src/domains/catalog/ports/ScreenSizeRepositoryPort.ts:3:18
+ListingId                                        type       core/src/domains/listings/index.ts:3:10                     
+ListingLocation                                  type       core/src/domains/listings/index.ts:5:10                     
+PaginationInput                                  type       core/src/domains/listings/index.ts:9:10                     
+PaginatedResult                                  type       core/src/domains/listings/index.ts:10:10                    
+ListingId                                        type       …re/src/domains/listings/ports/ListingRepositoryPort.ts:5:13
+ListingLocation                                  interface  …re/src/domains/listings/ports/ListingRepositoryPort.ts:7:18
+PaginationInput                                  interface  …/src/domains/listings/ports/ListingRepositoryPort.ts:124:18
+PaginatedResult                                  interface  …/src/domains/listings/ports/ListingRepositoryPort.ts:129:18
+PublicApi                                        interface  tooling/architecture/lib/manifest.ts:35:18                  
+DomainManifest                                   interface  tooling/architecture/lib/manifest.ts:40:18                  
+Violation                                        interface  tooling/architecture/types.ts:14:18                         
+Unused exported enum members (1)
+MANUAL_REVIEW  CatalogResolutionDecision  core/src/domains/catalog/domain/policies/CatalogResolutionPolicy.ts:5:5
+Duplicate exports (35)
+businessDocumentFileValidator|businessFileValidator         apps/web/src/schemas/business.schema.shared.ts              
+adminLogin|login                                            …end/api/src/controllers/admin/system/adminAuthController.ts
+adminLogout|logout                                          …end/api/src/controllers/admin/system/adminAuthController.ts
+startFraudEscalationCron|default                            backend/api/src/cron/fraudEscalation.ts                     
+startGeoAuditCron|default                                   backend/api/src/cron/geoAudit.ts                            
+startViewFlushCron|default                                  backend/api/src/cron/viewFlush.ts                           
+enforceCreateAdIdempotency|default                          backend/api/src/middleware/idempotency.ts                   
+requestIdMiddleware|default                                 backend/api/src/middleware/requestId.ts                     
+validateRequest|default                                     backend/api/src/middleware/validateRequest.ts               
+env|default                                                 core/src/config/env.ts                                      
+loadEnvFiles|default                                        core/src/config/loadEnvFiles.ts                             
+AdMetrics|default                                           core/src/models/AdMetrics.ts                                
+AdminMetrics|default                                        core/src/models/AdminMetrics.ts                             
+Brand|default                                               core/src/models/Brand.ts                                    
+ChatMessage|default                                         core/src/models/ChatMessage.ts                              
+ChatReport|default                                          core/src/models/ChatReport.ts                               
+Conversation|default                                        core/src/models/Conversation.ts                             
+Counter|default                                             core/src/models/Counter.ts                                  
+Invoice|default                                             core/src/models/Invoice.ts                                  
+Model|default                                               core/src/models/Model.ts                                    
+Plan|default                                                core/src/models/Plan.ts                                     
+RevenueAnalytics|default                                    core/src/models/RevenueAnalytics.ts                         
+SmartAlert|default                                          core/src/models/SmartAlert.ts                               
+SparePart|default                                           core/src/models/SparePart.ts                                
+Transaction|default                                         core/src/models/Transaction.ts                              
+User|default                                                core/src/models/User.ts                                     
+paymentQueue|default                                        core/src/queues/paymentQueue.ts                             
+CatalogOrchestrator|default                                 core/src/services/catalog/CatalogOrchestrator.ts            
+getPlanById|adminGetPlanById                                core/src/services/PlanService.ts                            
+startSchedulerQueueEngine|default                           core/src/services/SchedulerQueueEngine.ts                   
+CategoryQueryBuilder|default                                core/src/utils/CategoryQueryBuilder.ts                      
+runWithDistributedJobLock|default                           core/src/utils/distributedJobLock.ts                        
+catalogRequestListQuerySchema|adminCatalogRequestListQuer…  core/src/validators/catalogRequest.validator.ts             
+BaseSparePartPayloadSchema|SparePartPayloadSchema           …/contracts/src/v1/catalog/schema/sparePartPayload.schema.ts
+BasePlanPayloadSchema|PlanPayloadSchema                     …ages/contracts/src/v1/payments/schema/planPayload.schema.ts

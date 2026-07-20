@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import type { Document } from 'mongoose';
+import type { Document, Model } from 'mongoose';
 import { LISTING_TYPE_VALUES, ListingTypeValue } from "@esparex/contracts";
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../adminBaseController';
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
@@ -13,8 +12,7 @@ import { CATALOG_MODELS, parseSortQuery, tryAdminCatalogReadSwitch } from './hel
 const AF = new Set(['status','isActive','categoryId','categoryIds','brandId','modelId','parentModelId','variantOfModelId','variantModelId','type','needsReview','suggestedBy','createdBy','listingType']);
 const IG = new Set(['page','limit','q','search','includeDeleted','sort','order','tab','view']);
 
-export async function handlePaginatedContent<T extends Document>(req: Request, res: Response, modelName: string, options: ContentOptions = {}) {
-    const model = mongoose.model<T>(modelName);
+export async function handlePaginatedContent<T extends Document>(req: Request, res: Response, model: Model<T>, options: ContentOptions = {}) {
     try {
         const user = (req as any).user;
         const isAdmin = Boolean((req as any).admin) || user?.role === 'admin' || user?.role === 'super_admin';

@@ -7,7 +7,7 @@ import logger from "@/lib/logger";
 import { notify } from "@/lib/feedback";
 import type { ListingImage } from "@/types/listing";
 import type { ListingLocation } from "@/types/listing";
-import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { toCanonicalGeoPoint } from "@esparex/shared";
 import { z } from "zod";
 import { apiClient } from "@/lib/api/client";

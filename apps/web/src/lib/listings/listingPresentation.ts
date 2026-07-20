@@ -1,5 +1,5 @@
 import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
-import { formatLocationDisplay } from "@/lib/listings/locationUtils";
+import { LocationFacade } from "@esparex/shared";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
@@ -123,7 +123,7 @@ export function resolveListingLocationLabel(
     mode: "brief" | "full" = "brief"
 ): string {
     if (mode === "full") {
-        const fullLabel = sanitizeLocationLabel(formatLocationDisplay(location));
+        const fullLabel = sanitizeLocationLabel(LocationFacade.format(location));
         if (fullLabel) {
             return fullLabel;
         }

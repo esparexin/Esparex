@@ -1,4 +1,4 @@
-import { normalizeListingLocation } from "@/lib/listings/locationUtils";
+import { LocationFacade } from "@esparex/shared";
 import { normalizeOptionalObjectId } from "@/lib/normalizeOptionalObjectId";
 
 export interface RelatedBusinessesDiscoveryContext {
@@ -43,7 +43,7 @@ const asFiniteNumber = (value: unknown): number | undefined => (
 export function buildRelatedBusinessesDiscoveryContext(
     listing: ListingDiscoverySource
 ): RelatedBusinessesDiscoveryContext {
-    const location = normalizeListingLocation(listing?.location);
+    const location = LocationFacade.normalize(listing?.location);
     const coordinates =
         location?.coordinates &&
         Array.isArray(location.coordinates.coordinates) &&

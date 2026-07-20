@@ -46,6 +46,12 @@
       ],
       "@esparex/contracts/*": [
         "../../packages/contracts/src/*"
+      ],
+      "@esparex/ui": [
+        "../../packages/ui/src/index.ts"
+      ],
+      "@esparex/ui/*": [
+        "../../packages/ui/src/*"
       ]
     },
     "customConditions": []
@@ -57,7 +63,9 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "../../shared/**/*.ts",
-    "../../shared/**/*.tsx"
+    "../../shared/**/*.tsx",
+    "../../packages/ui/**/*.ts",
+    "../../packages/ui/**/*.tsx"
   ],
   "exclude": [
     "node_modules",

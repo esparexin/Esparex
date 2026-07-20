@@ -1,35 +1,7 @@
 import { Request, Response } from "express";
-import { getPaginationParams, sendAdminError, sendSuccessResponse } from '../../utils/adminBaseController';
+import { getPaginationParams, sendAdminError, sendSuccessResponse, getActorId, buildLogFn } from '../../utils/adminBaseController';
 import { getAlertDeliveryLogs, adminBulkResendAlertWarnings as bulkResendAlertWarnings, deleteSmartAlert } from "@esparex/core/services/SmartAlertService";
 import { getAllSmartAlerts as getAllSmartAlertsFromQueryService } from "@esparex/core/services/SmartAlertQueryService";
-import { logAdminActionDirect } from "../../utils/adminLogger";
-import type { IAuthUser } from "@esparex/core/types/auth";
-import type { AdminLogFn } from "@esparex/core/services/AdminListingsService";
-
-// ---------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------
-
-const getActorId = (req: Request): string =>
-    (req.user as IAuthUser)?._id?.toString() ?? (req.user as IAuthUser)?.id ?? '';
-
-const getIp = (req: Request): string =>
-    (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
-
-const getUserAgent = (req: Request): string =>
-    (req.headers['user-agent'] as string) || '';
-
-const buildLogFn = (req: Request): AdminLogFn =>
-    (action, targetType, targetId, metadata) =>
-        logAdminActionDirect(
-            getActorId(req),
-            action,
-            targetType,
-            targetId,
-            metadata,
-            getIp(req),
-            getUserAgent(req)
-        );
 
 /**
  * GET /api/v1/admin/smart-alerts/logs

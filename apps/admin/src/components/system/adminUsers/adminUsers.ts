@@ -39,7 +39,6 @@ export type AdminEditFormState = {
     status: AdminStatus;
 };
 
-export type AdminUserFormValues = Partial<AdminCreateFormState & AdminEditFormState>;
 
 export const DEFAULT_CREATE_FORM: AdminCreateFormState = {
     firstName: "",

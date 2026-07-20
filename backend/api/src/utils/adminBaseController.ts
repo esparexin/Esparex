@@ -10,13 +10,37 @@ export { respond } from "./respond";
 import type { IAuthUser as AuthUser } from '@esparex/core/types/auth';
 import { ApiResponse } from "./apiResponse";
 import logger from '@esparex/core/utils/logger';
-
+import { logAdminActionDirect } from "./adminLogger";
+import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
 
 /**
  * 🔐 ESPAREX PERMISSION CHECKER
  * Ensures the admin user has the required scope for the action.
  * Supports wildcard (*) for full access.
  */
+export const getActorId = (req: Request): string =>
+    (req.user as AuthUser)?._id?.toString() ?? (req.user as AuthUser)?.id ?? '';
+
+export const getActorRole = (req: Request): string =>
+    ((req.user as AuthUser)?.role) ?? '';
+
+export const getIp = (req: Request): string =>
+    (((req.headers['x-forwarded-for'] as string) || req.socket?.remoteAddress || '').split(',')[0] ?? '').trim();
+
+export const getUserAgent = (req: Request): string =>
+    (req.headers['user-agent'] as string) || '';
+
+export const buildLogFn = (req: Request): AdminLogFn =>
+    (action, targetType, targetId, metadata) =>
+        logAdminActionDirect(
+            getActorId(req),
+            action,
+            targetType,
+            targetId,
+            metadata,
+            getIp(req),
+            getUserAgent(req)
+        );
 export const checkPermission = (user: AuthUser | undefined, module: string, action: string): boolean => {
     if (!user) return false;
     if (user.role === 'super_admin') return true;

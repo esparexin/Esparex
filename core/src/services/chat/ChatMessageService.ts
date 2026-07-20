@@ -4,7 +4,6 @@ import logger from '../../utils/logger';
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
 import type { IChatAttachment } from '../../models/ChatMessage';
 import {
-    PAGE_SIZE_MESSAGES,
     sanitizeText,
     detectBadWords,
     computeRiskScore,

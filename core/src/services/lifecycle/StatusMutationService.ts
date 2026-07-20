@@ -70,6 +70,34 @@ interface IStatusable {
     [key: string]: unknown;
 }
 
+const createHistoryRecord = async (params: {
+    domain: ValidDomain;
+    entityId: string | mongoose.Types.ObjectId;
+    fromStatus: string;
+    toStatus: string;
+    actor: ActorMetadata;
+    reason?: string;
+    metadata?: Record<string, unknown>;
+    session: any;
+}) => {
+    const { domain, entityId, fromStatus, toStatus, actor, reason, metadata, session } = params;
+    await StatusHistory.create([{
+        domain,
+        entityId: (entityId instanceof mongoose.Types.ObjectId) ? entityId : new mongoose.Types.ObjectId(String(entityId)),
+        fromStatus,
+        toStatus,
+        actorType: actor.type,
+        actorId: (actor.id && mongoose.Types.ObjectId.isValid(actor.id)) ? new mongoose.Types.ObjectId(actor.id) : undefined,
+        reason,
+        metadata: {
+            ...metadata,
+            ip: actor.ip,
+            ua: actor.userAgent,
+            mutationService: 'v1'
+        }
+    }], { session });
+};
+
 /**
  * 🛠️ Centralized Status Mutation Service
  * 
@@ -184,21 +212,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             await doc.save({ session: activeSession as any });
 
             // 5. Record Unified Status History
-            await StatusHistory.create([{
-                domain,
-                entityId: (entityId instanceof mongoose.Types.ObjectId) ? entityId : new mongoose.Types.ObjectId(String(entityId)),
-                fromStatus,
-                toStatus,
-                actorType: actor.type,
-                actorId: (actor.id && mongoose.Types.ObjectId.isValid(actor.id)) ? new mongoose.Types.ObjectId(actor.id) : undefined,
-                reason,
-                metadata: {
-                    ...metadata,
-                    ip: actor.ip,
-                    ua: actor.userAgent,
-                    mutationService: 'v1'
-                }
-            }], { session: activeSession as any });
+            await createHistoryRecord({ domain, entityId, fromStatus, toStatus, actor, reason, metadata, session: activeSession });
 
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };
@@ -245,21 +259,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
 
             const updated = await repo.updateOne(entityId.toString(), updateDoc as any, activeSession);
 
-            await StatusHistory.create([{
-                domain,
-                entityId: (entityId instanceof mongoose.Types.ObjectId) ? entityId : new mongoose.Types.ObjectId(String(entityId)),
-                fromStatus,
-                toStatus,
-                actorType: actor.type,
-                actorId: (actor.id && mongoose.Types.ObjectId.isValid(actor.id)) ? new mongoose.Types.ObjectId(actor.id) : undefined,
-                reason,
-                metadata: {
-                    ...metadata,
-                    ip: actor.ip,
-                    ua: actor.userAgent,
-                    mutationService: 'v1'
-                }
-            }], { session: activeSession as any });
+            await createHistoryRecord({ domain, entityId, fromStatus, toStatus, actor, reason, metadata, session: activeSession });
 
             return updated as any;
         };
