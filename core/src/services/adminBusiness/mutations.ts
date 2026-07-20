@@ -79,16 +79,25 @@ export const adminBulkRenewBusinesses = async (ids: string[], actorId: string, l
 
 export const adminBulkResendBusinessWarnings = async (ids: string[], actorId: string, logFn: AdminLogFn) => {
     if (!Array.isArray(ids) || ids.length === 0) throw new AppError('A non-empty list of business IDs is required', 400);
+    const businesses = await Business.find({ _id: { $in: ids } });
+    const bizById = new Map(businesses.map(b => [b._id.toString(), b]));
     const results: Array<{ id: string; success: boolean; message?: string }> = [];
+    const bulkOps: Array<{
+        updateOne: {
+            filter: { _id: typeof businesses[0]['_id'] };
+            update: { $set: Record<string, unknown>; $inc?: { expiryWarningCount: number } };
+        };
+    }> = [];
     for (const id of ids) {
+        const biz = bizById.get(id);
+        if (!biz) { results.push({ id, success: false, message: 'Business not found' }); continue; }
         try {
-            const biz = await Business.findById(id);
-            if (!biz) throw new AppError('Business not found', 404);
             await dispatchTemplatedNotification(biz.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_EXPIRY_WARNING_3D', { name: biz.name, date: biz.expiresAt?.toLocaleDateString() || 'N/A' }, { businessId: biz._id.toString() });
-            biz.expiryWarningSentAt = new Date(); biz.expiryWarningCount = (biz.expiryWarningCount || 0) + 1; biz.lastExpiryWarningChannel = 'in-app'; await biz.save();
+            bulkOps.push({ updateOne: { filter: { _id: biz._id }, update: { $set: { expiryWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' }, $inc: { expiryWarningCount: 1 } } } });
             await logFn('expiry_warning_resent', 'ExpiryWarning', id, { entityType: 'Business', adminId: actorId });
             results.push({ id, success: true });
         } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
     }
+    if (bulkOps.length > 0) await Business.bulkWrite(bulkOps);
     return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };
