@@ -44,7 +44,7 @@ function normalizeAdmin(payload: unknown): AdminUser | null {
   return {
     id: String(id),
     email: item.email,
-    role: normalizedRole,
+    role: normalizedRole as AdminUser['role'],
     firstName: typeof item.firstName === "string" ? item.firstName : undefined,
     lastName: typeof item.lastName === "string" ? item.lastName : undefined,
     permissions: Array.isArray(item.permissions) ? item.permissions.filter((p): p is string => typeof p === "string") : []
