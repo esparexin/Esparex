@@ -6,6 +6,7 @@ import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization"
 import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
+import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 
 export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
@@ -47,15 +48,18 @@ export function usePostAdAiGeneration(
                     form.setValue("title", output.title, { shouldValidate: true });
                     form.trigger("title");
                     notify.success("Title generated successfully!");
+                    trackPostAdEvent({ event: "ai_title_generated" });
                 }
                 if (targetField === 'description' && output.description) {
                     form.setValue("description", output.description, { shouldValidate: true });
                     form.trigger("description");
                     notify.success("Description generated successfully!");
+                    trackPostAdEvent({ event: "ai_description_generated" });
                 }
             }
         } catch {
             setFormError(`AI generation failed. Please enter ${targetField} manually.`);
+            trackPostAdEvent({ event: "ai_generation_failure", field: targetField });
         } finally {
             setIsGeneratingAI(false);
         }

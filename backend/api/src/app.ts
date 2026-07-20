@@ -53,6 +53,7 @@ import invoiceRoutes from './routes/invoiceRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import reportRoutes from './routes/reportRoutes';
 import chatRoutes from './routes/chatRoutes';
+import analyticsRoutes from './routes/analyticsRoutes';
 // import catalogRequestRoutes from './routes/catalogRequestRoutes';
 import adminCatalogRequestRoutes from './routes/adminCatalogRequestRoutes';
 
@@ -393,6 +394,9 @@ app.use('/api/v1/auth', authRoutes);
 
 // Unified Listing Engine (SSOT)
 app.use('/api/v1/listings', listingRoutes);
+
+// Analytics
+app.use('/api/v1/analytics', analyticsRoutes);
 
 // Webhook Observability Layer
 app.use('/api/v1/payments/webhook', (req, _res, next) => {

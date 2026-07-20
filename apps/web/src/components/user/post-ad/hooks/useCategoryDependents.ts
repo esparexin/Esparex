@@ -4,6 +4,7 @@ import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { ListingCategory } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@/lib/listings/locationUtils";
+import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import type { Brand } from "@/lib/api/user/masterData";
 
 export function useCategoryDependents(
@@ -58,13 +59,16 @@ export function useCategoryDependents(
 
         clearCategoryDependents();
         setBrandIsPending(false);
-        
+
+        const categoryName = categoryMap[id]?.name;
+        trackPostAdEvent({ event: "category_selected", metadata: { categoryId: id, categoryName } });
+
         await Promise.all([
             loadBrandsForCategory(id),
             loadSparePartsForCategory(id),
             loadCategorySchema(id)
         ]);
-    }, [form, setFormError, clearCategoryDependents, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema]);
+    }, [form, setFormError, clearCategoryDependents, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema, categoryMap]);
 
     /**
      * Explicit selection action for Brand. Sets canonical form values, clears child dependents when changed, and triggers models query.
@@ -77,6 +81,8 @@ export function useCategoryDependents(
         setFormError(null);
         form.setValue("brand", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
         form.setValue("brandId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+
+        trackPostAdEvent({ event: "brand_selected", metadata: { brandId: id, brandName: name } });
 
         if (brandChanged) {
             clearBrandDependents();
@@ -98,6 +104,7 @@ export function useCategoryDependents(
         setFormError(null);
         form.setValue("model", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
         form.setValue("modelId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        trackPostAdEvent({ event: "model_selected", metadata: { modelId: id, modelName: name } });
     }, [form, setFormError]);
 
     /**

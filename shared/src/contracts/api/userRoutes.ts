@@ -156,6 +156,9 @@ export const USER_ROUTES = {
 
   // Reports
   REPORTS: "reports",
+
+  // Analytics
+  ANALYTICS_POST_AD_EVENT: "analytics/post-ad-event",
 } as const;
 
 export const API_ROUTES = {
