@@ -6,6 +6,7 @@ import {
     CatalogApprovalStatusValue,
 } from '@esparex/shared';
 import { applyCatalogGovernanceDefaults } from '../utils/catalogGovernance';
+import { IMarketplaceTrust, marketplaceTrustDefinition } from './catalogLifecycle';
 
 export interface IModel extends Document {
     name: string;
@@ -14,24 +15,7 @@ export interface IModel extends Document {
     slug: string;
     aliases: string[];
     synonyms: string[];
-    marketplaceTrust?: {
-        catalogTrustScore?: number;
-        variantTrustScore?: number;
-        aliasTrustScore?: number;
-        synonymTrustScore?: number;
-        transliterationTrustScore?: number;
-        moderatorTrustScore?: number;
-        moderationReliabilityScore?: number;
-        aliasApprovalConfidence?: number;
-        synonymApprovalConfidence?: number;
-        popularityConfidenceScore?: number;
-        canonicalCertaintyScore?: number;
-        duplicateConfidenceScore?: number;
-        seoQualityScore?: number;
-        crawlDepthLimit?: number;
-        indexable?: boolean;
-        lastAuditAt?: Date;
-    };
+    marketplaceTrust?: IMarketplaceTrust;
     brandId: mongoose.Types.ObjectId;
     categoryIds: mongoose.Types.ObjectId[];
     parentModelId?: mongoose.Types.ObjectId | null;
@@ -58,24 +42,7 @@ const ModelSchema: Schema = new Schema({
     slug: { type: String, required: true, trim: true, lowercase: true },
     aliases: { type: [String], default: [] },
     synonyms: { type: [String], default: [] },
-    marketplaceTrust: {
-        catalogTrustScore: { type: Number, default: 0.72, min: 0, max: 1 },
-        variantTrustScore: { type: Number, default: 0.66, min: 0, max: 1 },
-        aliasTrustScore: { type: Number, default: 0.62, min: 0, max: 1 },
-        synonymTrustScore: { type: Number, default: 0.58, min: 0, max: 1 },
-        transliterationTrustScore: { type: Number, default: 0.64, min: 0, max: 1 },
-        moderatorTrustScore: { type: Number, default: 0.7, min: 0, max: 1 },
-        moderationReliabilityScore: { type: Number, default: 0.7, min: 0, max: 1 },
-        aliasApprovalConfidence: { type: Number, default: 0.6, min: 0, max: 1 },
-        synonymApprovalConfidence: { type: Number, default: 0.55, min: 0, max: 1 },
-        popularityConfidenceScore: { type: Number, default: 0.65, min: 0, max: 1 },
-        canonicalCertaintyScore: { type: Number, default: 0.72, min: 0, max: 1 },
-        duplicateConfidenceScore: { type: Number, default: 0.5, min: 0, max: 1 },
-        seoQualityScore: { type: Number, default: 0.6, min: 0, max: 1 },
-        crawlDepthLimit: { type: Number, default: 4, min: 1, max: 8 },
-        indexable: { type: Boolean, default: true },
-        lastAuditAt: { type: Date },
-    },
+    marketplaceTrust: marketplaceTrustDefinition,
     brandId: { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
     categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }],
     parentModelId: { type: Schema.Types.ObjectId, ref: 'Model', default: null },
