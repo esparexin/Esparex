@@ -14,12 +14,10 @@
  * All generated artifacts are written under .tooling/ (git-ignored).
  */
 
-import * as path from 'node:path';
 import { runVerification } from './verify-architecture';
 import { buildRegistry } from './registry';
 import { collectMetrics, appendHistory, loadHistory } from './metrics';
 import { buildReport, writeReports } from './report';
-import { TOOLING_DIR } from './lib/constants';
 
 // ---------------------------------------------------------------------------
 // Entry point

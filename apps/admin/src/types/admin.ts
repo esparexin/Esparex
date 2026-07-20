@@ -1,11 +1,4 @@
-export interface AdminUser {
-  id: string;
-  email: string;
-  role: string;
-  firstName?: string;
-  lastName?: string;
-  permissions?: string[];
-}
+export type { AdminUser } from '@esparex/contracts';
 
 export interface AdminEnvelope<T> {
   success: boolean;

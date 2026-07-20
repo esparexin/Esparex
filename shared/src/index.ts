@@ -29,8 +29,6 @@ export {
     hasValidCoordinateArray, isValidGeoPoint, normalizeGeoPoint,
     getLatitude, getLongitude, hasCoordinates, createPoint, toCanonicalGeoPoint
 } from './utils/geoUtils';
-// locationPrimitives functions (LOCATION_LEVELS, normalizeLocationLevel, normalizeLocationNameForSearch, buildLocationSlug)
-// LocationLevel type is now provided by @esparex/contracts above
 export {
     LOCATION_LEVELS,
     normalizeLocationLevel,

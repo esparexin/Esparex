@@ -4,12 +4,6 @@ import { getSystemConfigDoc } from '../utils/systemConfigHelper';
 import { getAdminAppUrl } from '../utils/appUrl';
 import { env } from '../config/env';
 
-// interface EmailOptions {
-//     to: string;
-//     subject: string;
-//     html: string;
-// }
-
 export class EmailService {
     private transporter: nodemailer.Transporter | null = null;
     private configSignature = '';

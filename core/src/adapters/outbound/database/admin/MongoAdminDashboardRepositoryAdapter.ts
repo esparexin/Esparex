@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import User from '../../../../models/User';
 import Ad from '../../../../models/Ad';
 import CatalogRequest, { CatalogRequestStatusValue } from '../../../../models/CatalogRequest';

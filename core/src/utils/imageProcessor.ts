@@ -1,9 +1,17 @@
 import { getBucketName, uploadToS3 } from './s3';
 import crypto from 'crypto';
-import sharp from 'sharp';
 import logger from './logger';
 import { env } from '../config/env';
 import { imageDomainRegistry } from "@esparex/shared";
+
+let cached: typeof import('sharp') | undefined;
+
+async function getSharp(): Promise<typeof import('sharp')> {
+    if (!cached) {
+        cached = (await import('sharp')).default as typeof import('sharp');
+    }
+    return cached;
+}
 
 let hasWarnedMissingS3InTest = false;
 const MAX_IMAGE_DIMENSION = 1600;
@@ -25,7 +33,7 @@ const optimizeWithSharp = async (
     mimeType: string
 ): Promise<{ buffer: Buffer; thumbnailBuffer: Buffer; mimeType: string; extension: string }> => {
     try {
-        const image = sharp(fileBuffer);
+        const image = (await getSharp())(fileBuffer);
         const metadata = await image.metadata();
 
         let pipeline = image;
@@ -42,7 +50,7 @@ const optimizeWithSharp = async (
             .webp({ quality: 80, effort: 4 })
             .toBuffer();
 
-        const thumbnailBuffer = await sharp(fileBuffer)
+        const thumbnailBuffer = await (await getSharp())(fileBuffer)
             .resize({
                 width: 300,
                 height: 300,

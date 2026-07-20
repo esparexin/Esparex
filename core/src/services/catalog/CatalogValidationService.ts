@@ -1,11 +1,6 @@
 import {
     CATALOG_APPROVAL_STATUS,
     type CatalogApprovalStatusValue,
-    type CatalogValidator,
-    CharacterValidator,
-    LengthValidator,
-    SpamValidator,
-    ReservedWordValidator,
     CatalogFacade,
 } from '@esparex/shared';
 import { validateObjectIdOrThrow } from '../../utils/idUtils';

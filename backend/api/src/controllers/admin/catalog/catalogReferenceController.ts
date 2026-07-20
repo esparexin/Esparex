@@ -6,7 +6,6 @@
 
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 import { invalidateItemCatalogCache } from './shared';
 import {
     sendCatalogError,

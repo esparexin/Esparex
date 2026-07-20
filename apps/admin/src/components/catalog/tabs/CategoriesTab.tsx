@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Edit, Trash2, Monitor, AlignJustify, AlertTriangle, Loader2 } from "lucide-react";
+import { Edit, Trash2, Monitor, AlertTriangle, Loader2 } from "lucide-react";
 import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import {

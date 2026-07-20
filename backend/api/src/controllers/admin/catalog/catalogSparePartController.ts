@@ -35,7 +35,6 @@ import {
     CATALOG_PUBLIC_VISIBILITY_QUERY,
     deriveApprovalStatus
 } from './shared';
-import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 import { invalidateItemCatalogCache } from './shared';
 import { validateSparePartRelations } from '@esparex/core/services/catalog/CatalogValidationService';
 import {
