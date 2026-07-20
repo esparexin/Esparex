@@ -1,9 +1,27 @@
-name: identity
-description: Identity and access management bounded context
-layers:
-  - domain
-  - ports
-  - application
-  - adapters
-dependencies:
+id: identity
+name: Identity Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Identity Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.4"
+layer: domain
+depends_on:
   - shared
+  - contracts
+public_api:
+  facades:
+    - AuthService
+    - UserService
+    - UserProfileService
+    - UserStatusService
+    - AdminUsersService
+    - AdminSessionService
+    - roleNormalization
+  ports:
+    - UserRepositoryPort

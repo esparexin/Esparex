@@ -1,9 +1,31 @@
-name: listings
-description: "Listings Bounded Context: Ad creation, mutation, validation, querying, and lifecycle management."
-type: domain
-dependencies:
+id: listings
+name: Listings Domain
+owner: marketplace
+business_owner: Marketplace
+technical_owner: Platform
+maintainer: Listings Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.5"
+layer: domain
+depends_on:
+  - shared
+  - contracts
   - catalog
   - identity
   - location
   - payments
   - notifications
+public_api:
+  facades:
+    - AdCreationService
+    - AdMutationService
+    - AdValidationService
+    - AdQueryService
+    - ListingModerationQueryService
+    - SavedAdService
+  ports:
+    - ListingRepositoryPort

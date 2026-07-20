@@ -1,44 +1,31 @@
-domain: payments
-owner: Core Platform
-version: 1.0
-
-exports:
-  - PaymentProcessingService
-  - WalletService
-  - WalletQueryService
-  - InvoiceService
-  - PlanService
-  - TransactionService
-  - RevenueAnalytics
-
+id: payments
+name: Payments Domain
+owner: platform
+business_owner: Finance
+technical_owner: Platform
+maintainer: Payments Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.1"
+layer: domain
 depends_on:
-  - contracts
   - shared
-
-events:
-  - PaymentCompleted
-  - PaymentFailed
-  - InvoiceGenerated
-  - WalletCredited
-  - WalletDebited
-  - PlanActivated
-  - PlanExpired
-
-ports:
-  - TransactionRepositoryPort
-  - InvoiceRepositoryPort
-  - WalletRepositoryPort
-  - PlanRepositoryPort
-  - UserReadRepositoryPort
-  - BusinessReadRepositoryPort
-  - PaymentGatewayPort
-  - DocumentStoragePort
-  - UnitOfWorkPort
-
-adapters:
-  - MongoTransactionRepository
-  - MongoInvoiceRepository
-  - MongoWalletRepository
-  - MongoPlanRepository
-  - RazorpayAdapter
-  - S3DocumentStorageAdapter
+  - contracts
+public_api:
+  facades:
+    - PaymentProcessingService
+    - WalletService
+    - WalletQueryService
+    - InvoiceService
+    - PlanService
+    - TransactionService
+  ports:
+    - TransactionRepositoryPort
+    - InvoiceRepositoryPort
+    - WalletRepositoryPort
+    - PlanRepositoryPort
+    - PaymentGatewayPort
+    - UnitOfWorkPort

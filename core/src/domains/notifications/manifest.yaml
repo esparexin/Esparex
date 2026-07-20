@@ -1,22 +1,27 @@
-name: notifications
-description: >
-  Manages system-wide messaging (email, push, in-app), smart alerts, retention policies, and queues.
-
-layers:
-  - name: application
-    description: Orchestrates notification dispatch, smart alerts, and queues.
-  - name: domain
-    description: Core notification logic and retention policies.
-  - name: ports
-    description: Interfaces for repositories and gateways.
-  - name: adapters
-    description: Infrastructure implementations for persistence and external messaging.
-
-dependencies:
-  allowed_imports:
-    - "@esparex/shared"
-    - "@esparex/contracts"
-  allowed_cross_domain:
-    - identity
-    - payments
-    - catalog
+id: notifications
+name: Notifications Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Notifications Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: high
+sla: tier-2
+since: "2.2"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+  - identity
+  - payments
+  - catalog
+public_api:
+  facades:
+    - NotificationService
+    - NotificationQueue
+    - NotificationRetentionService
+    - SmartAlertMutationService
+  ports:
+    - NotificationRepositoryPort
