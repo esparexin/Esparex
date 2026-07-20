@@ -348,7 +348,7 @@ Published! ✅
 | **Image limits** | Min 1, max 5 (ads) — *consider increasing to 8* |
 | **Image file size** | Must be compressible under 5MB per image. HEIC/HEIF supported via conversion. |
 | **Image format** | JPEG, PNG, WebP, HEIC accepted |
-| **Title length** | 10–100 characters. Profanity/gibberish checked at client + server. |
+| **Title length** | 10–60 characters. Profanity/gibberish checked at client + server. |
 | **Description length** | 20–500 characters. Profanity/gibberish checked. |
 | **Location** | Must resolve to a valid city+state+coordinates pair from the location hierarchy. Cannot be free-text. |
 | **Brand/Model** | Must reference canonical IDs from catalog, not free text. |
