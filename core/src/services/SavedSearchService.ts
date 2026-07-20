@@ -1,16 +1,20 @@
 import mongoose, { Types } from 'mongoose';
+import type { NotificationTypeValue } from '@esparex/contracts';
 import SavedSearch from '../models/SavedSearch';
 import { getListingRepository } from '../composition/listings';
 import { notificationMatchQueue } from '../queues/adQueue';
 import { releaseQueueIdempotencySlot, reserveQueueIdempotencySlot } from '../queues/queueIdempotency';
 import { withQueueDefaults } from '../queues/queueDefaults';
-import { dispatchTemplatedNotification } from './NotificationService';
 import logger from '../utils/logger';
 import { toObjectId } from '../utils/idUtils';
 import { addJobWithTrace } from '../utils/queueWrapper';
 import { isQueueConnectionAvailable } from '../queues/redisConnection';
 import { emitReliabilityAlert } from '../utils/reliabilityAlerts';
 import { reliabilityAlertsTotal } from '../utils/metrics';
+import { pLimit } from '../utils/pLimit';
+import { NotificationIntent } from '../domain/NotificationIntent';
+import { NotificationDispatcher } from './notification/NotificationDispatcher';
+import { getNotificationTemplate } from './notification/NotificationTemplateService';
 import { 
     SavedSearchMatchService, 
     type MinimalAdRecord, 
@@ -157,34 +161,52 @@ export const processSavedSearchAlertDispatch = async (adId: string): Promise<voi
     const adIdText = ad._id.toString();
     const link = ad.seoSlug ? `/ads/${ad.seoSlug}-${adIdText}` : `/ads/${adIdText}`;
     const locationDisplay = ad.location?.display || ad.location?.city || 'your selected area';
-    
-    for (const [userId, matchCount] of userMatchCounts.entries()) {
-        try {
-            if (!await SavedSearchRateService.canDispatch(userId)) continue;
-            if (!await SavedSearchRateService.reserve(userId, adIdText)) continue;
 
-            await dispatchTemplatedNotification(
-                userId,
-                'SMART_ALERT',
-                'SMART_ALERT',
-                {
-                    adTitle: ad.title,
-                    price: String(ad.price),
-                    location: locationDisplay
-                },
-                {
+    const { title, body } = getNotificationTemplate('SMART_ALERT', {
+        adTitle: ad.title,
+        price: String(ad.price),
+        location: locationDisplay,
+    });
+
+    const rateLimit = pLimit(10);
+    const entries = Array.from(userMatchCounts.entries());
+
+    const eligible = await Promise.all(entries.map(([userId, matchCount]) =>
+        rateLimit(async () => {
+            try {
+                if (!await SavedSearchRateService.canDispatch(userId)) return null;
+                if (!await SavedSearchRateService.reserve(userId, adIdText)) return null;
+                return { userId, matchCount };
+            } catch (error: unknown) {
+                logger.error('Failed to check alert rate limit', {
+                    userId,
                     adId: adIdText,
-                    link,
-                    matchedSavedSearches: String(matchCount)
-                }
-            );
-        } catch (error: unknown) {
-            logger.error('Failed to dispatch alert to user', {
+                    error: error instanceof Error ? error.message : String(error)
+                });
+                return null;
+            }
+        })
+    ));
+
+    const intents = eligible
+        .filter((u): u is { userId: string; matchCount: number } => u !== null)
+        .map(({ userId, matchCount }) =>
+            new NotificationIntent({
                 userId,
-                adId: adIdText,
-                error: error instanceof Error ? error.message : String(error)
-            });
-        }
+                type: 'SMART_ALERT' as NotificationTypeValue,
+                entityRef: { domain: 'system', id: userId },
+                message: {
+                    title,
+                    body,
+                    data: { adId: adIdText, link, matchedSavedSearches: String(matchCount) },
+                },
+                channels: ['in-app', 'push'],
+                priority: 'medium',
+            })
+        );
+
+    if (intents.length > 0) {
+        await NotificationDispatcher.bulkDispatch(intents);
     }
 
     logger.info('Saved-search alert dispatch completed', {
