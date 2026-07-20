@@ -19,7 +19,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 - `shared/`: SSOT for types, enums, and interfaces
 - `scripts/`: Repo governance, guardrails, and CI tooling
 - `ai-governance`: Canonical instructions for repo-aware AI agents
-- `docs/`: [Master Documentation Registry](docs/00-index.md)
+- `docs/`: [Master Documentation Registry](docs/README.md)
 - `ARCHITECTURE.md`: Developer-facing guide to Ports & Adapters, UnitOfWork, Caching, and Composition Root conventions.
 
 > **Workspace Governance Rule**: Every top-level directory in this repository must either be a registered npm workspace (listed in the root `package.json` `workspaces` array), or explicitly documented as an infrastructure/runtime wrapper in this README. Undocumented directories are not permitted.
