@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
-import { AppError } from '../../utils/AppError';
-import { getListingRepository } from '../../composition/listings';
-import User from '../../models/User';
+import { AppError } from '../../../../../utils/AppError';
+import { getListingRepository } from '../../../../../composition/listings';
+import User from '../../../../../models/User';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { Role } from '@esparex/contracts';
-import { getSystemConfigForRead } from '../SystemConfigService';
-import logger from '../../utils/logger';
+import { getSystemConfigForRead } from '../../../../../services/SystemConfigService';
+import logger from '../../../../../utils/logger';
 
 
 export const assertOwnership = async (adId: string, userId: string): Promise<{ sellerId: mongoose.Types.ObjectId; status: string }> => {

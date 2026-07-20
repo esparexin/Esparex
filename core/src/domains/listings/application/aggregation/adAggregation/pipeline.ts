@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import Ad from '../../models/Ad';
-import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../ad/_shared/adServiceBase';
-import type { AdsListResult, AdFilters, UnknownRecord, AggregationStage, PaginationOptions, PublicQueryOptions, SortStage } from '../ad/_shared/adServiceBase';
-import { buildAdMatchStage, buildAdSortStage } from '../ad/AdSearchService';
+import { serializeDoc, normalizeLocationResponse, buildGeoNearStage, normalizeGeoInput, buildPublicAdFilter, logger, RankingTelemetry, uuidv4, extractLocationIdFromAd, normalizeAdImagesForResponse, FeatureFlag, isEnabled, getBlockedSellerIds, touchLocationSearchAnalytics } from '../../domains/listings/application/ad/ad/_shared/adServiceBase';
+import type { AdsListResult, AdFilters, UnknownRecord, AggregationStage, PaginationOptions, PublicQueryOptions, SortStage } from '../../domains/listings/application/ad/ad/_shared/adServiceBase';
+import { buildAdMatchStage, buildAdSortStage } from '../../domains/listings/application/ad/ad/AdSearchService';
 import type { HydratedAd, TelemetryAd } from './types';
 import { hydrateAdMetadata } from './metadata';
 
@@ -181,7 +181,7 @@ export async function recordRankingTelemetry(data: Record<string, unknown>[]) {
                     components: { qualityScore: ad.listingQualityScore || 0, distanceScore: ad.distanceScore || 0, freshnessScore: ad.freshnessScore || 0, popularityScore: ad.popularityScore || 0, sellerTrust: ad.sellerTrustSnapshot || 50 }
                 }));
                 RankingTelemetry.insertMany(docs).catch((err: Error) => logger.warn('Failed to insert ranking telemetry', { error: err.message }));
-            } catch (error) { logger.warn('Ranking telemetry error', { error: error instanceof Error ? error.message : String(error) }); }
+            } catch (error: any) { logger.warn('Ranking telemetry error', { error: error instanceof Error ? error.message : String(error) }); }
         });
     }
 }

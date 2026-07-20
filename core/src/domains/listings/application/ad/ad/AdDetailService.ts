@@ -6,11 +6,11 @@ import {
     isBusinessPublishedStatus
 } from './_shared/adServiceBase';
 import type { PaginationOptions } from './_shared/adServiceBase';
-import { getListingRepository } from '../../composition/listings';
+import { getListingRepository } from '../../../../../composition/listings';
 
 import { hydrateAdMetadata } from './AdAggregationService';
-import type { IAd } from '../../models/Ad';
-import logger from '../../utils/logger';
+import type { IAd } from '../../../../../models/Ad';
+import logger from '../../../../../utils/logger';
 
 const extractRefId = (value: unknown): string | undefined => {
     if (typeof value === 'string' && value.trim().length > 0) {
@@ -80,7 +80,7 @@ export const getAnyAdById = async (
         const ad = await getListingRepository().findOne({ ids: [adId], isDeleted: { $in: [true, false] } as any });
         if (!ad) return null;
 
-        const User = (await import('../../models/User')).default;
+        const User = (await import('../../../../../models/User')).default;
         const seller = await User.findById(ad.sellerId).select('name avatar isVerified role trustScore').lean();
         const adRecord = { ...ad, sellerId: seller ? seller : ad.sellerId };
 
@@ -123,7 +123,7 @@ export const getListingDetailById = async (adId: string) => {
     const ad = await getListingRepository().findById(adId);
     if (!ad) return null;
 
-    const User = (await import('../../models/User')).default;
+    const User = (await import('../../../../../models/User')).default;
     const seller = await User.findById(ad.sellerId).select('name avatar trustScore isVerified status mobileVisibility role').lean();
     const adRecord = { ...ad, sellerId: seller ? seller : ad.sellerId };
 

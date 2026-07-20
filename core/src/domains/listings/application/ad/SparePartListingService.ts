@@ -1,7 +1,7 @@
-import type { IAd } from '../models/Ad';
+import type { IAd } from '../../../../models/Ad';
 import type { Document } from 'mongoose';
-import { getListingRepository } from '../composition/listings';
-import { generateUniqueSlugWithChecker } from '../utils/slugGenerator';
+import { getListingRepository } from '../../../../composition/listings';
+import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
 
 export async function saveSparePartListing(listing: IAd & Document): Promise<IAd & Document> {
     return listing.save();

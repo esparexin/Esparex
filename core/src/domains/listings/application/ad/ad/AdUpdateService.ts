@@ -1,18 +1,18 @@
-import { AppError } from '../../utils/AppError';
-import logger from '../../utils/logger';
-import { getListingRepository, getListingUnitOfWork } from '../../composition/listings';
-import { type Listing } from '../../domains/listings';
-import { isValidObjectId } from '../../utils/idUtils';
+import { AppError } from '../../../../../utils/AppError';
+import logger from '../../../../../utils/logger';
+import { getListingRepository, getListingUnitOfWork } from '../../../../../composition/listings';
+import { type Listing } from '../../../../../domains/listings';
+import { isValidObjectId } from '../../../../../utils/idUtils';
 
 
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
 import { NOTIFICATION_TYPE } from '@esparex/contracts';
-import { AdContext } from '../../types/ad.types';
-import { generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
+import { AdContext } from '../../../../../types/ad.types';
+import { generateUniqueSlugWithChecker } from '../../../../../utils/slugGenerator';
 import { AdCreationService } from '../AdCreationService';
-import { mutateStatus } from '../lifecycle/StatusMutationService';
-import { enqueueImageOptimization } from '../../queues/imageQueue';
+import { mutateStatus } from '../../../../../services/lifecycle/StatusMutationService';
+import { enqueueImageOptimization } from '../../../../../queues/imageQueue';
 
 export const updateAdLogic = async (
     adId: string,
@@ -167,7 +167,7 @@ export const updateAdLogic = async (
                     const SavedAd = (await import('@esparex/core/models/SavedAd')).default;
                     const keepers = await SavedAd.find({ adId }).select('userId').lean();
                     if (keepers.length > 0) {
-                        const { dispatchTemplatedNotification } = await import('../NotificationService');
+                        const { dispatchTemplatedNotification } = await import('../../../../../services/NotificationService');
                         for (const keeper of keepers) {
                             await dispatchTemplatedNotification(
                                 String(keeper.userId),
@@ -181,7 +181,7 @@ export const updateAdLogic = async (
                              );
                         }
                     }
-                } catch (err) {
+                } catch (err: any) {
                     logger.error('Failed to dispatch price drop notifications', { error: err, adId });
                 }
             })();
@@ -190,11 +190,11 @@ export const updateAdLogic = async (
         if (removedImagesCache.length > 0) {
             void (async () => {
                 try {
-                    const { deleteFromS3Url } = await import('../../utils/s3');
+                    const { deleteFromS3Url } = await import('../../../../../utils/s3');
                     for (const url of removedImagesCache) {
                         await deleteFromS3Url(url).catch(e => logger.error(`Failed to delete orphaned image: ${url}`, e));
                     }
-                } catch (err) {
+                } catch (err: any) {
                     logger.error('Failed to execute orphan image cleanup task', err);
                 }
             })();

@@ -1,27 +1,27 @@
 import mongoose from 'mongoose';
-import { AppError } from '../utils/AppError';
-import { getListingRepository } from '../composition/listings';
-import SparePart from '../models/SparePart';
-import Brand from '../models/Brand';
-import { normalizeLocation } from './location/LocationNormalizer';
+import { AppError } from '../../../../utils/AppError';
+import { getListingRepository } from '../../../../composition/listings';
+import SparePart from '../../../../models/SparePart';
+import Brand from '../../../../models/Brand';
+import { normalizeLocation } from '../../../../services/location/LocationNormalizer';
 import { normalizeGeoPoint } from '@esparex/shared';
-import { resolveEquivalentActiveCategoryIds } from './catalog/CatalogCategoryService';
-import { generateUniqueSlugWithChecker } from '../utils/slugGenerator';
+import { resolveEquivalentActiveCategoryIds } from '../../../../services/catalog/CatalogCategoryService';
+import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
-import { resolveLocationPathIds } from '../utils/locationHierarchy';
-import { processImages } from '../utils/imageProcessor';
-import { sanitizeStoredImageUrls } from '../utils/s3';
-import { AdContext } from '../types/ad.types';
-import { computeActiveExpiry } from './lifecycle/AdStatusService';
+import { resolveLocationPathIds } from '../../../../utils/locationHierarchy';
+import { processImages } from '../../../../utils/imageProcessor';
+import { sanitizeStoredImageUrls } from '../../../../utils/s3';
+import { AdContext } from '../../../../types/ad.types';
+import { computeActiveExpiry } from '../../../../services/lifecycle/AdStatusService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
-import { FeatureFlag, isEnabled } from '../config/featureFlags';
-import { computeListingQualityScore } from '../utils/adQualityScorer';
+import { FeatureFlag, isEnabled } from '../../../../config/featureFlags';
+import { computeListingQualityScore } from '../../../../utils/adQualityScorer';
 import { 
     validateBrandBelongsToCategory, 
     validateModelBelongsToBrand,
     validateListingCategoryCapability
-} from './catalog/CatalogValidationService';
-import { isBusinessPublishedStatus } from '../utils/businessStatus';
+} from '../../../../services/catalog/CatalogValidationService';
+import { isBusinessPublishedStatus } from '../../../../utils/businessStatus';
 
 export interface PreparedPayload {
     categoryId?: string;
@@ -199,7 +199,7 @@ export class AdCreationService {
 
         // 🛡️ GOVERNANCE: Locked fields check for service updates
         if (listingType === LISTING_TYPE.SERVICE && partial) {
-            const { collectImmutableFieldErrors } = await import('../utils/immutableFieldErrors');
+            const { collectImmutableFieldErrors } = await import('../../../../utils/immutableFieldErrors');
             const SERVICE_EDIT_LOCK_MESSAGES: Record<string, string> = {
                 categoryId: 'Category cannot be changed while editing a service.',
                 brandId: 'Brand cannot be changed while editing a service.',
@@ -282,8 +282,8 @@ export class AdCreationService {
                     throw new AppError('Valid category is required', 400, 'CATEGORY_REQUIRED', [{ field: 'categoryId', message: 'Valid category is required' }]);
                 }
 
-                const { resolveServiceTypes } = await import('../utils/serviceTypeResolver');
-                const { getCategorySelectionMode } = await import('./catalog/CatalogValidationService');
+                const { resolveServiceTypes } = await import('../../../../utils/serviceTypeResolver');
+                const { getCategorySelectionMode } = await import('../../../../services/catalog/CatalogValidationService');
 
                 const resolvedServiceTypes = await resolveServiceTypes(rawServiceTypes, catId);
                 const selectionMode = await getCategorySelectionMode(catId);
@@ -427,7 +427,7 @@ export class AdCreationService {
 
         // --- Compute Lightweight Listing Quality Score ---
         if (listingType === LISTING_TYPE.SERVICE) {
-            const { calculateServiceQuality } = await import('../utils/serviceQuality');
+            const { calculateServiceQuality } = await import('../../../../utils/serviceQuality');
             let merged: any = { ...payload };
             if (partial && adId) {
                 const existing = await getListingRepository().findById(adId);

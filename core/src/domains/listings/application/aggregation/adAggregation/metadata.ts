@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CACHE_KEYS, getMultiCache, setMultiCache } from '../ad/_shared/adServiceBase';
+import { CACHE_KEYS, getMultiCache, setMultiCache } from '../../domains/listings/application/ad/ad/_shared/adServiceBase';
 
 type MetadataRef = mongoose.Types.ObjectId | string;
 type MetadataEntity = Record<string, unknown> & {
@@ -28,7 +28,7 @@ async function fetchMetadataWithCache<T>(
     const cachedResults = await getMultiCache<T>(cacheKeys);
     const results: T[] = [];
     const missingIds: string[] = [];
-    cachedResults.forEach((val, index) => {
+    cachedResults.forEach((val: any, index: any) => {
         if (val) results.push(val);
         else { const id = idArray[index]; if (id) missingIds.push(id); }
     });

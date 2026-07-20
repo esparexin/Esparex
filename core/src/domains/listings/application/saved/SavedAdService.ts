@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import SavedAd from '../models/SavedAd';
-import { getListingRepository } from '../composition/listings';
-import { hydrateAdMetadata, type HydratedAd } from './ad/AdAggregationService';
-import { sanitizePersistedImageUrls } from '../utils/s3';
-import { serializeDoc } from '../utils/serialize';
-import { recordAdAnalyticsEvent } from './TrendingService';
+import SavedAd from '../../../../models/SavedAd';
+import { getListingRepository } from '../../../../composition/listings';
+import { hydrateAdMetadata, type HydratedAd } from '../ad/ad/AdAggregationService';
+import { sanitizePersistedImageUrls } from '../../../../utils/s3';
+import { serializeDoc } from '../../../../utils/serialize';
+import { recordAdAnalyticsEvent } from '../../../../services/TrendingService';
 
 export const getSavedAds = async (userId: string, page: number, limit: number) => {
     const skip = (page - 1) * limit;

@@ -6,18 +6,18 @@
  */
 
 import mongoose from 'mongoose';
-import { getListingRepository } from '../composition/listings';
-import { ListingFilter } from '../domains/listings';
-import logger from '../utils/logger';
-import { touchLocationAnalytics } from './location/LocationAnalyticsService';
-import { recordAdAnalyticsEvent } from './TrendingService';
+import { getListingRepository } from '../../../../composition/listings';
+import { ListingFilter } from '../../../../domains/listings';
+import logger from '../../../../utils/logger';
+import { touchLocationAnalytics } from '../../../../services/location/LocationAnalyticsService';
+import { recordAdAnalyticsEvent } from '../../../../services/TrendingService';
 import { LISTING_STATUS } from '@esparex/contracts';
 
 // ─────────────────────────────────────────────────
 // VIEW TRACKING
 // ─────────────────────────────────────────────────
 
-import { ViewBufferingService } from './ViewBufferingService';
+import { ViewBufferingService } from '../../../../services/ViewBufferingService';
 
 export const incrementAdView = async (
     adId: string | mongoose.Types.ObjectId,

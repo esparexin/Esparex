@@ -1,23 +1,23 @@
-import { type Listing } from '../domains/listings';
-import { getListingRepository, getListingUnitOfWork } from '../composition/listings';
-import logger from '../utils/logger';
-import { AppError } from '../utils/AppError';
-import { generateId } from '../utils/idUtils';
+import { type Listing } from '../../../../domains/listings';
+import { getListingRepository, getListingUnitOfWork } from '../../../../composition/listings';
+import logger from '../../../../utils/logger';
+import { AppError } from '../../../../utils/AppError';
+import { generateId } from '../../../../utils/idUtils';
 
 
 
 // Specialized Services
 import { AdDuplicateService, logDuplicateEvent, buildDuplicateFingerprint } from './AdDuplicateService';
-import { analyzeFraudRisk, FraudContext } from './FraudDetectionService';
+import { analyzeFraudRisk, FraudContext } from '../../../../services/FraudDetectionService';
 import { AdCreationService } from './AdCreationService';
-import { ListingSubmissionPolicy } from './ListingSubmissionPolicy';
-import { mutateStatus } from './lifecycle/StatusMutationService';
-import { computeActiveExpiry } from './lifecycle/AdStatusService';
-import { enqueueImageOptimization } from '../queues/imageQueue';
+import { ListingSubmissionPolicy } from '../../domain/policies/ListingSubmissionPolicy';
+import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
+import { computeActiveExpiry } from '../../../../services/lifecycle/AdStatusService';
+import { enqueueImageOptimization } from '../../../../queues/imageQueue';
 import { validateSellerTypeThreshold } from './AdValidationService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
-import type { AdContext } from '../types/ad.types';
+import type { AdContext } from '../../../../types/ad.types';
 
 export interface AdOrchestrationContext {
     authUserId: string; // The authenticated subject (JWT)

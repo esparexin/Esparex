@@ -1,13 +1,13 @@
-import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../composition/listings';
+import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../composition/listings';
 import { ListingTypeValue } from '@esparex/contracts';
-import { AdContext } from '../types/ad.types';
-import { mutateStatus } from './lifecycle/StatusMutationService';
+import { AdContext } from '../../../../types/ad.types';
+import { mutateStatus } from '../../../../services/lifecycle/StatusMutationService';
 
 // Leaf Services
-import { updateAdLogic } from './ad/AdUpdateService';
-import { promoteAdLogic } from './ad/AdPromotionService';
-import { repostAdLogic } from './ad/AdRepostService';
-import { assertOwnership } from './ad/AdPolicyService';
+import { updateAdLogic } from '../ad/ad/AdUpdateService';
+import { promoteAdLogic } from '../ad/ad/AdPromotionService';
+import { repostAdLogic } from '../ad/ad/AdRepostService';
+import { assertOwnership } from '../ad/ad/AdPolicyService';
 
 // Re-export for backward compatibility
 export { assertOwnership };

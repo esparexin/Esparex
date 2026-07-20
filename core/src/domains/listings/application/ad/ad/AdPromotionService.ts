@@ -1,11 +1,11 @@
-import { AppError } from '../../utils/AppError';
-import logger from '../../utils/logger';
-import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../composition/listings';
+import { AppError } from '../../../../../utils/AppError';
+import logger from '../../../../../utils/logger';
+import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
 import { LISTING_TYPE } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { LIFECYCLE_STATUS } from '@esparex/contracts';
-import { consumeCredit } from '../wallet/WalletService';
-import { isValidObjectId } from '../../utils/idUtils';
+import { consumeCredit } from '../../../../../services/wallet/WalletService';
+import { isValidObjectId } from '../../../../../utils/idUtils';
 
 export const promoteAdLogic = async (
     id: string,

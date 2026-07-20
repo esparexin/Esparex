@@ -1,4 +1,4 @@
-import { getStatusMatchCriteria } from '../../utils/statusQueryMapper';
+import { getStatusMatchCriteria } from '../../../../../utils/statusQueryMapper';
 import {
     mongoose,
     Category,
