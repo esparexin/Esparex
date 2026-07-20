@@ -1,4 +1,4 @@
-import mongoose, { type PipelineStage } from 'mongoose';
+import mongoose from 'mongoose';
 import { getListingRepository } from '../composition/listings';
 import type { ListingFilter } from '../domains/listings/ports/ListingRepositoryPort';
 import AdAnalytics from '../models/AdAnalytics';

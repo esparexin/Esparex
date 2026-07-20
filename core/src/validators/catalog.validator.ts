@@ -123,7 +123,6 @@ export const modelUpdateSchema = modelCreateSchema
 // ==========================================
 const sparePartBaseSchema = z.object({
     ...catalogTextFields,
-    // type: z.enum(['PRIMARY', 'SECONDARY']).optional(),
     listingType: z.array(z.enum([LISTING_TYPE.AD, LISTING_TYPE.SPARE_PART])).optional(),
     ...categoryFields,
     sortOrder: z.number().int().min(0).optional(),

@@ -12,7 +12,7 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { CheckResult, DomainInfo, HistoryEntry, Metric, Registry, Severity } from './types';
 import { walkTypeScriptFiles, ensureDir, writeFile, readFile } from './lib/filesystem';
-import { REPO_ROOT, DOMAINS_PATH, TOOLING_DIR } from './lib/constants';
+import { REPO_ROOT, TOOLING_DIR } from './lib/constants';
 
 // ---------------------------------------------------------------------------
 // Filesystem counters
