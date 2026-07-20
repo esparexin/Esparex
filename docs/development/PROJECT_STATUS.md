@@ -1,8 +1,9 @@
 # Esparex Project Status
 
-**Last Updated:** 2026-07-18  
-**Current Branch:** `main`  
-**Latest Milestone:** `arch-milestone/contracts-migration-v1.0`
+**Last Updated:** 2026-07-20  
+**Current Branch:** `audit/http-security-and-cors`  
+**Latest Milestone:** `✅ Frontend Performance Audit & Validation`
+
 
 ---
 
@@ -29,14 +30,15 @@
 
 ---
 
-## 2. Active Sprint Focus (Program 2)
+## 2. Active Sprint Focus (Program 3)
 
-* **Goal:** **Post Ad Excellence Audit**
+* **Goal:** **HTTP Security & CORS Audit**
 * **Tasks:**
-  - Audit the entire Post Ad wizard flow from category selection to submission.
-  - Check for validation rule discrepancies between frontend Zod forms and backend Mongoose validators.
-  - Review image compression and secure upload pipelines.
-  - Identify mobile responsiveness gaps and WCAG AA compliance issues.
+  - Audit CORS configuration (allowed origins, credentials, preflight OPTIONS).
+  - Verify cookie settings (HttpOnly, Secure, SameSite, domain, path, expiry).
+  - Review security headers (CSP, HSTS, X-Content-Type-Options, Referrer-Policy, Cache-Control).
+  - Inspect authentication flow (Access/Refresh tokens, session cookies, CSRF).
+  - Conduct end-to-end verification (login, OAuth, OTP, ad creation, image upload, payments) to identify the exact root cause of the ad posting failure.
 
 ---
 
