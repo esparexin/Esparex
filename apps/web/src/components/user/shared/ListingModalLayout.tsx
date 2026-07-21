@@ -7,14 +7,14 @@ interface ListingModalLayoutProps {
     title: string;
     subtitle?: string;
     onClose: () => void;
+    fullScreen?: boolean;
     children: React.ReactNode;
 }
 
-export function ListingModalLayout({ title, subtitle, onClose, children }: ListingModalLayoutProps) {
-    return (
-        <>
-            {/* Mobile full-screen (< 1024px) */}
-            <div className="flex flex-col bg-white min-h-dvh lg:hidden" aria-hidden="true">
+export function ListingModalLayout({ title, subtitle, onClose, fullScreen, children }: ListingModalLayoutProps) {
+    if (fullScreen) {
+        return (
+            <div className="flex flex-col bg-white min-h-dvh">
                 <header className="shrink-0 bg-white border-b border-slate-200 flex items-center px-4 h-14 sm:px-6">
                     <div className="flex items-center w-full max-w-4xl mx-auto">
                         <button
@@ -37,47 +37,55 @@ export function ListingModalLayout({ title, subtitle, onClose, children }: Listi
                         </div>
                     </div>
                 </header>
-                <div className="flex-1 flex flex-col w-full mx-auto max-w-4xl">
+                <div className="flex-1 flex flex-col w-full mx-auto max-w-4xl overflow-hidden">
                     {children}
                 </div>
             </div>
+        );
+    }
 
-            {/* Desktop modal (>= 1024px) */}
+    return (
+        <div
+            onClick={onClose}
+            style={{ zIndex: Z_INDEX.listingModal }}
+            className={cn(
+                "fixed inset-0 flex flex-col bg-white overflow-hidden",
+                "sm:bg-slate-900/40 sm:backdrop-blur-md sm:items-center sm:justify-center sm:p-6 sm:cursor-pointer"
+            )}
+        >
             <div
-                onClick={onClose}
-                style={{ zIndex: Z_INDEX.listingModal }}
-                className="hidden lg:flex fixed inset-0 bg-slate-900/40 backdrop-blur-md items-center justify-center p-6 cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                    "flex flex-col bg-white flex-1 overflow-hidden sm:cursor-default",
+                    "sm:flex-none sm:w-full sm:max-w-5xl sm:max-h-[90dvh]",
+                    "sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-900/10"
+                )}
             >
-                <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex flex-col bg-white w-full max-w-5xl max-h-[90dvh] rounded-2xl shadow-2xl border border-slate-900/10 cursor-default overflow-hidden"
-                >
-                    <header className="shrink-0 bg-white border-b border-slate-200 flex items-center gap-3 px-5 py-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            aria-label="Close"
-                            className="h-11 w-11 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                        <div className="flex-1 flex items-baseline gap-2">
-                            <h1 className="font-bold text-foreground text-base leading-none">
-                                {title}
-                            </h1>
-                            {subtitle && (
-                                <span aria-current="step" className="text-xs font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded uppercase tracking-wider">
-                                    {subtitle}
-                                </span>
-                            )}
-                        </div>
-                    </header>
-                    <div className="flex-1 flex flex-col overflow-hidden">
-                        {children}
+                <header className="shrink-0 bg-white border-b border-slate-200 flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-4">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close"
+                        className="h-11 w-11 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                    <div className="flex-1 flex items-baseline gap-2">
+                        <h1 className="font-bold text-foreground text-base leading-none">
+                            {title}
+                        </h1>
+                        {subtitle && (
+                            <span aria-current="step" className="text-[10px] sm:text-xs font-bold text-primary bg-primary/5 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                                {subtitle}
+                            </span>
+                        )}
                     </div>
+                </header>
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {children}
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 
