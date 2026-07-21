@@ -3,7 +3,7 @@ services:
     name: esparex-api
     env: node
     plan: starter
-    buildCommand: HUSKY=0 npm ci && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api && test -f backend/api/dist/index.js
+    buildCommand: HUSKY=0 npm ci && npm run build -w @esparex/contracts && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api && test -f backend/api/dist/index.js
     startCommand: npm start -w @esparex/backend-api
     envVars:
       - key: NODE_ENV
