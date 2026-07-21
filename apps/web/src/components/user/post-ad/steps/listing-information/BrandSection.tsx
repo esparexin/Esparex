@@ -28,7 +28,8 @@ export function BrandSection() {
     }, [isEditMode, handleBrandChange]);
 
     return (
-        <section className="space-y-3">
+        <section className="space-y-3" aria-labelledby="brand-heading">
+            <h2 id="brand-heading" className="sr-only">Brand</h2>
             <Field label="Brand" error={brandError as string} required>
                 {brandIsPending && availableBrands.length === 0 ? (
                     <div className="h-11 w-full rounded-xl bg-slate-100 animate-pulse border border-slate-200" />
@@ -44,7 +45,7 @@ export function BrandSection() {
                     />
                 )}
                 {brandIsPending && availableBrands.length > 0 && (
-                    <p className="text-[10px] text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
+                    <p className="text-xs text-muted-foreground mt-1 px-1 flex items-center gap-1.5">
                         <span className="inline-block h-2 w-2 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                         Updating brands&hellip;
                     </p>
