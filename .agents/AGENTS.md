@@ -187,11 +187,17 @@ This rule was introduced after a `PUT → PATCH` migration landed in `listingMut
 
 ---
 
-## 11. Engineering Change Propagation Standard (Mandatory)
+## 11. Esparex Engineering Governance Standard (Mandatory)
 
-To prevent silent regressions, environment desynchronizations, and telemetry connection drift, all changes to contracts, environment configurations, database schemas, or API layouts must follow this change propagation protocol.
+All human engineers and AI agents must adhere strictly to these processes when introducing modifications, additions, or deprecations in the monorepo.
 
-### 11.1 Change Classifications
+### 11.1 Engineering Principles
+1. **Test Isolation:** Frontend components and tests must be decoupled from running database or backend dependencies. Mocks should be utilized for UI regression testing.
+2. **Explicit Dependency Inversion:** Components must rely on interface abstractions (e.g., `TelemetryProvider`) rather than direct implementation bindings.
+3. **No Test Logic in Production Code:** Production paths must remain free of E2E-specific conditionals (e.g., no raw checks for `window.navigator.webdriver` in business controllers).
+4. **Contract-First Development:** Shared types in `packages/contracts` serve as the Single Source of Truth (SSOT). Backend validation and frontend E2E mocks must implement these types directly.
+
+### 11.2 Change Classifications
 Every change must be classified before implementation to trigger the relevant checklists:
 - **API Contract:** Payload schemas, query validations, route paths, HTTP methods, DTOs.
 - **Database & Cache:** Database schemas, validation rules, indexing, Redis key policies.
@@ -200,39 +206,53 @@ Every change must be classified before implementation to trigger the relevant ch
 - **UI & UX Flow:** Dom structure, page selectors, form controls, styling, accessibility.
 - **Telemetry & Analytics:** Tracking providers, location loggers, event triggers.
 
-### 11.2 API Contract Propagation Checklist
-Apply this checklist whenever an API contract dimension changes:
-- [ ] **Contract Schema (`packages/contracts`)** — Types and validation schemas updated.
-- [ ] **Backend Controller** — Handler and route parameter validations updated.
-- [ ] **Frontend Client Hooks** — API service layer calls synchronized with the contract.
-- [ ] **Playwright Mocks & Interceptors** — Shared test helper interceptors updated to reflect the new route/method/shape.
-- [ ] **Integration/Unit Tests** — Mock payloads and service layer stubs updated.
-- [ ] **API Documentation** — OpenAPI/Swagger schemas and developer READMEs synchronized.
-- [ ] **Next.js Rewrite Rules** — Checked for path routing compatibility in `next.config.mjs`.
+### 11.3 Pre-Implementation Decision Gate
+Before starting implementation, the author must document answers to the following:
+- What problem are we solving? (Core motivation).
+- Is this the correct architectural solution? (Compare at least one alternative).
+- Does it affect backwards compatibility? (Will this break external clients or mobile app versions?).
+- What are the risks? (Analyze concurrency, performance, security, and integration vulnerabilities).
+- Is there a simpler way? (Enforce simplicity).
 
-### 11.3 Environment Variable & Build Change Checklist
-Apply this checklist whenever an environment variable is introduced, modified, or deleted:
-- [ ] **Local Development (`.env.local.example`)** — Documented and default values set.
-- [ ] **Docker Configurations** — Checked for container variable injection.
-- [ ] **Next.js Next Config** — Verified for build-time (`NEXT_PUBLIC_*`) baking vs runtime Node.js environment variables.
-- [ ] **Playwright Test Runner Config** — Env overrides added to both `webServer.command` (build-time) and `webServer.env` (run-time).
-- [ ] **CI/CD Pipelines** — Secret keys and build envs populated in GitHub Actions, Render, and Vercel.
-- [ ] **Deployment Guides** — Updated to describe the purpose and defaults of the variable.
+### 11.4 Dependency Checklists
+Apply the appropriate checklists based on the Change Classification:
+- **API Contract Checklist:**
+  - [ ] Shared types (`packages/contracts`) updated.
+  - [ ] Backend controller body/query validators updated.
+  - [ ] Frontend client API services and hooks updated.
+  - [ ] Playwright E2E mocks and interceptors (`tests/interceptors`) updated.
+  - [ ] OpenAPI documentation/schemas synchronized.
+- **Environment & Build Checklist:**
+  - [ ] Default values added to local config templates (`.env.local.example`).
+  - [ ] Build-time environment configs (`NEXT_PUBLIC_*`) verified.
+  - [ ] E2E variables configured in Playwright (`webServer.command`/`env`).
+  - [ ] Staging and production secrets updated.
+- **Database & Cache Checklist:**
+  - [ ] Database schema models updated.
+  - [ ] Up-migration script provided and verified locally.
+  - [ ] Down-migration script provided and verified for rollbacks.
+  - [ ] Redis caching keys and cache-invalidation logic updated.
 
-### 11.4 Database & Cache Migration Checklist
-Apply this checklist whenever database or caching models change:
-- [ ] **Schema & Mongoose Validation** — Sync database schemas and Mongoose validators.
-- [ ] **Up-Migration Script** — Up-migration script provided and verified on local DB copies.
-- [ ] **Down-Migration Script** — Rollback script provided and verified.
-- [ ] **Cache Eviction** — Redis cache eviction rules and key formats updated.
-
-### 11.5 Telemetry & Endpoint Class Alignment Checklist
-Apply this checklist whenever telemetry, logging, or analytics elements change:
+### 11.5 Telemetry & Endpoint Class Alignment
 - [ ] Telemetry calls must use the `TelemetryProvider` abstraction.
 - [ ] No telemetry requests should be sent to the network layer during automated E2E runs (must be handled by the `NullTelemetryProvider`).
 - [ ] Next.js rewrites must be configured to fail fast (404 fallback) for unmocked routes rather than logging proxy TCP connection timeouts to console logs.
 
 ### 11.6 Test Run Proxy Isolation Rule
 Playwright configurations must enforce strict E2E routing. Any request matching `/api/v1/**` that is not registered with an active mock must be intercepted and rejected with a mock `404` or `500` error directly at the browser layer, avoiding Node-level socket leaks and proxy socket warnings.
+
+### 11.7 Ownership Matrix
+To prevent the "someone else will update it" assumption, downstream dependencies must be assigned to owners:
+- **Shared Contracts:** Platform Architect / Core Backend Team
+- **API Endpoints & Controllers:** Backend Team / Security Reviewer
+- **Frontend Clients & Hooks:** Web Team / Frontend QA
+- **E2E Test Mocks & Specs:** Frontend QA / Web Team
+- **CI/CD Pipelines & DevOps:** DevOps Team / Platform Architect
+
+### 11.8 Evidence Gates
+For every pull request, the author must provide:
+1. What changed?
+2. Where was it updated?
+3. How was it verified? (Provide E2E test runs, local build status, or screenshots).
 
 ---
