@@ -427,7 +427,17 @@ class APIClient {
                     });
 
                 if (!requestConfig?.silent && !shouldSuppressPopupForApiError(apiError.status, requestConfig)) {
-                    logger.error("[API ERROR]", apiError);
+                    const expectedBusinessErrors = [
+                        'AI_QUOTA_EXHAUSTED',
+                        'AI_UNAVAILABLE',
+                        'AI_RATE_LIMITED'
+                    ];
+                    
+                    if (apiError.code && expectedBusinessErrors.includes(apiError.code)) {
+                        logger.info(`[API STATE] Expected business condition: ${apiError.code}`, { endpoint: requestConfig?.url });
+                    } else {
+                        logger.error("[API ERROR]", apiError);
+                    }
                 }
 
                 return Promise.reject(apiError);

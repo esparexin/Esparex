@@ -54,10 +54,10 @@ export function TitleSection() {
                             variant="ghost"
                             size="sm"
                             onClick={() => generateDescription('title')}
-                            disabled={isGeneratingAI}
+                            disabled={isGeneratingAI !== null}
                             className="h-8 px-3 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium shrink-0"
                         >
-                            {isGeneratingAI ? <Loader2 className="w-3 h-3 animate-spin" /> : "AI Suggest"}
+                            {isGeneratingAI === 'title' ? <Loader2 className="w-3 h-3 animate-spin" /> : "AI Suggest"}
                         </Button>
                     )}
                 </div>
