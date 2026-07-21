@@ -141,11 +141,3 @@ A refactoring task is complete ONLY when:
 - [ ] No unrelated files modified (File count guardrails: 1–5 ideal, 6–10 acceptable)
 
 ---
-
-## 10. Release Checklist
-
-- [ ] All feature PRs merged into `develop` with green CI
-- [ ] Architectural & milestone violations resolved or deferred
-- [ ] Release PR opened from `develop` -> `main`
-- [ ] Tagged semantic version (e.g., `v2.12.0`)
-- [ ] Production build verified (`npm run build`)
