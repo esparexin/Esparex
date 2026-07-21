@@ -1,0 +1,23 @@
+id: discovery
+name: Discovery Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Discovery Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.8"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+  - listings
+public_api:
+  facades:
+    - FeedService
+    - FeedDecisionEngine
+    - SavedSearchService
+    - TrendingService
