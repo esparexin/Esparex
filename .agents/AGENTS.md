@@ -186,3 +186,41 @@ Reviewers must verify each item independently — do not accept "tests pass" as 
 This rule was introduced after a `PUT → PATCH` migration landed in `listingMutationAPI.ts` without updating the Playwright route interceptors. The production code was correct, but the test suite diverged silently. Both failures (`capturedPayload.images undefined` and `Ad Updated not visible`) shared the same root cause and would have been caught by this checklist.
 
 ---
+
+## 11. Dependency Impact Governance (Mandatory)
+
+To prevent silent E2E regressions, environment mismatches, and telemetry connection drift, all changes to contracts, environment configurations, or API layouts must follow this change propagation protocol.
+
+### 11.1 API Contract Change Propagation Checklist
+Apply this checklist whenever an API route, HTTP method, request payload, response schema, or status code changes.
+
+- [ ] **Contract Schema (`packages/contracts`)** — Types and validation schemas updated.
+- [ ] **Backend Controller** — Handler and route parameter validations updated.
+- [ ] **Frontend Client Hooks** — API service layer calls synchronized with the contract.
+- [ ] **Playwright Mocks & Interceptors** — Shared test helper interceptors updated to reflect the new route/method/shape.
+- [ ] **Integration/Unit Tests** — Mock payloads and service layer stubs updated.
+- [ ] **API Documentation** — OpenAPI/Swagger schemas and developer READMEs synchronized.
+- [ ] **Next.js Rewrite Rules** — Checked for path routing compatibility in `next.config.mjs`.
+
+### 11.2 Environment Variable & Build Change Checklist
+Apply this checklist whenever an environment variable is introduced, modified, or deleted.
+
+- [ ] **Local Development (`.env.local.example`)** — Documented and default values set.
+- [ ] **Docker Configurations** — Checked for container variable injection.
+- [ ] **Next.js Next Config** — Verified for build-time (`NEXT_PUBLIC_*`) baking vs runtime Node.js environment variables.
+- [ ] **Playwright Test Runner Config** — Env overrides added to `webServer.command` (build-time) and `webServer.env` (run-time).
+- [ ] **CI/CD Pipelines** — Secret keys and build envs populated in GitHub Actions, Render, and Vercel.
+- [ ] **Deployment Guides** — Updated to describe the purpose and defaults of the variable.
+
+### 11.3 Telemetry & Endpoint Class Alignment Checklist
+Apply this checklist whenever adding a new API endpoint or outbound client-side request.
+
+- [ ] Telemetry calls must use the `TelemetryProvider` abstraction.
+- [ ] No telemetry requests should be sent to the network layer during automated E2E runs (must be handled by the `NullTelemetryProvider`).
+- [ ] Critical and Supporting endpoints must have corresponding mocked interceptors in `tests/interceptors/`.
+- [ ] Next.js rewrites must be configured to fail fast (404 fallback) for unmocked routes rather than logging proxy TCP connection timeouts to console logs.
+
+### 11.4 Test Run Proxy Isolation Rule
+Playwright configurations must enforce strict E2E routing. Any request matching `/api/v1/**` that is not registered with an active mock must be intercepted and rejected with a mock `404` or `500` error directly at the browser layer, avoiding Node-level socket leaks and proxy socket warnings.
+
+---
