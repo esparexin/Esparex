@@ -27,7 +27,7 @@ export function CategorySection() {
     }, [isEditMode, handleCategoryChange]);
 
     const GridContent = (
-        <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
             {dynamicCategories.map((cat) => {
                 const Icon = cat.icon || CircuitBoard;
                 const selected = cat.id === categoryId;
@@ -40,13 +40,13 @@ export function CategorySection() {
                         disabled={isEditMode && !selected}
                         aria-pressed={selected}
                         className={cn(
-                            "flex flex-col items-center justify-center gap-1 h-20 py-2 px-1 rounded-xl transition-all duration-200 border-2", 
+                            "flex flex-col items-center justify-center gap-0.5 h-[52px] py-1 px-1 rounded-xl transition-all duration-200 border-2", 
                             selected ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-white hover:bg-slate-50 border-slate-100", 
                             isEditMode && "opacity-60 cursor-not-allowed"
                         )}
                     >
-                        <Icon className={cn("w-6 h-6", selected ? "text-primary-foreground" : "text-foreground-subtle")} aria-hidden="true" focusable="false" />
-                        <span className={cn("text-[10px] sm:text-xs font-semibold text-center leading-tight w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary", !selected && "whitespace-normal break-words line-clamp-2")}>
+                        <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")} aria-hidden="true" focusable="false" />
+                        <span className={cn("text-[11px] sm:text-xs font-medium text-center leading-tight w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary", !selected && "whitespace-normal break-words line-clamp-2")}>
                             {cat.name}
                         </span>
                     </Button>
@@ -56,7 +56,7 @@ export function CategorySection() {
     );
 
     return (
-        <section className="space-y-3" aria-labelledby="category-heading">
+        <section className="space-y-2" aria-labelledby="category-heading">
             <h2 id="category-heading" className="sr-only">Category</h2>
             <Field error={categoryError as string} label="Select Category" required>
                 {GridContent}

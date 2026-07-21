@@ -36,7 +36,7 @@ export function ModelSection() {
     if (requiresScreenSize) return null;
 
     return (
-        <section className="space-y-3" aria-labelledby="model-heading">
+        <section className="space-y-2" aria-labelledby="model-heading">
             <h2 id="model-heading" className="sr-only">Model</h2>
             <Field label="Model" error={modelError as string} className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] pointer-events-none")}>
                 {!brandNameValue ? (

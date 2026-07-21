@@ -16,7 +16,7 @@ function TitleCharCounter() {
     const title = useWatch({ name: "title" }) as string || "";
     return (
         <span className={cn(
-            "text-xs font-bold tracking-tight",
+            "text-xs font-normal tracking-tight",
             title.length >= MAX_AD_TITLE_CHARS ? "text-amber-600" : "text-foreground-subtle"
         )}>
             {title.length} / {MAX_AD_TITLE_CHARS}
@@ -26,7 +26,7 @@ function TitleCharCounter() {
 
 export function TitleSection() {
     const { register } = useFormContext<PostAdFormData>();
-    const { isGeneratingAI, form, stepValidationAttempts } = usePostAdFlow();
+    const { isGeneratingAI, isAiAvailable, form, stepValidationAttempts } = usePostAdFlow();
     const { generateDescription } = usePostAdAction();
 
     const { touchedFields, errors, submitCount } = form.formState;
@@ -41,31 +41,34 @@ export function TitleSection() {
     const titleError = shouldShowFieldError("title") ? errors.title?.message : undefined;
 
     return (
-        <section className="space-y-4" aria-labelledby="title-heading">
+        <section className="space-y-3" aria-labelledby="title-heading">
             <h2 id="title-heading" className="sr-only">Title</h2>
-            <Field label="Choose a catchy title" required error={titleError as string}>
-                <div className="space-y-3">
-                    <div className="relative">
-                        <Input
-                            {...register("title")}
-                            placeholder="e.g. iPhone 13 Pro - Screen issue"
-                            maxLength={MAX_AD_TITLE_CHARS}
-                            className="h-14 rounded-xl border-2 border-slate-100 focus:border-primary font-bold text-base pr-20"
-                        />
+            <Field error={titleError as string}>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                    <label htmlFor="title" className="text-base font-medium leading-snug text-foreground-secondary">
+                        Choose a catchy title<span className="text-destructive ml-1">*</span>
+                    </label>
+                    {isAiAvailable && (
                         <Button
                             type="button"
                             variant="ghost"
                             size="sm"
                             onClick={() => generateDescription('title')}
                             disabled={isGeneratingAI}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 h-11 px-2 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-semibold"
+                            className="h-8 px-3 text-xs bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium shrink-0"
                         >
-                            {isGeneratingAI ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : "AI Suggest"}
+                            {isGeneratingAI ? <Loader2 className="w-3 h-3 animate-spin" /> : "AI Suggest"}
                         </Button>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <TitleCharCounter />
-                    </div>
+                    )}
+                </div>
+                <Input
+                    {...register("title")}
+                    placeholder="e.g. iPhone 13 Pro - Screen issue"
+                    maxLength={MAX_AD_TITLE_CHARS}
+                    className="h-12 rounded-xl border-2 border-slate-100 focus:border-primary font-normal text-base"
+                />
+                <div className="flex justify-between items-center mt-1">
+                    <TitleCharCounter />
                 </div>
             </Field>
         </section>

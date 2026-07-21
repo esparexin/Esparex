@@ -20,10 +20,9 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                         <button
                             type="button"
                             onClick={onClose}
-                            aria-label="Close"
                             className="h-11 w-11 -ml-2 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4" />
                         </button>
                         <div className="flex-1 flex items-baseline gap-2 ml-1">
                             <h1 className="font-bold text-foreground text-base leading-none">
@@ -57,7 +56,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
                     "flex flex-col bg-white flex-1 overflow-hidden sm:cursor-default",
-                    "sm:flex-none sm:w-full sm:max-w-5xl sm:max-h-[90dvh]",
+                    "sm:flex-none sm:w-full sm:max-w-xl sm:max-h-[75dvh]",
                     "sm:rounded-2xl sm:shadow-2xl sm:border sm:border-slate-900/10"
                 )}
             >
@@ -65,10 +64,9 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                     <button
                         type="button"
                         onClick={onClose}
-                        aria-label="Close"
                         className="h-11 w-11 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-4 h-4" />
                     </button>
                     <div className="flex-1 flex items-baseline gap-2">
                         <h1 className="font-bold text-foreground text-base leading-none">
@@ -97,7 +95,7 @@ export function ListingModalBody({
     return (
         <div
             {...props}
-            className={cn("flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5", className)}
+            className={cn("flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-4 sm:px-5", className)}
         >
             {children}
         </div>
@@ -106,7 +104,7 @@ export function ListingModalBody({
 
 export function ListingModalFooter({ children, className }: { children: React.ReactNode; className?: string }) {
     return (
-        <footer className={cn("shrink-0 bg-white border-t border-slate-100 p-4 sm:px-5 sm:py-4 max-sm:sticky max-sm:bottom-0 max-sm:z-10", className)}>
+        <footer className={cn("shrink-0 bg-white border-t border-slate-100 p-4 sm:px-5 sm:py-4 sticky bottom-0 z-10", className)}>
             {children}
         </footer>
     );

@@ -108,6 +108,7 @@ export type PostAdFlowState = {
     stepValidationAttempts: Record<number, boolean>;
     isLoading: boolean;
     isGeneratingAI: boolean;
+    isAiAvailable: boolean;
     isSubmitting: boolean;
     isEditMode: boolean;
     userHasInteracted: boolean;
