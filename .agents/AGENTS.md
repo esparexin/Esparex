@@ -400,3 +400,81 @@ Repository standards are versioned. Any new Mandatory standard must:
 
 No new Mandatory rule may be enforced retroactively without an approved migration plan.
 
+---
+
+## Scope & Impact Governance Rules (Mandatory AI Operating Rules)
+
+The AI agent must strictly enforce these 7 operational rules on every task without exception:
+
+### Rule 1: Never Start Coding Without an Impact Analysis
+Before changing any file, establish:
+- **Exact Issue**: Clear problem statement.
+- **Layer Ownership**: Specify layer (UI, UX, Layout, Business Logic, Validation, API, Database).
+- **Expected Files**: Enumerate exact files expected to change.
+- **Forbidden Files**: Explicitly list files/layers that must NOT change.
+
+### Rule 2: Create an Impact Matrix Before Coding
+Document the potential cross-layer impact before implementation:
+| Area | Impact |
+| --- | --- |
+| Desktop UI | ✅ Expected / ⚠ Verify / ❌ No |
+| Mobile / Tablet | ✅ Expected / ⚠ Verify / ❌ No |
+| Validation / Logic | ✅ Expected / ⚠ Verify / ❌ No |
+| API / Backend | ✅ Expected / ⚠ Verify / ❌ No |
+| Accessibility | ⚠ Verify |
+| Automated Tests | ✅ Required |
+
+### Rule 3: Separate Audit From Implementation
+Enforce distinct phase boundaries: `Audit → Root Cause → Approval → Implementation → Verification`. Never implement code while still auditing or discovering issues.
+
+### Rule 4: Freeze the Scope
+Once implementation begins, only fix the explicitly approved scope. Prohibit "while we're here" changes, opportunistic cleanups, or mid-task refactors.
+
+### Rule 5: Include a Regression Checklist
+Every PR must include and verify:
+- [ ] Desktop verified
+- [ ] Tablet verified
+- [ ] Mobile verified
+- [ ] Keyboard navigation verified
+- [ ] Screen reader / A11y verified
+- [ ] Existing workflow unchanged
+- [ ] API contract & Backend unchanged
+- [ ] Monorepo build & tests passed
+
+### Rule 6: File Count Guardrails
+- **Ideal**: 1–5 files modified
+- **Acceptable**: 6–10 files modified
+- **>10 Files**: Triggers mandatory scope expansion review and explicit justification before proceeding.
+
+### Rule 7: Architecture Freeze
+Respect component boundary ownership. Never leak layout, modal, wizard, or footer responsibilities across component boundaries.
+
+---
+
+## Standard Execution Workflow
+
+```text
+Understand issue
+        ↓
+Root cause analysis
+        ↓
+Impact analysis & Impact Matrix
+        ↓
+Create feature branch
+        ↓
+Update from develop
+        ↓
+Implement only approved scope
+        ↓
+Type-check & Unit tests
+        ↓
+Responsive & A11y verification
+        ↓
+Regression checklist
+        ↓
+Push feature branch to remote
+        ↓
+Pull Request & Merge
+```
+
+
