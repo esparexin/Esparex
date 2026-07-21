@@ -18,7 +18,8 @@
     "strictNullChecks": true,
     "skipLibCheck": true,
     "composite": true,
-    "declaration": true
+    "declaration": true,
+    "noEmitOnError": true
   },
   "files": [],
   "references": [

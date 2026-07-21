@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "resolveJsonModule": true,
+    "noEmitOnError": true,
     "lib": ["ES2023", "DOM"],
     "paths": {
       "@/*": ["src/*"],
