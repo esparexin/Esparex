@@ -1,0 +1,27 @@
+id: notifications
+name: Notifications Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Notifications Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: high
+sla: tier-2
+since: "2.2"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+  - identity
+  - payments
+  - catalog
+public_api:
+  facades:
+    - NotificationService
+    - NotificationQueue
+    - NotificationRetentionService
+    - SmartAlertMutationService
+  ports:
+    - NotificationRepositoryPort

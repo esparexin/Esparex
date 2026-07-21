@@ -33,6 +33,10 @@ import Ad from "../../models/Ad";
 import SmartAlert from "../../models/SmartAlert";
 import { updateUserStatus } from "../../services/UserStatusService";
 
+// A well-formed 24-char hex ObjectId used across all test cases.
+// updateUserStatus now validates ObjectId format before any DB call.
+const VALID_USER_OID = '64a1f2e3b4c5d6e7f8a9b0c2';
+
 describe("userStatusService audit integration", () => {
     const mockUserFindByIdAndUpdate = (User as unknown as { findByIdAndUpdate: jest.Mock }).findByIdAndUpdate;
     const mockAdUpdateMany = (Ad as unknown as { updateMany: jest.Mock }).updateMany;
@@ -41,14 +45,14 @@ describe("userStatusService audit integration", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        mockUserFindByIdAndUpdate.mockResolvedValue({ _id: "user_1", status: "suspended" });
+        mockUserFindByIdAndUpdate.mockResolvedValue({ _id: VALID_USER_OID, status: "suspended" });
         mockAdUpdateMany.mockResolvedValue({ modifiedCount: 1 });
         mockAlertUpdateMany.mockResolvedValue({ modifiedCount: 1 });
         mockLogFn = jest.fn().mockResolvedValue(undefined);
     });
 
     it("logs STATUS_UPDATE_SUSPENDED when admin suspends user", async () => {
-        await updateUserStatus("user_1", "suspended", {
+        await updateUserStatus(VALID_USER_OID, "suspended", {
             actor: "ADMIN",
             logFn: mockLogFn,
             reason: "Policy violation",
@@ -57,23 +61,23 @@ describe("userStatusService audit integration", () => {
         expect(mockLogFn).toHaveBeenCalledWith(
             "STATUS_UPDATE_SUSPENDED",
             "User",
-            "user_1",
+            VALID_USER_OID,
             expect.objectContaining({ reason: "Policy violation" })
         );
     });
 
     it("logs STATUS_UPDATE_BANNED and disables alerts", async () => {
-        await updateUserStatus("user_1", "banned", {
+        await updateUserStatus(VALID_USER_OID, "banned", {
             actor: "ADMIN",
             logFn: mockLogFn,
             reason: "Fraud",
         });
 
-        expect(mockAlertUpdateMany).toHaveBeenCalledWith({ userId: "user_1" }, { isActive: false });
+        expect(mockAlertUpdateMany).toHaveBeenCalledWith({ userId: VALID_USER_OID }, { isActive: false });
         expect(mockLogFn).toHaveBeenCalledWith(
             "STATUS_UPDATE_BANNED",
             "User",
-            "user_1",
+            VALID_USER_OID,
             expect.objectContaining({ reason: "Fraud" })
         );
     });

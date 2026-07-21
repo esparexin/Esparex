@@ -1,1 +1,1 @@
-export * from './catalogRequestApproval';
+export * from "../domains/catalog/application/requests/catalogRequestApprovalService";

@@ -1,47 +1,45 @@
 # Esparex Project Status
 
-**Last Updated:** 2026-07-18  
-**Current Branch:** `main`  
-**Latest Milestone:** `arch-milestone/contracts-migration-v1.0`
+**Last Updated:** 2026-07-20  
+**Current Branch:** `feat/architecture-implementation-completion`  
+**Latest Milestone:** `arch-milestone/v2-architecture-implementation`
 
 ---
 
-## 1. Active Programs Dashboard
+## 1. Active Architecture Programs Dashboard
 
-### Program 1 — Platform Foundation ✅
-* **Status:** Completed
-* **Focus:** Decoupling `backend/api` from `core`, setting up `@esparex/contracts` as the leaf SSOT package, establishing strict import boundary rules, and cleaning up legacy shared code.
+### Program 1 — Architecture Implementation Completion (Primary) 🚀
+* **Status:** Active (Issue #144)
+* **Branch:** `feat/architecture-implementation-completion`
+* **Focus:** Completing DDD domain migration (ARCH-003), configuration SSOT (ARCH-005), worker abstractions (ARCH-006), and API surface standardization (ARCH-007).
 
-### Program 2 — Product Excellence 🚀
-* **Status:** Active
-* **Focus:** High-value user journeys, conversion funnels, dashboard optimizations, and responsive designs.
-* **Active Projects:** 
-  - Post Ad 2.0 (End-to-End Excellence Audit)
-  - Admin Dashboard workflow simplification
-
-### Program 3 — Operational Excellence 📋
+### Program 2 — Performance Optimization Phase 2 ⚡
 * **Status:** Planned
-* **Focus:** Caching, BullMQ reliability, Prometheus/Sentry monitoring, rate limiters, and load testing.
+* **Branch:** `feat/performance-optimization-phase-2`
+* **Focus:** N+1 query elimination, database compound indexes, admin app code splitting, and queue/scheduler tuning.
 
-### Program 4 — AI & Intelligence 🧠
-* **Status:** Future
-* **Focus:** AI-assisted ad posting description recommendations, image-based spare-parts catalog matching, automatic duplicate listing warnings, and smart search.
+### Program 3 — Security Remediation Program 🛡️
+* **Status:** Planned
+* **Branch:** `feat/security-remediation-program`
+* **Focus:** Dependabot vulnerability backlog remediation (2 critical, 22 high) and CVE dependency upgrades.
 
 ---
 
-## 2. Active Sprint Focus (Program 2)
+## 2. Active Sprint Focus (Program 1)
 
-* **Goal:** **Post Ad Excellence Audit**
+* **Goal:** **DDD Core Consolidation & Architecture Implementation Completion**
 * **Tasks:**
-  - Audit the entire Post Ad wizard flow from category selection to submission.
-  - Check for validation rule discrepancies between frontend Zod forms and backend Mongoose validators.
-  - Review image compression and secure upload pipelines.
-  - Identify mobile responsiveness gaps and WCAG AA compliance issues.
+  - Complete DDD Core Migration Sprints 1–3 (`core/src/domains/` for Payments, Notifications, Fraud, Boosts).
+  - Eliminate legacy flat `core/src/services/` directory (Milestone M8).
+  - Centralize environment variable validation and configuration SSOT.
+  - Document queue ownership manifest and complete worker abstraction layering.
+  - Standardize API controller response formats and remove legacy compatibility shims.
 
 ---
 
-## 3. Backlog Priorities
+## 3. Governance Baseline
 
-1. **Proxy warning elimination (Phase 1.1):** Replace remaining shared imports with contracts to drop Dependency Cruiser warnings to 0.
-2. **Event Creation Workflow:** Fix ticketing availability state machine and lifecycle consistency in the Events module.
-3. **Repository Health Audit v2:** Build next technical debt log.
+* **Architecture Governance:** L4.6 (Enforced Governance)
+* **Target Governance:** L5.0 (Continuous Fitness)
+* **Dependency Rules:** 14/14 active in `dependency-cruiser`
+

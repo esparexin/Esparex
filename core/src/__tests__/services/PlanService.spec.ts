@@ -41,13 +41,13 @@ jest.mock('@esparex/core/models/UserWallet', () => ({
     default: { updateMany: jest.fn() },
 }));
 
-jest.mock('@esparex/core/services/PlanEngine', () => ({
+jest.mock('@esparex/core/domains/payments/domain/policies/PlanEngine', () => ({
     calculateUserPlan: jest.fn(),
 }));
 
 import Ad from '../../models/Ad';
-import { calculateUserPlan } from '../../services/PlanEngine';
-import { checkPostLimit } from '../../services/PlanService';
+import { calculateUserPlan } from '../../domains/payments';
+import { checkPostLimit } from '../../domains/payments/application/PlanService';
 
 const mockedAd = Ad as unknown as { countDocuments: jest.Mock };
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;

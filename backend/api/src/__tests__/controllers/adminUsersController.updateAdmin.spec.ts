@@ -37,6 +37,9 @@ import * as adminUsersController from "../../controllers/admin/adminUsersControl
 import Admin from "@esparex/core/models/Admin";
 import { updateAdminById } from "@esparex/core/services/AdminUsersService";
 
+// Valid 24-char hex ObjectId required by isValidObjectId at the controller boundary.
+const VALID_ADMIN_OID = '64b2f3e4c5d6e7f8a9b0c3d1';
+
 const createMockRes = (req?: Partial<Request>) => {
     const res = {
         status: jest.fn().mockReturnThis(),
@@ -60,22 +63,22 @@ describe("adminUsersController.updateAdmin", () => {
 
     it("blocks self role change", async () => {
         const req = {
-            params: { id: "admin_1" },
+            params: { id: VALID_ADMIN_OID },
             body: { role: "moderator" },
-            user: { _id: { toString: () => "admin_1" }, role: "super_admin" },
-            originalUrl: "/api/v1/admin/admin-users/admin_1",
+            user: { _id: { toString: () => VALID_ADMIN_OID }, role: "super_admin" },
+            originalUrl: `/api/v1/admin/admin-users/${VALID_ADMIN_OID}`,
         } as unknown as Request;
         const res = createMockRes(req);
 
-        mockUpdateAdminById.mockResolvedValue({ _id: "admin_1", role: "moderator" });
+        mockUpdateAdminById.mockResolvedValue({ _id: VALID_ADMIN_OID, role: "moderator" });
 
         await adminUsersController.updateAdmin(req, res);
 
         expect(mockAdmin.findByIdAndUpdate).not.toHaveBeenCalled();
         expect(mockUpdateAdminById).toHaveBeenCalledWith(
-            "admin_1",
+            VALID_ADMIN_OID,
             req.body,
-            "admin_1",
+            VALID_ADMIN_OID,
             "super_admin",
             expect.any(Function)
         );

@@ -53,13 +53,13 @@ jest.mock("@esparex/core/models/AdminLog", () => ({
     },
 }));
 
-jest.mock("@esparex/core/services/wallet/WalletService", () => ({
+jest.mock("@esparex/core/domains/payments/application/WalletService", () => ({
     credit: jest.fn(),
     buildWalletIncrement: jest.fn().mockReturnValue({ amounts: {} }),
     hasWalletIncrement: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("@esparex/core/services/RevenueAnalytics", () => ({
+jest.mock("@esparex/core/domains/payments/application/RevenueAnalytics", () => ({
     recordRevenue: jest.fn(),
 }));
 
@@ -67,11 +67,11 @@ jest.mock("@esparex/core/utils/invoiceNumber", () => ({
     generateInvoiceNumber: jest.fn().mockResolvedValue("ESP-2026-000001"),
 }));
 
-jest.mock("@esparex/core/services/InvoicePdfService", () => ({
+jest.mock("@esparex/core/domains/payments/application/InvoicePdfService", () => ({
     generateInvoicePdf: jest.fn().mockResolvedValue("https://example.com/invoice.pdf"),
 }));
 
-jest.mock("@esparex/core/services/InvoiceService", () => ({
+jest.mock("@esparex/core/domains/payments/application/InvoiceService", () => ({
     buildInvoicePayload: jest.fn().mockReturnValue({ invoiceNumber: "ESP-2026-000001" }),
     ensureInvoicePdf: jest.fn().mockResolvedValue(undefined),
 }));
@@ -91,9 +91,9 @@ jest.mock("@esparex/core/config/razorpay", () => ({
 import User from "../../models/User";
 import { Invoice } from "../../models/Invoice";
 import { Transaction } from "../../models/Transaction";
-import { credit } from "../../services/wallet/WalletService";
-import { recordRevenue } from "../../services/RevenueAnalytics";
-import { processSuccessfulPayment, recoverPendingPayment } from "../../services/PaymentProcessingService";
+import { credit } from "../../domains/payments/application/WalletService";
+import { recordRevenue } from "../../domains/payments/application/RevenueAnalytics";
+import { processSuccessfulPayment, recoverPendingPayment } from "../../domains/payments/application/PaymentProcessingService";
 
 describe("PaymentProcessingService", () => {
     beforeEach(() => {
