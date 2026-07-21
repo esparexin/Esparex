@@ -4,7 +4,6 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { usePostAdFlow } from "../../context";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/components/ui/utils";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { getNestedFieldMeta } from "../common/utils";
@@ -27,82 +26,71 @@ export function PriceSection() {
 
     const priceError = shouldShowFieldError("price") ? errors.price?.message : undefined;
 
+    const toggleFree = useCallback(() => {
+        const nextVal = !isFree;
+        setValue("isFree", nextVal);
+        if (nextVal) {
+            setValue("price", 0, { shouldValidate: true });
+        } else {
+            trigger("price");
+        }
+    }, [isFree, setValue, trigger]);
+
     return (
-        <section className="space-y-6" aria-labelledby="price-heading">
+        <section className="space-y-4" aria-labelledby="price-heading">
             <h2 id="price-heading" className="sr-only">Price</h2>
             <Field label="Set your price" required error={priceError as string}>
-                <div className="space-y-4">
-                    <div className="relative h-20">
+                <div className="flex flex-row gap-3">
+                    <div className="relative flex-1 min-w-0">
                         <Input
                             {...register("price", { valueAsNumber: true })}
                             type="number"
-                            placeholder="Enter Amount"
+                            placeholder="Enter amount"
                             disabled={isFree}
                             className={cn(
-                                "h-full pl-12 pr-4 rounded-xl border-2 font-bold text-2xl transition-all",
+                                "h-12 pl-10 pr-4 rounded-xl border-2 text-base font-normal transition-all [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
                                 isFree ? "bg-slate-50 border-slate-100 text-foreground-subtle" : "bg-white border-slate-200 focus:border-primary"
                             )}
                         />
                         <span className={cn(
-                            "absolute left-5 top-1/2 -translate-y-1/2 font-bold text-2xl",
+                            "absolute left-4 top-1/2 -translate-y-1/2 font-normal text-base",
                             isFree ? "text-foreground-subtle" : "text-foreground-subtle"
                         )}>₹</span>
                     </div>
 
-                    <div 
+                    <button
+                        type="button"
                         role="switch"
                         aria-checked={!!isFree}
-                        tabIndex={0}
-                        onClick={() => {
-                            const nextVal = !isFree;
-                            setValue("isFree", nextVal);
-                            if (nextVal) {
-                                setValue("price", 0, { shouldValidate: true });
-                            } else {
-                                trigger("price");
-                            }
-                        }}
+                        onClick={toggleFree}
                         onKeyDown={(e) => {
                             if (e.key === " " || e.key === "Enter") {
                                 e.preventDefault();
-                                const nextVal = !isFree;
-                                setValue("isFree", nextVal);
-                                if (nextVal) {
-                                    setValue("price", 0, { shouldValidate: true });
-                                } else {
-                                    trigger("price");
-                                }
+                                toggleFree();
                             }
                         }}
                         className={cn(
-                            "flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                            isFree ? "bg-green-50 border-green-200 ring-2 ring-green-100" : "bg-white border-slate-100 hover:border-slate-200"
+                            "flex items-center justify-center gap-2 h-12 px-4 rounded-xl border-2 cursor-pointer transition-all duration-200 shrink-0 sm:w-[35%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                            isFree ? "bg-green-50 border-green-200" : "bg-white border-slate-100 hover:border-slate-200"
                         )}
                     >
-                        <div className="flex items-center gap-3">
-                            <div className={cn(
-                                "w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0",
-                                isFree ? "bg-green-600 text-white" : "bg-slate-100 text-foreground-subtle"
-                            )}>
-                                <Checkbox
-                                    id="isFree-check"
-                                    className="hidden"
-                                    checked={!!isFree}
-                                />
-                                <span className="font-bold text-xs">FREE</span>
-                            </div>
-                            <div>
-                                <p className="font-bold text-foreground text-sm">Mark as Free</p>
-                                <p className="text-2xs text-muted-foreground font-medium">This item is a giveaway</p>
-                            </div>
-                        </div>
                         <div className={cn(
-                            "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                            isFree ? "bg-green-600 border-green-600" : "bg-white border-slate-200"
+                            "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition-all",
+                            isFree ? "bg-green-600 border-green-600" : "bg-white border-slate-300"
                         )}>
-                            {isFree && <div className="w-2 h-2 rounded-full bg-white" />}
+                            {isFree && (
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
                         </div>
-                    </div>
+                        <span className={cn(
+                            "text-sm font-medium whitespace-nowrap",
+                            isFree ? "text-green-800" : "text-foreground-secondary"
+                        )}>
+                            Free
+                        </span>
+                    </button>
                 </div>
             </Field>
         </section>

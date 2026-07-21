@@ -28,11 +28,11 @@ export function ImageUploadSection() {
     const combinedError = imageUploadError || imagesError;
 
     return (
-        <section className="space-y-6" aria-labelledby="photos-heading">
+        <section className="space-y-4" aria-labelledby="photos-heading">
             <h2 id="photos-heading" className="sr-only">Product Photos</h2>
 
             <Field label="Product Photos" error={combinedError}>
-                <p className="text-xs text-foreground-subtle font-medium italic mb-3">Photos should be clear and product-focused</p>
+                <p className="text-[13px] text-foreground-subtle mb-2">Photos should be clear and product-focused</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {listingImages.map((img, idx) => (
                         <div key={img.id} className="aspect-square relative group rounded-xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm transition-all hover:border-primary/50">
@@ -60,7 +60,7 @@ export function ImageUploadSection() {
                                     <button
                                         type="button"
                                         onClick={() => setMainImage(idx)}
-                                        className="w-full py-1 text-2xs font-bold text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider"
+                                        className="w-full py-1 text-2xs font-medium text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider"
                                     >
                                         Set as Main
                                     </button>
@@ -68,7 +68,7 @@ export function ImageUploadSection() {
                             </div>
 
                             {idx === 0 && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-xs font-semibold text-center py-1">MAIN PHOTO</div>
+                                <div className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white text-xs font-medium text-center py-1">MAIN PHOTO</div>
                             )}
                         </div>
                     ))}
@@ -91,11 +91,11 @@ export function ImageUploadSection() {
                                 <Loader2 className="w-6 h-6 animate-spin text-foreground-subtle" />
                             ) : (
                                 <>
-                                    <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-2 border border-slate-100">
-                                        <Upload className="w-5 h-5 text-primary" />
+                                    <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-100">
+                                        <Upload className="w-4 h-4 text-primary" />
                                     </div>
-                                    <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-wider">Add Photo</span>
-                                    <span className="text-xs text-foreground-subtle mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
+                                    <span className="text-xs font-medium text-foreground-subtle uppercase tracking-wider mt-1">Add Photo</span>
+                                    <span className="text-xs text-foreground-subtle">{listingImages.length}/{MAX_AD_IMAGES}</span>
                                 </>
                             )}
                         </label>

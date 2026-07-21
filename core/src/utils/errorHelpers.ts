@@ -136,6 +136,16 @@ export function isDuplicateKeyError(error: unknown): boolean {
 }
 
 /**
+ * Check if error is an application-level duplicate error (e.g. Ad Duplicate)
+ */
+export function isDuplicateError(error: unknown): boolean {
+    if (isDuplicateKeyError(error)) return true;
+    if (!error || typeof error !== 'object') return false;
+    const candidate = error as { isDuplicate?: boolean };
+    return Boolean(candidate.isDuplicate);
+}
+
+/**
  * Check if error is a timeout error
  */
 export function isTimeoutError(error: unknown): boolean {
@@ -182,7 +192,7 @@ export function getErrorStatusCode(error: unknown): number {
     }
 
     // Infer from error type
-    if (isDuplicateKeyError(error)) return 409;
+    if (isDuplicateError(error)) return 409;
     if (isValidationError(error)) return 400;
     if (isTimeoutError(error)) return 504;
     if (isNetworkError(error)) return 503;

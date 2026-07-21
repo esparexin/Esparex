@@ -148,3 +148,153 @@ A refactoring task is complete ONLY when:
 - [ ] No unrelated files modified (File count guardrails: 1–5 ideal, 6–10 acceptable)
 
 ---
+
+## 10. Contract Impact Review (Mandatory)
+
+Any PR that changes an **API contract dimension** must include a completed Contract Impact Checklist before it is considered mergeable.
+
+### What counts as a contract change
+
+| Dimension | Examples |
+|---|---|
+| HTTP method | `PUT` → `PATCH`, `POST` → `PUT` |
+| Route path | `/listings/:id` → `/listings/:id/edit` |
+| Request payload | Field renamed, added, removed, or type changed |
+| Response envelope | Shape, status code, or field names changed |
+| Validation | New required field, changed constraint |
+| DTO / Shared schema | Any change in `packages/contracts` |
+
+### Mandatory Contract Impact Checklist
+
+When any of the above dimensions change, the PR description must confirm:
+
+- [ ] **Frontend** — all API calls use the new contract
+- [ ] **Backend** — routes, controllers, and validators updated
+- [ ] **Playwright mocks** — all `page.route()` interceptors reflect the new method, path, and shape
+- [ ] **Integration / unit tests** — mocks and stubs updated
+- [ ] **Shared contracts** (`packages/contracts`) — schema and types updated if applicable
+- [ ] **API documentation** — OpenAPI / README updated if applicable
+
+### Enforcement
+
+A PR that changes an API contract dimension but does **not** include the above checklist must be blocked at review.
+
+Reviewers must verify each item independently — do not accept "tests pass" as a substitute for the checklist.
+
+### Rationale
+
+This rule was introduced after a `PUT → PATCH` migration landed in `listingMutationAPI.ts` without updating the Playwright route interceptors. The production code was correct, but the test suite diverged silently. Both failures (`capturedPayload.images undefined` and `Ad Updated not visible`) shared the same root cause and would have been caught by this checklist.
+
+---
+
+## 11. Esparex Engineering Governance Standard (Mandatory)
+
+All human engineers and AI agents must adhere strictly to these processes when introducing modifications, additions, or deprecations in the monorepo.
+
+### 11.1 Scope & Applicability
+This standard applies to:
+- Feature development, bug/hotfixes, refactoring.
+- Infrastructure, deployment configurations, and security controls.
+- API and database additions, modifications, and deprecations.
+
+This standard does NOT apply to:
+- Documentation typos or content edits.
+- Markdown formatting adjustments.
+- Comment-only changes.
+
+### 11.2 Engineering Principles
+1. **Test Isolation:** Frontend components and tests must be decoupled from running database or backend dependencies. Mocks should be utilized for UI regression testing.
+2. **Explicit Dependency Inversion:** Components must rely on interface abstractions (e.g., `TelemetryProvider`) rather than direct implementation bindings.
+3. **No Test Logic in Production Code:** Production paths must remain free of E2E-specific conditionals.
+4. **Contract-First Development:** Shared types in `packages/contracts` serve as the SSOT. Backend validation and frontend E2E mocks must implement these types directly.
+
+### 11.3 Change Classifications
+Every change must be classified before implementation to trigger the relevant checklists:
+- **API Contract:** Payload schemas, query validations, route paths, HTTP methods, DTOs.
+- **Database & Cache:** Database schemas, validation rules, indexing, Redis key policies.
+- **Authentication & AuthZ:** Middleware, guards, session cookie flags, token validation.
+- **Environment & Build:** Env variables, configuration schemas, Docker setups, build variables.
+- **UI & UX Flow:** Dom structure, page selectors, form controls, styling, accessibility.
+- **Telemetry & Analytics:** Tracking providers, location loggers, event triggers.
+
+### 11.4 Risk Classification Matrix
+The classification of risk determines the required approval gate:
+- **Low:** Documentation edits, styling refinements, comments, or UI text adjustments. Approved by standard PR review.
+- **Medium:** New UI flows, internal refactoring, non-breaking performance optimizations. Approved by team review.
+- **High:** API contracts, authentication handlers, payment checkouts, database schema migrations. Approved by architecture review + evidence gates.
+- **Critical:** Core security config, production infrastructure, financial transactions, AuthZ guards. Approved by architecture + security + DevOps approval.
+
+### 11.5 Pre-Implementation Decision Gate
+Before starting implementation (excluding Low risk changes), the author must document answers to the following:
+- What problem are we solving? (Core motivation).
+- Is this the correct architectural solution? (Compare at least one alternative).
+- Does it affect backwards compatibility? (Will this break external clients or mobile app versions?).
+- What are the risks? (Analyze concurrency, performance, security, and integration vulnerabilities).
+- Is there a simpler way? (Enforce simplicity).
+
+#### Architectural Decision Records (ADRs)
+An ADR is **mandatory** before starting implementation for:
+- Introducing new infrastructure (e.g. database, queue, cache engines).
+- Redesigning API routing or authentication architectures.
+- Introducing a new framework, package, or third-party SDK.
+- Applying cross-cutting architectural patterns.
+
+### 11.6 Breaking Changes
+If a change breaks backwards compatibility, the following must be prepared before code implementation:
+- **Migration Guide:** A clear guide for downstream consumers describing how to transition.
+- **Versioning Strategy:** Incrementing major/minor versions or establishing deprecation headers.
+- **Rollout Plan:** Canary deployments or feature-flag-based migrations.
+- **Rollback Plan:** Immediate reversion strategy in the event of production failure.
+- **Consumer Communication:** Notification template to alert team members and dependent service owners.
+
+### 11.7 Dependency Checklists
+Apply the appropriate checklists based on the Change Classification:
+- **API Contract Checklist:**
+  - [ ] Shared types (`packages/contracts`) updated.
+  - [ ] Backend controller body/query validators updated.
+  - [ ] Frontend client API services and hooks updated.
+  - [ ] Playwright E2E mocks and interceptors (`tests/interceptors`) updated.
+  - [ ] OpenAPI documentation/schemas synchronized.
+- **Environment & Build Checklist:**
+  - [ ] Default values added to local config templates (`.env.local.example`).
+  - [ ] Build-time environment configs (`NEXT_PUBLIC_*`) verified.
+  - [ ] E2E variables configured in Playwright (`webServer.command`/`env`).
+  - [ ] Staging and production secrets updated.
+- **Database & Cache Checklist:**
+  - [ ] Database schema models updated.
+  - [ ] Up-migration script provided and verified locally.
+  - [ ] Down-migration script provided and verified for rollbacks.
+  - [ ] Redis caching keys and cache-invalidation logic updated.
+
+### 11.8 Telemetry & Endpoint Class Alignment
+- [ ] Telemetry calls must use the `TelemetryProvider` abstraction.
+- [ ] No telemetry requests should be sent to the network layer during automated E2E runs (must be handled by the `NullTelemetryProvider`).
+- [ ] Next.js rewrites must be configured to fail fast (404 fallback) for unmocked routes rather than logging proxy TCP connection timeouts to console logs.
+
+### 11.9 Test Run Proxy Isolation Rule
+Playwright configurations must enforce strict E2E routing. Any request matching `/api/v1/**` that is not registered with an active mock must be intercepted and rejected with a mock `404` or `500` error directly at the browser layer, avoiding Node-level socket leaks and proxy socket warnings.
+
+### 11.10 Ownership Matrix
+To prevent the "someone else will update it" assumption, downstream dependencies must be assigned to owners:
+- **Shared Contracts:** Platform Architect / Core Backend Team
+- **API Endpoints & Controllers:** Backend Team / Security Reviewer
+- **Frontend Clients & Hooks:** Web Team / Frontend QA
+- **E2E Test Mocks & Specs:** Frontend QA / Web Team
+- **CI/CD Pipelines & DevOps:** DevOps Team / Platform Architect
+
+### 11.11 Evidence Gates
+For every pull request, the author must provide:
+1. What changed?
+2. Where was it updated?
+3. How was it verified? (Provide E2E test runs, local build status, or screenshots).
+
+### 11.12 Definition of Done (DoD)
+A feature is considered **complete** only when it satisfies the following DoD checklist:
+- [ ] Requirements fully implemented and verified.
+- [ ] No dead, unused, or orphaned code remaining.
+- [ ] No duplicate component or service implementations.
+- [ ] Build compiles cleanly and type-checks pass.
+- [ ] All automated tests (unit, integration, regression) pass according to repository quality standards.
+- [ ] Documentation and OpenAPI/Swagger specs updated.
+- [ ] Downstream dependency impact checklists completed.
+- [ ] Mandatory code reviews completed and approved.

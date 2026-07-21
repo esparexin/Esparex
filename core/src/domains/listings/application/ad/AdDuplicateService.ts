@@ -11,18 +11,19 @@ import logger from '../../../../utils/logger';
 // ─────────────────────────────────────────────────
 
 export type DuplicatePayload = {
-    categoryId?: unknown;
-    brandId?: unknown;
-    modelId?: unknown;
-    price?: unknown;
-    condition?: unknown;
-    screenSize?: unknown;
-    images?: unknown;
+    categoryId?: string | mongoose.Types.ObjectId;
+    brandId?: string | mongoose.Types.ObjectId;
+    modelId?: string | mongoose.Types.ObjectId;
+    price?: number;
+    condition?: string;
+    screenSize?: string;
+    deviceCondition?: string;
+    images?: string[];
     listingType?: string;
     location?: {
-        locationId?: unknown;
-        city?: unknown;
-        state?: unknown;
+        locationId?: string | mongoose.Types.ObjectId;
+        city?: string;
+        state?: string;
         coordinates?: {
             coordinates?: [number, number];
         };
@@ -99,6 +100,23 @@ const buildLocationRadiusToken = (payload: DuplicatePayload): string => {
     return locationParts.join(':');
 };
 
+type DuplicateTelemetryEvent = {
+    level: 'debug' | 'info' | 'warn' | 'error';
+    event: 'fingerprint_generated' | 'duplicate_detected' | 'self_duplicate_skipped' | 'repository_inconsistency' | 'unexpected_exception';
+    context: Record<string, unknown>;
+    message?: string;
+};
+
+const logDuplicateDetection = (telemetry: DuplicateTelemetryEvent) => {
+    const msg = `AdDuplicateService: ${telemetry.event} ${telemetry.message ? '- ' + telemetry.message : ''}`;
+    switch (telemetry.level) {
+        case 'debug': logger.debug(msg, telemetry.context); break;
+        case 'info': logger.info(msg, telemetry.context); break;
+        case 'warn': logger.warn(msg, telemetry.context); break;
+        case 'error': logger.error(msg, telemetry.context); break;
+    }
+};
+
 // ─────────────────────────────────────────────────
 // CORE LOGIC
 // ─────────────────────────────────────────────────
@@ -107,17 +125,43 @@ export const buildDuplicateFingerprint = (
     payload: DuplicatePayload,
     sellerId: string
 ): string | undefined => {
+    let resolvedCondition: string | undefined;
+    switch (payload.listingType?.toLowerCase()) {
+        case 'mobile':
+        case 'tablet':
+            resolvedCondition = payload.deviceCondition;
+            break;
+        case 'tv':
+        case 'display':
+            resolvedCondition = payload.screenSize;
+            break;
+        default:
+            resolvedCondition = payload.condition;
+            break;
+    }
+
     const normalizedFields = {
         sellerId: normalizeToken(sellerId),
         category: normalizeToken(toObjectIdString(payload.categoryId)),
         brand: normalizeToken(toObjectIdString(payload.brandId)),
         model: normalizeToken(toObjectIdString(payload.modelId)),
-        condition: normalizeToken(payload.condition || payload.screenSize),
+        condition: normalizeToken(resolvedCondition),
         priceRange: buildPriceRangeBucket(payload.price),
         locationRadius: buildLocationRadiusToken(payload),
     };
 
     if (!normalizedFields.sellerId || !normalizedFields.category || !normalizedFields.priceRange || !normalizedFields.locationRadius) {
+        logDuplicateDetection({
+            level: 'debug',
+            event: 'self_duplicate_skipped',
+            message: 'insufficient fields to build fingerprint',
+            context: {
+                sellerId: normalizedFields.sellerId || '(missing)',
+                category: normalizedFields.category || '(missing)',
+                priceRange: normalizedFields.priceRange || '(missing)',
+                locationRadius: normalizedFields.locationRadius || '(missing)',
+            }
+        });
         return undefined;
     }
 
@@ -132,7 +176,28 @@ export const buildDuplicateFingerprint = (
         `locationRadius:${normalizedFields.locationRadius}`,
     ].join('|');
 
-    return createHash('sha256').update(fingerprintBase).digest('hex').substring(0, 16);
+    const fingerprint = createHash('sha256').update(fingerprintBase).digest('hex').substring(0, 16);
+
+    logDuplicateDetection({
+        level: 'debug',
+        event: 'fingerprint_generated',
+        context: {
+            fingerprint,
+            fingerprintBase,
+            rawPayload: {
+                categoryId: payload.categoryId,
+                brandId: payload.brandId,
+                modelId: payload.modelId,
+                price: payload.price,
+                resolvedCondition,
+                listingType: payload.listingType,
+                location: payload.location,
+            },
+            normalizedFields,
+        }
+    });
+
+    return fingerprint;
 };
 
 export const findExistingSelfDuplicate = async (
@@ -168,7 +233,26 @@ export const findExistingSelfDuplicate = async (
     if (session) query.session = session;
 
     const doc = await getListingRepository().findOne(query as ListingFilter);
-    return doc ? { id: doc.id, status: doc.status } : null;
+    if (doc) {
+        logDuplicateDetection({
+            level: 'info',
+            event: 'duplicate_detected',
+            message: 'self-duplicate collision during precise check',
+            context: {
+                sellerId,
+                categoryId,
+                locationId,
+                price,
+                brandId,
+                modelId,
+                listingType,
+                matchedAdId: doc.id,
+                matchedAdStatus: doc.status,
+            }
+        });
+        return { id: doc.id, status: doc.status };
+    }
+    return null;
 };
 
 export const assessCrossUserDuplicateRisk = async (
@@ -273,6 +357,15 @@ export class AdDuplicateService {
             : null;
 
         if (selfDuplicate) {
+            logDuplicateDetection({
+                level: 'info',
+                event: 'duplicate_detected',
+                message: 'self-duplicate collision',
+                context: {
+                    sellerId,
+                    matchedAdId: selfDuplicate.id,
+                }
+            });
             return { isDuplicate: true, riskScore: 100, matchedAdId: selfDuplicate.id, reason: 'Existing active listing detected for this user.' };
         }
 
@@ -281,13 +374,24 @@ export class AdDuplicateService {
         if (fingerprint) {
             const query: Record<string, unknown> = {
                 duplicateFingerprint: fingerprint,
-                status: { $in: [LISTING_STATUS.LIVE, LISTING_STATUS.PENDING] }
+                status: { $in: [LISTING_STATUS.LIVE, LISTING_STATUS.PENDING] },
+                isDeleted: { $ne: true },
             };
             if (session) query.session = session;
 
             const fingerprintMatch = await getListingRepository().findOne(query as ListingFilter);
             
             if (fingerprintMatch) {
+                logDuplicateDetection({
+                    level: 'info',
+                    event: 'duplicate_detected',
+                    message: 'fingerprint collision',
+                    context: {
+                        fingerprint,
+                        sellerId,
+                        matchedAdId: fingerprintMatch.id,
+                    }
+                });
                 return { isDuplicate: true, riskScore: 90, matchedAdId: fingerprintMatch.id, reason: 'Duplicate fingerprint detected.' };
             }
         }

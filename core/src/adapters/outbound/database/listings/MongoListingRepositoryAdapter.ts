@@ -117,6 +117,9 @@ function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
     if (filter.categoryId) mongoFilter.categoryId = typeof filter.categoryId === 'object' ? filter.categoryId : toMongoId(filter.categoryId);
     if (filter.brandId) mongoFilter.brandId = typeof filter.brandId === 'object' ? filter.brandId : toMongoId(filter.brandId);
     if (filter.modelId) mongoFilter.modelId = typeof filter.modelId === 'object' ? filter.modelId : toMongoId(filter.modelId);
+    if (filter.duplicateFingerprint) {
+        mongoFilter.duplicateFingerprint = filter.duplicateFingerprint;
+    }
     if (filter.isDeleted !== undefined) {
         if (typeof filter.isDeleted === 'object' && filter.isDeleted !== null) {
             mongoFilter.isDeleted = filter.isDeleted;

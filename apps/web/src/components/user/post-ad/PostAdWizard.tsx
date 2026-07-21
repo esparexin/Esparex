@@ -69,40 +69,51 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             <StepTwo />
           </div>
 
-          {currentStep > 1 && !isEditMode ? (
-            <div className="border-t border-slate-100 pt-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={prevStep}
-                className="text-sm font-semibold text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors h-11 px-2 ml-0"
-              >
-                ← Back to Step {currentStep - 1}
-              </Button>
-            </div>
-          ) : null}
         </ListingModalBody>
 
         <ListingModalFooter>
-          <Button
-            type="button"
-            onClick={currentStep === 2 ? submitAd : nextStep}
-            disabled={isButtonDisabled}
-            className={cn(
-              "w-full sm:w-auto sm:min-w-[200px] rounded-xl font-semibold transition-all active:scale-[0.98]",
-              "h-11 text-base",
-              "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
+          <div className="flex items-center gap-3 sm:gap-4 w-full">
+            {currentStep > 1 && !isEditMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={prevStep}
+                className="text-sm font-medium h-11 px-4 shrink-0"
+              >
+                ← Back
+              </Button>
             )}
-          >
-            {isSubmitting ? (
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                <span>Processing...</span>
-              </div>
-            ) : (
-              currentStep === 2 ? (isEditMode ? "Save Changes" : "Confirm & Post Ad") : "Continue"
+            {currentStep === 1 && !isEditMode && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClose}
+                className="text-sm font-medium h-11 px-4"
+              >
+                Cancel
+              </Button>
             )}
-          </Button>
+            <div className="flex-1" />
+            <Button
+              type="button"
+              onClick={currentStep === 2 ? submitAd : nextStep}
+              disabled={isButtonDisabled}
+              className={cn(
+                "flex-1 sm:flex-none min-w-0 sm:min-w-[200px] rounded-xl font-medium transition-all active:scale-[0.98]",
+                "h-11 text-base",
+                "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
+              )}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                currentStep === 2 ? (isEditMode ? "Save Changes" : "Post Ad") : "Continue →"
+              )}
+            </Button>
+          </div>
         </ListingModalFooter>
       </ListingModalLayout>
     </PostAdShell>

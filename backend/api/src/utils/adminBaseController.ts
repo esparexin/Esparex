@@ -12,6 +12,7 @@ import { ApiResponse } from "./apiResponse";
 import logger from '@esparex/core/utils/logger';
 import { logAdminActionDirect } from "./adminLogger";
 import type { AdminLogFn } from '@esparex/core/services/AdminListingsService';
+import { AppError } from '@esparex/core/utils/AppError';
 
 /**
  * 🔐 ESPAREX PERMISSION CHECKER
@@ -86,8 +87,9 @@ export const sendAdminError = (req: Request, res: Response, error: unknown, stat
     const message = isError ? error.message : String(error);
     const code = (error as { code?: string }).code;
     const details = (error as { details?: unknown }).details;
+    const actualStatusCode = error instanceof AppError ? error.statusCode : statusCode;
 
-    if (statusCode >= 500) {
+    if (actualStatusCode >= 500) {
         logger.error('ADMIN_CONTROLLER_ERROR', {
             path: req.path,
             method: req.method,
@@ -99,6 +101,6 @@ export const sendAdminError = (req: Request, res: Response, error: unknown, stat
     const errorPayload: Record<string, unknown> = { code };
     if (details !== undefined) errorPayload.details = details;
 
-    return ApiResponse.sendError(req, res, statusCode, message, errorPayload);
+    return ApiResponse.sendError(req, res, actualStatusCode, message, errorPayload);
 };
 

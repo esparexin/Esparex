@@ -8,6 +8,13 @@ import type { Listing } from "@/lib/api/user/listings/normalizer";
 import type { GeoJSONPoint } from "@/types/location";
 import type { ListingImage, ListingCategory, ListingLocation } from "@/types/listing";
 
+export type AiCache = {
+    contextSignature: string;
+    generatedAt: number;
+    title: string;
+    description: string;
+};
+
 export interface PostAdContextType {
     currentStep: number;
     setCurrentStep: (step: number) => void;
@@ -51,7 +58,7 @@ export interface PostAdContextType {
     refreshBrands: () => Promise<void>;
     sparePartsError: string | null;
     brandsError: string | null;
-    generateDescription: (targetField: 'title' | 'description') => Promise<void>;
+    generateDescription: (targetField: 'title' | 'description', options?: { forceRegenerate?: boolean }) => Promise<void>;
     submitAd: () => Promise<void>;
     isLoading: boolean;
     isUploadingImages: boolean;
@@ -107,7 +114,9 @@ export type PostAdFlowState = {
     currentStep: number;
     stepValidationAttempts: Record<number, boolean>;
     isLoading: boolean;
-    isGeneratingAI: boolean;
+    isGeneratingAI: 'title' | 'description' | null;
+    isAiAvailable: boolean;
+    aiCache: AiCache | null;
     isSubmitting: boolean;
     isEditMode: boolean;
     userHasInteracted: boolean;

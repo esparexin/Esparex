@@ -97,12 +97,32 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
             );
 
             if (duplicateCheck.isDuplicate) {
+                const fingerprint = buildDuplicateFingerprint(payload, context.sellerId);
+                logger.warn('AdOrchestrator.createAd: duplicate blocked', {
+                    sellerId: context.sellerId,
+                    adId,
+                    reason: duplicateCheck.reason,
+                    riskScore: duplicateCheck.riskScore,
+                    matchedAdId: duplicateCheck.matchedAdId,
+                    fingerprint,
+                    payloadSnapshot: {
+                        categoryId: payload.categoryId,
+                        brandId: payload.brandId,
+                        modelId: payload.modelId,
+                        price: payload.price,
+                        deviceCondition: payload.deviceCondition,
+                        screenSize: payload.screenSize,
+                        isFree: payload.isFree,
+                        attributes: payload.attributes,
+                    },
+                });
+
                 await logDuplicateEvent({
                     sellerId: context.sellerId,
                     matchedAdId: duplicateCheck.matchedAdId,
                     action: 'blocked',
                     reason: duplicateCheck.reason,
-                    duplicateFingerprint: buildDuplicateFingerprint(payload, context.sellerId),
+                    duplicateFingerprint: fingerprint,
                     details: { checkResult: duplicateCheck }
                 }, session as any);
 

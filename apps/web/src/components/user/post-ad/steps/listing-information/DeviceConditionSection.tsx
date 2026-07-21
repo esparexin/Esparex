@@ -29,10 +29,10 @@ export function DeviceConditionSection() {
     const deviceConditionError = shouldShowFieldError("deviceCondition") ? errors.deviceCondition?.message : undefined;
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             {categoryId && (
                 <section className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-foreground-tertiary uppercase tracking-wider block ml-1">Working Spare Parts</label>
+                    <label className="text-[10px] font-semibold text-foreground-tertiary uppercase tracking-wider block ml-1">Working Spare Parts</label>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-4 gap-2">
                             {Array.from({ length: 8 }).map((_, i) => (
@@ -63,7 +63,7 @@ export function DeviceConditionSection() {
                                         onClick={() => toggleSparePart(part.id as string)}
                                         aria-pressed={selected}
                                         className={cn(
-                                            "min-h-[44px] px-3 rounded-full border-2 text-[11px] font-bold transition-all duration-200", 
+                                            "min-h-[44px] px-3 rounded-full border-2 text-xs font-medium transition-all duration-200", 
                                             selected ? "bg-primary border-primary text-primary-foreground shadow-sm" : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"
                                         )}
                                     >
@@ -76,7 +76,7 @@ export function DeviceConditionSection() {
                 </section>
             )}
 
-            <section className="space-y-3" data-field="deviceCondition" aria-labelledby="condition-heading">
+            <section className="space-y-2" data-field="deviceCondition" aria-labelledby="condition-heading">
                 <h2 id="condition-heading" className="sr-only">Device Condition</h2>
                 <Field label="Device Condition" error={deviceConditionError as string}>
                     <div className="flex gap-2 flex-wrap">
@@ -87,7 +87,7 @@ export function DeviceConditionSection() {
                                 onClick={() => setValue("deviceCondition", value, { shouldValidate: true, shouldTouch: true })}
                                 aria-pressed={deviceCondition === value}
                                 className={cn(
-                                    "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all duration-200", 
+                                    "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200", 
                                     deviceCondition === value ? active : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"
                                 )}
                             >

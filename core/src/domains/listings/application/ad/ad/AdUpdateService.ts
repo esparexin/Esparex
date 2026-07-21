@@ -51,7 +51,6 @@ export const updateAdLogic = async (
             const payload = await AdCreationService.preparePayload(
                 {
                     listingType: ad.listingType,
-                    categoryId: ad.categoryId?.toString(),
                     ...(data as Record<string, unknown>),
                 },
                 context,

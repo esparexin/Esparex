@@ -64,7 +64,7 @@ export const updateListing = async (
     const endpoint = options?.endpoint || API_ROUTES.USER.LISTING_EDIT(id);
 
     return executeListingMutationRequest(
-        apiClient.put<unknown>(endpoint, sanitizedPayload, {
+        apiClient.patch<unknown>(endpoint, sanitizedPayload, {
             silent: true,
         }),
         "Failed to update listing"
