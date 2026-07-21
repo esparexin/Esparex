@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminSidebarCounts } from "@/hooks/useAdminSidebarCounts";
@@ -51,6 +51,18 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
         return () => window.removeEventListener("resize", handleResize);
     }, [setIsMobileOpen]);
 
+    const sidebarRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const el = sidebarRef.current;
+        if (!el) return;
+        if (isMobileOpen) {
+            el.removeAttribute("inert");
+        } else {
+            el.setAttribute("inert", "");
+        }
+    }, [isMobileOpen]);
+
     const visibleModules = useMemo(
         () => ADMIN_NAV_MODULES.filter((item) => hasAccess(item.roles)),
         [hasAccess]
@@ -73,6 +85,8 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
             </button>
 
             <aside
+                ref={sidebarRef}
+                aria-hidden={!isMobileOpen}
                 className={`
                     fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-expanded)] flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-transform duration-300 ease-in-out lg:hidden
                     ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
