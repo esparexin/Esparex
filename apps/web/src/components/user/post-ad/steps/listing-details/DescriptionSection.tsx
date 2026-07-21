@@ -41,7 +41,8 @@ export function DescriptionSection() {
     const descriptionError = shouldShowFieldError("description") ? errors.description?.message : undefined;
 
     return (
-        <section className="space-y-4">
+        <section className="space-y-4" aria-labelledby="description-heading">
+            <h2 id="description-heading" className="sr-only">Description</h2>
             <Field label="Describe your product" required error={descriptionError as string}>
                 <div className="space-y-3">
                     <div className="relative">
@@ -49,7 +50,7 @@ export function DescriptionSection() {
                             {...register("description")}
                             placeholder="Describe the condition, issues, and what's included..."
                             maxLength={MAX_AD_DESCRIPTION_CHARS}
-                            className="min-h-[200px] rounded-2xl border-2 border-slate-100 focus:border-primary font-medium text-base py-4"
+                            className="min-h-[200px] rounded-xl border-2 border-slate-100 focus:border-primary font-medium text-base py-4"
                         />
                         <Button
                             type="button"

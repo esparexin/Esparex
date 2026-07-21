@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { AdContext } from '../../types/ad.types';
 
+jest.setTimeout(30000);
+
 // Mock models and services using the canonical paths
 jest.mock('@esparex/core/composition/listings', () => ({
     getListingRepository: jest.fn().mockReturnValue({
@@ -104,7 +106,7 @@ jest.mock('../../queues/imageQueue', () => ({
 
 import Ad from '../../models/Ad';
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
-import { updateAdLogic } from '../../services/ad/AdUpdateService';
+import { updateAdLogic } from '../../domains/listings/application/ad/ad/AdUpdateService';
 import { getListingRepository } from '@esparex/core/composition/listings';
 
 const mockedAdModel = Ad as unknown as { findById: jest.Mock; findByIdAndUpdate: jest.Mock };

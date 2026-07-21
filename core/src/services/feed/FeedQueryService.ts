@@ -5,7 +5,7 @@ import Category from '../../models/Category';
 import { getListingRepository } from '../../composition/listings';
 import type { ListingFilter, Listing } from '../../domains/listings/ports/ListingRepositoryPort';
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
-import { normalizeAdImagesForResponse } from '../adQuery/AdQueryHelpers';
+import { normalizeAdImagesForResponse } from '../../domains/listings/application/queries/adQuery/AdQueryHelpers';
 import { normalizeGeoInput } from '../../utils/mongoGeoUtils';
 import type { HomeFeedResponse } from "@esparex/contracts";
 import logger from '../../utils/logger';

@@ -48,13 +48,18 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
 
   return (
     <PostAdShell>
+      <a
+        href="#post-ad-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-foreground focus:rounded-lg focus:shadow-lg focus:border focus:border-slate-200 focus:text-sm focus:font-semibold"
+      >
+        Skip to content
+      </a>
       <ListingModalLayout 
         title={isEditMode ? "Edit Ad" : "Post Ad"} 
         subtitle={isEditMode ? undefined : stepSubtitle}
         onClose={handleClose}
-        fullScreen
       >
-        <ListingModalBody data-post-ad-scroll className="space-y-4">
+        <ListingModalBody id="post-ad-content" data-post-ad-scroll className="space-y-4">
           <ValidationSummary />
 
           <div className={cn(currentStep !== 1 && "hidden")}>
@@ -70,7 +75,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="ghost"
                 size="sm"
                 onClick={prevStep}
-                className="text-sm font-semibold text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors h-11 px-2 -ml-2"
+                className="text-sm font-semibold text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors h-11 px-2 ml-0"
               >
                 ← Back to Step {currentStep - 1}
               </Button>
@@ -84,7 +89,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
             onClick={currentStep === 2 ? submitAd : nextStep}
             disabled={isButtonDisabled}
             className={cn(
-              "w-full rounded-xl font-semibold transition-all active:scale-[0.98]",
+              "w-full sm:w-auto sm:min-w-[200px] rounded-xl font-semibold transition-all active:scale-[0.98]",
               "h-11 text-base",
               "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
             )}

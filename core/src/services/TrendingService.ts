@@ -6,7 +6,7 @@ import Category from '../models/Category';
 import { getCache, setCache } from '../utils/redisCache';
 import { LISTING_STATUS } from '@esparex/contracts';
 import logger from '../utils/logger';
-import { normalizeAdImagesForResponse } from './adQuery/AdQueryHelpers';
+import { normalizeAdImagesForResponse } from '../domains/listings/application/queries/adQuery/AdQueryHelpers';
 import { toObjectId } from '../utils/idUtils';
 import { LISTING_TYPE } from '@esparex/contracts';
 

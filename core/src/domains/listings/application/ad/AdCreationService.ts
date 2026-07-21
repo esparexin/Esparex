@@ -1,0 +1,450 @@
+import mongoose from 'mongoose';
+import { AppError } from '../../../../utils/AppError';
+import { sanitizePlainText } from '../../../../utils/stringUtils';
+import { getListingRepository } from '../../../../composition/listings';
+import SparePart from '../../../../models/SparePart';
+import Brand from '../../../../models/Brand';
+import { normalizeLocation } from '../../../../services/location/LocationNormalizer';
+import { normalizeGeoPoint } from '@esparex/shared';
+import { resolveEquivalentActiveCategoryIds } from '../../../../services/catalog/CatalogCategoryService';
+import { generateUniqueSlugWithChecker } from '../../../../utils/slugGenerator';
+import { LIFECYCLE_STATUS } from '@esparex/contracts';
+import { resolveLocationPathIds } from '../../../../utils/locationHierarchy';
+import { processImages } from '../../../../utils/imageProcessor';
+import { sanitizeStoredImageUrls } from '../../../../utils/s3';
+import { AdContext } from '../../../../types/ad.types';
+import { computeActiveExpiry } from '../../../../services/lifecycle/AdStatusService';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
+import { FeatureFlag, isEnabled } from '../../../../config/featureFlags';
+import { computeListingQualityScore } from '../../../../utils/adQualityScorer';
+import { 
+    validateBrandBelongsToCategory, 
+    validateModelBelongsToBrand,
+    validateListingCategoryCapability
+} from '../../../../services/catalog/CatalogValidationService';
+import { isBusinessPublishedStatus } from '../../../../utils/businessStatus';
+
+export interface PreparedPayload {
+    categoryId?: string;
+    brandId?: string;
+    modelId?: string;
+    screenSize?: string;
+    title?: string;
+    description?: string;
+    price?: number;
+    images?: string[];
+    thumbnails?: string[];
+    locationId?: unknown;
+    location?: Record<string, unknown>;
+    locationPath?: string[];
+    sparePartIds?: string[];
+    isFree?: boolean;
+    deviceCondition?: string;
+    imageHashes?: string[];
+    seoSlug?: string;
+    sellerId?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    publishedAt?: Date;
+    status?: string;
+    moderationStatus?: string;
+    moderationReason?: string;
+    expiresAt?: Date;
+    fraudScore?: number;
+    listingQualityScore?: number;
+    sparePartsSnapshot?: Record<string, unknown>[];
+    duplicateFingerprint?: string;
+    $push?: {
+        timeline: {
+            status: string;
+            timestamp: Date;
+            reason: string;
+        };
+    };
+    
+    // Service & Spare Part extensions
+    priceMin?: number;
+    priceMax?: number;
+    diagnosticFee?: number;
+    deviceType?: string;
+    serviceTypeIds?: string[];
+    businessId?: unknown;
+    sellerType?: 'user' | 'business';
+    attributes?: Record<string, unknown>;
+}
+
+const toObjectIdString = (value: unknown): string | undefined => {
+    if (value instanceof mongoose.Types.ObjectId) return value.toString();
+    if (typeof value === 'string') return value.trim() || undefined;
+    if (typeof value === 'number') return String(value);
+    if (value && typeof value === 'object') {
+        const record = value as Record<string, unknown>;
+        const candidate = record._id ?? record.id;
+        if (typeof candidate === 'string') return candidate.trim() || undefined;
+        if (typeof candidate === 'number') return String(candidate);
+    }
+    return undefined;
+};
+
+const normalizeObjectId = (value: unknown): mongoose.Types.ObjectId | undefined => {
+    if (value instanceof mongoose.Types.ObjectId) return value;
+    if (typeof value !== 'string' || !mongoose.Types.ObjectId.isValid(value)) return undefined;
+    return new mongoose.Types.ObjectId(value);
+};
+
+const extractBusinessLocationId = (business: any): mongoose.Types.ObjectId | undefined => {
+    const rawBusinessLocationId =
+        business.locationId
+        || (typeof business.location === 'object' && business.location
+            ? (business.location as { locationId?: unknown }).locationId
+            : undefined);
+
+    return normalizeObjectId(rawBusinessLocationId);
+};
+
+export const validateSparePartsForCategory = async (
+    sparePartIds: string[],
+    categoryId: string
+): Promise<Array<{ _id: unknown; name: unknown; brandId?: unknown }>> => {
+    const uniqueSparePartIds = Array.from(new Set(sparePartIds));
+    if (uniqueSparePartIds.length === 0) return [];
+
+    const equivalentCategoryIds = await resolveEquivalentActiveCategoryIds(categoryId);
+    const categoryScope = equivalentCategoryIds.length > 0 ? equivalentCategoryIds : [categoryId];
+
+    const validParts = await SparePart.find({
+        _id: { $in: uniqueSparePartIds },
+        categoryIds: { $in: categoryScope },
+        isActive: true
+    }).select('_id name brandId').lean();
+
+    if (validParts.length !== uniqueSparePartIds.length) {
+        throw new AppError('One or more selected spare parts are invalid for the selected category.', 400);
+    }
+
+    return validParts;
+};
+
+/**
+ * AdCreationService
+ * Logic extracted from God-Service adService.ts
+ */
+export class AdCreationService {
+    /**
+     * AdCreationService: preparePayload
+     * Normalizes input data, builds spare parts snapshots, and prepares the final document.
+     */
+    static async preparePayload(
+        data: unknown,
+        context: AdContext,
+        partial: boolean = false,
+        fallbackCategoryId?: string,
+        adId?: string
+    ): Promise<PreparedPayload> {
+        const source = (data && typeof data === 'object') ? (data as Record<string, unknown>) : {};
+        const listingType = (source.listingType as ListingTypeValue) || LISTING_TYPE.AD;
+
+        // Reject legacy serviceTypes field immediately
+        if (Object.prototype.hasOwnProperty.call(source, 'serviceTypes')) {
+            throw new AppError(
+                'serviceTypes is no longer supported; use serviceTypeIds instead',
+                400,
+                'LEGACY_SERVICE_TYPES_ALIAS',
+                [{ field: 'serviceTypes', message: 'serviceTypes is no longer supported; use serviceTypeIds instead' }]
+            );
+        }
+
+        const payload: PreparedPayload & Record<string, unknown> = {
+            listingType,
+            categoryId: typeof source.categoryId === 'string' ? source.categoryId : undefined,
+            brandId: typeof source.brandId === 'string' ? source.brandId : undefined,
+            modelId: typeof source.modelId === 'string' ? source.modelId : undefined,
+            screenSize: typeof source.screenSize === 'string' ? source.screenSize : undefined,
+            title: typeof source.title === 'string' ? source.title : undefined,
+            description: typeof source.description === 'string' ? source.description : undefined,
+            price: typeof source.price === 'number' ? source.price : undefined,
+            images: Array.isArray(source.images) ? source.images.filter((img): img is string => typeof img === 'string') : undefined,
+            locationId: source.locationId,
+            location: source.location && typeof source.location === 'object' ? source.location as Record<string, unknown> : undefined,
+            sparePartIds: Array.isArray(source.spareParts) ? Array.from(new Set(source.spareParts.filter((part): part is string => typeof part === 'string'))) : undefined,
+            isFree: typeof source.isFree === 'boolean' ? source.isFree : undefined,
+            deviceCondition: (source.deviceCondition === 'power_on' || source.deviceCondition === 'power_off') ? source.deviceCondition : undefined,
+            
+            // Specialized Fields
+            sparePartId: typeof source.sparePartId === 'string' ? source.sparePartId : undefined,
+            serviceTypeIds: Array.isArray(source.serviceTypeIds) ? source.serviceTypeIds : undefined,
+            businessId: source.businessId,
+            sellerType: (source.sellerType === 'user' || source.sellerType === 'business') ? source.sellerType : undefined,
+            attributes: source.attributes && typeof source.attributes === 'object' ? (source.attributes as Record<string, unknown>) : undefined,
+        };
+
+        // Service specific fields normalization and extraction
+        if (listingType === LISTING_TYPE.SERVICE) {
+            if (typeof source.price === 'number' && source.priceMin === undefined) {
+                source.priceMin = source.price;
+            }
+            if (typeof source.priceMin === 'number' && source.price === undefined) {
+                source.price = source.priceMin;
+            }
+            payload.priceMin = typeof source.priceMin === 'number' ? source.priceMin : undefined;
+            payload.priceMax = typeof source.priceMax === 'number' ? source.priceMax : undefined;
+            payload.diagnosticFee = typeof source.diagnosticFee === 'number' ? source.diagnosticFee : undefined;
+            payload.deviceType = typeof source.deviceType === 'string' ? source.deviceType : undefined;
+        }
+
+        if (payload.title) payload.title = sanitizePlainText(payload.title, 300);
+        if (payload.description) {
+            payload.description = sanitizePlainText(payload.description);
+            if (payload.description.length < 20) throw new AppError('Description must be at least 20 characters.', 400);
+        }
+
+        // 🛡️ GOVERNANCE: Locked fields check for service updates
+        if (listingType === LISTING_TYPE.SERVICE && partial) {
+            const { collectImmutableFieldErrors } = await import('../../../../utils/immutableFieldErrors');
+            const SERVICE_EDIT_LOCK_MESSAGES: Record<string, string> = {
+                categoryId: 'Category cannot be changed while editing a service.',
+                brandId: 'Brand cannot be changed while editing a service.',
+                modelId: 'Model cannot be changed while editing a service.',
+                deviceType: 'Device type cannot be changed while editing a service.',
+                deviceModel: 'Device model cannot be changed while editing a service.',
+                location: 'Location is fixed to the business profile for services.',
+                locationId: 'Location is fixed to the business profile for services.',
+                listingType: 'Listing type cannot be changed while editing a service.',
+                sellerId: 'Seller cannot be changed while editing a service.',
+                businessId: 'Business cannot be changed while editing a service.',
+                status: 'Status cannot be changed while editing a service.',
+                moderationStatus: 'Moderation status cannot be changed while editing a service.',
+                approvedAt: 'Approval metadata cannot be changed while editing a service.',
+                approvedBy: 'Approval metadata cannot be changed while editing a service.',
+                isDeleted: 'Deletion state cannot be changed while editing a service.',
+                deletedAt: 'Deletion state cannot be changed while editing a service.',
+                expiresAt: 'Expiry cannot be changed while editing a service.',
+            };
+            const lockErrors = collectImmutableFieldErrors(source, SERVICE_EDIT_LOCK_MESSAGES);
+            if (lockErrors.length > 0) {
+                throw new AppError('Validation failed', 400, 'LOCKED_FIELDS', lockErrors);
+            }
+        }
+
+        // 🛡️ GOVERNANCE: Category capability guard (Type-aware)
+        if (payload.categoryId) {
+            const catValidation = await validateListingCategoryCapability(payload.categoryId, listingType);
+            if (!catValidation.ok) {
+                if (listingType === LISTING_TYPE.SERVICE) {
+                    throw new AppError(
+                        catValidation.reason || 'Category does not support services',
+                        400,
+                        'SERVICE_CATEGORY_UNSUPPORTED',
+                        [{ field: 'categoryId', message: catValidation.reason || 'Category does not support services' }]
+                    );
+                }
+                throw new AppError(catValidation.reason || `Invalid category for ${listingType}.`, 400);
+            }
+        }
+
+        // 🛡️ GOVERNANCE: Business account & location validation and locking
+        if (listingType === LISTING_TYPE.SERVICE) {
+            const business = (source.business ?? (context as any).business);
+            if (!partial && (!business || !isBusinessPublishedStatus(business.status))) {
+                throw new AppError('Approved Business Account Required', 403, 'BUSINESS_APPROVAL_REQUIRED');
+            }
+
+            if (business) {
+                const locId = extractBusinessLocationId(business);
+                if (!locId) {
+                    throw new AppError(
+                        'Complete your business profile location before posting a service.',
+                        400,
+                        'BUSINESS_LOCATION_REQUIRED',
+                        [{ field: 'location', message: 'Complete your business profile location before posting a service.' }]
+                    );
+                }
+                payload.locationId = locId;
+                if (business.location && typeof business.location === 'object') {
+                    payload.location = business.location as Record<string, unknown>;
+                }
+            } else if (!partial) {
+                throw new AppError(
+                    'Complete your business profile location before posting a service.',
+                    400,
+                    'BUSINESS_LOCATION_REQUIRED',
+                    [{ field: 'location', message: 'Complete your business profile location before posting a service.' }]
+                );
+            }
+        }
+
+        // 🛡️ GOVERNANCE: Service type resolution & Selection Mode checks
+        if (listingType === LISTING_TYPE.SERVICE) {
+            const rawServiceTypes = payload.serviceTypeIds ?? source.serviceTypeIds;
+            
+            if (!partial || rawServiceTypes !== undefined) {
+                const catId = payload.categoryId || fallbackCategoryId;
+                if (!catId) {
+                    throw new AppError('Valid category is required', 400, 'CATEGORY_REQUIRED', [{ field: 'categoryId', message: 'Valid category is required' }]);
+                }
+
+                const { resolveServiceTypes } = await import('../../../../utils/serviceTypeResolver');
+                const { getCategorySelectionMode } = await import('../../../../services/catalog/CatalogValidationService');
+
+                const resolvedServiceTypes = await resolveServiceTypes(rawServiceTypes, catId);
+                const selectionMode = await getCategorySelectionMode(catId);
+
+                if (selectionMode === 'single' && resolvedServiceTypes.serviceTypeIds.length > 1) {
+                    throw new AppError(
+                        'This category only allows selecting a single service type',
+                        400,
+                        'SERVICE_TYPE_SELECTION_MODE',
+                        [{ field: 'serviceTypeIds', message: 'This category only allows selecting a single service type' }]
+                    );
+                }
+
+                if (resolvedServiceTypes.serviceTypeIds.length === 0) {
+                    throw new AppError(
+                        'At least one valid service type is required for this category',
+                        400,
+                        'SERVICE_TYPE_REQUIRED',
+                        [{ field: 'serviceTypeIds', message: 'At least one valid service type is required for this category' }]
+                    );
+                }
+
+                payload.serviceTypeIds = resolvedServiceTypes.serviceTypeIds.map((id: any) => id.toString());
+            }
+        }
+
+        if (listingType === LISTING_TYPE.SPARE_PART && !payload.sparePartId) {
+            throw new AppError('A valid spare part from the catalog is required for spare part listings.', 400);
+        }
+
+        if (payload.categoryId && payload.brandId) {
+            const brandValidation = await validateBrandBelongsToCategory(payload.brandId, payload.categoryId);
+            if (!brandValidation.ok) {
+                const message = brandValidation.reason || 'Brand does not belong to the selected category';
+                if (listingType === LISTING_TYPE.SERVICE) {
+                    throw new AppError(message, 400, 'INVALID_BRAND_CATEGORY_COMBO', [{ field: 'brandId', message }]);
+                }
+                throw new AppError(brandValidation.reason || 'Invalid brand for category.', 400);
+            }
+        }
+
+        if (payload.brandId && payload.modelId) {
+            const modelValidation = await validateModelBelongsToBrand(payload.modelId, payload.brandId);
+            if (!modelValidation.ok) {
+                throw new AppError(modelValidation.reason || 'Invalid model for brand.', 400);
+            }
+        }
+
+        if (Array.isArray(payload.sparePartIds) && payload.sparePartIds.length > 0) {
+            const cat = payload.categoryId || fallbackCategoryId;
+            if (!cat) throw new AppError('Category required for spare parts.', 400);
+            const validParts = await validateSparePartsForCategory(payload.sparePartIds, cat);
+            
+            if (await isEnabled(FeatureFlag.ENABLE_SPAREPARTS_SNAPSHOT)) {
+                const brandIds = validParts.map((p) => p.brandId).filter(Boolean) as import('mongoose').Types.ObjectId[];
+                const brands = await Brand.find({ _id: { $in: brandIds } }).select('_id name').lean();
+                const brandMap = new Map(brands.map((b) => [String(b._id), b.name]));
+                payload.sparePartsSnapshot = validParts.map((part) => ({
+                    _id: part._id,
+                    name: part.name,
+                    brand: part.brandId ? brandMap.get(String(part.brandId)) : undefined
+                }));
+            }
+        }
+
+        if (payload.location) {
+            // Require locationId for canonical enforcement
+            const normalized = await normalizeLocation(payload.location, { requireLocationId: true });
+            if (normalized) {
+                payload.location = { 
+                    ...normalized, 
+                    coordinates: normalizeGeoPoint(normalized.coordinates) 
+                };
+                payload.locationId = normalized.locationId || normalized.id;
+                
+                const canonicalId = toObjectIdString(payload.locationId);
+                if (canonicalId) {
+                    const path = await resolveLocationPathIds(canonicalId);
+                    if (path.length > 0) payload.locationPath = path.map((entry) => entry.toString());
+                }
+            } else {
+                throw new AppError('Valid location selection is required.', 400);
+            }
+        } else if (!partial) {
+            throw new AppError('Location is required.', 400);
+        }
+
+        if (Array.isArray(payload.images) && payload.images.length > 0) {
+            const targetAdId = adId || new mongoose.Types.ObjectId().toString();
+            type ProcessedImage = { url: string; thumbnailUrl?: string; hash?: string };
+            
+            // folder path based on listingType
+            let folder = 'ads';
+            if (listingType === LISTING_TYPE.SERVICE) folder = 'services';
+            else if (listingType === LISTING_TYPE.SPARE_PART) folder = 'spare-part-listings';
+
+            const processed = (await processImages(payload.images ?? [], `${folder}/${targetAdId}`)) as ProcessedImage[];
+
+            payload.images = sanitizeStoredImageUrls(processed.map((img) => img.url));
+            payload.thumbnails = sanitizeStoredImageUrls(processed.map((img) => img.thumbnailUrl || img.url));
+
+            payload.imageHashes = processed
+                .filter((img) => payload.images?.includes(img.url))
+                .map((img) => img.hash ?? '');
+
+            if (processed.length > 0 && (!payload.images || payload.images.length === 0)) {
+                throw new AppError('Image upload failed. Please retry.', 502);
+            }
+        }
+
+        if (payload.title) {
+            if (listingType === LISTING_TYPE.SPARE_PART) {
+                const { generateUniqueSparePartSlug } = await import('./SparePartListingService');
+                payload.seoSlug = await generateUniqueSparePartSlug(payload.title, adId);
+            } else {
+                payload.seoSlug = await generateUniqueSlugWithChecker(
+                    payload.title,
+                    async (candidate) => {
+                        const count = await getListingRepository().count({
+                            seoSlug: candidate,
+                            idsNotIn: adId ? [adId] : undefined
+                        });
+                        return count > 0;
+                    },
+                    undefined
+                );
+            }
+        }
+
+        if (!partial) {
+            payload.sellerId = context.sellerId;
+            payload.createdAt = payload.updatedAt = new Date();
+
+            // All listings enter the standard pending → moderation flow.
+            payload.status = context.actor === 'ADMIN' ? LIFECYCLE_STATUS.LIVE : LIFECYCLE_STATUS.PENDING;
+            payload.moderationStatus = context.actor === 'ADMIN' ? 'auto_approved' : 'held_for_review';
+
+            payload.isFree = payload.price === 0 || payload.isFree === true;
+            payload.expiresAt = context.actor === 'ADMIN' ? await computeActiveExpiry(listingType) : undefined;
+        }
+
+        // --- Compute Lightweight Listing Quality Score ---
+        if (listingType === LISTING_TYPE.SERVICE) {
+            const { calculateServiceQuality } = await import('../../../../utils/serviceQuality');
+            let merged: any = { ...payload };
+            if (partial && adId) {
+                const existing = await getListingRepository().findById(adId);
+                if (existing) {
+                    merged = {
+                        ...existing,
+                        ...payload,
+                    };
+                }
+            }
+            payload.listingQualityScore = calculateServiceQuality(merged, (source.business ?? (context as any).business));
+        } else {
+            payload.listingQualityScore = computeListingQualityScore(payload);
+        }
+
+        return payload;
+    }
+}
+

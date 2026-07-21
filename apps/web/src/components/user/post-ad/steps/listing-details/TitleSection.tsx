@@ -41,7 +41,8 @@ export function TitleSection() {
     const titleError = shouldShowFieldError("title") ? errors.title?.message : undefined;
 
     return (
-        <section className="space-y-4">
+        <section className="space-y-4" aria-labelledby="title-heading">
+            <h2 id="title-heading" className="sr-only">Title</h2>
             <Field label="Choose a catchy title" required error={titleError as string}>
                 <div className="space-y-3">
                     <div className="relative">

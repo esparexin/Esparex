@@ -3,18 +3,29 @@ name: Listings Domain
 owner: marketplace
 business_owner: Marketplace
 technical_owner: Platform
-maintainer: Marketplace Squad
+maintainer: Listings Squad
 maturity: stable
 visibility: public
 stability: stable
-criticality: high
+criticality: mission-critical
 sla: tier-1
-since: "1.0"
+since: "2.5"
 layer: domain
-reference: false
 depends_on:
   - shared
-  - core/shared-kernel
+  - contracts
+  - catalog
+  - identity
+  - location
+  - payments
+  - notifications
 public_api:
+  facades:
+    - AdCreationService
+    - AdMutationService
+    - AdValidationService
+    - AdQueryService
+    - ListingModerationQueryService
+    - SavedAdService
   ports:
     - ListingRepositoryPort

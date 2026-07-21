@@ -1,4 +1,4 @@
-import { calculateUserPlan } from "../../services/PlanEngine";
+import { calculateUserPlan } from "../../domains/payments";
 
 describe("PlanEngine", () => {
     it("does not double count AD_PACK credits when both legacy credits and canonical limits exist", () => {
