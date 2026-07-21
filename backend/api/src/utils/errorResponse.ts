@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
-import { isDuplicateKeyError, isMongoError, isZodError } from '@esparex/core/utils/errorHelpers';
+import { isDuplicateKeyError, isDuplicateError, isMongoError, isZodError } from '@esparex/core/utils/errorHelpers';
 
 type ErrorResponseOptions = {
     code?: string;
@@ -73,8 +73,12 @@ export function sendCatalogError(
         isAdminView = statusCodeOrOptions.isAdminView ?? isAdminView;
     }
 
+    if (isDuplicateError(error)) {
+        return sendErrorResponse(req, res, 409, (error as Error).message || 'Duplicate resource detected', { isDuplicate: true });
+    }
+    
     if (isDuplicateKeyError(error)) {
-        return sendErrorResponse(req, res, 400, 'Resource already exists', { isDuplicate: true });
+        return sendErrorResponse(req, res, 409, 'Resource already exists', { isDuplicate: true });
     }
 
     if (isZodError(error)) {
