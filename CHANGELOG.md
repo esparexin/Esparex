@@ -4,6 +4,15 @@ All notable changes to the Esparex Platform will be documented in this file.
 
 ---
 
+## [2.8.0] - 2026-07-21
+
+### Added
+- **Discovery Bounded Context Isolation (M2.8):** Extracted `FeedService`, `FeedDecisionEngine`, `SavedSearchService`, `TrendingService`, and sub-level feed/savedSearch helpers into a dedicated domain boundary under `core/src/domains/discovery/`.
+- **100% Backward-Compatible Compatibility Shims:** Added 1-line re-export shims in `core/src/services/` (`FeedService.ts`, `FeedDecisionEngine.ts`, `SavedSearchService.ts`, `TrendingService.ts`, `feed/*`, `savedSearch/*`) maintaining zero breaking changes.
+- **Milestone Verification Tag:** Tagged release milestone `architecture-m2.8` passing all 10 repository gate checks and 100/100 architecture verification score.
+
+---
+
 ## [2.7.0] - 2026-07-21
 
 ### Added
