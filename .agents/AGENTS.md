@@ -206,15 +206,29 @@ Every change must be classified before implementation to trigger the relevant ch
 - **UI & UX Flow:** Dom structure, page selectors, form controls, styling, accessibility.
 - **Telemetry & Analytics:** Tracking providers, location loggers, event triggers.
 
-### 11.3 Pre-Implementation Decision Gate
-Before starting implementation, the author must document answers to the following:
+### 11.3 Risk Classification Matrix
+The classification of risk determines the required approval gate:
+- **Low:** Documentation edits, styling refinements, comments, or UI text adjustments. Approved by standard PR review.
+- **Medium:** New UI flows, internal refactoring, non-breaking performance optimizations. Approved by team review.
+- **High:** API contracts, authentication handlers, payment checkouts, database schema migrations. Approved by architecture review + evidence gates.
+- **Critical:** Core security config, production infrastructure, financial transactions, AuthZ guards. Approved by architecture + security + DevOps approval.
+
+### 11.4 Pre-Implementation Decision Gate
+Before starting implementation (excluding Low risk changes), the author must document answers to the following:
 - What problem are we solving? (Core motivation).
 - Is this the correct architectural solution? (Compare at least one alternative).
 - Does it affect backwards compatibility? (Will this break external clients or mobile app versions?).
 - What are the risks? (Analyze concurrency, performance, security, and integration vulnerabilities).
 - Is there a simpler way? (Enforce simplicity).
 
-### 11.4 Dependency Checklists
+#### Architectural Decision Records (ADRs)
+An ADR is **mandatory** before starting implementation for:
+- Introducing new infrastructure (e.g. database, queue, cache engines).
+- Redesigning API routing or authentication architectures.
+- Introducing a new framework, package, or third-party SDK.
+- Applying cross-cutting architectural patterns.
+
+### 11.5 Dependency Checklists
 Apply the appropriate checklists based on the Change Classification:
 - **API Contract Checklist:**
   - [ ] Shared types (`packages/contracts`) updated.
@@ -233,15 +247,15 @@ Apply the appropriate checklists based on the Change Classification:
   - [ ] Down-migration script provided and verified for rollbacks.
   - [ ] Redis caching keys and cache-invalidation logic updated.
 
-### 11.5 Telemetry & Endpoint Class Alignment
+### 11.6 Telemetry & Endpoint Class Alignment
 - [ ] Telemetry calls must use the `TelemetryProvider` abstraction.
 - [ ] No telemetry requests should be sent to the network layer during automated E2E runs (must be handled by the `NullTelemetryProvider`).
 - [ ] Next.js rewrites must be configured to fail fast (404 fallback) for unmocked routes rather than logging proxy TCP connection timeouts to console logs.
 
-### 11.6 Test Run Proxy Isolation Rule
+### 11.7 Test Run Proxy Isolation Rule
 Playwright configurations must enforce strict E2E routing. Any request matching `/api/v1/**` that is not registered with an active mock must be intercepted and rejected with a mock `404` or `500` error directly at the browser layer, avoiding Node-level socket leaks and proxy socket warnings.
 
-### 11.7 Ownership Matrix
+### 11.8 Ownership Matrix
 To prevent the "someone else will update it" assumption, downstream dependencies must be assigned to owners:
 - **Shared Contracts:** Platform Architect / Core Backend Team
 - **API Endpoints & Controllers:** Backend Team / Security Reviewer
@@ -249,10 +263,19 @@ To prevent the "someone else will update it" assumption, downstream dependencies
 - **E2E Test Mocks & Specs:** Frontend QA / Web Team
 - **CI/CD Pipelines & DevOps:** DevOps Team / Platform Architect
 
-### 11.8 Evidence Gates
+### 11.9 Evidence Gates
 For every pull request, the author must provide:
 1. What changed?
 2. Where was it updated?
 3. How was it verified? (Provide E2E test runs, local build status, or screenshots).
 
----
+### 11.10 Definition of Done (DoD)
+A feature is considered **complete** only when it satisfies the following DoD checklist:
+- [ ] Requirements fully implemented and verified.
+- [ ] No dead, unused, or orphaned code remaining.
+- [ ] No duplicate component or service implementations.
+- [ ] Build compiles cleanly and type-checks pass.
+- [ ] All automated tests (unit, integration, regression) pass 100% green.
+- [ ] Documentation and OpenAPI/Swagger specs updated.
+- [ ] Downstream dependency impact checklists completed.
+- [ ] Mandatory code reviews completed and approved.
