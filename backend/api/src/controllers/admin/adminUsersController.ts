@@ -138,14 +138,14 @@ export const updateUser = async (req: Request, res: Response) => {
 export const updateUserStatus = async (req: Request, res: Response) => {
     try {
         const { status, reason } = req.body as { status: string; reason?: string };
-        const { id: userId } = req.params;
+        const userId = req.params.id as string;
+
+        if (!userId || !isValidObjectId(userId)) {
+            return sendAdminError(req, res, 'Invalid user id', 400);
+        }
 
         if (![USER_STATUS.LIVE as string, USER_STATUS.SUSPENDED as string, USER_STATUS.BANNED as string].includes(status)) {
             return sendAdminError(req, res, 'Invalid status', 400);
-        }
-
-        if (!userId || typeof userId !== 'string') {
-            return sendAdminError(req, res, 'Invalid user id', 400);
         }
 
         const user = await userStatusService.updateUserStatus(userId, status as UserStatusValue, {

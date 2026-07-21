@@ -6,7 +6,7 @@ import Business from '../../../../models/Business';
 import SmartAlert from '../../../../models/SmartAlert';
 import { logAdminActionDirect } from '../../../../utils/adminLogger';
 import logger from '../../../../utils/logger';
-import { toObjectId } from '../../../../utils/idUtils';
+import mongoose from 'mongoose';
 
 import { USER_STATUS, UserStatusValue } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
@@ -43,12 +43,15 @@ export const updateUserStatus = async (
     const isRestrictive = ([USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[])
         .includes(newStatus);
 
-    // Validate userId before any DB operation
-    const normalizedUserId = toObjectId(userId);
-    if (!normalizedUserId) throw new AppError('Invalid user ID', 400, 'INVALID_USER_ID');
-    // Canonical safe string ID — used for all DB queries and cache keys after this point.
-    // The raw `userId` parameter is only retained for audit log entries.
-    const safeUserId = normalizedUserId.toString();
+    // 🔒 SECURITY: Inline ObjectId validation — CodeQL recognizes this exact pattern
+    // as a sanitization barrier. Cross-file helper calls (toObjectId) are not tracked
+    // by CodeQL's interprocedural taint analysis for custom sanitizers.
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new AppError('Invalid user ID', 400, 'INVALID_USER_ID');
+    }
+    const normalizedUserId = new mongoose.Types.ObjectId(userId);
+    // Canonical safe string — used for all post-validation DB/cache sinks.
+    const safeUserId = normalizedUserId.toHexString();
 
     const updateData: Record<string, unknown> = {
         status: newStatus,
