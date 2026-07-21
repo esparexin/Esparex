@@ -48,14 +48,24 @@ jest.mock('@esparex/core/models/Model', () => ({
     },
 }));
 
-jest.mock('@esparex/core/services/catalog/CatalogNotificationService', () => ({
+jest.mock('@esparex/core/models/SparePart', () => ({
+    __esModule: true,
+    default: {},
+}));
+
+jest.mock('@esparex/core/models/ScreenSize', () => ({
+    __esModule: true,
+    default: {},
+}));
+
+jest.mock('@esparex/core/domains/catalog/application/services/CatalogNotificationService', () => ({
     __esModule: true,
     CatalogNotificationService: {
         notifySellersOfApproval: (...args: unknown[]) => mockNotifySellersOfApproval(...args),
     },
 }));
 
-jest.mock('@esparex/core/services/catalog/CatalogOrchestrator', () => ({
+jest.mock('@esparex/core/domains/catalog/application/services/CatalogOrchestrator', () => ({
     __esModule: true,
     default: {
         invalidateCatalogCache: (...args: unknown[]) => mockInvalidateCatalogCache(...args),

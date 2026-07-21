@@ -51,7 +51,7 @@ jest.mock('@esparex/core/models/Ad', () => ({
 jest.mock('../../config/db');
 jest.mock('@esparex/core/config/db');
 
-jest.mock('../../services/ListingSubmissionPolicy', () => ({
+jest.mock('../../domains/listings/application/policies/ListingSubmissionPolicy', () => ({
     ListingSubmissionPolicy: {
         reserveSlot: jest.fn().mockResolvedValue({ success: true }),
     },
@@ -73,7 +73,7 @@ jest.mock('../../utils/redisCache', () => ({
 // ── Imports ──────────────────────────────────────────────────────────────────
 
 import mongoose from 'mongoose';
-import { repostAdLogic } from '../../services/ad/AdRepostService';
+import { repostAdLogic } from '../../domains/listings/application/ad/ad/AdRepostService';
 import Ad from '../../models/Ad';
 import { ListingSubmissionPolicy } from '../../services/ListingSubmissionPolicy';
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';

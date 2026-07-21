@@ -104,7 +104,7 @@ jest.mock('../../queues/imageQueue', () => ({
 
 import Ad from '../../models/Ad';
 import * as StatusMutationService from '../../services/lifecycle/StatusMutationService';
-import { updateAdLogic } from '../../services/ad/AdUpdateService';
+import { updateAdLogic } from '../../domains/listings/application/ad/ad/AdUpdateService';
 import { getListingRepository } from '@esparex/core/composition/listings';
 
 const mockedAdModel = Ad as unknown as { findById: jest.Mock; findByIdAndUpdate: jest.Mock };

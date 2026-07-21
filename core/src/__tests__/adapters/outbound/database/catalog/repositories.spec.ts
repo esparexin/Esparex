@@ -1,5 +1,5 @@
-import { MongoCategoryRepositoryAdapter } from '../../../../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter';
-import { MongoBrandRepositoryAdapter } from '../../../../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter';
+import { MongoCategoryRepositoryAdapter } from '../../../../../domains/catalog/adapters/outbound/database/MongoCategoryRepositoryAdapter';
+import { MongoBrandRepositoryAdapter } from '../../../../../domains/catalog/adapters/outbound/database/MongoBrandRepositoryAdapter';
 import CategoryModel from '../../../../../models/Category';
 import BrandModel from '../../../../../models/Brand';
 

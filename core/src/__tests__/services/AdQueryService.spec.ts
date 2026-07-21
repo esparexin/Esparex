@@ -35,8 +35,8 @@ jest.mock('@esparex/core/utils/s3', () => ({
 }));
 
 import Ad from '../../models/Ad';
-import { buildAdSortStage } from '../../services/ad/AdSearchService';
-import { getAdCounts } from '../../services/ad/AdMetricsService';
+import { buildAdSortStage } from '../../domains/listings/application/ad/ad/AdSearchService';
+import { getAdCounts } from '../../domains/listings/application/ad/ad/AdMetricsService';
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 
 const mockedAdModel = Ad as unknown as {

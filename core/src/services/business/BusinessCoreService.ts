@@ -3,7 +3,7 @@ import Business from '../../models/Business';
 import { ListingTypeValue } from '@esparex/contracts';
 import User from '../../models/User';
 import Ad from '../../models/Ad';
-import { normalizeAdImagesForResponse } from "../adQuery/AdQueryHelpers";
+import { normalizeAdImagesForResponse } from "../../domains/listings/application/queries/adQuery/AdQueryHelpers";
 import { LISTING_STATUS } from '@esparex/contracts';
 import { AppError } from '../../utils/AppError';
 import { getUserConnection } from '../../config/db';
