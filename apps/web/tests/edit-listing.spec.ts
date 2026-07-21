@@ -1,13 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-
-// ─── HTTP Method Constants ────────────────────────────────────────────────────
-// Centralised so that a future API contract change requires a single edit here.
-const HTTP = {
-    GET:    "GET",
-    POST:   "POST",
-    PATCH:  "PATCH", // Edit listing uses PATCH — see listingMutationAPI.ts
-    DELETE: "DELETE",
-} as const;
+import { HTTP, interceptEditListing, interceptListingDetail } from "./helpers/listingInterceptors";
 
 // =============================================================================
 // LISTING EDIT E2E REGRESSION SUITE
@@ -142,17 +134,7 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         );
 
         // Listing detail (GET only; PATCH is handled by the edit endpoint below)
-        await page.route(new RegExp(`/api/v1/listings/${mockListingId}$`), (route) => {
-            if (route.request().method() === HTTP.GET) {
-                route.fulfill({
-                    status: 200,
-                    contentType: "application/json",
-                    body: JSON.stringify(envelope(mockListing)),
-                });
-            } else {
-                route.fallback();
-            }
-        });
+        await interceptListingDetail(page, mockListingId, mockListing);
 
         // ── Catalog endpoints ──────────────────────────────────────────────────
         await page.route(/\/api\/v1\/catalog\/categories(\?.*)?$/, (route) =>
@@ -291,17 +273,9 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
     test("3. Non-Sensitive Edit", async ({ page }) => {
         let capturedPayload: Record<string, unknown> | null = null;
 
-        await page.route(`**/api/v1/listings/${mockListingId}/edit`, async (route) => {
-            if (route.request().method() === HTTP.PATCH) {
-                capturedPayload = JSON.parse(route.request().postData() ?? "{}");
-                await route.fulfill({
-                    status: 200,
-                    contentType: "application/json",
-                    body: JSON.stringify({ success: true, listing: { ...mockListing, status: "live" } }),
-                });
-            } else {
-                route.fallback();
-            }
+        await interceptEditListing(page, mockListingId, {
+            listing: { ...mockListing, status: "live" },
+            onRequest: (payload) => { capturedPayload = payload; }
         });
 
         await gotoEditPage(page);
@@ -320,17 +294,9 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
     test("4. Sensitive Edit (Triggers Re-review)", async ({ page }) => {
         let capturedPayload: Record<string, unknown> | null = null;
 
-        await page.route(`**/api/v1/listings/${mockListingId}/edit`, async (route) => {
-            if (route.request().method() === HTTP.PATCH) {
-                capturedPayload = JSON.parse(route.request().postData() ?? "{}");
-                await route.fulfill({
-                    status: 200,
-                    contentType: "application/json",
-                    body: JSON.stringify({ success: true, listing: { ...mockListing, status: "pending" } }),
-                });
-            } else {
-                route.fallback();
-            }
+        await interceptEditListing(page, mockListingId, {
+            listing: { ...mockListing, status: "pending" },
+            onRequest: (payload) => { capturedPayload = payload; }
         });
 
         await gotoEditPage(page);
@@ -355,17 +321,9 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
     test("5. Remove Existing Image & 6. Add New Image", async ({ page }) => {
         let capturedPayload: Record<string, unknown> | null = null;
 
-        await page.route(`**/api/v1/listings/${mockListingId}/edit`, async (route) => {
-            if (route.request().method() === HTTP.PATCH) {
-                capturedPayload = JSON.parse(route.request().postData() ?? "{}");
-                await route.fulfill({
-                    status: 200,
-                    contentType: "application/json",
-                    body: JSON.stringify({ success: true, listing: { ...mockListing, status: "pending" } }),
-                });
-            } else {
-                route.fallback();
-            }
+        await interceptEditListing(page, mockListingId, {
+            listing: { ...mockListing, status: "pending" },
+            onRequest: (payload) => { capturedPayload = payload; }
         });
 
         await gotoEditPage(page);
@@ -391,7 +349,7 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
 
         await page.waitForTimeout(2_000);
 
-        if (!capturedPayload) throw new Error("PUT payload was not captured");
+        if (!capturedPayload) throw new Error("PATCH payload was not captured");
         expect(capturedPayload.images).toBeDefined();
     });
 
@@ -417,12 +375,9 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
     // TEST 10: Network Failure Recovery
     // =========================================================================
     test("10. Network Failure Recovery", async ({ page }) => {
-        await page.route(`**/api/v1/listings/${mockListingId}/edit`, async (route) => {
-            if (route.request().method() === HTTP.PATCH) {
-                await route.abort("failed");
-            } else {
-                route.fallback();
-            }
+        await interceptEditListing(page, mockListingId, {
+            listing: mockListing,
+            abort: true
         });
 
         await gotoEditPage(page);
