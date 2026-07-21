@@ -1,7 +1,7 @@
 # Esparex Project Status
 
 **Last Updated:** 2026-07-20  
-**Current Branch:** `feat/architecture-implementation-completion`  
+**Current Branch:** `develop`  
 **Latest Milestone:** `arch-milestone/v2-architecture-implementation`
 
 ---
@@ -10,7 +10,7 @@
 
 ### Program 1 — Architecture Implementation Completion (Primary) 🚀
 * **Status:** Active (Issue #144)
-* **Branch:** `feat/architecture-implementation-completion`
+* **Branch:** `develop`
 * **Focus:** Completing DDD domain migration (ARCH-003), configuration SSOT (ARCH-005), worker abstractions (ARCH-006), and API surface standardization (ARCH-007).
 
 ### Program 2 — Performance Optimization Phase 2 ⚡

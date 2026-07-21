@@ -2,7 +2,7 @@
 
 **Module**: 5 of 6 — Architecture Governance Framework
 **Last Updated**: 2026-07-13
-**Current Commit Evaluated**: `08e50eb9` (on `fix/issue-99-post-ad-stabilization`)
+**Current Commit Evaluated**: `08e50eb9` (on `develop`)
 
 > This document records the **current, transient audit state** of the repository. Unlike Principles (`PRINCIPLES.md`) and Standards (`STANDARDS.md`), this file changes whenever an audit is executed or an observation is resolved.
 

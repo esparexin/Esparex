@@ -11,7 +11,7 @@
 | Field | Value |
 |---|---|
 | Repository | `esparex/Esparex` |
-| Active branch | `chore/governance-impact-rules` |
+| Active branch | `develop` |
 | Latest commit | `940b7773` |
 | Working tree | Clean (no uncommitted changes) |
 
