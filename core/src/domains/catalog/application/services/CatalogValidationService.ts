@@ -293,10 +293,10 @@ function getServiceInstance(): CatalogValidationService {
     if (!serviceInstance) {
         // Fallback lazy initialization using dynamic import/require
         // to avoid circular dependencies and static concrete imports in tests
-        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoCategoryRepositoryAdapter');
-        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoBrandRepositoryAdapter');
-        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoModelRepositoryAdapter');
-        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/catalog/MongoSparePartRepositoryAdapter');
+        const { MongoCategoryRepositoryAdapter } = require('../../adapters/outbound/database/MongoCategoryRepositoryAdapter');
+        const { MongoBrandRepositoryAdapter } = require('../../adapters/outbound/database/MongoBrandRepositoryAdapter');
+        const { MongoModelRepositoryAdapter } = require('../../adapters/outbound/database/MongoModelRepositoryAdapter');
+        const { MongoSparePartRepositoryAdapter } = require('../../adapters/outbound/database/MongoSparePartRepositoryAdapter');
         serviceInstance = new CatalogValidationService(
             new MongoCategoryRepositoryAdapter(),
             new MongoBrandRepositoryAdapter(),
