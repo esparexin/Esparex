@@ -187,13 +187,21 @@ This rule was introduced after a `PUT → PATCH` migration landed in `listingMut
 
 ---
 
-## 11. Dependency Impact Governance (Mandatory)
+## 11. Engineering Change Propagation Standard (Mandatory)
 
-To prevent silent E2E regressions, environment mismatches, and telemetry connection drift, all changes to contracts, environment configurations, or API layouts must follow this change propagation protocol.
+To prevent silent regressions, environment desynchronizations, and telemetry connection drift, all changes to contracts, environment configurations, database schemas, or API layouts must follow this change propagation protocol.
 
-### 11.1 API Contract Change Propagation Checklist
-Apply this checklist whenever an API route, HTTP method, request payload, response schema, or status code changes.
+### 11.1 Change Classifications
+Every change must be classified before implementation to trigger the relevant checklists:
+- **API Contract:** Payload schemas, query validations, route paths, HTTP methods, DTOs.
+- **Database & Cache:** Database schemas, validation rules, indexing, Redis key policies.
+- **Authentication & AuthZ:** Middleware, guards, session cookie flags, token validation.
+- **Environment & Build:** Env variables, configuration schemas, Docker setups, build variables.
+- **UI & UX Flow:** Dom structure, page selectors, form controls, styling, accessibility.
+- **Telemetry & Analytics:** Tracking providers, location loggers, event triggers.
 
+### 11.2 API Contract Propagation Checklist
+Apply this checklist whenever an API contract dimension changes:
 - [ ] **Contract Schema (`packages/contracts`)** — Types and validation schemas updated.
 - [ ] **Backend Controller** — Handler and route parameter validations updated.
 - [ ] **Frontend Client Hooks** — API service layer calls synchronized with the contract.
@@ -202,25 +210,29 @@ Apply this checklist whenever an API route, HTTP method, request payload, respon
 - [ ] **API Documentation** — OpenAPI/Swagger schemas and developer READMEs synchronized.
 - [ ] **Next.js Rewrite Rules** — Checked for path routing compatibility in `next.config.mjs`.
 
-### 11.2 Environment Variable & Build Change Checklist
-Apply this checklist whenever an environment variable is introduced, modified, or deleted.
-
+### 11.3 Environment Variable & Build Change Checklist
+Apply this checklist whenever an environment variable is introduced, modified, or deleted:
 - [ ] **Local Development (`.env.local.example`)** — Documented and default values set.
 - [ ] **Docker Configurations** — Checked for container variable injection.
 - [ ] **Next.js Next Config** — Verified for build-time (`NEXT_PUBLIC_*`) baking vs runtime Node.js environment variables.
-- [ ] **Playwright Test Runner Config** — Env overrides added to `webServer.command` (build-time) and `webServer.env` (run-time).
+- [ ] **Playwright Test Runner Config** — Env overrides added to both `webServer.command` (build-time) and `webServer.env` (run-time).
 - [ ] **CI/CD Pipelines** — Secret keys and build envs populated in GitHub Actions, Render, and Vercel.
 - [ ] **Deployment Guides** — Updated to describe the purpose and defaults of the variable.
 
-### 11.3 Telemetry & Endpoint Class Alignment Checklist
-Apply this checklist whenever adding a new API endpoint or outbound client-side request.
+### 11.4 Database & Cache Migration Checklist
+Apply this checklist whenever database or caching models change:
+- [ ] **Schema & Mongoose Validation** — Sync database schemas and Mongoose validators.
+- [ ] **Up-Migration Script** — Up-migration script provided and verified on local DB copies.
+- [ ] **Down-Migration Script** — Rollback script provided and verified.
+- [ ] **Cache Eviction** — Redis cache eviction rules and key formats updated.
 
+### 11.5 Telemetry & Endpoint Class Alignment Checklist
+Apply this checklist whenever telemetry, logging, or analytics elements change:
 - [ ] Telemetry calls must use the `TelemetryProvider` abstraction.
 - [ ] No telemetry requests should be sent to the network layer during automated E2E runs (must be handled by the `NullTelemetryProvider`).
-- [ ] Critical and Supporting endpoints must have corresponding mocked interceptors in `tests/interceptors/`.
 - [ ] Next.js rewrites must be configured to fail fast (404 fallback) for unmocked routes rather than logging proxy TCP connection timeouts to console logs.
 
-### 11.4 Test Run Proxy Isolation Rule
+### 11.6 Test Run Proxy Isolation Rule
 Playwright configurations must enforce strict E2E routing. Any request matching `/api/v1/**` that is not registered with an active mock must be intercepted and rejected with a mock `404` or `500` error directly at the browser layer, avoiding Node-level socket leaks and proxy socket warnings.
 
 ---
