@@ -47,6 +47,13 @@ This repository uses modular AI governance. `AGENTS.md` serves strictly as the b
 - **`chore/*`**: Governance, tooling, or documentation updates.
 - **`audit/*`**: Read-only repository & security inspections.
 
+### Branch Lifecycle Policy
+
+- Every feature/fix/docs/perf branch must be deleted after merge.
+- Branches superseded by architectural redesigns must be archived or retired with a documented rationale.
+- Archive branches are reserved only for work with potential historical or reusable value.
+- No long-lived development branches should remain without an active owner or roadmap.
+- Perform a Git hygiene audit before each major release to remove merged, stale, and obsolete branches.
 ---
 
 ## 3. Architecture Rules
