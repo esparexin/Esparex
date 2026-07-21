@@ -412,6 +412,21 @@ A refactoring task is complete ONLY when all 7 criteria are satisfied:
 4. **Automated Tests Pass**: All existing unit and integration test suites pass with 100% green status.
 5. **No Accessibility Regressions**: No new WCAG 2.2 AA accessibility violations or keyboard focus leaks are introduced.
 6. **Measurable Duplication Reduction**: Code duplication is reduced or maintainability is measurably improved.
-7. **Simpler Architecture**: The resulting architecture is demonstrably simpler, cleaner, and easier to maintain than before.
+8. **Architecture Decision Record (ADR)**: Major refactorings require a brief ADR covering: rationale, alternatives considered, chosen option, risk analysis, and rollback strategy.
+9. **Rollback Plan Verified**: Clear instructions for reverting changes, identifying impacted APIs/schemas, and validating post-rollback state.
+
+---
+
+## Similarity Threshold Governance Heuristic
+
+Components, hooks, or services should be evaluated using similarity metrics:
+- Shared UI %
+- Shared business rules %
+- Shared validation %
+- Shared API contract %
+- Shared workflow %
+
+Consolidation is **recommended** when overall similarity > 75% AND no single dimension is < 50%. This threshold serves as a **governance heuristic**, not a rigid mechanical rule. Final consolidation approval requires an architecture review confirming that readability, domain boundaries, and long-term maintainability improve.
+
 
 
