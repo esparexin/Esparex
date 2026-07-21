@@ -29,15 +29,6 @@ export function ValidationSummary() {
     const hasAttemptedSubmit = submitCount > 0;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[currentStep]);
 
-    if (!formError && (!hasAttemptedSubmit && !hasAttemptedStepValidation || Object.keys(errors).length === 0)) {
-        return null;
-    }
-
-    const errorList = Object.entries(errors).map(([key, error]) => ({
-        key,
-        message: (error as any)?.message as string
-    })).filter(e => e.message);
-
     const scrollToField = useCallback((fieldName: string) => {
         if (typeof document === "undefined") return;
         const selector = fieldName === "images" 
@@ -54,6 +45,16 @@ export function ValidationSummary() {
     const labelForKey = useCallback((key: string): string => {
         return FIELD_LABELS[key] ?? key;
     }, []);
+
+    if (!formError && (!hasAttemptedSubmit && !hasAttemptedStepValidation || Object.keys(errors).length === 0)) {
+        return null;
+    }
+
+    const errorList = Object.entries(errors).map(([key, error]) => ({
+        key,
+        message: (error as any)?.message as string
+    })).filter(e => e.message);
+
 
     return (
         <div
