@@ -147,24 +147,24 @@ export function LocationSection() {
     const locationError = shouldShowFieldError("location") ? getFirstFormErrorMessage(errors.location) : undefined;
 
     return (
-        <section className="space-y-4" aria-labelledby="location-heading">
+        <section className="space-y-3" aria-labelledby="location-heading">
             <h2 id="location-heading" className="sr-only">Location</h2>
             <Field label="Where are you located?" required error={locationError as string}>
-                <div className="space-y-3">
+                <div className="space-y-2">
                     <LocationSelector
                         variant="inline"
                         mode="postAd"
                         onLocationSelect={handleSelectLocation}
                         currentDisplay={locationVal?.display}
-                        className="h-14 font-bold rounded-xl border-2"
+                        className="h-12 font-normal rounded-xl border-2"
                         disabled={isLocationLocked}
                     />
                     {isLocationLocked ? (
-                        <p className="text-xs text-amber-600 text-center font-medium">
+                        <p className="text-xs text-amber-600 text-center font-normal">
                             Location cannot be changed once an ad is live or under review.
                         </p>
                     ) : (
-                        <p className="text-xs text-foreground-subtle text-center font-medium">Use GPS auto-detect or search manually for your city.</p>
+                        <p className="text-xs text-foreground-subtle text-center font-normal">Use GPS auto-detect or search manually for your city.</p>
                     )}
                 </div>
             </Field>

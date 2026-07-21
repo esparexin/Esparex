@@ -260,7 +260,7 @@ export class CatalogOrchestratorImpl {
             return { brandId, deletedModels: 0, deletedSpareParts: 0, alreadyDeleted: true };
         }
 
-        const { checkBrandDependencies } = require('../../services/catalog/CatalogBrandModelService');
+        const { checkBrandDependencies } = require('./CatalogBrandModelService');
         const deps = await checkBrandDependencies(brandId);
         if (deps.count > 0) {
             throw new AppError('Brand cannot be deleted because dependencies exist', 409, 'DEPENDENCIES_EXIST', deps.details);

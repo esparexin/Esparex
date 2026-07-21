@@ -49,14 +49,14 @@ export function Field({
                 {label && (
                     <label
                         htmlFor={resolvedId}
-                        className="text-sm font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        className="text-base font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
                         {label}
                         {required && <span className="text-destructive ml-1">*</span>}
                     </label>
                 )}
                 {children}
-                <FormError id={errorId} message={error} className="text-xs font-medium text-destructive" />
+                <FormError id={errorId} message={error} className="text-sm font-normal text-destructive" />
             </div>
         </FieldContext.Provider>
     );

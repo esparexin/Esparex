@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post('/generate', protect, mutationLimiter, validateRequest(aiGenerateSchema), aiController.generate);
 router.post('/catalog-suggest', protect, mutationLimiter, aiController.catalogSuggest);
+router.get('/status', protect, aiController.status);
 
 
 export default router;

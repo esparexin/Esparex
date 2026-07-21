@@ -6,8 +6,19 @@ import {
     AIRequestBody,
     executeAiRequest,
     getAiContext,
-    isAIRequestType
+    isAIRequestType,
+    getStatus
 } from '@esparex/core/services/AiService';
+
+export const status = async (req: Request, res: Response) => {
+    try {
+        const result = await getStatus();
+        res.json(respond({ success: true, data: result }));
+    } catch (error) {
+        logger.error('[AI Controller] status failed', { error: (error as Error).message });
+        sendErrorResponse(req, res, 500, 'Internal AI status error');
+    }
+};
 
 export const catalogSuggest = async (req: Request, res: Response) => {
     try {

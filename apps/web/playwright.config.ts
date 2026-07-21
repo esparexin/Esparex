@@ -30,9 +30,12 @@ export default defineConfig({
             use: { ...devices['Pixel 5'] },
         },
     ],
-    webServer: {
-        command: `npm run build && npm run start -- -H 127.0.0.1 -p ${port}`,
-        url: `${baseURL}/favicon.ico`,
+    webServer: process.env.CI ? undefined : {
+        // NEXT_PUBLIC_* vars are baked into the bundle at *build* time.
+        // They must be prefixed on the build command — the env block below
+        // only affects `npm run start` and has no effect on the compiled output.
+        command: `NEXT_PUBLIC_API_URL=${process.env.NEXT_PUBLIC_API_URL || `${baseURL}/api/v1`} npm run build && npm run start -- -H 127.0.0.1 -p ${port}`,
+        url: baseURL,
         reuseExistingServer: true,
         timeout: 180_000,
         env: {
@@ -42,3 +45,4 @@ export default defineConfig({
         },
     },
 });
+

@@ -38,13 +38,13 @@ export function SpecificationSection() {
     }
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5">
             {dynamicAttributeFilters.length > 0 ? (
-                <section className={cn("space-y-3 rounded-2xl border border-slate-100 bg-slate-50/40 p-3", isEditMode && "opacity-60 pointer-events-none")}>
+                <section className={cn("space-y-2.5 rounded-2xl border border-slate-100 bg-slate-50/40 p-2.5", isEditMode && "opacity-60 pointer-events-none")}>
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">Category Details</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-tertiary">Category Details</p>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                         {dynamicAttributeFilters.map((f) => renderAttributeField(
                             f, 
                             getAttributeValue(attributes, f.id) ?? f.defaultValue, 
@@ -67,7 +67,7 @@ export function SpecificationSection() {
                                     onClick={() => onScreenSizeChange(size)}
                                     aria-pressed={isSelected}
                                     className={cn(
-                                        "flex h-11 items-center justify-center rounded-xl border-2 text-sm font-bold transition-all duration-200 active:scale-[0.98]",
+                                        "flex h-11 items-center justify-center rounded-xl border-2 text-sm font-medium transition-all duration-200 active:scale-[0.98]",
                                         isSelected
                                             ? "border-primary bg-primary/5 text-primary shadow-sm"
                                             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
