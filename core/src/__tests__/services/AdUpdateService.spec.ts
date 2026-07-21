@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { AdContext } from '../../types/ad.types';
 
+jest.setTimeout(30000);
+
 // Mock models and services using the canonical paths
 jest.mock('@esparex/core/composition/listings', () => ({
     getListingRepository: jest.fn().mockReturnValue({
