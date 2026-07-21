@@ -4,6 +4,15 @@ All notable changes to the Esparex Platform will be documented in this file.
 
 ---
 
+## [2.7.0] - 2026-07-21
+
+### Added
+- **Boosts Bounded Context Isolation (M2.7):** Extracted `BoostService`, `PromotionPolicyService`, and `AdSlotService` into a dedicated domain boundary under `core/src/domains/boosts/`.
+- **100% Backward-Compatible Compatibility Shims:** Added 1-line re-export shims in `core/src/services/` (`BoostService.ts`, `PromotionPolicyService.ts`, `AdSlotService.ts`) maintaining zero breaking changes.
+- **Milestone Verification Tag:** Tagged release milestone `architecture-m2.7` passing all 10 repository gate checks and 100/100 architecture verification score.
+
+---
+
 ## [2.6.0] - 2026-07-21
 
 ### Added

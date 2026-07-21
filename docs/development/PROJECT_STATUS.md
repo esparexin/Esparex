@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-07-21  
 **Current Branch:** `main`  
-**Latest Milestone:** `architecture-m2.6` (Fraud & Trust Migration Merged)
+**Latest Milestone:** `architecture-m2.7` (Boosts Domain Migration Merged)
 
 ---
 

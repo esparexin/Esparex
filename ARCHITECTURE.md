@@ -19,6 +19,7 @@ Migrated Bounded Contexts (DDD Ports & Adapters)
 ✅ Notifications (M2.2)
 ✅ Fraud (M2.6)
 ✅ Trust (M2.6)
+✅ Boosts (M2.7)
 
 Modernization Patterns
 
