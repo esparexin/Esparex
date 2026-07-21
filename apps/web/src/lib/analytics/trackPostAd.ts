@@ -23,7 +23,9 @@ export type PostAdEventName =
   | "publish_clicked"
   | "publish_success"
   | "publish_failure"
-  | "wizard_abandoned";
+  | "wizard_abandoned"
+  | "ai_title_generated_from_cache"
+  | "ai_description_generated_from_cache";
 
 export interface PostAdEventPayload {
   event: PostAdEventName;

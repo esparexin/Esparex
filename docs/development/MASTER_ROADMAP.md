@@ -10,7 +10,7 @@ This roadmap defines the prioritization of work streams organized by key busines
 * **Deliverables:**
   - Decoupled `backend/api` from `core` (DDD Core separation).
   - Consolidated enums, DTOs, and schemas into `@esparex/contracts` (SSOT leaf).
-  - Removed legacy folders from `@esparex/shared` (cleanup).
+  - Completed Milestones M2.1 (Payments), M2.2 (Notifications), M2.3 (Catalog), M2.4 (Identity), M2.5 (Listings), and M2.6 (Fraud & Trust).
   - Setup automated pre-commit and routing guards (Husky, lint-staged).
   - Documented initial repository baseline.
 
@@ -28,8 +28,14 @@ This roadmap defines the prioritization of work streams organized by key busines
 ---
 
 ## Program 3 — Operational Excellence 📋
-* **Status:** Planned
-* **Focus:** Infrastructure reliability, telemetry, caching performance, and load testing.
+* **Status:** Active
+* **Focus:** Infrastructure reliability, telemetry, caching performance, security audits, and load testing.
+* **Deliverables:**
+  - ✅ Backend Performance Phase 1 (Unbounded query pagination, SCAN replacement for KEYS in Redis, status mutation concurrency limits).
+  - ✅ Database index validation (Compound index additions for Boost and AdAnalytics).
+  - ✅ Frontend Performance Audit & Validation (Bundle analysis setup, route-level code splitting validation, dynamic chart loading).
+* **Active Projects:**
+  - **HTTP Security & CORS Audit:** Complete verification of the CORS policies, cookie structures, security headers, CSRF mechanisms, and authentication routes to identify and fix the ad posting failure.
 * **Backlog Projects:**
   - Setup OpenTelemetry dashboards for Express REST latency and Mongoose queries.
   - Configure Sentry transaction tracking and BullMQ queue reliability metrics.
@@ -46,3 +52,4 @@ This roadmap defines the prioritization of work streams organized by key busines
   - Match uploaded listing images against the spare-parts catalog reference database.
   - Implement real-time automated fraud/spam checks on listing creation.
   - Provide smart pricing suggestions to sellers based on historical marketplace data.
+

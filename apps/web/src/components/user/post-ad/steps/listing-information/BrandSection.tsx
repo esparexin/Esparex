@@ -28,7 +28,7 @@ export function BrandSection() {
     }, [isEditMode, handleBrandChange]);
 
     return (
-        <section className="space-y-3" aria-labelledby="brand-heading">
+        <section className="space-y-2" aria-labelledby="brand-heading">
             <h2 id="brand-heading" className="sr-only">Brand</h2>
             <Field label="Brand" error={brandError as string} required>
                 {brandIsPending && availableBrands.length === 0 ? (

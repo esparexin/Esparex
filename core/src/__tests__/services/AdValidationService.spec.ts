@@ -21,7 +21,7 @@ describe('buildDuplicateFingerprint', () => {
             brandId: 'brand',
             modelId: 'model 1',
             devicePowerOn: true,
-            price: '1499',
+            price: 1499,
             location: {
                 city: 'macherla',
                 state: 'andhra pradesh',

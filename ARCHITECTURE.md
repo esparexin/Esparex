@@ -14,6 +14,11 @@ Migrated Bounded Contexts (DDD Ports & Adapters)
 ✅ Location
 ✅ Catalog
 ✅ Listings
+✅ Identity (M2.4)
+✅ Payments (M2.1)
+✅ Notifications (M2.2)
+✅ Fraud (M2.6)
+✅ Trust (M2.6)
 
 Modernization Patterns
 

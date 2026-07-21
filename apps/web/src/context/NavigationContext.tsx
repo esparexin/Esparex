@@ -55,32 +55,36 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
 
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
                 <DialogContent
-                    style={{ zIndex: Z_INDEX.debugLayer, width: "min(22rem, calc(100vw - 3rem))" }}
-                    className="!rounded-2xl !p-4 sm:!max-w-md sm:!p-6"
+                    style={{ zIndex: Z_INDEX.debugLayer }}
+                    className="!rounded-xl !p-5 sm:!max-w-[440px]"
                 >
-                    <DialogHeader className="!mb-0 pr-8">
-                        <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                            <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
-                            Unsaved Changes
-                        </DialogTitle>
-                        <DialogDescription className="text-sm leading-6 sm:text-base">
-                            You have unsaved changes. Are you sure you want to leave? All your progress will be lost.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="!mt-4 !grid !grid-cols-2 gap-2 sm:!flex sm:justify-end sm:space-x-2">
+                    <div className="flex items-start gap-3">
+                        <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                            <DialogHeader className="!mb-0">
+                                <DialogTitle className="text-lg font-semibold">
+                                    Unsaved Changes
+                                </DialogTitle>
+                                <DialogDescription className="text-sm text-foreground-subtle mt-1">
+                                    Leave this page? Your changes won&apos;t be saved.
+                                </DialogDescription>
+                            </DialogHeader>
+                        </div>
+                    </div>
+                    <DialogFooter className="!mt-5 !flex !flex-row items-center gap-2.5">
                         <Button
                             variant="outline"
                             onClick={handleCancel}
-                            className="h-11 w-full text-sm"
+                            className="h-10 flex-1 text-sm border-2 border-black"
                         >
-                            Stay on Page
+                            Cancel
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleConfirm}
-                            className="h-11 w-full text-sm"
+                            className="h-10 flex-1 text-sm"
                         >
-                            Leave Anyway
+                            Leave
                         </Button>
                     </DialogFooter>
                 </DialogContent>

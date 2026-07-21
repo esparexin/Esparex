@@ -69,6 +69,7 @@ export interface ListingFilter {
     categoryId?: string;
     brandId?: string;
     modelId?: string;
+    duplicateFingerprint?: string;
     isDeleted?: boolean | { $ne: boolean };
     isSold?: boolean;
     ids?: readonly string[];

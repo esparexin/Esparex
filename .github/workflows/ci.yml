@@ -51,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: HUSKY=0 npm ci
 
+      - name: Run clean build
+        run: npm run clean
+
       - name: Validate environment contract
         run: npm run guard:env-contracts
 
@@ -62,18 +65,50 @@ jobs:
           head: HEAD
           extra_args: --debug --only-verified
 
-      - name: Run full governance suite
-        run: npm run governance:all
+      - name: Validate workspace dependency graph
+        run: npm run guard:buildgraph
 
-      - name: Verify backend artifact
-        run: test -f backend/api/dist/index.js
-
-      - name: Verify web build output exists
+      - name: Verify no stale build artifacts
         run: |
-          test -d apps/web/.next && echo "✅ apps/web/.next found" || (echo "❌ apps/web/.next not found after build" && exit 1)
-          FILE_COUNT=$(find apps/web/.next -type f | wc -l)
-          echo "📊 Files in .next: $FILE_COUNT"
-          test $FILE_COUNT -gt 0 || (echo "❌ .next directory is empty!" && exit 1)
+          echo "Verifying clean state..."
+          ! find . -name "dist" -type d | grep -v "node_modules"
+          ! find . -name ".next" -type d | grep -v "node_modules"
+
+      - name: Run build
+        run: npm run build
+
+      - name: Run type-check
+        run: npm run type-check
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Verify built libraries
+        run: |
+          echo "Verifying contracts entry points..."
+          test -f packages/contracts/dist/index.js
+          echo "Verifying shared entry points..."
+          test -f shared/dist/index.js
+          echo "Verifying core entry points..."
+          test -f core/dist/index.js
+
+      - name: Verify built backend
+        run: |
+          echo "Verifying backend entry points..."
+          test -f backend/api/dist/index.js
+
+      - name: Verify built apps
+        run: |
+          echo "Verifying web app entry points..."
+          test -f apps/web/.next/required-server-files.json
+          echo "Verifying admin app entry points..."
+          test -f apps/admin/.next/required-server-files.json
+
+      - name: Backend startup smoke test
+        continue-on-error: true
+        run: |
+          echo "Running backend startup verification..."
+          MONGODB_URI=mongodb://localhost:27017/test ADMIN_MONGODB_URI=mongodb://localhost:27017/test REDIS_URL=redis://localhost:6379 JWT_SECRET=supersecretjwtsecretmustbeatleast32characters node -e "require('./backend/api/dist/app')" && echo "✅ Backend startup verification succeeded!"
 
       - name: Copy web build for artifact upload
         run: cp -r apps/web/.next apps/web/next-build

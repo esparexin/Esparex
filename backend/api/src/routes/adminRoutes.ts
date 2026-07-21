@@ -97,6 +97,15 @@ router.get('/listings', adminListings.adminListListings);
 router.get('/listings/counts', adminListings.adminGetListingCounts);
 router.get('/listings/:id', adminListings.adminGetListingById);
 
+// Bulk Operations (MUST be before parameterized :id routes to avoid Express route shadowing)
+router.post('/listings/bulk/approve', requirePermission('ads:write'), adminListings.adminBulkApproveListings);
+router.post('/listings/bulk/reject', requirePermission('ads:write'), adminListings.adminBulkRejectListings);
+router.post('/listings/bulk/deactivate', requirePermission('ads:write'), adminListings.adminBulkDeactivateListings);
+router.post('/listings/bulk/expire', requirePermission('ads:write'), adminListings.adminBulkExpireListings);
+router.post('/listings/bulk/extend', requirePermission('ads:write'), adminListings.adminBulkExtendListings);
+router.post('/listings/bulk/resend-warnings', requirePermission('ads:write'), adminListings.adminBulkResendListingWarnings);
+router.post('/listings/bulk/resend-spotlight-warnings', requirePermission('ads:write'), adminListings.adminBulkResendSpotlightWarnings);
+
 // Moderation Actions (Support both POST and PATCH for compatibility)
 router.patch('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
 router.post('/listings/:id/approve', requirePermission('ads:write'), adminListings.adminApproveListing);
@@ -116,15 +125,6 @@ router.post('/listings/:id/extend', requirePermission('ads:write'), adminListing
 router.patch('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
 router.post('/listings/:id/report-resolve', requirePermission('ads:write'), adminListings.adminResolveListingReport);
 router.delete('/listings/:id', requirePermission('ads:write'), adminListings.adminSoftDeleteListing);
-
-// Bulk Operations
-router.post('/listings/bulk/approve', requirePermission('ads:write'), adminListings.adminBulkApproveListings);
-router.post('/listings/bulk/reject', requirePermission('ads:write'), adminListings.adminBulkRejectListings);
-router.post('/listings/bulk/deactivate', requirePermission('ads:write'), adminListings.adminBulkDeactivateListings);
-router.post('/listings/bulk/expire', requirePermission('ads:write'), adminListings.adminBulkExpireListings);
-router.post('/listings/bulk/extend', requirePermission('ads:write'), adminListings.adminBulkExtendListings);
-router.post('/listings/bulk/resend-warnings', requirePermission('ads:write'), adminListings.adminBulkResendListingWarnings);
-router.post('/listings/bulk/resend-spotlight-warnings', requirePermission('ads:write'), adminListings.adminBulkResendSpotlightWarnings);
 
 router.get('/reports', adminReports.getReportedAds);
 router.get('/reports/:id', adminReports.getReportedAdById);
