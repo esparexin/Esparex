@@ -398,5 +398,20 @@ Repository standards are versioned. Any new Mandatory standard must:
 - Receive approval
 - Update governance documentation
 
-No new Mandatory rule may be enforced retroactively without an approved migration plan.
+
+
+---
+
+## Refactoring Exit Criteria (Mandatory Governance Rule)
+
+A refactoring task is complete ONLY when all 7 criteria are satisfied:
+
+1. **Functionality Unchanged**: All existing features, states, and user workflows behave identically.
+2. **Public APIs Unchanged**: Internal refactoring must not break or modify public API contracts (unless explicitly approved in ADR).
+3. **TypeScript Clean**: Monorepo type-check passes with exactly `0` errors across all packages (`npm run type-check`).
+4. **Automated Tests Pass**: All existing unit and integration test suites pass with 100% green status.
+5. **No Accessibility Regressions**: No new WCAG 2.2 AA accessibility violations or keyboard focus leaks are introduced.
+6. **Measurable Duplication Reduction**: Code duplication is reduced or maintainability is measurably improved.
+7. **Simpler Architecture**: The resulting architecture is demonstrably simpler, cleaner, and easier to maintain than before.
+
 
