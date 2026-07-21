@@ -259,10 +259,8 @@ export function BrowseAds({
     <section data-primary className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-          {/* ── Filters Sidebar ──────────────────────────────────────────── */}
-          <div className="hidden lg:block">
-            <SearchFilters {...filterProps} />
-          </div>
+          {/* ── Single SearchFilters — renders sidebar on desktop, drawer trigger on mobile ── */}
+          <SearchFilters {...filterProps} />
 
           {/* ── Results Column ───────────────────────────────────────────── */}
           <div className="flex-1 min-w-0 space-y-4">
@@ -273,7 +271,6 @@ export function BrowseAds({
               view={view}
               onSortChange={setSort}
               onViewChange={setView}
-              filterNode={<SearchFilters {...filterProps} />}
               activeFilterCount={activeFilterCount}
             />
 
