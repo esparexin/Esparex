@@ -1,0 +1,19 @@
+id: trust
+name: Trust Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Trust Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.6"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+public_api:
+  facades:
+    - TrustService
