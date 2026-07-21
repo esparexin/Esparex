@@ -16,6 +16,7 @@
   "scripts": {
     "prepare": "node -e \"const e=process.env,fs=require('fs');if(!e.CI&&!e.VERCEL&&!e.RENDER&&fs.existsSync('.git')){require('child_process').execSync('husky',{stdio:'inherit'})}\"",
     "hooks:install": "husky install",
+    "clean": "node scripts/clean.js",
     "clean:workspace-installs": "node -e \"['backend/api/node_modules', 'apps/admin/node_modules', 'apps/web/node_modules', 'shared/node_modules', 'core/node_modules'].forEach(p => require('fs').rmSync(p, { recursive: true, force: true }))\"",
     "build": "npm run build -w @esparex/contracts && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api && npm run build -w @esparex/apps-admin && npm run build -w @esparex/apps-web",
     "type-check": "npm run type-check -w @esparex/contracts && npm run type-check -w @esparex/shared && npm run type-check -w @esparex/core && npm run type-check -w @esparex/backend-api && npm run type-check -w @esparex/apps-admin && npm run type-check -w @esparex/apps-web",

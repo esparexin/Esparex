@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "tsc -b",
+    "clean": "node ../../scripts/clean.js --contracts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

@@ -7,7 +7,7 @@
     "node": ">=22.0.0 <27"
   },
   "scripts": {
-    "clean": "node ../../scripts/kill-port.js 5001",
+    "clean": "node ../../scripts/kill-port.js 5001 && node ../../scripts/clean.js --backend",
     "predev": "npm run clean",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "start:dev": "node dist/index.js",
