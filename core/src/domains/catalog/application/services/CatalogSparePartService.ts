@@ -21,7 +21,9 @@ export const findCategoryIdBySlug = async (
     categoryParam: string,
     extraQuery: Record<string, unknown> = {}
 ): Promise<string | null> => {
-    const category = await CategoryModel.findOne({ slug: categoryParam, ...extraQuery });
+    // 🔒 SECURITY: use $eq to prevent operator injection from categoryParam.
+    // extraQuery is constructed internally (never from user input directly).
+    const category = await CategoryModel.findOne({ slug: { $eq: categoryParam }, ...extraQuery });
     return category ? category._id.toString() : null;
 };
 

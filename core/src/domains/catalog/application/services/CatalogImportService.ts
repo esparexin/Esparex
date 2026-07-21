@@ -245,7 +245,8 @@ export class CatalogImportService {
                     { upsert: true, new: true }
                 );
                 await Model.findOneAndUpdate(
-                    { name: device.name, brandId: brand._id },
+                    // 🔒 SECURITY: explicit $eq prevents operator injection from device.name / brand._id.
+                    { name: { $eq: device.name }, brandId: { $eq: brand._id } },
                     {
                         name: device.name,
                         brandId: brand._id,
@@ -257,6 +258,7 @@ export class CatalogImportService {
                     },
                     { upsert: true, new: true }
                 );
+
                 result.success++;
             }
 

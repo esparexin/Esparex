@@ -46,6 +46,9 @@ export const updateUserStatus = async (
     // Validate userId before any DB operation
     const normalizedUserId = toObjectId(userId);
     if (!normalizedUserId) throw new AppError('Invalid user ID', 400, 'INVALID_USER_ID');
+    // Canonical safe string ID — used for all DB queries and cache keys after this point.
+    // The raw `userId` parameter is only retained for audit log entries.
+    const safeUserId = normalizedUserId.toString();
 
     const updateData: Record<string, unknown> = {
         status: newStatus,
@@ -80,27 +83,30 @@ export const updateUserStatus = async (
         // Without this, authMiddleware would serve the stale 'active' status
         // from cache for up to 300 seconds.
         try {
-            await redis.del(`user:status:${userId}`);
+            await redis.del(`user:status:${safeUserId}`);
         } catch (e) {
-            logger.warn(`Failed to clear Redis status cache for user ${userId}`, e);
+            logger.warn(`Failed to clear Redis status cache for user ${safeUserId}`, e);
         }
 
         // --- Side Effects ---
         if (newStatus === USER_STATUS.DELETED) {
             const deletedAt = new Date();
             await Promise.all([
+                // Port interface accepts plain string — safeUserId is already validated.
                 getListingRepository().updateMany(
-                    { sellerId: userId, isDeleted: { $ne: true } },
+                    { sellerId: safeUserId, isDeleted: { $ne: true } },
                     { isDeleted: true, deletedAt }
                 ),
+                // Direct Mongoose call — explicit $eq closes the raw-value taint path.
                 Business.updateMany(
-                    { userId, isDeleted: { $ne: true } },
+                    { userId: { $eq: safeUserId }, isDeleted: { $ne: true } },
                     { isDeleted: true, deletedAt }
                 ),
             ]);
         } else {
+            // Port interface accepts plain string — safeUserId is already validated.
             const liveListings = await getListingRepository().find(
-                { sellerId: userId, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } }
+                { sellerId: safeUserId, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } }
             );
 
             if (liveListings.length > 0) {
