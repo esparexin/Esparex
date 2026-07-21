@@ -1,0 +1,23 @@
+id: boosts
+name: Boosts Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Boosts Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.7"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+  - listings
+  - payments
+public_api:
+  facades:
+    - BoostService
+    - PromotionPolicyService
+    - AdSlotService
