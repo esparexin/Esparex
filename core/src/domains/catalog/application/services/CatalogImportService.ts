@@ -244,11 +244,14 @@ export class CatalogImportService {
                     },
                     { upsert: true, new: true }
                 );
+                const safeDeviceName = typeof device.name === 'string' ? device.name.trim() : '';
+                if (!safeDeviceName) continue;
+
                 await Model.findOneAndUpdate(
-                    // 🔒 SECURITY: explicit $eq prevents operator injection from device.name / brand._id.
-                    { name: { $eq: device.name }, brandId: { $eq: brand._id } },
+                    // 🔒 SECURITY: safeDeviceName (sanitized string) + brand._id (ObjectId) with $eq prevents operator injection.
+                    { name: { $eq: safeDeviceName }, brandId: { $eq: brand._id } },
                     {
-                        name: device.name,
+                        name: safeDeviceName,
                         brandId: brand._id,
                         categoryId: catId,
                         categoryIds: [catId],
