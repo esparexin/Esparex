@@ -40,8 +40,20 @@ export const updateUserStatus = async (
     newStatus: UserStatusValue,
     context: StatusUpdateContext
 ) => {
+    const ALLOWED_USER_STATUSES = new Set<UserStatusValue>([
+        USER_STATUS.LIVE,
+        USER_STATUS.SUSPENDED,
+        USER_STATUS.BANNED,
+        USER_STATUS.DELETED,
+    ]);
+
+    if (typeof newStatus !== 'string' || !ALLOWED_USER_STATUSES.has(newStatus as UserStatusValue)) {
+        throw new AppError('Invalid user status', 400, 'INVALID_USER_STATUS');
+    }
+    const validatedStatus = newStatus as UserStatusValue;
+
     const isRestrictive = ([USER_STATUS.SUSPENDED, USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[])
-        .includes(newStatus);
+        .includes(validatedStatus);
 
     // 🔒 SECURITY: Inline ObjectId validation — CodeQL recognizes this exact pattern
     // as a sanitization barrier. Cross-file helper calls (toObjectId) are not tracked
@@ -54,7 +66,7 @@ export const updateUserStatus = async (
     const safeUserId = normalizedUserId.toHexString();
 
     const updateData: Record<string, unknown> = {
-        status: newStatus,
+        status: validatedStatus,
         statusChangedAt: new Date(),
         // Sanitize reason: ensure it's a string, trim, and cap length
         statusReason: typeof context.reason === 'string'
@@ -62,12 +74,12 @@ export const updateUserStatus = async (
             : undefined,
     };
 
-    if (newStatus === USER_STATUS.DELETED) {
+    if (validatedStatus === USER_STATUS.DELETED) {
         updateData.deletedAt = new Date();
     }
 
     // Clear reasons if activating
-    if (newStatus === USER_STATUS.LIVE) {
+    if (validatedStatus === USER_STATUS.LIVE) {
         updateData.statusReason = undefined;
     }
 
@@ -92,7 +104,7 @@ export const updateUserStatus = async (
         }
 
         // --- Side Effects ---
-        if (newStatus === USER_STATUS.DELETED) {
+        if (validatedStatus === USER_STATUS.DELETED) {
             const deletedAt = new Date();
             await Promise.all([
                 // Port interface accepts plain string — safeUserId is already validated.
@@ -120,9 +132,9 @@ export const updateUserStatus = async (
                         toStatus: LISTING_STATUS.REJECTED,
                         actor: {
                             type: ACTOR_TYPE.SYSTEM,
-                            id: `user_status_${newStatus}`,
+                            id: `user_status_${validatedStatus}`,
                         },
-                        reason: `Listing rejected due to seller status ${newStatus}`,
+                        reason: `Listing rejected due to seller status ${validatedStatus}`,
                         metadata: {
                             action: 'user_status_enforcement',
                             sourceRoute: 'UserStatusService.updateUserStatus',
@@ -135,12 +147,12 @@ export const updateUserStatus = async (
             }
         }
 
-        if (([USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[]).includes(newStatus)) {
+        if (([USER_STATUS.BANNED, USER_STATUS.DELETED] as UserStatusValue[]).includes(validatedStatus)) {
             await SmartAlert.updateMany({ userId }, { isActive: false });
         }
 
         // --- Admin Logging ---
-        const actionVerb = newStatus.toUpperCase();
+        const actionVerb = validatedStatus.toUpperCase();
         if (context.actor === 'ADMIN') {
             if (context.logFn) {
                 // Preferred: transport-free path
@@ -162,7 +174,7 @@ export const updateUserStatus = async (
 
     // --- Admin Logging ---
     if (context.actor === 'ADMIN') {
-        const actionVerb = newStatus === USER_STATUS.LIVE ? 'ACTIVATED' : newStatus.toUpperCase();
+        const actionVerb = validatedStatus === USER_STATUS.LIVE ? 'ACTIVATED' : validatedStatus.toUpperCase();
         if (context.logFn) {
             await context.logFn(
                 `STATUS_UPDATE_${actionVerb}`,
