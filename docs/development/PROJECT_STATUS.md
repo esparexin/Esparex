@@ -1,8 +1,8 @@
 # Esparex Project Status
 
-**Last Updated:** 2026-07-20  
-**Current Branch:** `develop`  
-**Latest Milestone:** `arch-milestone/v2-architecture-implementation`
+**Last Updated:** 2026-07-21  
+**Current Branch:** `main`  
+**Latest Milestone:** `architecture-m2.6` (Fraud & Trust Migration Merged)
 
 ---
 

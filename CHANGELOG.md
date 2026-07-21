@@ -4,6 +4,15 @@ All notable changes to the Esparex Platform will be documented in this file.
 
 ---
 
+## [2.6.0] - 2026-07-21
+
+### Added
+- **Fraud & Trust Bounded Context Isolation (M2.6):** Created dedicated domain boundaries under `core/src/domains/fraud/` (`FraudDetectionService`, `SpamDetectorService`, `DuplicateRolloutGuard`) and `core/src/domains/trust/` (`TrustService`).
+- **100% Backward-Compatible Compatibility Shims:** Added 1-line re-export shims in `core/src/services/` (`FraudDetectionService.ts`, `TrustService.ts`, `SpamDetectorService.ts`, `DuplicateRolloutGuard.ts`) maintaining zero breaking changes for existing consumers.
+- **Milestone Verification Tag:** Tagged release milestone `architecture-m2.6` passing all 10 repository gate checks and 100/100 architecture verification score.
+
+---
+
 ## [2.5.0] - 2026-07-15
 
 ### Added
