@@ -260,6 +260,17 @@ export class CatalogImportService {
                 if (!brand || !brand._id) continue;
                 const safeBrandId = new mongoose.Types.ObjectId(brand._id.toString());
 
+                const safeSpecs: Record<string, string | number | boolean> = {};
+                if (device.specs && typeof device.specs === 'object' && !Array.isArray(device.specs)) {
+                    for (const [key, val] of Object.entries(device.specs)) {
+                        if (typeof key === 'string' && !key.startsWith('$') && !key.includes('.')) {
+                            if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
+                                safeSpecs[key] = val;
+                            }
+                        }
+                    }
+                }
+
                 await Model.findOneAndUpdate(
                     { name: { $eq: rawName }, brandId: { $eq: safeBrandId } },
                     {
@@ -269,7 +280,7 @@ export class CatalogImportService {
                         categoryIds: [catId],
                         isActive: true,
                         approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
-                        specifications: device.specs && typeof device.specs === 'object' ? device.specs : {}
+                        specifications: safeSpecs
                     },
                     { upsert: true, new: true }
                 );
