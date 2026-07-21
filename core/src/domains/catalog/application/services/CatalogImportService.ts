@@ -225,13 +225,25 @@ export class CatalogImportService {
             // Seed devices is more complex for bulk due to brand-model dependency. 
             // Keeping it sequential for now since it's a internal seeder, not a high-volume public import.
             for (const device of devices) {
-                 const catId = categoryMap[device.type.toLowerCase()];
-                 const brandSlug = device.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                 const brand = await Brand.findOneAndUpdate(
-                    { name: { $regex: new RegExp(`^${escapeRegExp(device.brand)}$`, 'i') } },
+                if (!device || typeof device !== 'object') continue;
+
+                const rawName = typeof device.name === 'string' ? device.name.trim() : '';
+                const rawBrand = typeof device.brand === 'string' ? device.brand.trim() : '';
+                const rawType = typeof device.type === 'string' ? device.type.toLowerCase().trim() : '';
+
+                if (!rawName || !rawBrand || !rawType) continue;
+
+                const catId = categoryMap[rawType];
+                if (!catId) continue;
+
+                const brandSlug = rawBrand.replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                const escapedBrand = escapeRegExp(rawBrand);
+
+                const brand = await Brand.findOneAndUpdate(
+                    { name: { $regex: new RegExp('^' + escapedBrand + '$', 'i') } },
                     {
                         $setOnInsert: {
-                            name: device.brand,
+                            name: rawBrand,
                             slug: brandSlug,
                             isActive: true,
                             approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
@@ -244,20 +256,20 @@ export class CatalogImportService {
                     },
                     { upsert: true, new: true }
                 );
-                const safeDeviceName = typeof device.name === 'string' ? device.name.trim() : '';
-                if (!safeDeviceName) continue;
+
+                if (!brand || !brand._id) continue;
+                const safeBrandId = new mongoose.Types.ObjectId(brand._id.toString());
 
                 await Model.findOneAndUpdate(
-                    // 🔒 SECURITY: safeDeviceName (sanitized string) + brand._id (ObjectId) with $eq prevents operator injection.
-                    { name: { $eq: safeDeviceName }, brandId: { $eq: brand._id } },
+                    { name: { $eq: rawName }, brandId: { $eq: safeBrandId } },
                     {
-                        name: safeDeviceName,
-                        brandId: brand._id,
+                        name: rawName,
+                        brandId: safeBrandId,
                         categoryId: catId,
                         categoryIds: [catId],
                         isActive: true,
                         approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED,
-                        specifications: device.specs || {}
+                        specifications: device.specs && typeof device.specs === 'object' ? device.specs : {}
                     },
                     { upsert: true, new: true }
                 );
