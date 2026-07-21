@@ -28,19 +28,17 @@ export function ImageUploadSection() {
     const combinedError = imageUploadError || imagesError;
 
     return (
-        <section className="space-y-6">
-            <div className="text-center space-y-1">
-                <label className="text-sm font-bold text-foreground block">Product Photos</label>
-                <p className="text-xs text-foreground-subtle font-medium italic">Photos should be clear and product-focused</p>
-            </div>
+        <section className="space-y-6" aria-labelledby="photos-heading">
+            <h2 id="photos-heading" className="sr-only">Product Photos</h2>
 
-            <Field error={combinedError}>
-                <div className="grid grid-cols-3 gap-3">
+            <Field label="Product Photos" error={combinedError}>
+                <p className="text-xs text-foreground-subtle font-medium italic mb-3">Photos should be clear and product-focused</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {listingImages.map((img, idx) => (
-                        <div key={img.id} className="aspect-square relative group rounded-2xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm transition-all hover:border-primary/50">
+                        <div key={img.id} className="aspect-square relative group rounded-xl overflow-hidden border-2 border-slate-100 bg-slate-50 shadow-sm transition-all hover:border-primary/50">
                             <Image 
                                 src={img.preview} 
-                                alt="Listing" 
+                                alt={`Product photo ${idx + 1} of ${listingImages.length}`}
                                 fill
                                 className="object-cover" 
                                 unoptimized={true}
@@ -77,7 +75,7 @@ export function ImageUploadSection() {
                     
                     {listingImages.length < MAX_AD_IMAGES && (
                         <label className={cn(
-                            "aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer transition-all bg-slate-50/50",
+                            "aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all bg-slate-50/50",
                             isUploadingImages ? "opacity-50 cursor-not-allowed border-slate-200" : "border-slate-200 hover:border-primary hover:bg-primary/5 hover:shadow-inner"
                         )}>
                             <input
@@ -85,6 +83,7 @@ export function ImageUploadSection() {
                                 multiple
                                 accept="image/*"
                                 className="hidden"
+                                aria-label="Add product photos"
                                 onChange={(e) => addImages(Array.from(e.target.files || []))}
                                 disabled={isUploadingImages}
                             />
@@ -96,7 +95,7 @@ export function ImageUploadSection() {
                                         <Upload className="w-5 h-5 text-primary" />
                                     </div>
                                     <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-wider">Add Photo</span>
-                                    <span className="text-2xs text-foreground-subtle mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
+                                    <span className="text-xs text-foreground-subtle mt-0.5">{listingImages.length}/{MAX_AD_IMAGES}</span>
                                 </>
                             )}
                         </label>

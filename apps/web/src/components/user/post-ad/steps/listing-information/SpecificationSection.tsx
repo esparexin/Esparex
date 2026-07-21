@@ -57,7 +57,7 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 pointer-events-none")}>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                         {availableSizes.map((size) => {
                             const isSelected = screenSize === size;
                             return (
@@ -65,8 +65,9 @@ export function SpecificationSection() {
                                     key={size}
                                     type="button"
                                     onClick={() => onScreenSizeChange(size)}
+                                    aria-pressed={isSelected}
                                     className={cn(
-                                        "flex h-11 items-center justify-center rounded-xl border text-sm font-bold transition-all duration-200 active:scale-[0.98]",
+                                        "flex h-11 items-center justify-center rounded-xl border-2 text-sm font-bold transition-all duration-200 active:scale-[0.98]",
                                         isSelected
                                             ? "border-primary bg-primary/5 text-primary shadow-sm"
                                             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"

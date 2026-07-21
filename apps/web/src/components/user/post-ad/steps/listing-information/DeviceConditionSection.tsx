@@ -34,7 +34,7 @@ export function DeviceConditionSection() {
                 <section className="space-y-1.5">
                     <label className="text-[10px] font-bold text-foreground-tertiary uppercase tracking-wider block ml-1">Working Spare Parts</label>
                     {isLoadingSpareParts ? (
-                        <div className="grid grid-cols-4 gap-1.5">
+                        <div className="grid grid-cols-4 gap-2">
                             {Array.from({ length: 8 }).map((_, i) => (
                                 <div key={i} className="h-6 rounded-lg bg-slate-100 animate-pulse" />
                             ))}
@@ -53,7 +53,7 @@ export function DeviceConditionSection() {
                             </Button>
                         </div>
                     ) : availableSpareParts.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-2">
                             {availableSpareParts.map((part) => {
                                 const selected = spareParts.includes(part.id as string);
                                 return (
@@ -61,8 +61,9 @@ export function DeviceConditionSection() {
                                         key={part.id as string} 
                                         type="button" 
                                         onClick={() => toggleSparePart(part.id as string)}
+                                        aria-pressed={selected}
                                         className={cn(
-                                            "h-6 px-2.5 rounded-full border text-[11px] font-bold transition-all", 
+                                            "min-h-[44px] px-3 rounded-full border-2 text-[11px] font-bold transition-all duration-200", 
                                             selected ? "bg-primary border-primary text-primary-foreground shadow-sm" : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"
                                         )}
                                     >
@@ -75,7 +76,8 @@ export function DeviceConditionSection() {
                 </section>
             )}
 
-            <section className="space-y-3" data-field="deviceCondition">
+            <section className="space-y-3" data-field="deviceCondition" aria-labelledby="condition-heading">
+                <h2 id="condition-heading" className="sr-only">Device Condition</h2>
                 <Field label="Device Condition" error={deviceConditionError as string}>
                     <div className="flex gap-2 flex-wrap">
                         {DEVICE_CONDITION_OPTIONS.map(({ value, label, dot, active }) => (
@@ -83,8 +85,9 @@ export function DeviceConditionSection() {
                                 key={value} 
                                 type="button" 
                                 onClick={() => setValue("deviceCondition", value, { shouldValidate: true, shouldTouch: true })}
+                                aria-pressed={deviceCondition === value}
                                 className={cn(
-                                    "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all", 
+                                    "flex items-center gap-2 h-11 px-4 rounded-xl border-2 text-sm font-bold transition-all duration-200", 
                                     deviceCondition === value ? active : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300"
                                 )}
                             >

@@ -147,7 +147,8 @@ export function LocationSection() {
     const locationError = shouldShowFieldError("location") ? getFirstFormErrorMessage(errors.location) : undefined;
 
     return (
-        <section className="space-y-4">
+        <section className="space-y-4" aria-labelledby="location-heading">
+            <h2 id="location-heading" className="sr-only">Location</h2>
             <Field label="Where are you located?" required error={locationError as string}>
                 <div className="space-y-3">
                     <LocationSelector
@@ -155,7 +156,7 @@ export function LocationSection() {
                         mode="postAd"
                         onLocationSelect={handleSelectLocation}
                         currentDisplay={locationVal?.display}
-                        className="h-14 font-bold rounded-2xl border-2"
+                        className="h-14 font-bold rounded-xl border-2"
                         disabled={isLocationLocked}
                     />
                     {isLocationLocked ? (

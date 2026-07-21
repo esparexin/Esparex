@@ -28,7 +28,8 @@ export function PriceSection() {
     const priceError = shouldShowFieldError("price") ? errors.price?.message : undefined;
 
     return (
-        <section className="space-y-6">
+        <section className="space-y-6" aria-labelledby="price-heading">
+            <h2 id="price-heading" className="sr-only">Price</h2>
             <Field label="Set your price" required error={priceError as string}>
                 <div className="space-y-4">
                     <div className="relative h-20">
@@ -38,7 +39,7 @@ export function PriceSection() {
                             placeholder="Enter Amount"
                             disabled={isFree}
                             className={cn(
-                                "h-full pl-12 pr-4 rounded-2xl border-2 font-bold text-2xl transition-all",
+                                "h-full pl-12 pr-4 rounded-xl border-2 font-bold text-2xl transition-all",
                                 isFree ? "bg-slate-50 border-slate-100 text-foreground-subtle" : "bg-white border-slate-200 focus:border-primary"
                             )}
                         />
@@ -49,6 +50,9 @@ export function PriceSection() {
                     </div>
 
                     <div 
+                        role="switch"
+                        aria-checked={!!isFree}
+                        tabIndex={0}
                         onClick={() => {
                             const nextVal = !isFree;
                             setValue("isFree", nextVal);
@@ -58,14 +62,26 @@ export function PriceSection() {
                                 trigger("price");
                             }
                         }}
+                        onKeyDown={(e) => {
+                            if (e.key === " " || e.key === "Enter") {
+                                e.preventDefault();
+                                const nextVal = !isFree;
+                                setValue("isFree", nextVal);
+                                if (nextVal) {
+                                    setValue("price", 0, { shouldValidate: true });
+                                } else {
+                                    trigger("price");
+                                }
+                            }
+                        }}
                         className={cn(
-                            "flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all",
+                            "flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                             isFree ? "bg-green-50 border-green-200 ring-2 ring-green-100" : "bg-white border-slate-100 hover:border-slate-200"
                         )}
                     >
                         <div className="flex items-center gap-3">
                             <div className={cn(
-                                "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
+                                "w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0",
                                 isFree ? "bg-green-600 text-white" : "bg-slate-100 text-foreground-subtle"
                             )}>
                                 <Checkbox

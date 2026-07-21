@@ -27,7 +27,7 @@ export function CategorySection() {
     }, [isEditMode, handleCategoryChange]);
 
     const GridContent = (
-        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-2">
             {dynamicCategories.map((cat) => {
                 const Icon = cat.icon || CircuitBoard;
                 const selected = cat.id === categoryId;
@@ -38,6 +38,7 @@ export function CategorySection() {
                         variant={selected ? "default" : "outline"} 
                         onClick={() => onCategoryClick(cat.id)} 
                         disabled={isEditMode && !selected}
+                        aria-pressed={selected}
                         className={cn(
                             "flex flex-col items-center justify-center gap-1 h-20 py-2 px-1 rounded-xl transition-all duration-200 border-2", 
                             selected ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-white hover:bg-slate-50 border-slate-100", 
@@ -55,7 +56,8 @@ export function CategorySection() {
     );
 
     return (
-        <section className="space-y-3">
+        <section className="space-y-3" aria-labelledby="category-heading">
+            <h2 id="category-heading" className="sr-only">Category</h2>
             <Field error={categoryError as string} label="Select Category" required>
                 {GridContent}
             </Field>
