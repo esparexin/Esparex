@@ -148,3 +148,41 @@ A refactoring task is complete ONLY when:
 - [ ] No unrelated files modified (File count guardrails: 1–5 ideal, 6–10 acceptable)
 
 ---
+
+## 10. Contract Impact Review (Mandatory)
+
+Any PR that changes an **API contract dimension** must include a completed Contract Impact Checklist before it is considered mergeable.
+
+### What counts as a contract change
+
+| Dimension | Examples |
+|---|---|
+| HTTP method | `PUT` → `PATCH`, `POST` → `PUT` |
+| Route path | `/listings/:id` → `/listings/:id/edit` |
+| Request payload | Field renamed, added, removed, or type changed |
+| Response envelope | Shape, status code, or field names changed |
+| Validation | New required field, changed constraint |
+| DTO / Shared schema | Any change in `packages/contracts` |
+
+### Mandatory Contract Impact Checklist
+
+When any of the above dimensions change, the PR description must confirm:
+
+- [ ] **Frontend** — all API calls use the new contract
+- [ ] **Backend** — routes, controllers, and validators updated
+- [ ] **Playwright mocks** — all `page.route()` interceptors reflect the new method, path, and shape
+- [ ] **Integration / unit tests** — mocks and stubs updated
+- [ ] **Shared contracts** (`packages/contracts`) — schema and types updated if applicable
+- [ ] **API documentation** — OpenAPI / README updated if applicable
+
+### Enforcement
+
+A PR that changes an API contract dimension but does **not** include the above checklist must be blocked at review.
+
+Reviewers must verify each item independently — do not accept "tests pass" as a substitute for the checklist.
+
+### Rationale
+
+This rule was introduced after a `PUT → PATCH` migration landed in `listingMutationAPI.ts` without updating the Playwright route interceptors. The production code was correct, but the test suite diverged silently. Both failures (`capturedPayload.images undefined` and `Ad Updated not visible`) shared the same root cause and would have been caught by this checklist.
+
+---
