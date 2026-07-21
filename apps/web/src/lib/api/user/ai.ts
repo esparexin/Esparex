@@ -17,7 +17,13 @@ export interface AIOutput {
     [key: string]: unknown;
 }
 
-export const generateAIContent = async (payload: AIInput): Promise<AIOutput | null> => {
-    const { data } = await toApiResult<AIOutput>(apiClient.post(API_ROUTES.USER.AI_GENERATE, payload));
-    return data;
+export const generateAIContent = async (payload: AIInput): Promise<{ data: AIOutput | null; error: any }> => {
+    return await toApiResult<AIOutput>(apiClient.post(API_ROUTES.USER.AI_GENERATE, payload));
+};
+
+export const checkAiStatus = async (): Promise<{ available: boolean; reason: string | null; retryAfter: number }> => {
+    const { data } = await toApiResult<{ available: boolean; reason: string | null; retryAfter: number }>(
+        apiClient.get('/user/ai/status', { silent: true })
+    );
+    return data || { available: false, reason: 'AI_UNAVAILABLE', retryAfter: 0 };
 };

@@ -1,13 +1,14 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { generateAIContent } from "@/lib/api/user/ai";
+import { generateAIContent, checkAiStatus } from "@/lib/api/user/ai";
 import { resolveCatalogEntityId } from "@/lib/listings/postingFormNormalization";
 import { MAX_AD_TITLE_CHARS, MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
 import { notify } from "@/lib/feedback";
 import { ListingCategory } from "@/types/listing";
 import { SparePart } from "@/lib/api/user/masterData";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
+import { AiErrorCode } from "@esparex/contracts/v1/common/enums";
 
 export function usePostAdAiGeneration(
     form: UseFormReturn<PostAdFormData>,
@@ -16,6 +17,30 @@ export function usePostAdAiGeneration(
     setFormError: (error: string | null) => void
 ) {
     const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [isAiAvailable, setIsAiAvailable] = useState(true);
+
+    useEffect(() => {
+        if (isAiAvailable) return;
+        
+        let timeoutId: NodeJS.Timeout;
+        const pollStatus = async () => {
+            try {
+                const status = await checkAiStatus();
+                if (status.available) {
+                    setIsAiAvailable(true);
+                } else if (status.retryAfter > 0) {
+                    timeoutId = setTimeout(pollStatus, status.retryAfter * 1000);
+                }
+            } catch {
+                // Ignore background polling errors
+            }
+        };
+
+        // Initial check after 30 seconds if backend didn't provide a specific retryAfter during the error
+        timeoutId = setTimeout(pollStatus, 30000);
+        
+        return () => clearTimeout(timeoutId);
+    }, [isAiAvailable]);
 
     const generateDescription = useCallback(async (targetField: 'title' | 'description') => {
         const { brand, model, screenSize, category, categoryId, deviceCondition, spareParts } = form.getValues();
@@ -33,7 +58,7 @@ export function usePostAdAiGeneration(
 
         setIsGeneratingAI(true);
         try {
-            const output = await generateAIContent({
+            const { data: output, error } = await generateAIContent({
                 type: 'generate',
                 context: {
                     brand: resolvedBrand,
@@ -44,6 +69,17 @@ export function usePostAdAiGeneration(
                     targetField
                 }
             });
+
+            if (error) {
+                const errorCode = error?.context?.backendErrorCode || error?.code;
+                if (errorCode === AiErrorCode.AI_QUOTA_EXHAUSTED || errorCode === AiErrorCode.AI_UNAVAILABLE) {
+                    setIsAiAvailable(false);
+                    trackPostAdEvent({ event: "ai_generation_failure", field: targetField, metadata: { reason: errorCode } });
+                    return; // Skip setting form error popup
+                }
+                throw error;
+            }
+
             if (output) {
                 if (targetField === 'title' && output.title) {
                     const truncated = output.title.slice(0, MAX_AD_TITLE_CHARS);
@@ -66,7 +102,7 @@ export function usePostAdAiGeneration(
         } finally {
             setIsGeneratingAI(false);
         }
-    }, [categoryMap, availableSpareParts, form, setFormError, setIsGeneratingAI]);
+    }, [categoryMap, availableSpareParts, form, setFormError]);
 
-    return { generateDescription, isGeneratingAI };
+    return { generateDescription, isGeneratingAI, isAiAvailable };
 }
