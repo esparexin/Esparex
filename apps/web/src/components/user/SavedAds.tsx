@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import Image from "next/image";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -10,10 +9,8 @@ import {
   ChevronDown,
   Clock,
   Grid3x3,
-  Heart,
   List,
   MapPin,
-  Trash2,
 } from "lucide-react";
 
 import { unsaveAd } from "@/lib/api/user/users";
@@ -25,14 +22,12 @@ import type { Ad } from "@/schemas/ad.schema";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
-import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import {
   resolveListingCategoryLabel,
   resolveListingLocationLabel,
 } from "@/lib/listings/listingPresentation";
 
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import {
@@ -45,22 +40,21 @@ import { EmptyStateShell as StateEmptyShell } from "../ui/EmptyStateShell";
 import { PageStateGuard, PageState } from "../ui/PageStateGuard";
 import { Skeleton } from "../ui/skeleton";
 
+import {
+  SavedAdImageFrame,
+  SavedAdTypeBadge,
+} from "./saved-ads/SavedAdCardItems";
+import {
+  useSavedAdsSort,
+  SORT_LABELS,
+  SORT_OPTIONS,
+} from "./saved-ads/useSavedAdsSort";
+
 interface SavedAdsProps {
   navigateTo?: (page: UserPage, adId?: string | number, context?: unknown) => void;
 }
 
 type ViewMode = "grid" | "list";
-type SortOption = "newest" | "oldest" | "price-low" | "price-high" | "location";
-
-const SORT_LABELS: Record<SortOption, string> = {
-  newest: "Newest First",
-  oldest: "Oldest First",
-  "price-low": "Price: Low to High",
-  "price-high": "Price: High to Low",
-  location: "Location",
-};
-
-const SORT_OPTIONS = Object.keys(SORT_LABELS) as SortOption[];
 
 /** Returns the correct detail URL for any listing type */
 const getDetailUrl = (ad: Ad): string => {
@@ -84,126 +78,11 @@ const getCategoryLabelRaw = (ad: Ad): string => {
   return resolveListingCategoryLabel(ad, "General");
 };
 
-// Statuses where the ad is no longer publicly accessible
-const UNAVAILABLE_STATUSES = new Set(["deactivated", "rejected", "expired", "deleted"]);
-
-const isUnavailable = (ad: Ad) => UNAVAILABLE_STATUSES.has(ad.status ?? "");
-
-const getUnavailableLabel = (status: string): string => {
-  switch (status) {
-    case "deactivated": return "Deactivated";
-    case "expired":     return "Expired";
-    case "sold":        return "Sold";
-    case "rejected":    return "Removed";
-    case "deleted":     return "Deleted";
-    default:            return "Unavailable";
-  }
-};
-
-function SavedAdStatusOverlay({ status }: { status?: string }) {
-  return (
-    <div className="absolute inset-0 bg-gray-900/40 flex items-center justify-center">
-      <Badge className="bg-gray-800 text-white text-2xs font-bold border-0 gap-1">
-        <AlertCircle className="h-3 w-3" />
-        {getUnavailableLabel(status ?? "")}
-      </Badge>
-    </div>
-  );
-}
-
-function SavedAdRemoveButton({
-  unavailable,
-  onClick,
-  className,
-  iconClassName,
-}: {
-  unavailable: boolean;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  className: string;
-  iconClassName: string;
-}) {
-  return (
-    <Button
-      size="icon"
-      variant="secondary"
-      className={className}
-      onClick={onClick}
-      title="Remove from saved"
-    >
-      {unavailable ? (
-        <Trash2 className={`${iconClassName} text-red-500`} />
-      ) : (
-        <Heart className={`${iconClassName} fill-red-500 text-red-500`} />
-      )}
-    </Button>
-  );
-}
-
-function SavedAdTypeBadge({
-  label,
-  unavailable,
-  className,
-}: {
-  label: string;
-  unavailable: boolean;
-  className?: string;
-}) {
-  return (
-    <Badge
-      variant="secondary"
-      className={`text-2xs font-bold border-0 ${unavailable ? "bg-gray-100 text-foreground-subtle" : "bg-blue-50 text-link"} ${className ?? ""}`}
-    >
-      {label.toUpperCase()}
-    </Badge>
-  );
-}
-
-function SavedAdImageFrame({
-  ad,
-  unavailable,
-  containerClassName,
-  imageClassName,
-  imageSizes,
-  removeButtonClassName,
-  removeIconClassName,
-  onRemove,
-}: {
-  ad: Ad;
-  unavailable: boolean;
-  containerClassName: string;
-  imageClassName: string;
-  imageSizes: string;
-  removeButtonClassName: string;
-  removeIconClassName: string;
-  onRemove: (e: React.MouseEvent<HTMLButtonElement>) => void;
-}) {
-  return (
-    <div className={containerClassName}>
-      <Image
-        src={toSafeImageSrc(ad.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
-        alt={ad.title}
-        fill
-        unoptimized
-        className={imageClassName}
-        sizes={imageSizes}
-      />
-      {unavailable && <SavedAdStatusOverlay status={ad.status} />}
-      <SavedAdRemoveButton
-        unavailable={unavailable}
-        onClick={onRemove}
-        className={removeButtonClassName}
-        iconClassName={removeIconClassName}
-      />
-    </div>
-  );
-}
-
 export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { status } = useAuth();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [sortBy, setSortBy] = useState<SortOption>("newest");
 
   const {
     data: savedAds = [] as SavedAd[],
@@ -213,6 +92,8 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   } = useSavedAdsQuery({
     enabled: status === "authenticated",
   });
+
+  const { sortBy, setSortBy, available, unavailable } = useSavedAdsSort(savedAds);
 
   const unsaveMutation = useMutation({
     mutationFn: (adId: string | number) => unsaveAd(adId),
@@ -228,33 +109,6 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   });
 
   const getCategoryLabel = useCallback((ad: Ad) => getListingTypeLabel(ad), []);
-
-  const sortAds = useCallback((ads: Ad[]) =>
-    [...ads].sort((a, b) => {
-      switch (sortBy) {
-        case "newest":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        case "oldest":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        case "price-low":
-          return a.price - b.price;
-        case "price-high":
-          return b.price - a.price;
-        case "location":
-          return resolveListingLocationLabel(a.location, "full").localeCompare(
-            resolveListingLocationLabel(b.location, "full")
-          );
-        default:
-          return 0;
-      }
-    }), [sortBy]);
-
-  // Split into available and unavailable, each sorted independently
-  const { available, unavailable } = useMemo(() => {
-    const avail = savedAds.filter((ad) => !isUnavailable(ad));
-    const unavail = savedAds.filter((ad) => isUnavailable(ad));
-    return { available: sortAds(avail), unavailable: sortAds(unavail) };
-  }, [savedAds, sortAds]);
 
   const handleUnsave = useCallback((adId: string | number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -527,3 +381,4 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
     </div>
   );
 }
+
