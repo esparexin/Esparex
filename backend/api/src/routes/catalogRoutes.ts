@@ -5,16 +5,10 @@ import { validateObjectId } from '../middleware/validateObjectId';
 
 const router = express.Router();
 
-// Prevent browser/API caching of dynamic catalog JSON to avoid stale 304-based empty UI states.
-router.use((req, res, next) => {
-   if (req.method === 'GET') {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.setHeader('Surrogate-Control', 'no-store');
-   }
-   next();
-});
+import { publicCacheControl } from '../middleware/publicCacheControl';
+
+// Enable edge/browser caching with stale-while-revalidate for public static catalog GET requests
+router.use(publicCacheControl(300, 3600));
 
 /* ==========================================================
    1. CATEGORIES
