@@ -4,6 +4,15 @@ All notable changes to the Esparex Platform will be documented in this file.
 
 ---
 
+## [2.10.0] - 2026-07-22
+
+### Added
+- **Communications Bounded Context Isolation (M2.10):** Extracted `ContactService`, `ContactRevealService`, `ChatService`, `ChatAvailabilityService`, and `chat/*` (`ChatMessageService`, `ChatConversationService`, `ChatReportService`, `ChatAdminService`, `ChatUtils`) into a dedicated domain boundary under `core/src/domains/communications/`.
+- **Program 1 Architecture Stabilization Phase:** Completed orphan file sweep (`0` orphans), verified dependency graph (`0` circular dependencies), verified contracts public package encapsulation (`@esparex/contracts`), and confirmed 100/100 architecture score across all 10 bounded contexts.
+- **Milestone Release Tag:** Tagged release milestone `architecture-m2.10` passing all 10 repository gate checks and 100/100 architecture verification score.
+
+---
+
 ## [2.9.0] - 2026-07-22
 
 ### Added
