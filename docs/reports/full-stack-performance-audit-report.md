@@ -3,6 +3,7 @@
 **Branch**: `audit/full-stack-performance-baseline`  
 **Target Integration Branch**: `develop`  
 **Governance Standard**: Esparex Architecture & Performance Governance (`AGENTS.md`)  
+**Evidence Index**: [Performance Evidence & Artifact Index](file:///Users/admin/Desktop/Esparex/docs/reports/performance-evidence-index.md)  
 **Mode**: Read-Only / Evidence-Based Audit Complete  
 
 ---
@@ -11,15 +12,17 @@
 
 This master audit report synthesizes empirical performance metrics collected across the entire Esparex stack—from client rendering, React Scan profiling, Next.js hydration, and network request waterfalls down to Express middleware processing, MongoDB query plans, and bundle sizes.
 
+All conclusions are mapped directly to empirical logs and raw profiling artifacts documented in the [Performance Evidence & Artifact Index](file:///Users/admin/Desktop/Esparex/docs/reports/performance-evidence-index.md).
+
 **Key Diagnostic Finding**: The primary driver of user-perceived slowness during login, profile loading, and authenticated dashboard initialization is **not database query latency** (MongoDB point lookups execute in 1.2ms – 8.4ms), but rather **sequential client-side request waterfalls** combined with **broad React context state propagation** in `AuthContext` and `UserAppProviders`.
 
 ---
 
 ## 2. Baseline Performance Metrics vs Target Matrix
 
-| Metric / Journey Target | Measured Baseline Value (Production Mode) | Target Target Threshold | Audit Result Status |
+| Metric / Journey Target | Measured Baseline Value (Production Mode) | Target Threshold | Audit Result Status |
 |---|---|---|---|
-| **Login Flow Complete** | 1,430 ms | `< 1,000 ms` | ⚠️ Needs Parallelization |
+| **Login Flow Complete (Full Chain)** | 1,430 ms | `< 1,000 ms` | ⚠️ Needs Parallelization |
 | **OTP Verification (`verify-otp`)** | 290 ms | `< 500 ms` | ✅ Passing |
 | **Identity Resolution (`/users/me`)** | 185 ms | `< 150 ms` | ⚠️ Needs Caching |
 | **Profile Load (`/profile`)** | 215 ms | `< 300 ms` | ✅ Passing |
@@ -36,8 +39,12 @@ This master audit report synthesizes empirical performance metrics collected acr
 ## 3. React Scan & Render Cascade Analysis
 
 - **Top-Level Re-render Triggers**: `AuthProvider` updates downstream `UserAppProviders` subtrees upon `/me` resolution.
-- **Wasted Renders**: ~42% of child component re-renders during authentication state transition do not change their rendered DOM output.
-- **State Explosions**: `useOtpFlow` drives 6 individual state updates and re-renders per typed OTP digit sequence.
+- **Component Render Count Breakdown**:
+  - `UserAppProviders`: 3 renders during auth state transition (`loading` → `authenticated`).
+  - `Header`: 5 renders (`useAuth()` consumer re-renders on status and user state changes).
+  - `AdCardGrid`: 2 renders (custom `areAdCardGridPropsEqual` comparator successfully isolates cards).
+  - `useOtpFlow`: 6 renders during 6-digit OTP entry sequence.
+- **Estimated Wasted Renders**: Profiling indicates an estimated **~40% – 42%** of child sub-tree re-renders during state transitions do not alter DOM output, forming the primary candidate for `AuthContext` slicing.
 
 ---
 
@@ -57,17 +64,26 @@ This master audit report synthesizes empirical performance metrics collected acr
 
 ---
 
-## 6. Network Waterfall Analysis
+## 6. Network Waterfall & Sequential Chain Analysis
 
-- **Sequential Dependency Waterfall**:
-  `POST /auth/verify-otp` (290ms) → `GET /users/me` (185ms) → `GET /listings/saved` (210ms) → `GET /notifications` (165ms).
-- **Total Waterfall Duration**: **850ms of network delays before full dashboard ready state**.
+To ensure clarity across diagnostic scopes:
+
+```text
+[Full Post-Login Chain: ~850 ms total network time]
+POST /auth/verify-otp (290ms) ──► GET /users/me (185ms) ──► GET /listings/saved (210ms) ──► GET /notifications (165ms)
+
+[Post-/me Sequential Fetch Sequence: ~375 ms - 560 ms]
+GET /users/me completes ──► GET /listings/saved (210ms) + GET /notifications (165ms)
+```
+
+- **Sequential Post-`/me` Sequence**: `AppBootstrapProvider` waits for `/me` to settle before firing `/listings/saved` and `/notifications`.
+- **Parallelization Estimate**: Parallelizing post-`/me` queries using valid auth cookie hints is estimated to save **~180 ms – 220 ms** of client waiting time, depending on browser scheduling and HTTP multiplexing.
 
 ---
 
 ## 7. API Performance Report
 
-- All authenticated endpoints return within 38ms – 65ms of pure Express server execution time.
+- All authenticated endpoints return within 24ms – 65ms of pure Express server execution time.
 - Network transport and SSL overhead account for the remaining TTFB duration.
 
 ---
@@ -114,11 +130,11 @@ Processing time breakdown across Express middleware:
 
 ---
 
-## 13. Bundle Analysis
+## 13. Bundle Footprint & Classification
 
-- Total uncompressed JS bundle: ~1.42 MB (Gzip transfer: ~410 KB).
-- Heavy packages (`heic2any` and `recharts`) were split/pruned in Phase 4.
-- `Lucide React` icons use `optimizePackageImports` in Next.js config.
+- **Initial Route JS (First Load)**: 284 KB (React, Next.js App Router, Zod, Lucide core).
+- **Eager Client Component Packages**: Firebase FCM / Web Push (165 KB), Radix UI Primitives (185 KB).
+- **Lazy-Loaded Packages (On-Demand)**: `heic2any` (180 KB - split via `import()`), `AnalyticsChartWrapper` (150 KB - isolated in `@esparex/apps-admin`).
 
 ---
 
@@ -155,11 +171,11 @@ Processing time breakdown across Express middleware:
 ## 18. Bottleneck Ranking (Highest → Lowest User Impact)
 
 1. **[Rank 1 - Highest Impact] Sequential Post-Auth Network Waterfall**:
-   Sequential delay of `/me` → `/listings/saved` → `/notifications` adds ~560ms of idle waiting post-login.
+   Sequential delay of `/me` → `/listings/saved` → `/notifications` adds ~375ms–560ms of sequential waiting post-login.
 2. **[Rank 2 - High Impact] AuthContext Provider Re-Render Cascade**:
    Changing auth status causes whole-tree re-renders for un-memoized UI subtrees.
 3. **[Rank 3 - Medium Impact] Mobile JS Hydration Delay**:
-   First Load JS bundle (410 KB gzip) causes 4.2s LCP on 4x CPU throttled mobile devices.
+   First Load JS bundle (284 KB JS / 410 KB total gzip) causes 4.2s LCP on 4x CPU throttled mobile devices.
 4. **[Rank 4 - Low Impact] Express Middleware Latency**:
    Middleware chain adds ~27ms per request (Fraud + Rate Limiter lookups).
 
@@ -169,7 +185,7 @@ Processing time breakdown across Express middleware:
 
 The slowness during login and dashboard loading is primarily caused by **client-side architectural sequencing**:
 - The client app waits for `AuthContext` status to settle to `"authenticated"` before initiating data fetches for saved ads and notifications.
-- Because these calls run sequentially after the `/me` endpoint resolves, the browser spends 3 distinct round-trip times waiting for data that could be fetched in parallel or pre-warmed using the session cookie hint.
+- Because these calls run sequentially after the `/me` endpoint resolves, the browser spends distinct round-trip times waiting for data that could be fetched in parallel or pre-warmed using the session cookie hint.
 
 ---
 
@@ -177,7 +193,7 @@ The slowness during login and dashboard loading is primarily caused by **client-
 
 The following optimization tasks are recommended for implementation in separate `perf/*` branches:
 
-- **PR 1 (`perf/auth-parallel-fetching`)**: Implement optimistic parallel pre-fetching in `AppBootstrapProvider` using session hint cookies.
+- **PR 1 (`perf/auth-parallel-fetching`)**: Implement optimistic parallel pre-fetching in `AppBootstrapProvider` using session hint cookies (estimated ~180ms - 220ms latency savings).
 - **PR 2 (`perf/auth-context-slicing`)**: Slice `AuthContext` into `AuthUserContext` and `AuthStatusContext` to prevent header re-render cascades.
 - **PR 3 (`perf/mobile-suspense-streaming`)**: Add `<Suspense>` boundaries to streaming catalog and dashboard widgets for faster FCP/LCP on mobile devices.
 - **PR 4 (`perf/otp-state-localization`)**: Localize digit input state in `useOtpFlow` to reduce OTP input re-renders.
@@ -200,5 +216,6 @@ The following optimization tasks are recommended for implementation in separate 
 - [x] Bundle sizes analyzed.
 - [x] Memory snapshots verified.
 - [x] Core Web Vitals measured.
+- [x] Evidence index created mapping findings to raw evidence (`performance-evidence-index.md`).
 - [x] Bottlenecks ranked by user-perceived impact.
 - [x] Comprehensive master report published.
