@@ -89,5 +89,26 @@ describe('MongoListingRepositoryAdapter', () => {
                 }
             }));
         });
+
+        it('should correctly map price range, imageHashes, sellerId operator, _id operator, and location.locationId string key', async () => {
+            const mockId = new mongoose.Types.ObjectId().toString();
+            const filter: ListingFilter = {
+                _id: { $ne: mockId },
+                sellerId: { $ne: mockId },
+                price: { $gte: 100, $lte: 200 },
+                imageHashes: { $in: ['hash1', 'hash2'] },
+                'location.locationId': mockId,
+            };
+
+            await adapter.count(filter);
+
+            expect(AdModel.countDocuments).toHaveBeenCalledWith(expect.objectContaining({
+                _id: { $ne: mockId },
+                sellerId: { $ne: mockId },
+                price: { $gte: 100, $lte: 200 },
+                imageHashes: { $in: ['hash1', 'hash2'] },
+                'location.locationId': new mongoose.Types.ObjectId(mockId),
+            }));
+        });
     });
 });

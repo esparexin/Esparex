@@ -63,12 +63,15 @@ export interface ActiveListingCountFilter {
 
 export interface ListingFilter {
     session?: unknown;
-    sellerId?: string;
+    _id?: string | { $ne: string } | unknown;
+    sellerId?: string | { $ne: string };
     listingType?: ListingTypeValue;
     status?: AdStatusValue | { $in: AdStatusValue[] };
     categoryId?: string;
     brandId?: string;
     modelId?: string;
+    price?: { $gte: number; $lte: number } | number;
+    imageHashes?: { $in: string[] };
     duplicateFingerprint?: string;
     isDeleted?: boolean | { $ne: boolean };
     isSold?: boolean;
