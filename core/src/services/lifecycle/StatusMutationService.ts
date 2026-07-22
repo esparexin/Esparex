@@ -10,8 +10,8 @@ import { enforceLifecycleMutationPolicy } from './LifecyclePolicyGuard';
 import StatusHistory from '../../models/StatusHistory';
 import AdminMetrics from '../../models/AdminMetrics';
 import logger from '../../utils/logger';
-import { ActorMetadata, ACTOR_TYPE } from '@esparex/contracts';
-import { LISTING_STATUS } from '@esparex/contracts';
+import { ActorMetadata, ACTOR_TYPE, LISTING_STATUS, BusinessErrorCode } from '@esparex/contracts';
+import { AppError } from '../../shared-kernel/errors/AppError';
 import { lifecycleEvents } from '../../events';
 
 // Import domain models
@@ -125,9 +125,8 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             // 1. Resolve Model
             const Model = getModelForDomain(domain);
             const doc = await (Model as mongoose.Model<mongoose.Document>).findById(entityId).setOptions({ withDeleted: true }).session(activeSession) as (mongoose.Document & IStatusable) | null;
-            
             if (!doc) {
-                throw Object.assign(new Error(`Entity ${String(entityId)} not found in domain ${domain}`), { statusCode: 404 });
+                throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
             }
 
             fromStatus = doc.status;
@@ -223,7 +222,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             const listing = await repo.findOne({ ids: [entityId.toString()], isDeleted: { $in: [true, false] } as any, session: activeSession });
             
             if (!listing) {
-                throw Object.assign(new Error(`Entity ${String(entityId)} not found in domain ${domain}`), { statusCode: 404 });
+                throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
             }
 
             fromStatus = listing.status as string;
