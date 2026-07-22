@@ -6,13 +6,13 @@ describe('Image Optimization Configuration', () => {
         const config = nextConfig.default;
 
         expect(config.images).toBeDefined();
-        expect(config.images.formats).toEqual(['image/avif', 'image/webp']);
+        expect(config.images!.formats).toEqual(['image/avif', 'image/webp']);
     });
 
     it('verifies SVG security policies remain enabled', async () => {
         const nextConfig = await import('../../next.config.mjs');
         const config = nextConfig.default;
 
-        expect(config.images.dangerouslyAllowSVG).toBe(true);
+        expect(config.images!.dangerouslyAllowSVG).toBe(true);
     });
 });
