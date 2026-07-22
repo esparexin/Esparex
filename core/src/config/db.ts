@@ -143,7 +143,7 @@ export function getAdminConnection(): Connection {
 
         if (isUnified) {
             userCache.conn = adminCache.conn;
-            userCache.isReady = userCache.isReady;
+            userCache.isReady = adminCache.isReady;
             logger.info('Using unified database connection for Admin and User');
         }
     }
