@@ -1,19 +1,19 @@
 id: communications
 name: Communications Domain
-business_owner: Communications Team
-technical_owner: Communications Squad
+owner: platform
+business_owner: Operations
+technical_owner: Platform
 maintainer: Communications Squad
-maturity: production
+maturity: stable
 visibility: public
 stability: stable
 criticality: mission-critical
-sla: 99.9%
+sla: tier-1
 since: "2.10"
 layer: domain
-owner: platform-team
 depends_on:
-  - contracts
   - shared
+  - contracts
 public_api:
   facades:
     - ContactService
