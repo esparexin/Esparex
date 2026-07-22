@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "node ../../scripts/kill-port.js 5001 && node ../../scripts/clean.js --backend",
     "predev": "npm run clean",
-    "start": "cross-env NODE_ENV=production node dist/index.js",
+    "start": "node dist/index.js",
     "start:dev": "node dist/index.js",
     "start:ts": "ts-node --files -r tsconfig-paths/register src/index.ts",
     "dev": "nodemon",
