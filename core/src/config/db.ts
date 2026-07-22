@@ -7,10 +7,6 @@
  * - Fail-fast (no silent failures)
  * - Clean logging
  * - Graceful shutdown support
- *
- * NOTE:
- * This is a backend-only module.
- * Browser / CORS concerns do NOT apply here.
  */
 
 import mongoose, { Connection } from 'mongoose';
@@ -18,39 +14,11 @@ import logger from '../utils/logger';
 import { mongooseSerializationPlugin } from './mongooseSerializationPlugin';
 import { env } from './env';
 import { sleep, withTimeout } from '../utils/resilience';
-import { dbConnectionStatus, reliabilityAlertsTotal } from '../utils/metrics';
-// Lazy import to break circular dependency: db → reliabilityAlerts → EmailService → db
-// Static import causes isUnified TDZ crash during module initialization.
-type EmitReliabilityAlert = (event: {
-    type: string;
-    title: string;
-    severity: 'critical' | 'high' | 'warning' | 'info';
-    summary: string;
-    dedupeKey?: string;
-    metadata?: Record<string, unknown>;
-}) => void | Promise<void>;
+import { validateDatabaseUris } from './db/validation';
+import { attachUserDBLogs, attachAdminDBLogs } from './db/listeners';
+import { getDatabaseHealthProbeImpl, DatabaseHealthProbe, DbConnectionHealth } from './db/health';
 
-let _emitReliabilityAlert: EmitReliabilityAlert | null = null;
-function getEmitReliabilityAlert(): EmitReliabilityAlert {
-    if (!_emitReliabilityAlert) {
-        const alertsPath = '../utils/reliabilityAlerts';
-        _emitReliabilityAlert = require(alertsPath).emitReliabilityAlert as EmitReliabilityAlert;
-    }
-    return _emitReliabilityAlert;
-}
-
-type RecordDbResponseSample = (latencyMs: number) => void;
-
-let _recordDbResponseSample: RecordDbResponseSample | null = null;
-function getRecordDbResponseSample(): RecordDbResponseSample {
-    if (!_recordDbResponseSample) {
-        const sloPath = '../utils/sloMonitor';
-        _recordDbResponseSample = require(sloPath).recordDbResponseSample as RecordDbResponseSample;
-    }
-    return _recordDbResponseSample;
-}
-
-
+export type { DatabaseHealthProbe, DbConnectionHealth };
 
 /* ======================================================
    GLOBAL MONGOOSE SETTINGS
@@ -58,8 +26,6 @@ function getRecordDbResponseSample(): RecordDbResponseSample {
 
 mongoose.plugin(mongooseSerializationPlugin);
 
-// Boot safety: index mutation is disabled on normal startup.
-// Use explicit maintenance commands/migrations for index changes.
 const shouldAutoIndex = env.ALLOW_BOOT_AUTO_INDEX;
 if (shouldAutoIndex) {
     logger.warn('⚠ ALLOW_BOOT_AUTO_INDEX=true — startup index mutation is enabled for maintenance mode only.');
@@ -68,69 +34,12 @@ if (shouldAutoIndex) {
 }
 
 mongoose.set('autoIndex', shouldAutoIndex);
-// Fail fast on disconnected/default-connection queries instead of buffering.
-
 
 /* ======================================================
-   ENV VALIDATION
+   ENV VALIDATION & CONNECTION URIS
 ====================================================== */
 
-const isProd = env.NODE_ENV === 'production';
-
-if (isProd && !env.MONGODB_URI) {
-    throw new Error('❌ MONGODB_URI is required in production');
-}
-
-if (isProd && !env.ADMIN_MONGODB_URI) {
-    throw new Error('❌ ADMIN_MONGODB_URI is required in production');
-}
-
-if (isProd) {
-    const mongoUri = env.MONGODB_URI;
-    const adminUri = env.ADMIN_MONGODB_URI;
-
-    const validateUri = (uri: string | undefined, label: string) => {
-        if (!uri) return;
-        if (uri.includes('root:')) {
-            throw new Error(`🚨 SECURITY ERROR: Root user detected in ${label} MONGODB_URI. Use a least-privilege DB user.`);
-        }
-        if (!uri.includes('tls=true') && !uri.includes('ssl=true')) {
-            logger.warn(`⚠️  SECURITY: ${label} MONGODB_URI should enforce tls=true or ssl=true in production.`);
-        }
-        if (!uri.includes('authMechanism=SCRAM')) {
-            logger.warn(`⚠️  SECURITY: ${label} MONGODB_URI should explicitly use authMechanism=SCRAM-SHA-256 for secure handshakes.`);
-        }
-    };
-
-    validateUri(mongoUri, 'Main');
-    
-    // Only validate Admin URI separately if it's different from Main URI to avoid duplicate logs
-    if (adminUri !== mongoUri) {
-        validateUri(adminUri, 'Admin');
-    }
-}
-
-/* ======================================================
-   CONNECTION URIS (BACKEND ONLY)
-====================================================== */
-
-const USER_DB_URI =
-    env.MONGODB_URI || 'mongodb://localhost:27017/esparex_user';
-
-const ADMIN_DB_URI =
-    env.ADMIN_MONGODB_URI || 'mongodb://localhost:27017/esparex_admin';
-
-if (!env.MONGODB_URI) {
-    logger.warn('Using local User MongoDB (development mode)');
-}
-
-if (!env.ADMIN_MONGODB_URI) {
-    logger.warn('ADMIN_MONGODB_URI not set. Using local Admin MongoDB default (development mode).');
-}
-
-if (env.MONGODB_URI && env.ADMIN_MONGODB_URI && env.MONGODB_URI === env.ADMIN_MONGODB_URI) {
-    logger.warn('User and Admin databases point to the same URI. Split architecture is disabled for this runtime.');
-}
+const { userDbUri: USER_DB_URI, adminDbUri: ADMIN_DB_URI } = validateDatabaseUris();
 
 /* ======================================================
    GLOBAL CACHE (HMR / NODEMON SAFE)
@@ -187,7 +96,6 @@ export function isDbReady(): boolean {
 ====================================================== */
 
 export function getUserConnection(): Connection {
-    // 1. If we are unified and Admin is already connected, reuse it
     if (isUnified && adminCache.conn) {
         if (!userCache.conn) {
             userCache.conn = adminCache.conn;
@@ -196,7 +104,6 @@ export function getUserConnection(): Connection {
         return adminCache.conn;
     }
 
-    // 2. Otherwise create new connection if needed
     if (!userCache.conn) {
         if (skipDbConnect) {
             userCache.conn = mongoose.createConnection();
@@ -204,9 +111,8 @@ export function getUserConnection(): Connection {
         }
         logger.debug('Connecting to User DB', { uri: USER_DB_URI.split('@')[1] || 'localhost' });
         userCache.conn = mongoose.createConnection(USER_DB_URI, DB_CONNECTION_OPTIONS);
-        attachUserDBLogs(userCache.conn);
+        attachUserDBLogs(userCache.conn, userCache, adminCache, isUnified);
 
-        // 3. Share with Admin if unified
         if (isUnified) {
             adminCache.conn = userCache.conn;
             adminCache.isReady = userCache.isReady;
@@ -217,7 +123,6 @@ export function getUserConnection(): Connection {
 }
 
 export function getAdminConnection(): Connection {
-    // 1. If we are unified and User is already connected, reuse it
     if (isUnified && userCache.conn) {
         if (!adminCache.conn) {
             adminCache.conn = userCache.conn;
@@ -226,7 +131,6 @@ export function getAdminConnection(): Connection {
         return userCache.conn;
     }
 
-    // 2. Otherwise create new connection if needed
     if (!adminCache.conn) {
         if (skipDbConnect) {
             adminCache.conn = mongoose.createConnection();
@@ -235,18 +139,16 @@ export function getAdminConnection(): Connection {
         logger.debug('Connecting to Admin DB', { uri: ADMIN_DB_URI.split('@')[1] || 'localhost' });
         adminCache.conn = mongoose.createConnection(ADMIN_DB_URI, DB_CONNECTION_OPTIONS);
 
-        attachAdminDBLogs(adminCache.conn);
+        attachAdminDBLogs(adminCache.conn, userCache, adminCache, isUnified);
 
-        // 3. Share with User if unified (handle case where Admin initialized first)
         if (isUnified) {
             userCache.conn = adminCache.conn;
-            userCache.isReady = adminCache.isReady;
+            userCache.isReady = userCache.isReady;
             logger.info('Using unified database connection for Admin and User');
         }
     }
     return adminCache.conn;
 }
-
 
 const closeConnectionForRetry = async (conn: Connection | null): Promise<void> => {
     if (!conn) return;
@@ -328,7 +230,7 @@ export async function connectDB() {
             await resetConnectionCaches();
 
             if (attempt >= DB_CONNECT_MAX_ATTEMPTS) {
-                throw err; // 🚫 STOP SERVER BOOT
+                throw err;
             }
 
             await sleep(backoffMs);
@@ -336,193 +238,9 @@ export async function connectDB() {
     }
 }
 
-type DbConnectionHealth = {
-    status: 'up' | 'down';
-    readyState: number;
-    stateLabel: string;
-    pingOk: boolean;
-    latencyMs: number | null;
-    error?: string;
-};
-
-export type DatabaseHealthProbe = {
-    overall: 'up' | 'degraded' | 'down';
-    user: DbConnectionHealth;
-    admin: DbConnectionHealth;
-};
-
-const readyStateToLabel = (readyState: number): string => {
-    switch (readyState) {
-        case mongoose.ConnectionStates.connected: return 'connected';
-        case mongoose.ConnectionStates.connecting: return 'connecting';
-        case mongoose.ConnectionStates.disconnecting: return 'disconnecting';
-        case mongoose.ConnectionStates.disconnected: return 'disconnected';
-        default: return 'unknown';
-    }
-};
-
-const probeConnection = async (conn: Connection | null, label: 'user' | 'admin'): Promise<DbConnectionHealth> => {
-    if (!conn) {
-        dbConnectionStatus.labels(label).set(0);
-        return {
-            status: 'down',
-            readyState: mongoose.ConnectionStates.disconnected,
-            stateLabel: 'not_initialized',
-            pingOk: false,
-            latencyMs: null,
-            error: `${label} connection not initialized`
-        };
-    }
-
-    const readyState = conn.readyState;
-    const stateLabel = readyStateToLabel(readyState);
-    if (readyState !== mongoose.ConnectionStates.connected || !conn.db) {
-        dbConnectionStatus.labels(label).set(0);
-        return {
-            status: 'down',
-            readyState,
-            stateLabel,
-            pingOk: false,
-            latencyMs: null,
-            error: `${label} connection is ${stateLabel}`
-        };
-    }
-
-    const startedAt = Date.now();
-    try {
-        await withTimeout(
-            conn.db.admin().ping().then(() => undefined),
-            DB_OPERATION_TIMEOUT_MS,
-            `Mongo ${label} health ping`
-        );
-        const latencyMs = Date.now() - startedAt;
-        getRecordDbResponseSample()(latencyMs);
-        dbConnectionStatus.labels(label).set(1);
-        return {
-            status: 'up',
-            readyState,
-            stateLabel,
-            pingOk: true,
-            latencyMs,
-        };
-    } catch (error) {
-        const latencyMs = Date.now() - startedAt;
-        getRecordDbResponseSample()(latencyMs);
-        dbConnectionStatus.labels(label).set(0);
-        return {
-            status: 'down',
-            readyState,
-            stateLabel,
-            pingOk: false,
-            latencyMs,
-            error: error instanceof Error ? error.message : String(error),
-        };
-    }
-};
-
 export const getDatabaseHealthProbe = async (): Promise<DatabaseHealthProbe> => {
-    const [userHealth, adminHealth] = await Promise.all([
-        probeConnection(userCache.conn, 'user'),
-        probeConnection(adminCache.conn, 'admin'),
-    ]);
-
-    const overall: DatabaseHealthProbe['overall'] =
-        userHealth.status === 'up' && adminHealth.status === 'up'
-            ? 'up'
-            : userHealth.status === 'down' && adminHealth.status === 'down'
-                ? 'down'
-                : 'degraded';
-
-    if (overall === 'down') {
-        reliabilityAlertsTotal.labels('DATABASE_DOWN', 'critical').inc();
-        void getEmitReliabilityAlert()({
-            type: 'DATABASE_DOWN',
-            title: 'Database connectivity failure',
-            severity: 'critical',
-            summary: 'Both user and admin MongoDB probes are down',
-            dedupeKey: 'database_down',
-            metadata: {
-                user: userHealth,
-                admin: adminHealth,
-            },
-        });
-    } else if (overall === 'degraded') {
-        reliabilityAlertsTotal.labels('DATABASE_DEGRADED', 'high').inc();
-        void getEmitReliabilityAlert()({
-            type: 'DATABASE_DEGRADED',
-            title: 'Database degraded',
-            severity: 'high',
-            summary: 'One or more MongoDB probes are degraded/down',
-            dedupeKey: 'database_degraded',
-            metadata: {
-                user: userHealth,
-                admin: adminHealth,
-            },
-        });
-    }
-
-    return {
-        overall,
-        user: userHealth,
-        admin: adminHealth,
-    };
+    return getDatabaseHealthProbeImpl(userCache.conn, adminCache.conn);
 };
-
-/* ======================================================
-   LOGGING HELPERS
-====================================================== */
-
-function attachUserDBLogs(conn: Connection) {
-    conn.on('connected', () => {
-        userCache.isReady = true;
-        if (isUnified) adminCache.isReady = true;
-        logger.info('User DB connected', { database: 'esparex_user' });
-    });
-
-    conn.on('error', (err: Error) => {
-        userCache.isReady = false;
-        if (isUnified) adminCache.isReady = false;
-        logger.error('User DB error', { error: err.message });
-    });
-
-    conn.on('disconnected', () => {
-        userCache.isReady = false;
-        if (isUnified) adminCache.isReady = false;
-        logger.warn('User DB disconnected');
-    });
-
-    conn.on('reconnected', () => {
-        userCache.isReady = true;
-        if (isUnified) adminCache.isReady = true;
-        logger.info('User DB reconnected');
-    });
-}
-
-function attachAdminDBLogs(conn: Connection) {
-    conn.on('connected', () => {
-        adminCache.isReady = true;
-        if (isUnified) userCache.isReady = true;
-        logger.info('Admin DB connected', { database: 'esparex_admin' });
-    });
-
-    conn.on('error', (err: Error) => {
-        adminCache.isReady = false;
-        if (isUnified) userCache.isReady = false;
-        logger.error('Admin DB error', { error: err.message });
-    });
-
-    conn.on('disconnected', () => {
-        adminCache.isReady = false;
-        if (isUnified) userCache.isReady = false;
-        logger.warn('Admin DB disconnected');
-    });
-
-    conn.on('reconnected', () => {
-        adminCache.isReady = true;
-        if (isUnified) userCache.isReady = true;
-        logger.info('Admin DB reconnected');
-    });
-}
 
 /* ======================================================
    GRACEFUL SHUTDOWN (NO ZOMBIE CONNECTIONS)
@@ -558,10 +276,6 @@ async function shutdown(signal: string) {
 
 process.on('SIGINT', () => void shutdown('SIGINT'));
 process.on('SIGTERM', () => void shutdown('SIGTERM'));
-
-/* ======================================================
-   CRASH SAFETY (FAIL FAST)
-====================================================== */
 
 process.on('uncaughtException', (err) => {
     logger.error('UNCAUGHT EXCEPTION', {
