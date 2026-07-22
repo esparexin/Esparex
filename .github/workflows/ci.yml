@@ -39,7 +39,9 @@ jobs:
       NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node 22
         uses: actions/setup-node@v7
@@ -144,7 +146,9 @@ jobs:
       NEXT_PUBLIC_LOCAL_DEV_AUTH: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node 22
         uses: actions/setup-node@v7

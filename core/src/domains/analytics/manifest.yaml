@@ -1,0 +1,24 @@
+id: analytics
+name: Analytics Domain
+owner: platform
+business_owner: Operations
+technical_owner: Platform
+maintainer: Analytics Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.9"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+  - listings
+public_api:
+  facades:
+    - AnalyticsService
+    - ReportService
+    - ViewBufferingService
+    - AuditService
+    - LocationAnalyticsService

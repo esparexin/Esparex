@@ -1,8 +1,8 @@
 # Esparex Project Status
 
-**Last Updated:** 2026-07-21  
+**Last Updated:** 2026-07-22  
 **Current Branch:** `main`  
-**Latest Milestone:** `architecture-m2.7` (Boosts Domain Migration Merged)
+**Latest Milestone:** `architecture-m2.9` (Analytics Domain Migration Merged)
 
 ---
 
