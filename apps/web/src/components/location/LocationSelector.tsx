@@ -5,14 +5,15 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
-import { Search, MapPin, Target, X, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { Search, MapPin, Target, Loader2 } from "lucide-react";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
-import LocationSkeleton from "./LocationSkeleton";
-import { MAX_DROPDOWN_RESULTS, normalizeGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
+import { normalizeGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
 import { Z_INDEX } from "@/lib/zIndexConfig";
+import { LocationResultsList } from "./components/LocationResultsList";
+import { LocationSelectorPanel } from "./components/LocationSelectorPanel";
 
 type SnappedLocation = Location & { isSnapped?: boolean };
 
@@ -257,183 +258,40 @@ export default function LocationSelector({
         return parts.join(", ") || normalizeLocationName(loc.display || "");
     }, []);
 
-    const renderResultsBody = () => (
-        <div className="py-0.5">
-            {query ? (
-                searchApi.showSkeleton ? (
-                    <LocationSkeleton count={4} />
-                ) : searchApi.searchError ? (
-                    <div className="p-3 text-center space-y-2">
-                        <div className="flex justify-center">
-                            <AlertCircle className="w-7 h-7 text-destructive/60" />
-                        </div>
-                        <div className="space-y-0.5">
-                            <p className="text-xs font-medium text-destructive">{searchApi.searchError.message}</p>
-                            {searchApi.searchError.retryable && (
-                                <p className="text-[11px] text-muted-foreground">
-                                    {searchApi.retryCount > 0 && `Attempt ${searchApi.retryCount} of 3`}
-                                </p>
-                            )}
-                        </div>
-                        {searchApi.searchError.retryable && searchApi.retryCount < 3 && (
-                            <Button type="button" variant="outline" onClick={searchApi.handleRetry} className="gap-1.5 h-8 text-xs">
-                                <RefreshCw className="w-3.5 h-3.5" /> Try Again
-                            </Button>
-                        )}
-                        {searchApi.locations.length > 0 && (
-                            <div className="pt-2 border-t">
-                                <p className="text-[11px] text-muted-foreground mb-1">Cached results:</p>
-                                <div className="space-y-0.5">
-                                    {searchApi.locations.slice(0, 3).map((loc, index) => (
-                                        <button
-                                            key={`fallback-${loc.id || index}`}
-                                            onMouseDown={(e) => { e.preventDefault(); void handleSelect(loc); }}
-                                            className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left"
-                                        >
-                                            <MapPin className="mt-0.5 h-3 w-3 text-muted-foreground shrink-0" />
-                                            <span className="min-w-0">
-                                                <span className="block truncate text-xs font-medium text-foreground">
-                                                    {getLocationPrimaryLabel(loc)}
-                                                </span>
-                                                <span className="block truncate text-[11px] text-muted-foreground">
-                                                    {getLocationSecondaryLabel(loc)}
-                                                </span>
-                                            </span>
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                ) : searchApi.locations.length > 0 ? (
-                    searchApi.locations.slice(0, MAX_DROPDOWN_RESULTS).map((loc, index) => {
-                        return (
-                            <button
-                                key={`loc-${loc.id || index}`}
-                                onMouseDown={(e) => { e.preventDefault(); void handleSelect(loc); }}
-                                className={cn(
-                                    "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
-                                    "hover:bg-accent cursor-pointer",
-                                    selectedIndex === index && "bg-accent"
-                                )}
-                            >
-                                <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-xs font-semibold text-foreground">
-                                        {getLocationPrimaryLabel(loc)}
-                                    </span>
-                                    <span className="block truncate text-[11px] text-muted-foreground">
-                                        {getLocationSecondaryLabel(loc)}
-                                    </span>
-                                </span>
-                            </button>
-                        );
-                    })
-                ) : (
-                    <div className="p-4 text-center text-muted-foreground text-xs">
-                        {searchApi.isSearching ? "Searching..." : "No locations found."}
-                    </div>
-                )
-            ) : (
-                <div className="p-4 text-center text-muted-foreground text-xs">
-                    Type to search city, area, district or state.
-                </div>
-            )}
-        </div>
+    const renderResults = () => (
+        <LocationResultsList
+            query={query}
+            showSkeleton={searchApi.showSkeleton}
+            searchError={searchApi.searchError}
+            retryCount={searchApi.retryCount}
+            locations={searchApi.locations}
+            isSearching={searchApi.isSearching}
+            selectedIndex={selectedIndex}
+            onRetry={searchApi.handleRetry}
+            onSelect={(loc) => void handleSelect(loc)}
+            getLocationPrimaryLabel={getLocationPrimaryLabel}
+            getLocationSecondaryLabel={getLocationSecondaryLabel}
+        />
     );
 
     if (isPanel) {
         return (
-            <div className={cn("flex h-full min-h-0 flex-col bg-background", className)}>
-                <div className="sticky top-0 z-10 border-b bg-background/95 px-3 pb-3 pt-2 backdrop-blur" style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}>
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground">Choose location</p>
-                            <p className="text-[11px] text-muted-foreground">Use GPS or search by city and state.</p>
-                        </div>
-                        {onClose ? (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 shrink-0 rounded-full"
-                                onClick={onClose}
-                                aria-label="Close location selector"
-                            >
-                                <X className="h-4 w-4" />
-                            </Button>
-                        ) : null}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Button
-                            variant="outline"
-                            className={cn(
-                                "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10",
-                                searchApi.isDetecting && "border-primary/40 bg-primary/10"
-                            )}
-                            disabled={searchApi.isDetecting || !!searchApi.successFeedback}
-                            onClick={handlePanelDetect}
-                        >
-                            <div className="flex min-w-0 flex-1 items-center gap-2">
-                                {searchApi.successFeedback ? (
-                                    <Target className="h-4 w-4 shrink-0 text-green-600" />
-                                ) : (
-                                    <Target className={cn("h-4 w-4 shrink-0", searchApi.isDetecting && "animate-spin")} />
-                                )}
-                                <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
-                                    {searchApi.successFeedback ? (
-                                        <span className="text-green-600 font-semibold truncate w-full">{searchApi.successFeedback}</span>
-                                    ) : searchApi.isDetecting ? (
-                                        <span className="truncate w-full">{searchApi.detectFeedback || "Detecting location..."}</span>
-                                    ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
-                                        <>
-                                            <span className="truncate w-full font-semibold">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                            <span className="text-[10px] text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
-                                        </>
-                                    ) : (
-                                        <span className="truncate w-full">Detect My Location</span>
-                                    )}
-                                </div>
-                            </div>
-                        </Button>
-
-                        {searchApi.detectFeedback && !searchApi.isDetecting && (
-                            <div className="rounded-lg border border-destructive/10 bg-destructive/5 px-3 py-2">
-                                <div className="flex items-start gap-2">
-                                    <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
-                                    <p className="text-[11px] font-medium leading-4 text-destructive">{searchApi.detectFeedback}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                placeholder="Search city, area, district..."
-                                className="h-11 rounded-xl pl-9 pr-9 text-sm"
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                autoFocus
-                                disabled={disabled}
-                            />
-                            {searchApi.isSearching ? (
-                                <div className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                            ) : query ? (
-                                <button onClick={handleClearQuery} className="absolute right-3 top-1/2 -translate-y-1/2" type="button" aria-label="Clear search">
-                                    <X className="h-4 w-4" />
-                                </button>
-                            ) : null}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex min-h-0 flex-1 flex-col px-3 pb-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
-                    <div className={cn("min-h-0 flex-1 overflow-y-auto pt-2 pr-1", searchApi.isSearching && "pointer-events-none opacity-60")}>
-                        {renderResultsBody()}
-                    </div>
-                </div>
-            </div>
+            <LocationSelectorPanel
+                className={className}
+                onClose={onClose}
+                isDetecting={searchApi.isDetecting}
+                successFeedback={searchApi.successFeedback}
+                detectFeedback={searchApi.detectFeedback}
+                handlePanelDetect={handlePanelDetect}
+                location={location}
+                query={query}
+                setQuery={setQuery}
+                disabled={disabled}
+                isSearching={searchApi.isSearching}
+                handleClearQuery={handleClearQuery}
+            >
+                {renderResults()}
+            </LocationSelectorPanel>
         );
     }
 
@@ -519,7 +377,7 @@ export default function LocationSelector({
                             </div>
                         )}
                     </div>
-                    {renderResultsBody()}
+                    {renderResults()}
                     </div>
                 </>,
                 document.body
@@ -527,3 +385,4 @@ export default function LocationSelector({
         </div>
     );
 }
+
