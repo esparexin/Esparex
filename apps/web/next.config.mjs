@@ -133,6 +133,7 @@ const nextConfig = {
         ],
     },
     images: {
+        formats: ['image/avif', 'image/webp'],
         remotePatterns: [
             ...regionalS3RemotePatterns,
             ...dynamicS3BucketPattern,
