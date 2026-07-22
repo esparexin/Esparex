@@ -52,6 +52,15 @@ type DbListing = {
     updatedAt: Date;
 };
 
+const PUBLIC_LISTING_PROJECTION = {
+    _id: 1, id: 1, title: 1, price: 1, description: 1, images: 1, listingType: 1,
+    attributes: 1, category: 1, seoSlug: 1, categoryId: 1, categoryName: 1,
+    brandId: 1, brandName: 1, modelId: 1, modelName: 1, screenSize: 1,
+    location: 1, sellerId: 1, status: 1, sellerType: 1, createdAt: 1,
+    updatedAt: 1, views: 1, isFeatured: 1, isSpotlight: 1, isBoosted: 1,
+    isBusiness: 1, verified: 1, businessName: 1, businessId: 1, sellerName: 1, expiresAt: 1
+};
+
 function toDomain(doc: DbListing): Listing {
     return {
         id: String(doc._id),
@@ -267,7 +276,7 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
             }
         };
 
-        let q = AdModel.find(mongoFilter);
+        let q = AdModel.find(mongoFilter).select(PUBLIC_LISTING_PROJECTION);
         if (sort) {
             q = q.sort(sort);
         }
@@ -286,13 +295,13 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
     }
 
     async find(filter: ListingFilter): Promise<readonly Listing[]> {
-        const rawDocs = await resolveMongoQuery<DbListing[]>(AdModel.find(buildMongoFilter(filter)));
+        const rawDocs = await resolveMongoQuery<DbListing[]>(AdModel.find(buildMongoFilter(filter)).select(PUBLIC_LISTING_PROJECTION));
         const docs = Array.isArray(rawDocs) ? rawDocs : [];
         return docs.map(toDomain);
     }
 
     async findWithLimit(filter: ListingFilter, sort?: Record<string, 1 | -1>, limit?: number, skip?: number): Promise<readonly Listing[]> {
-        const q = AdModel.find(buildMongoFilter(filter));
+        const q = AdModel.find(buildMongoFilter(filter)).select(PUBLIC_LISTING_PROJECTION);
         if (sort && typeof (q as any)?.sort === 'function') (q as any).sort(sort);
         if (skip !== undefined && typeof (q as any)?.skip === 'function') (q as any).skip(skip);
         if (limit !== undefined && typeof (q as any)?.limit === 'function') (q as any).limit(limit);
