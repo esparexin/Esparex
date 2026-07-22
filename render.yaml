@@ -3,29 +3,44 @@ services:
     name: esparex-api
     env: node
     plan: starter
+    healthCheckPath: /health
     buildCommand: HUSKY=0 npm ci && npm run build -w @esparex/contracts && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api && test -f backend/api/dist/index.js
     startCommand: npm start -w @esparex/backend-api
     envVars:
+      # ── Runtime ────────────────────────────────────────────────────────────
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
         value: "22"
       - key: PORT
         value: 10000
+      - key: TZ
+        value: UTC
+      - key: PROCESS_ROLE
+        value: api
 
+      # ── Database ───────────────────────────────────────────────────────────
       - key: MONGODB_URI
         sync: false
       - key: ADMIN_MONGODB_URI
         sync: false
+
+      # ── Authentication ─────────────────────────────────────────────────────
       - key: JWT_SECRET
         sync: false
       - key: ADMIN_JWT_SECRET
         sync: false
-      - key: REFRESH_TOKEN_SECRET
-        sync: false
+      # REFRESH_TOKEN_SECRET removed — not present in core/src/config/env.ts schema.
+      # Verify usage before re-adding. (D1 audit I-015)
       - key: OTP_HASH_SECRET
         sync: false
+      # HMAC_SECRET: used for OTP HMAC signing. The code has an insecure dev
+      # fallback — this entry ensures the production value is always injected
+      # explicitly from the Render dashboard. (D1 audit I-010)
+      - key: HMAC_SECRET
+        sync: false
 
+      # ── Redis ──────────────────────────────────────────────────────────────
       - key: ALLOW_REDIS
         value: "true"
       - key: REDIS_URL
@@ -34,11 +49,21 @@ services:
         sync: false
       - key: REDIS_PASSWORD
         sync: false
+      # REDIS_MODE: verify your Redis Cloud topology (single | cluster | sentinel)
+      # before setting. Left as sync: false to force an explicit decision.
+      # (D1 audit I-011)
+      - key: REDIS_MODE
+        sync: false
 
+      # ── CORS, Cookies & URLs ───────────────────────────────────────────────
       - key: CORS_ORIGIN
         sync: false
       - key: COOKIE_DOMAIN
         sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAME_SITE
+        value: lax
       - key: FRONTEND_URL
         sync: false
       - key: FRONTEND_INTERNAL_URL
@@ -47,9 +72,10 @@ services:
         sync: false
       - key: ADMIN_FRONTEND_URL
         sync: false
-      - key: NEXT_PUBLIC_API_URL
-        value: https://api.esparex.in/api/v1
+      # NEXT_PUBLIC_API_URL removed — this is a Next.js browser variable and has
+      # no effect on the Express backend process. (D1 audit I-009)
 
+      # ── Storage (S3) ───────────────────────────────────────────────────────
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
@@ -59,17 +85,21 @@ services:
       - key: S3_BUCKET_NAME
         sync: false
 
+      # ── Firebase (Admin SDK) ───────────────────────────────────────────────
       - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
 
+      # ── SMS ────────────────────────────────────────────────────────────────
       - key: MSG91_AUTH_KEY
         sync: false
       - key: MSG91_SENDER_ID
         sync: false
 
+      # ── AI ─────────────────────────────────────────────────────────────────
       - key: GEMINI_API_KEY
         sync: false
 
+      # ── Payments ───────────────────────────────────────────────────────────
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
@@ -77,7 +107,18 @@ services:
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
 
+      # ── Search ─────────────────────────────────────────────────────────────
       - key: USE_DEFAULT_OTP
         value: "false"
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false
+
+      # ── Feature Flags ──────────────────────────────────────────────────────
+      # ENABLE_SWAGGER=false: prevents public exposure of API documentation in
+      # production. The code default is true. (D1 audit I-014)
+      - key: ENABLE_SWAGGER
+        value: "false"
+      - key: ENABLE_RATE_LIMITING
+        value: "true"
+      - key: ENABLE_MAINTENANCE_MODE
+        value: "false"
