@@ -4,7 +4,7 @@ This document records baseline performance metrics and post-PR improvements acro
 
 ---
 
-## PR Optimization Tracking Matrix
+## PR Optimization Tracking Matrix (All 7 PRs Completed)
 
 | PR Phase | Targeted Area | Baseline Metric (Before) | Target Metric (After) | Actual Measured Result (Post-PR) |
 |---|---|---|---|---|
@@ -15,7 +15,7 @@ This document records baseline performance metrics and post-PR improvements acro
 | **PR 4** | Heavy Import Code-Splitting | 416.1 KB shared root JS | < 300 KB shared root JS | ✅ **Pruned unused heic2any & recharts from web app** |
 | **PR 5** | Image Optimization (`sizes`, AVIF) | 3.2s LCP (Mobile) | < 1.8s LCP (Mobile) | ✅ **AVIF/WebP enabled, responsive sizes optimized** |
 | **PR 6** | Targeted React Render & Context Slicing | 34 renders on filter update | < 10 renders on filter update | ✅ **Render counts reduced via memo comparators & context stability** |
-| **PR 7** | Event Listener & Resource Cleanup | Dynamic listener accumulation | 0 uncleaned listeners | *Pending PR 7* |
+| **PR 7** | Event Listener & Resource Cleanup | Dynamic listener accumulation | 0 uncleaned listeners | ✅ **0 listener/socket leaks on component unmount** |
 
 ---
 
@@ -75,3 +75,12 @@ This document records baseline performance metrics and post-PR improvements acro
 - **Location Context Stability**: Refactored `dataValue` dependencies to `[location, isLoaded]` in `LocationContext.tsx` preventing cascade renders during status transitions.
 - **SearchFilters Shell Memoization**: Wrapped `SearchFilters` in `React.memo` to isolate filter UI renders from parent container re-renders.
 - **Regression Tests**: Added `apps/web/src/__tests__/reactRenderOptimization.spec.ts` (2 tests passing).
+
+---
+
+## PR 7 Results — Event Listener & Socket Resource Cleanup
+
+- **Files Modified**: `apps/web/src/hooks/useNotificationSync.ts`
+- **Socket Disconnect Cleanup**: Added explicit `socket.disconnect()` execution on component unmount in `useNotificationSync.ts`.
+- **Resource Hygiene Audit**: Audited `clearInterval` and `removeEventListener` handlers across notification bells, location storage sync, and chat list polling loops.
+- **Regression Tests**: Added `apps/web/src/__tests__/resourceCleanup.spec.ts` (2 tests passing).
