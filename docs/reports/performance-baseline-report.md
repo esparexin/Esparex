@@ -14,7 +14,7 @@ This document records baseline performance metrics and post-PR improvements acro
 | **PR 3** | DB Projections & Consumer Audit | 42 KB / 20 listings response | < 15 KB / 20 listings response | ✅ **12 KB / 20 listings (~71% payload reduction)** |
 | **PR 4** | Heavy Import Code-Splitting | 416.1 KB shared root JS | < 300 KB shared root JS | ✅ **Pruned unused heic2any & recharts from web app** |
 | **PR 5** | Image Optimization (`sizes`, AVIF) | 3.2s LCP (Mobile) | < 1.8s LCP (Mobile) | ✅ **AVIF/WebP enabled, responsive sizes optimized** |
-| **PR 6** | Targeted React Render & Context Slicing | 34 renders on filter update | < 10 renders on filter update | *Pending PR 6* |
+| **PR 6** | Targeted React Render & Context Slicing | 34 renders on filter update | < 10 renders on filter update | ✅ **Render counts reduced via memo comparators & context stability** |
 | **PR 7** | Event Listener & Resource Cleanup | Dynamic listener accumulation | 0 uncleaned listeners | *Pending PR 7* |
 
 ---
@@ -65,3 +65,13 @@ This document records baseline performance metrics and post-PR improvements acro
 - **Responsive Card Sizes**: Updated `AdCardCover` sizes to `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw`.
 - **Detail Hero Image AVIF**: Removed forced `unoptimized` flag from `AdImageCarousel` hero slider to serve compressed AVIF images.
 - **Regression Tests**: Added `apps/web/src/__tests__/imageOptimizationConfig.spec.ts` (2 tests passing).
+
+---
+
+## PR 6 Results — Targeted React Render & Context Slicing
+
+- **Files Modified**: `apps/web/src/components/user/ad-card/AdCardGrid.tsx`, `apps/web/src/context/LocationContext.tsx`, `apps/web/src/components/search/SearchFilters.tsx`
+- **Custom Card Memo Comparator**: Added `areAdCardGridPropsEqual` to `AdCardGrid` to prevent non-prop re-render cascades across grid card lists.
+- **Location Context Stability**: Refactored `dataValue` dependencies to `[location, isLoaded]` in `LocationContext.tsx` preventing cascade renders during status transitions.
+- **SearchFilters Shell Memoization**: Wrapped `SearchFilters` in `React.memo` to isolate filter UI renders from parent container re-renders.
+- **Regression Tests**: Added `apps/web/src/__tests__/reactRenderOptimization.spec.ts` (2 tests passing).
