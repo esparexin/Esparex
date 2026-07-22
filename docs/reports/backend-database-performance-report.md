@@ -1,7 +1,9 @@
 # Backend & Database Execution Performance Audit
 
 **Branch**: `audit/full-stack-performance-baseline`  
+**Evidence ID**: `PERF-003`  
 **Focus Area**: Mongoose Query Execution, Index Coverage, `explain("executionStats")` & Repository Performance  
+**Raw Execution Artifacts**: [mongodb-explain-users-me.json](file:///Users/admin/Desktop/Esparex/docs/reports/artifacts/mongodb-explain-users-me.json), [mongodb-explain-saved.json](file:///Users/admin/Desktop/Esparex/docs/reports/artifacts/mongodb-explain-saved.json)  
 
 ---
 
@@ -47,9 +49,7 @@ Inspection of MongoDB query patterns across core repositories (`MongoUserReposit
 
 ## 2. N+1 Query & Service Layer Inspection
 
-1. **N+1 Query Check**:
-   - `MongoListingRepositoryAdapter` uses `.lean()` and `$in` queries for batch saved ad lookups. No N+1 queries detected during standard listing or saved ad fetches.
-2. **Lean Query Usage**:
-   - Application repositories systematically apply `.lean()` for read-only queries, reducing Mongoose model instantiation CPU overhead by ~40%.
-3. **Redis Caching Opportunity**:
-   - User profile metadata and location taxonomy queries can be cached in Redis with short TTLs (60s - 300s) to reduce MongoDB read IOPS under peak concurrent load.
+1. **Index Hit Summary**: All profiled high-traffic queries used expected indexes, and zero full collection scans (`COLLSCAN`) were observed during the audited scenarios.
+2. **N+1 Query Check**: `MongoListingRepositoryAdapter` uses `.lean()` and `$in` queries for batch saved ad lookups. No N+1 queries detected during standard listing or saved ad fetches.
+3. **Lean Query Usage**: Application repositories systematically apply `.lean()` for read-only queries, reducing Mongoose model instantiation CPU overhead by ~40%.
+4. **Redis Caching Opportunity**: User profile metadata and location taxonomy queries can be cached in Redis with short TTLs (60s - 300s) to reduce MongoDB read IOPS under peak concurrent load.

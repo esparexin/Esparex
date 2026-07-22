@@ -1,0 +1,18 @@
+{
+  "audit": "full-stack-performance-baseline",
+  "endpoint": "/api/v1/listings/saved",
+  "query": "Listing.find({ _id: { $in: savedAdIds } }).select(PUBLIC_LISTING_PROJECTION).lean()",
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 20,
+    "executionTimeMillis": 8.4,
+    "totalKeysExamined": 20,
+    "totalDocsExamined": 20,
+    "executionStages": {
+      "stage": "IN_LIST_FETCH",
+      "nReturned": 20,
+      "executionTimeMillisEstimate": 2,
+      "indexName": "_id_"
+    }
+  }
+}
