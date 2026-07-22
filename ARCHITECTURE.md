@@ -21,6 +21,7 @@ Migrated Bounded Contexts (DDD Ports & Adapters)
 ✅ Trust (M2.6)
 ✅ Boosts (M2.7)
 ✅ Discovery (M2.8)
+✅ Analytics (M2.9)
 
 Modernization Patterns
 

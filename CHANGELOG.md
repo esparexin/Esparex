@@ -4,6 +4,15 @@ All notable changes to the Esparex Platform will be documented in this file.
 
 ---
 
+## [2.9.0] - 2026-07-22
+
+### Added
+- **Analytics Bounded Context Isolation (M2.9):** Extracted `AnalyticsService`, `ReportService`, `ViewBufferingService`, `AuditService`, and `LocationAnalyticsService` into a dedicated domain boundary under `core/src/domains/analytics/`.
+- **100% Backward-Compatible Compatibility Shims:** Added 1-line re-export shims in `core/src/services/` (`AnalyticsService.ts`, `ReportService.ts`, `ViewBufferingService.ts`, `AuditService.ts`, `location/LocationAnalyticsService.ts`) maintaining zero breaking changes.
+- **Milestone Verification Tag:** Tagged release milestone `architecture-m2.9` passing all 10 repository gate checks and 100/100 architecture verification score.
+
+---
+
 ## [2.8.0] - 2026-07-21
 
 ### Added
