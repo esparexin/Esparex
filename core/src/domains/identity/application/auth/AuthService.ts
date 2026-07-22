@@ -12,9 +12,10 @@ import { normalizeBusinessStatus } from '../../../../utils/businessStatus';
 import { hashOtp, verifyOtpHash } from '../../../../utils/otpSecurity';
 import { env } from '../../../../config/env';
 import { 
-    USER_STATUS 
+    USER_STATUS,
+    OtpProvider,
+    Role
 } from '@esparex/contracts';
-import { Role } from '@esparex/contracts';
 import { 
     canonicalizeToIndian, 
     getMobileVariants, 
@@ -59,7 +60,7 @@ const isLocalOtpLockBypass =
     !env.CI &&
     env.AUTH_BYPASS_OTP_LOCK === 'true';
 const isStaticOtpBypassEnabled = (): boolean =>
-    env.USE_DEFAULT_OTP === true;
+    env.OTP_PROVIDER === OtpProvider.TEST || env.USE_DEFAULT_OTP === true;
 
 const isStaticOtpBypassMatch = (otp: string): boolean =>
     isStaticOtpBypassEnabled() && otp === env.DEV_STATIC_OTP;

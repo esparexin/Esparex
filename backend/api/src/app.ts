@@ -33,7 +33,7 @@ validateOtpConfiguration({
     msg91AuthKey: env.MSG91_AUTH_KEY,
     msg91SenderId: env.MSG91_SENDER_ID,
     authBypassOtpLock: env.AUTH_BYPASS_OTP_LOCK,
-    useDefaultOtp: env.USE_DEFAULT_OTP,
+    otpProvider: env.OTP_PROVIDER,
 });
 
 /* -------------------------------------------------------------------------- */

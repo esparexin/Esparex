@@ -8,6 +8,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { OtpProvider } from '@esparex/contracts';
 import logger from '@esparex/core/utils/logger';
 import bootstrapLogger from '@esparex/core/utils/bootstrapLogger';
 
@@ -18,7 +19,7 @@ interface OtpGuardConfig {
     msg91AuthKey?: string;
     msg91SenderId?: string;
     authBypassOtpLock?: string;
-    useDefaultOtp?: boolean;
+    otpProvider: OtpProvider;
 }
 
 /**
@@ -42,7 +43,7 @@ const otpGuardState: {
  * @throws {Error} If critical OTP requirements not met in production
  */
 export function validateOtpConfiguration(config: OtpGuardConfig): void {
-    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId, authBypassOtpLock, useDefaultOtp } = config;
+    const { isProduction, isDevelopment, isTest, msg91AuthKey, msg91SenderId, authBypassOtpLock, otpProvider } = config;
 
     otpGuardState.warnings = [];
 
@@ -54,41 +55,23 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         return;
     }
 
-    // Development environment: warn but allow
-    if (isDevelopment) {
+    // OTP_PROVIDER=test: testing OTP (123456) mode — skip SMS provider validation
+    if (otpProvider === OtpProvider.TEST) {
         if (!msg91AuthKey || !msg91SenderId) {
-            const warning = 'OTP provider (MSG91) not configured; SMS dispatch will be skipped in dev mode';
+            const warning = 'SMS provider (MSG91) not configured; testing OTP (123456) will be used';
             otpGuardState.warnings.push(warning);
             bootstrapLogger.warn(`⚠️  ${warning}`);
-
-            if (authBypassOtpLock === 'true') {
-                bootstrapLogger.info('ℹ️  OTP lock bypass ENABLED for local development (AUTH_BYPASS_OTP_LOCK=true)');
-            }
         } else {
-            bootstrapLogger.info('✅ OTP Guard: SMS provider configured in development');
+            bootstrapLogger.info('✅ OTP Guard: SMS provider configured; testing OTP (123456) is still active (OTP_PROVIDER=test)');
         }
         otpGuardState.isSafeToProceed = true;
         otpGuardState.isConfigured = true;
+        bootstrapLogger.info('ℹ️  OTP Guard: Testing mode (OTP_PROVIDER=test) — static OTP (123456) enabled');
         return;
     }
 
-    // Production environment: strict validation
+    // Production-quality providers (msg91, etc.): validate MSG91 configuration
     if (isProduction) {
-        // SSOT: DLT bypass is controlled ONLY via USE_DEFAULT_OTP env var.
-        // The hardcoded IS_DLT_PENDING_BYPASS flag has been removed (security fix).
-        // To enable static OTP (123456) during DLT registration, set USE_DEFAULT_OTP=true
-        // in the Render environment — never hardcode it here.
-        if (useDefaultOtp === true) {
-            // Env-var-controlled bypass: DLT pending or explicit dev/staging override.
-            // AuthService skips SMS dispatch when USE_DEFAULT_OTP=true.
-            const warning = '⚠️  STATIC OTP BYPASS ACTIVE (USE_DEFAULT_OTP=true). Default OTP 123456 is active in production.';
-            bootstrapLogger.warn(warning);
-            otpGuardState.warnings.push(warning);
-            otpGuardState.isSafeToProceed = true;
-            otpGuardState.isConfigured = true;
-            return;
-        }
-
         const missingKeys: string[] = [];
 
         if (!msg91AuthKey) {
@@ -99,17 +82,18 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
         }
 
         if (missingKeys.length > 0) {
-            const errorMsg = `🚨 CRITICAL: OTP provider not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive OTP SMS.`;
+            const errorMsg = `🚨 CRITICAL: OTP provider "${otpProvider}" not configured in production. Missing: ${missingKeys.join(', ')}. Users will not receive OTP SMS.`;
             bootstrapLogger.error(errorMsg);
-            bootstrapLogger.info('💡 TIP: Set USE_DEFAULT_OTP=true in Render environment to allow startup with static OTP (123456) for testing.');
-            
-            // We set isConfigured to false and isSafeToProceed to false.
-            // This prevents the server from crashing but ensures any code using 
-            // otpConfigurationCheck will block requests.
+
+            if (authBypassOtpLock === 'true') {
+                bootstrapLogger.error('🚨 SECURITY ERROR: AUTH_BYPASS_OTP_LOCK=true is set in production. This bypass is forbidden.');
+                otpGuardState.isSafeToProceed = false;
+                otpGuardState.isConfigured = false;
+                return;
+            }
+
             otpGuardState.isSafeToProceed = false;
             otpGuardState.isConfigured = false;
-            
-            // DO NOT THROW. Let the server start so other APIs (like Admin listing audit) can function.
             return;
         }
 
@@ -120,7 +104,24 @@ export function validateOtpConfiguration(config: OtpGuardConfig): void {
             return;
         }
 
-        bootstrapLogger.info('✅ OTP Guard: Production SMS provider configured and validated');
+        bootstrapLogger.info(`✅ OTP Guard: Production provider "${otpProvider}" configured and validated`);
+        otpGuardState.isSafeToProceed = true;
+        otpGuardState.isConfigured = true;
+    }
+
+    // Development environment with a real provider: warn but allow
+    if (isDevelopment) {
+        if (!msg91AuthKey || !msg91SenderId) {
+            const warning = `OTP provider "${otpProvider}" not configured; SMS dispatch will be skipped in dev mode`;
+            otpGuardState.warnings.push(warning);
+            bootstrapLogger.warn(`⚠️  ${warning}`);
+
+            if (authBypassOtpLock === 'true') {
+                bootstrapLogger.info('ℹ️  OTP lock bypass ENABLED for local development (AUTH_BYPASS_OTP_LOCK=true)');
+            }
+        } else {
+            bootstrapLogger.info(`✅ OTP Guard: Provider "${otpProvider}" configured in development`);
+        }
         otpGuardState.isSafeToProceed = true;
         otpGuardState.isConfigured = true;
     }

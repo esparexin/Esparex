@@ -1,4 +1,5 @@
 import { randomInt } from 'crypto';
+import { OtpProvider } from '@esparex/contracts';
 import { env } from '../config/env';
 
 /**
@@ -6,7 +7,7 @@ import { env } from '../config/env';
  * Uses Node.js crypto.randomInt which is CSPRNG.
  */
 export const generateSecureOtp = (): string => {
-    if (env.USE_DEFAULT_OTP) {
+    if (env.OTP_PROVIDER === OtpProvider.TEST || env.USE_DEFAULT_OTP) {
         return env.DEV_STATIC_OTP;
     }
 
