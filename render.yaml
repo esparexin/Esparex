@@ -30,8 +30,6 @@ services:
         sync: false
       - key: ADMIN_JWT_SECRET
         sync: false
-      # REFRESH_TOKEN_SECRET removed — not present in core/src/config/env.ts schema.
-      # Verify usage before re-adding. (D1 audit I-015)
       - key: OTP_HASH_SECRET
         sync: false
       # HMAC_SECRET: used for OTP HMAC signing. The code has an insecure dev
