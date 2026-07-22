@@ -105,9 +105,11 @@ services:
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
 
-      # ── Search ─────────────────────────────────────────────────────────────
-      - key: USE_DEFAULT_OTP
-        value: "false"
+      # ── OTP ─────────────────────────────────────────────────────────────────
+      # OTP_PROVIDER=test: testing OTP (123456) active. Switch to "msg91" for
+      # production SMS delivery once MSG91/DLT registration is complete.
+      - key: OTP_PROVIDER
+        value: test
       - key: ATLAS_LOCATION_SEARCH_INDEX
         sync: false
 

@@ -1,4 +1,5 @@
 /* global NodeJS */
+import { OtpProvider } from '@esparex/contracts';
 import bootstrapLogger from '../utils/bootstrapLogger';
 import { inferCookieDomainFromEnv, requiresSharedCookieDomain } from '../utils/originConfig';
 import { isLocalRedisHost, resolveRedisConfig } from './redisConfig';
@@ -222,29 +223,42 @@ export function validateProductionEnvOrThrow(sourceEnv: NodeJS.ProcessEnv): void
         }
     }
 
-    const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
+    const otpProvider = (sourceEnv.OTP_PROVIDER || '').trim().toLowerCase();
+    const isOtpTestMode = otpProvider === OtpProvider.TEST;
 
-    if ((sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase() === 'true') {
-        if (isRiskOverrideActive) {
-            bootstrapLogger.warn('⚠️  SECURITY WARNING: USE_DEFAULT_OTP is enabled in production via PROD_RISK_OVERRIDE. Static OTPs are active!');
-        } else {
-            throw new Error(
-                '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
-                'This flag enables authentication bypass with a static OTP for every user. ' +
-                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
-            );
+    if (isOtpTestMode) {
+        bootstrapLogger.info('ℹ️  OTP_PROVIDER=test: testing OTP (123456) active in production — SMS provider validation deferred');
+    } else {
+        const rawUseDefaultOtp = (sourceEnv.USE_DEFAULT_OTP || '').trim().toLowerCase();
+        const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
+
+        if (rawUseDefaultOtp === 'true') {
+            if (isRiskOverrideActive) {
+                bootstrapLogger.warn('⚠️  SECURITY WARNING: USE_DEFAULT_OTP is enabled in production via PROD_RISK_OVERRIDE. Static OTPs are active!');
+            } else {
+                throw new Error(
+                    '🚨 SECURITY BLOCK: USE_DEFAULT_OTP=true is not allowed in production. ' +
+                    'This flag enables authentication bypass with a static OTP for every user. ' +
+                    'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
+                );
+            }
         }
     }
 
     if ((sourceEnv.AUTH_BYPASS_OTP_LOCK || '').trim().toLowerCase() === 'true') {
-        if (isRiskOverrideActive) {
-            bootstrapLogger.warn('⚠️  SECURITY WARNING: AUTH_BYPASS_OTP_LOCK is enabled in production via PROD_RISK_OVERRIDE. Brute-force protection is disabled!');
+        if (isOtpTestMode) {
+            bootstrapLogger.warn('⚠️  AUTH_BYPASS_OTP_LOCK is active in production with OTP_PROVIDER=test — brute-force protection is disabled');
         } else {
-            throw new Error(
-                '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
-                'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
-                'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
-            );
+            const isRiskOverrideActive = (sourceEnv.PROD_RISK_OVERRIDE || '').trim().toLowerCase() === 'true';
+            if (isRiskOverrideActive) {
+                bootstrapLogger.warn('⚠️  SECURITY WARNING: AUTH_BYPASS_OTP_LOCK is enabled in production via PROD_RISK_OVERRIDE. Brute-force protection is disabled!');
+            } else {
+                throw new Error(
+                    '🚨 SECURITY BLOCK: AUTH_BYPASS_OTP_LOCK=true is not allowed in production. ' +
+                    'This flag disables OTP attempt-count locking, enabling brute-force attacks. ' +
+                    'Remove it from your production environment or set PROD_RISK_OVERRIDE=true if this is intentional for pre-launch testing.'
+                );
+            }
         }
     }
 
