@@ -288,14 +288,12 @@ export function LocationProvider({
 
     // ── Context Values ────────────────────────────────────────────────────────
 
-    const isLoaded = status !== "checking" && status !== "unknown";
-
     const dataValue = useMemo<LocationDataContextType>(
         () => ({
             location,
-            isLoaded,
+            isLoaded: status !== "checking" && status !== "unknown",
         }),
-        [location, isLoaded]
+        [location, status]
     );
 
     const statusContextValue = useMemo<LocationStatusContextType>(

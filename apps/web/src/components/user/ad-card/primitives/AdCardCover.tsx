@@ -62,7 +62,8 @@ export const AdCardCover = memo(function AdCardCover({
           alt={ad.title}
           fill
           priority={priority}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          unoptimized
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           className={cn(
             "object-cover transition-transform duration-300 group-hover:scale-105",
             isSold ? "opacity-60" : ""

@@ -19,15 +19,13 @@ const router = express.Router();
 router.get("/", searchLimiter, locationController.searchLocations);
 router.get("/pincode/:pincode", searchLimiter, locationController.lookupPincode);
 
-import { publicCacheControl } from '../middleware/publicCacheControl';
-
-// Hierarchical selectors — cached at edge for fast dropdown & filter responses
-router.get("/states", searchLimiter, publicCacheControl(300, 3600), locationController.getStates);
-router.get("/cities", searchLimiter, publicCacheControl(300, 3600), locationController.getCities);
-router.get("/areas", searchLimiter, publicCacheControl(300, 3600), locationController.getAreas);
+// Hierarchical selectors
+router.get("/states", searchLimiter, locationController.getStates);
+router.get("/cities", searchLimiter, locationController.getCities);
+router.get("/areas", searchLimiter, locationController.getAreas);
 
 // Default map center/fallback city
-router.get("/default-center", searchLimiter, publicCacheControl(300, 3600), locationController.getDefaultCenter);
+router.get("/default-center", searchLimiter, locationController.getDefaultCenter);
 
 // IP Geolocation — server-side proxy (keeps API key off the client)
 router.get("/ip-locate", searchLimiter, locationController.ipLocate);

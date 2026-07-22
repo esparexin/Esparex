@@ -48,46 +48,32 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
 
     const endpoint = API_ROUTES.USER.LISTINGS;
     const Component = parsed.type === 'service' ? BrowseServices : parsed.type === 'spare_part' ? BrowseSpareParts : BrowseAds;
-
-    const categorySelectionParam = parsed.categoryId ?? parsed.category;
-    // Sequential resolution is only required when a category slug is passed instead of an ID
-    const requiresSequentialSlugResolution = Boolean(parsed.category && !parsed.categoryId);
-
-    const buildListingsParams = (categoryId?: string) => ({
-        status: 'live' as const,
-        type: parsed.type,
-        page: parsed.page ?? 1,
-        limit: 20,
-        ...(parsed.q ? { search: parsed.q } : {}),
-        ...(categoryId ? { categoryId } : {}),
-        ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
-        ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
-        ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
-        ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
-        ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
-        ...(parsed.brands ? { brandId: parsed.brands } : {}),
-        ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
-    });
-
-    const categoriesPromise = getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
-
-    let initialCategories;
-    let initialResults;
-
-    if (requiresSequentialSlugResolution) {
-        initialCategories = await categoriesPromise;
-        const resolvedCategory = resolveBrowseCategorySelection(categorySelectionParam, initialCategories);
-        initialResults = await getAdsPage(buildListingsParams(resolvedCategory.categoryId), {
+    const initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
+    const resolvedCategory = resolveBrowseCategorySelection(
+        parsed.categoryId ?? parsed.category,
+        initialCategories
+    );
+    const initialResults = await getAdsPage(
+        {
+            status: 'live',
+            type: parsed.type,
+            page: parsed.page ?? 1,
+            limit: 20,
+            ...(parsed.q ? { search: parsed.q } : {}),
+            ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
+            ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
+            ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
+            ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
+            ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
+            ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
+            ...(parsed.brands ? { brandId: parsed.brands } : {}),
+            ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
+        },
+        {
             endpoint,
-            fetchOptions: { next: { revalidate: 60 } },
-        });
-    } else {
-        const resultsPromise = getAdsPage(buildListingsParams(categorySelectionParam), {
-            endpoint,
-            fetchOptions: { next: { revalidate: 60 } },
-        });
-        [initialCategories, initialResults] = await Promise.all([categoriesPromise, resultsPromise]);
-    }
+            fetchOptions: { next: { revalidate: 60 } }
+        }
+    );
 
     const h1Map: Record<string, string> = {
         service: 'Find Mobile Repair Services Near You',

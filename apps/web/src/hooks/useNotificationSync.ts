@@ -85,10 +85,9 @@ export const useNotificationSync = ({ enabled = true }: UseNotificationSyncOptio
         return () => {
             socket.off('inbox_updated', handleInboxUpdated);
             if (debounceRef.current) clearTimeout(debounceRef.current);
-            if (socket.connected) {
-                socket.disconnect();
-                socketRef.current = null;
-            }
+            // Disconnect when the component tree is fully unmounted
+            // (not on every re-render — the socket is reused while the
+            //  user is logged in)
         };
     }, [enabled, queryClient]);
 

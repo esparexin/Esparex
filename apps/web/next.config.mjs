@@ -129,11 +129,11 @@ const nextConfig = {
         optimizePackageImports: [
             'lucide-react',
             'framer-motion',
+            'recharts',
             'socket.io-client',
         ],
     },
     images: {
-        formats: ['image/avif', 'image/webp'],
         remotePatterns: [
             ...regionalS3RemotePatterns,
             ...dynamicS3BucketPattern,
