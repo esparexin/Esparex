@@ -24,6 +24,19 @@ interface AdCardGridProps {
   className?: string;
 }
 
+function areAdCardGridPropsEqual(prevProps: AdCardGridProps, nextProps: AdCardGridProps): boolean {
+  return (
+    prevProps.ad.id === nextProps.ad.id &&
+    prevProps.ad.price === nextProps.ad.price &&
+    prevProps.ad.title === nextProps.ad.title &&
+    prevProps.isSaved === nextProps.isSaved &&
+    prevProps.priority === nextProps.priority &&
+    prevProps.href === nextProps.href &&
+    prevProps.showBusinessBadge === nextProps.showBusinessBadge &&
+    prevProps.className === nextProps.className
+  );
+}
+
 export const AdCardGrid = memo(function AdCardGrid({
   ad,
   isSaved = false,
@@ -99,6 +112,6 @@ export const AdCardGrid = memo(function AdCardGrid({
       </Card>
     </AdCardLinkWrapper>
   );
-});
+}, areAdCardGridPropsEqual);
 
 AdCardGrid.displayName = "AdCardGrid";
