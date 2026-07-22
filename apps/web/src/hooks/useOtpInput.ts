@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { ClipboardEvent, KeyboardEvent, MutableRefObject } from "react";
 
 type UseOtpInputOptions = {
@@ -27,8 +27,8 @@ export function useOtpInput(options: UseOtpInputOptions): {
   const inputRefs = externalRefs ?? internalRefs;
 
   const [otp, setOtp] = useState<string[]>(createEmptyOtp(length));
-  const otpValue = otp.join("");
-  const isComplete = otp.every((digit) => digit.length === 1);
+  const otpValue = useMemo(() => otp.join(""), [otp]);
+  const isComplete = useMemo(() => otp.every((digit) => digit.length === 1), [otp]);
 
   const focusInput = useCallback(
     (index: number) => {
