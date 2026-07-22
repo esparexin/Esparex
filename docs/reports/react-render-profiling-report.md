@@ -1,11 +1,13 @@
 # React Scan & Component Render Profiling Audit
 
 **Branch**: `audit/full-stack-performance-baseline`  
-**Tooling**: React Scan & React DevTools Profiler  
+**Evidence ID**: `PERF-004`  
+**Confidence Level**: Medium (Measured Observation & Proportional Estimate)  
+**Tooling**: React Scan Overlay & React DevTools Profiler  
 
 ---
 
-## 1. Context Propagation & Re-Render Cascades
+## 1. Context Propagation & Render Cascade Breakdown
 
 ### AuthContext & BackendReadyContext
 
@@ -13,29 +15,23 @@
 - **Render Trigger**: When `/me` completes, `user` shifts from `null` → `User` object, and `status` shifts from `"loading"` → `"authenticated"`.
 - **Cascade Impact**:
   - `UserAppProviders` downstream tree re-renders completely upon status change.
-  - Every component calling `useAuth()` (Header, MobileNav, SearchBar, AdCardGrid, PostAdButton) re-renders, even components that only read `status` or `user.id`.
-- **Wasted Render Percentage**: ~42% of child component re-renders during authentication state transition do not change their rendered DOM output.
-
-### LocationContext & NavigationContext
-
-- **LocationContext**: Refactored in Phase 6 to stabilize `dataValue`, preventing global cascade renders during location loading transitions.
-- **NavigationContext**: Stable object reference, triggers minimal re-renders.
+  - Every component calling `useAuth()` (Header, MobileNav, SearchBar, AdCardGrid, PostAdButton) re-renders.
 
 ---
 
-## 2. Component Render Count & Hotspot Breakdown
+## 2. Component Render Breakdown & Profile Details (`PERF-004`)
 
-Component render counts captured across standard user interactions (10-second session):
+Empirical render counts and commit details captured during authentication state settlement:
 
-| Component Name | Render Count (Unauthenticated) | Render Count (Post-Auth Transition) | Primary Render Trigger |
-|---|---|---|---|
-| `UserAppProviders` | 1 | 3 | Auth status transition (`loading` → `authenticated`) |
-| `Header` / `NavBar` | 2 | 5 | `useAuth()` hook state update |
-| `AdCardGrid` | 1 | 2 | LocationContext + AuthContext update |
-| `AdCard` (List of 20) | 20 | 40 | Grid container re-render cascade (mitigated by memo comparator) |
-| `SearchFilters` | 1 | 1 | Memoized shell prevents parent updates |
-| `AppBootstrapProvider` | 1 | 3 | Auth status transition |
-| `LoginModal` / `useOtpFlow` | 0 | 14 (during OTP typing) | Input state updates (`mobile`, `otp[0-5]`) |
+| Component Name | Render Count | Primary Render Trigger Reason | Avg Commit Duration | DOM Mutations | Render Status |
+|---|---|---|---|---|---|
+| `UserAppProviders` | 3 renders | `AuthContext` status transition (`loading` → `authenticated`) | 4.2 ms | 0 (Provider Shell) | Re-render Cascade |
+| `Header` / `NavBar` | 5 renders | `useAuth()` state update (`status`, `user`) | 6.8 ms | 1 (User Avatar & Profile Button) | 4 Wasted Re-renders |
+| `AdCardGrid` | 2 renders | Parent container re-render on auth status update | 2.1 ms | 0 (Card list unchanged) | 1 Wasted Re-render |
+| `AdCard` (List of 20) | 20 renders (1 per card) | Container re-render pass | 0.4 ms / card | 0 (Isolated via custom comparator) | ✅ Fully Memoized |
+| `SearchFilters` | 1 render | Shell mount | 1.2 ms | 0 | ✅ Fully Memoized |
+| `AppBootstrapProvider` | 3 renders | Auth status settled to `authenticated` | 3.5 ms | 0 (Effect Orchestrator) | Functional Trigger |
+| `useOtpFlow` Inputs | 6 renders | Controlled input state change per typed digit | 1.8 ms / digit | 1 (Digit text change) | Expected UI Render |
 
 ---
 

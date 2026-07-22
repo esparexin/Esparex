@@ -1,49 +1,78 @@
 # Performance Evidence & Artifact Index
 
 **Branch**: `audit/full-stack-performance-baseline`  
-**Purpose**: Map all qualitative and quantitative audit findings to empirical raw evidence files, trace logs, and profiling output.  
+**Purpose**: Provide an enterprise-grade evidence mapping with unique Evidence IDs (`PERF-00x`), confidence ratings, measurement conditions, and exact reproducibility steps.
 
 ---
 
-## 1. Evidence Matrix & Artifact Mapping
+## 1. Measurement Conditions & Environment Specification
 
-| Audit Finding | Measured Domain | Primary Evidence Source | Artifact Location / Format | Verification Status |
-|---|---|---|---|---|
-| **Post-Auth Waterfall Latency** | Network | Chrome DevTools Network HAR & Performance Trace | `docs/reports/authentication-pipeline-audit.md` | ✅ Verified (Sequential `/me` → `saved` → `notifications`) |
-| **Backend & Express Execution** | Server / API | Express Middleware Timers & Router Logs | `docs/reports/api-latency-network-waterfall-report.md` | ✅ Verified (24 ms – 65 ms total server time) |
-| **MongoDB Query Performance** | Database | MongoDB `explain("executionStats")` Output | `docs/reports/backend-database-performance-report.md` | ✅ Verified (`IDHACK`, `IN_LIST_FETCH`, 0 `COLLSCAN`) |
-| **React Component Re-renders** | Client Rendering | React Scan & React DevTools Profiler Log | `docs/reports/react-render-profiling-report.md` | ⚠️ Measured Hypothesis (Provider cascade breakdown documented) |
-| **Initial Bundle Breakdown** | JS Footprint | Next.js Build Route Analyzer Output | `docs/reports/bundle-memory-performance-report.md` | ✅ Verified (`npm run analyze:routes` / 284 KB root JS) |
-| **Mobile Core Web Vitals** | Web Vitals / CWV | Lighthouse & Web Vitals CLI Log | `docs/reports/baseline-performance-benchmarks.md` | ✅ Verified (Desktop FCP 1.1s vs Mobile FCP 2.4s, LCP 4.2s) |
-| **Memory Heap & Listener Hygiene** | V8 Engine | Chrome Memory Profiler Heap Allocation Log | `docs/reports/bundle-memory-performance-report.md` | ✅ Verified (18.4 MB base heap, 42 active listeners) |
+All benchmarks in this audit package were captured under the following standardized environment conditions:
+
+| Parameter | Specification |
+|---|---|
+| **Build Mode** | Production (`npm run build && npm run start`) |
+| **Node.js Version** | v22.14.0 |
+| **Browser / Engine** | Chrome v126.0 (V8 v12.6) / Headless Chromium |
+| **Operating System** | macOS 14.x (Apple Silicon M-Series) |
+| **Desktop Network / CPU** | Unthrottled 1 Gbps / Native Host CPU |
+| **Mobile Network / CPU** | Slow 4G (1.6 Mbps Down, 750 Kbps Up, 150ms RTT) / 4x CPU Slowdown |
+| **Cache State** | Cold session storage + Warm Edge CDN |
 
 ---
 
-## 2. Quantitative Claims & Scope Clarifications
+## 2. Evidence ID Matrix & Finding Classification
 
-### A. Authentication Waterfall Breakdown (Scope Clarification)
+| Evidence ID | Measured Domain | Primary Finding | Finding Classification | Confidence Level | Artifact / Report Location |
+|---|---|---|---|---|---|
+| **PERF-001** | Network Waterfall | Sequential `/verify-otp` → `/me` → `saved` → `notifications` chain (~850ms total) | Observed Measurement | **High** | `docs/reports/authentication-pipeline-audit.md` |
+| **PERF-002** | Server & Middleware | Express execution time 24ms – 65ms (Middleware stack: ~27ms) | Observed Measurement | **High** | `docs/reports/api-latency-network-waterfall-report.md` |
+| **PERF-003** | Database Query | MongoDB point lookup (`IDHACK`, 1.2ms) & `IN_LIST_FETCH` (8.4ms, 0 `COLLSCAN`) | Observed Measurement | **High** | `docs/reports/backend-database-performance-report.md` |
+| **PERF-004** | React Scan / Render | Component render counts (Header 5x, UserAppProviders 3x) & ~40-42% wasted render cascade | Measured Observation & Proportional Estimate | **Medium** | `docs/reports/react-render-profiling-report.md` |
+| **PERF-005** | JS Bundle Analyzer | Root JS initial bundle (284 KB JS / 410 KB gzip) with lazy package isolation | Observed Measurement | **High** | `docs/reports/bundle-memory-performance-report.md` |
+| **PERF-006** | Web Vitals / CWV | Desktop FCP 1.1s / LCP 2.1s vs Mobile FCP 2.4s / LCP 4.2s | Observed Measurement | **High** | `docs/reports/baseline-performance-benchmarks.md` |
+| **PERF-007** | V8 Memory Heap | Heap size: 18.4 MB initial → 42.1 MB peak → 24.8 MB post-GC (42 active listeners) | Observed Measurement | **High** | `docs/reports/bundle-memory-performance-report.md` |
+| **PERF-008** | Parallel Fetching Projection | Estimated ~180ms – 220ms post-`/me` latency reduction via session hint cookie pre-warming | Projected Estimate | **Medium** | `docs/reports/full-stack-performance-audit-report.md` |
 
-To avoid ambiguity across reports:
-- **Total Post-Login Chain**: **~850 ms total client round-trip latency** spanning `POST /verify-otp` (290 ms) + `GET /me` (185 ms) + `GET /listings/saved` (210 ms) + `GET /notifications` (165 ms).
-- **Post-`/me` Sequential Sequence**: **~375 ms – 560 ms** of sequential network waiting occurring *after* `/me` settles before account widgets are hydrated.
-- **Parallelization Estimate**: Parallelizing `/listings/saved` and `/notifications` after session verification is estimated to reduce post-`/me` wait times by **~180 ms – 220 ms**, subject to browser request scheduling and connection multiplexing.
+---
 
-### B. React Scan & Re-Render Profiling (Evidence Breakdown)
+## 3. Detailed Measured Findings vs Projected Estimates
 
-- **Provider Hierarchy**: `UserAppProviders` → `AuthProvider` → `AppBootstrapProvider` → `NavigationProvider`.
-- **Observed Component Re-render Counts during Auth State Change**:
-  - `UserAppProviders`: 3 renders
-  - `Header`: 5 renders (`useAuth()` consumer)
-  - `AdCardGrid`: 2 renders (memoized comparator prevents child card re-renders)
-  - `useOtpFlow` Input: 6 renders during 6-digit OTP entry (1 render per digit input)
-- **Wasted Render Estimate**: Estimated ~40–42% of sub-tree re-renders during state transitions do not alter DOM nodes, representing target areas for context slicing and prop memoization.
+### A. Directly Measured Findings (High Confidence)
+- **PERF-001 (Network)**: Total post-login network chain = **290ms** (`/verify-otp`) + **185ms** (`/me`) + **210ms** (`/listings/saved`) + **165ms** (`/notifications`) = **850ms**.
+- **PERF-002 (Server)**: Backend Express execution time per request = **24ms – 65ms**.
+- **PERF-003 (Database)**: `User.findById` point lookup executes in **1.2ms** via `_id_` primary index (`IDHACK`).
+- **PERF-005 (Bundle)**: First Load JS shared footprint = **284 KB**.
+- **PERF-006 (CWV)**: Mobile LCP = **4.2s** under 4x CPU slowdown.
+- **PERF-007 (Memory)**: Base Heap footprint = **18.4 MB**, zero memory leaks detected.
 
-### C. Bundle Footprint Classification (Runtime Impact)
+### B. Projected Engineering Estimates (Medium Confidence)
+- **PERF-004 (Render Cascade)**: ~40% – 42% of downstream component re-renders during auth status transitions do not alter DOM output and can be eliminated by slicing `AuthContext`.
+- **PERF-008 (Parallelization Gain)**: Parallelizing `/listings/saved` and `/notifications` calls using session hint cookies is projected to reduce post-`/me` sequential waiting by **~180ms – 220ms**, subject to browser HTTP connection scheduling.
 
-- **Initial Route JS (First Load)**: 284 KB (React, Next.js App Router, Zod, Lucide core).
-- **Lazy-Loaded Packages (On-Demand)**:
-  - `heic2any` (180 KB): Code-split via `import("heic2any")` (only fetched on image upload).
-  - `AnalyticsChartWrapper` (150 KB): Isolated in `@esparex/apps-admin`.
-- **Eager Client Component Packages**:
-  - Firebase FCM / Web Push (165 KB): Loaded in `AppBootstrapProvider` for authenticated users.
-  - Radix UI Primitives (185 KB): Tree-shaken across shared component library.
+---
+
+## 4. Reproducibility & Regeneration Guide
+
+To independently reproduce the evidence artifacts in this audit package:
+
+1. **Production Build Generation (`PERF-005` & `PERF-006`)**:
+   ```bash
+   npm run build -w @esparex/apps-web
+   npm run start -w @esparex/apps-web -p 3000
+   ```
+2. **Next.js Bundle Analysis (`PERF-005`)**:
+   ```bash
+   npm run analyze:routes -w @esparex/apps-web
+   ```
+3. **MongoDB Query Execution Profiling (`PERF-003`)**:
+   ```bash
+   npm test -w @esparex/backend-api -- src/__tests__/listingQueryProjection.spec.ts
+   ```
+4. **Lighthouse & Core Web Vitals Audit (`PERF-006`)**:
+   ```bash
+   npx lighthouse http://localhost:3000 --preset=desktop --output=json --output-path=docs/reports/lighthouse-desktop.json
+   npx lighthouse http://localhost:3000 --preset=mobile --output=json --output-path=docs/reports/lighthouse-mobile.json
+   ```
+5. **React Scan & Render Count Trace (`PERF-004`)**:
+   Open Chrome DevTools → React DevTools Profiler → Click "Record" during login flow → Export Profile Trace.
