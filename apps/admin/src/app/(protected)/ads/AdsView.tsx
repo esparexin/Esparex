@@ -19,12 +19,9 @@ import { useAdTableData } from "./hooks/useAdTableData";
 import { useAdActions } from "./hooks/useAdActions";
 import { ModerationFilters } from "@/components/moderation/moderationTypes";
 
-const SORT_OPTIONS: Array<{ label: string; value: ModerationFilters["sort"] }> = [
-    { label: "Newest", value: "newest" },
-    { label: "Oldest", value: "oldest" },
-    { label: "Price High", value: "price_high" },
-    { label: "Price Low", value: "price_low" }
-];
+import { AdsColumnVisibilityMenu } from "./components/AdsColumnVisibilityMenu";
+import { AdsFilterToolbarExtras } from "./components/AdsFilterToolbarExtras";
+
 const allowed = new Set(["pending", "live", "rejected", "deactivated", "sold", "expired", "all"]);
 
 type AdsViewProps = {
@@ -53,8 +50,6 @@ export default function AdsView({ listingType }: AdsViewProps) {
         created: true,
         actions: true
     });
-    const [showColumnMenu, setShowColumnMenu] = useState(false);
-    const columnMenuRef = useRef<HTMLDivElement>(null);
 
     // ── Modular Hooks ──────────────────────────────────────────────────────────
     const { 
@@ -96,17 +91,6 @@ export default function AdsView({ listingType }: AdsViewProps) {
         }
     }, [page, pagination.pages, replaceRoute]);
 
-    // ── UI: Click outside column menu ────────────────────────────────────────
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (columnMenuRef.current && !columnMenuRef.current.contains(event.target as Node)) {
-                setShowColumnMenu(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
     const columnOptions = useMemo(() => [
         { id: "select", label: "Checkboxes" },
         { id: "image", label: "Image" },
@@ -132,46 +116,13 @@ export default function AdsView({ listingType }: AdsViewProps) {
             }
             actions={
                 <div className="flex items-center gap-2">
-                    <div className="relative" ref={columnMenuRef}>
-                        <button
-                            type="button"
-                            onClick={() => setShowColumnMenu(!showColumnMenu)}
-                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
-                        >
-                            <EyeOff size={14} /> 
-                            <span>Columns</span>
-                            <ChevronDown size={12} className={`transition-transform duration-200 ${showColumnMenu ? "rotate-180" : ""}`} />
-                        </button>
-                        
-                        {showColumnMenu && (
-                            <div className="absolute right-0 top-full z-40 mt-2 min-w-[200px] rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in duration-200">
-                                <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                                    Toggle Columns
-                                </div>
-                                <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                                    {columnOptions.map((opt) => (
-                                        <label
-                                            key={opt.id}
-                                            className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-200 cursor-pointer"
-                                                checked={columnVisibility[opt.id] !== false}
-                                                onChange={(e) => {
-                                                    setColumnVisibility(prev => ({
-                                                        ...prev,
-                                                        [opt.id]: e.target.checked
-                                                    }));
-                                                }}
-                                            />
-                                            <span className="font-medium">{opt.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    <AdsColumnVisibilityMenu
+                        columnOptions={columnOptions}
+                        columnVisibility={columnVisibility}
+                        onChangeColumnVisibility={(id, visible) =>
+                            setColumnVisibility((prev) => ({ ...prev, [id]: visible }))
+                        }
+                    />
 
                     <button
                         type="button"
@@ -194,89 +145,11 @@ export default function AdsView({ listingType }: AdsViewProps) {
                     onStatusChange={(val) => updateFilter("status", val as ModerationFilters["status"])}
                     statusOptions={activeStatusOptions}
                     extraFilters={
-                        <>
-                            <input
-                                value={filters.sellerId}
-                                onChange={(e) => updateFilter("sellerId", e.target.value)}
-                                placeholder="Seller ID"
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-32"
-                            />
-                            <input
-                                value={filters.locationId}
-                                onChange={(e) => updateFilter("locationId", e.target.value)}
-                                placeholder="Location ID"
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-44"
-                            />
-                            <select
-                                value={filters.sort}
-                                onChange={(e) => updateFilter("sort", e.target.value as ModerationFilters["sort"])}
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
-                            >
-                                {SORT_OPTIONS.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
-                            <input
-                                type="date"
-                                value={filters.dateFrom}
-                                onChange={(e) => updateFilter("dateFrom", e.target.value)}
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-                            />
-                            <input
-                                type="date"
-                                value={filters.dateTo}
-                                onChange={(e) => updateFilter("dateTo", e.target.value)}
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-                            />
-                            
-                            {/* Expiry Warning Filters */}
-                            <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
-                                <select
-                                    value={filters.expiryWarningStatus}
-                                    onChange={(e) => updateFilter("expiryWarningStatus", e.target.value as ModerationFilters["expiryWarningStatus"])}
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
-                                >
-                                    <option value="all">Warning: All</option>
-                                    <option value="sent">Warning Sent</option>
-                                    <option value="not_sent">Not Sent</option>
-                                </select>
-                                <input
-                                    type="number"
-                                    value={filters.expiringWithinDays}
-                                    onChange={(e) => updateFilter("expiringWithinDays", e.target.value)}
-                                    placeholder="Exp: Days"
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-200 w-20"
-                                />
-                            </div>
-
-                            {/* Spotlight Warning Filters */}
-                            <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3 ml-1">
-                                <select
-                                    value={filters.spotlightWarningStatus}
-                                    onChange={(e) => updateFilter("spotlightWarningStatus", e.target.value as ModerationFilters["spotlightWarningStatus"])}
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
-                                >
-                                    <option value="all">Spot: All</option>
-                                    <option value="sent">Spot Warn Sent</option>
-                                    <option value="not_sent">Not Sent</option>
-                                </select>
-                                <input
-                                    type="number"
-                                    value={filters.spotlightExpiringWithinDays}
-                                    onChange={(e) => updateFilter("spotlightExpiringWithinDays", e.target.value)}
-                                    placeholder="Spot: Days"
-                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-200 w-20"
-                                />
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={clearFilters}
-                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 ml-1"
-                            >
-                                Clear
-                            </button>
-                        </>
+                        <AdsFilterToolbarExtras
+                            filters={filters}
+                            updateFilter={updateFilter}
+                            clearFilters={clearFilters}
+                        />
                     }
                 />
 

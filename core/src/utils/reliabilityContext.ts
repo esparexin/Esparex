@@ -1,3 +1,5 @@
+import { createUniversalAsyncLocalStorage } from '@esparex/shared';
+
 type ReliabilityContext = {
     traceId?: string;
     userId?: string;
@@ -8,60 +10,7 @@ type ReliabilityContext = {
     queueName?: string;
 };
 
-type ContextStorage = {
-    getStore: () => ReliabilityContext | undefined;
-    enterWith: (value: ReliabilityContext) => void;
-};
-
-const createFallbackStorage = (): ContextStorage => {
-    let current: ReliabilityContext = {};
-    return {
-        getStore: () => current,
-        enterWith: (value: ReliabilityContext) => {
-            current = value;
-        }
-    };
-};
-
-const createContextStorage = (): ContextStorage => {
-    const runtime = globalThis as { window?: unknown };
-    if (typeof runtime.window !== 'undefined') {
-        return createFallbackStorage();
-    }
-
-    try {
-        const dynamicRequire = Function("return typeof require === 'function' ? require : null")() as
-            | ((moduleName: string) => unknown)
-            | null;
-        if (!dynamicRequire) return createFallbackStorage();
-
-        const asyncHooks = dynamicRequire('node:async_hooks') as {
-            AsyncLocalStorage?: new () => {
-                getStore: () => unknown;
-                enterWith: (value: unknown) => void;
-            };
-        };
-        const AsyncLocalStorageCtor = asyncHooks?.AsyncLocalStorage;
-        if (typeof AsyncLocalStorageCtor !== 'function') {
-            return createFallbackStorage();
-        }
-
-        const storage = new AsyncLocalStorageCtor();
-        return {
-            getStore: () => {
-                const context = storage.getStore();
-                return typeof context === 'object' && context !== null
-                    ? context as ReliabilityContext
-                    : undefined;
-            },
-            enterWith: (value: ReliabilityContext) => storage.enterWith(value),
-        };
-    } catch {
-        return createFallbackStorage();
-    }
-};
-
-const storage = createContextStorage();
+const storage = createUniversalAsyncLocalStorage<ReliabilityContext>({});
 
 const trimString = (value: unknown): string | undefined => {
     if (typeof value !== 'string') return undefined;
