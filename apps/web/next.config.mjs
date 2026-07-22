@@ -129,7 +129,6 @@ const nextConfig = {
         optimizePackageImports: [
             'lucide-react',
             'framer-motion',
-            'recharts',
             'socket.io-client',
         ],
     },
