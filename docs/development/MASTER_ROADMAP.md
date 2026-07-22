@@ -10,8 +10,8 @@ This roadmap defines the prioritization of work streams organized by key busines
 * **Deliverables:**
   - Decoupled `backend/api` from `core` (DDD Core separation).
   - Consolidated enums, DTOs, and schemas into `@esparex/contracts` (SSOT leaf).
-  - Completed Milestones M2.1 (Payments), M2.2 (Notifications), M2.3 (Catalog), M2.4 (Identity), M2.5 (Listings), M2.6 (Fraud & Trust), M2.7 (Boosts), M2.8 (Discovery), and M2.9 (Analytics).
-  - Setup automated pre-commit and routing guards (Husky, lint-staged).
+  - Completed Milestones M2.1 (Payments), M2.2 (Notifications), M2.3 (Catalog), M2.4 (Identity), M2.5 (Listings), M2.6 (Fraud & Trust), M2.7 (Boosts), M2.8 (Discovery), M2.9 (Analytics), and M2.10 (Communications).
+  - Completed Program 1 Architecture Stabilization (Architecture Score: 100 / 100, 0 circular dependencies, 0 orphan files).
   - Documented initial repository baseline.
 
 ---
