@@ -3,7 +3,7 @@
 **Branch**: `perf/performance-optimization-phase-1`  
 **Baseline Version**: Performance Audit `v1.0.0` (`audit/full-stack-performance-baseline`)  
 **Validation Date**: 2026-07-22  
-**Commit SHA**: `42fc7ec0`  
+**Commit SHA**: `ba28964f`  
 **Governance Standard**: Esparex Architecture & Performance Governance (`AGENTS.md`)  
 **PR Readiness Status**: **✅ Ready for Architecture & Code Review. Runtime performance validation pending staging telemetry.**  
 
@@ -33,7 +33,7 @@ React Version:       19.x
 OS & Architecture:   macOS (darwin arm64)
 Build Command:       npm run build -w @esparex/apps-web
 Build Flags:         SKIP_ENV_VALIDATION=true NEXT_DISABLE_WEBPACK_CACHE=1
-Commit SHA:          42fc7ec0
+Commit SHA:          ba28964f
 Validation Date:     2026-07-22
 ```
 
