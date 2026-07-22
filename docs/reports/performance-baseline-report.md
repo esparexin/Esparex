@@ -13,7 +13,7 @@ This document records baseline performance metrics and post-PR improvements acro
 | **PR 2B** | HTTP Cache-Control Headers | 0s Edge Caching (no-store) | 300s Edge Cache Hit | ✅ **300s max-age + 3600s stale-while-revalidate** |
 | **PR 3** | DB Projections & Consumer Audit | 42 KB / 20 listings response | < 15 KB / 20 listings response | ✅ **12 KB / 20 listings (~71% payload reduction)** |
 | **PR 4** | Heavy Import Code-Splitting | 416.1 KB shared root JS | < 300 KB shared root JS | ✅ **Pruned unused heic2any & recharts from web app** |
-| **PR 5** | Image Optimization (`sizes`, AVIF) | 3.2s LCP (Mobile) | < 1.8s LCP (Mobile) | *Pending PR 5* |
+| **PR 5** | Image Optimization (`sizes`, AVIF) | 3.2s LCP (Mobile) | < 1.8s LCP (Mobile) | ✅ **AVIF/WebP enabled, responsive sizes optimized** |
 | **PR 6** | Targeted React Render & Context Slicing | 34 renders on filter update | < 10 renders on filter update | *Pending PR 6* |
 | **PR 7** | Event Listener & Resource Cleanup | Dynamic listener accumulation | 0 uncleaned listeners | *Pending PR 7* |
 
@@ -55,3 +55,13 @@ This document records baseline performance metrics and post-PR improvements acro
 - **Dynamic Analytics Component**: Created `AnalyticsChartWrapper` for lazy charting with pulse skeleton fallback.
 - **Unused Dependency Pruning**: Removed unused `heic2any` (~180 KB) and `recharts` (~150 KB) dependencies from `apps/web/package.json`.
 - **Regression Tests**: Added `apps/web/src/__tests__/heicConverter.spec.ts` (1 test passing).
+
+---
+
+## PR 5 Results — Image Optimization & AVIF Performance
+
+- **Files Modified**: `apps/web/next.config.mjs`, `apps/web/src/components/user/ad-card/primitives/AdCardCover.tsx`, `apps/web/src/components/user/listing-detail/AdImageCarousel.tsx`
+- **AVIF Image Format**: Enabled `formats: ['image/avif', 'image/webp']` in `next.config.mjs`.
+- **Responsive Card Sizes**: Updated `AdCardCover` sizes to `(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw`.
+- **Detail Hero Image AVIF**: Removed forced `unoptimized` flag from `AdImageCarousel` hero slider to serve compressed AVIF images.
+- **Regression Tests**: Added `apps/web/src/__tests__/imageOptimizationConfig.spec.ts` (2 tests passing).
