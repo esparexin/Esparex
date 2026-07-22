@@ -8,6 +8,7 @@
  */
 
 import { z } from 'zod';
+import { OtpProvider } from '@esparex/contracts';
 import bootstrapLogger from '../utils/bootstrapLogger';
 import {
     validateProductionSafetyFlagsOrThrow,
@@ -59,6 +60,7 @@ const envSchema = z.object({
     ALLOW_DEFAULT_ADMIN_SEED: z.string().transform(val => val === 'true').default('false'),
 
     // 5. OTP & SMS
+    OTP_PROVIDER: z.nativeEnum(OtpProvider).default(OtpProvider.TEST),
     OTP_HASH_SECRET: z.string().optional(),
     HMAC_SECRET: z.string().min(32, 'HMAC_SECRET must be at least 32 characters').default('super_secret_fallback_key_for_dev_32char'),
     MSG91_AUTH_KEY: z.string().optional(),

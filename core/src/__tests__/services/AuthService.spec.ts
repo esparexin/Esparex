@@ -17,10 +17,13 @@ jest.mock('../../config/env', () => ({
         NODE_ENV: 'test',
         JWT_SECRET: 'test-secret',
         JWT_EXPIRES_IN: '15m',
+        OTP_PROVIDER: 'msg91',
         USE_DEFAULT_OTP: false,
         DEV_STATIC_OTP: '123456'
     }
 }));
+
+const { OtpProvider } = jest.requireActual('@esparex/contracts');
 
 jest.mock('../../models/User', () => ({
     __esModule: true,
@@ -249,6 +252,9 @@ describe('AuthService', () => {
             });
             mockBusinessModel.findOne.mockResolvedValue(null);
 
+            const prevProvider = env.OTP_PROVIDER;
+            const prevUseDefault = env.USE_DEFAULT_OTP;
+            env.OTP_PROVIDER = OtpProvider.TEST;
             env.USE_DEFAULT_OTP = true;
             try {
                 const result = await AuthService.verifyLoginOtp(MOBILE, '123456');
@@ -262,7 +268,8 @@ describe('AuthService', () => {
                     expect(result.user.mobile).toBe(CANONICAL_MOBILE);
                 }
             } finally {
-                env.USE_DEFAULT_OTP = false;
+                env.OTP_PROVIDER = prevProvider;
+                env.USE_DEFAULT_OTP = prevUseDefault;
             }
         });
 
