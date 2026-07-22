@@ -1,0 +1,22 @@
+id: communications
+name: Communications Domain
+business_owner: Communications Team
+technical_owner: Communications Squad
+maintainer: Communications Squad
+maturity: production
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: 99.9%
+since: "2.10"
+layer: domain
+owner: platform-team
+depends_on:
+  - contracts
+  - shared
+public_api:
+  facades:
+    - ContactService
+    - ContactRevealService
+    - ChatService
+    - ChatAvailabilityService
