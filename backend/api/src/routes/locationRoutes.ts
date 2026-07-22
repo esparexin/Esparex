@@ -5,7 +5,11 @@ import { searchLimiter } from '../middleware/rateLimiter';
 import { validateRequest } from '../middleware/validateRequest';
 import * as Validators from '@esparex/core/validators/location.validator';
 
+import { publicCacheControl } from '../middleware/publicCacheControl';
+
 const router = express.Router();
+
+router.use(publicCacheControl(300, 3600));
 
 /**
  * Location Domain

@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getAdsPage, type ListingPageResult } from "@/lib/api/user/listings";
 import { API_ROUTES } from "@/lib/api/routes";
-import { getCategories } from "@/lib/api/user/categories";
+import { getCategories, type Category } from "@/lib/api/user/categories";
 import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
 import { buildPublicBrowseRoute, normalizePublicBrowseType, parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
 import { PUBLIC_BROWSE_SORT_MAP, type SortOption } from "@/lib/publicBrowseSort";
@@ -48,32 +48,64 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
 
     const endpoint = API_ROUTES.USER.LISTINGS;
     const Component = parsed.type === 'service' ? BrowseServices : parsed.type === 'spare_part' ? BrowseSpareParts : BrowseAds;
-    const initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
-    const resolvedCategory = resolveBrowseCategorySelection(
-        parsed.categoryId ?? parsed.category,
-        initialCategories
-    );
-    const initialResults = await getAdsPage(
-        {
-            status: 'live',
-            type: parsed.type,
-            page: parsed.page ?? 1,
-            limit: 20,
-            ...(parsed.q ? { search: parsed.q } : {}),
-            ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
-            ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
-            ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
-            ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
-            ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
-            ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
-            ...(parsed.brands ? { brandId: parsed.brands } : {}),
-            ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
-        },
-        {
-            endpoint,
-            fetchOptions: { next: { revalidate: 60 } }
-        }
-    );
+
+    const rawCategoryInput = parsed.categoryId ?? parsed.category;
+    const isCategorySlug = Boolean(rawCategoryInput && !/^[0-9a-fA-F]{24}$/.test(rawCategoryInput));
+
+    let initialCategories: Category[] = [];
+    let initialResults: Awaited<ReturnType<typeof getAdsPage>>;
+
+    if (isCategorySlug) {
+        initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
+        const resolvedCategory = resolveBrowseCategorySelection(rawCategoryInput, initialCategories);
+        initialResults = await getAdsPage(
+            {
+                status: 'live',
+                type: parsed.type,
+                page: parsed.page ?? 1,
+                limit: 20,
+                ...(parsed.q ? { search: parsed.q } : {}),
+                ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
+                ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
+                ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
+                ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
+                ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
+                ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
+                ...(parsed.brands ? { brandId: parsed.brands } : {}),
+                ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
+            },
+            {
+                endpoint,
+                fetchOptions: { next: { revalidate: 60 } }
+            }
+        );
+    } else {
+        const directCategoryId = rawCategoryInput && /^[0-9a-fA-F]{24}$/.test(rawCategoryInput) ? rawCategoryInput : undefined;
+        [initialCategories, initialResults] = await Promise.all([
+            getCategories({ fetchOptions: { next: { revalidate: 3600 } } }),
+            getAdsPage(
+                {
+                    status: 'live',
+                    type: parsed.type,
+                    page: parsed.page ?? 1,
+                    limit: 20,
+                    ...(parsed.q ? { search: parsed.q } : {}),
+                    ...(directCategoryId ? { categoryId: directCategoryId } : {}),
+                    ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
+                    ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
+                    ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
+                    ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
+                    ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
+                    ...(parsed.brands ? { brandId: parsed.brands } : {}),
+                    ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
+                },
+                {
+                    endpoint,
+                    fetchOptions: { next: { revalidate: 60 } }
+                }
+            ),
+        ]);
+    }
 
     const h1Map: Record<string, string> = {
         service: 'Find Mobile Repair Services Near You',

@@ -72,7 +72,6 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                         fill
                         sizes={MARKETPLACE_CARD_FILL_SIZES}
                         priority
-                        unoptimized
                         className="w-full h-full object-cover transition-transform duration-700 group-hover/main:scale-105"
                     />
 
