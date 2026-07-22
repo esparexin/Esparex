@@ -1,30 +1,27 @@
-type TraceStorage = {
-    getStore: () => string | undefined;
-    enterWith: (value: string) => void;
+export type UniversalContextStorage<T> = {
+    getStore: () => T | undefined;
+    enterWith: (value: T) => void;
 };
 
-function createFallbackStorage(): TraceStorage {
-    let current = '';
-    return {
-        getStore: () => (current.length > 0 ? current : undefined),
-        enterWith: (value: string) => {
-            current = value;
+export function createUniversalAsyncLocalStorage<T>(fallbackValue?: T): UniversalContextStorage<T> {
+    let fallbackStore: T | undefined = fallbackValue;
+    const fallbackStorage: UniversalContextStorage<T> = {
+        getStore: () => fallbackStore,
+        enterWith: (value: T) => {
+            fallbackStore = value;
         },
     };
-}
 
-function createTraceStorage(): TraceStorage {
-    // Browser/client bundles cannot resolve Node built-ins like async_hooks.
     const runtime = globalThis as { window?: unknown };
     if (typeof runtime.window !== 'undefined') {
-        return createFallbackStorage();
+        return fallbackStorage;
     }
 
     try {
         const dynamicRequire = Function("return typeof require === 'function' ? require : null")() as
             | ((moduleName: string) => unknown)
             | null;
-        if (!dynamicRequire) return createFallbackStorage();
+        if (!dynamicRequire) return fallbackStorage;
 
         const asyncHooks = dynamicRequire('node:async_hooks') as {
             AsyncLocalStorage?: new () => {
@@ -34,23 +31,23 @@ function createTraceStorage(): TraceStorage {
         };
         const AsyncLocalStorageCtor = asyncHooks?.AsyncLocalStorage;
         if (typeof AsyncLocalStorageCtor !== 'function') {
-            return createFallbackStorage();
+            return fallbackStorage;
         }
 
         const storage = new AsyncLocalStorageCtor();
         return {
             getStore: () => {
                 const current = storage.getStore();
-                return typeof current === 'string' ? current : undefined;
+                return current !== null && current !== undefined ? (current as T) : undefined;
             },
-            enterWith: (value: string) => storage.enterWith(value),
+            enterWith: (value: T) => storage.enterWith(value),
         };
     } catch {
-        return createFallbackStorage();
+        return fallbackStorage;
     }
 }
 
-const storage = createTraceStorage();
+const storage = createUniversalAsyncLocalStorage<string>('');
 
 export class TraceContext {
     static getCorrelationId(): string {
