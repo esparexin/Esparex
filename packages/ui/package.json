@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
   "dependencies": {
+    "@esparex/shared": "*",
+    "@radix-ui/react-dialog": "^1.1.4",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.473.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "lucide-react": "^0.473.0",
-    "@radix-ui/react-dialog": "^1.1.4",
-    "@esparex/shared": "*"
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
     "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1"
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.0.0"
   }
 }

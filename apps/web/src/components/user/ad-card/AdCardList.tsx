@@ -29,6 +29,18 @@ export interface AdCardListProps {
   className?: string;
 }
 
+function areAdCardListPropsEqual(prevProps: AdCardListProps, nextProps: AdCardListProps): boolean {
+  return (
+    prevProps.ad.id === nextProps.ad.id &&
+    prevProps.ad.price === nextProps.ad.price &&
+    prevProps.ad.title === nextProps.ad.title &&
+    prevProps.isSaved === nextProps.isSaved &&
+    prevProps.priority === nextProps.priority &&
+    prevProps.href === nextProps.href &&
+    prevProps.className === nextProps.className
+  );
+}
+
 export const AdCardList = memo(function AdCardList({
   ad,
   isSaved = false,
@@ -147,6 +159,6 @@ export const AdCardList = memo(function AdCardList({
       </Card>
     </AdCardLinkWrapper>
   );
-});
+}, areAdCardListPropsEqual);
 
 AdCardList.displayName = "AdCardList";

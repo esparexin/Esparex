@@ -1,15 +1,10 @@
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from '../../routes';
+import { API_ROUTES } from '@esparex/shared';
 import { toApiResult } from '@/lib/api/result';
 
-// --- S3 Upload Helpers ---
+import { type PresignedUploadResult } from '@esparex/contracts';
+export type { PresignedUploadResult };
 
-export interface PresignedUploadResult {
-    uploadUrl: string;
-    publicUrl: string;
-    key: string;
-    expiresIn: number;
-}
 
 /**
  * Requests a pre-signed S3 URL for direct file upload.

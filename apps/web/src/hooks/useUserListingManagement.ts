@@ -5,7 +5,9 @@ import type { User } from "@/types/User";
 import logger from "@/lib/logger";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 
-export type ListingStatus = "live" | "pending" | "rejected" | "expired" | "sold" | "deactivated";
+import { type ListingStatus } from "@esparex/contracts";
+
+export type { ListingStatus };
 export type ListingType = "ads" | "spare-parts" | "services";
 export type ListingSoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 

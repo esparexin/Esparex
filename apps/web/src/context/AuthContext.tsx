@@ -82,6 +82,11 @@ export function AuthProvider({
   initialHasAuthCookie?: boolean;
 }) {
   const router = useRouter();
+  const routerRef = useRef(router);
+  useEffect(() => {
+    routerRef.current = router;
+  }, [router]);
+
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
@@ -191,7 +196,7 @@ export function AuthProvider({
         wasAuthenticatedRef.current = false;
         if (hadActiveSession && !authBannerShownRef.current) {
           authBannerShownRef.current = true;
-          replaceToHomeSafely(router);
+          replaceToHomeSafely(routerRef.current);
         }
 
         return;
@@ -244,7 +249,7 @@ export function AuthProvider({
     } finally {
       fetchingRef.current = false;
     }
-  }, [backendReady, router, setBackendReady, setHasAuthHint]);
+  }, [backendReady, setBackendReady, setHasAuthHint]);
 
   /* ------------------------------------------------------------------------ */
   /* Session Sync                                                             */

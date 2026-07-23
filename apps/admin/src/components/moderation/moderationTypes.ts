@@ -1,4 +1,6 @@
-import { LIFECYCLE_STATUS, type ListingTypeValue } from "@esparex/contracts";
+import { LIFECYCLE_STATUS, type ListingTypeValue, type Pagination as ContractPagination } from "@esparex/contracts";
+
+export type { ContractPagination };
 
 export const MODERATION_STATUS_VALUES = [
     LIFECYCLE_STATUS.PENDING,

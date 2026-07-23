@@ -1,6 +1,6 @@
 import React from "react";
 import type { VirtualItem } from "@tanstack/react-virtual";
-import type { ColumnDef } from "./DataTable";
+import type { ColumnDef } from "./DataTableTypes";
 
 export interface DataTableRowProps<T extends { id: string | number }> {
     item: T;

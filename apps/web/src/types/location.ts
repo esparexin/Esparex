@@ -19,9 +19,12 @@ import { Location as SharedLocation } from "@esparex/contracts";
 export type AppLocationSource = "auto" | "ip" | "manual" | "default";
 export type CanonicalLocation = SharedLocation;
 export type LocationLevel = SharedLocationLevel;
+export type LocationStatus = "unknown" | "checking" | "prompt" | "granted" | "denied" | "manual_selection";
 
 /** Canonical GeoJSON Point — the only coordinate shape allowed in AppLocation. */
 export type GeoJSONPoint = SharedCanonicalGeoPoint;
+
+export type LocationData = AppLocation;
 
 export interface AppLocation extends Partial<Pick<SharedLocation, "locationId" | "city" | "state" | "country" | "level" | "name" | "display" | "id">> {
     formattedAddress: string;

@@ -1,0 +1,79 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-07-23T16:20:00Z",
+  "description": "Esparex Monorepo Canonical Ownership Registry — Single Source of Truth for Domain, Package, and Module Ownership Boundaries",
+  "ownership": {
+    "packages/contracts": {
+      "name": "Monorepo SSOT API Contracts & DTOs",
+      "owner": "@esparex/platform-core",
+      "boundary": "Provides Zod schemas, API DTOs, request/response payload contracts across all HTTP and RPC boundaries.",
+      "allowedImports": ["@esparex/kernel"],
+      "forbiddenImports": ["@esparex/core", "@esparex/shared", "@esparex/apps-web", "@esparex/apps-admin"]
+    },
+    "packages/kernel": {
+      "name": "Monorepo Domain Kernel",
+      "owner": "@esparex/architecture",
+      "boundary": "Provides shared base domain events, integration event contracts, and core value objects.",
+      "allowedImports": [],
+      "forbiddenImports": ["@esparex/contracts", "@esparex/core", "@esparex/shared", "@esparex/apps-web", "@esparex/apps-admin"]
+    },
+    "packages/ui": {
+      "name": "Monorepo Shared UI Design System",
+      "owner": "@esparex/frontend-leads",
+      "boundary": "Provides accessible UI component primitives (Button, Dialog, Input, Popup) and presentation hooks.",
+      "allowedImports": ["@esparex/shared"],
+      "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin"]
+    },
+    "core/src/domains": {
+      "name": "DDD Bounded Contexts",
+      "owner": "@esparex/core-backend",
+      "boundary": "Encapsulates core domain business logic, entities, application services, ports, and repository adapters.",
+      "subdomains": [
+        "admin",
+        "analytics",
+        "boosts",
+        "catalog",
+        "chat",
+        "communications",
+        "discovery",
+        "fraud",
+        "identity",
+        "listings",
+        "location",
+        "notifications",
+        "payments",
+        "trust"
+      ],
+      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/ui", "@esparex/apps-web", "@esparex/apps-admin"]
+    },
+    "shared/src": {
+      "name": "Monorepo Shared Utilities & Constants",
+      "owner": "@esparex/platform-core",
+      "boundary": "Provides domain constants, geofencing helpers, API route path definitions, and headless logic.",
+      "allowedImports": ["@esparex/contracts", "@esparex/kernel"],
+      "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin"]
+    },
+    "backend/api": {
+      "name": "Express HTTP API Server",
+      "owner": "@esparex/backend-team",
+      "boundary": "Exposes HTTP routes, middleware, controllers, and maps HTTP requests to core domain services.",
+      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/core"],
+      "forbiddenImports": ["@esparex/ui", "@esparex/apps-web", "@esparex/apps-admin"]
+    },
+    "apps/web": {
+      "name": "Next.js User Web Application",
+      "owner": "@esparex/web-team",
+      "boundary": "User-facing web portal, Next.js App Router pages, user components, and client-side hooks.",
+      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/ui"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-admin"]
+    },
+    "apps/admin": {
+      "name": "Next.js Platform Admin Dashboard",
+      "owner": "@esparex/admin-team",
+      "boundary": "Admin management portal, moderation workflows, user management, system operations UI.",
+      "allowedImports": ["@esparex/contracts", "@esparex/kernel", "@esparex/shared", "@esparex/ui"],
+      "forbiddenImports": ["@esparex/backend-api", "@esparex/apps-web"]
+    }
+  }
+}

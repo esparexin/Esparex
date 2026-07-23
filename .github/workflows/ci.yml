@@ -16,7 +16,10 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Integration branches (develop, main, live) must never have runs cancelled —
+  # every merge commit must produce a completed CI result for audit purposes.
+  # Feature branches and PRs cancel stale runs to keep feedback fast.
+  cancel-in-progress: ${{ !contains(fromJSON('["refs/heads/main","refs/heads/develop","refs/heads/live"]'), github.ref) }}
 
 jobs:
   # ── Job 1: Governance, unit tests, and build ─────────────────────────────────
@@ -77,6 +80,9 @@ jobs:
 
       - name: Validate workspace dependency graph
         run: npm run guard:buildgraph
+
+      - name: Run Repository Gate
+        run: npm run repo:gate
 
       - name: Verify no stale build artifacts
         run: |

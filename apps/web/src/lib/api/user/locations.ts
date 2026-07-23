@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import type { EsparexRequestConfig } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
-import { API_ROUTES } from "@/lib/api/routes";
+import { API_ROUTES } from "@esparex/shared";
 export type { Location } from "@esparex/contracts";
 
 import { Location } from "@esparex/contracts";

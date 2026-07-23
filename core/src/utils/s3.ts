@@ -112,14 +112,9 @@ export async function uploadToS3(
 // PRE-SIGNED UPLOAD URL GENERATION
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface PresignedUploadResult {
-    /** Time-limited PUT URL — send file bytes here directly from the browser */
-    uploadUrl: string;
-    /** Canonical public / CloudFront URL to store in the DB after upload */
-    publicUrl: string;
-    /** S3 object key */
-    key: string;
-}
+import { type PresignedUploadResult } from '@esparex/contracts';
+export type { PresignedUploadResult };
+
 
 /**
  * Generate a pre-signed S3 PUT URL so the browser can upload directly to S3

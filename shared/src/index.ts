@@ -38,7 +38,7 @@ export {
 export * from './utils/textValidator';
 export * from './utils/planEntitlements';
 // listingUtils functions
-export { sanitizeMongoObjectId } from './validators/mongo';
+export { sanitizeMongoObjectId, normalizeObjectIdLike } from './validators/mongo';
 export * from './listingUtils/imageUtils';
 
 export { adaptLocationInput } from './location/location.normalize';
@@ -73,4 +73,8 @@ export * from './observability/trace';
 export * from './observability/types';
 export { getLogger } from './observability/index';
 export { createUniversalLogger } from './observability/logger';
+
+// HOOKS (remain in @esparex/shared)
+export * from './hooks';
+
 

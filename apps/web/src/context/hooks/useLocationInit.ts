@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { getMe } from "@/lib/api/user/users";
 import { normalizeToAppLocation as normalizeLocation } from "@/lib/location/locationService";
-import type { LocationData, LocationStatus } from "../LocationContext";
+import type { LocationData, LocationStatus } from "@/types/location";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { useLocationStorage, LOCATION_PROMPT_DISMISSED_KEY } from "./useLocationStorage";
 

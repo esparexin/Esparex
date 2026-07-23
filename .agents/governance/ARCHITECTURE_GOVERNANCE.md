@@ -2,39 +2,57 @@
 id: architecture-governance-master
 owner: architecture
 type: governance
-version: 2.0
-last_updated: 2026-07-13
+version: 2.1
+last_updated: 2026-07-23
 status: active
 review_frequency: semi-annual
 ---
 
 # Architecture Governance Framework (Master Index)
 
-**Version**: 2.0 (Modular Architecture)
-**Last Updated**: 2026-07-13
+**Version**: 2.1 (Modular Architecture & Canonical Ownership Registry)
+**Last Updated**: 2026-07-23
 **Status**: Active
 
 ---
 
 ## Modular Separation of Policy, Standards, and State
 
-To ensure that timeless architectural philosophy remains stable while transient audit results and enforceable thresholds evolve naturally, the Esparex Architecture Governance Framework is strictly separated into six purpose-specific modules:
+To ensure that timeless architectural philosophy remains stable while transient audit results and enforceable thresholds evolve naturally, the Esparex Architecture Governance Framework is strictly separated into core purpose-specific modules:
 
 ```text
 Architecture Governance
-├── GOVERNANCE.md               ← General Agent Policy & Discipline (Timeless)
-├── ARCHITECTURE_GOVERNANCE.md  ← Master Architecture Index (This File)
-├── PRINCIPLES.md               ← Module 1: Immutable Design Philosophy
-├── STANDARDS.md                ← Module 2: Enforceable Rules & Versioned Standards (Merged)
-├── ENFORCEMENT.md              ← Module 3: CI/CD Controls & Automation Catalog (Merged)
-├── AUDIT_PROCESS.md            ← Module 4: Audit Cadence, Exceptions & Evidence Rules
-├── AUDIT_STATUS.md             ← Module 5: Current Repository State & Active Ledger
-└── OPERATIONS.md               ← Module 6: Ownership Matrix, Maturity Model & Lifecycle
+├── GOVERNANCE.md                  ← General Agent Policy & Discipline (Timeless)
+├── ARCHITECTURE_GOVERNANCE.md     ← Master Architecture Index (This File)
+├── CANONICAL_OWNERSHIP_REGISTRY.json ← Single Source of Truth for Ownership & Boundary Rules
+├── PRINCIPLES.md                  ← Module 1: Immutable Design Philosophy
+├── STANDARDS.md                   ← Module 2: Enforceable Rules & Versioned Standards (Merged)
+├── ENFORCEMENT.md                 ← Module 3: CI/CD Controls & Automation Catalog (Merged)
+├── AUDIT_PROCESS.md               ← Module 4: Audit Cadence, Exceptions & Evidence Rules
+├── AUDIT_STATUS.md                ← Module 5: Current Repository State & Active Ledger
+└── OPERATIONS.md                  ← Module 6: Ownership Matrix, Maturity Model & Lifecycle
 ```
 
 ---
 
-## Overview of the Six Modules
+## Canonical Ownership Registry Maintenance Policy
+
+The file `.agents/governance/CANONICAL_OWNERSHIP_REGISTRY.json` defines the single source of truth for:
+1. Package & App Ownership (`owner` domain tags)
+2. Functional Scope & Boundary Definitions
+3. Allowed & Forbidden Cross-Package Imports
+
+### Updating the Ownership Registry
+
+When adding a new package to `packages/`, adding a new application to `apps/`, or modifying package boundaries:
+
+1. **Registry Edit:** Update `.agents/governance/CANONICAL_OWNERSHIP_REGISTRY.json` with the new scope key, owner team tag, and explicit `allowedImports` / `forbiddenImports` lists.
+2. **Automated Verification:** Run `node scripts/git/esparex/architecture-validator.js` and `npm run repo:gate` to verify zero ownership boundary conflicts.
+3. **Commit Rule:** Commit the registry update alongside the new package manifest (`package.json`).
+
+---
+
+## Overview of Core Modules
 
 ### [Module 1: Architecture Principles](./PRINCIPLES.md)
 **Nature**: Immutable design philosophy (`P1`–`P6`).
@@ -56,11 +74,11 @@ Architecture Governance
 
 ### [Module 5: Audit Status & Repository Health](./AUDIT_STATUS.md)
 **Nature**: Transient, mutable repository state evaluated against the 10 audit phases.
-**Purpose**: Records the latest audit ledger, active exceptions register (`EX-001`, `EX-002`), and summary of open architectural observations evaluated at commit `6c062ce1` (2026-07-13).
+**Purpose**: Records the latest audit ledger, active exceptions register (`EX-001`, `EX-002`), and summary of open architectural observations.
 
 ### [Module 6: Governance Operations](./OPERATIONS.md)
 **Nature**: Operational execution and lifecycle management.
-**Purpose**: Establishes the Governance Ownership Matrix (Architecture, Platform, Domain, Release, and Security Owners), the L1–L5 Governance Maturity Model (currently reporting **L4.6**, targeting **L5.0**), exception/risk lifecycle mechanics, and the operational review cadence.
+**Purpose**: Establishes the Governance Ownership Matrix, the L1–L5 Governance Maturity Model, exception/risk lifecycle mechanics, and the operational review cadence.
 
 ---
 

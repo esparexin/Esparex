@@ -1,12 +1,11 @@
 import { 
-  normalizeBusinessStatus as sharedNormalizeBusinessStatus,
-  normalizeAdStatus as sharedNormalizeAdStatus,
-  normalizeServiceStatus as sharedNormalizeServiceStatus,
-  type DomainStatus
-} from "@shared";
+  normalizeBusinessStatus,
+  normalizeAdStatus,
+  normalizeServiceStatus,
+} from "@esparex/shared";
+import type { ServiceStatus, AdStatusValue as AdStatus } from "@esparex/contracts";
 
-export type AdStatus = DomainStatus;
-export type ServiceStatus = DomainStatus;
+export type { ServiceStatus, AdStatus };
 export type PartStatus = "pending" | "active" | "inactive" | "rejected" | "expired";
 export type TransactionStatus = "INITIATED" | "SUCCESS" | "FAILED";
 
@@ -14,26 +13,11 @@ function normalizeLowercase(value: unknown): string {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
-export function normalizeBusinessStatus(
-  value: unknown,
-  fallback: "pending" = "pending"
-): "live" | "pending" | "rejected" | "suspended" | "deleted" | "expired" | "deactivated" | "closed" {
-  return sharedNormalizeBusinessStatus(value, fallback);
-}
-
-export function normalizeAdStatus(
-  value: unknown,
-  fallback: "pending" = "pending"
-): "live" | "pending" | "sold" | "expired" | "rejected" | "deactivated" {
-  return sharedNormalizeAdStatus(value, fallback);
-}
-
-export function normalizeServiceStatus(
-  value: unknown,
-  fallback: "pending" = "pending"
-): "live" | "pending" | "expired" | "rejected" | "deactivated" {
-  return sharedNormalizeServiceStatus(value, fallback);
-}
+export { 
+  normalizeBusinessStatus,
+  normalizeAdStatus,
+  normalizeServiceStatus
+};
 
 export function normalizePartStatus(
   value: unknown,

@@ -1,3 +1,7 @@
+import { normalizeGeoPoint as sharedNormalizeGeoPoint } from "@esparex/shared";
+
+export { sharedNormalizeGeoPoint };
+
 type GeoJSONPoint = {
     type?: unknown;
     coordinates?: unknown;
