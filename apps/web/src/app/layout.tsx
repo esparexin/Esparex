@@ -1,13 +1,12 @@
 import { ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
-import { Poppins } from 'next/font/google';
+import { Geist } from 'next/font/google';
 import { cookies } from 'next/headers';
 import '../styles/globals.css';
 import { RootClientShell } from '@/components/providers/RootClientShell';
 
-const poppins = Poppins({
+const geist = Geist({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
   variable: '--font-primary',
   display: 'swap',
 });
@@ -67,7 +66,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
 
     return (
-        <html lang="en" className={poppins.variable}>
+        <html lang="en" className={geist.variable}>
             <body>
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
             </body>

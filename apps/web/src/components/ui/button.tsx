@@ -16,10 +16,10 @@ const variants = {
 };
 
 const sizes = {
-  default: "h-11 px-5", // 44px - standard premium button height
-  sm: "h-10 px-4 text-sm", // 40px visual (44px touch-compliant with inset extension)
-  lg: "h-12 px-6 text-base", // 48px
-  icon: "size-11", // 44px
+  default: "h-9 px-4", // 36px — Geist compact (before: extension provides ~40px touch zone)
+  sm: "h-8 px-3 text-sm", // 32px
+  lg: "h-10 px-5 text-base", // 40px
+  icon: "size-9", // 36px
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

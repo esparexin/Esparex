@@ -18,7 +18,7 @@ export function UserAppProviders({
     return (
         <ReactQueryProvider>
             <AuthProvider initialHasAuthCookie={initialHasAuthCookie}>
-                <AppBootstrapProvider>
+                <AppBootstrapProvider initialHasAuthCookie={initialHasAuthCookie}>
                     <BackendStatusProvider>
                         <NavigationProvider>
                             <PwaRegister />

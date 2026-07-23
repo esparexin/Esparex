@@ -26,7 +26,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <input
         className={cn(
-          "h-10 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm transition-[border-color,box-shadow,background-color]",
+          "h-9 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm transition-[border-color,box-shadow,background-color]",
           "placeholder:text-muted-foreground",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
           "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 focus-visible:aria-invalid:ring-[3px]",
