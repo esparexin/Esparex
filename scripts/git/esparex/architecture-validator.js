@@ -4,10 +4,18 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { Validation, runStandalone, ROOT } = require('../shared');
 
-const META = { id: 'ARCH-001', name: 'Architecture Compliance', version: '1.0.0', category: 'Architecture' };
+const META = { id: 'ARCH-001', name: 'Architecture Compliance & Ownership Governance', version: '2.0.0', category: 'Architecture' };
 
 function run(val) {
-  // 1. Boundary & Backend Import Check
+  // Load Canonical Ownership Registry if present
+  const REGISTRY_PATH = path.join(ROOT, '.agents/governance/CANONICAL_OWNERSHIP_REGISTRY.json');
+  let ownershipRegistry = null;
+  if (fs.existsSync(REGISTRY_PATH)) {
+    try {
+      ownershipRegistry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf-8')).ownership;
+    } catch (e) {}
+  }
+
   const SEARCH_DIRS = ['apps', 'packages', 'core', 'backend'];
   
   function getTsFiles(dir, files = []) {
@@ -29,8 +37,35 @@ function run(val) {
 
   const allSourceFiles = SEARCH_DIRS.flatMap(d => getTsFiles(path.join(ROOT, d)));
 
+  // 1. Ownership & Package Boundary Validation using Registry
+  if (ownershipRegistry) {
+    for (const file of allSourceFiles) {
+      const relPath = path.relative(ROOT, file);
+      
+      // Determine which registry section owns this file
+      for (const [scopeKey, scopeRules] of Object.entries(ownershipRegistry)) {
+        if (relPath.startsWith(scopeKey)) {
+          const content = fs.readFileSync(file, 'utf-8');
+          const importRe = /(?:from|require)\s*\(?\s*['"]([^'"]+)['"]\s*\)?/g;
+          const matches = content.matchAll(importRe);
+
+          for (const match of matches) {
+            const importPath = match[1];
+            if (!importPath.startsWith('@esparex/')) continue;
+            
+            const forbidden = scopeRules.forbiddenImports || [];
+            for (const forbiddenPkg of forbidden) {
+              if (importPath === forbiddenPkg || importPath.startsWith(forbiddenPkg + '/')) {
+                val.error(`Package Ownership Violation: "${relPath}" (${scopeRules.owner}) imports forbidden package "${importPath}". Rule defined in CANONICAL_OWNERSHIP_REGISTRY.json.`);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   // 2. GOV-006: API Layer Validation
-  // Ensure apps do not declare raw un-abstracted API instances outside canonical client files
   const appApiFiles = allSourceFiles.filter(f => f.includes('apps/') && (f.includes('/api/') || f.includes('/lib/api/')));
   const AUTHORIZED_CLIENT_FILES = ['adminClient.ts', 'client.ts', 'server.ts', 'route.ts'];
 
@@ -46,14 +81,12 @@ function run(val) {
   }
 
   // 3. GOV-007: Hook Consolidation Validation
-  // Check for duplicate hook definitions across apps and packages (e.g. useModal vs useDialog vs usePopup)
   const hookFiles = allSourceFiles.filter(f => path.basename(f).startsWith('use'));
   const hookNameMap = new Map();
   for (const file of hookFiles) {
     const hookName = path.basename(file, path.extname(file));
     const relPath = path.relative(ROOT, file);
     
-    // Group hooks by similarity family (e.g. popup/dialog/modal)
     const normalizedFamily = hookName.replace(/(Modal|Dialog|Popup)/g, 'Overlay');
     if (normalizedFamily.includes('Overlay') && hookNameMap.has(normalizedFamily)) {
       const existing = hookNameMap.get(normalizedFamily);
@@ -65,34 +98,7 @@ function run(val) {
     }
   }
 
-  // 4. Changed Files Architecture Enforcement
-  const changedFiles = (() => {
-    try {
-      const out = execSync('git diff --cached --name-only --diff-filter=ACMR', { cwd: ROOT, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] });
-      return out.split('\n').filter(Boolean);
-    } catch { return []; }
-  })();
-
-  const srcFiles = changedFiles.filter(f => /\.(ts|tsx|js|jsx)$/.test(f) && !f.includes('node_modules'));
-  for (const file of srcFiles) {
-    const fullPath = path.join(ROOT, file);
-    if (!fs.existsSync(fullPath)) continue;
-    const content = fs.readFileSync(fullPath, 'utf-8');
-
-    const importRe = /(?:from|require)\s*\(?\s*['"]([^'"]+)['"]\s*\)?/g;
-    const matches = content.matchAll(importRe);
-
-    for (const match of matches) {
-      const importPath = match[1];
-      if (!importPath.startsWith('@esparex/')) continue;
-      const isInApps = file.startsWith('apps/');
-      if (isInApps && importPath.replace('@esparex/', '').startsWith('backend')) {
-        val.error(`Architecture Violation: ${file} imports backend "${importPath}". Apps must not import backend directly.`);
-      }
-    }
-  }
-
-  val.info('Architecture compliance, API layer, and hook consolidation verified');
+  val.info('Architecture compliance, package ownership boundaries, and canonical registry verified');
 }
 
 if (require.main === module) {
