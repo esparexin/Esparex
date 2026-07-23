@@ -48,6 +48,9 @@ All benchmarks in this audit package were captured under the following standardi
 | **PERF-006** | Web Vitals / CWV | Desktop FCP 1.1s / LCP 2.1s vs Mobile FCP 2.4s / LCP 4.2s | Observed Measurement | **High** | `docs/reports/baseline-performance-benchmarks.md` |
 | **PERF-007** | V8 Memory Heap | Heap size: 18.4 MB initial → 42.1 MB peak → 24.8 MB post-GC (42 active listeners) | Observed Measurement | **High** | `docs/reports/bundle-memory-performance-report.md` |
 | **PERF-008** | Parallel Fetching Projection | Estimated ~180ms – 220ms post-`/me` latency reduction via session hint cookie pre-warming | Projected Estimate | **Medium** | `docs/reports/full-stack-performance-audit-report.md` |
+| **PERF-PR1-001** | Search API Execution | Reduced Search API p95 from 320 ms → 162 ms (-49.3%); 0 COLLSCAN | Measured Evidence | **High** | `docs/reports/pr-1-search-performance-evidence.md` |
+| **PERF-PR2-001** | Admin Audit Log Query | Reduced Audit Log query latency from 410 ms → 145 ms (-64.6%); `.lean()` applied | Measured Evidence | **High** | `docs/reports/pr-2-admin-audit-performance-evidence.md` |
+| **PERF-PR3-001** | Public Edge HTTP Cache | Attached `publicCacheControl(300, 3600)` to public catalog read routes | Measured Evidence | **High** | `docs/reports/pr-3-public-cache-evidence.md` |
 
 ---
 
