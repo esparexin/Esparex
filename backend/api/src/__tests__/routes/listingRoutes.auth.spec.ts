@@ -38,18 +38,23 @@ jest.mock("@esparex/core/utils/redisCache", () => ({
 }));
 
 import listingRoutes from "../../routes/listingRoutes";
+import { verifyCsrfToken } from "../../middleware/csrfProtection";
+
+jest.mock("../../middleware/csrfProtection", () => ({
+    verifyCsrfToken: (req: any, res: any, next: any) => next(),
+}));
 
 jest.setTimeout(15000);
 
 const buildApp = () => {
     const app = express();
     app.use(express.json());
-    // CodeQL [js/missing-csrf-middleware] False positive: isolated test-runner mock express app.
     app.use(cookieParser());
-
+    app.use(verifyCsrfToken);
     app.use("/api/v1/listings", listingRoutes);
     return app;
 };
+
 
 describe("listing routes precedence", () => {
     const app = buildApp();

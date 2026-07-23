@@ -38,16 +38,21 @@ jest.mock("@esparex/core/utils/redisCache", () => ({
 }));
 
 import chatRoutes from "../../routes/chatRoutes";
+import { verifyCsrfToken } from "../../middleware/csrfProtection";
+
+jest.mock("../../middleware/csrfProtection", () => ({
+    verifyCsrfToken: (req: any, res: any, next: any) => next(),
+}));
 
 const buildApp = () => {
     const app = express();
     app.use(express.json());
-    // CodeQL [js/missing-csrf-middleware] False positive: isolated test-runner mock express app.
     app.use(cookieParser());
-
+    app.use(verifyCsrfToken);
     app.use("/api/v1/chat", chatRoutes);
     return app;
 };
+
 
 describe("chat routes auth contract", () => {
     const app = buildApp();
