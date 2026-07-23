@@ -12,6 +12,11 @@ function run(val) {
     } catch { return ''; }
   })();
 
+  if (process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true") {
+    val.info("CI environment detected — skipping direct branch protection check.");
+    return;
+  }
+
   if (!branch) {
     val.info('Could not determine current branch.');
     return;

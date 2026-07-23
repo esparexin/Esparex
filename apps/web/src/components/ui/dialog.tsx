@@ -94,7 +94,7 @@ const DialogContent = React.forwardRef<
         // Appearance — matches the previous custom dialog exactly
         mobileSafe
           ? "flex h-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:max-h-[90vh]"
-          : "bg-white rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto",
+          : "bg-white rounded-lg shadow-lg p-5 max-h-[90vh] overflow-y-auto",
         // Entry / exit animations via tailwindcss-animate
         "duration-200",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -111,7 +111,7 @@ const DialogContent = React.forwardRef<
       {!hideClose && (
         <RadixDialog.Close
           className={cn(
-            "absolute right-2 top-2 flex h-11 w-11 items-center justify-center rounded-sm opacity-70 ring-offset-background",
+            "absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-sm opacity-70 ring-offset-background",
             "transition-opacity hover:opacity-100",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "disabled:pointer-events-none",
@@ -135,7 +135,7 @@ function DialogHeader({
   return (
     <div
       className={cn(
-        "mb-4 flex flex-col space-y-1.5",
+        "mb-3 flex flex-col space-y-1.5",
         className
       )}
       {...props}
@@ -152,7 +152,7 @@ function DialogFooter({
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-6",
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4",
         className
       )}
       {...props}
@@ -168,7 +168,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <RadixDialog.Title
     ref={ref}
-    className={cn("text-xl font-semibold leading-none tracking-tight", className)}
+    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
     {...props}
   />
 ));
