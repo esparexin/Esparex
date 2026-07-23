@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Info, TriangleAlert, type LucideIcon } from "lucide-react";
 
