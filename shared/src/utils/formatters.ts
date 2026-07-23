@@ -29,3 +29,21 @@ export const formatDate = (date: string | Date): string => {
         year: "numeric",
     }).format(d);
 };
+
+export function isNetworkError(error: unknown): boolean {
+    if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        return message.includes('network') || message.includes('fetch') || message.includes('failed to fetch');
+    }
+    return false;
+}
+
+/**
+ * Trims a string value and returns undefined if empty or non-string.
+ */
+export const asOptionalString = (value: unknown): string | undefined => {
+    if (typeof value !== 'string') return undefined;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+};
+
