@@ -45,9 +45,11 @@ AdminLogSchema.index({ adminId: 1 }, { name: 'idx_adminlog_adminId_idx' });
 AdminLogSchema.index({ action: 1 }, { name: 'idx_adminlog_action_idx' });
 AdminLogSchema.index({ targetId: 1 }, { name: 'idx_adminlog_targetId_idx' });
 AdminLogSchema.index({ createdAt: 1 }, { name: 'idx_adminlog_createdAt_ttl_idx', expireAfterSeconds: 31536000 });
+AdminLogSchema.index({ createdAt: -1 }, { name: 'idx_adminlog_createdAt_desc_idx' });
 // Compound indexes for admin analytics — cover filter + sort-by-date patterns
 AdminLogSchema.index({ adminId: 1, createdAt: -1 }, { name: 'idx_adminlog_adminId_createdAt_idx' });
 AdminLogSchema.index({ action: 1, createdAt: -1 }, { name: 'idx_adminlog_action_createdAt_idx' });
+AdminLogSchema.index({ targetType: 1, createdAt: -1 }, { name: 'idx_adminlog_targetType_createdAt_idx' });
 
 // 🔒 IMMUTABILITY ENFORCEMENT
 // Prevent document-level modifications
