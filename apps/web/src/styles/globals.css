@@ -58,7 +58,7 @@
 
   --radius: 0.625rem;
 
-  /* Typography scale */
+  /* Typography scale — legacy Tailwind-mapped tokens (preserved for backward compat) */
   --font-size: 16px;
   --text-2xl: 1.5rem;
   --text-xl: 1.25rem;
@@ -70,6 +70,21 @@
 
   --font-weight-medium: 500;
   --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+
+  /* Semantic enterprise type scale (Geist) */
+  --text-display: 2.25rem;   /* 36px */
+  --text-h1: 1.875rem;       /* 30px */
+  --text-h2: 1.5rem;         /* 24px */
+  --text-h3: 1.25rem;        /* 20px */
+  --text-h4: 1.125rem;       /* 18px */
+  --text-h5: 1rem;           /* 16px */
+  --text-h6: 0.9375rem;      /* 15px */
+  --text-body-lg: 1rem;      /* 16px */
+  --text-body: 0.875rem;     /* 14px */
+  --text-small: 0.8125rem;   /* 13px */
+  --text-caption: 0.75rem;   /* 12px */
+  --text-tiny: 0.6875rem;    /* 11px */
 
   /* Extended foreground text tokens — fills gap between foreground and muted-foreground */
   --foreground-secondary: 215.4 25% 26.7%;   /* ≈ slate-700 — secondary body text */
@@ -188,8 +203,8 @@
 
   body {
     @apply bg-background text-foreground font-sans font-normal antialiased;
-    font-size: var(--text-base);
-    line-height: 1.5;
+    font-size: 14px; /* Compact body copy — html stays at 16px so rem scale is preserved */
+    line-height: 1.55;
   }
 }
 
@@ -198,33 +213,45 @@
    ========================================= */
 @layer base {
   h1 {
-    font-size: var(--text-2xl);
+    font-size: var(--text-h1); /* 30px */
     font-weight: 700;
     line-height: 1.2;
   }
 
   h2 {
-    font-size: var(--text-xl);
-    font-weight: 600;
+    font-size: var(--text-h2); /* 24px */
+    font-weight: 700;
     line-height: 1.25;
   }
 
   h3 {
-    font-size: var(--text-lg);
+    font-size: var(--text-h3); /* 20px */
     font-weight: 600;
     line-height: 1.3;
   }
 
   h4 {
-    font-size: var(--text-base);
+    font-size: var(--text-h4); /* 18px */
     font-weight: 600;
     line-height: 1.35;
   }
 
+  h5 {
+    font-size: var(--text-h5); /* 16px */
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  h6 {
+    font-size: var(--text-h6); /* 15px */
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
   p {
-    font-size: var(--text-base);
+    font-size: var(--text-body); /* 14px */
     font-weight: 400;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 }
 
@@ -232,10 +259,8 @@
    HTML / BODY SAFETY + OPTIONAL IMPROVEMENTS
    ========================================= */
 html {
-  font-size: var(--font-size);
-  font-feature-settings: "cv05", "cv08";
+  font-size: var(--font-size); /* 16px — preserves rem scale for spacing/layout */
   color-scheme: light dark;
-  /* Optional: native UI theming */
 }
 
 html,
