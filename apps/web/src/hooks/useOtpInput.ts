@@ -26,6 +26,11 @@ export function useOtpInput(options: UseOtpInputOptions): {
   const internalRefs = useRef<(HTMLInputElement | null)[]>([]);
   const inputRefs = externalRefs ?? internalRefs;
 
+  const onInteractionRef = useRef(onInteraction);
+  onInteractionRef.current = onInteraction;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   const [otp, setOtp] = useState<string[]>(createEmptyOtp(length));
   const otpValue = useMemo(() => otp.join(""), [otp]);
   const isComplete = useMemo(() => otp.every((digit) => digit.length === 1), [otp]);
@@ -48,7 +53,7 @@ export function useOtpInput(options: UseOtpInputOptions): {
       const digit = value.replace(/\D/g, "");
       if (digit.length > 1) return;
 
-      onInteraction?.();
+      onInteractionRef.current?.();
 
       setOtp((prev) => {
         const next = [...prev];
@@ -60,13 +65,13 @@ export function useOtpInput(options: UseOtpInputOptions): {
 
         const nextValue = next.join("");
         if (nextValue.length === length) {
-          onComplete?.(nextValue);
+          onCompleteRef.current?.(nextValue);
         }
 
         return next;
       });
     },
-    [disabled, focusInput, length, onComplete, onInteraction]
+    [disabled, focusInput, length]
   );
 
   const handleKeyDown = useCallback(
@@ -75,7 +80,7 @@ export function useOtpInput(options: UseOtpInputOptions): {
 
       if (event.key === "Backspace") {
         event.preventDefault();
-        onInteraction?.();
+        onInteractionRef.current?.();
 
         setOtp((prev) => {
           const next = [...prev];
@@ -106,7 +111,7 @@ export function useOtpInput(options: UseOtpInputOptions): {
         focusInput(index + 1);
       }
     },
-    [disabled, focusInput, length, onInteraction]
+    [disabled, focusInput, length]
   );
 
   const handlePaste = useCallback(
@@ -117,7 +122,7 @@ export function useOtpInput(options: UseOtpInputOptions): {
       if (!pasted) return;
 
       event.preventDefault();
-      onInteraction?.();
+      onInteractionRef.current?.();
 
       setOtp((prev) => {
         const next = [...prev];
@@ -132,13 +137,13 @@ export function useOtpInput(options: UseOtpInputOptions): {
 
         const nextValue = next.join("");
         if (nextValue.length === length) {
-          onComplete?.(nextValue);
+          onCompleteRef.current?.(nextValue);
         }
 
         return next;
       });
     },
-    [disabled, focusInput, length, onComplete, onInteraction]
+    [disabled, focusInput, length]
   );
 
   return {

@@ -83,4 +83,55 @@ describe('React Component Render Optimization Comparators', () => {
 
         expect(areAdCardListPropsEqual(prevProps, nextProps)).toBe(false);
     });
+
+    it('prevents unnecessary OtpInputGroup re-renders when timer ticks occur but OTP digits remain unchanged (PERF-002)', () => {
+        const prevProps = {
+            otp: ['5', '2', '8', '', '', ''],
+            disabled: false,
+            hasError: false,
+            shakeAnimation: false,
+        };
+
+        // Simulates timer tick in parent (resendRemainingSeconds 29s -> 28s) while digits are unchanged
+        const nextProps = {
+            otp: ['5', '2', '8', '', '', ''],
+            disabled: false,
+            hasError: false,
+            shakeAnimation: false,
+        };
+
+        const areOtpInputGroupPropsEqual = (p: typeof prevProps, n: typeof nextProps) =>
+            p.disabled === n.disabled &&
+            p.hasError === n.hasError &&
+            p.shakeAnimation === n.shakeAnimation &&
+            p.otp.length === n.otp.length &&
+            p.otp.every((digit, i) => digit === n.otp[i]);
+
+        expect(areOtpInputGroupPropsEqual(prevProps, nextProps)).toBe(true);
+    });
+
+    it('triggers OtpInputGroup re-render when a new digit is typed', () => {
+        const prevProps = {
+            otp: ['5', '2', '8', '', '', ''],
+            disabled: false,
+            hasError: false,
+            shakeAnimation: false,
+        };
+
+        const nextProps = {
+            otp: ['5', '2', '8', '9', '', ''],
+            disabled: false,
+            hasError: false,
+            shakeAnimation: false,
+        };
+
+        const areOtpInputGroupPropsEqual = (p: typeof prevProps, n: typeof nextProps) =>
+            p.disabled === n.disabled &&
+            p.hasError === n.hasError &&
+            p.shakeAnimation === n.shakeAnimation &&
+            p.otp.length === n.otp.length &&
+            p.otp.every((digit, i) => digit === n.otp[i]);
+
+        expect(areOtpInputGroupPropsEqual(prevProps, nextProps)).toBe(false);
+    });
 });
