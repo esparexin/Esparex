@@ -44,7 +44,9 @@ jest.setTimeout(15000);
 const buildApp = () => {
     const app = express();
     app.use(express.json());
+    // CodeQL [js/missing-csrf-middleware] False positive: isolated test-runner mock express app.
     app.use(cookieParser());
+
     app.use("/api/v1/listings", listingRoutes);
     return app;
 };

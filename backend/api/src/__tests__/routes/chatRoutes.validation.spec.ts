@@ -65,7 +65,9 @@ const buildApp = () => {
 function PatternApp() {
     const app = express();
     app.use(express.json());
+    // CodeQL [js/missing-csrf-middleware] False positive: isolated test-runner mock express app.
     app.use(cookieParser());
+
     app.use("/api/v1/chat", chatRoutes);
     return app;
 }
