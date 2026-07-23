@@ -15,6 +15,7 @@ import { updateAdSchema } from "@esparex/core/validators/ad.validator";
 import { idempotencyMiddleware } from "../middleware/idempotency";
 import { requireListingOwner } from "../middleware/ownershipGuard";
 import { requireVerifiedBusinessForServiceParts } from "../middleware/businessMiddleware";
+import { publicCacheControl } from "../middleware/publicCacheControl";
 import type { ZodTypeAny } from "zod";
 
 const router = Router();
@@ -24,20 +25,20 @@ const router = Router();
  */
 
 // GET /api/v1/listings/home
-router.get("/home", searchLimiter, getListingsController.getHomeFeed);
+router.get("/home", publicCacheControl(300, 3600), searchLimiter, getListingsController.getHomeFeed);
 
 // GET /api/v1/listings/trending
-router.get("/trending", searchLimiter, getListingsController.getTrending);
+router.get("/trending", publicCacheControl(300, 3600), searchLimiter, getListingsController.getTrending);
 
 // GET /api/v1/listings/nearby
 router.get("/nearby", extractUser, searchLimiter, validateIdOrSlug('id'), getListingsController.getNearbyListings);
 
 // GET /api/v1/listings/suggestions
-router.get("/suggestions", searchLimiter, getListingsController.getListingSuggestions);
+router.get("/suggestions", publicCacheControl(300, 3600), searchLimiter, getListingsController.getListingSuggestions);
 
 // GET /api/v1/listings
 // Browse / Search
-router.get("/", extractUser, searchLimiter, getListingsController.getListings);
+router.get("/", publicCacheControl(300, 3600), extractUser, searchLimiter, getListingsController.getListings);
 
 
 /**
@@ -70,7 +71,7 @@ router.get("/my", protect, statsController.getMyTabListings);
 
 // GET /api/v1/listings/:id
 // Publicly fetch listing by ID or Slug
-router.get("/:id", validateIdOrSlug('id'), extractUser, getListingsController.getListingDetail);
+router.get("/:id", publicCacheControl(300, 3600), validateIdOrSlug('id'), extractUser, getListingsController.getListingDetail);
 
 // GET /api/v1/listings/:id/view
 // Increment view count (public)
