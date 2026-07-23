@@ -12,6 +12,10 @@ const checks = [
   require('./esparex/env-validator'),
   require('./esparex/ssot-validator'),
   require('./esparex/architecture-validator'),
+  require('./esparex/duplicate-validator'),
+  require('./esparex/circular-validator'),
+  require('./esparex/dependency-validator'),
+  require('./esparex/auditor-validator'),
 ];
 
 const results = [];

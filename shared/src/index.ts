@@ -38,7 +38,7 @@ export {
 export * from './utils/textValidator';
 export * from './utils/planEntitlements';
 // listingUtils functions
-export { sanitizeMongoObjectId } from './validators/mongo';
+export { sanitizeMongoObjectId, normalizeObjectIdLike } from './validators/mongo';
 export * from './listingUtils/imageUtils';
 
 export { adaptLocationInput } from './location/location.normalize';

@@ -3,11 +3,9 @@
 import type { CreateBusinessDTO } from "@/lib/api/user/businesses";
 import type { BusinessWizardFormShape } from "./types";
 
-export const asOptionalString = (value: unknown): string | undefined => {
-    if (typeof value !== "string") return undefined;
-    const n = value.trim();
-    return n.length > 0 ? n : undefined;
-};
+import { asOptionalString } from "@esparex/shared";
+export { asOptionalString };
+
 
 export const joinAddressParts = (...parts: unknown[]): string =>
     parts.map((p) => asOptionalString(p)).filter((p): p is string => Boolean(p)).join(", ");
