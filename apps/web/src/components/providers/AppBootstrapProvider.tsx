@@ -14,14 +14,20 @@ import { ensureForegroundPushListener, syncBrowserPushRegistration, clearBrowser
 import { isNativeShell } from "@/lib/runtime/nativeShell";
 import type { User } from "@/types/User";
 
-export function AppBootstrapProvider({ children }: { children: ReactNode }) {
+export function AppBootstrapProvider({
+    children,
+    initialHasAuthCookie = false,
+}: {
+    children: ReactNode;
+    initialHasAuthCookie?: boolean;
+}) {
     const queryClient = useQueryClient();
     const { user, status } = useAuth();
     const pathname = usePathname();
 
-    // PERF-001 & PERF-008: Optimistic parallel post-auth prefetching.
-    // When session cookie hint or localStorage session key is present, prefetch saved ads
-    // and notifications concurrently alongside /me rather than sequentially waiting.
+    // PERF-004: Optimistic parallel post-auth prefetching.
+    // When session cookie hint (initialHasAuthCookie) or localStorage session key is present,
+    // prefetch saved ads and notifications concurrently alongside /me rather than sequentially waiting.
     const shouldPrefetchAccountWidgets = useMemo(() => {
         if (pathname?.startsWith("/account/business/apply") || pathname?.startsWith("/business/edit")) {
             return false;
@@ -31,12 +37,15 @@ export function AppBootstrapProvider({ children }: { children: ReactNode }) {
             return true;
         }
 
-        if (status === "loading" && typeof window !== "undefined") {
-            return localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1";
+        if (status === "loading") {
+            if (initialHasAuthCookie) return true;
+            if (typeof window !== "undefined" && localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1") {
+                return true;
+            }
         }
 
         return false;
-    }, [pathname, status]);
+    }, [pathname, status, initialHasAuthCookie]);
 
     useSavedAdsQuery({
         enabled: shouldPrefetchAccountWidgets,
