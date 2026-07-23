@@ -27,6 +27,9 @@ import './ScheduledNotification';
 import './SystemConfig';
 import './UserPlan';
 import './UserWallet';
+import './CreditRule';
+import './CreditTransaction';
+
 
 
 import './User';
