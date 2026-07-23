@@ -1,9 +1,8 @@
 "use client";
 
-"use client";
 import { useEffect, ReactNode } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuthStatus, useAuthUser } from "@/context/AuthContext";
 import { buildAuthCallbackUrl, buildLoginUrl, consumeLogoutRedirectBypass } from "@/lib/authHelpers";
 
 interface AuthGuardProps {
@@ -13,7 +12,8 @@ interface AuthGuardProps {
 export function AuthGuard({
     children
 }: AuthGuardProps) {
-    const { user, status } = useAuth();
+    const { status } = useAuthStatus();
+    const { user } = useAuthUser();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
