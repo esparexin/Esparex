@@ -218,7 +218,7 @@ export const findExistingSelfDuplicate = async (
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         isDeleted: { $ne: true },
         categoryId: categoryId,
-        'location.locationId': locationId,
+        locationId,
         listingType: listingType || 'ad',
     };
 
@@ -274,7 +274,7 @@ export const assessCrossUserDuplicateRisk = async (
 
     const query: Record<string, unknown> = {
         categoryId,
-        'location.locationId': locationId,
+        locationId,
         price: priceRange,
         status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
         sellerId: { $ne: sellerId },

@@ -1,0 +1,18 @@
+{
+  "audit": "full-stack-performance-baseline",
+  "endpoint": "/api/v1/users/me",
+  "query": "User.findById(userId).select('id name email mobile role isPhoneVerified businessStatus createdAt')",
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 1,
+    "executionTimeMillis": 1.2,
+    "totalKeysExamined": 1,
+    "totalDocsExamined": 1,
+    "executionStages": {
+      "stage": "IDHACK",
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 0,
+      "indexName": "_id_"
+    }
+  }
+}

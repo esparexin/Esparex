@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-07-22T15:54:35Z",
+  "buildEnvironment": "production",
+  "nextVersion": "16.2.4",
+  "webpackCompiler": true,
+  "rootMainFiles": [
+    { "file": "static/chunks/webpack-6a5aa5b10f075312.js", "sizeBytes": 3788, "sizeKB": 3.7 },
+    { "file": "static/chunks/87c73c54-014124adcece3495.js", "sizeBytes": 199884, "sizeKB": 195.2 },
+    { "file": "static/chunks/1968-32ff4425ed5f0837.js", "sizeBytes": 221900, "sizeKB": 216.7 },
+    { "file": "static/chunks/main-app-089f6b54001379a9.js", "sizeBytes": 512, "sizeKB": 0.5 }
+  ],
+  "totalRootJSKB": 416.1,
+  "targetRouteSummaryKB": {
+    "home": 22.4,
+    "search": 28.5,
+    "login": 39.0,
+    "postAd": 0.8,
+    "adsDetail": 0.2,
+    "servicesDetail": 0.2,
+    "sparePartListingsDetail": 0.2
+  },
+  "largestDynamicChunksKB": {
+    "cryptoJS": 63.0,
+    "firebaseMessaging": 45.6,
+    "listingDetailDialogs": 42.3,
+    "firebaseApp": 27.0,
+    "browseServicesVirtualizedList": 17.2
+  }
+}

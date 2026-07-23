@@ -35,27 +35,37 @@ export type AuthStatus =
   | "unauthenticated"
   | "authenticated";
 
-interface AuthContextType {
-  user: User | null;
+export interface AuthStatusContextType {
   status: AuthStatus;
-  /** true once status has settled to either "authenticated" or "unauthenticated" */
   isAuthResolved: boolean;
   error: Error | null;
   refreshUser: () => Promise<void>;
-  updateUser: (user: User) => void;
   logout: (options?: { skipServerLogout?: boolean }) => Promise<void>;
 }
+
+export interface AuthUserContextType {
+  user: User | null;
+  updateUser: (user: User) => void;
+}
+
+export interface AuthContextType extends AuthStatusContextType, AuthUserContextType {}
 
 interface BackendReadyContextType {
   backendReady: boolean;
 }
 
 /* -------------------------------------------------------------------------- */
-/* Context                                                                    */
+/* Contexts                                                                   */
 /* -------------------------------------------------------------------------- */
 
 const AuthContext =
   createContext<AuthContextType | undefined>(undefined);
+
+const AuthStatusContext =
+  createContext<AuthStatusContextType | undefined>(undefined);
+
+const AuthUserContext =
+  createContext<AuthUserContextType | undefined>(undefined);
 
 const BackendReadyContext =
   createContext<BackendReadyContextType | undefined>(undefined);
@@ -345,10 +355,29 @@ export function AuthProvider({
   }, [setHasAuthHint]);
 
   /* ------------------------------------------------------------------------ */
-  /* Provider                                                                 */
+  /* Provider Values                                                          */
   /* ------------------------------------------------------------------------ */
 
-  const value = useMemo(
+  const statusValue = useMemo<AuthStatusContextType>(
+    () => ({
+      status,
+      isAuthResolved: status !== "loading",
+      error,
+      refreshUser: fetchUser,
+      logout,
+    }),
+    [error, fetchUser, logout, status]
+  );
+
+  const userValue = useMemo<AuthUserContextType>(
+    () => ({
+      user,
+      updateUser,
+    }),
+    [user, updateUser]
+  );
+
+  const combinedValue = useMemo<AuthContextType>(
     () => ({
       user,
       status,
@@ -368,9 +397,13 @@ export function AuthProvider({
 
   return (
     <BackendReadyContext.Provider value={backendReadyValue}>
-      <AuthContext.Provider value={value}>
-        {children}
-      </AuthContext.Provider>
+      <AuthStatusContext.Provider value={statusValue}>
+        <AuthUserContext.Provider value={userValue}>
+          <AuthContext.Provider value={combinedValue}>
+            {children}
+          </AuthContext.Provider>
+        </AuthUserContext.Provider>
+      </AuthStatusContext.Provider>
     </BackendReadyContext.Provider>
   );
 }
@@ -379,7 +412,19 @@ export function AuthProvider({
 /* Hooks                                                                      */
 /* -------------------------------------------------------------------------- */
 
-export function useAuth() {
+export function useAuthStatus(): AuthStatusContextType {
+  const ctx = useContext(AuthStatusContext);
+  if (!ctx) throw new Error("useAuthStatus must be used within AuthProvider");
+  return ctx;
+}
+
+export function useAuthUser(): AuthUserContextType {
+  const ctx = useContext(AuthUserContext);
+  if (!ctx) throw new Error("useAuthUser must be used within AuthProvider");
+  return ctx;
+}
+
+export function useAuth(): AuthContextType {
   const ctx = useContext(AuthContext);
 
   if (!ctx) {

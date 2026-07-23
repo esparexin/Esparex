@@ -118,6 +118,15 @@ function toMongoId(id: unknown): unknown {
 function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
     const mongoFilter: Record<string, unknown> = {};
 
+    if (filter._id !== undefined) {
+        mongoFilter._id = typeof filter._id === 'object' && filter._id !== null ? filter._id : toMongoId(filter._id);
+    }
+    if (filter.price !== undefined) {
+        mongoFilter.price = filter.price;
+    }
+    if (filter.imageHashes !== undefined) {
+        mongoFilter.imageHashes = filter.imageHashes;
+    }
     if (filter.status) {
         mongoFilter.status = Array.isArray(filter.status) ? { $in: filter.status } : filter.status;
     }
@@ -146,8 +155,9 @@ function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
     if (filter.excludeStatus && filter.excludeStatus.length > 0) {
         mongoFilter.status = { ...(mongoFilter.status as Record<string, unknown> || {}), $nin: filter.excludeStatus };
     }
-    if (filter.locationId) {
-        mongoFilter['location.locationId'] = toMongoId(filter.locationId);
+    const locationIdValue = filter.locationId || (filter['location.locationId'] as string);
+    if (locationIdValue) {
+        mongoFilter['location.locationId'] = toMongoId(locationIdValue);
     }
     if (filter.locationCity) {
         mongoFilter['location.city'] = filter.locationCity;
