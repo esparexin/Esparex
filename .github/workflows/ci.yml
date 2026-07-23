@@ -81,6 +81,9 @@ jobs:
       - name: Validate workspace dependency graph
         run: npm run guard:buildgraph
 
+      - name: Run Repository Gate
+        run: npm run repo:gate
+
       - name: Verify no stale build artifacts
         run: |
           echo "Verifying clean state..."

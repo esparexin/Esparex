@@ -128,12 +128,29 @@ function formatReport(results) {
   const hasWarnings = results.some(r => r.warnings.length > 0);
 
   if (hasErrors) {
-    lines.push(`  ✗ Push rejected — ${totalErrors} error${totalErrors > 1 ? 's' : ''} found.`);
+    lines.push(`  ✗ Gate failed — ${totalErrors} error${totalErrors > 1 ? 's' : ''} found.`);
   } else if (hasWarnings) {
-    lines.push(`  ~ Push allowed — ${totalWarnings} warning${totalWarnings > 1 ? 's' : ''}. Review recommended.`);
+    lines.push(`  ~ Gate passed — ${totalWarnings} warning${totalWarnings > 1 ? 's' : ''}. Review recommended.`);
   } else {
-    lines.push(`  ✓ All checks passed. Push permitted.`);
+    lines.push(`  ✓ All repository gate checks passed.`);
   }
+  lines.push('');
+
+  // GOV-008 Repository Health Summary Card
+  const healthScore = totalErrors === 0 ? 100 : Math.max(0, 100 - (totalErrors * 15 + totalWarnings * 2));
+  const summarySep = '─'.repeat(60);
+  lines.push(`╔${sep}╗`);
+  lines.push(`║                  Repository Health Summary                ║`);
+  lines.push(`╠${sep}╣`);
+  for (const r of results) {
+    const statusIcon = r.errors.length > 0 ? '✗ FAIL' : (r.warnings.length > 0 ? '~ WARN' : '✓ PASS');
+    const namePadded = r.name.padEnd(38);
+    lines.push(`║  ${namePadded}  ${statusIcon.padEnd(14)} ║`);
+  }
+  lines.push(`╠${sep}╣`);
+  lines.push(`║  Repository Status: ${(totalErrors === 0 ? 'PASS' : 'FAIL').padEnd(36)} ║`);
+  lines.push(`║  Health Score: ${`${healthScore}%`.padEnd(40)} ║`);
+  lines.push(`╚${sep}╝`);
   lines.push('');
 
   return lines.join('\n');

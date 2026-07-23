@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { EyeOff, Download } from "lucide-react";
-import type { ColumnDef } from "./DataTable";
+import type { ColumnDef } from "./DataTableTypes";
 
 export interface DataTableToolbarProps<T> {
     toolbar?: React.ReactNode;

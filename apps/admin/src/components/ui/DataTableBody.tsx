@@ -2,7 +2,7 @@ import React from "react";
 import { MoreHorizontal } from "lucide-react";
 import { DataTableRow } from "./DataTableRow";
 import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
-import type { ColumnDef } from "./DataTable";
+import type { ColumnDef } from "./DataTableTypes";
 
 export interface DataTableBodyProps<T extends { id: string | number }> {
     data: T[];
