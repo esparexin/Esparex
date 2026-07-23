@@ -4,6 +4,8 @@
  * Note: Duplicate detection logic has been moved to AdDuplicateService.ts
  */
 
+import { AppError } from '../../../../utils/AppError';
+import { BusinessErrorCode } from '@esparex/contracts';
 import { 
     DuplicatePayload, 
     DuplicateLookupResult, 
@@ -19,7 +21,7 @@ import { validateSellerTypeThreshold } from './ad/AdPolicyService';
 // TYPES
 // ─────────────────────────────────────────────────
 
-type DuplicateAwareError = Error & {
+type DuplicateAwareError = AppError & {
     isDuplicate?: boolean;
     code?: string;
 };
@@ -33,14 +35,13 @@ const DUPLICATE_AD_MESSAGE = 'You already have an active listing for this device
 export const createDuplicateError = (
     message = DUPLICATE_AD_MESSAGE
 ): DuplicateAwareError => {
-    const err = new Error(message) as DuplicateAwareError;
+    const err = new AppError(message, 409, BusinessErrorCode.DUPLICATE_AD) as DuplicateAwareError;
     err.isDuplicate = true;
     return err;
 };
 
 export const createVersionConflictError = (): DuplicateAwareError => {
-    const err = new Error('Version conflict: Ad was modified by another process') as DuplicateAwareError;
-    err.code = 'VERSION_CONFLICT';
+    const err = new AppError('Version conflict: Ad was modified by another process', 409, BusinessErrorCode.IDEMPOTENCY_CONFLICT) as DuplicateAwareError;
     return err;
 };
 
