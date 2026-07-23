@@ -5,9 +5,6 @@
 
 import { createValidationError, EsparexError, sanitizeInput } from "./errorHandler";
 import { CONTACT_LIMITS } from "@esparex/contracts";
-// ============================================================================
-// VALIDATION RESULT
-// ============================================================================
 
 export interface ValidationResult {
   valid: boolean;

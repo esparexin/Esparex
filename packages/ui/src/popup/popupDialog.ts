@@ -1,11 +1,21 @@
-import { useEffect, useState } from "react";
-import { AlertTriangle, CheckCircle2, Info, TriangleAlert } from "lucide-react";
+"use client";
 
-import type { PopupAction, PopupState } from "@shared";
+import { useEffect, useState } from "react";
+import { AlertTriangle, CheckCircle2, Info, TriangleAlert, type LucideIcon } from "lucide-react";
+
+import type { PopupAction, PopupState, PopupType } from "@esparex/shared";
 
 export type RenderablePopup = PopupState & { count?: number };
 
-export const popupTypeConfig = {
+export type PopupStyleConfig = {
+  icon: LucideIcon;
+  titleClass: string;
+  cardClass: string;
+  iconWrapClass: string;
+  buttonClass: string;
+};
+
+export const popupTypeConfig: Record<PopupType, PopupStyleConfig> = {
   error: {
     icon: AlertTriangle,
     titleClass: "text-rose-950",
@@ -45,7 +55,7 @@ export const popupTypeConfig = {
     iconWrapClass: "bg-slate-100 text-slate-700 ring-1 ring-slate-200",
     buttonClass: "bg-slate-900 hover:bg-slate-800 text-white",
   },
-} as const;
+};
 
 export function usePopupDialogState(
   popup: RenderablePopup | null,
@@ -63,7 +73,6 @@ export function usePopupDialogState(
 
   const [countdown, setCountdown] = useState<number | null>(() => active?.retryAfter ?? null);
 
-  // Handle countdown intervals in an effect.
   useEffect(() => {
     if (!active?.retryAfter) return;
 

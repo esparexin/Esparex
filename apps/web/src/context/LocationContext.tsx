@@ -10,7 +10,7 @@ import {
     useCallback,
     useMemo,
 } from "react";
-import type { AppLocation, GeoJSONPoint } from "@/types/location";
+import type { GeoJSONPoint } from "@/types/location";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { isGenericDetectedLocation } from "@/lib/location/locationService";
 
@@ -29,9 +29,9 @@ import { useMultiTabLocationSync } from "./hooks/useMultiTabLocationSync";
 /* TYPES */
 /* -------------------------------------------------------------------------- */
 
+import type { LocationStatus, LocationData } from "@/types/location";
+export type { LocationStatus, LocationData };
 export type LocationCoordinates = GeoJSONPoint;
-export type LocationStatus = "unknown" | "checking" | "prompt" | "granted" | "denied" | "manual_selection";
-export type LocationData = AppLocation;
 
 export type LocationDataContextType = {
     location: LocationData;

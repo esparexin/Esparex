@@ -1,0 +1,115 @@
+{
+  "timestamp": "2026-07-23T10:45:06.247Z",
+  "summary": {
+    "status": "PASS",
+    "totalDirectories": 646,
+    "transitionalModules": 164,
+    "pureReexportShims": 83,
+    "facadesAndWrappers": 2,
+    "unmigratedServices": 79,
+    "emptyDirectoriesCount": 2,
+    "orphanedDirectoriesCount": 0,
+    "jscpdClonesFound": 11,
+    "architectureViolations": 0,
+    "ssotViolations": 0,
+    "dependencyViolations": 0,
+    "circularViolations": 0
+  },
+  "findings": {
+    "emptyDirectories": [
+      "apps/mobile/android/capacitor-cordova-android-plugins/.gradle/9.2.0/expanded",
+      "apps/mobile/android/capacitor-cordova-android-plugins/.gradle/9.2.0/vcsMetadata"
+    ],
+    "orphanedDirectories": [],
+    "transitionalShims": [
+      "core/src/services/AdCreationService.ts",
+      "core/src/services/AdDuplicateService.ts",
+      "core/src/services/AdEngagementService.ts",
+      "core/src/services/AdImageService.ts",
+      "core/src/services/AdMutationService.ts",
+      "core/src/services/AdOrchestrator.ts",
+      "core/src/services/AdSlotService.ts",
+      "core/src/services/AdValidationService.ts",
+      "core/src/services/AdminBusinessService.ts",
+      "core/src/services/AdminListingsService.ts",
+      "core/src/services/AdminLocationService.ts",
+      "core/src/services/AdminSessionService.ts",
+      "core/src/services/AdminUsersService.ts",
+      "core/src/services/AuthService.ts",
+      "core/src/services/BoostService.ts",
+      "core/src/services/ChatAvailabilityService.ts",
+      "core/src/services/ChatService.ts",
+      "core/src/services/ContactRevealService.ts",
+      "core/src/services/ContactService.ts",
+      "core/src/services/DuplicateRolloutGuard.ts"
+    ],
+    "duplications": [
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 9,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 9,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 9,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 16,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 12,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 45,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 37,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 15,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 14,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 16,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 13,
+        "tokens": 0
+      }
+    ]
+  }
+}

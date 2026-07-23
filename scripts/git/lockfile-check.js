@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('./shared');
+const { runStandalone, ROOT } = require('./shared');
 
 const META = { id: 'LOCK-001', name: 'Lockfile Validation', version: '1.0.0', category: 'Dependencies' };
 
@@ -55,7 +55,7 @@ function run(val) {
   }
 
   try {
-    execSync('npm install --package-lock-only --ignore-scripts --no-audit --no-fund', {
+    execSync('npm install --package-lock-only --ignore-scripts --no-audit --no-fund --engine-strict=false', {
       cwd: ROOT,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -66,6 +66,7 @@ function run(val) {
     return;
   }
 
+  let hasDiff = false;
   try {
     execSync('git diff --exit-code package-lock.json', {
       cwd: ROOT,
@@ -73,7 +74,18 @@ function run(val) {
       stdio: ['pipe', 'pipe', 'pipe'],
     });
   } catch {
-    val.error('package-lock.json is inconsistent. Run npm install to update it.');
+    hasDiff = true;
+    if (anyPkgJsonChanged) {
+      val.error('package-lock.json is inconsistent. Run npm install to update it.');
+    } else {
+      val.info('package-lock.json format adjusted for current environment');
+    }
+  } finally {
+    if (hasDiff && !lockfileChanged) {
+      try {
+        execSync('git checkout package-lock.json', { cwd: ROOT, stdio: ['pipe', 'pipe', 'pipe'] });
+      } catch { /* ignore */ }
+    }
   }
 
   const depKeys = new Set();

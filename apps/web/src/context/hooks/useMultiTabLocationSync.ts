@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { LocationData, LocationStatus } from "../LocationContext";
+import type { LocationData, LocationStatus } from "@/types/location";
 import { LOCATION_PROMPT_DISMISSED_KEY } from "./useLocationStorage";
 
 export function useMultiTabLocationSync({

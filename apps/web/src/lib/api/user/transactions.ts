@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import { toApiResult } from "@/lib/api/result";
 import { normalizeTransactionStatus } from "@/lib/status/statusNormalization";
-import { API_ROUTES } from "../routes";
+import { API_ROUTES } from "@esparex/shared";
 
 export interface PlanSnapshot {
     code: string;

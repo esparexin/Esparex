@@ -1,3 +1,5 @@
+import { PAYMENT_STATUS } from "@esparex/contracts";
+
 export interface Transaction {
     id: string;
     userId: string | { _id: string; firstName?: string; lastName?: string; email?: string; name?: string; mobile?: string };
