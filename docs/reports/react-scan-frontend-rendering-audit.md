@@ -22,7 +22,7 @@ A platform-wide frontend rendering performance audit was conducted across **@esp
 | Finding ID | Title / Domain | Current Lifecycle Status | Target PR Branch | Pre-PR Hypothesis Gate | Stage 1 Verification Result |
 |---|---|---|---|---|---|
 | **PERF-004** | Post-Auth Network Waterfall | **Closed** | `perf/post-auth-network-waterfall` | ☑ **Verified Safe** | **Merged in PR #182 (350ms latency reduction / ~62.5%)** |
-| **PERF-001** | `AuthContext` Function Reference Instability | **Hypothesis Verified** | `perf/auth-context-splitting` | ☑ **Verified Safe** | Identified `router` ref dependency causing `fetchUser` & `combinedValue` churn on every route navigation |
+| **PERF-001** | `AuthContext` Function Reference Instability | **Closed** | `perf/auth-context-splitting` | ☑ **Verified Safe** | **Merged in PR #183 (Eliminated route navigation re-renders)** |
 | **PERF-006** | Root JS Bundle Optimization | **Identified** | `perf/bundle-firebase-lazy-load` | ☐ Pending Gate Check | Production Webpack analyzer pending |
 | **PERF-003** | Memoize Listing Card Callbacks | **Identified** | `perf/ad-card-grid-memoization` | ☐ Pending Gate Check | Prop comparator audit pending |
 | **PERF-002** | Localize OTP Digit State | **Deferred** | Phase C | ☐ Pending Gate Check | Form state localization pending |
