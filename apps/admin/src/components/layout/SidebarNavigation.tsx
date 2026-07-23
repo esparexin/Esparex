@@ -28,9 +28,9 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
     }, [items]);
 
     return (
-        <nav className="space-y-6 px-3 py-4">
+        <nav className="space-y-4 px-3 py-3">
             {Object.entries(sections).map(([sectionName, sectionItems]) => (
-                <div key={sectionName} className="space-y-2">
+                <div key={sectionName} className="space-y-1.5">
                     {!isMinified && sectionName !== "General" && (
                         <h3 className="px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-2">
                             {sectionName}
@@ -51,7 +51,7 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
                                     key={item.key}
                                     href={item.href}
                                     className={cn(
-                                        "group relative flex items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200",
+                                        "group relative flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-200",
                                         isMinified ? "justify-center" : "justify-between",
                                         isActive
                                             ? "bg-primary text-white shadow-md shadow-primary/20"

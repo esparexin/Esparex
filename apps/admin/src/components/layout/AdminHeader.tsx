@@ -138,7 +138,7 @@ export function AdminHeader() {
     }, [pathname]);
     return (
         <header className="sticky top-0 z-30 shrink-0 border-b border-slate-200/80 bg-white/90 backdrop-blur">
-            <div className="flex flex-col gap-4 px-4 py-4 lg:px-8">
+            <div className="flex flex-col gap-3 px-4 py-3 lg:px-8">
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700">

@@ -92,7 +92,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
                 `}
             >
-                <div className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 px-4">
+                <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 px-4">
                     <div className="flex items-center gap-3 overflow-hidden">
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-blue-500 font-bold text-white shadow-sm">
                             E
@@ -122,7 +122,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     <SidebarNavigation items={visibleModules} counts={counts} />
                 </div>
 
-                <div className="border-t border-slate-800 px-4 py-4">
+                <div className="border-t border-slate-800 px-4 py-3">
                     <SidebarFooterMeta role={admin?.role} />
                 </div>
             </aside>
@@ -131,7 +131,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                 className="relative z-20 hidden h-full shrink-0 flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-[width] duration-300 ease-in-out lg:flex"
                 style={{ width: "var(--sidebar-width)" }}
             >
-                <div className={`flex h-16 shrink-0 items-center border-b border-slate-800 px-4 ${isMinified ? "justify-center" : "justify-between"}`}>
+                <div className={`flex h-14 shrink-0 items-center border-b border-slate-800 px-4 ${isMinified ? "justify-center" : "justify-between"}`}>
                     <div className="flex items-center gap-3 overflow-hidden">
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-blue-500 font-bold text-white shadow-sm">
                             E
@@ -177,7 +177,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                     <SidebarNavigation items={visibleModules} counts={counts} isMinified={isMinified} />
                 </div>
 
-                <div className={`border-t border-slate-800 px-4 py-4 ${isMinified ? "text-center" : ""}`}>
+                <div className={`border-t border-slate-800 px-4 py-3 ${isMinified ? "text-center" : ""}`}>
                     {!isMinified ? (
                         <SidebarFooterMeta role={admin?.role} />
                     ) : (
