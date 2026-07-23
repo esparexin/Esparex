@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { FormError } from "../ui/FormError";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { OtpInputGroup } from "./otp/OtpInputGroup";
 
 interface LoginProps {
   onLoginSuccess: (options?: { requiresProfileSetup?: boolean }) => void;
@@ -298,34 +299,16 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     </p>
                   )}
 
-                  <div
-                    className={cn(
-                      "flex justify-center gap-2 sm:gap-3 py-2",
-                      authError?.type === "invalid" && "animate-[shake_0.28s_ease-in-out]"
-                    )}
-                  >
-                    {otp.map((digit: string, index: number) => (
-                      <Input
-                        key={index}
-                        id={`otp-digit-${index + 1}`}
-                        name={`otpDigit${index + 1}`}
-                        ref={(el) => {
-                          otpInputsRef.current[index] = el;
-                        }}
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => handleOtpChange(index, e.target.value)}
-                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                        onPaste={(e) => handleOtpPaste(index, e)}
-                        disabled={otpInputDisabled}
-                        className="h-12 w-11 text-center text-base font-semibold sm:w-12 sm:text-lg"
-                        inputMode="numeric"
-                        aria-label={`OTP digit ${index + 1}`}
-                        aria-invalid={!!otpErrorMessage}
-                        autoComplete={index === 0 ? "one-time-code" : "off"}
-                      />
-                    ))}
-                  </div>
+                  <OtpInputGroup
+                    otp={otp}
+                    otpInputsRef={otpInputsRef}
+                    handleOtpChange={handleOtpChange}
+                    handleOtpKeyDown={handleOtpKeyDown}
+                    handleOtpPaste={handleOtpPaste}
+                    disabled={otpInputDisabled}
+                    hasError={!!otpErrorMessage}
+                    shakeAnimation={authError?.type === "invalid"}
+                  />
 
                   <div className="flex flex-col items-center mt-1 mb-2">
                     <FormError
