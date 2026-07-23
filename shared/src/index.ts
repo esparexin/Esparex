@@ -74,3 +74,7 @@ export * from './observability/types';
 export { getLogger } from './observability/index';
 export { createUniversalLogger } from './observability/logger';
 
+// HOOKS (remain in @esparex/shared)
+export * from './hooks';
+
+
