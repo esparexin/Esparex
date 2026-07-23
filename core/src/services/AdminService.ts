@@ -132,7 +132,8 @@ export const getAuditLogs = async (
             .skip(skip)
             .limit(limit)
             .populate('adminId', 'firstName lastName email')
-            .sort({ createdAt: -1 }),
+            .sort({ createdAt: -1 })
+            .lean(),
         AdminLog.countDocuments(query as Record<string, unknown>),
     ]);
     return { logs, total };
