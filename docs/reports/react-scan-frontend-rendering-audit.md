@@ -1,7 +1,7 @@
 # Comprehensive Frontend Rendering & Platform Performance Audit Report
 
-**Audit Status**: ✅ **Phase 2 PRs 1 & 2 Merged — PERF-006 Closed (Hypothesis Disproved) — PERF-003 Next**  
-**Audit Version**: `v2.1.0`  
+**Audit Status**: ✅ **Phase 2 PRs 1–3 Merged — PERF-006 Closed (No Action) — PERF-003 Closed (PR #185)**  
+**Audit Version**: `v2.2.0`  
 **Audit Date**: 2026-07-23  
 **Branch**: `develop`  
 **Environment**: Production Build (`npm run build && npm run start -p 3000`) & Local Dev Tier  
@@ -23,7 +23,7 @@ A platform-wide frontend rendering performance audit was conducted across **@esp
 | **PERF-004** | Post-Auth Network Waterfall | **Closed** | `perf/post-auth-network-waterfall` | ☑ **Verified Safe** | **Merged in PR #182 (350ms latency reduction / ~62.5%)** |
 | **PERF-001** | `AuthContext` Function Reference Instability | **Closed** | `perf/auth-context-splitting` | ☑ **Verified Safe** | **Merged in PR #183 (Eliminated route navigation re-renders)** |
 | **PERF-006** | Root JS Bundle Optimization | **Closed (No Action)** | N/A — Hypothesis Disproved | ☑ **Gate Passed — No Issue Found** | Full Turbopack build analysis confirmed all heavy libs (firebase 119KB, framer-motion 118KB, socket.io 84KB, react-hook-form 56KB+) are already async chunks. Root bundle is 446KB (react-dom + Next.js shell only). |
-| **PERF-003** | Memoize Listing Card Callbacks | **Identified** | `perf/ad-card-grid-memoization` | ☐ Pending Gate Check | Prop comparator audit pending |
+| **PERF-003** | Memoize Listing Card Callbacks | **Closed** | `perf/ad-card-list-comparator` | ☑ **Verified Safe** | **Merged in PR #185** — `areAdCardListPropsEqual` added to `AdCardList.tsx`. Eliminates unnecessary re-renders when TanStack Query returns new `ad` object references with identical values. |
 | **PERF-002** | Localize OTP Digit State | **Deferred** | Phase C | ☐ Pending Gate Check | Form state localization pending |
 | **PERF-005** | Verify `requestAnimationFrame` | **Closed** | N/A (Intentional UI Timing) | ☑ Verified (No Action) | Intentional frame pause to flush AuthContext |
 | **PERF-007** | Detached DOM Reclamation | **Closed** | N/A (Healthy V8 GC) | ☑ Verified (No Action) | Reclaimed cleanly within 3s |
@@ -64,7 +64,7 @@ A platform-wide frontend rendering performance audit was conducted across **@esp
 | **PERF-004** | `AppBootstrapProvider` | Network | Dashboard | Post-Auth Initialization | **Critical** | Very High | Medium | Medium | **High** | Sequential query waterfall (`/me` -> `/saved` -> `/notifications`) after status settles (CLOSED) |
 | **PERF-001** | `AuthProvider` | Context | All Tiers | `/login` / Session Restore | **Critical** | High | Medium | Low | **High** | `router` dependency in `fetchUser` causes `combinedValue` churn on every route navigation |
 | **PERF-006** | Root JS Bundle | Bundle | Public | Initial App Hydration | **Pass** | None | N/A | N/A | **High** | Investigation disproved hypothesis. Root bundle: 446KB (react-dom + Next.js shell). Firebase (119KB), framer-motion (118KB), socket.io-client (84KB), react-hook-form (56KB+) all confirmed as Turbopack async chunks. No eager loading. No action required. |
-| **PERF-003** | `AdCardGrid` | React Render | Public / Search | `/search` (Grid update) | **Medium** | Medium | Low | Low | **High** | Un-memoized inline callbacks passed to child `AdCard` instances |
+| **PERF-003** | `AdCardList` | React Render | Public / Search | `/search` (List view) | **Medium** | Medium | Low | Low | **High** | `AdCardList` used `memo` without a custom comparator. TanStack Query refetches caused unnecessary re-renders via object reference changes. Fixed: `areAdCardListPropsEqual` added — mirrors `AdCardGrid` pattern. **Merged PR #185.** |
 | **PERF-002** | `useOtpFlow` | State | Auth | `/login` (OTP input) | **High** | Medium | Medium | Medium | **High** | 6-digit OTP string state lifted to top-level hook causing 6 card re-renders per digit |
 | **PERF-005** | `useOtpFlow` (L324) | Flow Control | Auth | OTP Verification | **Low** | Low | Low | Low | **High** | Intentional frame pause to allow AuthContext to flush before router redirect |
 | **PERF-007** | `ListingDetailDialogs` | Memory | Public | Dialog Open/Close | **Pass** | None | N/A | N/A | **High** | 12 transient detached HTMLDivElements post-close (reclaimed cleanly by V8 GC) |
