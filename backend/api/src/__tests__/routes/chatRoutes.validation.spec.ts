@@ -65,10 +65,11 @@ const buildApp = () => {
 function PatternApp() {
     const app = express();
     app.use(express.json());
-    app.use(cookieParser());
     app.use("/api/v1/chat", chatRoutes);
     return app;
 }
+
+
 
 describe("chat routes validation contracts", () => {
     const app = buildApp();
