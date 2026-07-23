@@ -64,3 +64,22 @@ export const getCreditWalletSummary = async (req: Request, res: Response) => {
     sendErrorResponse(req, res, 500, message);
   }
 };
+
+export const renewBusinessPlanController = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id?.toString();
+    if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
+
+    const { planId, durationDays = 365 } = req.body || {};
+    if (!planId) return sendErrorResponse(req, res, 400, 'planId is required');
+
+    const { renewBusinessPlan } = await import('@esparex/core/domains/payments/application/PlanService');
+    const updatedPlan = await renewBusinessPlan(userId, planId, Number(durationDays));
+
+    res.json(respond({ success: true, data: updatedPlan }));
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to renew business plan';
+    sendErrorResponse(req, res, 500, message);
+  }
+};
+

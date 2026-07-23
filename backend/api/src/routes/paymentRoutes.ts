@@ -41,6 +41,8 @@ import * as creditController from '../controllers/payment/creditController';
 // Credit Evaluation & Wallet Breakdown
 router.post('/credits/evaluate', protect, creditController.evaluateCredits);
 router.get('/credits/wallet', protect, creditController.getCreditWalletSummary);
+router.post('/credits/renew-business', protect, creditController.renewBusinessPlanController);
+
 
 // Get Available Plans
 router.get('/plans', searchLimiter, paymentController.getPlans);

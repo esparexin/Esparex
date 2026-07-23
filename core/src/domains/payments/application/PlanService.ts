@@ -78,7 +78,27 @@ export const upsertUserPlan = async (
 
 
 
+export const renewBusinessPlan = async (
+    userId: string | mongoose.Types.ObjectId,
+    planId: string | mongoose.Types.ObjectId,
+    durationDays: number = 365
+) => {
+    const existing = await UserPlan.findOne({ userId, planId, status: 'active' });
+    const baseDate = (existing?.endDate && new Date(existing.endDate) > new Date())
+        ? new Date(existing.endDate)
+        : new Date();
+
+    const newEndDate = new Date(baseDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+    return UserPlan.findOneAndUpdate(
+        { userId, planId },
+        { $set: { startDate: new Date(), endDate: newEndDate, status: 'active' } },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
+
 
 export const resetWalletsForNewCycle = async (now: Date = new Date()) => {
     const cycleStart = getMonthlyCycleStart(now);
