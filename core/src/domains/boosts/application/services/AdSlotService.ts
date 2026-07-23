@@ -21,7 +21,9 @@
 
 import type { ClientSession } from "mongoose";
 import UserWallet from "../../../../models/UserWallet";
+import { CreditDeductionService } from "../../../credits/application/CreditDeductionService";
 import redisClient from "../../../../config/redis";
+
 import { AppError } from "../../../../utils/AppError";
 import { BusinessErrorCode } from "@esparex/contracts";
 
