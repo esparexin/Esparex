@@ -56,11 +56,6 @@ jest.mock("../../middleware/authMiddleware", () => ({
 }));
 
 import chatRoutes from "../../routes/chatRoutes";
-import { verifyCsrfToken } from "../../middleware/csrfProtection";
-
-jest.mock("../../middleware/csrfProtection", () => ({
-    verifyCsrfToken: (req: any, res: any, next: any) => next(),
-}));
 
 const buildApp = () => {
     const app = PatternApp();
@@ -70,11 +65,10 @@ const buildApp = () => {
 function PatternApp() {
     const app = express();
     app.use(express.json());
-    app.use(cookieParser());
-    app.use(verifyCsrfToken);
     app.use("/api/v1/chat", chatRoutes);
     return app;
 }
+
 
 
 describe("chat routes validation contracts", () => {
