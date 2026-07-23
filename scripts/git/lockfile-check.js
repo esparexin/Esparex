@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('./shared');
+const { runStandalone, ROOT } = require('./shared');
 
 const META = { id: 'LOCK-001', name: 'Lockfile Validation', version: '1.0.0', category: 'Dependencies' };
 

@@ -1,3 +1,4 @@
+import { type ServiceType as CanonicalServiceType } from "@esparex/contracts";
 import {
     createServiceType,
     deleteServiceType,
@@ -7,6 +8,8 @@ import {
     updateServiceType,
 } from "@/lib/api/serviceTypes";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
+
+export type { CanonicalServiceType };
 
 export interface ServiceType {
     id: string;

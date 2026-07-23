@@ -24,7 +24,7 @@ const CACHE_TEST_KEY = "__location_cache_test__";
 /**
  * Cache keys
  */
-export const CACHE_KEYS = {
+const CACHE_KEYS = {
     SEARCH_PREFIX: `${CACHE_KEY_PREFIX}search_`,
 } as const;
 

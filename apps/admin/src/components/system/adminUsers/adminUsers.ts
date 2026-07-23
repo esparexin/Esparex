@@ -1,6 +1,5 @@
-import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS } from "@esparex/contracts";
-
-export type AdminRole = "superAdmin" | "admin" | "moderator";
+import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS, Role } from "@esparex/contracts";
+export type AdminRole = Role.SUPER_ADMIN | Role.ADMIN | Role.MODERATOR | "superAdmin" | "admin" | "moderator";
 export const ADMIN_STATUS_OPTIONS = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,

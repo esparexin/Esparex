@@ -1,6 +1,9 @@
 import { adminFetch } from "./adminClient";
 import { Location, LocationFilters } from "@/types/location";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
+import type { Pagination as ContractsPagination } from "@esparex/contracts";
+
+export type { ContractsPagination };
 
 const BASE_PATH = "/locations";
 

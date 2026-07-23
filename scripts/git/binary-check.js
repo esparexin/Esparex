@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { Validation, runStandalone, ROOT } = require('./shared');
+const { runStandalone, ROOT } = require('./shared');
 
 const META = { id: 'BIN-001', name: 'Binary Detection', version: '1.0.0', category: 'Integrity' };
 
