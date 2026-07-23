@@ -10,7 +10,7 @@ export interface PresignedUploadResult {
     uploadUrl: string;
     publicUrl: string;
     key: string;
-    expiresIn: number;
+    expiresIn?: number;
 }
 
 
