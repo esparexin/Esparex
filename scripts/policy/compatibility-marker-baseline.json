@@ -74,5 +74,6 @@
   "backend/api/src/__tests__/controllers/listingRepost.spec.ts": 1,
   "backend/api/src/__tests__/controllers/requireOwnedService.spec.ts": 1,
   "backend/api/src/__tests__/controllers/stats.controller.analytics.spec.ts": 1,
-  "shared/src/location/location.normalize.ts": 2
+  "shared/src/location/location.normalize.ts": 2,
+  "backend/api/src/__tests__/listingContractCompatibility.spec.ts": 1
 }
