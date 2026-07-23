@@ -22,6 +22,8 @@
 import type { ClientSession } from "mongoose";
 import UserWallet from "../../../../models/UserWallet";
 import redisClient from "../../../../config/redis";
+import { AppError } from "../../../../utils/AppError";
+import { BusinessErrorCode } from "@esparex/contracts";
 
 /**
  * ============================================================================
@@ -256,7 +258,7 @@ export async function consumeAdSlot(
     const balance = await getAdPostingBalance(userId, session);
 
     if (balance.totalRemaining <= 0) {
-        throw new Error("No ad posting credits remaining.");
+        throw new AppError("No ad posting credits remaining.", 403, BusinessErrorCode.QUOTA_EXHAUSTED);
     }
 
     if (balance.freeRemaining > 0) {
@@ -324,11 +326,10 @@ export async function withUserPostingLock<T>(
     );
 
     if (!acquired) {
-        throw Object.assign(
-            new Error(
-                "Please wait. Another request is currently consuming your posting quota."
-            ),
-            { statusCode: 429 }
+        throw new AppError(
+            "Please wait. Another request is currently consuming your posting quota.",
+            429,
+            BusinessErrorCode.RATE_LIMIT_EXCEEDED
         );
     }
 
@@ -365,11 +366,10 @@ export const AdSlotService = {
         const balance = await getAdPostingBalance(userId, session);
 
         if (balance.totalRemaining <= 0) {
-            throw Object.assign(
-                new Error(
-                    "No ad posting slots available this month. Buy Ad Pack credits or wait for monthly reset."
-                ),
-                { statusCode: 422, code: "QUOTA_EXCEEDED" }
+            throw new AppError(
+                "No ad posting slots available this month. Buy Ad Pack credits or wait for monthly reset.",
+                403,
+                BusinessErrorCode.QUOTA_EXHAUSTED
             );
         }
 

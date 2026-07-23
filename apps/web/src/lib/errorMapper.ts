@@ -19,9 +19,14 @@ export interface ApiError {
 const ERROR_MESSAGES: Record<string, string> = {
     // Authentication & Authorization
     'AUTH_INVALID_CREDENTIALS': 'Invalid email or password',
+    'AUTH_INVALID_OTP': 'Invalid OTP entered. Please check and try again',
+    'AUTH_OTP_EXPIRED': 'OTP has expired. Please request a new code',
+    'AUTH_OTP_MAX_ATTEMPTS': 'Too many invalid OTP attempts. Please try again later',
     'AUTH_TOKEN_EXPIRED': 'Your session has expired. Please log in again',
     'AUTH_UNAUTHORIZED': 'You do not have permission to perform this action',
     'AUTH_FORBIDDEN': 'Access denied',
+    'USER_SUSPENDED': 'Your account has been suspended. Please contact support',
+    'USER_NOT_FOUND': 'User account not found',
 
     // Validation
     'VALIDATION_ERROR': 'Please check your input and try again',
@@ -36,28 +41,36 @@ const ERROR_MESSAGES: Record<string, string> = {
     'SERVER_ERROR': 'Something went wrong. Please try again later',
     'SERVER_MAINTENANCE': 'System is under maintenance. Please try again later',
 
-    // Business Logic
+    // Business Logic & Listings
     'BUSINESS_DUPLICATE': 'This item already exists',
     'BUSINESS_NOT_FOUND': 'Item not found',
-    'BUSINESS_QUOTA_EXCEEDED': 'You have reached your limit',
+    'BUSINESS_QUOTA_EXHAUSTED': 'You have reached your limit',
     'BUSINESS_SUSPENDED': 'Your account is suspended. Please contact support',
+    'DUPLICATE_AD': 'You already posted a similar active listing.',
+    'LISTING_NOT_FOUND': 'Listing not found or no longer active.',
+    'LISTING_LIMIT_EXCEEDED': 'Free listing quota reached. Upgrade your plan to post more ads.',
+    'QUOTA_EXHAUSTED': 'Ad posting quota exhausted. Buy an ad pack to continue.',
+    'INVALID_CATEGORY_ATTRIBUTES': 'Selected attributes do not match the required category criteria.',
+    'IMAGE_CATEGORY_MISMATCH': 'Uploaded photo does not match the selected category.',
+    'IMAGE_MODERATION_FAILED': 'Image flagged by moderation policy. Please upload a clear product photo.',
+
+    // Security & Fraud
+    'FRAUD_DETECTED': 'Action flagged by security policy. Contact support if you believe this is an error.',
+    'SPAM_DETECTED': 'Content flagged by anti-spam filters.',
+    'RATE_LIMIT_EXCEEDED': 'Too many requests. Please try again later',
+    'IDEMPOTENCY_CONFLICT': 'Your request is already processing or was recently completed.',
+    'IDEMPOTENCY_KEY_REUSED': 'Your submission is already being processed.',
+    'IDEMPOTENCY_IN_PROGRESS': 'Your previous submit is still processing. Please wait a few seconds and retry.',
+    'AD_VERSION_CONFLICT': 'This listing was updated elsewhere. Refresh and retry your changes.',
 
     // Payment
     'PAYMENT_FAILED': 'Payment failed. Please try again',
+    'PAYMENT_ALREADY_COMPLETED': 'Payment is already processed.',
     'PAYMENT_INSUFFICIENT_FUNDS': 'Insufficient credits. Please top up your wallet',
 
     // File Upload
     'UPLOAD_FILE_TOO_LARGE': 'File is too large. Maximum size is 5MB',
     'UPLOAD_INVALID_TYPE': 'Invalid file type',
-
-    // Rate Limiting
-    'RATE_LIMIT_EXCEEDED': 'Too many requests. Please try again later',
-
-    // Ad duplicate / idempotency
-    'DUPLICATE_AD': 'You already posted a similar ad.',
-    'IDEMPOTENCY_KEY_REUSED': 'Your submission is already being processed.',
-    'IDEMPOTENCY_IN_PROGRESS': 'Your previous submit is still processing. Please wait a few seconds and retry.',
-    'AD_VERSION_CONFLICT': 'This listing was updated elsewhere. Refresh and retry your changes.',
 };
 
 /**

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ApiResponse } from './apiResponse';
 import { isDuplicateKeyError, isDuplicateError, isMongoError, isZodError } from '@esparex/core/utils/errorHelpers';
+import { AppError } from '@esparex/core/utils/AppError';
 
 type ErrorResponseOptions = {
     code?: string;
@@ -73,16 +74,23 @@ export function sendCatalogError(
         isAdminView = statusCodeOrOptions.isAdminView ?? isAdminView;
     }
 
+    if (error instanceof AppError) {
+        return sendErrorResponse(req, res, error.statusCode, error.message, {
+            ...(error.code ? { code: error.code } : {}),
+            ...(error.details !== undefined ? { details: error.details } : {})
+        });
+    }
+
     if (isDuplicateError(error)) {
-        return sendErrorResponse(req, res, 409, (error as Error).message || 'Duplicate resource detected', { isDuplicate: true });
+        return sendErrorResponse(req, res, 409, (error as Error).message || 'Duplicate resource detected', { code: 'DUPLICATE_AD', isDuplicate: true });
     }
     
     if (isDuplicateKeyError(error)) {
-        return sendErrorResponse(req, res, 409, 'Resource already exists', { isDuplicate: true });
+        return sendErrorResponse(req, res, 409, 'Resource already exists', { code: 'DUPLICATE_AD', isDuplicate: true });
     }
 
     if (isZodError(error)) {
-        return sendErrorResponse(req, res, 400, 'Validation failed', { issues: normalizeZodIssues(error) });
+        return sendErrorResponse(req, res, 400, 'Validation failed', { code: 'VALIDATION_ERROR', issues: normalizeZodIssues(error) });
     }
 
     if (isMongoError(error)) {
