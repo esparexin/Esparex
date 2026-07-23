@@ -36,8 +36,15 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
 // Create Payment Order
 router.post('/orders', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.createPaymentOrderSchema), paymentController.createPaymentOrder);
 
+import * as creditController from '../controllers/payment/creditController';
+
+// Credit Evaluation & Wallet Breakdown
+router.post('/credits/evaluate', protect, creditController.evaluateCredits);
+router.get('/credits/wallet', protect, creditController.getCreditWalletSummary);
+
 // Get Available Plans
 router.get('/plans', searchLimiter, paymentController.getPlans);
+
 
 // Webhook (Secured by HMAC Signature)
 // ⚠️  RAZORPAY_WEBHOOK_SECRET must be set in .env — passing '' causes
