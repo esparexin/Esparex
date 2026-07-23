@@ -2,7 +2,7 @@
 
 - **Status:** **PASS**
 - **Transitional Modules:** 164 (83 shims / 79 unmigrated)
-- **Empty / Orphaned Folders:** 4
+- **Empty / Orphaned Folders:** 2
 - **Code Duplication Clones:** 11
 - **Architecture Boundary Violations:** 0
 - **SSOT Violations:** 0

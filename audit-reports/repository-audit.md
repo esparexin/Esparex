@@ -1,6 +1,6 @@
 # Esparex Repository Audit Report
 
-**Generated At:** 2026-07-23T10:41:37.485Z  
+**Generated At:** 2026-07-23T10:45:06.247Z  
 **Governance Status:** PASS
 
 ---
@@ -15,8 +15,8 @@
 | — *Pure Re-export Shims* | 83 | Forwarders to `core/src/domains` |
 | — *Facades & Wrappers* | 2 | Compatibility wrappers |
 | — *Unmigrated Services* | 79 | Pending DDD domain encapsulation |
-| **Empty Directories** | 3 | E.g. `docs/audits/P2.2` |
-| **Orphaned Directories** | 1 | `tools/templates/domain-package` |
+| **Empty Directories** | 2 | E.g. `docs/audits/P2.2` |
+| **Orphaned Directories** | 0 | `tools/templates/domain-package` |
 | **JSCPD Code Clones** | 11 | Detected code duplications |
 | **Boundary Violations** | 0 | Package boundary guards |
 | **SSOT Violations** | 0 | SSOT schema & contract guards |
@@ -29,10 +29,9 @@
 ### Empty Directories
 - `apps/mobile/android/capacitor-cordova-android-plugins/.gradle/9.2.0/expanded`
 - `apps/mobile/android/capacitor-cordova-android-plugins/.gradle/9.2.0/vcsMetadata`
-- `docs/audits/P2.2`
 
 ### Orphaned Directories
-- `tools/templates/domain-package`
+*None*
 
 ---
 
