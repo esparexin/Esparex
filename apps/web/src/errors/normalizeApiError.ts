@@ -43,11 +43,15 @@ export function normalizeApiError(error: unknown): FrontendAppError {
         const axiosError = error as unknown as AxiosLikeError;
         const data = axiosError.response?.data;
 
-        // Some APIs nest error details under data.error rather than data directly.
-        const message = data?.error?.message || data?.message || axiosError.message || "A network error occurred";
-        const status = data?.error?.status || axiosError.response?.status;
-        const code = data?.error?.code || data?.code || axiosError.code;
-        const details = data?.error?.details || data?.details || data;
+        // Some APIs nest error details under data.error (string or object) rather than data directly.
+        const errorField = data?.error;
+        const stringError = typeof errorField === 'string' ? errorField : undefined;
+        const objectError = typeof errorField === 'object' && errorField !== null ? errorField as Record<string, unknown> : undefined;
+
+        const message = objectError?.message as string || stringError || data?.message || axiosError.message || "A network error occurred";
+        const status = (objectError?.status as number) || axiosError.response?.status;
+        const code = (objectError?.code as string) || data?.code || axiosError.code;
+        const details = objectError?.details || data?.details || data;
 
         return new FrontendAppError(message, { status, code, details });
     }

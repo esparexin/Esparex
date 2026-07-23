@@ -8,7 +8,7 @@ import { logAdminActionDirect } from '../../../../utils/adminLogger';
 import logger from '../../../../utils/logger';
 import mongoose from 'mongoose';
 
-import { USER_STATUS, UserStatusValue } from '@esparex/contracts';
+import { USER_STATUS, UserStatusValue, BusinessErrorCode } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { mutateStatuses } from '../../../../services/lifecycle/StatusMutationService';
@@ -48,7 +48,7 @@ export const updateUserStatus = async (
     ]);
 
     if (typeof newStatus !== 'string' || !ALLOWED_USER_STATUSES.has(newStatus as UserStatusValue)) {
-        throw new AppError('Invalid user status', 400, 'INVALID_USER_STATUS');
+        throw new AppError('Invalid user status', 400, BusinessErrorCode.VALIDATION_ERROR);
     }
     const validatedStatus = newStatus as UserStatusValue;
 
@@ -59,7 +59,7 @@ export const updateUserStatus = async (
     // as a sanitization barrier. Cross-file helper calls (toObjectId) are not tracked
     // by CodeQL's interprocedural taint analysis for custom sanitizers.
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new AppError('Invalid user ID', 400, 'INVALID_USER_ID');
+        throw new AppError('Invalid user ID', 400, BusinessErrorCode.VALIDATION_ERROR);
     }
     const normalizedUserId = new mongoose.Types.ObjectId(userId);
     // Canonical safe string — used for all post-validation DB/cache sinks.
@@ -92,7 +92,7 @@ export const updateUserStatus = async (
             { ...updateData, $inc: { tokenVersion: 1 } },
             { new: true }
         );
-        if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+        if (!user) throw new AppError('User not found', 404, BusinessErrorCode.USER_NOT_FOUND);
 
         // Also delete the Redis status cache for immediate enforcement.
         // Without this, authMiddleware would serve the stale 'active' status
@@ -170,7 +170,7 @@ export const updateUserStatus = async (
 
     // Non-restrictive transitions (e.g. ACTIVE) — no tokenVersion bump needed
     const user = await User.findByIdAndUpdate(normalizedUserId, updateData, { new: true });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new AppError('User not found', 404, BusinessErrorCode.USER_NOT_FOUND);
 
     // --- Admin Logging ---
     if (context.actor === 'ADMIN') {

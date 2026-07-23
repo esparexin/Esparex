@@ -324,7 +324,9 @@ export const logDuplicateEvent = async (
             duplicateFingerprint: event.duplicateFingerprint,
             details: event.details,
         });
-        await duplicateEvent.save(session ? { session } : undefined);
+        const sessionClient = (session as unknown as { client?: unknown })?.client;
+        const isSameClient = Boolean(sessionClient && sessionClient === DuplicateEvent.db.getClient());
+        await duplicateEvent.save(session && isSameClient ? { session } : undefined);
     } catch (err) {
         logger.error('Failed to log duplicate event', { error: String(err), event });
     }
