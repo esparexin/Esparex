@@ -3,7 +3,7 @@
 
 import { UserHeader } from '@/components/user/UserHeader';
 import { useRouter, useSearchParams, useSelectedLayoutSegments, usePathname } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useAuth } from "@/context/AuthContext";
 import { useNavigation } from '@/context/NavigationContext';
 import {
@@ -42,11 +42,11 @@ export function HeaderWrapper() {
         return buildAuthCallbackUrl(pathname || "/", searchParams);
     }, [pathname, searchParams]);
 
-    const handleShowLogin = () => {
+    const handleShowLogin = useCallback(() => {
         void router.push(buildLoginUrl(loginCallbackUrl));
-    };
+    }, [loginCallbackUrl, router]);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         confirmNavigation(async () => {
             try {
                 if (shouldUseLogoutRedirectBypass(pathname)) {
@@ -58,15 +58,15 @@ export function HeaderWrapper() {
                 logger.error("Logout failed", e);
             }
         });
-    };
+    }, [confirmNavigation, logout, pathname, router]);
 
     // Navigation must be side-effect free. Auth handled by guards only.
     const { navigateTo } = useAppNavigation();
 
-    const handleSearch = (query: string) => {
+    const handleSearch = useCallback((query: string) => {
         if (!query.trim()) return;
         void router.push(buildPublicBrowseRouteFromPathname(pathname || "/", { q: query.trim() }));
-    };
+    }, [pathname, router]);
 
     if (isAdminRoute || isWizardRoute) return null;
 

@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
+import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
+import { AUTH_SESSION_STORAGE_KEY } from "@/context/auth/authHelpers";
 import { ensureForegroundPushListener, syncBrowserPushRegistration, clearBrowserPushCache } from "@/lib/notifications/webPush";
 import { isNativeShell } from "@/lib/runtime/nativeShell";
 import type { User } from "@/types/User";
@@ -17,12 +19,32 @@ export function AppBootstrapProvider({ children }: { children: ReactNode }) {
     const { user, status } = useAuth();
     const pathname = usePathname();
 
-    const shouldPrefetchAccountWidgets =
-        status === "authenticated" &&
-        !pathname?.startsWith("/account/business/apply") &&
-        !pathname?.startsWith("/business/edit");
+    // PERF-001 & PERF-008: Optimistic parallel post-auth prefetching.
+    // When session cookie hint or localStorage session key is present, prefetch saved ads
+    // and notifications concurrently alongside /me rather than sequentially waiting.
+    const shouldPrefetchAccountWidgets = useMemo(() => {
+        if (pathname?.startsWith("/account/business/apply") || pathname?.startsWith("/business/edit")) {
+            return false;
+        }
+
+        if (status === "authenticated") {
+            return true;
+        }
+
+        if (status === "loading" && typeof window !== "undefined") {
+            return localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1";
+        }
+
+        return false;
+    }, [pathname, status]);
 
     useSavedAdsQuery({
+        enabled: shouldPrefetchAccountWidgets,
+    });
+
+    useNotificationsQuery({
+        page: 1,
+        limit: 10,
         enabled: shouldPrefetchAccountWidgets,
     });
 

@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { BrowseAds } from '@/components/user/BrowseAds';
 import { BrowseServices } from '@/components/user/BrowseServices';
 import { BrowseSpareParts } from '@/components/user/BrowseSpareParts';
+import { AdCardSkeleton } from "@/components/user/ad-card/AdCardSkeleton";
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getAdsPage, type ListingPageResult } from "@/lib/api/user/listings";
@@ -12,6 +13,18 @@ import { buildPublicBrowseRoute, normalizePublicBrowseType, parsePublicBrowsePar
 import { PUBLIC_BROWSE_SORT_MAP, type SortOption } from "@/lib/publicBrowseSort";
 
 export const revalidate = 60;
+
+function SearchPageFallback() {
+    return (
+        <div className="container mx-auto px-4 py-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {Array.from({ length: 8 }).map((_, i) => (
+                    <AdCardSkeleton key={i} />
+                ))}
+            </div>
+        </div>
+    );
+}
 
 export async function generateMetadata(
     props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
@@ -117,7 +130,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
         <>
             {/* Server-rendered H1 — always visible to Googlebot before hydration */}
             <h1 className="sr-only">{h1Map[parsed.type] ?? h1Default}</h1>
-            <Suspense fallback={null}>
+            <Suspense fallback={<SearchPageFallback />}>
                 <Component
                     initialCategory={parsed.categoryId ?? parsed.category}
                     initialSearchQuery={parsed.q}
