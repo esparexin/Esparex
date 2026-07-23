@@ -1,6 +1,6 @@
 import { apiClient, EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
-import { API_ROUTES } from '../routes';
+import { API_ROUTES } from '@esparex/shared';
 import { type Listing as Ad, normalizeListing as normalizeAd } from './listings';
 import { User } from "@/types/User";
 import { toSafeImageSrc } from '@/lib/image/imageUrl';

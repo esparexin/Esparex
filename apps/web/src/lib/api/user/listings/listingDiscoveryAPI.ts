@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from '../../routes';
+import { API_ROUTES } from '@esparex/shared';
 import { toApiResult, toPaginatedApiResult, unwrapApiPayload } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { fetchUserApiJson, type ServerFetchOptions } from '../server';

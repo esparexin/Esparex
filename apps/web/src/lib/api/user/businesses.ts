@@ -1,6 +1,6 @@
 import { apiClient, type EsparexRequestConfig } from '@/lib/api/client';
 import { toApiResult } from '@/lib/api/result';
-import { API_ROUTES } from '../routes';
+import { API_ROUTES } from '@esparex/shared';
 import type { GeoJSONPoint } from '@/types/location';
 import {
     normalizeBusinessStatus,
