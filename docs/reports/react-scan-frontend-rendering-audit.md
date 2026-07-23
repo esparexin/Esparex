@@ -75,7 +75,7 @@ Every Phase 2 optimization PR description must include these mandatory summary b
 
 | Finding ID | Title / Domain | Current Lifecycle Status | Target PR Branch | Pre-PR Hypothesis Gate | Measured Verification Outcome |
 |---|---|---|---|---|---|
-| **PERF-004** | Post-Auth Network Waterfall | **Regression Verified** | `perf/post-auth-network-waterfall` | ☑ **Verified Safe** | **350ms network latency reduction (~62.5%)**; 0 duplicate fetches |
+| **PERF-004** | Post-Auth Network Waterfall | **Closed** | `perf/post-auth-network-waterfall` | ☑ **Verified Safe** | **Merged in PR #182 (350ms latency reduction / ~62.5%)**; 0 duplicate fetches |
 | **PERF-001** | `AuthContext` Slicing | **Identified** | `perf/auth-context-splitting` | ☐ Pending Stage 1 Measurement | Subscriptions to be analyzed in PR 2 Stage 1 |
 | **PERF-006** | Root JS Bundle Optimization | **Identified** | `perf/bundle-firebase-lazy-load` | ☐ Pending Gate Check | Production Webpack analyzer pending |
 | **PERF-003** | Memoize Listing Card Callbacks | **Identified** | `perf/ad-card-grid-memoization` | ☐ Pending Gate Check | Prop comparator audit pending |
