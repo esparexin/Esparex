@@ -1,6 +1,6 @@
 import { pLimit } from '../../../../../utils/pLimit';
 import { AppError } from '../../../../../utils/AppError';
-import { dispatchTemplatedNotification } from '../../../../../services/NotificationService';
+import { dispatchTemplatedNotification } from '../../../../notifications/application/NotificationService';
 import Ad from '../../../../../models/Ad';
 import type { AdminLogFn } from './types';
 import {

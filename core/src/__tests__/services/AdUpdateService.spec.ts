@@ -90,7 +90,7 @@ jest.mock('../../config/db', () => ({
     }),
 }));
 
-jest.mock('../../services/AdCreationService', () => ({
+jest.mock('../../domains/listings/application/ad/AdCreationService', () => ({
     AdCreationService: {
         preparePayload: jest.fn().mockImplementation((data) => Promise.resolve(data)),
     },

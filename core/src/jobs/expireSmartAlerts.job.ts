@@ -1,8 +1,8 @@
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
-import { expireSmartAlerts } from '../services/SmartAlertService';
-import { dispatchTemplatedNotification } from '../services/NotificationService';
+import { expireSmartAlerts } from '../domains/notifications/application/SmartAlertService';
+import { dispatchTemplatedNotification } from '../domains/notifications/application/NotificationService';
 
 /**
  * Job to scan and deactivate Smart Alerts that have passed their expiresAt date.

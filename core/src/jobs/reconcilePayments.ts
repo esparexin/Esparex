@@ -1,6 +1,6 @@
 import logger, { logBusiness } from "../utils/logger";
 import { Transaction } from "../models/Transaction";
-import { processSuccessfulPayment, recoverPendingPayment } from "../services/PaymentProcessingService";
+import { processSuccessfulPayment, recoverPendingPayment } from "../domains/payments/application/PaymentProcessingService";
 
 /**
  * 🔄 PAYMENT RECONCILIATION JOB

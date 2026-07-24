@@ -17,6 +17,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NotificationItemCard } from "@/components/user/NotificationItemCard";
+import { NotificationDrawer } from "@/components/user/NotificationDrawer";
 
 type NotificationBellDropdownProps = {
     notificationsData?: NotificationResponse;
@@ -158,6 +159,33 @@ export function NotificationBellDropdown({
             : "h-11 w-11 rounded-full relative text-muted-foreground hover:text-foreground";
     const iconClassName = variant === "mobile" ? "h-6 w-6 text-foreground/80" : "h-5 w-5";
 
+    if (variant === "mobile") {
+        return (
+            <NotificationDrawer
+                open={open}
+                onOpenChange={handleOpenChange}
+                notifications={notifications}
+                unreadCount={unreadCount}
+                onMarkRead={(id) => markReadMutation.mutateAsync(id).then(() => {})}
+                onMarkAllRead={() => markAllReadMutation.mutateAsync().then(() => {})}
+                onSelect={handleNotificationSelect}
+                trigger={
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className={triggerClassName}
+                        aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : "Notifications"}
+                    >
+                        <Bell className={iconClassName} />
+                        {unreadCount > 0 ? (
+                            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-background bg-red-500" />
+                        ) : null}
+                    </Button>
+                }
+            />
+        );
+    }
+
     return (
         <DropdownMenu key={pathname} open={open} onOpenChange={handleOpenChange}>
             <DropdownMenuTrigger asChild>
@@ -169,13 +197,9 @@ export function NotificationBellDropdown({
                 >
                     <Bell className={iconClassName} />
                     {unreadCount > 0 ? (
-                        variant === "mobile" ? (
-                            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-background bg-red-500" />
-                        ) : (
-                            <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-2xs font-bold text-white">
-                                {unreadCount > 99 ? "99+" : unreadCount}
-                            </span>
-                        )
+                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-2xs font-bold text-white">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
                     ) : null}
                 </Button>
             </DropdownMenuTrigger>

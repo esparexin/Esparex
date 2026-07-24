@@ -8,7 +8,7 @@ import * as businessUtils from '../business/BusinessUtils';
 import { findBusinessForAdmin, cascadeExpireBusinessListings, approveAdminBusiness, rejectAdminBusiness, expireAdminBusiness } from './business';
 import { normalizeLocation } from '../location/LocationNormalizer';
 import logger from '../../utils/logger';
-import { dispatchTemplatedNotification } from '../NotificationService';
+import { dispatchTemplatedNotification } from '../../domains/notifications/application/NotificationService';
 
 export { approveAdminBusiness, rejectAdminBusiness, expireAdminBusiness };
 

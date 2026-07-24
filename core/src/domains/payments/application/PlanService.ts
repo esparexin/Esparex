@@ -1,19 +1,19 @@
 import UserPlan from '../../../models/UserPlan';
 import Plan, { type IPlan } from '../../../models/Plan';
-import { type AdPostingSlotSource } from '../../../services/AdSlotService';
+import { type AdPostingSlotSource } from '../../boosts/application/services/AdSlotService';
 import { LISTING_TYPE } from '@esparex/contracts';
 import { getListingRepository } from '../../../composition/listings';
 import { 
     AdSlotService, 
     getMonthlyCycleStart,
     getAdPostingBalance as adSlotGetBalance
-} from '../../../services/AdSlotService';
+} from '../../boosts/application/services/AdSlotService';
 import mongoose, { type ClientSession } from 'mongoose';
 
 import { AppError } from '../../../utils/AppError';
 import { calculateUserPlan } from '../domain/policies/PlanEngine';
 import UserWallet from '../../../models/UserWallet';
-import { withUserPostingLock } from '../../../services/AdSlotService'; // Import the lock
+import { withUserPostingLock } from '../../boosts/application/services/AdSlotService';
 
 export type UserPlanWithPlanId = { planId: unknown };
 

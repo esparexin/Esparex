@@ -1,7 +1,7 @@
 import type { ClientSession } from 'mongoose';
-import { AdSlotService, type AdPostingSlotSource } from '../../../../services/AdSlotService';
+import { AdSlotService, type AdPostingSlotSource } from '../../../boosts/application/services/AdSlotService';
 import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
-import { checkPostLimit } from '../../../../services/PlanService';
+import { checkPostLimit } from '../../../payments/application/PlanService';
 import type { ListingRepositoryPort } from '../../../../domains/listings';
 
 /** @deprecated Use ListingTypeValue from shared/enums/listingType */

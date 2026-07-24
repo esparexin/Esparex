@@ -3,13 +3,13 @@ import { env } from '@esparex/core/config/env';
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import type { IUser } from '@esparex/core/models/User';
-import * as userService from '@esparex/core/services/UserService';
+import * as userService from '@esparex/core/domains/identity/application/users/UserService';
 import {
   getUserAvatarById,
   checkUserExistsById,
   blockUserById,
   unblockUserById,
-} from '@esparex/core/services/UserService';
+} from '@esparex/core/domains/identity/application/users/UserService';
 import {
   getBusinessByUserIdLean,
   softDeleteBusinessesByUserId,
@@ -23,7 +23,7 @@ import {
 import { processSingleImage } from '@esparex/core/utils/imageProcessor';
 import { sendSuccessResponse } from "../../utils/respond";
 import { normalizeLocation } from '@esparex/core/services/location/LocationNormalizer';
-import { updateUserStatus } from '@esparex/core/services/UserStatusService';
+import { updateUserStatus } from '@esparex/core/domains/identity/application/users/UserStatusService';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import fs from 'fs/promises';
 import path from 'path';

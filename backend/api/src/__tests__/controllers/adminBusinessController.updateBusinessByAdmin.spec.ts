@@ -30,7 +30,7 @@ jest.mock("@esparex/core/utils/logger", () => ({
     logSecurity: jest.fn(),
 }));
 
-jest.mock("@esparex/core/services/NotificationService", () => ({
+jest.mock("@esparex/core/domains/notifications/application/NotificationService", () => ({
     __esModule: true,
     createInAppNotification: jest.fn().mockResolvedValue(undefined),
 }));

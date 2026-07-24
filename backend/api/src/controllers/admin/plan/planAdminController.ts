@@ -10,7 +10,7 @@ import {
     adminUpdatePlan,
     adminGetPlans,
     adminGetPlanById,
-} from '@esparex/core/services/PlanService';
+} from '@esparex/core/domains/payments/application/PlanService';
 
 export const createPlan = async (req: Request, res: Response) => {
     try {

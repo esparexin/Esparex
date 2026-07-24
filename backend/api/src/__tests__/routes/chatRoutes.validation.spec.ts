@@ -38,13 +38,27 @@ jest.mock("@esparex/core/utils/redisCache", () => ({
     getCacheStats: jest.fn(async () => ({})),
 }));
 
-// Mock ChatService
+// Mock ChatService sub-services
 const mockGetConversationForUser = jest.fn();
 const mockGetMessages = jest.fn();
 
-jest.mock("@esparex/core/services/ChatService", () => ({
+jest.mock("@esparex/core/domains/communications/application/services/chat/ChatConversationService", () => ({
     getConversationForUser: (...args: unknown[]) => mockGetConversationForUser(...args),
+    startConversation: jest.fn(),
+    listConversations: jest.fn(),
+    blockConversation: jest.fn(),
+    hideConversation: jest.fn(),
+    restoreConversation: jest.fn(),
+}));
+
+jest.mock("@esparex/core/domains/communications/application/services/chat/ChatMessageService", () => ({
     getMessages: (...args: unknown[]) => mockGetMessages(...args),
+    sendMessage: jest.fn(),
+    markRead: jest.fn(),
+}));
+
+jest.mock("@esparex/core/domains/communications/application/services/chat/ChatReportService", () => ({
+    reportConversation: jest.fn(),
 }));
 
 // Mock authMiddleware to inject a dummy user

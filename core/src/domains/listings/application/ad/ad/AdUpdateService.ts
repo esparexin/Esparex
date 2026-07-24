@@ -166,7 +166,7 @@ export const updateAdLogic = async (
                     const SavedAd = (await import('@esparex/core/models/SavedAd')).default;
                     const keepers = await SavedAd.find({ adId }).select('userId').lean();
                     if (keepers.length > 0) {
-                        const { dispatchTemplatedNotification } = await import('../../../../../services/NotificationService');
+                        const { dispatchTemplatedNotification } = await import('../../../../notifications/application/NotificationService');
                         for (const keeper of keepers) {
                             await dispatchTemplatedNotification(
                                 String(keeper.userId),

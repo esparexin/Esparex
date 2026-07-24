@@ -1,7 +1,7 @@
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
-import { resetWalletsForNewCycle } from '../services/PlanService';
+import { resetWalletsForNewCycle } from '../domains/payments/application/PlanService';
 
 export const runMonthlySlotResetJob = async () => {
     await runWithDistributedJobLock(

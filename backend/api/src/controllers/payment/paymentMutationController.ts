@@ -9,7 +9,7 @@ import {
     createPaymentTransaction,
     getUserForPayment,
 } from '@esparex/core/services/TransactionService';
-import { getPlanById } from '@esparex/core/services/PlanService';
+import { getPlanById } from '@esparex/core/domains/payments/application/PlanService';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";
 import { getPrimaryPlanCreditCount } from "@esparex/shared";

@@ -16,21 +16,21 @@
 
 // ── Mocks must be hoisted before any imports ──────────────────────────────────
 
-jest.mock('../../services/AdSlotService', () => ({
+jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
     AdSlotService: {
         consumeSlot: jest.fn(),
     },
 }));
 
-jest.mock('../../services/PlanService', () => ({
+jest.mock('../../domains/payments/application/PlanService', () => ({
     checkPostLimit: jest.fn(),
 }));
 
 // ── Imports (after mocks) ─────────────────────────────────────────────────────
 
 import { ListingSubmissionPolicy, type ListingSubmissionPolicyInput } from '../../services/ListingSubmissionPolicy';
-import { AdSlotService } from '../../services/AdSlotService';
-import { checkPostLimit } from '../../services/PlanService';
+import { AdSlotService } from '../../domains/boosts/application/services/AdSlotService';
+import { checkPostLimit } from '../../domains/payments/application/PlanService';
 import { LISTING_TYPE } from '@esparex/contracts';
 
 // ── Typed mock handles ────────────────────────────────────────────────────────

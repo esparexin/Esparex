@@ -1,6 +1,6 @@
 import logger from '@esparex/core/utils/logger';
 import { Types } from 'mongoose';
-import * as notificationService from '@esparex/core/services/NotificationService';
+import * as notificationService from '@esparex/core/domains/notifications/application/NotificationService';
 import { Request, Response } from 'express';
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
