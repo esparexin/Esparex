@@ -197,13 +197,9 @@ export function NotificationBellDropdown({
                 >
                     <Bell className={iconClassName} />
                     {unreadCount > 0 ? (
-                        variant === "mobile" ? (
-                            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-background bg-red-500" />
-                        ) : (
-                            <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-2xs font-bold text-white">
-                                {unreadCount > 99 ? "99+" : unreadCount}
-                            </span>
-                        )
+                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-2xs font-bold text-white">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                        </span>
                     ) : null}
                 </Button>
             </DropdownMenuTrigger>

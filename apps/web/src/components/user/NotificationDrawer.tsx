@@ -33,10 +33,13 @@ export function NotificationDrawer({
 
   const handleTouchStart = (id: string, e: React.TouchEvent) => {
     const touch = e.touches[0];
+    if (!touch) return;
     const startX = touch.clientX;
 
     const handleTouchMove = (moveEvent: TouchEvent) => {
-      const currentX = moveEvent.touches[0].clientX;
+      const moveTouch = moveEvent.touches[0];
+      if (!moveTouch) return;
+      const currentX = moveTouch.clientX;
       const diffX = startX - currentX;
 
       if (diffX > 40) {
