@@ -211,13 +211,6 @@ export function ListingDetail({
 
                     {isPendingOwner && <AdPendingStatusCard />}
 
-                    <AdTitlePriceCard
-                      ad={ad}
-                      categoryLabel={categoryLabel}
-                      viewCount={viewCount}
-                      variant="mobile"
-                    />
-
                     <ListingDescriptionCard ad={ad} />
                   </div>
 
