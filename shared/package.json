@@ -10,11 +10,11 @@
     "type-check": "npm run build -w @esparex/contracts && tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "@esparex/contracts": "*",
-    "@sentry/node": "^8.26.0",
+    "@sentry/node": "^10.67.0",
     "slugify": "^1.6.9"
   }
 }
