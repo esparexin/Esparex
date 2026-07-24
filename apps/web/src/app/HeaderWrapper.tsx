@@ -1,7 +1,7 @@
 "use client";
 
 
-import { AppHeader } from '@/components/user/AppHeader';
+import { Header } from '@/components/user/Header';
 import { useRouter, useSearchParams, useSelectedLayoutSegments, usePathname } from 'next/navigation';
 import { useMemo, useCallback } from 'react';
 import { useAuth } from "@/context/AuthContext";
@@ -71,7 +71,7 @@ export function HeaderWrapper() {
 
     return (
         <MobileNavDrawerProvider>
-            <AppHeader
+            <Header
                 currentPage={pathname}
                 navigateTo={navigateTo}
                 isLoggedIn={isLoggedIn}

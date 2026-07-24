@@ -51,7 +51,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export interface AppHeaderProps {
+export interface HeaderProps {
   currentPage?: string;
   navigateTo: (page: UserPage, adId?: number, category?: string, sellerIdOrBusinessId?: string, serviceId?: string, sellerId?: string, sellerType?: "business" | "individual") => void;
   isLoggedIn: boolean;
@@ -64,7 +64,7 @@ export interface AppHeaderProps {
 
 const recentSearches = ["iPhone 14 Pro", "Samsung Galaxy", "MacBook Pro", "iPad Air"];
 
-export function AppHeader({
+export function Header({
   navigateTo,
   isLoggedIn,
   isAuthLoading = false,
@@ -72,7 +72,7 @@ export function AppHeader({
   user = null,
   onSearch,
   onShowLogin,
-}: AppHeaderProps) {
+}: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
