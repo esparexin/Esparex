@@ -63,31 +63,44 @@ export type CatalogStatusFilterToken =
 
 export const applyCatalogStatusFilter = (
     targetQuery: QueryRecord,
-    rawStatus: unknown
+    rawStatus: unknown,
+    rawIsActive?: unknown,
+    rawApprovalStatus?: unknown
 ) => {
+    if (typeof rawIsActive === 'boolean') {
+        targetQuery.isActive = rawIsActive;
+    } else if (typeof rawIsActive === 'string') {
+        const cleanIsActive = rawIsActive.trim().toLowerCase();
+        if (cleanIsActive === 'true') targetQuery.isActive = true;
+        if (cleanIsActive === 'false') targetQuery.isActive = false;
+    }
+
+    if (typeof rawApprovalStatus === 'string') {
+        const cleanApproval = rawApprovalStatus.trim().toLowerCase();
+        if (cleanApproval === 'approved' || cleanApproval === 'pending' || cleanApproval === 'rejected') {
+            targetQuery.approvalStatus = cleanApproval;
+        }
+    }
+
     if (typeof rawStatus !== 'string') return;
     const status = rawStatus.trim().toLowerCase();
     if (!status || status === 'all') return;
 
-    if (status === 'live') {
-        targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
-        targetQuery.isActive = true;
-        return;
-    }
-    if (status === 'active') {
-        targetQuery.isActive = true;
+    if (status === 'live' || status === 'active') {
+        if (targetQuery.isActive === undefined) targetQuery.isActive = true;
+        if (targetQuery.approvalStatus === undefined) targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
         return;
     }
     if (status === 'inactive' || status === 'deactivated') {
-        targetQuery.isActive = false;
+        if (targetQuery.isActive === undefined) targetQuery.isActive = false;
         return;
     }
     if (status === 'pending') {
-        targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.PENDING;
+        if (targetQuery.approvalStatus === undefined) targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.PENDING;
         return;
     }
     if (status === 'rejected') {
-        targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.REJECTED;
+        if (targetQuery.approvalStatus === undefined) targetQuery.approvalStatus = CATALOG_APPROVAL_STATUS.REJECTED;
     }
 };
 

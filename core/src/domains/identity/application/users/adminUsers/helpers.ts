@@ -1,7 +1,7 @@
 import { USER_STATUS, Role } from '@esparex/contracts';
 import { normalizeUserStatus } from '@esparex/shared';
 
-const ACTIVE_USER_STATUS_QUERY = USER_STATUS.LIVE;
+const ACTIVE_USER_STATUS_QUERY = USER_STATUS.ACTIVE;
 const ADMIN_ROLE_RANK: Record<string, number> = { [Role.MODERATOR]: 40, [Role.ADMIN]: 70, [Role.SUPER_ADMIN]: 100 };
 export const ALLOWED_ADMIN_ROLES = new Set([Role.SUPER_ADMIN, Role.ADMIN, Role.MODERATOR]);
 
@@ -16,7 +16,11 @@ export const ensureRoleAssignmentAllowed = (actorRole: string | undefined, targe
 export const buildUserStatusFilter = (status?: string) => {
     if (!status || status === 'all') return undefined;
     const normalizedStatus = normalizeUserStatus(status);
-    return normalizedStatus === USER_STATUS.LIVE ? USER_STATUS.LIVE : normalizedStatus ?? status;
+    const rawStatus = typeof status === 'string' ? status.toLowerCase() : '';
+    if (rawStatus === USER_STATUS.LIVE || rawStatus === USER_STATUS.ACTIVE) {
+        return { $in: [USER_STATUS.ACTIVE, USER_STATUS.LIVE] };
+    }
+    return normalizedStatus ?? status;
 };
 
 export const normalizeAdminManagedUser = <T extends Record<string, unknown>>(input: T): T => {
@@ -27,3 +31,4 @@ export const normalizeAdminManagedUser = <T extends Record<string, unknown>>(inp
 };
 
 export { ACTIVE_USER_STATUS_QUERY };
+

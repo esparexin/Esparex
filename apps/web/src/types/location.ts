@@ -35,12 +35,9 @@ export interface AppLocation extends Partial<Pick<SharedLocation, "locationId" |
     source: AppLocationSource;
     locationId?: string;
     level?: LocationLevel;
-    // Backward-compatible aliases used by existing screens.
-    /** @deprecated Use locationId instead. */
+    // Property aliases for backwards compatibility.
     id?: string;
-    /** @deprecated Use city/state or formattedAddress instead. */
     name?: string;
-    /** @deprecated Use formattedAddress instead. */
     display?: string;
     /** Always a GeoJSON Point. Use getLatitude()/getLongitude() from @/lib/location/coordinates. */
     coordinates?: GeoJSONPoint;
