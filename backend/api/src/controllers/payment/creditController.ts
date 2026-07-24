@@ -8,14 +8,20 @@ import { sendErrorResponse } from '../../utils/errorResponse';
 import { CreditRulesEngine } from '@esparex/core/domains/credits/application/CreditRulesEngine';
 import { getAdPostingBalance } from '@esparex/core/domains/boosts/application/services/AdSlotService';
 
+interface AuthenticatedUser {
+  _id?: { toString(): string };
+  isBusinessVerified?: boolean;
+  userType?: string;
+}
+
 export const evaluateCredits = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?._id?.toString();
+    const user = req.user as AuthenticatedUser | undefined;
+    const userId = user?._id?.toString();
     if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
     const { categoryId, locationId, listingType } = req.body || {};
-    const userObj = req.user as unknown as { isBusinessVerified?: boolean; userType?: string } | undefined;
-    const userRole = userObj?.isBusinessVerified || userObj?.userType === 'business' ? 'business' : 'normal';
+    const userRole = user?.isBusinessVerified || user?.userType === 'business' ? 'business' : 'normal';
 
 
     const evaluation = await CreditRulesEngine.evaluateUserEntitlement(userId, {
@@ -34,7 +40,8 @@ export const evaluateCredits = async (req: Request, res: Response) => {
 
 export const getCreditWalletSummary = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?._id?.toString();
+    const user = req.user as AuthenticatedUser | undefined;
+    const userId = user?._id?.toString();
     if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
     const balance = await getAdPostingBalance(userId);
@@ -67,7 +74,8 @@ export const getCreditWalletSummary = async (req: Request, res: Response) => {
 
 export const renewBusinessPlanController = async (req: Request, res: Response) => {
   try {
-    const userId = req.user?._id?.toString();
+    const user = req.user as AuthenticatedUser | undefined;
+    const userId = user?._id?.toString();
     if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
 
     const { planId, durationDays = 365 } = req.body || {};
