@@ -367,7 +367,7 @@ export function ProfileSettingsSidebar({
           <AccountHeader />
         </div>
 
-        {/* MOBILE STICKY HEADER — sits below the 100px MobileHeader */}
+        {/* MOBILE STICKY HEADER — sits below the sticky mobile Header */}
         <div className="sticky top-[100px] z-30 bg-gray-50/95 backdrop-blur-md border-b border-gray-100 py-2.5 -mx-4 px-4 mb-3 md:hidden transition-all shadow-sm">
           {isMobileMenuView ? (
             <div className="flex items-center gap-2">

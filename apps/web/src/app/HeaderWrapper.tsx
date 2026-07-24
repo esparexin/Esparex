@@ -1,7 +1,7 @@
 "use client";
 
 
-import { UserHeader } from '@/components/user/UserHeader';
+import { AppHeader } from '@/components/user/AppHeader';
 import { useRouter, useSearchParams, useSelectedLayoutSegments, usePathname } from 'next/navigation';
 import { useMemo, useCallback } from 'react';
 import { useAuth } from "@/context/AuthContext";
@@ -14,7 +14,6 @@ import {
 } from "@/lib/authHelpers";
 import { buildPublicBrowseRouteFromPathname } from "@/lib/publicBrowseRoutes";
 
-import MobileHeader from "@/components/mobile/MobileHeader";
 import { MobileNavDrawerProvider } from "@/components/mobile/MobileNavDrawerProvider";
 import { MobileNavDrawer } from "@/components/mobile/MobileNavDrawer";
 import { useAppNavigation } from "@/hooks/useAppNavigation";
@@ -72,21 +71,13 @@ export function HeaderWrapper() {
 
     return (
         <MobileNavDrawerProvider>
-            <UserHeader
+            <AppHeader
                 currentPage={pathname}
                 navigateTo={navigateTo}
                 isLoggedIn={isLoggedIn}
                 isAuthLoading={isAuthLoading}
                 onLogout={handleLogout}
                 user={user}
-                onShowLogin={handleShowLogin}
-                onSearch={handleSearch}
-            />
-
-            <MobileHeader
-                navigateTo={navigateTo}
-                isLoggedIn={isLoggedIn}
-                isAuthLoading={isAuthLoading}
                 onShowLogin={handleShowLogin}
                 onSearch={handleSearch}
             />
