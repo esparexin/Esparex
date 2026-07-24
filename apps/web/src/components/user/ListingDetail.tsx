@@ -218,8 +218,7 @@ export function ListingDetail({
                       variant="mobile"
                     />
 
-                    <ListingDescriptionCard ad={ad} variant="mobile" />
-                    <ListingDescriptionCard ad={ad} variant="desktop" />
+                    <ListingDescriptionCard ad={ad} />
                   </div>
 
                   <ListingDetailSidebar
