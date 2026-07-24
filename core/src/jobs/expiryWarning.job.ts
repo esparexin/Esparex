@@ -8,7 +8,7 @@ import Ad from '../models/Ad';
 import SmartAlert from '../models/SmartAlert';
 import { BUSINESS_STATUS } from '@esparex/contracts';
 import { LISTING_STATUS } from '@esparex/contracts';
-import { dispatchTemplatedNotification } from '../services/NotificationService';
+import { dispatchTemplatedNotification } from '../domains/notifications/application/NotificationService';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import AdminLog from '../models/AdminLog';
 

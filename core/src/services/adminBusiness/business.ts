@@ -82,7 +82,7 @@ export const approveAdminBusiness = async (id: string, actorId: string, logFn: a
     const business = await businessLifecycleService.approveBusiness(id, actorId) as any;
     if (!business) throw new AppError('Business not found', 404);
     await logFn('APPROVE_BUSINESS', 'Business', id, { expiresAt: business.expiresAt });
-    const { dispatchTemplatedNotification } = await import('../NotificationService');
+    const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
     const { recalculateTrustScore } = await import('../TrustService');
     await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_APPROVED', { name: business.name }, { businessId: business._id.toString(), status: BUSINESS_STATUS.LIVE });
     setImmediate(() => void recalculateTrustScore(business.userId).catch(() => {}));
@@ -94,7 +94,7 @@ export const rejectAdminBusiness = async (id: string, reason: string, actorId: s
     const business = await businessLifecycleService.rejectBusiness(id, reason, actorId) as any;
     if (!business) throw new AppError('Business not found', 404);
     await logFn('REJECT_BUSINESS', 'Business', id, { reason });
-    const { dispatchTemplatedNotification } = await import('../NotificationService');
+    const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
     await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_REJECTED', { name: business.name, reason }, { businessId: business._id.toString(), status: BUSINESS_STATUS.REJECTED });
     await cascadeExpireBusinessListings(business._id, { type: ACTOR_TYPE.ADMIN, id: actorId }, `Cascaded from business rejection: ${reason}`);
     return business;
@@ -107,7 +107,7 @@ export const expireAdminBusiness = async (id: string, actorId: string, logFn: an
     await mutateStatus({ domain: 'business', entityId: id, toStatus: BUSINESS_STATUS.EXPIRED, actor, reason: 'Manual expiry by admin' });
     const count = await cascadeExpireBusinessListings(business._id, actor, 'Cascaded from admin manual expiry');
     await logFn('EXPIRE_BUSINESS', 'Business', id, { cascadedListings: count });
-    const { dispatchTemplatedNotification } = await import('../NotificationService');
+    const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
     await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_EXPIRED', { name: business.name }, { businessId: id, status: BUSINESS_STATUS.EXPIRED });
     return Business.findById(id).lean();
 };

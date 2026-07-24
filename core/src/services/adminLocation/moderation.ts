@@ -4,7 +4,7 @@ import { AppError } from '../../utils/AppError';
 import { findLocationById } from '../location/LocationQueryService';
 import { getModerationQueuePaginated } from '../location/LocationQueryService';
 import { saveLocation } from '../location/LocationMutationService';
-import { dispatchTemplatedNotification } from '../NotificationService';
+import { dispatchTemplatedNotification } from '../../domains/notifications/application/NotificationService';
 import { resolveLocationSummary } from '../../utils/locationHierarchy';
 import { invalidateLocationStateCache } from './helpers';
 import type { AdminLogFn } from '../AdminListingsService';

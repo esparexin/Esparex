@@ -3,7 +3,7 @@ import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
 import { expireBusinesses } from '../services/business/BusinessLifecycleService';
 import { cascadeExpireBusinessListings } from '../services/AdminBusinessService';
-import { dispatchTemplatedNotification } from '../services/NotificationService';
+import { dispatchTemplatedNotification } from '../domains/notifications/application/NotificationService';
 import { ACTOR_TYPE } from '@esparex/contracts';
 import { BUSINESS_STATUS } from '@esparex/contracts';
 
