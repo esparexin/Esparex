@@ -7,7 +7,7 @@ import { useLocationData } from "@/context/LocationContext";
 import { Field } from "@/components/ui/field";
 import type { Location } from "@/lib/api/user/locations";
 import LocationSelector from "@/components/location/LocationSelector";
-import { adaptLocationInput } from "@shared";
+import { LocationFacade, adaptLocationInput } from "@shared";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { getNestedFieldMeta } from "../common/utils";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
@@ -105,7 +105,7 @@ export function LocationSection() {
             name: locName,
             locationId: locLocationId,
             isSnapped: locIsSnapped,
-            display: locFormattedAddress || (locState ? `${locName || locCity}, ${locState}` : locName || locCity) || ""
+            display: LocationFacade.format({ display: locFormattedAddress, name: locName, city: locCity, state: locState })
         });
 
         if (!adapted) return;
