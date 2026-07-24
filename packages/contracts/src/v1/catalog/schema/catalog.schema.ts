@@ -36,6 +36,7 @@ export const CreateCategorySchema = z.object({
     icon: z.string().optional(),
     description: z.string().optional(),
     parentId: ObjectIdSchema.optional(),
+    sortOrder: z.number().default(0),
     isActive: z.boolean().default(true),
     listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
     serviceSelectionMode: z.enum(['single', 'multi']).default('multi'),
