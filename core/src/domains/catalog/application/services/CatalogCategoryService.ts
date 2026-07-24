@@ -104,14 +104,19 @@ export const resolveCategoryWithSubcategoryIds = async (
     if (!targetCategory) {
         const canonicalSlug = CatalogFacade.category.normalize.canonicalizeCategorySlug(normalizedInput);
         const searchSlug = (canonicalSlug || normalizedInput).toLowerCase();
+        const rawSlug = normalizedInput.toLowerCase();
         targetCategory = await Category.findOne({
             isDeleted: { $ne: true },
             isActive: true,
             $or: [
                 { slug: searchSlug },
+                { slug: rawSlug },
                 { aliases: searchSlug },
+                { aliases: rawSlug },
                 { synonyms: searchSlug },
-                { canonicalName: searchSlug }
+                { synonyms: rawSlug },
+                { canonicalName: searchSlug },
+                { canonicalName: rawSlug }
             ]
         }).select('_id').lean();
         if (targetCategory) matchedBy = 'slug';

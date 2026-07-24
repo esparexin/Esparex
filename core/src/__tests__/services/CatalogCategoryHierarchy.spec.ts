@@ -27,4 +27,10 @@ describe('CatalogCategoryHierarchy & CategoryQueryBuilder Safety', () => {
         expect(query).toHaveProperty('categoryId');
         expect((query.categoryId as any).$in).toHaveLength(2);
     });
+
+    it('should return empty string for null, undefined, or whitespace slug inputs', () => {
+        expect(CatalogFacade.category.normalize.canonicalizeCategorySlug(null)).toBe('');
+        expect(CatalogFacade.category.normalize.canonicalizeCategorySlug(undefined)).toBe('');
+        expect(CatalogFacade.category.normalize.canonicalizeCategorySlug('   ')).toBe('');
+    });
 });
