@@ -47,7 +47,7 @@ export class CategoryQueryBuilder {
     build(): Record<string, unknown> {
         const fieldName = this.field === CategoryFieldType.SINGULAR ? 'categoryId' : 'categoryIds';
         if (Array.isArray(this.input.categoryIds) && this.input.categoryIds.length === 0 && !this.input.categoryId) {
-            return { [fieldName]: null };
+            return {};
         }
         const value = this.getFilterValue();
         if (value === undefined) return {};

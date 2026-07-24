@@ -41,6 +41,18 @@ export const getAds = async (
     const allowLegacyListingTypeNullCompat = await isEnabled(FeatureFlag.ENABLE_AD_LISTINGTYPE_NULL_COMPAT);
     const pipeline: AggregationStage[] = [];
     let match: UnknownRecord = { ...(await buildAdMatchStage(effectiveFilters, { allowLegacyListingTypeNullCompat, trackListingTypeCompatMetrics: options.trackListingTypeCompatMetrics, metricContext: 'getAds' })) };
+    if (match.__isUnresolvableCategory) {
+        logger.info('[AdAggregation] Short-circuiting getAds for unresolvable category', { category: filters.category, categoryId: filters.categoryId });
+        return {
+            data: [],
+            pagination: {
+                page,
+                limit,
+                total: 0,
+                hasMore: false,
+            },
+        };
+    }
     if (options.enforcePublicVisibility) {
         logger.info('[FeedVisibility] Applying public visibility guard', { viewerId: options.viewerId ?? null });
         match = { ...match, ...buildPublicAdFilter() };

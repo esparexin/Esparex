@@ -34,6 +34,8 @@ export const buildAdMatchStage = async (
 
     const inputCategory = filters.categoryId || (typeof filters.category === 'string' ? filters.category.trim() : undefined);
     let resolvedCategoryIds: string[] | undefined = undefined;
+    let isCategoryUnresolvable = false;
+
     if (inputCategory) {
         const cacheKey = `catalog:category:expanded_ids:${inputCategory.toLowerCase()}`;
         const cached = await getCache<string[]>(cacheKey);
@@ -46,6 +48,10 @@ export const buildAdMatchStage = async (
             if (resolvedCategoryIds.length > 0) {
                 void setCache(cacheKey, resolvedCategoryIds, 3600);
             }
+        }
+
+        if (!resolvedCategoryIds || resolvedCategoryIds.length === 0) {
+            isCategoryUnresolvable = true;
         }
     }
 
@@ -61,6 +67,10 @@ export const buildAdMatchStage = async (
         location: filters.location,
         status: statusQuery
     });
+
+    if (isCategoryUnresolvable) {
+        match.__isUnresolvableCategory = true;
+    }
 
 
 
