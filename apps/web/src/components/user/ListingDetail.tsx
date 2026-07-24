@@ -19,7 +19,6 @@ const ListingRelatedBusinessesSection = dynamic(
 );
 import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
-import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
 
