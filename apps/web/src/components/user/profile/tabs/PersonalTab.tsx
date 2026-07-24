@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

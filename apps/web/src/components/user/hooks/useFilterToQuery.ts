@@ -11,6 +11,7 @@ import type { Category } from "@/lib/api/user/categories";
 import type { AppLocation } from "@/types/location";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { DEFAULT_PRICE_RANGE } from "./useFilterState";
+import { isUserSelectedLocation } from "@/lib/location/queryMode";
 
 const PAGE_SIZE = 20;
 
@@ -50,7 +51,7 @@ export function useFilterToQuery(
 
     if (urlLocationId) {
       nextFilters.locationId = urlLocationId;
-    } else if (location) {
+    } else if (isUserSelectedLocation(location)) {
       if (location.locationId) {
         nextFilters.locationId = location.locationId;
       }

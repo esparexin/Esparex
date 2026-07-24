@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, Target } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Field } from "@/components/ui/field";
 import { FormError } from "@/components/ui/FormError";
 import { Input } from "@/components/ui/input";

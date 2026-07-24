@@ -7,13 +7,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { formatStableNumber } from "@/lib/formatters";
 import { getCategoryIcon } from "@/utils/getCategoryIcon";
 import { MapPin, Tag, IndianRupee } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type SpecificFilterOption = {
   value: string;
@@ -93,6 +94,21 @@ export function SearchFiltersPanel({
   onApply,
   onReset,
 }: SearchFiltersPanelProps) {
+  const buildLocalPriceSummary = (range: [number, number]) => {
+    const [minPrice, maxPrice] = range;
+    if (minPrice <= 0 && maxPrice >= 200000) {
+      return null;
+    }
+    const formatCurrency = (val: number) => `₹${(val / 1000).toFixed(0)}k`;
+    if (minPrice > 0 && maxPrice < 200000) {
+      return `${formatCurrency(minPrice)}–${formatCurrency(maxPrice)}`;
+    }
+    if (minPrice > 0) {
+      return `From ${formatCurrency(minPrice)}`;
+    }
+    return `Up to ${formatCurrency(maxPrice)}`;
+  };
+
   const renderSpecificFilters = () => {
     if (!selectedCategory || dynamicSpecificFilters.length === 0) return null;
 
@@ -144,9 +160,19 @@ export function SearchFiltersPanel({
       <Accordion type="multiple" defaultValue={["price", "brands", "specs"]} className="flex-1">
         <AccordionItem value="price" className="border-none">
           <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
-            <div className="flex items-center gap-2">
-              <IndianRupee className="size-4 text-green-600" />
-              <span className="font-semibold text-sm">Price Range</span>
+            <div className="flex items-center justify-between w-full text-left">
+              <div className="flex items-center gap-2">
+                <IndianRupee className="size-4 text-green-600" />
+                <span className="font-semibold text-sm">Price Range</span>
+              </div>
+              <span className={cn(
+                "text-xs font-medium mr-3 transition-colors",
+                (priceRange[0] > 0 || priceRange[1] < 200000) ? "text-slate-900 font-semibold" : "text-slate-400"
+              )}>
+                {(priceRange[0] > 0 || priceRange[1] < 200000)
+                  ? buildLocalPriceSummary(priceRange)
+                  : "All Prices"}
+              </span>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-1 pt-2 pb-6">
@@ -171,9 +197,21 @@ export function SearchFiltersPanel({
         {availableBrands.length > 0 && (
           <AccordionItem value="brands" className="border-none">
             <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
-              <div className="flex items-center gap-2">
-                <Tag className="size-4 text-purple-600" />
-                <span className="font-semibold text-sm">Brands</span>
+              <div className="flex items-center justify-between w-full text-left">
+                <div className="flex items-center gap-2">
+                  <Tag className="size-4 text-purple-600" />
+                  <span className="font-semibold text-sm">Brands</span>
+                </div>
+                <span className={cn(
+                  "text-xs font-medium mr-3 transition-colors",
+                  selectedBrands.length > 0 ? "text-slate-900 font-semibold" : "text-slate-400"
+                )}>
+                  {selectedBrands.length > 0
+                    ? selectedBrands.length === 1
+                      ? availableBrands.find(b => b.value === selectedBrands[0] || b.label === selectedBrands[0])?.label || selectedBrands[0]
+                      : `${selectedBrands.length} selected`
+                    : "All Brands"}
+                </span>
               </div>
             </AccordionTrigger>
             <AccordionContent>
@@ -198,9 +236,19 @@ export function SearchFiltersPanel({
         {showRadiusFilter && (
           <AccordionItem value="radius" className="border-none">
             <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
-              <div className="flex items-center gap-2">
-                <MapPin className="size-4 text-cyan-600" />
-                <span className="font-semibold text-sm">Search Radius</span>
+              <div className="flex items-center justify-between w-full text-left">
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-cyan-600" />
+                  <span className="font-semibold text-sm">Search Radius</span>
+                </div>
+                <span className={cn(
+                  "text-xs font-medium mr-3 transition-colors",
+                  radiusKm !== 50 ? "text-slate-900 font-semibold" : "text-slate-400"
+                )}>
+                  {radiusKm !== 50
+                    ? `${radiusKm} km`
+                    : "All Locations"}
+                </span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-1 pt-2 pb-6">

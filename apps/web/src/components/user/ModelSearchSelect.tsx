@@ -4,8 +4,11 @@ import { useState, useRef, useLayoutEffect, useMemo, useEffect, type CSSProperti
 import { Search, Loader2, Minus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
-import { Z_INDEX } from "@/lib/zIndexConfig";
-import { Drawer } from "@/components/ui/drawer";
+import {
+  Drawer,
+  Z_INDEX,
+} from "@esparex/ui";
+
 import { useIsMobile } from "@/components/ui/useMobile";
 import { usePostAd } from "@/components/user/post-ad/PostAdContext";
 import type { DeviceModel } from "@/lib/api/user/masterData";

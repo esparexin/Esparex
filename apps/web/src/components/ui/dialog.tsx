@@ -24,7 +24,9 @@ import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "./utils";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+import {
+  Z_INDEX,
+} from "@esparex/ui";
 
 // ── Root ────────────────────────────────────────────────────────────────────
 const Dialog = RadixDialog.Root;

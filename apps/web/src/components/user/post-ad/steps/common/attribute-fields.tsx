@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field } from "@/components/ui/field";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+import {
+  Z_INDEX,
+} from "@esparex/ui";
 
 type ExtendedCategoryFilter = CategoryFilter & { inputType?: string; defaultValue?: unknown; dependsOn?: string; visibleWhen?: unknown; showWhen?: unknown; };
 const ATTRIBUTE_FIELD_TYPES = new Set(["text", "textarea", "number", "select", "checkbox", "radio", "multi-select", "multiselect"]);

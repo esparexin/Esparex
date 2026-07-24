@@ -1,5 +1,8 @@
 import { usePathname } from "next/navigation";
-import { Button } from "../../ui/button";
+import {
+  Button,
+  Z_INDEX,
+} from "@esparex/ui";
 import {
   Info,
   CheckCircle,
@@ -11,7 +14,7 @@ import {
 } from "lucide-react";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+
 
 interface ListingBottomActionsProps {
   variant: ActionBarVariant;

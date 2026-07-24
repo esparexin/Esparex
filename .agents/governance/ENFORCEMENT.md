@@ -1,7 +1,7 @@
 # CI Enforcement & Automation Catalog
 
 **Module**: 3 of 6 — Architecture Governance Framework
-**Last Updated**: 2026-07-20
+**Last Updated**: 2026-07-24
 **Status**: Active
 
 ---
@@ -97,3 +97,22 @@ These proposed controls are planned to close current coverage gaps:
 * **Auto-detect undocumented top-level directories (S1):** Custom script comparing `workspaces` array vs. filesystem (Priority: Medium).
 * **Detect Node.js-only imports in `@esparex/shared` (S3/P4):** `dependency-cruiser` rule targeting `node:*` imports from `shared/` (Priority: High).
 * **Detect React imports in `@esparex/shared` (S3/P4):** `dependency-cruiser` rule targeting `react` imports from `shared/` (Priority: High - hooks completed; enforce at import level).
+
+---
+
+## 5. Design System Governance Reference
+
+For UI-specific enforcement rules — including the `@esparex/ui` contribution criteria, the z-index SSOT policy, and the `knip` operational policy — see the authoritative freeze document:
+
+→ [`.agents/governance/DESIGN_SYSTEM_GOVERNANCE.md`](./DESIGN_SYSTEM_GOVERNANCE.md)
+
+### `knip` Operational Policy (E-011 Amendment)
+
+> This policy was formally adopted after a Sprint 9A incident in which `knip --fix` auto-removed used exports from `packages/ui`, causing TypeScript build failures across the monorepo.
+
+| Mode | Command | Permitted |
+| ---- | ------- | --------- |
+| Report / Audit | `npm run guard:knip` | ✅ Always safe |
+| Auto-fix | `npx knip --fix` | ❌ Never — not in CI, not in automated sessions |
+
+**Rule**: E-011 status is **Report only**. Findings must be reviewed manually by an engineer. No automated removal of exports or dependencies is permitted without explicit human approval. Treat each flagged item as advisory until verified against all barrel re-exports, dynamic imports, and test-fixture usages.

@@ -12,6 +12,7 @@ import type { SortOption } from "@/components/search/SearchResultsHeader";
 import type { Listing } from "@/lib/api/user/listings";
 import { formatStableNumber } from "@/lib/formatters";
 import { DEFAULT_PRICE_RANGE } from "./useFilterState";
+import { isUserSelectedLocation } from "@/lib/location/queryMode";
 const EMPTY_FILTER_SHELL_CLASS_NAME =
   "w-64 shrink-0 h-fit sticky top-[6.25rem] rounded-3xl border border-slate-200/80 bg-white/85 p-4 shadow-none backdrop-blur-sm";
 
@@ -60,7 +61,7 @@ export function useBrowseEmptyState(
 
   const activeLocationLabel = useMemo(() => {
     if (urlLocationLabel) return urlLocationLabel;
-    if (location.source === "default") return null;
+    if (!isUserSelectedLocation(location)) return null;
     return getDisplayLocationLabel(location) || null;
   }, [location, urlLocationLabel]);
 
@@ -68,7 +69,7 @@ export function useBrowseEmptyState(
     const badges: string[] = [];
     const trimmedQuery = query.trim();
     const priceSummary = buildPriceSummary(priceRange);
-    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel);
+    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || (isUserSelectedLocation(location) && (location.locationId || globalLocationLabel)));
 
     if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
     if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
@@ -89,13 +90,38 @@ export function useBrowseEmptyState(
 
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;
-  const emptyStateTitle = activeFilterCount > 0 ? "No listings match these filters" : "No listings available right now";
+
+  const emptyStateTitle = isEmptyState
+    ? activeFilterCount > 0
+      ? `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found`
+      : "No listings available right now"
+    : "";
+
+  const suggestions: string[] = [];
+  if (isEmptyState && activeFilterCount > 0) {
+    if (priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) {
+      suggestions.push("Remove price filter");
+    }
+    if (showRadiusFilter && radiusKm !== 50) {
+      suggestions.push("Widen search radius / search nearby");
+    }
+    if (selectedBrands.length > 0) {
+      suggestions.push("Clear brand filters");
+    }
+    if (query) {
+      suggestions.push("Try different keywords or check spelling");
+    }
+    if (resolvedCategoryLabel) {
+      suggestions.push(`Browse all ${resolvedCategoryLabel.toLowerCase()}`);
+    } else {
+      suggestions.push("Browse all categories");
+    }
+  }
+
   const emptyStateDescription = activeFilterCount > 0
-    ? showRadiusFilter
-      ? "Try widening the price, radius, or category filters below. You can also clear everything and start again."
-      : "Try widening the price or category filters below. You can also clear everything and start again."
+    ? "Try adjusting your filters or search criteria. You can also clear everything and start again."
     : "There are no live ads in this view yet. Check back soon or widen your location once sellers publish new listings.";
   const desktopShellClassName = isEmptyState ? EMPTY_FILTER_SHELL_CLASS_NAME : undefined;
 
-  return { activeFilterCount, activeFilterBadges, isEmptyState, emptyStateTitle, emptyStateDescription, desktopShellClassName };
+  return { activeFilterCount, activeFilterBadges, isEmptyState, emptyStateTitle, emptyStateDescription, suggestions, desktopShellClassName };
 }

@@ -19,14 +19,17 @@ import {
 import { HeaderLocation } from "../layout/HeaderLocation";
 import { User } from "@/types/User";
 import { getUserInitials } from "@/lib/headerUtils";
-import { Button } from "../ui/button";
+import {
+  Button,
+  Z_INDEX,
+} from "@esparex/ui";
 import { Input } from "../ui/input";
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import LocationSelector from "../location/LocationSelector";
+
+import { LocationOverlayHost } from "../location/LocationOverlayHost";
 import { useMobileNavDrawer } from "@/components/mobile/MobileNavDrawerProvider";
 import { useMounted } from "@/hooks/useMounted";
 import type { UserPage } from "@/lib/routeUtils";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+
 import {
   getNavigationItems,
   getNavigationSections,
@@ -51,7 +54,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export interface AppHeaderProps {
+export interface HeaderProps {
   currentPage?: string;
   navigateTo: (page: UserPage, adId?: number, category?: string, sellerIdOrBusinessId?: string, serviceId?: string, sellerId?: string, sellerType?: "business" | "individual") => void;
   isLoggedIn: boolean;
@@ -64,7 +67,7 @@ export interface AppHeaderProps {
 
 const recentSearches = ["iPhone 14 Pro", "Samsung Galaxy", "MacBook Pro", "iPad Air"];
 
-export function AppHeader({
+export function Header({
   navigateTo,
   isLoggedIn,
   isAuthLoading = false,
@@ -72,7 +75,7 @@ export function AppHeader({
   user = null,
   onSearch,
   onShowLogin,
-}: AppHeaderProps) {
+}: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -181,21 +184,11 @@ export function AppHeader({
           {/* Location Selector */}
           <div className="relative" ref={locationDropdownRef}>
             <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
-            <div
-              style={{ zIndex: Z_INDEX.userHeaderDropdown }}
-              className={`absolute top-full left-0 mt-1 w-72 max-h-[52vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col ${
-                showLocationSelector
-                  ? "opacity-100 visible translate-y-0"
-                  : "opacity-0 invisible -translate-y-2 pointer-events-none"
-              }`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex-1 overflow-hidden">
-                {showLocationSelector ? (
-                  <LocationSelector variant="panel" onClose={() => setShowLocationSelector(false)} />
-                ) : null}
-              </div>
-            </div>
+            <LocationOverlayHost
+              isOpen={showLocationSelector}
+              onClose={() => setShowLocationSelector(false)}
+              containerRef={locationDropdownRef}
+            />
           </div>
 
           {/* Global Search Bar */}
@@ -465,17 +458,6 @@ export function AppHeader({
           </div>
         </div>
 
-        {/* Mobile Location Sheet */}
-        <Sheet open={showLocationSelector} onOpenChange={setShowLocationSelector}>
-          <SheetContent
-            side="bottom"
-            className="h-[60vh] max-h-[440px] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[70vh] sm:max-h-[520px]"
-          >
-            <SheetTitle className="sr-only">Select Location</SheetTitle>
-            <SheetDescription className="sr-only">Choose your city</SheetDescription>
-            <LocationSelector variant="panel" onClose={() => setShowLocationSelector(false)} />
-          </SheetContent>
-        </Sheet>
       </header>
     </>
   );

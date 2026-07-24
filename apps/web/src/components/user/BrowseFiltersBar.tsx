@@ -5,8 +5,11 @@ import { usePathname } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 
 import type { Category } from "@/lib/api/user/categories";
-import { Button } from "@/components/ui/button";
-import { Drawer } from "@/components/ui/drawer";
+import {
+  Button,
+  Drawer,
+} from "@esparex/ui";
+
 import { Input } from "@/components/ui/input";
 import {
   Select,

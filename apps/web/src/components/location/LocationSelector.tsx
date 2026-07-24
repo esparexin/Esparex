@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+  Z_INDEX,
+} from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { Search, MapPin, Target, Loader2 } from "lucide-react";
@@ -11,7 +14,7 @@ import { normalizeLocationName } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
 import { normalizeGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+
 import { LocationResultsList } from "./components/LocationResultsList";
 import { LocationSelectorPanel } from "./components/LocationSelectorPanel";
 

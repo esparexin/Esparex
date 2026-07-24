@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { REPORT_REASON, ReportReasonValue } from "@esparex/contracts";
 import { submitAdReport } from "@/lib/api/user/reports";
 import { buildAdReportPayload } from "@/lib/listings/adReportPayload";
-import { Button } from "../ui/button";
+import { Button } from "@esparex/ui";
 import {
   Dialog,
   DialogContent,

@@ -22,15 +22,16 @@ To ensure that timeless architectural philosophy remains stable while transient 
 
 ```text
 Architecture Governance
-├── GOVERNANCE.md                  ← General Agent Policy & Discipline (Timeless)
-├── ARCHITECTURE_GOVERNANCE.md     ← Master Architecture Index (This File)
-├── CANONICAL_OWNERSHIP_REGISTRY.json ← Single Source of Truth for Ownership & Boundary Rules
-├── PRINCIPLES.md                  ← Module 1: Immutable Design Philosophy
-├── STANDARDS.md                   ← Module 2: Enforceable Rules & Versioned Standards (Merged)
-├── ENFORCEMENT.md                 ← Module 3: CI/CD Controls & Automation Catalog (Merged)
-├── AUDIT_PROCESS.md               ← Module 4: Audit Cadence, Exceptions & Evidence Rules
-├── AUDIT_STATUS.md                ← Module 5: Current Repository State & Active Ledger
-└── OPERATIONS.md                  ← Module 6: Ownership Matrix, Maturity Model & Lifecycle
+├── GOVERNANCE.md                       ← General Agent Policy & Discipline (Timeless)
+├── ARCHITECTURE_GOVERNANCE.md          ← Master Architecture Index (This File)
+├── CANONICAL_OWNERSHIP_REGISTRY.json   ← Single Source of Truth for Ownership & Boundary Rules
+├── DESIGN_SYSTEM_GOVERNANCE.md         ← @esparex/ui Package Freeze & Contribution Policy
+├── PRINCIPLES.md                       ← Module 1: Immutable Design Philosophy
+├── STANDARDS.md                        ← Module 2: Enforceable Rules & Versioned Standards (Merged)
+├── ENFORCEMENT.md                      ← Module 3: CI/CD Controls & Automation Catalog (Merged)
+├── AUDIT_PROCESS.md                    ← Module 4: Audit Cadence, Exceptions & Evidence Rules
+├── AUDIT_STATUS.md                     ← Module 5: Current Repository State & Active Ledger
+└── OPERATIONS.md                       ← Module 6: Ownership Matrix, Maturity Model & Lifecycle
 ```
 
 ---

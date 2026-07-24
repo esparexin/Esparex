@@ -5,7 +5,7 @@ import { PackageOpen, RefreshCw } from "lucide-react";
 
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 

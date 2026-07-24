@@ -20,3 +20,25 @@ export function shouldUseGeoRadiusLocation(location: QueryLocation): boolean {
 
     return getLatitude(location) != undefined && getLongitude(location) != undefined;
 }
+
+/**
+ * Helper to determine if the location context represents a user-selected location
+ * (either explicitly chosen or GPS granted) rather than the default fallback.
+ */
+export function isUserSelectedLocation(location: QueryLocation): boolean {
+    return Boolean(
+        location &&
+        location.source !== "default" &&
+        (hasCanonicalLocationId(location) ||
+            (getLatitude(location) !== undefined && getLongitude(location) !== undefined))
+    );
+}
+
+/**
+ * Helper to determine if location-based filtering should be applied.
+ * Eligible only if there is a URL override OR the user has selected a location.
+ */
+export function shouldApplyLocationFilter(location: QueryLocation, urlLocationId?: string): boolean {
+    return Boolean(urlLocationId) || isUserSelectedLocation(location);
+}
+

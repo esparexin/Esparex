@@ -223,6 +223,9 @@ export const buildCanonicalDisplay = ({
         return name || fallbackDisplay || 'Unknown Location';
     }
     if ((level === 'area' || level === 'village') && city) {
+        if (state && state.toLowerCase() !== city.toLowerCase()) {
+            return `${name}, ${city}, ${state}`;
+        }
         return `${name}, ${city}`;
     }
     if (state) {

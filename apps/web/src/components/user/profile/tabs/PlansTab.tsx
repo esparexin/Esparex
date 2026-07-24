@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Package } from "lucide-react";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";

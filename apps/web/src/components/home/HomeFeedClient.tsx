@@ -7,10 +7,9 @@ import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { getListingHref } from "@/lib/listingUtils";
-import { getSearchLocationLabel } from "@/lib/location/locationLabels";
-import { shouldUseGeoRadiusLocation } from "@/lib/location/queryMode";
+import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
@@ -34,24 +33,21 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const { location, isLoaded } = useLocationData();
     const latitude = getLatitude(location);
     const longitude = getLongitude(location);
-    const locationSearchLabel = useMemo(() => getSearchLocationLabel(location), [location]);
 
-    const isDefaultLocation = location.source === "default";
-    const shouldUseGeoSearch = !isDefaultLocation && shouldUseGeoRadiusLocation(location);
+    const hasUserLocation = isUserSelectedLocation(location);
+    const shouldUseGeoSearch = hasUserLocation && shouldUseGeoRadiusLocation(location);
     
     const requestParams = useMemo(() => ({
         cursor,
         limit: HOME_FEED_PAGE_SIZE,
-        locationId: isDefaultLocation ? undefined : location.locationId,
-        level: isDefaultLocation ? undefined : location.level,
+        locationId: hasUserLocation ? location.locationId : undefined,
+        level: hasUserLocation ? location.level : undefined,
         lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
         lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
         radiusKm: shouldUseGeoSearch ? 50 : undefined,
-    }), [cursor, isDefaultLocation, latitude, location.level, location.locationId, longitude, shouldUseGeoSearch]);
+    }), [cursor, hasUserLocation, latitude, location.level, location.locationId, longitude, shouldUseGeoSearch]);
 
-    const shouldUseInitialData =
-        !cursor &&
-        (isDefaultLocation || (!location.locationId && !locationSearchLabel && !location.coordinates));
+    const shouldUseInitialData = !cursor && !hasUserLocation;
 
     const { data, isLoading, isFetching, isError, refetch } = useHomeAdsQuery(
         requestParams,

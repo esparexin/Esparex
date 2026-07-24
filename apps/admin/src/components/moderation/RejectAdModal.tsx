@@ -1,14 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@esparex/ui";
+import { useMemo, useState } from "react";
+
 
 const REJECTION_REASONS = [
     "Spam",

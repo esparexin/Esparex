@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { getNestedFieldMeta } from "../common/utils";
 import { cn } from "@/components/ui/utils";
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FileText, Upload, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { validateBusinessDocumentSelection } from "@/schemas/business.schema.shared";
 import {

@@ -6,7 +6,7 @@ import {
     AlertTriangle, 
     ArrowRight
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 
 import type { BusinessStatusValue } from "@esparex/contracts";
 

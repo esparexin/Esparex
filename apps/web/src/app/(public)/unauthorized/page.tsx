@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ShieldOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 
 export const metadata: Metadata = {
     title: "Unauthorized | Esparex",

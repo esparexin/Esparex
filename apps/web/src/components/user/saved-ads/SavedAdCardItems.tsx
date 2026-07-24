@@ -5,7 +5,7 @@ import { AlertCircle, Heart, Trash2 } from "lucide-react";
 import type { Ad } from "@/schemas/ad.schema";
 import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 import { Badge } from "../../ui/badge";
-import { Button } from "../../ui/button";
+import { Button } from "@esparex/ui";
 
 // Statuses where the ad is no longer publicly accessible
 export const UNAVAILABLE_STATUSES = new Set(["deactivated", "rejected", "expired", "deleted"]);

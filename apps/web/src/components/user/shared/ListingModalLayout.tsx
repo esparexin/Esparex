@@ -1,7 +1,9 @@
 import React from "react";
 import { X, Loader2 } from "lucide-react";
 import { cn } from "@/components/ui/utils";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+import {
+  Z_INDEX,
+} from "@esparex/ui";
 
 interface ListingModalLayoutProps {
     title: string;
