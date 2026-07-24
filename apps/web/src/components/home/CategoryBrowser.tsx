@@ -36,7 +36,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
             role="region"
             aria-label="Popular Categories"
             aria-labelledby="browse-categories"
-            className="py-6 md:py-16 relative overflow-hidden mesh-gradient-bg"
+            className="py-4 md:py-8 relative overflow-hidden mesh-gradient-bg"
         >
             <div className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8">
                 <div className="mb-4 md:mb-8">

@@ -96,7 +96,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
             role="region"
             aria-label="Recommended Ads"
             aria-labelledby="home-feed-heading"
-            className="bg-slate-50 py-8 md:py-16 border-t border-slate-100"
+            className="bg-slate-50 py-4 md:py-8 border-t border-slate-100"
         >
             <div className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8">
                 <div className="mb-4 md:mb-8">

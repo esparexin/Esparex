@@ -361,7 +361,7 @@ export function ProfileSettingsSidebar({
 
   return (
     <div className="bg-gray-50">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3 pb-24 md:pb-10">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3 pb-6 md:pb-10">
         {/* DESKTOP HEADER */}
         <div className="mb-6 hidden md:block">
           <AccountHeader />
