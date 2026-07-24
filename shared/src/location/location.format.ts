@@ -16,7 +16,16 @@ export function formatLocation(location: unknown): string {
     }
 
     const city = typeof loc.city === "string" ? loc.city.trim() : "";
+    const district = typeof loc.district === "string" ? loc.district.trim() : "";
     const state = typeof loc.state === "string" ? loc.state.trim() : "";
 
-    return [city, state].filter(Boolean).join(", ");
+    const parts = [city];
+    if (district && district.toLowerCase() !== city.toLowerCase()) {
+        parts.push(district);
+    }
+    if (state && state.toLowerCase() !== city.toLowerCase() && state.toLowerCase() !== district.toLowerCase()) {
+        parts.push(state);
+    }
+
+    return parts.filter(Boolean).join(", ");
 }

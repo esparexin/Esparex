@@ -12,7 +12,7 @@ import {
     normalizeLocationName,
     reverseGeocode,
 } from "@/lib/location/locationService";
-import { toCanonicalGeoPoint as normalizeCoordinates } from "@esparex/shared";
+import { LocationFacade, toCanonicalGeoPoint as normalizeCoordinates } from "@esparex/shared";
 import type { AppLocation } from "@/types/location";
 
 import type { StepBaseProps } from "./types";
@@ -26,10 +26,7 @@ const asOptionalString = (value: unknown): string => {
 
 const buildDetectedLocationDisplay = (location: AppLocation): string =>
     normalizeLocationName(
-        location.display
-        || location.formattedAddress
-        || [location.city, location.state].filter(Boolean).join(", ")
-        || "Current location",
+        LocationFacade.format(location) || "Current location",
     );
 
 import type { AppLocationSource } from "@/types/location";
