@@ -1,14 +1,15 @@
 "use client";
 
+
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@esparex/ui";
+} from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Crown, AlertCircle } from "@/components/ui/icons";

@@ -1,3 +1,13 @@
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@esparex/ui";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "lucide-react";
@@ -18,11 +28,7 @@ import {
     resolveListingLocationLabel,
     resolveReadableListingReferenceLabel,
 } from "@/lib/listings/listingPresentation";
-import {
-    AlertDialog, AlertDialogAction, AlertDialogCancel,
-    AlertDialogContent, AlertDialogDescription,
-    AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 import { formatPrice, formatStableNumber } from "@/lib/formatters";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 

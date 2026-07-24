@@ -1,15 +1,16 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@esparex/ui";
 import { useState, type ReactNode } from "react";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
 import type { LucideIcon } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+
 
 interface BusinessReasonModalProps {
     businessName: string;
