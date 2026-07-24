@@ -74,7 +74,9 @@ export interface IAd extends Document, ISoftDeleteDocument {
     isChatLocked: boolean;
     spotlightExpiresAt?: Date;
     sellerTrustSnapshot: number;
+    sellerPriorityScore: number;
     listingQualityScore: number;
+
     expiresAt?: Date;
     publishedAt?: Date;
     approvedAt?: Date;
@@ -232,7 +234,23 @@ const AdSchema: Schema = new Schema({
         min: 0,
         max: 100
     },
+    /**
+     * Denormalised snapshot of the seller's active business plan priority weight.
+     * Written by BusinessPlanSyncService when a seller's plan changes (approval,
+     * upgrade, expiry, renewal). Falls back to the Free plan's priorityWeight
+     * when no active business plan exists.
+     *
+     * Used in adAggregation/pipeline.ts rankScore formula.
+     * Range: 1 (Free/default) to 10 (highest Business Pro weight).
+     */
+    sellerPriorityScore: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 10
+    },
     listingQualityScore: { type: Number, default: 0 },
+
     expiresAt: { type: Date },
     publishedAt: { type: Date },
     approvedAt: { type: Date },
@@ -304,6 +322,8 @@ AdSchema.index({ isDuplicateFlag: 1 }, { name: 'idx_ad_isDuplicateFlag_idx' });
 AdSchema.index({ fraudScore: 1 }, { name: 'idx_ad_fraudScore_idx' });
 AdSchema.index({ isSpotlight: 1 }, { name: 'idx_ad_isSpotlight_idx' });
 AdSchema.index({ sellerTrustSnapshot: 1 }, { name: 'idx_ad_sellerTrustSnapshot_idx' });
+AdSchema.index({ sellerPriorityScore: 1 }, { name: 'idx_ad_sellerPriorityScore_idx' });
+
 AdSchema.index({ expiresAt: 1 }, { name: 'idx_ad_expiresAt_ttl_idx', expireAfterSeconds: 0 });
 AdSchema.index({ duplicateOf: 1 }, { name: 'idx_ad_duplicateOf_idx' });
 AdSchema.index({ modelId: 1 }, { name: 'idx_ad_modelId_idx' });
