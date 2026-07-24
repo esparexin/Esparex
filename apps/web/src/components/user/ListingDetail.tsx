@@ -195,7 +195,7 @@ export function ListingDetail({
             ]}
           />
 
-          <div className="bg-gray-50 pb-24 md:pb-6">
+          <div className="bg-gray-50 pb-6">
             <div className="w-full md:px-6 lg:px-8 md:py-6">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 md:gap-6">
