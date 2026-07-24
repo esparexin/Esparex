@@ -7,6 +7,7 @@ import type { ActorMetadata } from '@esparex/contracts';
 import { mutateStatuses, mutateStatus } from '../lifecycle/StatusMutationService';
 import { AppError } from '../../utils/AppError';
 import * as businessLifecycleService from '../business/BusinessLifecycleService';
+import logger from '../../utils/logger';
 
 import { getAdminBusinessAccountsData, transformBusinessDocs } from './helpers';
 
@@ -84,10 +85,25 @@ export const approveAdminBusiness = async (id: string, actorId: string, logFn: a
     await logFn('APPROVE_BUSINESS', 'Business', id, { expiresAt: business.expiresAt });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
     const { recalculateTrustScore } = await import('../TrustService');
+    const { assignDefaultPlan } = await import('../business/BusinessSubscriptionService');
+
     await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_APPROVED', { name: business.name }, { businessId: business._id.toString(), status: BUSINESS_STATUS.LIVE });
+    
+    // Assign default business plan dynamically (wrapped so errors don't block approval)
+    try {
+        await assignDefaultPlan(business.userId.toString());
+    } catch (planErr) {
+        logger.error('Failed to assign default business plan on approval', {
+            businessId: id,
+            userId: business.userId,
+            error: planErr instanceof Error ? planErr.message : String(planErr)
+        });
+    }
+
     setImmediate(() => void recalculateTrustScore(business.userId).catch(() => {}));
     return business;
 };
+
 
 export const rejectAdminBusiness = async (id: string, reason: string, actorId: string, logFn: any) => {
     if (!reason) throw new AppError('Rejection reason is required', 400);
