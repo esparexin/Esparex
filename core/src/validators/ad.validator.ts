@@ -37,7 +37,6 @@ type LegacyAliasConfig = {
 const LEGACY_AD_QUERY_ALIAS_CONFIGS: LegacyAliasConfig[] = [
     { alias: LEGACY_AD_USER_ID_ALIAS, message: LEGACY_AD_USER_ID_ALIAS_MESSAGE },
     { alias: 'search', message: LEGACY_AD_SEARCH_ALIAS_MESSAGE },
-    { alias: 'category', message: LEGACY_AD_CATEGORY_ALIAS_MESSAGE },
     { alias: 'location', message: LEGACY_AD_LOCATION_ALIAS_MESSAGE },
     { alias: 'city', message: LEGACY_AD_CITY_ALIAS_MESSAGE },
     { alias: 'state', message: LEGACY_AD_STATE_ALIAS_MESSAGE },
@@ -90,6 +89,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     
     // SSOT: Canonical filter key is categoryId.
     categoryId: commonSchemas.objectId.optional(),
+    category: z.string().optional(),
     brandId: commonSchemas.objectId.optional(),
     modelId: commonSchemas.objectId.optional(),
     locationId: commonSchemas.objectId.optional(),

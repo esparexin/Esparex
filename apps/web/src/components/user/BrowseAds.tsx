@@ -26,6 +26,8 @@ import {
 } from "@/lib/location/locationLabels";
 import {
   shouldUseGeoRadiusLocation,
+  isUserSelectedLocation,
+  shouldApplyLocationFilter,
 } from "@/lib/location/queryMode";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
@@ -118,7 +120,7 @@ export function BrowseAds({
   const urlModelId = routeParams.modelId ?? "";
   const globalLocationLabel = useMemo(() => getSearchLocationLabel(location), [location]);
   const shouldUseContextGeoRadius = useMemo(
-    () => !urlLocationId && shouldUseGeoRadiusLocation(location),
+    () => !urlLocationId && isUserSelectedLocation(location) && shouldUseGeoRadiusLocation(location),
     [location, urlLocationId]
   );
   const showRadiusFilter = urlLocationId ? false : shouldUseContextGeoRadius;
@@ -130,10 +132,10 @@ export function BrowseAds({
     location, shouldUseContextGeoRadius, radiusKm, sort, page
   );
 
-  const hasLocationFilter =
-    Boolean(urlLocationId || location.locationId || globalLocationLabel) ||
-    (typeof filters.lat === "number" && Number.isFinite(filters.lat)) ||
-    (typeof filters.lng === "number" && Number.isFinite(filters.lng));
+  const hasLocationFilter = useMemo(
+    () => shouldApplyLocationFilter(location, urlLocationId),
+    [location, urlLocationId]
+  );
 
   const shouldUseInitialResults =
     Boolean(initialResults) &&

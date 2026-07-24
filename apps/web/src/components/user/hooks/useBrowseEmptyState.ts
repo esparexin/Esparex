@@ -12,6 +12,7 @@ import type { SortOption } from "@/components/search/SearchResultsHeader";
 import type { Listing } from "@/lib/api/user/listings";
 import { formatStableNumber } from "@/lib/formatters";
 import { DEFAULT_PRICE_RANGE } from "./useFilterState";
+import { isUserSelectedLocation } from "@/lib/location/queryMode";
 const EMPTY_FILTER_SHELL_CLASS_NAME =
   "w-64 shrink-0 h-fit sticky top-[6.25rem] rounded-3xl border border-slate-200/80 bg-white/85 p-4 shadow-none backdrop-blur-sm";
 
@@ -60,7 +61,7 @@ export function useBrowseEmptyState(
 
   const activeLocationLabel = useMemo(() => {
     if (urlLocationLabel) return urlLocationLabel;
-    if (location.source === "default") return null;
+    if (!isUserSelectedLocation(location)) return null;
     return getDisplayLocationLabel(location) || null;
   }, [location, urlLocationLabel]);
 
@@ -68,7 +69,7 @@ export function useBrowseEmptyState(
     const badges: string[] = [];
     const trimmedQuery = query.trim();
     const priceSummary = buildPriceSummary(priceRange);
-    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || location.locationId || globalLocationLabel);
+    const hasActiveLocation = Boolean(urlLocationId || urlLocationLabel || (isUserSelectedLocation(location) && (location.locationId || globalLocationLabel)));
 
     if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
     if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
