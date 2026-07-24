@@ -180,13 +180,40 @@ export const getListingDetailById = async (adId: string) => {
             if (businessRecord.expiresAt) {
                 detail.businessExpiresAt = businessRecord.expiresAt;
             }
-            detail.verified =
-                businessRecord.isVerified === true || isBusinessPublishedStatus(businessRecord.status);
+
+            // Two-Condition Gate: Verified Badge requires BOTH
+            // 1. business.isVerified === true (administrative trust record)
+            // 2. activePlan.features.businessBadge === true (subscription entitlement)
+            let planAllowsBadge = false;
+            const sellerIdStr = typeof detail.sellerId === 'string'
+                ? detail.sellerId
+                : (detail.sellerId as { _id?: unknown; id?: string })?._id?.toString() || (detail.sellerId as { id?: string })?.id || '';
+
+            if (sellerIdStr && mongoose.Types.ObjectId.isValid(sellerIdStr)) {
+                try {
+                    const UserPlan = (await import('../../../../../models/UserPlan')).default;
+                    const now = new Date();
+                    const activeUserPlans = await UserPlan.find({
+                        userId: sellerIdStr,
+                        status: 'active',
+                        $or: [{ endDate: { $gte: now } }, { endDate: null }],
+                    }).populate<{ planId?: { features?: { businessBadge?: boolean } } }>('planId', 'features.businessBadge').lean();
+
+                    planAllowsBadge = activeUserPlans.some(
+                        (up) => (up.planId as { features?: { businessBadge?: boolean } })?.features?.businessBadge === true
+                    );
+                } catch {
+                    planAllowsBadge = false;
+                }
+            }
+
+            detail.verified = businessRecord.isVerified === true && planAllowsBadge;
         }
     }
 
     return detail;
 };
+
 
 export const getReportedAdsAggregation = async (filters: { status?: string, reason?: string, search?: string }, pagination: { skip: number, limit: number }) => {
     const { status, reason, search } = filters;
