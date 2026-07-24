@@ -22,7 +22,7 @@ jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
     },
 }));
 
-jest.mock('../../services/PlanService', () => ({
+jest.mock('../../domains/payments/application/PlanService', () => ({
     checkPostLimit: jest.fn(),
 }));
 
@@ -30,7 +30,7 @@ jest.mock('../../services/PlanService', () => ({
 
 import { ListingSubmissionPolicy, type ListingSubmissionPolicyInput } from '../../services/ListingSubmissionPolicy';
 import { AdSlotService } from '../../domains/boosts/application/services/AdSlotService';
-import { checkPostLimit } from '../../services/PlanService';
+import { checkPostLimit } from '../../domains/payments/application/PlanService';
 import { LISTING_TYPE } from '@esparex/contracts';
 
 // ── Typed mock handles ────────────────────────────────────────────────────────

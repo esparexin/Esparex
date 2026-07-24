@@ -12,7 +12,7 @@ import {
     saveTransaction,
     getUserForPayment,
 } from '@esparex/core/services/TransactionService';
-import { findPlanByIdOrCode, upsertUserPlan } from '@esparex/core/services/PlanService';
+import { findPlanByIdOrCode, upsertUserPlan } from '@esparex/core/domains/payments/application/PlanService';
 import { findUserByEmail } from '@esparex/core/services/UserService';
 import { 
     sendSuccessResponse, 
