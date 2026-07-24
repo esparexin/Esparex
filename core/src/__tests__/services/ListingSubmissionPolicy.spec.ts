@@ -29,7 +29,7 @@ jest.mock('../../services/PlanService', () => ({
 // ── Imports (after mocks) ─────────────────────────────────────────────────────
 
 import { ListingSubmissionPolicy, type ListingSubmissionPolicyInput } from '../../services/ListingSubmissionPolicy';
-import { AdSlotService } from '../../services/AdSlotService';
+import { AdSlotService } from '../../domains/boosts/application/services/AdSlotService';
 import { checkPostLimit } from '../../services/PlanService';
 import { LISTING_TYPE } from '@esparex/contracts';
 

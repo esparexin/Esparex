@@ -1,4 +1,4 @@
-import { buildDuplicateFingerprint } from '../../services/AdValidationService';
+import { buildDuplicateFingerprint } from '../../domains/listings/application/ad/AdValidationService';
 
 describe('buildDuplicateFingerprint', () => {
     it('builds deterministic fingerprints from normalized payload fields', () => {
