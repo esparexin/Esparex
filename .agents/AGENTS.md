@@ -298,3 +298,39 @@ A feature is considered **complete** only when it satisfies the following DoD ch
 - [ ] Documentation and OpenAPI/Swagger specs updated.
 - [ ] Downstream dependency impact checklists completed.
 - [ ] Mandatory code reviews completed and approved.
+
+---
+
+## 12. Enterprise Monorepo Engineering Governance Standard (Eliminating Core Fallacies)
+
+### 12.1 Scope & Applicability
+This standard applies to all domain modules (Location, Listings, Payments, Auth, Chat, Search, and User Profiles) across the entire Esparex platform.
+
+### 12.2 The 6 Pillars of Core Fallacy Elimination
+
+#### Pillar 1: Contract-First SSOT Architecture (`packages/contracts`)
+* **Shared Contracts as the Single Source of Truth:** All entity models must have their authoritative schema defined only in `packages/contracts`.
+* **Pre-computed Canonical Fields:** Any field used for user presentation (e.g., `location.display`, `ad.formattedPrice`, `user.displayName`) must be computed **once** at the domain boundary and attached to the DTO response.
+* **Frontend Contract Immutability:** UI apps (`apps/web`) must consume response DTO properties directly. Frontend code is prohibited from re-formatting or re-calculating canonical domain properties.
+
+#### Pillar 2: Zero Primitive Obsession
+* **Whole-Object Parameter Passing:** Function signatures, custom hooks, and context actions must take complete, typed DTOs (e.g. `(location: Location)`, `(ad: ListingDTO)`), rather than loose primitive parameters (e.g. `(city, state, name, id)`).
+* **Immutable Boundary Crossing:** When data moves between layers (Controller → Core Service → Repository or Context → Hook → UI Component), the entity must cross the boundary as a single immutable object.
+
+#### Pillar 3: Single-Instance Domain Formatters (One Domain, One Formatter)
+* **Ban on Use-Case Formatters:** Creating UI-specific domain formatters (e.g., `getHeaderLocationLabel`, `getSearchPriceLabel`, `getMobileCardDate`) is strictly forbidden across all features.
+* **Centralized Domain Formatter Standard:** Every domain concept has **exactly one canonical formatter** in `core/src/services` or `@esparex/shared`. All UI and state code must use this centralized formatter.
+
+#### Pillar 4: 100% Spec Matrix Coverage for Domain Hierarchies
+* **Variant Sufficiency:** Before implementing or refactoring any domain entity, developers must document a 100% Hierarchy & Variant Matrix in the design specification (e.g., Location levels: `Country` → `State` → `City` → `Area/Locality` → `Village`).
+* **Complete Formatter Logic:** Every domain formatter must explicitly cover every row of its entity matrix. Partial fallbacks that truncate hierarchy levels are rejected.
+
+#### Pillar 5: Zero-Leakage Layered Architecture Governance
+* **UI Components (`apps/web`):** Own layout rendering, user gestures, and displaying pre-computed fields. Must **not** own string formatting, business logic, or raw calculation.
+* **State Context (`apps/web`):** Owns UI state synchronization. Must **not** own custom string builders or domain transformations.
+* **Controllers (`backend/api`):** Own request validation, HTTP status codes, and session auth. Must **not** perform direct database queries or business calculations.
+* **Domain Services (`core`):** Own business logic, invariants, and canonical SSOT formatters.
+
+#### Pillar 6: Automated CI/CD & Governance Gates
+* **Pre-Implementation Gate (ADR):** Any change touching shared DTOs or domain formatters requires an Architectural Decision Record evaluating backwards compatibility.
+* **Contract Impact Checklist:** Any PR changing an API contract dimension must complete the mandatory checklist verifying that Backend, Frontend, and Playwright E2E mocks are synchronized.
