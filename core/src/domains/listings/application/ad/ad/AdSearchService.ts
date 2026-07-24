@@ -32,30 +32,19 @@ export const buildAdMatchStage = async (
         filters.status = LISTING_STATUS.LIVE;
     }
 
-    let resolvedCategoryId = filters.categoryId;
-    const legacyCategory = typeof filters.category === 'string' ? filters.category.trim() : '';
-    if (!resolvedCategoryId && legacyCategory) {
-        if (mongoose.Types.ObjectId.isValid(legacyCategory)) {
-            resolvedCategoryId = legacyCategory;
+    const inputCategory = filters.categoryId || (typeof filters.category === 'string' ? filters.category.trim() : undefined);
+    let resolvedCategoryIds: string[] | undefined = undefined;
+    if (inputCategory) {
+        const cacheKey = `catalog:category:expanded_ids:${inputCategory.toLowerCase()}`;
+        const cached = await getCache<string[]>(cacheKey);
+        if (cached && Array.isArray(cached)) {
+            resolvedCategoryIds = cached;
         } else {
-            // Cache slug → ObjectId to avoid a DB round-trip on every public browse call.
-            // The regex name-match arm was removed: it always caused a full collection scan
-            // and slug lookup covers all real-world frontend category filters.
-            const cacheKey = `catalog:category:slug:${legacyCategory.toLowerCase()}`;
-            const cached = await getCache<string>(cacheKey);
-            if (cached) {
-                resolvedCategoryId = cached;
-            } else {
-                const resolvedCategory = await Category.findOne({
-                    isDeleted: { $ne: true },
-                    isActive: true,
-                    slug: legacyCategory.toLowerCase(),
-                }).select('_id').lean<{ _id: mongoose.Types.ObjectId } | null>();
-                resolvedCategoryId = resolvedCategory?._id?.toString();
-                if (resolvedCategoryId) {
-                    // 6-hour TTL — category slugs are stable, rarely renamed
-                    void setCache(cacheKey, resolvedCategoryId, 21600);
-                }
+            const { resolveCategoryWithSubcategoryIds } = await import('../../../../catalog/application/services/CatalogCategoryService');
+            const hierarchy = await resolveCategoryWithSubcategoryIds(inputCategory);
+            resolvedCategoryIds = hierarchy.categoryIds;
+            if (resolvedCategoryIds.length > 0) {
+                void setCache(cacheKey, resolvedCategoryIds, 3600);
             }
         }
     }
@@ -67,11 +56,13 @@ export const buildAdMatchStage = async (
         ...filters,
         lat: filters.lat,
         lng: filters.lng,
-        categoryId: resolvedCategoryId,
+        categoryIds: inputCategory ? (resolvedCategoryIds ?? []) : undefined,
         keywords: filters.search, // Map 'search' to 'keywords' for the helper
         location: filters.location,
         status: statusQuery
     });
+
+
 
     if (filters.isDeleted) {
         match.isDeleted = filters.isDeleted;

@@ -114,13 +114,18 @@ export const getAdsPage = async (
                 if (value !== undefined && value !== undefined) {
                     if (key === 'search') {
                         params.append('q', String(value));
-                    } else if (key === 'category' || key === 'location') {
+                    } else if (key === 'location') {
                         return;
+                    } else if (key === 'category') {
+                        if (!filters.categoryId && value) {
+                            params.append('category', String(value));
+                        }
                     } else if (key === 'type') {
                         params.append('listingType', String(value));
                     } else {
                         params.append(key, String(value));
                     }
+
                 }
             });
         }

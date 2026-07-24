@@ -7,6 +7,7 @@ type UnknownRecord = Record<string, unknown>;
 
 export interface AdFilterCriteria {
     categoryId?: string;
+    categoryIds?: string[];
     brandId?: string;
     modelId?: string;
     minPrice?: number;
@@ -40,7 +41,16 @@ export const buildAdFilterFromCriteria = (criteria: AdFilterCriteria): UnknownRe
     const match: UnknownRecord = {};
 
     // Category
-    Object.assign(match, CategoryQueryBuilder.forSingular().withFilters({ categoryId: criteria.categoryId }).build());
+    Object.assign(
+        match,
+        CategoryQueryBuilder.forSingular()
+            .withFilters({
+                categoryId: criteria.categoryId,
+                categoryIds: criteria.categoryIds,
+            })
+            .build()
+    );
+
 
     // Brand
     if (criteria.brandId && mongoose.Types.ObjectId.isValid(criteria.brandId)) {
