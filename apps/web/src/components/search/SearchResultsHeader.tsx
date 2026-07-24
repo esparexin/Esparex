@@ -25,6 +25,7 @@ type SearchResultsHeaderProps = {
     onViewChange: (v: "grid" | "list") => void;
     filterNode?: React.ReactNode;
     activeFilterCount?: number;
+    categoryName?: string | null;
 };
 
 const SORT_LABELS = PUBLIC_BROWSE_SORT_LABELS;
@@ -58,7 +59,7 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             {...props}
         >
             <SortAsc className="size-4 text-foreground-subtle" />
-            <span className="font-semibold text-foreground-secondary text-sm">{SORT_LABELS[sort]}</span>
+            <span className="font-semibold text-slate-700 text-sm">Sorted: {SORT_LABELS[sort]}</span>
             <ChevronDown className={cn("size-4 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
@@ -138,6 +139,7 @@ export function SearchResultsHeader({
     onViewChange,
     filterNode,
     activeFilterCount = 0,
+    categoryName,
 }: SearchResultsHeaderProps) {
     const [sortOpen, setSortOpen] = React.useState(false);
 
@@ -145,29 +147,37 @@ export function SearchResultsHeader({
         <div className="sticky top-[6.25rem] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 border-b border-slate-100 py-3 px-3 md:px-0">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                 {/* Result count & indicator */}
-                <div className="flex items-center justify-between min-w-0">
-                    <div className="flex items-center gap-2 min-w-0">
-                        <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                        <p className="text-sm text-foreground font-semibold md:font-medium truncate">
-                            <span className="hidden md:inline text-muted-foreground font-medium">Showing </span>
-                            <span className="text-foreground">{total}</span> {total === 1 ? "listing" : "listings"}
-                            {activeFilterCount > 0 ? ` • ${activeFilterCount} filter${activeFilterCount === 1 ? "" : "s"} active` : ""}
-                        </p>
-                    </div>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 flex-1 min-w-0">
+                    <div className="flex items-center justify-between min-w-0 flex-1 md:flex-initial">
+                        <div className="flex flex-col md:flex-row md:items-baseline md:gap-3 min-w-0">
+                            {categoryName && (
+                                <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-none mb-1 md:mb-0">
+                                    {categoryName}
+                                </h2>
+                            )}
+                            <div className="flex items-center gap-2 min-w-0">
+                                <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                                <p className="text-sm text-slate-700 font-semibold md:font-medium truncate">
+                                    <span className="text-slate-950 font-bold">{total}</span> {total === 1 ? "listing" : "listings"} available
+                                    {activeFilterCount > 0 ? ` • ${activeFilterCount} active` : ""}
+                                </p>
+                            </div>
+                        </div>
 
-                    {/* View Toggle (Mobile inline) */}
-                    <div className="md:hidden flex items-center gap-2">
-                        <Button
-                            size="icon"
-                            variant="outline"
-                            onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
-                            aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
-                            className="h-10 w-10 flex-shrink-0 rounded-full border-slate-200 bg-white shadow-none"
-                        >
-                            {view === "grid"
-                                ? <List className="size-4 text-foreground-tertiary" />
-                                : <LayoutGrid className="size-4 text-foreground-tertiary" />}
-                        </Button>
+                        {/* View Toggle (Mobile inline) */}
+                        <div className="md:hidden flex items-center gap-2">
+                            <Button
+                                size="icon"
+                                variant="outline"
+                                onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
+                                aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+                                className="h-10 w-10 flex-shrink-0 rounded-full border-slate-200 bg-white shadow-none"
+                            >
+                                {view === "grid"
+                                    ? <List className="size-4 text-foreground-tertiary" />
+                                    : <LayoutGrid className="size-4 text-foreground-tertiary" />}
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
