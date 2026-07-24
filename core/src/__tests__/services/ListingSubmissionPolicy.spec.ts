@@ -16,7 +16,7 @@
 
 // ── Mocks must be hoisted before any imports ──────────────────────────────────
 
-jest.mock('../../services/AdSlotService', () => ({
+jest.mock('../../domains/boosts/application/services/AdSlotService', () => ({
     AdSlotService: {
         consumeSlot: jest.fn(),
     },
