@@ -91,7 +91,7 @@ export const getAds = async (
                 hotZoneBoost: { $cond: [{ $eq: ['$locationAnalytics.isHotZone', true] }, 10, 0] }
             }
         });
-        pipeline.push({ $addFields: { rankScore: { $add: [{ $multiply: ['$distanceScore', 0.4] }, { $multiply: ['$freshnessScore', 0.25] }, { $multiply: ['$popularityScore', 0.15] }, { $multiply: ['$spotlightScore', 0.1] }, { $multiply: ['$engagementScore', 0.1] }, '$hotZoneBoost', { $multiply: [{ $ifNull: ['$sellerTrustSnapshot', 50] }, 0.05] }, { $multiply: [{ $ifNull: ['$listingQualityScore', 0] }, 0.08] }, { $multiply: [{ $ifNull: ['$fraudScore', 0] }, -1] }] } } });
+        pipeline.push({ $addFields: { rankScore: { $add: [{ $multiply: ['$distanceScore', 0.4] }, { $multiply: ['$freshnessScore', 0.25] }, { $multiply: ['$popularityScore', 0.15] }, { $multiply: ['$spotlightScore', 0.1] }, { $multiply: ['$engagementScore', 0.1] }, '$hotZoneBoost', { $multiply: [{ $ifNull: ['$sellerTrustSnapshot', 50] }, 0.05] }, { $multiply: [{ $ifNull: ['$listingQualityScore', 0] }, 0.08] }, { $multiply: [{ $ifNull: ['$sellerPriorityScore', 1] }, 0.07] }, { $multiply: [{ $ifNull: ['$fraudScore', 0] }, -1] }] } } });
         pipeline.push({ $sort: { rankScore: -1, createdAt: -1 } });
     }
     const isLightweightListing = await isEnabled(FeatureFlag.ENABLE_LIGHTWEIGHT_LISTING);
@@ -108,11 +108,12 @@ export const getAds = async (
             publishedAt: 1, approvedAt: 1, soldAt: 1, rejectionReason: 1, fraudScore: 1, moderationStatus: 1,
             distance: 1, distanceKm: { $cond: [{ $ifNull: ['$distance', false] }, { $divide: ['$distance', 1000] }, null] },
             rankScore: 1, distanceScore: 1, freshnessScore: 1, popularityScore: 1, sellerTrustSnapshot: 1,
-            listingQualityScore: 1, onsiteService: 1, turnaroundTime: 1, warranty: 1, included: 1, excluded: 1,
+            sellerPriorityScore: 1, listingQualityScore: 1, onsiteService: 1, turnaroundTime: 1, warranty: 1, included: 1, excluded: 1,
             serviceTypeIds: 1, sparePartId: 1, condition: 1, stock: 1, deviceType: 1, deviceCondition: 1,
             sparePartsSnapshot: 1, sparePartIds: 1, category: 1, brand: 1, model: 1, seller: 1, spareParts: 1
         }
     });
+
     const [rawResults, countResult] = await Promise.all([
         Ad.aggregate<HydratedAd>(pipeline),
         isCursorMode || shouldSkipExactCount ? Promise.resolve([]) : Ad.aggregate<{ total: number }>(countPipeline),

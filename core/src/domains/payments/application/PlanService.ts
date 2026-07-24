@@ -12,6 +12,8 @@ import mongoose, { type ClientSession } from 'mongoose';
 
 import { AppError } from '../../../utils/AppError';
 import { calculateUserPlan } from '../domain/policies/PlanEngine';
+export { calculateUserPlan };
+
 import UserWallet from '../../../models/UserWallet';
 import { withUserPostingLock } from '../../boosts/application/services/AdSlotService';
 

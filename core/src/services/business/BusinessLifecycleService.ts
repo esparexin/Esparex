@@ -147,7 +147,7 @@ export const renewBusiness = async (id: string, actor: { type: ActorTypeValue; i
     const baseDate = Math.max(currentExpiry, Date.now());
     const nextExpiry = new Date(baseDate + 365 * 24 * 60 * 60 * 1000);
 
-    return await mutateStatus({
+    const result = await mutateStatus({
         domain: 'business',
         entityId: id,
         toStatus: BUSINESS_STATUS.LIVE,
@@ -161,6 +161,19 @@ export const renewBusiness = async (id: string, actor: { type: ActorTypeValue; i
             lastExpiryWarningChannel: null,
         }
     });
+
+    if (result && business.userId) {
+        setImmediate(async () => {
+            try {
+                const { assignDefaultPlan } = await import('./BusinessSubscriptionService');
+                await assignDefaultPlan(business.userId.toString());
+            } catch {
+                // Non-fatal async hook failure
+            }
+        });
+    }
+
+    return result;
 };
 
 export const expireBusinesses = async () => {
@@ -185,6 +198,17 @@ export const expireBusinesses = async () => {
                 reason: 'Automated business expiry'
             });
             processed.push(biz);
+
+            if (biz.userId) {
+                setImmediate(async () => {
+                    try {
+                        const { expirePlan } = await import('./BusinessSubscriptionService');
+                        await expirePlan(biz.userId.toString());
+                    } catch {
+                        // Non-fatal async hook failure
+                    }
+                });
+            }
         } catch {
             // Skip failing ones to ensure bulk job finishes
         }
@@ -192,4 +216,5 @@ export const expireBusinesses = async () => {
 
     return processed;
 };
+
 

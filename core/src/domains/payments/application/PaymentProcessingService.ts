@@ -274,11 +274,35 @@ export async function processSuccessfulPayment(
 
         await ensureInvoicePdf(committedInvoiceId);
 
+        // Async post-payment hook: upgrade business plan and sync sellerPriorityScore
+        if (tx.planSnapshot && ((tx.planSnapshot as { userType?: string }).userType === 'business' || String(tx.planSnapshot.code || '').startsWith('BUSINESS_'))) {
+            const userIdStr = tx.userId.toString();
+
+            const planIdStr = (tx.planSnapshot as { _id?: unknown; id?: unknown })._id?.toString() || (tx.planSnapshot as { id?: string }).id || '';
+            const durationDays = typeof tx.planSnapshot.durationDays === 'number' ? tx.planSnapshot.durationDays : 365;
+
+            if (planIdStr) {
+                setImmediate(async () => {
+                    try {
+                        const { upgradePlan } = await import('../../../services/business/BusinessSubscriptionService');
+                        await upgradePlan(userIdStr, planIdStr, durationDays);
+                    } catch (upgradeErr) {
+                        logger.error('PaymentProcessingService: business plan upgrade hook failed', {
+                            transactionId: committedTransactionId,
+                            userId: userIdStr,
+                            error: upgradeErr instanceof Error ? upgradeErr.message : String(upgradeErr)
+                        });
+                    }
+                });
+            }
+        }
+
         return {
             result: 'processed',
             transactionId: committedTransactionId,
             invoiceId: committedInvoiceId
         };
+
     } catch (error) {
         await session.abortTransaction();
         logger.error('Payment processing failed', {
