@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { LoginFlow } from "@/components/auth/LoginFlow";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import { Z_INDEX } from "@/lib/zIndexConfig";

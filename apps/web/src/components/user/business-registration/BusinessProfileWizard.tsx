@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import type { User } from "@/types/User";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StepBasicDetails } from "./StepBasicDetails";

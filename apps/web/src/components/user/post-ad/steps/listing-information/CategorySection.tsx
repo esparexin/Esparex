@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Field } from "@/components/ui/field";
 
 import { getNestedFieldMeta } from "../common/utils";

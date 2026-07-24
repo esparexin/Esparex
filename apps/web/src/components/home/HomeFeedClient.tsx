@@ -7,7 +7,7 @@ import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { getListingHref } from "@/lib/listingUtils";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
 import { getLatitude, getLongitude } from "@esparex/shared";

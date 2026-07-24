@@ -12,7 +12,7 @@ import { useAdsListQuery } from "@/hooks/queries/useListingsQuery";
 
 import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import { Breadcrumbs } from "@/components/user/Breadcrumbs";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   buildBrowseBrandOptions,

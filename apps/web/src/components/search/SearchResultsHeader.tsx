@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@esparex/ui";
 import {
     DropdownMenu,
     DropdownMenuContent,

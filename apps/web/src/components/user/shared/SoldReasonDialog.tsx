@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 
 export type SoldReason = "sold_on_platform" | "sold_outside" | "no_longer_available";
 

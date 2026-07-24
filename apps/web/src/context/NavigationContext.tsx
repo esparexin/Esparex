@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Button } from "@esparex/ui";
 import { AlertTriangle } from 'lucide-react';
 import { Z_INDEX } from '@/lib/zIndexConfig';
 

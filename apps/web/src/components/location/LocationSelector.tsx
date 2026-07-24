@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { Search, MapPin, Target, Loader2 } from "lucide-react";

@@ -7,7 +7,7 @@ import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "@/comp
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
 import { EditAdWrapper } from "./EditAdWrapper";
 import { cn } from "@/components/ui/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
 import { ValidationSummary } from "./steps/common/ValidationSummary";

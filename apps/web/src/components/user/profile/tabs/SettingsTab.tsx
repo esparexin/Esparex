@@ -3,7 +3,7 @@ import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIco
 
 import { FeatureCard } from "@/components/user/FeatureCard";
 import { ACCOUNT_COPY } from "@/config/copy/account";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormError } from "@/components/ui/FormError";
 import { Separator } from "@/components/ui/separator";

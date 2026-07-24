@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { AdCardGrid } from "@/components/user/ad-card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import type { ListingPageResult } from "@/lib/api/user/listings";
 
 export type CatalogSlugEntity = "brand" | "model";

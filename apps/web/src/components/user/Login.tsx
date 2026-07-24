@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
 import { formatSeconds } from "@/lib/otpHelpers";
 
-import { Button } from "../ui/button";
+import { Button } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { FormError } from "../ui/FormError";
 import { Input } from "../ui/input";

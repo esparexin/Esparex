@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { notify } from "@/lib/feedback";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 
 import { normalizeBusinessStatus } from '@/lib/status/statusNormalization';
 

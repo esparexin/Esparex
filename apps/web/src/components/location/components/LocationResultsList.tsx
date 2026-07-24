@@ -2,7 +2,7 @@
 
 import { AlertCircle, MapPin, RefreshCw } from "lucide-react";
 import type { Location } from "@/lib/api/user/locations";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "../LocationSkeleton";
 import { MAX_DROPDOWN_RESULTS } from "../locationSelectorCore.helpers";

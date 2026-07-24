@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Heart } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import {

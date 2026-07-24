@@ -28,7 +28,7 @@ import {
   resolveListingLocationLabel,
 } from "@/lib/listings/listingPresentation";
 
-import { Button } from "../ui/button";
+import { Button } from "@esparex/ui";
 import { Card, CardContent } from "../ui/card";
 import {
   DropdownMenu,

@@ -13,7 +13,7 @@ import type { ProfileUser } from "@/components/user/profile/types";
 
 // UI Components
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import {
   Crown,

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@esparex/ui";
 
 interface BackButtonProps {
     onClick?: () => void;

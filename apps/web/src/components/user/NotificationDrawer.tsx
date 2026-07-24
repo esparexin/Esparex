@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Bell, CheckCheck, Trash2, Inbox } from "lucide-react";
 import { type Notification } from "@/lib/api/user/notifications";
 import { Drawer } from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 
 export interface NotificationDrawerProps {
   notifications: Notification[];
