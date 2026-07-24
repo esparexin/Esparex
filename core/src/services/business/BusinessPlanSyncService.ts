@@ -2,7 +2,9 @@ import mongoose from 'mongoose';
 import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
 import Ad from '../../models/Ad';
-import { calculateUserPlan } from '../../domains/payments/domain/policies/PlanEngine';
+import { calculateUserPlan } from '../../domains/payments/application/PlanService';
+
+
 import logger from '../../utils/logger';
 
 type UserPlanWithPlanId = {

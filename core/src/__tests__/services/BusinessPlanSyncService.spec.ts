@@ -21,7 +21,7 @@ jest.mock('../../models/Ad', () => ({
     },
 }));
 
-jest.mock('../../domains/payments/domain/policies/PlanEngine', () => ({
+jest.mock('../../domains/payments/application/PlanService', () => ({
     calculateUserPlan: jest.fn(),
 }));
 
@@ -36,8 +36,9 @@ jest.mock('../../utils/logger', () => ({
 import Plan from '../../models/Plan';
 import UserPlan from '../../models/UserPlan';
 import Ad from '../../models/Ad';
-import { calculateUserPlan } from '../../domains/payments/domain/policies/PlanEngine';
+import { calculateUserPlan } from '../../domains/payments/application/PlanService';
 import { syncPriorityScore } from '../../services/business/BusinessPlanSyncService';
+
 
 const mockPlan = Plan as unknown as { findOne: jest.Mock };
 const mockUserPlan = UserPlan as unknown as { find: jest.Mock };
