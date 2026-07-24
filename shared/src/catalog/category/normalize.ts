@@ -38,3 +38,24 @@ export function keysOverlap(left: Set<string>, right: Set<string>): boolean {
     }
     return false;
 }
+
+export const CANONICAL_CATEGORY_SLUG_ALIASES: Record<string, string> = {
+    'mobile-phones': 'mobiles',
+    'smartphones': 'mobiles',
+    'mobile-devices': 'mobiles',
+    'laptop': 'laptops',
+    'tablet': 'tablets',
+    'ipad': 'tablets',
+    'tv': 'led-tvs',
+    'smart-tv': 'led-tvs',
+    'led-tv': 'led-tvs',
+};
+
+
+export function canonicalizeCategorySlug(inputSlug?: string | null): string {
+    if (!inputSlug) return '';
+    const normalized = normalizeToken(inputSlug);
+    if (!normalized) return '';
+    return CANONICAL_CATEGORY_SLUG_ALIASES[normalized] || normalized;
+}
+

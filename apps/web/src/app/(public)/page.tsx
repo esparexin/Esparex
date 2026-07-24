@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import logger from "@/lib/logger";
-import { API_ROUTES } from "@/lib/api/routes";
 import type { Category } from "@/schemas";
+
 import { getHomeAds } from "@/lib/api/user/listings";
 import { HomeFeed } from "@/components/home/HomeFeed";
 import { HomeBannerAd } from "@/components/home/HomeBannerAd";
@@ -26,44 +26,12 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Pro
     }
 }
 
+import { getCategories } from "@/lib/api/user/categories";
+
 async function getHomeCategories(): Promise<Category[]> {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!baseUrl) {
-        if (shouldLogHomeServerFallback()) {
-            logger.warn("NEXT_PUBLIC_API_URL is missing for homepage categories");
-        }
-        return [];
-    }
-
     try {
-        // SSR exception documented in docs/api-ssr-fetch-exceptions.md
-        const response = await fetch(
-            `${baseUrl}/${API_ROUTES.USER.CATEGORIES}?isActive=true&limit=20`,
-            { next: { revalidate: 60 } }
-        );
-
-        if (!response.ok) {
-            return [];
-        }
-
-        const json = await response.json();
-        if (!json?.success || !json?.data) {
-            return [];
-        }
-
-        if (Array.isArray(json.data?.items)) {
-            return json.data.items as Category[];
-        }
-
-        if (Array.isArray(json.data)) {
-            return json.data as Category[];
-        }
-
-        if (Array.isArray(json.data?.data)) {
-            return json.data.data as Category[];
-        }
-
-        return [];
+        const categories = await getCategories({ fetchOptions: { next: { revalidate: 60 } } });
+        return categories;
     } catch (error) {
         if (shouldLogHomeServerFallback()) {
             logger.warn("Home categories fetch failed", error);
@@ -71,6 +39,7 @@ async function getHomeCategories(): Promise<Category[]> {
         return [];
     }
 }
+
 
 export const revalidate = 60;
 

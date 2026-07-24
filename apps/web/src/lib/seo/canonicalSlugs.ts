@@ -1,39 +1,21 @@
-export const CANONICAL_SLUG_MAPPING: Record<string, string> = {
-    // Mobile Phones
-    'mobiles': 'mobile-phones',
-    'smartphones': 'mobile-phones',
-    'mobile-devices': 'mobile-phones',
+import { CatalogFacade } from '@esparex/shared';
 
-    // Laptops
-    'laptop': 'laptops',
-
-    // Tablets
-    'tablet': 'tablets',
-    'ipad': 'tablets',
-
-    // TVs
-    'tv': 'led-tv',
-    'smart-tv': 'led-tv',
-    'led-tv': 'led-tv', // Self-ref for completeness
-
-    // Monitors
-    'monitors': 'monitor',
-    'desktop-monitor': 'monitor',
-};
+export const CANONICAL_SLUG_MAPPING = CatalogFacade.category.normalize.CANONICAL_CATEGORY_SLUG_ALIASES;
 
 /**
  * Returns the canonical slug for a given category input.
- * If no alias is found, returns the original slug (lowercased).
+ * Delegates to CatalogFacade in @esparex/shared to eliminate duplicate mapping drift.
  */
 export function getCanonicalCategorySlug(slug: string): string {
-    if (!slug) return '';
-    const normalized = slug.toLowerCase().trim();
-    return CANONICAL_SLUG_MAPPING[normalized] || normalized;
+    return CatalogFacade.category.normalize.canonicalizeCategorySlug(slug);
 }
 
 /**
  * Checks if the current slug is effectively canonical.
  */
 export function isCanonicalSlug(slug: string): boolean {
-    return getCanonicalCategorySlug(slug) === slug.toLowerCase().trim();
+    if (!slug) return true;
+    const normalized = slug.toLowerCase().trim();
+    return getCanonicalCategorySlug(normalized) === normalized;
 }
+

@@ -56,10 +56,12 @@ export default async function CategoryRoute({ params }: Props) {
             status: 'live',
             page: 1,
             limit: 20,
+            category: canonical,
             ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
         },
         { fetchOptions: { next: { revalidate: 60 } } }
     );
+
 
     return (
         <ClientCategoryWrapper
