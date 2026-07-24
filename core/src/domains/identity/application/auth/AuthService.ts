@@ -423,7 +423,8 @@ export class AuthService {
 
             // Assign Default Plan
             try {
-                const freePlan = await Plan.findOne({ isDefault: true });
+                const freePlan = await Plan.findOne({ isDefault: true, userType: { $in: ['both', 'normal'] } });
+
 
                 if (freePlan) {
                     await UserPlan.findOneAndUpdate(
