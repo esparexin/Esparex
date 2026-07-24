@@ -275,8 +275,9 @@ export async function processSuccessfulPayment(
         await ensureInvoicePdf(committedInvoiceId);
 
         // Async post-payment hook: upgrade business plan and sync sellerPriorityScore
-        if (tx.planSnapshot && (tx.planSnapshot.userType === 'business' || String(tx.planSnapshot.code || '').startsWith('BUSINESS_'))) {
+        if (tx.planSnapshot && ((tx.planSnapshot as { userType?: string }).userType === 'business' || String(tx.planSnapshot.code || '').startsWith('BUSINESS_'))) {
             const userIdStr = tx.userId.toString();
+
             const planIdStr = (tx.planSnapshot as { _id?: unknown; id?: unknown })._id?.toString() || (tx.planSnapshot as { id?: string }).id || '';
             const durationDays = typeof tx.planSnapshot.durationDays === 'number' ? tx.planSnapshot.durationDays : 365;
 

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { BUSINESS_STATUS } from '@esparex/contracts';
 import Business from '../models/Business';
 import { assignDefaultPlan } from '../services/business/BusinessSubscriptionService';
 import logger from '../utils/logger';
@@ -18,9 +19,10 @@ import logger from '../utils/logger';
 export async function runBackfill(): Promise<{ total: number; succeeded: number; failed: number }> {
     logger.info('Starting business plan backfill...');
 
-    const liveBusinesses = await Business.find({ status: 'LIVE' })
+    const liveBusinesses = await Business.find({ status: BUSINESS_STATUS.LIVE })
         .select('_id userId name')
         .lean();
+
 
     logger.info(`Found ${liveBusinesses.length} LIVE business accounts to process.`);
 
