@@ -10,11 +10,12 @@ describe('CatalogCategoryHierarchy & CategoryQueryBuilder Safety', () => {
         expect(CatalogFacade.category.normalize.canonicalizeCategorySlug('mobile-phones')).toBe('mobiles');
     });
 
-    it('should generate null query for explicitly empty categoryIds array to prevent unfiltered leak', () => {
+    it('should generate empty query {} for explicitly empty categoryIds array without categoryId (no null injection)', () => {
         const query = CategoryQueryBuilder.forSingular()
             .withFilters({ categoryIds: [] })
             .build();
-        expect(query).toEqual({ categoryId: null });
+        expect(query).toEqual({});
+        expect(query).not.toHaveProperty('categoryId', null);
     });
 
     it('should generate $in query when multiple valid subcategory ObjectIds are provided', () => {

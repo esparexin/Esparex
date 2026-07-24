@@ -123,16 +123,34 @@ export const resolveCategoryWithSubcategoryIds = async (
     }
 
     const targetIdStr = String(targetCategory._id);
-    const children = await Category.find({
-        parentId: targetCategory._id,
-        isDeleted: { $ne: true },
-        isActive: true,
-    }).select('_id').lean();
-
     const ids = new Set<string>([targetIdStr]);
-    children.forEach((child) => {
-        if (child._id) ids.add(String(child._id));
-    });
+
+    const collectDescendantIds = async (parentIds: mongoose.Types.ObjectId[], depth = 0) => {
+        if (parentIds.length === 0 || depth >= 5) return;
+        const children = await Category.find({
+            parentId: { $in: parentIds },
+            isDeleted: { $ne: true },
+            isActive: true,
+        }).select('_id').lean();
+
+        if (children.length === 0) return;
+        const nextParentIds: mongoose.Types.ObjectId[] = [];
+        children.forEach((child) => {
+            if (child._id) {
+                const childIdStr = String(child._id);
+                if (!ids.has(childIdStr)) {
+                    ids.add(childIdStr);
+                    nextParentIds.push(child._id as mongoose.Types.ObjectId);
+                }
+            }
+        });
+
+        if (nextParentIds.length > 0) {
+            await collectDescendantIds(nextParentIds, depth + 1);
+        }
+    };
+
+    await collectDescendantIds([targetCategory._id]);
 
     return {
         rootCategoryId: targetIdStr,
