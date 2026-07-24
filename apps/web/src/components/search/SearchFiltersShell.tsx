@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import { useIsMobile } from "@/components/ui/useMobile";
 import type { Category } from "@/lib/api/user/categories";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/drawer";
@@ -65,7 +64,6 @@ export function SearchFiltersShell({
     activeFilterCount = 0,
     desktopShellClassName,
 }: SearchFiltersShellProps) {
-    const isMobile = useIsMobile();
     const [isHydrated, setIsHydrated] = useState(false);
     const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
     const panelProps = {
@@ -89,53 +87,53 @@ export function SearchFiltersShell({
 
     return (
         <>
-            {!isHydrated ? (
-                <SearchFiltersDesktopShell className={`hidden lg:block ${desktopShellClassName ?? searchFiltersDesktopShellClassName}`}>
+            {/* Desktop Filter Sidebar (hidden on screens < 1024px) */}
+            <SearchFiltersDesktopShell className={`hidden lg:block ${desktopShellClassName ?? searchFiltersDesktopShellClassName}`}>
+                {!isHydrated ? (
                     <div className="space-y-3">
                         <div className="h-10 rounded-xl bg-slate-50/50 animate-pulse" />
                     </div>
-                </SearchFiltersDesktopShell>
-            ) : isMobile ? (
-                <div className="lg:hidden w-full flex-1" role="region" aria-label="Search Filters">
-                    <Drawer
-                        title="Filter Products"
-                        open={mobileDrawerOpen}
-                        onOpenChange={setMobileDrawerOpen}
-                        trigger={
-                            <Button variant="outline" className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
-                                <SlidersHorizontal className="size-4 text-muted-foreground" />
-                                <span>Filters</span>
-                                {activeFilterCount > 0 && (
-                                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
-                                        {activeFilterCount}
-                                    </span>
-                                )}
-                            </Button>
-                        }
-                    >
-                        <div className="pb-10 pt-2 h-full">
-                            {mobileDrawerOpen && (
-                                <SearchFiltersPanel
-                                    {...panelProps}
-                                    onApply={undefined}
-                                    onReset={() => {
-                                        haptics.impact();
-                                        onReset();
-                                    }}
-                                />
-                            )}
-                        </div>
-                    </Drawer>
-                </div>
-            ) : (
-                <SearchFiltersDesktopShell className={desktopShellClassName ?? searchFiltersDesktopShellClassName}>
+                ) : (
                     <SearchFiltersPanel
                         {...panelProps}
                         onApply={onApply}
                         onReset={onReset}
                     />
-                </SearchFiltersDesktopShell>
-            )}
+                )}
+            </SearchFiltersDesktopShell>
+
+            {/* Mobile Filter Drawer Trigger (hidden on screens >= 1024px) */}
+            <div className="lg:hidden w-full flex-1" role="region" aria-label="Search Filters">
+                <Drawer
+                    title="Filter Products"
+                    open={mobileDrawerOpen}
+                    onOpenChange={setMobileDrawerOpen}
+                    trigger={
+                        <Button variant="outline" className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
+                            <SlidersHorizontal className="size-4 text-muted-foreground" />
+                            <span>Filters</span>
+                            {activeFilterCount > 0 && (
+                                <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
+                                    {activeFilterCount}
+                                </span>
+                            )}
+                        </Button>
+                    }
+                >
+                    <div className="pb-10 pt-2 h-full">
+                        {mobileDrawerOpen && (
+                            <SearchFiltersPanel
+                                {...panelProps}
+                                onApply={undefined}
+                                onReset={() => {
+                                    haptics.impact();
+                                    onReset();
+                                }}
+                            />
+                        )}
+                    </div>
+                </Drawer>
+            </div>
         </>
     );
 }
