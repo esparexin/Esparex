@@ -90,7 +90,7 @@ jest.mock('../../utils/securityMonitoring', () => ({
 
 import axios from 'axios';
 import { env } from '../../config/env';
-import { AuthService } from '../../services/AuthService';
+import { AuthService } from '../../domains/identity/application/auth/AuthService';
 import User from '../../models/User';
 import Otp from '../../models/Otp';
 import Plan from '../../models/Plan';

@@ -13,7 +13,7 @@
 
 // ─── Mocks MUST be declared before any imports ───────────────────────────────
 
-jest.mock('@esparex/core/services/UserProfileService', () => ({
+jest.mock('@esparex/core/domains/identity/application/users/UserProfileService', () => ({
     getUserProfileById: jest.fn(),
 }));
 
@@ -25,7 +25,7 @@ jest.mock('../../utils/respond', () => ({
 
 import type { Request, Response } from 'express';
 import { getUserProfileById } from '../../controllers/user/userQueryController';
-import { getUserProfileById as getUserProfileSvc } from '@esparex/core/services/UserProfileService';
+import { getUserProfileById as getUserProfileSvc } from '@esparex/core/domains/identity/application/users/UserProfileService';
 
 // ─── Typed mock ──────────────────────────────────────────────────────────────
 

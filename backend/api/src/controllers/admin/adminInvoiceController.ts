@@ -13,7 +13,7 @@ import {
     getUserForPayment,
 } from '@esparex/core/services/TransactionService';
 import { findPlanByIdOrCode, upsertUserPlan } from '@esparex/core/domains/payments/application/PlanService';
-import { findUserByEmail } from '@esparex/core/services/UserService';
+import { findUserByEmail } from '@esparex/core/domains/identity/application/users/UserService';
 import { 
     sendSuccessResponse, 
     sendAdminError,

@@ -7,7 +7,7 @@ import * as businessLifecycleService from '@esparex/core/services/business/Busin
 import { getSingleParam } from '../../utils/requestParams';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { resolveDuplicateBusinessMessage, serializeBusinessForOwner } from './shared';
-import { getUserPhoneVerification } from '@esparex/core/services/UserService';
+import { getUserPhoneVerification } from '@esparex/core/domains/identity/application/users/UserService';
 import { ActorTypeValue } from "@esparex/contracts";
 export const registerBusiness = async (req: Request, res: Response) => {
     try {

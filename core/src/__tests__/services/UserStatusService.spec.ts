@@ -31,7 +31,7 @@ jest.mock("@esparex/core/models/SmartAlert", () => ({
 import User from "../../models/User";
 import Ad from "../../models/Ad";
 import SmartAlert from "../../models/SmartAlert";
-import { updateUserStatus } from "../../services/UserStatusService";
+import { updateUserStatus } from "../../domains/identity/application/users/UserStatusService";
 
 // A well-formed 24-char hex ObjectId used across all test cases.
 // updateUserStatus now validates ObjectId format before any DB call.
