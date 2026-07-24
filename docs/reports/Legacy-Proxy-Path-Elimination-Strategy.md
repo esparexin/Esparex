@@ -18,15 +18,52 @@ The objective of this audit is to establish a clear migration strategy that elim
 
 ---
 
-# What is a Legacy Proxy Path?
+# Architectural Decision
 
-A Legacy Proxy Path is a thin re-export file located under:
+Legacy Proxy Paths are **temporary migration artifacts**, not permanent architectural components.
+
+They may only exist when they satisfy **all** of the following conditions:
+
+* The repository is actively migrating from one architecture to another.
+* Immediate migration of all consumers would create unacceptable risk.
+* A canonical Domain-Driven Design (DDD) implementation already exists.
+* The proxy contains **no business logic**, **no configuration**, **no side effects**, and **no additional exports** beyond simple re-export statements.
+* A documented migration plan exists to remove the proxy.
+
+If any of these conditions are no longer true, the proxy must be retired.
+
+---
+
+# Proxy Lifecycle
+
+Every Legacy Proxy Path should follow a defined lifecycle.
 
 ```text
-core/src/services/
+Create
+    │
+    ▼
+Temporary Compatibility Layer
+    │
+    ▼
+Consumer Migration
+    │
+    ▼
+Verification
+    │
+    ▼
+Proxy Removal
+    │
+    ▼
+Canonical Domain Import Only
 ```
 
-whose only responsibility is forwarding exports to the canonical domain implementation.
+A proxy should never become a permanent dependency.
+
+---
+
+# Definition of a Valid Proxy
+
+A valid proxy is limited to forwarding exports.
 
 Example:
 
@@ -34,7 +71,19 @@ Example:
 export * from "../domains/listings/application/ad/AdCreationService";
 ```
 
-The file contains no business logic and exists only to preserve legacy import paths.
+A proxy **must not**:
+
+* Contain business logic
+* Instantiate classes
+* Export additional utilities
+* Read environment variables
+* Register dependencies
+* Modify exports
+* Add wrapper methods
+* Perform logging
+* Perform dependency injection
+
+The moment additional behavior is added, the file is no longer a proxy and must be treated as a production service.
 
 ---
 
@@ -81,23 +130,17 @@ From a governance perspective, every service should have exactly one canonical i
 
 ---
 
-# Architecture Principle
+# Architectural Constraints
 
-Every service must have a single canonical location.
+The `core/src/services` directory must **never** become:
 
-Preferred:
+* A second application layer
+* A shared utility layer
+* A convenience import layer
+* A dependency injection container
+* A domain abstraction layer
 
-```text
-@esparex/core/domains/<domain>/application/...
-```
-
-Avoid:
-
-```text
-@esparex/core/services/...
-```
-
-The `core/services` directory should never become a permanent abstraction layer.
+Its only acceptable purpose during migration is temporary compatibility.
 
 ---
 
@@ -145,101 +188,77 @@ This domain now consumes only canonical SSOT paths.
 
 ---
 
+# Retirement Criteria
+
+A Legacy Proxy Path can only be deleted after all of the following conditions are satisfied:
+
+* No application imports reference the proxy.
+* No backend controllers reference the proxy.
+* No workers or scheduled jobs reference the proxy.
+* No frontend applications reference the proxy.
+* No admin modules reference the proxy.
+* No mobile modules reference the proxy.
+* No unit tests reference the proxy.
+* No integration tests reference the proxy.
+* No `jest.mock()` statements reference the proxy.
+* No public package exports expose the proxy.
+* All consumers have been migrated to the canonical domain path.
+* Type checking passes.
+* Tests pass.
+* Production build succeeds.
+
+Only then may the proxy be removed.
+
+---
+
 # Migration Governance Workflow
 
-Every proxy retirement should follow the same controlled process.
+Every proxy retirement should follow the same controlled process:
 
 ## Phase 1 — Identify
-
 Verify the file is a pure re-export with no executable logic.
 
----
-
 ## Phase 2 — Dependency Discovery
-
-Locate every consumer.
-
-Search:
-
-* Application imports
-* Backend controllers
-* Workers
-* Jobs
-* Scheduled tasks
-* Admin
-* Web
-* Mobile
-* Unit tests
-* Integration tests
-* Jest mocks
-
----
+Locate every consumer across application controllers, workers, jobs, frontend modules, and Jest test mocks.
 
 ## Phase 3 — Canonical Migration
-
-Replace every legacy import with the domain path.
-
-Application:
-
-```text
-@esparex/core/domains/<domain>/application/...
-```
-
-Testing:
-
-Update every
-
-```text
-jest.mock(...)
-```
-
-to reference the canonical domain path.
-
----
+Replace every legacy import with `@esparex/core/domains/<domain>/application/...` and update `jest.mock()` path declarations.
 
 ## Phase 4 — Verification
-
-Only after every consumer has migrated:
-
-* Delete proxy
-* Type check
-* Run tests
-* Build repository
-* Verify no remaining references
-* Merge
+Delete proxy file, verify zero remaining references via full monorepo type-check, unit tests, and production build.
 
 ---
 
 # Repository Governance Rule
 
-The following rule becomes part of the Esparex engineering standards:
+Every service within the Esparex platform must have **one—and only one—canonical import path**.
 
 > **Canonical Domain Imports Only**  
 > All new implementations must import services directly from their canonical Domain-Driven Design (DDD) location under `@esparex/core/domains/*`. Importing services from `@esparex/core/services/*` is prohibited when an equivalent domain implementation exists. Legacy proxy bridges are transitional compatibility artifacts and must be retired incrementally through audited, domain-focused pull requests. No new proxy files may be introduced without explicit architectural approval.
 
 ---
 
+# Future Enforcement
+
+To prevent new Legacy Proxy Paths from accumulating, the repository should enforce the following:
+
+* **ESLint Rule:** Disallow imports from `@esparex/core/services/*` when an equivalent domain path exists.
+* **CI Validation:** Fail builds if new proxy files are introduced without explicit architectural approval.
+* **Code Review Checklist:** Reject pull requests that introduce new legacy service imports.
+* **Migration Tracking:** Every proxy bridge should be linked to a GitHub issue or ADR documenting its retirement plan.
+* **Repository Audit:** Periodically scan for remaining proxy bridges and verify that migration progress is measurable.
+
+---
+
 # Long-Term Objective
 
-The target architecture is:
+The long-term objective is to eliminate the `core/src/services` compatibility layer entirely. Once all migrations are complete, the repository should expose only canonical domain-based services, ensuring:
 
-```text
-Consumers
-        │
-        ▼
-Domain Application Services
-        │
-        ▼
-Domain Layer
-        │
-        ▼
-Infrastructure
-```
+* A single source of truth (SSOT) for every service.
+* Clear Domain-Driven Design (DDD) boundaries.
+* Simplified dependency graphs.
+* Predictable import paths.
+* Reduced technical debt.
+* Easier maintenance, testing, and future refactoring.
 
-There should be no permanent dependency on:
-
-```text
-core/services/
-```
-
-Once all legacy proxy bridges are retired, the `core/services` directory should either be removed entirely or reserved exclusively for genuine cross-domain orchestration services that cannot logically belong to a single bounded context. This preserves SSOT, reinforces DDD boundaries, simplifies dependency management, and ensures a clean, maintainable architecture as the Esparex platform continues to evolve.
+At that stage, `core/src/services` should either be removed from the repository or reserved exclusively for genuine cross-domain orchestration services that cannot logically belong to a single bounded context. This establishes a clean, enforceable architecture aligned with Esparex's long-term engineering governance.
