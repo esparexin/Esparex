@@ -91,49 +91,9 @@ export function useBrowseEmptyState(
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;
 
-  const isSpecificLocalArea = Boolean(
-    activeLocationLabel &&
-      activeLocationLabel.toLowerCase() !== 'india' &&
-      activeLocationLabel.toLowerCase() !== 'all india'
-  );
-
-  const emptyStateTitle = isEmptyState
-    ? activeFilterCount > 0
-      ? isSpecificLocalArea
-        ? `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found near ${activeLocationLabel}`
-        : `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found`
-      : "No listings available right now"
-    : "";
-
+  const emptyStateTitle = "";
+  const emptyStateDescription = "";
   const suggestions: string[] = [];
-  if (isEmptyState && activeFilterCount > 0) {
-    if (isSpecificLocalArea) {
-      suggestions.push(`View All India listings (clear location filter)`);
-    }
-    if (priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) {
-      suggestions.push("Remove price filter");
-    }
-    if (showRadiusFilter && radiusKm !== 50) {
-      suggestions.push("Widen search radius / search nearby");
-    }
-    if (selectedBrands.length > 0) {
-      suggestions.push("Clear brand filters");
-    }
-    if (query) {
-      suggestions.push("Try different keywords or check spelling");
-    }
-    if (resolvedCategoryLabel) {
-      suggestions.push(`Browse all ${resolvedCategoryLabel.toLowerCase()}`);
-    } else {
-      suggestions.push("Browse all categories");
-    }
-  }
-
-  const emptyStateDescription = activeFilterCount > 0
-    ? isSpecificLocalArea
-      ? `We couldn't find any live listings near ${activeLocationLabel}. Try expanding your search radius or clear location to view listings across All India.`
-      : "We couldn't find any live listings matching your search. Try adjusting your filters or search keywords."
-    : "There are no live ads in this view yet. Check back soon or widen your location once sellers publish new listings.";
   const desktopShellClassName = isEmptyState ? EMPTY_FILTER_SHELL_CLASS_NAME : undefined;
 
   return { activeFilterCount, activeFilterBadges, isEmptyState, emptyStateTitle, emptyStateDescription, suggestions, desktopShellClassName };

@@ -178,8 +178,7 @@ export function BrowseAds({
       ? data.pagination.hasMore
       : total > page * PAGE_SIZE;
   const {
-    activeFilterCount, isEmptyState,
-    emptyStateTitle, emptyStateDescription, suggestions, desktopShellClassName
+    activeFilterCount, isEmptyState, desktopShellClassName
   } = useBrowseEmptyState(
     selectedCategory, categories, availableBrands, canonicalUrlLocationLabel, location,
     query, priceRange, urlLocationId, globalLocationLabel,
@@ -394,44 +393,17 @@ export function BrowseAds({
                   <div className="mb-4">
                     <PackageOpen className="h-10 w-10 text-foreground-subtle" />
                   </div>
-                  <h3 className="mb-2 text-xl font-semibold text-foreground capitalize">
-                    {emptyStateTitle}
-                  </h3>
-                  <p className="mb-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-                    {emptyStateDescription}
-                  </p>
-                  {suggestions && suggestions.length > 0 && (
-                    <div className="mb-6 text-left max-w-sm mx-auto">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Try:</p>
-                      <ul className="space-y-1.5 text-sm text-slate-600">
-                        {suggestions.map((suggestion, idx) => (
-                          <li key={idx} className="flex items-center gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
-                            {suggestion}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  {query && (
+                    <Button
+                      asChild
+                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white mt-2"
+                    >
+                      <a href="/account/alerts">
+                        <BellPlus className="h-4 w-4" />
+                        Get Notified When Available
+                      </a>
+                    </Button>
                   )}
-                  
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {activeFilterCount > 0 ? (
-                      <Button variant="outline" onClick={handleReset}>
-                        Clear Filters
-                      </Button>
-                    ) : null}
-                    {query && (
-                      <Button
-                        asChild
-                        className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <a href="/account/alerts">
-                          <BellPlus className="h-4 w-4" />
-                          Get Notified When Available
-                        </a>
-                      </Button>
-                    )}
-                  </div>
                 </div>
               )}
 
