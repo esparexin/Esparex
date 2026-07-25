@@ -439,7 +439,7 @@ export function Header({
               <Input
                 autoFocus={isMobileSearchEditing}
                 className="w-full pl-9 h-11 bg-slate-100 border-transparent focus-visible:bg-white focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
-                placeholder="Search listings..."
+                placeholder="Search phones, laptops, spare parts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onBlur={() => {

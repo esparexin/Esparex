@@ -82,7 +82,7 @@ export function BrowseResultsPanel<TItem>({
     Boolean(VirtualizedListComponent) && items.length > virtualizationThreshold;
 
   return (
-    <section data-primary className="mx-auto max-w-7xl px-4 pt-3 pb-8 md:px-6 lg:px-8 space-y-4">
+    <section data-primary className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8 pt-1 pb-6 md:pt-3 space-y-2 md:space-y-4">
       <SearchResultsHeader
         total={loading && items.length === 0 ? 0 : total}
         sort={sort}
