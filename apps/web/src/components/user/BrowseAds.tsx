@@ -305,11 +305,12 @@ export function BrowseAds({
       )}
       <section data-primary className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-
-            {/* ── Single SearchFilters — renders sidebar on desktop, drawer trigger on mobile ── */}
+          {/* Desktop Filter Sidebar */}
+          <div className="hidden lg:block">
             <SearchFilters {...filterProps} />
+          </div>
 
-            {/* ── Results Column ───────────────────────────────────────────── */}
+          {/* ── Results Column ───────────────────────────────────────────── */}
             <div className="flex-1 min-w-0 space-y-4">
               {/* Results header: count + sort + view toggle */}
               <SearchResultsHeader
@@ -318,52 +319,57 @@ export function BrowseAds({
                 view={view}
                 onSortChange={setSort}
                 onViewChange={setView}
-                activeFilterCount={activeFilterCount}
+                filterNode={<SearchFilters {...filterProps} />}
                 categoryName={currentCategoryName}
               />
 
               {/* ── Active Filter Chips ────────────────────────────────────── */}
               {activeFilterCount > 0 && (
-                <div className="flex flex-wrap gap-2 items-center py-2 border-b border-slate-100">
-                  {query && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold">
-                      Search: &quot;{query}&quot;
-                      <button onClick={() => setQuery("")} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear search">✕</button>
-                    </span>
-                  )}
-                  {selectedCategory && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 text-xs font-semibold border border-indigo-100">
-                      {currentCategoryName}
-                      <button onClick={() => setSelectedCategory(null)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear category">✕</button>
-                    </span>
-                  )}
-                  {selectedBrands.map((brandId) => {
-                    const brandName = availableBrands.find(b => b.value === brandId)?.label || brandId;
-                    return (
-                      <span key={brandId} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold border border-blue-100">
-                        {brandName}
-                        <button onClick={() => setSelectedBrands(prev => prev.filter(b => b !== brandId))} className="hover:text-red-500 font-bold ml-0.5" aria-label={`Clear brand ${brandName}`}>✕</button>
+                <div className="flex flex-wrap gap-2 items-center justify-between py-2 border-b border-slate-100">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {query && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold">
+                        Search: &quot;{query}&quot;
+                        <button onClick={() => setQuery("")} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear search">✕</button>
                       </span>
-                    );
-                  })}
-                  {(priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
-                      {buildPriceSummary(priceRange)}
-                      <button onClick={() => setPriceRange(DEFAULT_PRICE_RANGE)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear price filter">✕</button>
-                    </span>
-                  )}
-                  {showRadiusFilter && radiusKm !== 50 && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-100">
-                      Within {radiusKm} km
-                      <button onClick={() => setRadiusKm(50)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear radius filter">✕</button>
-                    </span>
-                  )}
-                  <button
-                    onClick={handleReset}
-                    className="text-xs text-slate-500 hover:text-slate-800 font-bold hover:underline ml-2"
-                  >
-                    Clear All
-                  </button>
+                    )}
+                    {selectedCategory && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 text-xs font-semibold border border-indigo-100">
+                        {currentCategoryName}
+                        <button onClick={() => setSelectedCategory(null)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear category">✕</button>
+                      </span>
+                    )}
+                    {selectedBrands.map((brandId) => {
+                      const brandName = availableBrands.find(b => b.value === brandId)?.label || brandId;
+                      return (
+                        <span key={brandId} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold border border-blue-100">
+                          {brandName}
+                          <button onClick={() => setSelectedBrands(prev => prev.filter(b => b !== brandId))} className="hover:text-red-500 font-bold ml-0.5" aria-label={`Clear brand ${brandName}`}>✕</button>
+                        </span>
+                      );
+                    })}
+                    {(priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
+                        {buildPriceSummary(priceRange)}
+                        <button onClick={() => setPriceRange(DEFAULT_PRICE_RANGE)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear price filter">✕</button>
+                      </span>
+                    )}
+                    {showRadiusFilter && radiusKm !== 50 && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-100">
+                        Within {radiusKm} km
+                        <button onClick={() => setRadiusKm(50)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear radius filter">✕</button>
+                      </span>
+                    )}
+                    <button
+                      onClick={handleReset}
+                      className="text-xs text-slate-500 hover:text-slate-800 font-bold hover:underline ml-2"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    {total} {total === 1 ? "listing" : "listings"}
+                  </span>
                 </div>
               )}
 

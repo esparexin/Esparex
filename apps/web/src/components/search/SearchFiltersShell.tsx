@@ -106,13 +106,13 @@ export function SearchFiltersShell({
             </SearchFiltersDesktopShell>
 
             {/* Mobile Filter Drawer Trigger (hidden on screens >= 1024px) */}
-            <div className="lg:hidden w-full flex-1" role="region" aria-label="Search Filters">
+            <div className="lg:hidden shrink-0" role="region" aria-label="Search Filters">
                 <Drawer
                     title="Filter Products"
                     open={mobileDrawerOpen}
                     onOpenChange={setMobileDrawerOpen}
                     trigger={
-                        <Button variant="outline" className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none">
+                        <Button variant="outline" className="h-10 px-3 gap-2 text-foreground-secondary border-slate-200 bg-white hover:bg-slate-50 font-semibold text-sm rounded-lg shadow-sm">
                             <SlidersHorizontal className="size-4 text-muted-foreground" />
                             <span>Filters</span>
                             {activeFilterCount > 0 && (

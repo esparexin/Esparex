@@ -146,7 +146,7 @@ export function SearchResultsHeader({
         <div className="sticky top-14 md:top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-100 py-2 px-3 md:px-0 md:py-3 mb-2 md:mb-0">
             {/* Mobile Compact Single-Row Toolbar */}
             <div className="flex md:hidden items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                     {filterNode && <div className="shrink-0">{filterNode}</div>}
                     <SortDropdown
                         open={sortOpen}
@@ -155,24 +155,19 @@ export function SearchResultsHeader({
                         onSelect={onSortChange}
                     />
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-700">
-                        {total} {total === 1 ? "listing" : "listings"}
-                    </span>
-                    <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
-                        aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
-                        className="h-9 w-9 flex-shrink-0 rounded-lg border-slate-200 bg-white shadow-sm"
-                    >
-                        {view === "grid" ? (
-                            <List className="size-4 text-foreground-tertiary" />
-                        ) : (
-                            <LayoutGrid className="size-4 text-foreground-tertiary" />
-                        )}
-                    </Button>
-                </div>
+                <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
+                    aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+                    className="h-10 w-10 flex-shrink-0 rounded-lg border-slate-200 bg-white shadow-sm"
+                >
+                    {view === "grid" ? (
+                        <List className="size-4 text-foreground-tertiary" />
+                    ) : (
+                        <LayoutGrid className="size-4 text-foreground-tertiary" />
+                    )}
+                </Button>
             </div>
 
             {/* Desktop Expanded Layout */}
