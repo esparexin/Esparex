@@ -23,13 +23,7 @@ export function normalizePartStatus(
   value: unknown,
   fallback: PartStatus = "pending"
 ): PartStatus | "live" {
-  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
-  if (normalized === "approved" || normalized === "active") return "live";
-  if (normalized === "pending") return "pending";
-  if (normalized === "inactive") return "inactive";
-  if (normalized === "rejected") return "rejected";
-  if (normalized === "expired") return "expired";
-  return fallback;
+  return normalizeAdStatus(value, fallback as any) as PartStatus | "live";
 }
 
 export function normalizePartCondition(

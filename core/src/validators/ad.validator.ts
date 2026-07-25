@@ -79,6 +79,16 @@ import { normalizeStatus } from "@esparex/shared";
 export const SAFE_SORT_FIELDS = ['newest', 'price-low', 'price-high', 'distance', 'trending'] as const;
 export type SafeSortField = (typeof SAFE_SORT_FIELDS)[number];
 
+export const normalizeSortBy = (val: unknown): string | undefined => {
+    if (typeof val !== 'string') return undefined;
+    const clean = val.trim().toLowerCase();
+    if (clean === 'price_asc' || clean === 'price-asc') return 'price-low';
+    if (clean === 'price_desc' || clean === 'price-desc') return 'price-high';
+    if (clean === 'createdat_desc' || clean === 'created_at_desc') return 'newest';
+    if (clean === 'relevance') return undefined;
+    return clean;
+};
+
 /**
  * Get Ads Query Schema
  * Canonical ownership query key is sellerId.
@@ -107,7 +117,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     listingType: z.string().optional(),
 
     // Whitelisted sort — matches buildAdSortStage in AdQueryHelpers.ts
-    sortBy: z.enum(SAFE_SORT_FIELDS).optional(),
+    sortBy: z.preprocess((val) => normalizeSortBy(val), z.enum(SAFE_SORT_FIELDS).optional()),
     sortOrder: z.enum(['asc', 'desc']).optional(),
 
     // 📍 Location Filters

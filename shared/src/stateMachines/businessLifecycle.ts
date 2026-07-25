@@ -1,0 +1,22 @@
+import { BUSINESS_STATUS, type BusinessStatusValue } from '@esparex/contracts';
+
+/**
+ * Business Lifecycle State Machine (SSOT)
+ * Validates legal status transitions for Business Profiles to enforce domain invariants.
+ */
+const LEGAL_BUSINESS_TRANSITIONS: Record<string, readonly string[]> = {
+    [BUSINESS_STATUS.PENDING]: [BUSINESS_STATUS.LIVE, BUSINESS_STATUS.REJECTED, BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.LIVE]: [BUSINESS_STATUS.DEACTIVATED, BUSINESS_STATUS.SUSPENDED, BUSINESS_STATUS.EXPIRED, BUSINESS_STATUS.CLOSED, BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.DEACTIVATED]: [BUSINESS_STATUS.LIVE, BUSINESS_STATUS.CLOSED, BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.EXPIRED]: [BUSINESS_STATUS.LIVE, BUSINESS_STATUS.CLOSED, BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.SUSPENDED]: [BUSINESS_STATUS.LIVE, BUSINESS_STATUS.CLOSED, BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.REJECTED]: [BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.CLOSED]: [BUSINESS_STATUS.DELETED],
+    [BUSINESS_STATUS.DELETED]: [],
+};
+
+export const canTransitionBusinessStatus = (from: BusinessStatusValue, to: BusinessStatusValue): boolean => {
+    if (from === to) return true;
+    const allowed = LEGAL_BUSINESS_TRANSITIONS[from];
+    return Array.isArray(allowed) && allowed.includes(to);
+};

@@ -91,36 +91,9 @@ export function useBrowseEmptyState(
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;
 
-  const emptyStateTitle = isEmptyState
-    ? activeFilterCount > 0
-      ? `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found`
-      : "No listings available right now"
-    : "";
-
+  const emptyStateTitle = "";
+  const emptyStateDescription = "";
   const suggestions: string[] = [];
-  if (isEmptyState && activeFilterCount > 0) {
-    if (priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) {
-      suggestions.push("Remove price filter");
-    }
-    if (showRadiusFilter && radiusKm !== 50) {
-      suggestions.push("Widen search radius / search nearby");
-    }
-    if (selectedBrands.length > 0) {
-      suggestions.push("Clear brand filters");
-    }
-    if (query) {
-      suggestions.push("Try different keywords or check spelling");
-    }
-    if (resolvedCategoryLabel) {
-      suggestions.push(`Browse all ${resolvedCategoryLabel.toLowerCase()}`);
-    } else {
-      suggestions.push("Browse all categories");
-    }
-  }
-
-  const emptyStateDescription = activeFilterCount > 0
-    ? "Try adjusting your filters or search criteria. You can also clear everything and start again."
-    : "There are no live ads in this view yet. Check back soon or widen your location once sellers publish new listings.";
   const desktopShellClassName = isEmptyState ? EMPTY_FILTER_SHELL_CLASS_NAME : undefined;
 
   return { activeFilterCount, activeFilterBadges, isEmptyState, emptyStateTitle, emptyStateDescription, suggestions, desktopShellClassName };

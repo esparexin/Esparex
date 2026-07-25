@@ -12,8 +12,8 @@ export const PUBLIC_BROWSE_SORT_LABELS: Record<SortOption, string> = {
 };
 
 export const PUBLIC_BROWSE_SORT_MAP: Record<SortOption, string> = {
-  relevance: "relevance",
-  newest: "createdAt_desc",
-  price_low_high: "price_asc",
-  price_high_low: "price_desc",
+  relevance: "newest",
+  newest: "newest",
+  price_low_high: "price-low",
+  price_high_low: "price-high",
 };

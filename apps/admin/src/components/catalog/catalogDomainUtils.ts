@@ -12,7 +12,7 @@ type NamedCategory = {
     approvalStatus?: string | null;
 };
 
-export type CatalogLifecycleStatus = "live" | "inactive" | "pending" | "rejected";
+export type CatalogLifecycleStatus = "active" | "inactive" | "pending" | "rejected";
 
 export function deriveCatalogLifecycleStatus(entity: {
     approvalStatus?: string | null;
@@ -23,7 +23,7 @@ export function deriveCatalogLifecycleStatus(entity: {
     if (approvalStatus === "pending") return "pending";
     if (approvalStatus === "rejected") return "rejected";
     if (entity.isDeleted || entity.isActive === false) return "inactive";
-    return "live";
+    return "active";
 }
 
 export function getEntityCategoryIds(entity: CategoryLinkedEntity): string[] {

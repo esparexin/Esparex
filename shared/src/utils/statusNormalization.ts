@@ -1,53 +1,121 @@
 /**
- * Centralized Status Normalization
- * Standardizes naming drift across Ad, Business, and Service entities.
+ * Centralized Domain-Specific Status Normalization (SSOT)
+ * Standardizes lifecycle, approval, and activation state semantics across monorepo domains.
  */
 
-export type DomainStatus = 'pending' | 'live' | 'rejected' | 'suspended' | 'expired' | 'deactivated' | 'sold' | 'deleted' | 'closed';
+export type DomainStatus = 'pending' | 'live' | 'active' | 'rejected' | 'suspended' | 'expired' | 'deactivated' | 'sold' | 'deleted' | 'closed';
+
+export type UserStatusDomain = 'active' | 'inactive' | 'suspended' | 'banned' | 'deleted' | 'live';
+export type BusinessStatusDomain = 'pending' | 'active' | 'rejected' | 'suspended' | 'deleted' | 'closed' | 'live' | 'deactivated' | 'expired';
+export type ListingStatusDomain = 'draft' | 'pending' | 'live' | 'sold' | 'expired' | 'rejected' | 'deactivated';
 
 /**
- * Base normalization logic for any domain status.
- * Coerces legacy/UI aliases ('approved', 'active') to canonical 'live'.
+ * Base status string cleaner.
  */
-export function normalizeStatus(value: unknown, fallback: DomainStatus = 'pending'): DomainStatus {
-    if (typeof value !== 'string') return fallback;
-    const normalized = value.trim().toLowerCase();
+export function cleanStatusString(value: unknown): string {
+    return typeof value === 'string' ? value.trim().toLowerCase() : '';
+}
 
-    if (normalized === 'approved' || normalized === 'active' || normalized === 'live') {
-        return 'live';
-    }
+/**
+ * Specific normalizer for User Account status.
+ */
+export function normalizeUserStatus(value: unknown, fallback: UserStatusDomain = 'active'): UserStatusDomain {
+    const raw = cleanStatusString(value);
+    if (!raw) return fallback;
 
-    const validStatuses: DomainStatus[] = ['pending', 'rejected', 'suspended', 'expired', 'deactivated', 'sold', 'deleted', 'closed'];
-    if (validStatuses.includes(normalized as DomainStatus)) {
-        return normalized as DomainStatus;
-    }
+    if (raw === 'live' || raw === 'active') return 'active';
+    if (raw === 'suspended') return 'suspended';
+    if (raw === 'banned') return 'banned';
+    if (raw === 'inactive') return 'inactive';
+    if (raw === 'deleted') return 'deleted';
 
     return fallback;
 }
 
 /**
- * Specific normalizer for Business status.
+ * Specific normalizer for Business Account status.
  */
-export function normalizeBusinessStatus(value: unknown, fallback: 'pending' = 'pending'): 'live' | 'pending' | 'rejected' | 'suspended' | 'deleted' | 'expired' | 'deactivated' | 'closed' {
-    const status = normalizeStatus(value, fallback);
-    if (status === 'sold') return 'closed';
-    return status as 'live' | 'pending' | 'rejected' | 'suspended' | 'deleted' | 'expired' | 'deactivated' | 'closed';
+export function normalizeBusinessStatus(value: unknown, fallback: BusinessStatusDomain = 'pending'): BusinessStatusDomain {
+    const raw = cleanStatusString(value);
+    if (!raw) return fallback;
+
+    if (raw === 'approved' || raw === 'active' || raw === 'live') return 'active';
+    if (raw === 'pending') return 'pending';
+    if (raw === 'rejected') return 'rejected';
+    if (raw === 'suspended') return 'suspended';
+    if (raw === 'deleted') return 'deleted';
+    if (raw === 'closed') return 'closed';
+
+    return fallback;
 }
 
 /**
- * Specific normalizer for Ad status.
+ * Specific normalizer for Listing / Ad status.
+ * Canonical for marketplace items (Ads, Spare Parts, Services as published listings).
  */
-export function normalizeAdStatus(value: unknown, fallback: 'pending' = 'pending'): 'live' | 'pending' | 'sold' | 'expired' | 'rejected' | 'deactivated' {
-    const status = normalizeStatus(value, fallback);
-    if (status === 'suspended') return 'pending'; // Ad doesn't have 'suspended' in current schema
-    return status as 'live' | 'pending' | 'sold' | 'expired' | 'rejected' | 'deactivated';
+export function normalizeAdStatus(value: unknown, fallback: ListingStatusDomain = 'pending'): ListingStatusDomain {
+    const raw = cleanStatusString(value);
+    if (!raw) return fallback;
+
+    if (raw === 'live' || raw === 'active' || raw === 'approved') return 'live';
+    if (raw === 'pending') return 'pending';
+    if (raw === 'draft') return 'draft';
+    if (raw === 'sold') return 'sold';
+    if (raw === 'expired') return 'expired';
+    if (raw === 'rejected') return 'rejected';
+    if (raw === 'deactivated') return 'deactivated';
+
+    return fallback;
 }
+
+/** Alias for normalizeAdStatus */
+export const normalizeListingStatus = normalizeAdStatus;
 
 /**
  * Specific normalizer for Service status.
  */
-export function normalizeServiceStatus(value: unknown, fallback: 'pending' = 'pending'): 'live' | 'pending' | 'expired' | 'rejected' | 'deactivated' {
-    const status = normalizeStatus(value, fallback);
-    if (status === 'suspended' || status === 'sold') return 'pending'; 
-    return status as 'live' | 'pending' | 'expired' | 'rejected' | 'deactivated';
+export function normalizeServiceStatus(value: unknown, fallback: ListingStatusDomain = 'pending'): ListingStatusDomain {
+    return normalizeAdStatus(value, fallback);
 }
+
+/**
+ * Normalizer for Catalog Entity state (Category, Brand, Model, Screen Size, Spare Part).
+ * Resolves to SSOT properties: `isActive: boolean` and `approvalStatus`.
+ */
+export function normalizeCatalogStatus(entity: { isActive?: boolean; approvalStatus?: string; status?: string } | null | undefined): {
+    isActive: boolean;
+    approvalStatus: 'pending' | 'approved' | 'rejected';
+} {
+    if (!entity) {
+        return { isActive: true, approvalStatus: 'approved' };
+    }
+
+    const rawApproval = cleanStatusString(entity.approvalStatus);
+    const approvalStatus: 'pending' | 'approved' | 'rejected' =
+        rawApproval === 'pending' ? 'pending' : rawApproval === 'rejected' ? 'rejected' : 'approved';
+
+    const isActive = typeof entity.isActive === 'boolean' ? entity.isActive : entity.status !== 'inactive';
+
+    return { isActive, approvalStatus };
+}
+
+/**
+ * Base normalization logic for generic domain status.
+ * @deprecated Use domain-specific normalizers (normalizeUserStatus, normalizeBusinessStatus, normalizeAdStatus) instead.
+ */
+export function normalizeStatus(value: unknown, fallback: DomainStatus = 'pending'): DomainStatus {
+    const raw = cleanStatusString(value);
+    if (!raw) return fallback;
+
+    if (raw === 'approved' || raw === 'active' || raw === 'live') {
+        return 'live';
+    }
+
+    const validStatuses: DomainStatus[] = ['pending', 'rejected', 'suspended', 'expired', 'deactivated', 'sold', 'deleted', 'closed'];
+    if (validStatuses.includes(raw as DomainStatus)) {
+        return raw as DomainStatus;
+    }
+
+    return fallback;
+}
+

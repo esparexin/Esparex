@@ -157,9 +157,12 @@ export function Header({
     }
   };
 
+  const [isMobileSearchEditing, setIsMobileSearchEditing] = useState(false);
+
   useEffect(() => {
     setShowLocationSelector(false);
     setShowSearchDropdown(false);
+    setIsMobileSearchEditing(false);
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
   return (
@@ -409,12 +412,15 @@ export function Header({
             <Menu className="h-5 w-5" />
           </Button>
 
-          {chromePolicy.showStickySearch ? (
+          {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
             <button
               type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 h-11 text-left"
-              aria-label={`Current search: ${stickySearchLabel}`}
+              onClick={() => {
+                setIsMobileSearchEditing(true);
+                setSearchQuery(browseParams.q || "");
+              }}
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 h-11 text-left hover:bg-slate-100 transition-colors"
+              aria-label={`Tap to search. Current search: ${stickySearchLabel}`}
             >
               <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
               <span className="truncate text-sm font-medium text-foreground-secondary">
@@ -422,13 +428,25 @@ export function Header({
               </span>
             </button>
           ) : (
-            <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+            <form
+              onSubmit={(e) => {
+                handleSearchSubmit(e);
+                setIsMobileSearchEditing(false);
+              }}
+              className="flex-1 relative"
+            >
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
               <Input
+                autoFocus={isMobileSearchEditing}
                 className="w-full pl-9 h-11 bg-slate-100 border-transparent focus-visible:bg-white focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
-                placeholder="Search listings..."
+                placeholder="Search phones, laptops, spare parts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onBlur={() => {
+                  if (!searchQuery.trim() && chromePolicy.showStickySearch) {
+                    setIsMobileSearchEditing(false);
+                  }
+                }}
                 aria-label="Search listings"
               />
             </form>

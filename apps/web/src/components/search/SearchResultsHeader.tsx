@@ -58,9 +58,9 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             )}
             {...props}
         >
-            <SortAsc className="size-4 text-foreground-subtle" />
-            <span className="font-semibold text-slate-700 text-sm">Sorted: {SORT_LABELS[sort]}</span>
-            <ChevronDown className={cn("size-4 text-foreground-subtle transition-transform", open && "rotate-180")} />
+            <SortAsc className="size-3.5 text-foreground-subtle" />
+            <span className="font-medium text-slate-700 text-xs md:text-sm">{SORT_LABELS[sort]}</span>
+            <ChevronDown className={cn("size-3.5 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
 });
@@ -138,68 +138,65 @@ export function SearchResultsHeader({
     onSortChange,
     onViewChange,
     filterNode,
-    activeFilterCount = 0,
     categoryName,
 }: SearchResultsHeaderProps) {
     const [sortOpen, setSortOpen] = React.useState(false);
 
     return (
-        <div className="sticky top-[6.25rem] md:top-0 z-20 bg-white/95 backdrop-blur-md mb-4 md:mb-0 border-b border-slate-100 py-3 px-3 md:px-0">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                {/* Result count & indicator */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 flex-1 min-w-0">
-                    <div className="flex items-center justify-between min-w-0 flex-1 md:flex-initial">
-                        <div className="flex flex-col md:flex-row md:items-baseline md:gap-3 min-w-0">
-                            {categoryName && (
-                                <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-none mb-1 md:mb-0">
-                                    {categoryName}
-                                </h2>
-                            )}
-                            <div className="flex items-center gap-2 min-w-0">
-                                <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                                <p className="text-sm text-slate-700 font-semibold md:font-medium truncate">
-                                    <span className="text-slate-950 font-bold">{total}</span> {total === 1 ? "listing" : "listings"} available
-                                    {activeFilterCount > 0 ? ` • ${activeFilterCount} active` : ""}
-                                </p>
-                            </div>
-                        </div>
+        <div className="sticky top-14 md:top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-100 py-2 px-3 md:px-0 md:py-3 mb-2 md:mb-0">
+            {/* Mobile Compact Single-Row Toolbar */}
+            <div className="flex md:hidden items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {filterNode && <div className="shrink-0">{filterNode}</div>}
+                    <SortDropdown
+                        open={sortOpen}
+                        onOpenChange={setSortOpen}
+                        sort={sort}
+                        onSelect={onSortChange}
+                    />
+                </div>
+                <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
+                    aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+                    className="h-10 w-10 flex-shrink-0 rounded-lg border-slate-200 bg-white shadow-sm"
+                >
+                    {view === "grid" ? (
+                        <List className="size-4 text-foreground-tertiary" />
+                    ) : (
+                        <LayoutGrid className="size-4 text-foreground-tertiary" />
+                    )}
+                </Button>
+            </div>
 
-                        {/* View Toggle (Mobile inline) */}
-                        <div className="md:hidden flex items-center gap-2">
-                            <Button
-                                size="icon"
-                                variant="outline"
-                                onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
-                                aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
-                                className="h-10 w-10 flex-shrink-0 rounded-full border-slate-200 bg-white shadow-none"
-                            >
-                                {view === "grid"
-                                    ? <List className="size-4 text-foreground-tertiary" />
-                                    : <LayoutGrid className="size-4 text-foreground-tertiary" />}
-                            </Button>
+            {/* Desktop Expanded Layout */}
+            <div className="hidden md:flex md:items-center justify-between gap-3">
+                <div className="flex items-center justify-between min-w-0 flex-1">
+                    <div className="flex items-baseline gap-3 min-w-0">
+                        {categoryName && (
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">
+                                {categoryName}
+                            </h2>
+                        )}
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                            <p className="text-sm text-slate-700 font-medium truncate">
+                                <span className="text-slate-950 font-bold">{total}</span> {total === 1 ? "listing" : "listings"} available
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Controls: Filter trigger (mobile), Sort Dropdown, View Toggles (desktop) */}
-                <div className="flex flex-wrap items-center justify-between md:justify-end gap-2">
-                    <div className="flex items-center gap-2">
-                        {filterNode && (
-                            <div className="shrink-0 md:hidden">
-                                {filterNode}
-                            </div>
-                        )}
+                <div className="flex items-center gap-3">
+                    <SortDropdown
+                        open={sortOpen}
+                        onOpenChange={setSortOpen}
+                        sort={sort}
+                        onSelect={onSortChange}
+                    />
 
-                        <SortDropdown
-                            open={sortOpen}
-                            onOpenChange={setSortOpen}
-                            sort={sort}
-                            onSelect={onSortChange}
-                        />
-                    </div>
-
-                    {/* View Toggle (Desktop) */}
-                    <div className="hidden md:flex items-center rounded-[10px] border border-slate-200 bg-slate-50/50 p-1">
+                    <div className="flex items-center rounded-[10px] border border-slate-200 bg-slate-50/50 p-1">
                         <Button
                             size="icon"
                             variant="ghost"

@@ -3,7 +3,7 @@
 
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 import { type ListingFilters, type Listing, type ListingPageResult } from "@/lib/api/user/listings";
 import { getCategories } from "@/lib/api/user/categories";
@@ -40,6 +40,7 @@ import { useFilterState, DEFAULT_PRICE_RANGE } from "./hooks/useFilterState";
 import { useUrlSync } from "./hooks/useUrlSync";
 import { useFilterToQuery } from "./hooks/useFilterToQuery";
 import { useBrowseEmptyState, buildPriceSummary } from "./hooks/useBrowseEmptyState";
+import { BrowseEmptyState } from "./BrowseEmptyState";
 
 const PAGE_SIZE = 20;
 
@@ -178,8 +179,7 @@ export function BrowseAds({
       ? data.pagination.hasMore
       : total > page * PAGE_SIZE;
   const {
-    activeFilterCount, isEmptyState,
-    emptyStateTitle, emptyStateDescription, suggestions, desktopShellClassName
+    activeFilterCount, isEmptyState, desktopShellClassName
   } = useBrowseEmptyState(
     selectedCategory, categories, availableBrands, canonicalUrlLocationLabel, location,
     query, priceRange, urlLocationId, globalLocationLabel,
@@ -305,11 +305,12 @@ export function BrowseAds({
       )}
       <section data-primary className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-6 items-start">
-
-            {/* ── Single SearchFilters — renders sidebar on desktop, drawer trigger on mobile ── */}
+          {/* Desktop Filter Sidebar */}
+          <div className="hidden lg:block">
             <SearchFilters {...filterProps} />
+          </div>
 
-            {/* ── Results Column ───────────────────────────────────────────── */}
+          {/* ── Results Column ───────────────────────────────────────────── */}
             <div className="flex-1 min-w-0 space-y-4">
               {/* Results header: count + sort + view toggle */}
               <SearchResultsHeader
@@ -318,52 +319,57 @@ export function BrowseAds({
                 view={view}
                 onSortChange={setSort}
                 onViewChange={setView}
-                activeFilterCount={activeFilterCount}
+                filterNode={<SearchFilters {...filterProps} />}
                 categoryName={currentCategoryName}
               />
 
               {/* ── Active Filter Chips ────────────────────────────────────── */}
               {activeFilterCount > 0 && (
-                <div className="flex flex-wrap gap-2 items-center py-2 border-b border-slate-100">
-                  {query && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold">
-                      Search: &quot;{query}&quot;
-                      <button onClick={() => setQuery("")} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear search">✕</button>
-                    </span>
-                  )}
-                  {selectedCategory && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 text-xs font-semibold border border-indigo-100">
-                      {currentCategoryName}
-                      <button onClick={() => setSelectedCategory(null)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear category">✕</button>
-                    </span>
-                  )}
-                  {selectedBrands.map((brandId) => {
-                    const brandName = availableBrands.find(b => b.value === brandId)?.label || brandId;
-                    return (
-                      <span key={brandId} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold border border-blue-100">
-                        {brandName}
-                        <button onClick={() => setSelectedBrands(prev => prev.filter(b => b !== brandId))} className="hover:text-red-500 font-bold ml-0.5" aria-label={`Clear brand ${brandName}`}>✕</button>
+                <div className="flex flex-wrap gap-2 items-center justify-between py-2 border-b border-slate-100">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    {query && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold">
+                        Search: &quot;{query}&quot;
+                        <button onClick={() => setQuery("")} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear search">✕</button>
                       </span>
-                    );
-                  })}
-                  {(priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
-                      {buildPriceSummary(priceRange)}
-                      <button onClick={() => setPriceRange(DEFAULT_PRICE_RANGE)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear price filter">✕</button>
-                    </span>
-                  )}
-                  {showRadiusFilter && radiusKm !== 50 && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-100">
-                      Within {radiusKm} km
-                      <button onClick={() => setRadiusKm(50)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear radius filter">✕</button>
-                    </span>
-                  )}
-                  <button
-                    onClick={handleReset}
-                    className="text-xs text-slate-500 hover:text-slate-800 font-bold hover:underline ml-2"
-                  >
-                    Clear All
-                  </button>
+                    )}
+                    {selectedCategory && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 text-xs font-semibold border border-indigo-100">
+                        {currentCategoryName}
+                        <button onClick={() => setSelectedCategory(null)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear category">✕</button>
+                      </span>
+                    )}
+                    {selectedBrands.map((brandId) => {
+                      const brandName = availableBrands.find(b => b.value === brandId)?.label || brandId;
+                      return (
+                        <span key={brandId} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold border border-blue-100">
+                          {brandName}
+                          <button onClick={() => setSelectedBrands(prev => prev.filter(b => b !== brandId))} className="hover:text-red-500 font-bold ml-0.5" aria-label={`Clear brand ${brandName}`}>✕</button>
+                        </span>
+                      );
+                    })}
+                    {(priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
+                        {buildPriceSummary(priceRange)}
+                        <button onClick={() => setPriceRange(DEFAULT_PRICE_RANGE)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear price filter">✕</button>
+                      </span>
+                    )}
+                    {showRadiusFilter && radiusKm !== 50 && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-100">
+                        Within {radiusKm} km
+                        <button onClick={() => setRadiusKm(50)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear radius filter">✕</button>
+                      </span>
+                    )}
+                    <button
+                      onClick={handleReset}
+                      className="text-xs text-slate-500 hover:text-slate-800 font-bold hover:underline ml-2"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <span className="text-xs font-bold text-slate-500">
+                    {total} {total === 1 ? "listing" : "listings"}
+                  </span>
                 </div>
               )}
 
@@ -390,49 +396,13 @@ export function BrowseAds({
 
               {/* ── Empty state ──────────────────────────────────────────── */}
               {isEmptyState && (
-                <div className="flex min-h-[300px] flex-col items-center justify-center px-6 py-12 text-center">
-                  <div className="mb-4">
-                    <PackageOpen className="h-10 w-10 text-foreground-subtle" />
-                  </div>
-                  <h3 className="mb-2 text-xl font-semibold text-foreground capitalize">
-                    {emptyStateTitle}
-                  </h3>
-                  <p className="mb-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-                    {emptyStateDescription}
-                  </p>
-                  {suggestions && suggestions.length > 0 && (
-                    <div className="mb-6 text-left max-w-sm mx-auto">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Try:</p>
-                      <ul className="space-y-1.5 text-sm text-slate-600">
-                        {suggestions.map((suggestion, idx) => (
-                          <li key={idx} className="flex items-center gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
-                            {suggestion}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {activeFilterCount > 0 ? (
-                      <Button variant="outline" onClick={handleReset}>
-                        Clear Filters
-                      </Button>
-                    ) : null}
-                    {query && (
-                      <Button
-                        asChild
-                        className="gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                      >
-                        <a href="/account/alerts">
-                          <BellPlus className="h-4 w-4" />
-                          Get Notified When Available
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                </div>
+                <BrowseEmptyState
+                  activeFilterCount={activeFilterCount}
+                  query={query}
+                  categoryName={routeParams.category}
+                  onResetFilters={handleReset}
+                  onPostAdClick={() => router.push("/post-ad")}
+                />
               )}
 
             {/* ── Ads Grid / List ──────────────────────────────────────── */}

@@ -67,7 +67,106 @@ export const resolveEquivalentActiveCategoryIds = async (categoryId: string): Pr
     return matches;
 };
 
+export type ResolvedCategoryHierarchy = {
+    rootCategoryId: string | null;
+    categoryIds: string[];
+    matchedBy: 'id' | 'slug' | 'none';
+};
+
+/**
+ * Resolves a category ID or slug and returns target category ID + all active child subcategory IDs.
+ * Returns a rich metadata object (rootCategoryId, categoryIds, matchedBy).
+ * Bounded Context: Keeps category hierarchy resolution inside CatalogCategoryService.
+ */
+export const resolveCategoryWithSubcategoryIds = async (
+    categoryIdOrSlug?: string | null
+): Promise<ResolvedCategoryHierarchy> => {
+    if (!categoryIdOrSlug) {
+        return { rootCategoryId: null, categoryIds: [], matchedBy: 'none' };
+    }
+    const normalizedInput = categoryIdOrSlug.trim();
+    if (!normalizedInput) {
+        return { rootCategoryId: null, categoryIds: [], matchedBy: 'none' };
+    }
+
+    let matchedBy: 'id' | 'slug' | 'none' = 'none';
+    let targetCategory: { _id: mongoose.Types.ObjectId } | null = null;
+
+    if (mongoose.Types.ObjectId.isValid(normalizedInput)) {
+        targetCategory = await Category.findOne({
+            _id: normalizedInput,
+            isDeleted: { $ne: true },
+            isActive: true,
+        }).select('_id').lean();
+        if (targetCategory) matchedBy = 'id';
+    }
+
+    if (!targetCategory) {
+        const canonicalSlug = CatalogFacade.category.normalize.canonicalizeCategorySlug(normalizedInput);
+        const searchSlug = (canonicalSlug || normalizedInput).toLowerCase();
+        const rawSlug = normalizedInput.toLowerCase();
+        targetCategory = await Category.findOne({
+            isDeleted: { $ne: true },
+            isActive: true,
+            $or: [
+                { slug: searchSlug },
+                { slug: rawSlug },
+                { aliases: searchSlug },
+                { aliases: rawSlug },
+                { synonyms: searchSlug },
+                { synonyms: rawSlug },
+                { canonicalName: searchSlug },
+                { canonicalName: rawSlug }
+            ]
+        }).select('_id').lean();
+        if (targetCategory) matchedBy = 'slug';
+    }
+
+
+    if (!targetCategory) {
+        return { rootCategoryId: null, categoryIds: [], matchedBy: 'none' };
+    }
+
+    const targetIdStr = String(targetCategory._id);
+    const ids = new Set<string>([targetIdStr]);
+
+    const collectDescendantIds = async (parentIds: mongoose.Types.ObjectId[], depth = 0) => {
+        if (parentIds.length === 0 || depth >= 5) return;
+        const children = await Category.find({
+            parentId: { $in: parentIds },
+            isDeleted: { $ne: true },
+            isActive: true,
+        }).select('_id').lean();
+
+        if (children.length === 0) return;
+        const nextParentIds: mongoose.Types.ObjectId[] = [];
+        children.forEach((child) => {
+            if (child._id) {
+                const childIdStr = String(child._id);
+                if (!ids.has(childIdStr)) {
+                    ids.add(childIdStr);
+                    nextParentIds.push(child._id as mongoose.Types.ObjectId);
+                }
+            }
+        });
+
+        if (nextParentIds.length > 0) {
+            await collectDescendantIds(nextParentIds, depth + 1);
+        }
+    };
+
+    await collectDescendantIds([targetCategory._id]);
+
+    return {
+        rootCategoryId: targetIdStr,
+        categoryIds: Array.from(ids),
+        matchedBy,
+    };
+};
+
+
 // ─── Catalog-wide counts ──────────────────────────────────────────────────────
+
 
 const CATALOG_COUNT_MAX_TIME_MS = 1500;
 const CATALOG_COUNT_ESTIMATE_MAX_TIME_MS = 1000;
@@ -126,6 +225,50 @@ export const findCategoryById = async (id: string | undefined, extraQuery: Recor
 export const categoryParentExists = async (parentId: string | undefined) => {
     if (!parentId) return false;
     return Category.exists({ _id: parentId });
+};
+
+/**
+ * Recursively validates that setting categoryId's parent to targetParentId
+ * does not introduce a circular hierarchy loop (e.g. A -> B -> C -> A).
+ * Returns true if valid, false if invalid/circular.
+ */
+export const validateCategoryParentHierarchy = async (
+    categoryId: string | undefined,
+    targetParentId: string | undefined
+): Promise<boolean> => {
+    if (!targetParentId) return true;
+    if (!mongoose.Types.ObjectId.isValid(targetParentId)) return false;
+
+    const parentExists = await Category.exists({ _id: targetParentId, isDeleted: { $ne: true } });
+    if (!parentExists) return false;
+
+    if (categoryId && String(categoryId) === String(targetParentId)) {
+        return false;
+    }
+
+    if (!categoryId) return true;
+
+    const visited = new Set<string>([String(categoryId)]);
+    let currentParentId: string | null = String(targetParentId);
+
+    while (currentParentId) {
+        if (visited.has(currentParentId)) {
+            return false;
+        }
+        visited.add(currentParentId);
+
+        const parentCategory: { parentId?: mongoose.Types.ObjectId } | null = await Category.findOne({
+            _id: currentParentId,
+            isDeleted: { $ne: true }
+        }).select('parentId').lean();
+
+        if (!parentCategory || !parentCategory.parentId) {
+            break;
+        }
+        currentParentId = String(parentCategory.parentId);
+    }
+
+    return true;
 };
 
 export const updateCategorySchemaById = async (id: string | undefined, filters: unknown[]) => {

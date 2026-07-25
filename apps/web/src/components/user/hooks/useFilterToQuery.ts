@@ -40,9 +40,14 @@ export function useFilterToQuery(
 
     if (query.trim()) nextFilters.search = query.trim();
     if (selectedCategory) {
-      const { categoryId } = resolveBrowseCategorySelection(selectedCategory, categories);
-      if (categoryId) nextFilters.categoryId = categoryId;
+      const { categoryId, category } = resolveBrowseCategorySelection(selectedCategory, categories);
+      if (categoryId) {
+        nextFilters.categoryId = categoryId;
+      } else if (category) {
+        nextFilters.category = category;
+      }
     }
+
     const resolvedBrandIds = resolveBrowseBrandSelection(selectedBrands, availableBrandOptions);
     if (resolvedBrandIds.length > 0) nextFilters.brandId = resolvedBrandIds.join(",");
     if (urlModelId) nextFilters.modelId = urlModelId;

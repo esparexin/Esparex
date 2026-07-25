@@ -1,5 +1,4 @@
 /**
- * @deprecated Compatibility shim — import directly from domain:
- * import { ... } from '@esparex/core/domains/analytics';
+ * Bounded Context Domain Export Shim.
  */
 export * from '../domains/analytics/application/services/ReportService';

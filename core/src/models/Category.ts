@@ -19,6 +19,7 @@ export interface ICategory extends Document {
     icon?: string;
     description?: string;
     parentId?: mongoose.Types.ObjectId;
+    sortOrder: number;
     isActive: boolean;
     approvalStatus: CatalogApprovalStatusValue;
     status: CatalogStatusValue;
@@ -45,6 +46,7 @@ const CategorySchema = new Schema<ICategory>({
     icon: { type: String },
     description: { type: String },
     parentId: { type: Schema.Types.ObjectId, ref: 'Category' },
+    sortOrder: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
     approvalStatus: {
         type: String,
@@ -79,6 +81,7 @@ CategorySchema.index({ slug: 1 }, {
     partialFilterExpression: { isDeleted: false }
 });
 CategorySchema.index({ parentId: 1 }, { name: 'idx_category_parent' });
+CategorySchema.index({ sortOrder: 1 }, { name: 'idx_category_sortOrder' });
 
 CategorySchema.index({ status: 1 }, { name: 'idx_category_status' });
 CategorySchema.index({ approvalStatus: 1, isActive: 1 }, { name: 'idx_category_approval_active' });

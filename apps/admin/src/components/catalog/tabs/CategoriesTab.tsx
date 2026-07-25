@@ -19,17 +19,22 @@ import {
     CatalogTextInputField,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
+import { CatalogSelectField } from "@/components/catalog/CatalogUiPrimitives";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { adminCategorySchema } from "@/schemas/admin.schemas";
 import { Category } from "@esparex/contracts";
+
 type CategoryFormData = {
     name: string;
     icon?: string;
+    parentId?: string;
+    sortOrder: number;
     isActive: boolean;
     hasScreenSizes: boolean;
     listingType: ListingTypeValue[];
+    _editingId?: string;
     _editingSlug?: string;
 };
 
@@ -111,21 +116,30 @@ export default function CategoriesTab() {
                 pagination={pagination}
                 setPage={(page) => replaceQueryState({ page: page > 1 ? page : null })}
                 handleCreate={(data) => {
-                    const payload = { ...data };
+                    const payload: Record<string, unknown> = { ...data };
                     delete payload._editingSlug;
-                    return handleCreate(payload);
+                    delete payload._editingId;
+                    if (!payload.parentId) delete payload.parentId;
+                    payload.sortOrder = Number(payload.sortOrder) || 0;
+                    return handleCreate(payload as unknown as Parameters<typeof handleCreate>[0]);
                 }}
                 handleUpdate={(id, data) => {
-                    const payload = { ...data };
+                    const payload: Record<string, unknown> = { ...data };
                     delete payload._editingSlug;
-                    return handleUpdate(id, payload);
+                    delete payload._editingId;
+                    if (!payload.parentId) payload.parentId = null;
+                    payload.sortOrder = Number(payload.sortOrder) || 0;
+                    return handleUpdate(id, payload as unknown as Parameters<typeof handleUpdate>[1]);
                 }}
                 defaultFormData={{
                     name: "",
                     icon: "",
+                    parentId: "",
+                    sortOrder: 0,
                     isActive: true,
                     hasScreenSizes: false,
                     listingType: [LISTING_TYPE.AD],
+                    _editingId: "",
                     _editingSlug: "",
                 }}
                 customSubmitValidation={(formData) => {
@@ -135,6 +149,8 @@ export default function CategoriesTab() {
                     const validation = adminCategorySchema.safeParse({
                         name: formData.name,
                         slug,
+                        parentId: formData.parentId || null,
+                        sortOrder: Number(formData.sortOrder) || 0,
                         listingType: formData.listingType,
                         hasScreenSizes: formData.hasScreenSizes,
                     });
@@ -147,11 +163,14 @@ export default function CategoriesTab() {
                         setFormData({
                             name: item.name,
                             icon: item.icon || "",
+                            parentId: item.parentId ? String(item.parentId) : "",
+                            sortOrder: typeof item.sortOrder === "number" ? item.sortOrder : 0,
                             isActive: item.isActive,
                             hasScreenSizes: item.hasScreenSizes || false,
                             listingType: Array.isArray(item.listingType)
                                 ? item.listingType.filter(isListingTypeValue)
                                 : [],
+                            _editingId: item.id,
                             _editingSlug: item.slug,
                         });
                     }
@@ -172,6 +191,14 @@ export default function CategoriesTab() {
                     {
                         header: "Listing Types",
                         cell: (category) => <CatalogListingTypeBadges types={category.listingType} />,
+                    },
+                    {
+                        header: "Sort Order",
+                        cell: (category) => (
+                            <span className="font-mono text-xs font-semibold text-slate-600">
+                                {category.sortOrder ?? 0}
+                            </span>
+                        ),
                     },
                     {
                         header: "Screen Sizes",
@@ -235,66 +262,89 @@ export default function CategoriesTab() {
                         />
                     </>
                 }
-                formRenderer={(formData, setFormData, isEditing) => (
-                    <>
-                        <CatalogTextInputField
-                            label="Category Name"
-                            placeholder="e.g. Smartphones"
-                            value={formData.name}
-                            maxLength={50}
-                            onChange={(name) => setFormData((prev) => ({ ...prev, name }))}
-                        />
+                formRenderer={(formData, setFormData, isEditing) => {
+                    const parentOptions = [
+                        { value: "", label: "None (Root Category)" },
+                        ...categories
+                            .filter((cat) => cat.id !== formData._editingId)
+                            .map((cat) => ({ value: cat.id, label: cat.name })),
+                    ];
 
-                        <CatalogTextInputField
-                            label="Icon Name"
-                            placeholder="e.g. smartphone, drone, briefcase..."
-                            value={formData.icon || ""}
-                            maxLength={30}
-                            required={false}
-                            onChange={(icon) => setFormData((prev) => ({ ...prev, icon }))}
-                        />
+                    return (
+                        <>
+                            <CatalogTextInputField
+                                label="Category Name"
+                                placeholder="e.g. Smartphones"
+                                value={formData.name}
+                                maxLength={50}
+                                onChange={(name) => setFormData((prev) => ({ ...prev, name }))}
+                            />
 
-                        <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">URL Slug</p>
-                            <p className="mt-0.5 font-mono text-sm text-slate-700 break-all">
-                                {isEditing && formData._editingSlug
-                                    ? formData._editingSlug
-                                    : deriveSlug(formData.name) || "auto-generated from name"}
-                            </p>
-                            {isEditing && (
-                                <p className="mt-1 text-[11px] text-amber-600">
-                                    ⚠ Slug is fixed on create. Changing name will not change the slug.
+                            <CatalogSelectField
+                                label="Parent Category"
+                                value={formData.parentId || ""}
+                                options={parentOptions}
+                                onChange={(parentId) => setFormData((prev) => ({ ...prev, parentId }))}
+                            />
+
+                            <CatalogTextInputField
+                                label="Sort Order"
+                                placeholder="0"
+                                value={String(formData.sortOrder)}
+                                onChange={(val) => setFormData((prev) => ({ ...prev, sortOrder: parseInt(val, 10) || 0 }))}
+                            />
+
+                            <CatalogTextInputField
+                                label="Icon Name"
+                                placeholder="e.g. smartphone, drone, briefcase..."
+                                value={formData.icon || ""}
+                                maxLength={30}
+                                required={false}
+                                onChange={(icon) => setFormData((prev) => ({ ...prev, icon }))}
+                            />
+
+                            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">URL Slug</p>
+                                <p className="mt-0.5 font-mono text-sm text-slate-700 break-all">
+                                    {isEditing && formData._editingSlug
+                                        ? formData._editingSlug
+                                        : deriveSlug(formData.name) || "auto-generated from name"}
                                 </p>
-                            )}
-                        </div>
+                                {isEditing && (
+                                    <p className="mt-1 text-[11px] text-amber-600">
+                                        ⚠ Slug is fixed on create. Changing name will not change the slug.
+                                    </p>
+                                )}
+                            </div>
 
-                        <CatalogCheckboxGroupField
-                            label="Listing Types"
-                            options={listingTypeOptions}
-                            selectedValues={formData.listingType}
-                            onChange={(listingType) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    listingType: listingType.filter(isListingTypeValue),
-                                }))
-                            }
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <CatalogCheckboxCard
-                                checked={formData.isActive}
-                                onChange={(isActive) => setFormData((prev) => ({ ...prev, isActive }))}
-                                label="Active"
+                            <CatalogCheckboxGroupField
+                                label="Listing Types"
+                                options={listingTypeOptions}
+                                selectedValues={formData.listingType}
+                                onChange={(listingType) =>
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        listingType: listingType.filter(isListingTypeValue),
+                                    }))
+                                }
                             />
 
-                            <CatalogCheckboxCard
-                                checked={formData.hasScreenSizes}
-                                onChange={(hasScreenSizes) => setFormData((prev) => ({ ...prev, hasScreenSizes }))}
-                                label="Screen Sizes"
-                            />
-                        </div>
-                    </>
-                )}
+                            <div className="grid grid-cols-2 gap-4">
+                                <CatalogCheckboxCard
+                                    checked={formData.isActive}
+                                    onChange={(isActive) => setFormData((prev) => ({ ...prev, isActive }))}
+                                    label="Active"
+                                />
+
+                                <CatalogCheckboxCard
+                                    checked={formData.hasScreenSizes}
+                                    onChange={(hasScreenSizes) => setFormData((prev) => ({ ...prev, hasScreenSizes }))}
+                                    label="Screen Sizes"
+                                />
+                            </div>
+                        </>
+                    );
+                }}
             />
 
             <CatalogModal

@@ -211,14 +211,24 @@ export const buildPublicBrowseRoute = (input: PublicBrowseRouteParams = {}): str
     return `${PUBLIC_BROWSE_PATH}?${params.toString()}`;
 };
 
+import { getCanonicalCategorySlug } from "@/lib/seo/canonicalSlugs";
+
 export const buildCategoryBrowseRoute = (
     category: BrowseCategoryRecord | null | undefined,
     input: Omit<PublicBrowseRouteParams, "type" | "category" | "categoryId"> = {}
-): string => buildPublicBrowseRoute({
-    type: "ad",
-    ...input,
-    category: resolveBrowseCategoryParam(category),
-});
+): string => {
+    const slug = readString(category?.slug);
+    if (slug && Object.keys(input).length === 0) {
+        const canonical = getCanonicalCategorySlug(slug);
+        return `/category/${canonical}`;
+    }
+    return buildPublicBrowseRoute({
+        type: "ad",
+        ...input,
+        category: resolveBrowseCategoryParam(category),
+    });
+};
+
 
 export const buildCatalogLinkedBrowseRoute = (
     input: {

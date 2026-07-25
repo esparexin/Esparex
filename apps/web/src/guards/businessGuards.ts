@@ -10,7 +10,8 @@ export function canEditBusiness(status: BusinessStatus | undefined) {
 }
 
 export function canPublishBusiness(status: BusinessStatus | undefined) {
-    return normalizeBusinessStatus(status, 'pending') === 'live';
+    const normalized = normalizeBusinessStatus(status, 'pending');
+    return normalized === 'active' || normalized === 'live';
 }
 
 export function canRegisterBusiness(user: User) {

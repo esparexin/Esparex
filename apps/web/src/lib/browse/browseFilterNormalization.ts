@@ -1,4 +1,5 @@
 import type { Category } from "@/lib/api/user/categories";
+import { CatalogFacade } from "@esparex/shared";
 
 const OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
 
@@ -118,25 +119,33 @@ export const resolveBrowseCategorySelection = (
     selectedCategory: string | null | undefined,
     categories: Category[] = []
 ): ResolvedBrowseCategory => {
-    const normalizedCategory = readToken(selectedCategory);
-    if (!normalizedCategory) {
+    const rawCategoryToken = readToken(selectedCategory);
+    if (!rawCategoryToken) {
         return {};
     }
 
-    const matchedCategory = categories.find(
-        (category) => category.id === normalizedCategory || category.slug === normalizedCategory
-    );
+    const canonicalSlug = CatalogFacade.category.normalize.canonicalizeCategorySlug(rawCategoryToken);
+    const targetSlugLower = (canonicalSlug || rawCategoryToken).toLowerCase();
+
+    const matchedCategory = categories.find((category) => {
+        if (!category) return false;
+        if (category.id === rawCategoryToken) return true;
+        const categorySlugLower = (category.slug || "").toLowerCase();
+        const canonicalCategorySlug = CatalogFacade.category.normalize.canonicalizeCategorySlug(categorySlugLower);
+        return (
+            categorySlugLower === targetSlugLower ||
+            canonicalCategorySlug === targetSlugLower ||
+            (category.name && category.name.toLowerCase() === targetSlugLower)
+        );
+    });
+
     const matchedCategoryId = readToken(matchedCategory?.id);
     const resolvedCategoryId =
         matchedCategoryId ||
-        (isObjectIdToken(normalizedCategory) ? normalizedCategory : undefined);
-    const resolvedCategory =
-        resolvedCategoryId ? undefined : normalizedCategory;
-    const label = matchedCategory?.name
-        ? matchedCategory.name
-        : matchedCategory?.slug
-            ? matchedCategory.slug
-            : (resolvedCategoryId ? null : normalizedCategory);
+        (isObjectIdToken(rawCategoryToken) ? rawCategoryToken : undefined);
+
+    const resolvedCategory = resolvedCategoryId ? undefined : (canonicalSlug || rawCategoryToken);
+    const label = matchedCategory?.displayName || matchedCategory?.name || matchedCategory?.slug || resolvedCategory || null;
 
     return {
         category: resolvedCategory,
@@ -144,3 +153,4 @@ export const resolveBrowseCategorySelection = (
         label,
     };
 };
+
