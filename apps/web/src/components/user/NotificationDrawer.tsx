@@ -100,6 +100,9 @@ export function NotificationDrawer({
           <div className="space-y-2">
             {notifications.map((notification) => {
               const isSwiped = swipedId === notification.id;
+              const titleId = `notif-title-${notification.id}`;
+              const descId = `notif-desc-${notification.id}`;
+              const dateId = `notif-date-${notification.id}`;
 
               return (
                 <div
@@ -111,18 +114,28 @@ export function NotificationDrawer({
                   <div className="absolute inset-y-0 right-0 flex items-center gap-1 bg-slate-100 px-2 dark:bg-slate-800">
                     {!notification.isRead && onMarkRead && (
                       <button
-                        onClick={() => onMarkRead(notification.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shadow-xs hover:bg-amber-600"
-                        aria-label="Mark as read"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void onMarkRead(notification.id);
+                          setSwipedId(null);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500 text-white shadow-xs hover:bg-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                        aria-label={`Mark notification as read: ${notification.title}`}
                       >
                         <CheckCheck className="h-4 w-4" />
                       </button>
                     )}
                     {onDelete && (
                       <button
-                        onClick={() => onDelete(notification.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500 text-white shadow-xs hover:bg-red-600"
-                        aria-label="Delete notification"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void onDelete(notification.id);
+                          setSwipedId(null);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-500 text-white shadow-xs hover:bg-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                        aria-label={`Delete notification: ${notification.title}`}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -130,9 +143,15 @@ export function NotificationDrawer({
                   </div>
 
                   {/* Main Item Content Card */}
-                  <div
-                    onClick={() => onSelect?.(notification)}
-                    className={`relative z-10 flex cursor-pointer items-start gap-3 bg-white p-3.5 transition-transform dark:bg-slate-900 ${
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelect?.(notification);
+                      setSwipedId(null);
+                    }}
+                    aria-labelledby={titleId}
+                    aria-describedby={`${descId} ${dateId}`}
+                    className={`relative z-10 flex w-full text-left cursor-pointer items-start gap-3 bg-white p-3.5 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 dark:bg-slate-900 ${
                       isSwiped ? "-translate-x-24" : "translate-x-0"
                     } ${!notification.isRead ? "bg-amber-50/40 dark:bg-amber-950/10" : ""}`}
                   >
@@ -142,17 +161,17 @@ export function NotificationDrawer({
 
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-semibold text-foreground truncate">
+                        <p id={titleId} className="text-xs font-semibold text-foreground truncate">
                           {notification.title}
                         </p>
                         {!notification.isRead && (
-                          <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                          <span className="h-2 w-2 shrink-0 rounded-full bg-amber-500" aria-label="Unread notification" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                      <p id={descId} className="text-xs text-muted-foreground line-clamp-2">
                         {notification.message}
                       </p>
-                      <span className="inline-block text-[10px] text-slate-400">
+                      <span id={dateId} className="inline-block text-[10px] text-slate-400">
                         {new Date(notification.createdAt).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
@@ -161,7 +180,7 @@ export function NotificationDrawer({
                         })}
                       </span>
                     </div>
-                  </div>
+                  </button>
                 </div>
               );
             })}

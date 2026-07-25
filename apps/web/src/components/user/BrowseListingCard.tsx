@@ -43,7 +43,6 @@ export const BrowseListingCard = memo(function BrowseListingCard({
       src={imageUrl}
       alt={title}
       fill
-      unoptimized={!imageUrl.startsWith('/')}
       priority={priority}
       className="object-cover group-hover:scale-105 transition-transform duration-500"
       sizes={view === "list" ? "(max-width: 768px) 35vw, 180px" : "(max-width: 768px) 50vw, 33vw"}
@@ -55,7 +54,7 @@ export const BrowseListingCard = memo(function BrowseListingCard({
   );
 
   const metaRow = location || createdAt ? (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground pt-2 border-t">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-slate-100">
       {location ? (
         <div className="flex items-center gap-1 min-w-0">
           <MapPin className="h-3 w-3 shrink-0" />
@@ -80,19 +79,19 @@ export const BrowseListingCard = memo(function BrowseListingCard({
   if (view === "list") {
     return (
       <Link href={href} className="block">
-        <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-black rounded-xl">
+        <Card className="overflow-hidden hover:shadow-md transition-all duration-300 group cursor-pointer border border-slate-200/80 hover:border-slate-300 rounded-xl">
           <div className="flex min-w-0 items-stretch">
             <div className="relative h-32 w-28 shrink-0 overflow-hidden bg-slate-100 sm:h-36 sm:w-32">
               {media}
-              <Badge className={`absolute top-2 left-2 border-0 text-2xs ${badgeClassName}`}>
+              <Badge className={`absolute top-2 left-2 border-0 text-2xs shadow-sm ${badgeClassName}`}>
                 {badgeLabel}
               </Badge>
             </div>
 
             <CardContent className="flex min-w-0 flex-1 flex-col justify-between p-4">
-              <div className="min-w-0 space-y-2">
+              <div className="min-w-0 space-y-1.5">
                 <div className={`text-base font-bold ${priceClassName}`}>{priceLabel}</div>
-                <h3 className="line-clamp-2 text-base font-semibold leading-tight text-foreground">
+                <h3 className="line-clamp-2 text-sm font-medium leading-snug text-foreground">
                   {title}
                 </h3>
               </div>
@@ -106,17 +105,17 @@ export const BrowseListingCard = memo(function BrowseListingCard({
 
   return (
     <Link href={href} className="block h-full">
-      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer border border-black rounded-xl">
+      <Card className="overflow-hidden hover:shadow-md transition-all duration-300 group cursor-pointer border border-slate-200/80 hover:border-slate-300 rounded-xl">
         <div className="relative aspect-square overflow-hidden bg-slate-100">
           {media}
-          <Badge className={`absolute top-2 left-2 border-0 text-2xs ${badgeClassName}`}>
+          <Badge className={`absolute top-2 left-2 border-0 text-2xs shadow-sm ${badgeClassName}`}>
             {badgeLabel}
           </Badge>
         </div>
 
         <CardContent className="p-3 md:p-4 space-y-2">
           <div className={`text-sm font-bold ${priceClassName}`}>{priceLabel}</div>
-          <h3 className="font-semibold text-sm line-clamp-2 text-foreground leading-snug min-h-[2.5rem]">
+          <h3 className="font-medium text-sm line-clamp-2 text-foreground leading-snug min-h-[2.5rem]">
             {title}
           </h3>
           {metaRow}

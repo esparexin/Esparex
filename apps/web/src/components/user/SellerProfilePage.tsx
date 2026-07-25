@@ -75,7 +75,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                             <div className="flex-1 pt-2 md:pt-14 space-y-4 text-center md:text-left">
                                 <div>
                                     <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                                        <h1 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">{sellerName}</h1>
+                                        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{sellerName}</h1>
                                         {profile.user.isVerified && (
                                             <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-none px-2 rounded-lg text-xs">
                                                 Verified

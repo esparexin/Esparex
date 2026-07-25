@@ -5,16 +5,16 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "../utils";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 relative before:absolute before:inset-y-[-2px] before:inset-x-0 before:content-[''] before:pointer-events-auto";
+  "inline-flex items-center justify-center gap-2 rounded-xl text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50 relative before:absolute before:inset-y-[-2px] before:inset-x-0 before:content-[''] before:pointer-events-auto";
 
 const variants = {
-  default: "bg-primary text-primary-foreground hover:bg-primary/90",
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-  secondary: "bg-muted text-foreground hover:bg-muted/80",
-  outline: "border border-border bg-background hover:bg-muted",
-  ghost: "hover:bg-muted",
-  destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-  link: "text-primary underline-offset-4 hover:underline",
+  default: "bg-primary text-primary-foreground font-semibold hover:bg-primary/90",
+  primary: "bg-primary text-primary-foreground font-semibold hover:bg-primary/90",
+  secondary: "bg-muted text-foreground font-medium hover:bg-muted/80",
+  outline: "border border-border bg-background font-medium hover:bg-muted",
+  ghost: "hover:bg-muted font-medium",
+  destructive: "bg-destructive text-destructive-foreground font-semibold hover:bg-destructive/90",
+  link: "text-primary font-medium underline-offset-4 hover:underline",
 };
 
 const sizes = {
