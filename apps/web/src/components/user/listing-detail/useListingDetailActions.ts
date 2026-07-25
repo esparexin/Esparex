@@ -257,18 +257,23 @@ export function useListingDetailActions({
             })}`;
             const shareText = `Check out this ${categoryLabel}: ${ad.title} - ${formatPrice(ad.price)}`;
 
-            try {
-                await navigator.clipboard.writeText(shareUrl);
-                notify.success("Link copied to clipboard!");
-            } catch {
-                if (navigator.share) {
+            if (navigator.share) {
+                try {
                     await navigator.share({
                         title: ad.title,
                         text: shareText,
                         url: shareUrl,
                     });
                     notify.success("Shared successfully!");
+                } catch (error) {
+                    if ((error as Error).name !== "AbortError") {
+                        const waText = encodeURIComponent(`${shareText}\n${shareUrl}`);
+                        window.open(`https://wa.me/?text=${waText}`, "_blank", "noopener,noreferrer");
+                    }
                 }
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                notify.success("Link copied to clipboard!");
             }
         } catch {
             notify.error("Failed to share. Please try again.");
