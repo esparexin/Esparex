@@ -1,4 +1,4 @@
-import { createUnifiedPopupBus } from "@shared";
+import { createUnifiedPopupBus } from "@esparex/shared";
 
 const popupBus = createUnifiedPopupBus("web");
 

@@ -13,7 +13,7 @@ import { APIError } from './APIError';
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
-import { TraceContext } from "@shared";
+import { TraceContext } from "@esparex/shared";
 import { resolveRuntimeApiBaseUrl } from "./runtimeApiBase";
 import { validateApiEnv } from './validateApiEnv';
 

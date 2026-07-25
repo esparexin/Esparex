@@ -10,7 +10,7 @@ import {
   hidePopupEvent,
   subscribePopupEvents,
 } from "@/lib/popup/popupEvents";
-import type { PopupState } from "@shared";
+import type { PopupState } from "@esparex/shared";
 
 interface PopupContextValue {
   popup: PopupState | null;
