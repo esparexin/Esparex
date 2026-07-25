@@ -1,6 +1,6 @@
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
-import { popupBus } from "@/context/PopupProvider";
+import { popupBus } from "@/lib/popup/popupEvents";
 
 export const notify = {
     success(message: string, _options?: { duration?: number; description?: string }) {

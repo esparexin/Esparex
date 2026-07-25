@@ -6,14 +6,11 @@ import { AppPopup } from "@/components/system/AppPopup";
 import { recordNotificationEvent } from "@/lib/analytics/notificationAnalytics";
 import { usePopupQueue } from "@esparex/ui";
 import {
-  createUnifiedPopupBus,
-  type PopupState,
-} from "@shared";
-
-export const popupBus = createUnifiedPopupBus();
-const subscribePopupEvents = popupBus.subscribe;
-const emitPopupEvent = popupBus.show;
-const hidePopupEvent = popupBus.hide;
+  emitPopupEvent,
+  hidePopupEvent,
+  subscribePopupEvents,
+} from "@/lib/popup/popupEvents";
+import type { PopupState } from "@shared";
 
 interface PopupContextValue {
   popup: PopupState | null;
