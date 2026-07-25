@@ -45,13 +45,13 @@ export function ImageUploadSection() {
                             />
                             
                             {/* Overlay Controls */}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex flex-col justify-between p-2">
                                 <div className="flex justify-end">
                                     <button
                                         type="button"
                                         onClick={() => removeImage(idx)}
-                                        aria-label="Remove image"
-                                        className="p-1.5 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors"
+                                        aria-label={`Remove photo ${idx + 1} of ${listingImages.length}`}
+                                        className="p-1.5 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                                     >
                                         <X className="w-3 h-3" />
                                     </button>
@@ -60,7 +60,7 @@ export function ImageUploadSection() {
                                     <button
                                         type="button"
                                         onClick={() => setMainImage(idx)}
-                                        className="w-full py-1 text-2xs font-medium text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider"
+                                        className="w-full py-1 text-2xs font-medium text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                                     >
                                         Set as Main
                                     </button>
@@ -74,15 +74,27 @@ export function ImageUploadSection() {
                     ))}
                     
                     {listingImages.length < MAX_AD_IMAGES && (
-                        <label className={cn(
-                            "aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all bg-slate-50/50",
-                            isUploadingImages ? "opacity-50 cursor-not-allowed border-slate-200" : "border-slate-200 hover:border-primary hover:bg-primary/5 hover:shadow-inner"
-                        )}>
+                        <label
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`Add product photo, ${listingImages.length} of ${MAX_AD_IMAGES} uploaded`}
+                            onKeyDown={(e) => {
+                                if (e.key === " " || e.key === "Enter") {
+                                    e.preventDefault();
+                                    e.currentTarget.querySelector("input")?.click();
+                                }
+                            }}
+                            className={cn(
+                                "aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all bg-slate-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                isUploadingImages ? "opacity-50 cursor-not-allowed border-slate-200" : "border-slate-200 hover:border-primary hover:bg-primary/5 hover:shadow-inner"
+                            )}
+                        >
                             <input
                                 type="file"
                                 multiple
                                 accept="image/*"
                                 className="hidden"
+                                tabIndex={-1}
                                 aria-label="Add product photos"
                                 onChange={(e) => addImages(Array.from(e.target.files || []))}
                                 disabled={isUploadingImages}

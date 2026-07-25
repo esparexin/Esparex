@@ -10,7 +10,7 @@ import {
   type PopupState,
 } from "@shared";
 
-const popupBus = createUnifiedPopupBus();
+export const popupBus = createUnifiedPopupBus();
 const subscribePopupEvents = popupBus.subscribe;
 const emitPopupEvent = popupBus.show;
 const hidePopupEvent = popupBus.hide;

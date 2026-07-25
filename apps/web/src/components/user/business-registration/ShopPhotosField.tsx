@@ -45,7 +45,8 @@ function ShopImageTile({
                     size="icon"
                     variant="secondary"
                     onClick={onRemove}
-                    className="h-11 w-11 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white"
+                    aria-label={`Remove shop photo ${index + 1}`}
+                    className="h-11 w-11 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white focus-visible:ring-2 focus-visible:ring-primary"
                 >
                     <X className="h-4 w-4" />
                 </Button>
@@ -127,7 +128,18 @@ export function ShopPhotosField({
                 ))}
 
                 {formData.images.length < 5 && (
-                    <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center transition-colors hover:border-blue-400 hover:bg-blue-50">
+                    <label
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Add shop photo, ${formData.images.length} of 5 uploaded`}
+                        onKeyDown={(e) => {
+                            if (e.key === " " || e.key === "Enter") {
+                                e.preventDefault();
+                                e.currentTarget.querySelector("input")?.click();
+                            }
+                        }}
+                        className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center transition-colors hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    >
                         <Upload className="mb-3 h-6 w-6 text-foreground-subtle" />
                         <span className="text-sm font-semibold text-foreground-secondary">Add photo</span>
                         <span className="mt-1 text-xs text-muted-foreground">{formData.images.length}/5 uploaded</span>
@@ -138,6 +150,8 @@ export function ShopPhotosField({
                             accept={BUSINESS_IMAGE_ACCEPT}
                             multiple
                             className="hidden"
+                            tabIndex={-1}
+                            aria-label="Add shop photos"
                             onChange={(e) => e.target.files && handleShopImageUpload(e.target.files)}
                         />
                     </label>

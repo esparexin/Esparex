@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "lucide-react";
 
 import { FeatureCard } from "@/components/user/FeatureCard";
@@ -28,16 +28,18 @@ type SettingRowProps = {
 };
 
 function SettingRow({ icon, title, description, checked, onCheckedChange }: SettingRowProps) {
+    const titleId = useId();
+    const descId = useId();
     return (
         <div className="flex items-center justify-between gap-3 min-h-[44px]">
             <div className="flex items-start gap-3">
                 <div className="mt-0.5 text-muted-foreground">{icon}</div>
                 <div>
-                    <p className="font-medium text-sm">{title}</p>
-                    <p className="text-xs text-muted-foreground">{description}</p>
+                    <p id={titleId} className="font-medium text-sm">{title}</p>
+                    <p id={descId} className="text-xs text-muted-foreground">{description}</p>
                 </div>
             </div>
-            <Switch checked={checked} onCheckedChange={onCheckedChange} />
+            <Switch aria-labelledby={titleId} aria-describedby={descId} checked={checked} onCheckedChange={onCheckedChange} />
         </div>
     );
 }

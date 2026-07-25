@@ -1,10 +1,16 @@
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
+import { popupBus } from "@/context/PopupProvider";
 
 export const notify = {
     success(message: string, _options?: { duration?: number; description?: string }) {
         if (typeof window !== "undefined") {
             logger.info("[SUCCESS]", message);
+            popupBus.show({
+                type: "success",
+                title: "Success",
+                message,
+            });
         }
     },
 
@@ -29,18 +35,33 @@ export const notify = {
 
         if (typeof window !== "undefined") {
             logger.error("[ERROR]", message);
+            popupBus.show({
+                type: "error",
+                title: "Error",
+                message: message || "An unexpected error occurred.",
+            });
         }
     },
 
     info(message: string, _options?: { duration?: number }) {
         if (typeof window !== "undefined") {
             logger.info("[INFO]", message);
+            popupBus.show({
+                type: "info",
+                title: "Info",
+                message,
+            });
         }
     },
 
     warning(message: string, _options?: { duration?: number }) {
         if (typeof window !== "undefined") {
             logger.warn("[WARNING]", message);
+            popupBus.show({
+                type: "warning",
+                title: "Warning",
+                message,
+            });
         }
     }
 };
