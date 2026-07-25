@@ -91,25 +91,23 @@ export function useBrowseEmptyState(
   const activeFilterCount = activeFilterBadges.length;
   const isEmptyState = !isLoading && !error && displayAds.length === 0;
 
-  const isCountryOrAllIndia = Boolean(
-    activeLocationLabel && (
-      activeLocationLabel.toLowerCase() === 'india' ||
-      activeLocationLabel.toLowerCase() === 'all india'
-    )
+  const isSpecificLocalArea = Boolean(
+    activeLocationLabel &&
+      activeLocationLabel.toLowerCase() !== 'india' &&
+      activeLocationLabel.toLowerCase() !== 'all india'
   );
-  const locationPreposition = isCountryOrAllIndia ? 'in' : 'near';
 
   const emptyStateTitle = isEmptyState
     ? activeFilterCount > 0
-      ? activeLocationLabel
-        ? `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found ${locationPreposition} ${activeLocationLabel}`
+      ? isSpecificLocalArea
+        ? `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found near ${activeLocationLabel}`
         : `No ${resolvedCategoryLabel ? resolvedCategoryLabel.toLowerCase() : "listings"} found`
       : "No listings available right now"
     : "";
 
   const suggestions: string[] = [];
   if (isEmptyState && activeFilterCount > 0) {
-    if (activeLocationLabel && !isCountryOrAllIndia) {
+    if (isSpecificLocalArea) {
       suggestions.push(`View All India listings (clear location filter)`);
     }
     if (priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) {
@@ -132,11 +130,9 @@ export function useBrowseEmptyState(
   }
 
   const emptyStateDescription = activeFilterCount > 0
-    ? activeLocationLabel
-      ? isCountryOrAllIndia
-        ? `We couldn't find any live listings in ${activeLocationLabel}. Try adjusting your filters or search keywords.`
-        : `We couldn't find any live listings near ${activeLocationLabel}. Try expanding your search radius or clear location to view listings across All India.`
-      : "Try adjusting your filters or search criteria. You can also clear everything and start again."
+    ? isSpecificLocalArea
+      ? `We couldn't find any live listings near ${activeLocationLabel}. Try expanding your search radius or clear location to view listings across All India.`
+      : "We couldn't find any live listings matching your search. Try adjusting your filters or search keywords."
     : "There are no live ads in this view yet. Check back soon or widen your location once sellers publish new listings.";
   const desktopShellClassName = isEmptyState ? EMPTY_FILTER_SHELL_CLASS_NAME : undefined;
 

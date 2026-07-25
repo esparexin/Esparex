@@ -36,22 +36,11 @@ type LegacyAliasConfig = {
 
 const LEGACY_AD_QUERY_ALIAS_CONFIGS: LegacyAliasConfig[] = [
     { alias: LEGACY_AD_USER_ID_ALIAS, message: LEGACY_AD_USER_ID_ALIAS_MESSAGE },
+    { alias: 'search', message: LEGACY_AD_SEARCH_ALIAS_MESSAGE },
     { alias: 'location', message: LEGACY_AD_LOCATION_ALIAS_MESSAGE },
     { alias: 'city', message: LEGACY_AD_CITY_ALIAS_MESSAGE },
     { alias: 'state', message: LEGACY_AD_STATE_ALIAS_MESSAGE },
 ];
-
-export const normalizeQuerySearch = (raw: unknown): unknown => {
-    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-        const record = { ...(raw as Record<string, unknown>) };
-        if (record.search !== undefined && record.q === undefined) {
-            record.q = record.search;
-            delete record.search;
-        }
-        return record;
-    }
-    return raw;
-};
 
 const throwIfLegacyAdQueryAliasesPresent = (
     raw: unknown,
@@ -141,9 +130,8 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
 
 
 export const getAdsQuerySchema = z.preprocess((raw) => {
-    const normalized = normalizeQuerySearch(raw);
-    throwIfLegacyAdQueryAliasesPresent(normalized);
-    return normalized;
+    throwIfLegacyAdQueryAliasesPresent(raw);
+    return raw;
 }, getAdsQuerySchemaBase);
 
 const feedLocationSchema = z.object({
