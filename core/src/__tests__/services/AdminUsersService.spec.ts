@@ -59,10 +59,11 @@ describe("AdminUsersService", () => {
     describe("normalizeAdminManagedUser", () => {
         it("calls toObject() when available and normalizes status", () => {
             const doc = {
+                // 'live' is the legacy user status — normalizeUserStatus maps it to canonical 'active'
                 toObject: () => ({ status: "live", name: "Alice" }),
             };
             const result = normalizeAdminManagedUser(doc as unknown as Record<string, unknown>);
-            expect(result.status).toBe("live");
+            expect(result.status).toBe("active");
             expect(result.name).toBe("Alice");
         });
 
@@ -73,11 +74,12 @@ describe("AdminUsersService", () => {
             expect(result.email).toBe("x@example.com");
         });
 
-        it("leaves status unchanged when normalizeUserStatus returns null", () => {
+        it("returns the active fallback for unrecognised status values", () => {
             const plain = { status: "unknown_status_xyz" };
             const result = normalizeAdminManagedUser(plain);
-            // normalizeUserStatus returns null for unknown → unchanged
-            expect(result.status).toBe("unknown_status_xyz");
+            // normalizeUserStatus does not return null — it returns the 'active' fallback
+            // for any unrecognised status string after the status vocabulary standardization
+            expect(result.status).toBe("active");
         });
     });
 
