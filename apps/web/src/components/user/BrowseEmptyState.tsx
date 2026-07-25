@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchX, RotateCcw, PlusCircle, Bell, LayoutGrid } from "lucide-react";
+import { SearchX, Bell } from "lucide-react";
 import { Button } from "@esparex/ui";
 import Link from "next/link";
 
@@ -8,7 +8,7 @@ export interface BrowseEmptyStateProps {
   activeFilterCount?: number;
   query?: string;
   categoryName?: string | null;
-  onResetFilters: () => void;
+  onResetFilters?: () => void;
   onPostAdClick?: () => void;
 }
 
@@ -16,8 +16,6 @@ export function BrowseEmptyState({
   activeFilterCount = 0,
   query = "",
   categoryName = null,
-  onResetFilters,
-  onPostAdClick,
 }: BrowseEmptyStateProps) {
   const hasActiveFilters = activeFilterCount > 0 || Boolean(query);
 
@@ -47,30 +45,8 @@ export function BrowseEmptyState({
       </p>
 
       {/* ── Action Buttons Cluster ──────────────────────────────────────── */}
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-        {hasActiveFilters && (
-          <Button
-            variant="outline"
-            onClick={onResetFilters}
-            className="gap-2 rounded-xl border-slate-200 bg-white font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            <RotateCcw className="h-4 w-4 text-slate-500" />
-            Reset Filters
-          </Button>
-        )}
-
-        <Button
-          asChild
-          variant="secondary"
-          className="gap-2 rounded-xl font-semibold shadow-sm"
-        >
-          <Link href="/browse-spare-parts">
-            <LayoutGrid className="h-4 w-4" />
-            Browse Categories
-          </Link>
-        </Button>
-
-        {query && (
+      {query && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Button
             asChild
             variant="outline"
@@ -81,18 +57,8 @@ export function BrowseEmptyState({
               Notify Me
             </Link>
           </Button>
-        )}
-
-        {onPostAdClick && (
-          <Button
-            onClick={onPostAdClick}
-            className="gap-2 rounded-xl font-semibold shadow-sm"
-          >
-            <PlusCircle className="h-4 w-4" />
-            Post an Ad
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
