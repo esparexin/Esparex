@@ -58,9 +58,9 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             )}
             {...props}
         >
-            <SortAsc className="size-4 text-foreground-subtle" />
-            <span className="font-semibold text-slate-700 text-sm">Sorted: {SORT_LABELS[sort]}</span>
-            <ChevronDown className={cn("size-4 text-foreground-subtle transition-transform", open && "rotate-180")} />
+            <SortAsc className="size-3.5 text-foreground-subtle" />
+            <span className="font-medium text-slate-700 text-xs md:text-sm">{SORT_LABELS[sort]}</span>
+            <ChevronDown className={cn("size-3.5 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
 });
