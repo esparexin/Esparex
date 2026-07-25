@@ -435,6 +435,8 @@ class APIClient {
                     
                     if (apiError.code && expectedBusinessErrors.includes(apiError.code)) {
                         logger.info(`[API STATE] Expected business condition: ${apiError.code}`, { endpoint: requestConfig?.url });
+                    } else if (apiError.status === 401) {
+                        logger.info(`[API STATE] Unauthenticated session: ${requestConfig?.url}`);
                     } else {
                         logger.error("[API ERROR]", apiError);
                     }

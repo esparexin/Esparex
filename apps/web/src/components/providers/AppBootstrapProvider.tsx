@@ -9,7 +9,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
 import { useNotificationsQuery } from "@/hooks/queries/useNotificationsQuery";
 import { queryKeys } from "@/hooks/queries/queryKeys";
-import { AUTH_SESSION_STORAGE_KEY } from "@/context/auth/authHelpers";
 import { ensureForegroundPushListener, syncBrowserPushRegistration, clearBrowserPushCache } from "@/lib/notifications/webPush";
 import { isNativeShell } from "@/lib/runtime/nativeShell";
 import type { User } from "@/types/User";
@@ -37,11 +36,8 @@ export function AppBootstrapProvider({
             return true;
         }
 
-        if (status === "loading") {
-            if (initialHasAuthCookie) return true;
-            if (typeof window !== "undefined" && localStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "1") {
-                return true;
-            }
+        if (status === "loading" && initialHasAuthCookie) {
+            return true;
         }
 
         return false;
