@@ -3,7 +3,7 @@
 
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PackageOpen, RefreshCw, BellPlus } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 import { type ListingFilters, type Listing, type ListingPageResult } from "@/lib/api/user/listings";
 import { getCategories } from "@/lib/api/user/categories";
@@ -40,6 +40,7 @@ import { useFilterState, DEFAULT_PRICE_RANGE } from "./hooks/useFilterState";
 import { useUrlSync } from "./hooks/useUrlSync";
 import { useFilterToQuery } from "./hooks/useFilterToQuery";
 import { useBrowseEmptyState, buildPriceSummary } from "./hooks/useBrowseEmptyState";
+import { BrowseEmptyState } from "./BrowseEmptyState";
 
 const PAGE_SIZE = 20;
 
@@ -389,22 +390,13 @@ export function BrowseAds({
 
               {/* ── Empty state ──────────────────────────────────────────── */}
               {isEmptyState && (
-                <div className="flex min-h-[300px] flex-col items-center justify-center px-6 py-12 text-center">
-                  <div className="mb-4">
-                    <PackageOpen className="h-10 w-10 text-foreground-subtle" />
-                  </div>
-                  {query && (
-                    <Button
-                      asChild
-                      className="gap-2 bg-blue-600 hover:bg-blue-700 text-white mt-2"
-                    >
-                      <a href="/account/alerts">
-                        <BellPlus className="h-4 w-4" />
-                        Get Notified When Available
-                      </a>
-                    </Button>
-                  )}
-                </div>
+                <BrowseEmptyState
+                  activeFilterCount={activeFilterCount}
+                  query={query}
+                  categoryName={routeParams.category}
+                  onResetFilters={handleReset}
+                  onPostAdClick={() => router.push("/post-ad")}
+                />
               )}
 
             {/* ── Ads Grid / List ──────────────────────────────────────── */}
