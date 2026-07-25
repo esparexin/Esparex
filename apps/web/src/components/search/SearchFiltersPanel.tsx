@@ -159,11 +159,11 @@ export function SearchFiltersPanel({
     <div className="flex flex-col h-full bg-white">
       <Accordion type="multiple" defaultValue={["price", "brands", "specs"]} className="flex-1">
         <AccordionItem value="price" className="border-none">
-          <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
+          <AccordionTrigger className="hover:no-underline py-2.5 min-h-[44px]">
             <div className="flex items-center justify-between w-full text-left">
               <div className="flex items-center gap-2">
                 <IndianRupee className="size-4 text-green-600" />
-                <span className="font-semibold text-sm">Price Range</span>
+                <span className="font-medium text-sm">Price Range</span>
               </div>
               <span className={cn(
                 "text-xs font-medium mr-3 transition-colors",
@@ -175,13 +175,13 @@ export function SearchFiltersPanel({
               </span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="px-1 pt-2 pb-6">
+          <AccordionContent className="px-1 pt-2 pb-4">
             <Slider
               value={priceRange}
               onValueChange={(value) => setPriceRange(value as [number, number])}
               max={200000}
               step={1000}
-              className="mb-6"
+              className="mb-4"
             />
             <div className="flex justify-between items-center text-xs">
               <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 font-medium">
@@ -196,15 +196,15 @@ export function SearchFiltersPanel({
 
         {availableBrands.length > 0 && (
           <AccordionItem value="brands" className="border-none">
-            <AccordionTrigger className="hover:no-underline py-3.5 min-h-[48px]">
+            <AccordionTrigger className="hover:no-underline py-2.5 min-h-[44px]">
               <div className="flex items-center justify-between w-full text-left">
                 <div className="flex items-center gap-2">
                   <Tag className="size-4 text-purple-600" />
-                  <span className="font-semibold text-sm">Brands</span>
+                  <span className="font-medium text-sm">Brands</span>
                 </div>
                 <span className={cn(
                   "text-xs font-medium mr-3 transition-colors",
-                  selectedBrands.length > 0 ? "text-slate-900 font-semibold" : "text-slate-400"
+                  selectedBrands.length > 0 ? "text-slate-900 font-medium" : "text-slate-400"
                 )}>
                   {selectedBrands.length > 0
                     ? selectedBrands.length === 1

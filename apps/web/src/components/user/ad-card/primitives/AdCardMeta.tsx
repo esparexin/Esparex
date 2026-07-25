@@ -52,7 +52,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       <div className="flex items-center justify-between gap-1.5 mt-0.5">
-        <span className={cn("font-extrabold tracking-tight", isDashboard ? "text-primary text-lg" : "text-link-dark text-sm md:text-[15px]")}>
+        <span className={cn("font-bold tracking-tight", isDashboard ? "text-primary text-base" : "text-link-dark text-sm")}>
           {(() => {
             if (listingTypeBadge.type === "service" && (adRecord.priceMin || adRecord.priceMax)) {
               if (adRecord.priceMin && adRecord.priceMax) return `${formatPrice(adRecord.priceMin as number)} - ${formatPrice(adRecord.priceMax as number)}`;

@@ -50,7 +50,7 @@ export function PlansTab({
                         <CardHeader className="pb-2">
                             <CardTitle className="text-base">{plan.name}</CardTitle>
                             <div className="flex items-baseline gap-1">
-                                <span className={`text-2xl font-bold ${colorClass.replace('border', 'text')}`}>
+                                <span className={`text-xl md:text-2xl font-bold ${colorClass.replace('border', 'text')}`}>
                                     {formatCurrency(plan.price)}
                                 </span>
                                 <span className="text-xs text-muted-foreground">/ {plan.duration}</span>

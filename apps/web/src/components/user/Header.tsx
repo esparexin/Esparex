@@ -197,7 +197,7 @@ export function Header({
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
               <Input
                 id="header-global-search"
-                className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base"
+                className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base md:text-sm"
                 placeholder="Search for mobiles, parts, services..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -347,7 +347,7 @@ export function Header({
               size="sm"
               onClick={handlePostAdClick}
               disabled={!isBackendUp}
-              className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               title={!isBackendUp ? "Service temporarily unavailable" : "Post a new ad"}
             >
               <TrendingUp className="h-4 w-4" /> Post Ad
@@ -359,10 +359,10 @@ export function Header({
       {/* ── MOBILE HEADER (< MD) ───────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 w-full glass shadow-premium md:hidden pt-[env(safe-area-inset-top)] relative">
         {/* Top Location Bar */}
-        <div className="h-11 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
+        <div className="h-9 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
           <button
             type="button"
-            className="flex items-center gap-2 mr-3 h-11"
+            className="flex items-center gap-2 mr-3 h-9"
             onClick={() => navigateTo("home")}
             aria-label="Go to homepage"
           >
@@ -371,15 +371,15 @@ export function Header({
               alt="Esparex"
               width={512}
               height={206}
-              style={{ height: "28px", width: "auto" }}
+              style={{ height: "24px", width: "auto" }}
             />
           </button>
 
-          <div className="h-4 w-[1px] bg-slate-200 mx-2" />
+          <div className="h-3.5 w-[1px] bg-slate-200 mx-2" />
 
           <button
             type="button"
-            className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left h-11"
+            className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left h-9"
             onClick={() => isMounted && setShowLocationSelector(true)}
             aria-label={
               headerLocationDetails.headerText

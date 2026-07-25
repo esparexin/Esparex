@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Image from "next/image";
-import { Button } from "@esparex/ui";
+import { Button, RadioGroup, RadioGroupItem } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -278,39 +278,50 @@ export function PersonalTab({
                     <div className="space-y-3">
                         <p className="text-sm font-semibold text-foreground-secondary">Choose who can view your number:</p>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <RadioGroup
+                            value={mobileVisibility}
+                            onValueChange={(val) => setMobileVisibility(val as MobileVisibility)}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                            aria-label="Choose who can view your mobile number"
+                        >
                             {/* Show to All */}
-                            <div
-                                onClick={() => setMobileVisibility("show")}
-                                className={`cursor-pointer p-4 rounded-2xl border-2 transition-all flex flex-col gap-2 
+                            <label
+                                htmlFor="visibility-show"
+                                className={`cursor-pointer p-4 rounded-2xl border-2 transition-all flex flex-col gap-2 relative focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2
                                 ${mobileVisibility === "show" ? "border-blue-600 bg-blue-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
                                     <Eye className={`h-5 w-5 ${mobileVisibility === "show" ? "text-link" : "text-foreground-subtle"}`} />
-                                    {mobileVisibility === "show" && <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
+                                    <div className="flex items-center gap-2">
+                                        {mobileVisibility === "show" && <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
+                                        <RadioGroupItem value="show" id="visibility-show" className="sr-only" />
+                                    </div>
                                 </div>
                                 <div>
                                     <p className="font-bold text-sm text-foreground">Show to All</p>
                                     <p className="text-xs text-muted-foreground leading-tight">Visible on all your ads to verified buyers.</p>
                                 </div>
-                            </div>
+                            </label>
 
                             {/* Hide */}
-                            <div
-                                onClick={() => setMobileVisibility("hide")}
-                                className={`cursor-pointer p-4 rounded-2xl border-2 transition-all flex flex-col gap-2 
+                            <label
+                                htmlFor="visibility-hide"
+                                className={`cursor-pointer p-4 rounded-2xl border-2 transition-all flex flex-col gap-2 relative focus-within:ring-2 focus-within:ring-red-600 focus-within:ring-offset-2
                                 ${mobileVisibility === "hide" ? "border-red-600 bg-red-50/50" : "border-slate-100 hover:border-slate-200 bg-white"}`}
                             >
                                 <div className="flex items-center justify-between">
                                     <EyeOff className={`h-5 w-5 ${mobileVisibility === "hide" ? "text-red-600" : "text-foreground-subtle"}`} />
-                                    {mobileVisibility === "hide" && <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />}
+                                    <div className="flex items-center gap-2">
+                                        {mobileVisibility === "hide" && <div className="h-2 w-2 rounded-full bg-red-600 animate-pulse" />}
+                                        <RadioGroupItem value="hide" id="visibility-hide" className="sr-only" />
+                                    </div>
                                 </div>
                                 <div>
                                     <p className="font-bold text-sm text-foreground">Hide</p>
                                     <p className="text-xs text-muted-foreground leading-tight">Buyers will not be able to see your number.</p>
                                 </div>
-                            </div>
-                        </div>
+                            </label>
+                        </RadioGroup>
 
                         <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 mt-2">
                             <Shield className="h-4 w-4 text-blue-500" />

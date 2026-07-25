@@ -17,8 +17,12 @@ export function AccountHeader({ className = '', mobile = false }: AccountHeaderP
           <SettingsIcon className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-extrabold text-foreground tracking-tight">{title}</h1>
-          <p className="text-sm text-muted-foreground font-medium">{subtitle}</p>
+          <h1 className={mobile ? "text-base font-bold text-foreground tracking-tight" : "text-xl md:text-2xl font-bold text-foreground tracking-tight"}>
+            {title}
+          </h1>
+          <p className={mobile ? "text-xs text-muted-foreground font-medium" : "text-sm text-muted-foreground font-medium"}>
+            {subtitle}
+          </p>
         </div>
       </div>
     </div>

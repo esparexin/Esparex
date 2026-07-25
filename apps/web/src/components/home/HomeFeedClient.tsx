@@ -102,7 +102,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                     >
                         Recommended for You
                     </h2>
-                    <p className="mt-1 text-xs md:text-base text-foreground-subtle max-w-2xl hidden md:block">
+                    <p className="mt-1 text-xs md:text-sm text-foreground-subtle max-w-2xl hidden md:block">
                         Spotlight, boosted, and latest listings curated for your location.
                     </p>
                 </div>
