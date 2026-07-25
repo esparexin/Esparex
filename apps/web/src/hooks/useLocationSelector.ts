@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocationData, useLocationDispatch } from "@/context/LocationContext";
-import { normalizeGeoPoint } from "@shared";
+import { normalizeGeoPoint } from "@esparex/shared";
 import type { GeoJSONPoint } from "@esparex/contracts";
 import { useDismissableLayer } from "@/hooks/useDismissableLayer";
 

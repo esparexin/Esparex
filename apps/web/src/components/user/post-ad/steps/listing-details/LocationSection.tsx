@@ -7,7 +7,7 @@ import { useLocationData } from "@/context/LocationContext";
 import { Field } from "@/components/ui/field";
 import type { Location } from "@/lib/api/user/locations";
 import LocationSelector from "@/components/location/LocationSelector";
-import { LocationFacade, adaptLocationInput } from "@shared";
+import { LocationFacade, adaptLocationInput } from "@esparex/shared";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import { getNestedFieldMeta } from "../common/utils";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";

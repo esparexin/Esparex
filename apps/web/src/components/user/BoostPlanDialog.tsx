@@ -28,7 +28,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
 import { isListingUnavailableError } from "@/lib/listings/listingUnavailable";
-import { getPrimaryPlanCreditCount } from "@shared";
+import { getPrimaryPlanCreditCount } from "@esparex/shared";
 
 interface BoostPlanDialogProps {
   open: boolean;
