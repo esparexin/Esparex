@@ -419,16 +419,13 @@ export function Header({
                 setIsMobileSearchEditing(true);
                 setSearchQuery(browseParams.q || "");
               }}
-              className="flex min-w-0 flex-1 items-center justify-between rounded-full border border-slate-200 bg-slate-50 px-4 h-11 text-left hover:bg-slate-100 transition-colors"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 h-11 text-left hover:bg-slate-100 transition-colors"
               aria-label={`Tap to search. Current search: ${stickySearchLabel}`}
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
-                <span className="truncate text-sm font-medium text-foreground-secondary">
-                  {stickySearchLabel}
-                </span>
-              </div>
-              <span className="text-xs text-primary font-semibold shrink-0 ml-2">Edit</span>
+              <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
+              <span className="truncate text-sm font-medium text-foreground-secondary">
+                {stickySearchLabel}
+              </span>
             </button>
           ) : (
             <form
