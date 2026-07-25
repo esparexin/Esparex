@@ -1,6 +1,6 @@
 import * as canonical from "@esparex/shared";
 import * as legacy from "@shared";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 describe("Empirical Alias Identity Trace (@shared vs @esparex/shared)", () => {
     it("1. Verifies module object identity between @shared and @esparex/shared", () => {
@@ -12,18 +12,40 @@ describe("Empirical Alias Identity Trace (@shared vs @esparex/shared)", () => {
         console.log(`[EMPIRICAL IDENTITY TRACE] Object.is(legacy.createUnifiedPopupBus, canonical.createUnifiedPopupBus): ${isIdenticalBusFactory}`);
         console.log(`[EMPIRICAL IDENTITY TRACE] Object.is(legacy.getLogger, canonical.getLogger): ${isIdenticalLogger}`);
 
-        // EMPIRICAL PROOF: In ESM/bundler environments, importing via dual specifier names ("@shared" vs "@esparex/shared")
-        // evaluates the target file into two distinct module namespace instances in memory (Object.is === false).
+        // EMPIRICAL PROOF 1: Module namespace objects and exported function references are distinct
         expect(isIdenticalModule).toBe(false);
         expect(isIdenticalBusFactory).toBe(false);
         expect(isIdenticalLogger).toBe(false);
     });
 
-    it("2. Verifies popupBus instance identity when created via canonical vs legacy specifier", () => {
-        const busFromCanonical = canonical.createUnifiedPopupBus("test-canonical");
-        const busFromLegacy = legacy.createUnifiedPopupBus("test-legacy");
+    it("2. Verifies singleton instance cache isolation between @shared and @esparex/shared", () => {
+        // Fetch cached logger instance for category "frontend" via both specifiers
+        const loggerLegacy = legacy.getLogger("frontend");
+        const loggerCanonical = canonical.getLogger("frontend");
 
-        expect(typeof busFromCanonical.show).toBe("function");
-        expect(typeof busFromLegacy.show).toBe("function");
+        const isIdenticalLoggerInstance = Object.is(loggerLegacy, loggerCanonical);
+        console.log(`[EMPIRICAL SINGLETON TRACE] Object.is(loggerLegacy, loggerCanonical): ${isIdenticalLoggerInstance}`);
+
+        // EMPIRICAL PROOF 2: The internal logger instance cache map is evaluated per module instance,
+        // producing two separate cached logger instances in memory.
+        expect(isIdenticalLoggerInstance).toBe(false);
+    });
+
+    it("3. Verifies popupBus event subscription listener isolation when built across specifiers", () => {
+        const legacyBus = legacy.createUnifiedPopupBus("isolation-test");
+        const canonicalBus = canonical.createUnifiedPopupBus("isolation-test");
+
+        const listenerLegacy = vi.fn();
+        const listenerCanonical = vi.fn();
+
+        legacyBus.subscribe(listenerLegacy);
+        canonicalBus.subscribe(listenerCanonical);
+
+        // Emit on legacy bus
+        legacyBus.show({ type: "info", title: "Legacy", message: "Test" });
+
+        // Legacy listener called, Canonical listener NOT called due to bus instance isolation
+        expect(listenerLegacy).toHaveBeenCalledTimes(1);
+        expect(listenerCanonical).toHaveBeenCalledTimes(0);
     });
 });
