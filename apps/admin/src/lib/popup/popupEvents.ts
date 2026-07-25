@@ -4,7 +4,7 @@ import {
   type PopupAction,
   type PopupState,
   type PopupType,
-} from "@shared";
+} from "@esparex/shared";
 
 const popupBus = createUnifiedPopupBus("admin");
 
