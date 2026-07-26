@@ -66,10 +66,10 @@ export function PersonalTab({
                         </CardTitle>
                         <CardDescription>Update your personal details</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4 px-4 md:px-6 pb-6">
+                    <CardContent className="space-y-5 p-5 md:p-6">
                         {/* Profile Photo Section */}
                         <div className="space-y-2">
-                            <Label className="text-sm">Profile Photo</Label>
+                            <Label className="text-sm font-semibold">Profile Photo</Label>
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-2 border-slate-100 overflow-hidden bg-slate-50 flex items-center justify-center shadow-inner">
@@ -94,7 +94,7 @@ export function PersonalTab({
                                         title="Upload profile photo"
                                         className="absolute -bottom-1 -right-1 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                                     >
-                                        <Camera className="h-3 w-3" />
+                                        <Camera className="h-5 w-5" />
                                     </button>
                                 </div>
                                 <div className="flex-1">
@@ -132,9 +132,9 @@ export function PersonalTab({
 
                         <Separator className="my-2" />
 
-                        <div className="grid md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                             <div className="space-y-1.5">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between max-w-[420px]">
                                     <Label htmlFor="profile-name">Full Name *</Label>
                                     <span className={`text-xs font-medium ${(formData.name || "").length > 50 ? "text-destructive" : "text-muted-foreground"}`}>
                                         {(formData.name || "").length}/50
@@ -150,7 +150,7 @@ export function PersonalTab({
                                         if (profileErrors?.name) clearProfileError?.("name");
                                         setFormData({ ...formData, name: e.target.value });
                                     }}
-                                    className={profileErrors?.name ? "border-red-500" : ""}
+                                    className={`max-w-[420px] ${profileErrors?.name ? "border-red-500" : ""}`}
                                     aria-invalid={!!profileErrors?.name}
                                     aria-describedby={profileErrors?.name ? "profile-name-error" : undefined}
                                     autoComplete="name"
@@ -170,7 +170,7 @@ export function PersonalTab({
                                         if (profileErrors?.email) clearProfileError?.("email");
                                         setFormData({ ...formData, email: e.target.value });
                                     }}
-                                    className={profileErrors?.email ? "border-red-500" : ""}
+                                    className={`max-w-[420px] ${profileErrors?.email ? "border-red-500" : ""}`}
                                     aria-invalid={!!profileErrors?.email}
                                     aria-describedby={profileErrors?.email ? "profile-email-error" : undefined}
                                     autoComplete="email"
@@ -178,7 +178,7 @@ export function PersonalTab({
                                 <FormError id="profile-email-error" message={profileErrors?.email} />
                             </div>
 
-                            <div className="space-y-1.5 md:col-span-2">
+                            <div className="space-y-1.5 md:col-span-2 max-w-[420px]">
                                 <Label htmlFor="profile-mobile">Mobile Number</Label>
                                 <PhoneInput
                                     id="profile-mobile"
@@ -195,14 +195,14 @@ export function PersonalTab({
                         </div>
 
                     <div className="pt-2">
-                        <div className="p-3 md:p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                        <div className="p-5 md:p-6 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
                             <div className="flex items-center gap-2 mb-1">
                                 <Building2 className="h-4 w-4 text-muted-foreground" />
                                 <h3 className="font-semibold text-sm text-foreground">Billing Details (Optional)</h3>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                                 <div className="space-y-1.5">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between max-w-[420px]">
                                         <Label htmlFor="billing-business-name">Business Name</Label>
                                         <span className={`text-xs font-medium ${(formData.businessName || "").length > 100 ? "text-destructive" : "text-muted-foreground"}`}>
                                             {(formData.businessName || "").length}/100
@@ -218,7 +218,7 @@ export function PersonalTab({
                                             if (profileErrors?.businessName) clearProfileError?.("businessName");
                                             setFormData({ ...formData, businessName: e.target.value });
                                         }}
-                                        className={`bg-white ${profileErrors?.businessName ? "border-red-500" : ""}`}
+                                        className={`bg-white max-w-[420px] ${profileErrors?.businessName ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.businessName}
                                         aria-describedby={profileErrors?.businessName ? "profile-business-name-error" : undefined}
                                         autoComplete="organization"
@@ -226,7 +226,7 @@ export function PersonalTab({
                                     <FormError id="profile-business-name-error" message={profileErrors?.businessName} />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between max-w-[420px]">
                                         <Label htmlFor="billing-gst-number">GST Number</Label>
                                         <span className={`text-xs font-medium ${(formData.gstNumber || "").length > 0 && (formData.gstNumber || "").length !== 15 ? "text-amber-600" : "text-muted-foreground"}`}>
                                             {(formData.gstNumber || "").length}/15
@@ -242,7 +242,7 @@ export function PersonalTab({
                                             if (profileErrors?.gstNumber) clearProfileError?.("gstNumber");
                                             setFormData({ ...formData, gstNumber: e.target.value.toUpperCase() });
                                         }}
-                                        className={`bg-white ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
+                                        className={`bg-white max-w-[420px] ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
                                         aria-invalid={!!profileErrors?.gstNumber}
                                         aria-describedby={profileErrors?.gstNumber ? "profile-gst-number-error" : undefined}
                                         autoComplete="off"
@@ -253,13 +253,13 @@ export function PersonalTab({
                         </div>
                     </div>
 
-                    <div className="pt-2 flex justify-end">
-                        <div className="w-full md:w-auto">
+                    <div className="pt-3 flex justify-end">
+                        <div className="w-full sm:w-auto">
                             <FormError message={profileGlobalError} />
                             <Button
                                 type="submit"
                                 disabled={isSavingProfile}
-                                className="mt-1 w-full md:w-auto bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70"
+                                className="mt-1 w-full sm:w-auto sm:min-w-[200px] sm:max-w-[320px] bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {isSavingProfile ? "Saving..." : "Save Changes"}
