@@ -1,19 +1,21 @@
 import UserPlan from '../../../models/UserPlan';
 import Plan, { type IPlan } from '../../../models/Plan';
-import { type AdPostingSlotSource } from '../../../services/AdSlotService';
+import { type AdPostingSlotSource } from '../../boosts/application/services/AdSlotService';
 import { LISTING_TYPE } from '@esparex/contracts';
 import { getListingRepository } from '../../../composition/listings';
 import { 
     AdSlotService, 
     getMonthlyCycleStart,
     getAdPostingBalance as adSlotGetBalance
-} from '../../../services/AdSlotService';
+} from '../../boosts/application/services/AdSlotService';
 import mongoose, { type ClientSession } from 'mongoose';
 
 import { AppError } from '../../../utils/AppError';
 import { calculateUserPlan } from '../domain/policies/PlanEngine';
+export { calculateUserPlan };
+
 import UserWallet from '../../../models/UserWallet';
-import { withUserPostingLock } from '../../../services/AdSlotService'; // Import the lock
+import { withUserPostingLock } from '../../boosts/application/services/AdSlotService';
 
 export type UserPlanWithPlanId = { planId: unknown };
 
@@ -78,7 +80,27 @@ export const upsertUserPlan = async (
 
 
 
+export const renewBusinessPlan = async (
+    userId: string | mongoose.Types.ObjectId,
+    planId: string | mongoose.Types.ObjectId,
+    durationDays: number = 365
+) => {
+    const existing = await UserPlan.findOne({ userId, planId, status: 'active' });
+    const baseDate = (existing?.endDate && new Date(existing.endDate) > new Date())
+        ? new Date(existing.endDate)
+        : new Date();
+
+    const newEndDate = new Date(baseDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+    return UserPlan.findOneAndUpdate(
+        { userId, planId },
+        { $set: { startDate: new Date(), endDate: newEndDate, status: 'active' } },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
+
 
 export const resetWalletsForNewCycle = async (now: Date = new Date()) => {
     const cycleStart = getMonthlyCycleStart(now);

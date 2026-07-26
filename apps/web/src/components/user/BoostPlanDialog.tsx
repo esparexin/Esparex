@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@esparex/ui";
 import { Badge } from "../ui/badge";
 import {
   Dialog,
@@ -28,7 +28,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
 import { isListingUnavailableError } from "@/lib/listings/listingUnavailable";
-import { getPrimaryPlanCreditCount } from "@shared";
+import { getPrimaryPlanCreditCount } from "@esparex/shared";
 
 interface BoostPlanDialogProps {
   open: boolean;

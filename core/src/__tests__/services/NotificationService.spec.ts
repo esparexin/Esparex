@@ -101,7 +101,7 @@ import {
     sendNotification, 
     createInAppNotification, 
     dispatchTemplatedNotification 
-} from "../../services/NotificationService";
+} from "../../domains/notifications/application/NotificationService";
 
 describe("NotificationService & Dispatcher", () => {
     beforeEach(() => {

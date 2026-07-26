@@ -6,11 +6,11 @@ jest.mock('@esparex/core/domains/payments/application/WalletService', () => ({
     },
 }));
 
-jest.mock('@esparex/core/services/AdSlotService', () => ({
+jest.mock('@esparex/core/domains/boosts/application/services/AdSlotService', () => ({
     getAdPostingBalance: jest.fn(),
 }));
 
-import { getAdPostingBalance } from '../../services/AdSlotService';
+import { getAdPostingBalance } from '../../domains/boosts/application/services/AdSlotService';
 import { getWallet, TransactionModel } from '../../domains/payments/application/WalletService';
 import {
     getPostingBalanceByUserId,

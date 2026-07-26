@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { AlertCircle, ArrowLeft, SearchX, RefreshCcw } from "lucide-react";
 import { AdDetailSkeleton } from "./AdDetailSkeleton";
 import { ROUTES } from "@/lib/logic/routes";

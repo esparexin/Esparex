@@ -42,10 +42,11 @@ import chatRoutes from "../../routes/chatRoutes";
 const buildApp = () => {
     const app = express();
     app.use(express.json());
-    app.use(cookieParser());
     app.use("/api/v1/chat", chatRoutes);
     return app;
 };
+
+
 
 describe("chat routes auth contract", () => {
     const app = buildApp();

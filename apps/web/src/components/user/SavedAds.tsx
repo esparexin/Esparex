@@ -28,7 +28,7 @@ import {
   resolveListingLocationLabel,
 } from "@/lib/listings/listingPresentation";
 
-import { Button } from "../ui/button";
+import { Button } from "@esparex/ui";
 import { Card, CardContent } from "../ui/card";
 import {
   DropdownMenu,
@@ -154,10 +154,10 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
       />
 
       <CardContent className="p-3 space-y-1.5">
-        <h3 className={`font-semibold line-clamp-2 text-base leading-tight ${unavailable ? "text-foreground-subtle" : ""}`}>
+        <h3 className={`font-medium line-clamp-2 text-sm leading-tight ${unavailable ? "text-foreground-subtle" : ""}`}>
           {ad.title}
         </h3>
-        <div className={`text-xl font-extrabold ${unavailable ? "text-foreground-subtle" : "text-link"}`}>
+        <div className={`text-base md:text-lg font-bold ${unavailable ? "text-foreground-subtle" : "text-link"}`}>
           {formatPrice(ad.price)}
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -180,7 +180,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   const renderListCard = useCallback((ad: SavedAd, unavailable = false) => (
     <Card
       key={ad.id}
-      className={`overflow-hidden rounded-xl border border-black transition-all ${
+      className={`overflow-hidden rounded-xl border border-slate-200/80 transition-all ${
         unavailable ? "opacity-60 cursor-default" : "hover:shadow-xl cursor-pointer"
       }`}
       onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
@@ -203,10 +203,10 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
           <div className="flex-1 py-2 pr-2 md:py-4 md:pr-4 min-w-0">
             <div className="flex flex-col gap-1.5 md:gap-2 mb-1.5 md:mb-2">
               <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} className="w-fit" />
-              <div className={`text-lg md:text-2xl font-extrabold ${unavailable ? "text-foreground-subtle" : "text-link"}`}>
+              <div className={`text-base md:text-xl font-bold ${unavailable ? "text-foreground-subtle" : "text-link"}`}>
                 {formatPrice(ad.price)}
               </div>
-              <h3 className={`font-semibold line-clamp-2 text-xs md:text-base leading-tight ${unavailable ? "text-foreground-subtle" : ""}`}>
+              <h3 className={`font-medium line-clamp-2 text-xs md:text-sm leading-tight ${unavailable ? "text-foreground-subtle" : ""}`}>
                 {ad.title}
               </h3>
             </div>

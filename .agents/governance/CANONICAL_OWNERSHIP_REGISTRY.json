@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-07-23T16:20:00Z",
+  "updatedAt": "2026-07-24T12:38:00Z",
   "description": "Esparex Monorepo Canonical Ownership Registry — Single Source of Truth for Domain, Package, and Module Ownership Boundaries",
   "ownership": {
     "packages/contracts": {
@@ -20,8 +20,8 @@
     "packages/ui": {
       "name": "Monorepo Shared UI Design System",
       "owner": "@esparex/frontend-leads",
-      "boundary": "Provides accessible UI component primitives (Button, Dialog, Input, Popup) and presentation hooks.",
-      "allowedImports": ["@esparex/shared"],
+      "boundary": "Provides shared, domain-agnostic presentation: design tokens (Z_INDEX), UI primitives (Button, Input, Textarea, Checkbox, RadioGroup, Switch, Select, Slider, Dialog, AlertDialog, Drawer, Sheet, Label, FormError, Field), generic data patterns (DataTable, StatusChip), and slot-based layout shells (PageShell, Sidebar, HeaderShell). Must never own routing, auth, API calls, or domain business logic. A component may only be added here when consumed by >=2 distinct applications and passes the zero-domain-logic criteria. See .agents/governance/DESIGN_SYSTEM_GOVERNANCE.md for the full contribution policy.",
+      "allowedImports": ["@esparex/shared", "@esparex/contracts"],
       "forbiddenImports": ["@esparex/core", "@esparex/backend-api", "@esparex/apps-web", "@esparex/apps-admin"]
     },
     "core/src/domains": {

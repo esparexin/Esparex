@@ -1,4 +1,4 @@
-import { getAdPostingBalance } from '../../../services/AdSlotService';
+import { getAdPostingBalance } from '../../boosts/application/services/AdSlotService';
 import { getWallet, TransactionModel } from './WalletService';
 
 export type WalletTransactionHistory = {

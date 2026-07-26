@@ -2,8 +2,8 @@
 
 
 import { useBottomBar } from '../context/BottomBarContext';
-import type { ButtonProps } from './ui/button';
-import { Button } from './ui/button';
+import type { ButtonProps } from '@esparex/ui';
+import { Button } from '@esparex/ui';
 import { useRouter, usePathname } from 'next/navigation';
 
 export function BottomActionsBar({ enabled = true }: { enabled?: boolean }) {

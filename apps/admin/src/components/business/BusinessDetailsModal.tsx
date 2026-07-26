@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@esparex/ui";
 import { BUSINESS_STATUS } from "@esparex/contracts";
 import { Business } from "@esparex/contracts";
 import {
@@ -21,12 +27,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { buildBusinessFallbackLocationDisplay, resolveLocationDisplay } from "@/lib/location/display";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogTitle,
-} from "@/components/ui/dialog";
+
 
 interface BusinessDetailsModalProps {
     business: Business;

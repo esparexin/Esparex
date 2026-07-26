@@ -1,6 +1,6 @@
 import { Worker } from 'bullmq';
 import { redisConnection, shouldDisableQueueConnection } from '../queues/redisConnection';
-import { processAdForAlerts } from '../services/SmartAlertService';
+import { processAdForAlerts } from '../domains/notifications/application/SmartAlertService';
 import { enqueueSavedSearchAlertDispatch, processSavedSearchAlertDispatch } from '../services/SavedSearchService';
 import logger from '../utils/logger';
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';

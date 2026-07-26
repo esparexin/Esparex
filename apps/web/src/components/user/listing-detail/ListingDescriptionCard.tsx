@@ -5,22 +5,18 @@ import { Wrench, Info } from "lucide-react";
 
 interface ListingDescriptionCardProps {
     ad: Ad;
-    variant: "mobile" | "desktop";
+    variant?: "mobile" | "desktop";
 }
 
-export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardProps) {
-    const isMobile = variant === "mobile";
+export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
     const description = cleanupListingDescription(String(ad.description || ""));
 
     // Service/Part specific data
     const hasAttributes = ad.listingType === 'service' || ad.listingType === 'spare_part';
 
     return (
-        <Card className={isMobile
-            ? "md:hidden rounded-none border-x-0 border-t-0 border-b border-slate-100"
-            : "rounded-none md:rounded-2xl hidden md:block border-slate-100"}
-        >
-            <CardContent className={isMobile ? "p-3.5 space-y-3.5" : "p-3.5 md:p-5 space-y-3.5 md:space-y-5"}>
+        <Card className="rounded-none md:rounded-2xl border-x-0 md:border border-slate-100">
+            <CardContent className="p-3.5 md:p-5 space-y-3.5 md:space-y-5">
                 {hasAttributes && (
                     <div className="grid grid-cols-2 gap-2 pb-3.5 border-b border-slate-100/60">
                         {!!ad.warranty && (
@@ -69,15 +65,15 @@ export function ListingDescriptionCard({ ad, variant }: ListingDescriptionCardPr
                 )}
 
                 <div className="space-y-2">
-                    <h2 className={`font-bold text-foreground-secondary ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                    <h2 className="font-bold text-foreground-secondary text-sm md:text-base">
                         Description
                     </h2>
                     {description ? (
-                        <div className={`text-muted-foreground whitespace-pre-wrap leading-7 ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                        <div className="text-muted-foreground whitespace-pre-wrap leading-7 text-sm md:text-base">
                             {description}
                         </div>
                     ) : (
-                        <p className={`text-foreground-subtle italic ${isMobile ? "text-sm" : "text-sm md:text-base"}`}>
+                        <p className="text-foreground-subtle italic text-sm md:text-base">
                             No description provided.
                         </p>
                     )}

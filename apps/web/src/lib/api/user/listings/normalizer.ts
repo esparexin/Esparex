@@ -30,7 +30,9 @@ export interface Listing extends Ad {
 
 export interface ListingFilters {
     categoryId?: string;
+    category?: string;
     brandId?: string;
+
     modelId?: string;
     locationId?: string;
     level?: LocationLevel;

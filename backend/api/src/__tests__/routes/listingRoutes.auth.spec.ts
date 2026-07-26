@@ -44,10 +44,11 @@ jest.setTimeout(15000);
 const buildApp = () => {
     const app = express();
     app.use(express.json());
-    app.use(cookieParser());
     app.use("/api/v1/listings", listingRoutes);
     return app;
 };
+
+
 
 describe("listing routes precedence", () => {
     const app = buildApp();

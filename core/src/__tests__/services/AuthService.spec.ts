@@ -90,7 +90,7 @@ jest.mock('../../utils/securityMonitoring', () => ({
 
 import axios from 'axios';
 import { env } from '../../config/env';
-import { AuthService } from '../../services/AuthService';
+import { AuthService } from '../../domains/identity/application/auth/AuthService';
 import User from '../../models/User';
 import Otp from '../../models/Otp';
 import Plan from '../../models/Plan';
@@ -281,7 +281,7 @@ describe('AuthService', () => {
             
             const newUser = { ...mockUser, _id: 'new-user-id', name: 'New User' };
             mockUserModel.create.mockResolvedValue(newUser);
-            mockPlanModel.findOne.mockResolvedValue({ _id: 'plan-free-id', isDefault: true });
+            mockPlanModel.findOne.mockResolvedValue({ _id: 'plan-free-id', isDefault: true, userType: 'both' });
 
             const result = await AuthService.verifyLoginOtp(MOBILE, '123456', 'New User');
 
@@ -290,12 +290,21 @@ describe('AuthService', () => {
                 name: 'New User',
                 mobile: CANONICAL_MOBILE
             }));
+            // Verify the free plan query scopes to non-business userTypes
+            // to prevent BUSINESS_BASE (also isDefault:true) from being assigned to normal users.
+            expect(mockPlanModel.findOne).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    isDefault: true,
+                    userType: { $in: ['both', 'normal'] }
+                })
+            );
             expect(mockUserPlanModel.findOneAndUpdate).toHaveBeenCalledWith(
                 expect.objectContaining({ userId: 'new-user-id', planId: 'plan-free-id' }),
                 expect.any(Object),
                 expect.any(Object)
             );
         });
+
 
         it('should throw error for new user registration if name is missing', async () => {
             mockUserModel.findOne.mockResolvedValue(null);

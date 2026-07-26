@@ -12,5 +12,3 @@ export * from './application/PushGatewayService';
 
 export * from './ports/NotificationRepositoryPort';
 export * from './ports/SmartAlertRepositoryPort';
-
-// Note: Adapters and detailed application services remain internal, exported selectively above.

@@ -12,6 +12,7 @@ import {
     getCatalogEntityCounts,
     findCategoryById,
     categoryParentExists,
+    validateCategoryParentHierarchy,
     updateCategorySchemaById,
 } from '@esparex/core/services/catalog/CatalogCategoryService';
 import { logAdminAction } from '../../../utils/adminLogger';
@@ -171,8 +172,9 @@ export const createCategory = async (req: Request, res: Response) => {
         if (!payload.slug) return sendCatalogError(req, res, 'Invalid category slug', 400);
         
         if (payload.parentId) {
-            if (!(await categoryParentExists(payload.parentId))) {
-                return sendCatalogError(req, res, 'Invalid parent category', 400);
+            const isValidParent = await validateCategoryParentHierarchy(undefined, payload.parentId);
+            if (!isValidParent) {
+                return sendCatalogError(req, res, 'Invalid parent category or circular hierarchy detected', 400);
             }
         }
 
@@ -223,8 +225,10 @@ export const updateCategory = async (req: Request, res: Response) => {
         }
 
         if (payload.parentId) {
-            if (payload.parentId === categoryId) return sendCatalogError(req, res, 'Category cannot be its own parent', 400);
-            if (!(await categoryParentExists(payload.parentId))) return sendCatalogError(req, res, 'Invalid parent category', 400);
+            const isValidParent = await validateCategoryParentHierarchy(categoryId, payload.parentId);
+            if (!isValidParent) {
+                return sendCatalogError(req, res, 'Invalid parent category or circular hierarchy detected', 400);
+            }
         }
 
         const payloadWithStatus = payload.isActive !== undefined

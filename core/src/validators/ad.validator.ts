@@ -37,7 +37,6 @@ type LegacyAliasConfig = {
 const LEGACY_AD_QUERY_ALIAS_CONFIGS: LegacyAliasConfig[] = [
     { alias: LEGACY_AD_USER_ID_ALIAS, message: LEGACY_AD_USER_ID_ALIAS_MESSAGE },
     { alias: 'search', message: LEGACY_AD_SEARCH_ALIAS_MESSAGE },
-    { alias: 'category', message: LEGACY_AD_CATEGORY_ALIAS_MESSAGE },
     { alias: 'location', message: LEGACY_AD_LOCATION_ALIAS_MESSAGE },
     { alias: 'city', message: LEGACY_AD_CITY_ALIAS_MESSAGE },
     { alias: 'state', message: LEGACY_AD_STATE_ALIAS_MESSAGE },
@@ -80,6 +79,16 @@ import { normalizeStatus } from "@esparex/shared";
 export const SAFE_SORT_FIELDS = ['newest', 'price-low', 'price-high', 'distance', 'trending'] as const;
 export type SafeSortField = (typeof SAFE_SORT_FIELDS)[number];
 
+export const normalizeSortBy = (val: unknown): string | undefined => {
+    if (typeof val !== 'string') return undefined;
+    const clean = val.trim().toLowerCase();
+    if (clean === 'price_asc' || clean === 'price-asc') return 'price-low';
+    if (clean === 'price_desc' || clean === 'price-desc') return 'price-high';
+    if (clean === 'createdat_desc' || clean === 'created_at_desc') return 'newest';
+    if (clean === 'relevance') return undefined;
+    return clean;
+};
+
 /**
  * Get Ads Query Schema
  * Canonical ownership query key is sellerId.
@@ -90,6 +99,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     
     // SSOT: Canonical filter key is categoryId.
     categoryId: commonSchemas.objectId.optional(),
+    category: z.string().optional(),
     brandId: commonSchemas.objectId.optional(),
     modelId: commonSchemas.objectId.optional(),
     locationId: commonSchemas.objectId.optional(),
@@ -107,7 +117,7 @@ const getAdsQuerySchemaBase = commonSchemas.pagination.extend({
     listingType: z.string().optional(),
 
     // Whitelisted sort — matches buildAdSortStage in AdQueryHelpers.ts
-    sortBy: z.enum(SAFE_SORT_FIELDS).optional(),
+    sortBy: z.preprocess((val) => normalizeSortBy(val), z.enum(SAFE_SORT_FIELDS).optional()),
     sortOrder: z.enum(['asc', 'desc']).optional(),
 
     // 📍 Location Filters

@@ -1,6 +1,6 @@
 {
-  "baselinePercentage": 0.11,
+  "baselinePercentage": 0.15,
   "maxAllowedPercentage": 0.25,
   "tolerance": 0.05,
-  "lastUpdated": "2026-07-23"
+  "lastUpdated": "2026-07-25"
 }

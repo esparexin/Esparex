@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getPaginationParams, sendAdminError, sendSuccessResponse, getActorId, buildLogFn } from '../../utils/adminBaseController';
-import { getAlertDeliveryLogs, adminBulkResendAlertWarnings as bulkResendAlertWarnings, deleteSmartAlert } from "@esparex/core/services/SmartAlertService";
+import { getAlertDeliveryLogs, adminBulkResendAlertWarnings as bulkResendAlertWarnings, deleteSmartAlert } from "@esparex/core/domains/notifications/application/SmartAlertService";
 import { getAllSmartAlerts as getAllSmartAlertsFromQueryService } from "@esparex/core/services/SmartAlertQueryService";
 
 /**

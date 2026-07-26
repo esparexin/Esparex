@@ -58,15 +58,15 @@
 
   --radius: 0.625rem;
 
-  /* Typography scale — legacy Tailwind-mapped tokens (preserved for backward compat) */
-  --font-size: 16px;
-  --text-2xl: 1.5rem;
-  --text-xl: 1.25rem;
-  --text-lg: 1.125rem;
-  --text-base: 1rem;
-  --text-sm: 0.875rem;
-  --text-xs: 0.75rem;
-  --text-2xs: 0.625rem;
+  /* Typography scale — legacy tokens (deprecated, scheduled for future removal) */
+  --font-size: 16px;         /* Deprecated — html base is 16px */
+  --text-2xl: 1.5rem;        /* Deprecated — prefer --text-h2 */
+  --text-xl: 1.25rem;        /* Deprecated — prefer --text-h3 */
+  --text-lg: 1.125rem;       /* Deprecated — prefer --text-h4 */
+  --text-base: 1rem;         /* Deprecated — prefer --text-body-lg */
+  --text-sm: 0.875rem;       /* Deprecated — prefer --text-body */
+  --text-xs: 0.75rem;        /* Deprecated — prefer --text-caption */
+  --text-2xs: 0.625rem;      /* Deprecated — prefer --text-tiny */
 
   --font-weight-medium: 500;
   --font-weight-normal: 400;
@@ -89,7 +89,7 @@
   /* Extended foreground text tokens — fills gap between foreground and muted-foreground */
   --foreground-secondary: 215.4 25% 26.7%;   /* ≈ slate-700 — secondary body text */
   --foreground-tertiary: 215.3 19.3% 34.5%;  /* ≈ slate-600 — captions, labels */
-  --foreground-subtle: 215.4 16.3% 56.9%;    /* ≈ slate-400 — placeholder, disabled */
+  --foreground-subtle: 215.4 16.3% 40%;    /* ≈ slate-500 — placeholder, disabled, secondary metadata (WCAG 4.5:1 ratio) */
 
   /* Sidebar Tokens */
   --sidebar: 210 40% 98%;

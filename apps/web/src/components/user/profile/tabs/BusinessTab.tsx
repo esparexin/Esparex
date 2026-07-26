@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import {
     Building2,
     CheckCircle2,
@@ -73,7 +73,7 @@ export function BusinessTab({
                             </div>
                             <div className="min-w-0 space-y-2">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <h2 className="text-2xl font-bold tracking-tight">{businessData.name}</h2>
+                                    <h2 className="text-xl md:text-2xl font-bold tracking-tight">{businessData.name}</h2>
                                     <span className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-blue-50">
                                         <CheckCircle2 className="h-3.5 w-3.5" />
                                         Verified business

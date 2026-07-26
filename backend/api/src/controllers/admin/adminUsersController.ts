@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as userStatusService from '@esparex/core/services/UserStatusService';
+import * as userStatusService from '@esparex/core/domains/identity/application/users/UserStatusService';
 import {
     sendSuccessResponse,
     getPaginationParams,

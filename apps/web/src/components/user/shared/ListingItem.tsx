@@ -1,7 +1,7 @@
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff, Power } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";

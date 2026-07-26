@@ -39,7 +39,9 @@ type DbListing = {
     moderationStatus?: string;
     fraudScore?: number;
     sellerTrustSnapshot?: number;
+    sellerPriorityScore?: number;
     isSpotlight?: boolean;
+
     spotlightExpiresAt?: Date;
     expiresAt?: Date;
     views?: {
@@ -89,6 +91,8 @@ function toDomain(doc: DbListing): Listing {
         moderationStatus: doc.moderationStatus,
         fraudScore: doc.fraudScore,
         sellerTrustSnapshot: doc.sellerTrustSnapshot,
+        sellerPriorityScore: doc.sellerPriorityScore,
+
         isSpotlight: doc.isSpotlight,
         spotlightExpiresAt: doc.spotlightExpiresAt,
         expiresAt: doc.expiresAt,

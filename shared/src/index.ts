@@ -77,4 +77,8 @@ export { createUniversalLogger } from './observability/logger';
 // HOOKS (remain in @esparex/shared)
 export * from './hooks';
 
+// STATE MACHINES
+export * from './stateMachines';
+
+
 

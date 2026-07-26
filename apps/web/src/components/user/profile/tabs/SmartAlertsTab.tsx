@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ACCOUNT_COPY } from '@/config/copy/account';
 import { FeatureCard } from '@/components/user/FeatureCard';
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";

@@ -281,22 +281,7 @@ export const searchLocations = async (
         .limit(LOCATION_AUTOCOMPLETE_LIMIT)
         .lean();
 
-    let results = primaryResults;
-    if (results.length < LOCATION_AUTOCOMPLETE_LIMIT) {
-        const aliasRegex = rawPrefixRegex;
-        const aliasResults = await Location.find(withPublicCanonicalLocationFilter({
-            aliases: aliasRegex,
-            _id: { $nin: results.map((item) => item._id) }
-        }))
-            .select('name country level coordinates isPopular isActive verificationStatus parentId path aliases')
-            .sort({ isPopular: -1, priority: -1, name: 1 })
-            .limit(LOCATION_AUTOCOMPLETE_LIMIT - results.length)
-            .lean();
-        results = [...results, ...aliasResults];
-    }
-
-    const mapped = results
-        .slice(0, LOCATION_AUTOCOMPLETE_LIMIT);
+    const mapped = primaryResults.slice(0, LOCATION_AUTOCOMPLETE_LIMIT);
 
     const mappedResponses = await mapLocationDocsToResponses(mapped);
 

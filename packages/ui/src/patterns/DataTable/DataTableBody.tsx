@@ -1,0 +1,65 @@
+import React from "react";
+import { MoreHorizontal } from "lucide-react";
+import { DataTableRow } from "./DataTableRow";
+import type { VirtualItem, Virtualizer } from "@tanstack/react-virtual";
+import type { ColumnDef } from "./DataTableTypes";
+
+export interface DataTableBodyProps<T extends { id: string | number }> {
+    data: T[];
+    virtualItems: VirtualItem[];
+    firstVirtualItem: VirtualItem | undefined;
+    lastVirtualItem: VirtualItem | undefined;
+    visibleColumns: ColumnDef<T>[];
+    rowVirtualizer: Virtualizer<HTMLDivElement, Element>;
+    emptyMessage: string;
+    emptyState?: React.ReactNode;
+    onRowClick?: (item: T) => void;
+}
+
+export function DataTableBody<T extends { id: string | number }>({
+    data, virtualItems, firstVirtualItem, lastVirtualItem, visibleColumns, rowVirtualizer, emptyMessage, emptyState, onRowClick
+}: DataTableBodyProps<T>) {
+    return (
+        <tbody className="divide-y divide-slate-100 bg-white">
+            {data.length > 0 ? (
+                <>
+                    {firstVirtualItem && firstVirtualItem.start > 0 && (
+                        <tr>
+                            <td colSpan={visibleColumns.length} style={{ height: firstVirtualItem.start }} />
+                        </tr>
+                    )}
+                    {virtualItems.map((virtualRow) => {
+                        const item = data[virtualRow.index];
+                        if (!item) return null;
+                        return (
+                            <DataTableRow
+                                key={virtualRow.key ?? virtualRow.index}
+                                item={item}
+                                virtualRow={virtualRow}
+                                visibleColumns={visibleColumns}
+                                measureElement={rowVirtualizer.measureElement}
+                                onRowClick={onRowClick}
+                            />
+                        );
+                    })}
+                    {lastVirtualItem && lastVirtualItem.end < rowVirtualizer.getTotalSize() && (
+                        <tr>
+                            <td colSpan={visibleColumns.length} style={{ height: rowVirtualizer.getTotalSize() - lastVirtualItem.end }} />
+                        </tr>
+                    )}
+                </>
+            ) : (
+                <tr>
+                    <td colSpan={visibleColumns.length} className="px-6 py-12 text-center text-slate-400 font-medium bg-slate-50/10">
+                        {emptyState || (
+                            <div className="flex flex-col items-center gap-2">
+                                <MoreHorizontal size={32} className="text-slate-200" />
+                                {emptyMessage}
+                            </div>
+                        )}
+                    </td>
+                </tr>
+            )}
+        </tbody>
+    );
+}

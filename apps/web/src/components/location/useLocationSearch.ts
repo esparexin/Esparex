@@ -67,7 +67,10 @@ export function useLocationSearch({
         abortControllerRef.current = new AbortController();
         const signal = abortControllerRef.current.signal;
 
-        void (async () => { setSearchError(null); })();
+        void (async () => {
+            setSearchError(null);
+            setLocalDetectFeedback(null);
+        })();
 
         if (isCacheAvailable()) {
             const cached = getCacheEntry<Location[]>(getSearchCacheKey(query));

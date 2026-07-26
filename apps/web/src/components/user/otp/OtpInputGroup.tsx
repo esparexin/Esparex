@@ -63,6 +63,7 @@ export const OtpInputGroup = memo(function OtpInputGroup({
           inputMode="numeric"
           aria-label={`OTP digit ${index + 1}`}
           aria-invalid={hasError}
+          aria-describedby={hasError ? "otp-error" : undefined}
           autoComplete={index === 0 ? "one-time-code" : "off"}
         />
       ))}

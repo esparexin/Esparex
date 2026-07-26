@@ -93,6 +93,16 @@ export function getSearchLocationLabel(location: LocationLabelInput): string | u
         return pickLocationLabel(location.country);
     }
 
+    if (location.level === "area" || location.level === "village") {
+        return pickLocationLabel(
+            location.name,
+            location.display,
+            location.formattedAddress,
+            location.city,
+            location.state
+        );
+    }
+
     return pickLocationLabel(
         location.city,
         location.name,
@@ -133,6 +143,16 @@ function getHeaderLocationLabel(location: LocationLabelInput): string | undefine
 
     if (location.level === "country") {
         return pickLocationLabel(location.country);
+    }
+
+    if (location.level === "area" || location.level === "village") {
+        return pickLocationLabel(
+            location.display,
+            location.formattedAddress,
+            location.name && location.city && location.state ? `${location.name}, ${location.city}, ${location.state}` : undefined,
+            location.city,
+            location.state
+        );
     }
 
     const city = sanitizeLocationLabel(location.city);

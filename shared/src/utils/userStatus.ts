@@ -1,17 +1,11 @@
-import { USER_STATUS, USER_STATUS_VALUES, type UserStatusValue } from "@esparex/contracts";
-
-const validUserStatuses = new Set<string>(USER_STATUS_VALUES);
+import { USER_STATUS, type UserStatusValue } from "@esparex/contracts";
+import { normalizeUserStatus as canonicalNormalizeUserStatus } from "./statusNormalization";
 
 export type UserStatusLike = UserStatusValue | "active" | string | null | undefined;
 
-export function normalizeUserStatus(status: UserStatusLike): UserStatusValue | undefined {
-    if (typeof status !== "string") {
-        return undefined;
-    }
-
-    return validUserStatuses.has(status) ? (status as UserStatusValue) : undefined;
-}
-
 export function isActiveUserStatus(status: UserStatusLike): boolean {
-    return normalizeUserStatus(status) === USER_STATUS.LIVE;
+    const normalized = canonicalNormalizeUserStatus(status);
+    return normalized === 'active' || status === USER_STATUS.LIVE;
 }
+
+

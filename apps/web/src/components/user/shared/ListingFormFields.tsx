@@ -30,7 +30,18 @@ export function ListingImagesField({
     return (
         <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
-                <label className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 transition-colors hover:bg-slate-50">
+                <label
+                    tabIndex={0}
+                    role="button"
+                    aria-label="Tap to add photos"
+                    onKeyDown={(e) => {
+                        if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            e.currentTarget.querySelector("input")?.click();
+                        }
+                    }}
+                    className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
                     <Upload className="w-6 h-6 text-foreground-subtle mb-1" />
                     <span className="text-sm font-medium text-foreground-tertiary">Tap to add photos</span>
                     <input
@@ -38,6 +49,8 @@ export function ListingImagesField({
                         accept="image/*"
                         multiple
                         className="hidden"
+                        tabIndex={-1}
+                        aria-label="Upload photos"
                         onChange={(e) => {
                             if (!e.target.files) return;
                             onUpload(Array.from(e.target.files));
@@ -60,18 +73,21 @@ export function ListingImagesField({
                                     sizes="25vw"
                                     className="object-cover"
                                 />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex items-start justify-end p-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => onRemove(img.id)}
+                                        aria-label={`Remove photo ${index + 1} of ${images.length}`}
+                                        className="p-1 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
                                 {index === 0 && (
-                                    <span className="absolute bottom-0 left-0 right-0 bg-primary py-0.5 text-center text-xs font-semibold text-white">
+                                    <span className="absolute bottom-0 left-0 right-0 bg-primary py-0.5 text-center text-xs font-semibold text-white pointer-events-none">
                                         {firstImageBadgeLabel}
                                     </span>
                                 )}
-                                <button
-                                    type="button"
-                                    onClick={() => onRemove(img.id)}
-                                    className="absolute top-1 right-1 w-10 h-10 sm:w-7 sm:h-7 bg-black/60 text-white rounded-full flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-                                >
-                                    <X className="w-3 h-3" />
-                                </button>
                             </div>
                         ))}
                     </div>

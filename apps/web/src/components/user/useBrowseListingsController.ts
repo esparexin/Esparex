@@ -12,7 +12,7 @@ import {
   getDisplayLocationLabel,
   sanitizeLocationLabel,
 } from "@/lib/location/locationLabels";
-import { getLatitude, getLongitude } from "@esparex/shared";
+import { isUserSelectedLocation, shouldApplyLocationFilter } from "@/lib/location/queryMode";
 import logger from "@/lib/logger";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import {
@@ -99,8 +99,6 @@ export function useBrowseListingsController<TItem, TFilters>({
   const urlLocationId = routeParams.locationId ?? "";
   const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
   const urlRadiusKm = routeParams.radiusKm;
-  const locationLatitude = getLatitude(location);
-  const locationLongitude = getLongitude(location);
   const stableLocation = location;
 
   useEffect(() => {
@@ -127,11 +125,8 @@ export function useBrowseListingsController<TItem, TFilters>({
 
 
   const hasLocationFilter = useMemo(() => {
-    return (
-      Boolean(urlLocationId || stableLocation.locationId) ||
-      (locationLatitude != undefined && locationLongitude != undefined)
-    );
-  }, [locationLatitude, locationLongitude, stableLocation.locationId, urlLocationId]);
+    return shouldApplyLocationFilter(stableLocation, urlLocationId);
+  }, [stableLocation, urlLocationId]);
 
   const shouldUseInitialResults = useMemo(
     () =>
@@ -219,7 +214,7 @@ export function useBrowseListingsController<TItem, TFilters>({
 
   const activeLocationLabel = useMemo(() => {
     if (urlLocationId && urlLocationLabel) return urlLocationLabel;
-    if (stableLocation.source === "default") return null;
+    if (!isUserSelectedLocation(stableLocation)) return null;
     return getDisplayLocationLabel(stableLocation) || null;
   }, [stableLocation, urlLocationId, urlLocationLabel]);
 

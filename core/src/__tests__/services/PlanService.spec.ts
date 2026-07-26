@@ -7,7 +7,7 @@
  *  - limits are enforced correctly when quota is exceeded
  */
 
-jest.mock('@esparex/core/services/AdSlotService', () => ({
+jest.mock('@esparex/core/domains/boosts/application/services/AdSlotService', () => ({
     withUserPostingLock: jest.fn((_id: string, _ttl: number, fn: () => Promise<unknown>) => fn()),
     getAdPostingBalance: jest.fn(),
     AdSlotService: { consumeSlot: jest.fn() },

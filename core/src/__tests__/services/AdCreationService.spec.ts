@@ -118,7 +118,7 @@ jest.mock('../../utils/serviceTypeResolver', () => ({
 // ── Imports ──────────────────────────────────────────────────────────────────
 
 import mongoose from 'mongoose';
-import { AdCreationService } from '../../services/AdCreationService';
+import { AdCreationService } from '../../domains/listings/application/ad/AdCreationService';
 import { normalizeLocation } from '../../services/location/LocationNormalizer';
 import { generateUniqueSlug, generateUniqueSlugWithChecker } from '../../utils/slugGenerator';
 import { processImages } from '../../utils/imageProcessor';

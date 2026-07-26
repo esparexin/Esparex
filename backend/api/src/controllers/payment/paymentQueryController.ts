@@ -6,7 +6,7 @@ import { ApiResponse } from "@esparex/contracts";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/services/TransactionService';
-import { getActivePlans } from '@esparex/core/services/PlanService';
+import { getActivePlans } from '@esparex/core/domains/payments/application/PlanService';
 import { getInvoiceByIdOrTransaction } from '@esparex/core/services/InvoiceService';
 
 /**

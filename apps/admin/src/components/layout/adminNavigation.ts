@@ -144,7 +144,8 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         section: "Management",
         href: "/plans",
         roles: ["admin", "superAdmin"],
-        aliases: ["/finance", "/plans", "/invoices", "/revenue"],
+        aliases: ["/finance", "/plans", "/business-plans", "/invoices", "/revenue"],
+
     },
     {
         key: "administration",

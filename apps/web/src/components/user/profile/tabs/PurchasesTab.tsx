@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, FileText, Crown } from "lucide-react";
 import { notify } from "@/lib/feedback";

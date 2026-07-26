@@ -4,8 +4,8 @@ import { ApiResponse, User as SharedUser } from "@esparex/contracts";
 import { serializeDoc } from '@esparex/core/utils/serialize';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getBusinessStatus, getStorageSafeId, sanitizeUser, toSharedUser } from './shared';
-import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@esparex/core/services/UserProfileService';
-import { getUserWithBusiness } from '@esparex/core/services/UserService';
+import { getUserProfileById as getPublicUserProfileById, type SellerProfilePayload } from '@esparex/core/domains/identity/application/users/UserProfileService';
+import { getUserWithBusiness } from '@esparex/core/domains/identity/application/users/UserService';
 import type { AuthUser } from '../../types/auth.types';
 
 const resolveUserId = (req: Request, res: Response): string | null => {

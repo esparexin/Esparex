@@ -4,7 +4,7 @@ import React, { ReactNode } from "react";
 import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
 import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import type { ListingImage } from "@/types/listing";

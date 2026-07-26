@@ -2,8 +2,14 @@
 
 import Image from "next/image";
 import { useMobileNavDrawer } from "./MobileNavDrawerProvider";
-import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+
+import {
+  Button,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@esparex/ui";
 import { LogOut, LogIn } from "lucide-react";
 import { getUserInitials } from "@/lib/headerUtils";
 import { useRouter } from "next/navigation";

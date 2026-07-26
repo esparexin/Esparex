@@ -3,7 +3,8 @@ import { type GeoJSONPoint, normalizeGeoPoint } from "../utils/geoUtils";
 import { sanitizeMongoObjectId } from "../validators/mongo";
 
 /**
- * @deprecated Use `LocationFacade.normalize` instead.
+ * Adapts raw location input into canonical ListingLocation structure.
+ * Delegates directly to normalizeLocation.
  */
 export function adaptLocationInput(raw: unknown) {
     return normalizeLocation(raw);

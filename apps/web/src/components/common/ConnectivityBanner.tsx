@@ -3,7 +3,9 @@
 import React from 'react';
 import { WifiOff, AlertTriangle } from 'lucide-react';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
-import { Z_INDEX } from '@/lib/zIndexConfig';
+import {
+  Z_INDEX,
+} from "@esparex/ui";
 
 interface ConnectivityBannerProps {
     apiUnavailable?: boolean;

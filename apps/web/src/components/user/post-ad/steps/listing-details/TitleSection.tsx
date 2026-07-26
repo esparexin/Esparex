@@ -4,7 +4,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Loader2 } from "@/icons/IconRegistry";
 import { MAX_AD_TITLE_CHARS } from "@esparex/contracts";
 import { cn } from "@/components/ui/utils";

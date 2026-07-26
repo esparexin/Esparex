@@ -9,11 +9,11 @@ import logger from "@/lib/logger";
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
 
-// error event dispatch logic removed
+import { notify } from '@/lib/feedback';
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
-import { TraceContext } from "@shared";
+import { TraceContext } from "@esparex/shared";
 import { resolveRuntimeApiBaseUrl } from "./runtimeApiBase";
 import { validateApiEnv } from './validateApiEnv';
 
@@ -435,8 +435,11 @@ class APIClient {
                     
                     if (apiError.code && expectedBusinessErrors.includes(apiError.code)) {
                         logger.info(`[API STATE] Expected business condition: ${apiError.code}`, { endpoint: requestConfig?.url });
+                    } else if (apiError.status === 401) {
+                        logger.info(`[API STATE] Unauthenticated session: ${requestConfig?.url}`);
                     } else {
                         logger.error("[API ERROR]", apiError);
+                        notify.error(apiError);
                     }
                 }
 

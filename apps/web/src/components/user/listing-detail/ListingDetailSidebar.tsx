@@ -6,7 +6,7 @@ import type { Ad } from "@/schemas/ad.schema";
 
 import type { UserPage } from "@/lib/routeUtils";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { AdTitlePriceCard } from "./AdTitlePriceCard";
 import { AdSellerCard } from "./AdSellerCard";

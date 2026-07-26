@@ -1,13 +1,13 @@
 "use client";
 
 import { Fragment, type ComponentType, type ReactNode } from "react";
-import { PackageOpen, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
+import { BrowseEmptyState } from "./BrowseEmptyState";
 
 export type BrowseVirtualizedListProps<TItem> = {
   items: TItem[];
@@ -68,14 +68,11 @@ export function BrowseResultsPanel<TItem>({
   query,
   filterNode,
   activeFilterCount = 0,
-  activeFilterBadges = [],
   onSortChange,
   onViewChange,
   onRetry,
   onReset,
   onLoadMore,
-  emptyTitle,
-  getEmptyDescription,
   renderCard,
   getItemKey,
   VirtualizedListComponent,
@@ -85,7 +82,7 @@ export function BrowseResultsPanel<TItem>({
     Boolean(VirtualizedListComponent) && items.length > virtualizationThreshold;
 
   return (
-    <section data-primary className="mx-auto max-w-7xl px-4 pt-3 pb-8 md:px-6 lg:px-8 space-y-4">
+    <section data-primary className="mx-auto max-w-7xl px-3 md:px-6 lg:px-8 pt-1 pb-6 md:pt-3 space-y-2 md:space-y-4">
       <SearchResultsHeader
         total={loading && items.length === 0 ? 0 : total}
         sort={sort}
@@ -108,37 +105,11 @@ export function BrowseResultsPanel<TItem>({
       {loading && items.length === 0 && !error ? <GridSkeleton /> : null}
 
       {!loading && !error && items.length === 0 ? (
-        <div className="flex min-h-[300px] flex-col items-center justify-center px-6 py-12 text-center">
-          <div className="mb-4">
-            <PackageOpen className="h-10 w-10 text-foreground-subtle" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">
-            {activeFilterCount > 0 ? "No results match these filters" : emptyTitle}
-          </h3>
-          <p className="text-muted-foreground max-w-xl mb-6 text-sm leading-6 sm:text-base">
-            {getEmptyDescription(query)}
-          </p>
-          {activeFilterBadges.length > 0 ? (
-            <div className="mb-6 flex max-w-2xl flex-wrap justify-center gap-2">
-              {activeFilterBadges.map((badge) => (
-                <span
-                  key={badge}
-                  className="max-w-full rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-foreground-tertiary"
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-          ) : null}
-          <p className="mb-6 text-xs font-medium uppercase tracking-widest text-foreground-subtle">
-            Sorted by {PUBLIC_BROWSE_SORT_LABELS[sort]}
-          </p>
-          {activeFilterCount > 0 ? (
-            <Button variant="outline" onClick={onReset}>
-              Clear Filters
-            </Button>
-          ) : null}
-        </div>
+        <BrowseEmptyState
+          activeFilterCount={activeFilterCount}
+          query={query}
+          onResetFilters={onReset}
+        />
       ) : null}
 
       {items.length > 0

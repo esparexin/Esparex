@@ -10,6 +10,8 @@ import { LISTING_TYPE_VALUES } from "@esparex/contracts";
 export const adminCategorySchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be 50 characters or fewer'),
     slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug must only contain lowercase letters, numbers, and hyphens'),
+    parentId: ObjectIdSchema.optional().nullable(),
+    sortOrder: z.number().int().min(0).optional(),
     status: z.enum(['live', 'inactive', 'pending', 'rejected']).optional(),
     listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
     hasScreenSizes: z.boolean().optional()

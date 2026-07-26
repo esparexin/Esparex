@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@esparex/ui";
 import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
 import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
@@ -8,12 +14,7 @@ import { resolveLocationDisplay } from "@/lib/location/display";
 import { getListingAttribute, getListingPresentation, getListingPriceSummary } from "./listingPresentation";
 import { LIFECYCLE_STATUS } from "@esparex/contracts";
 import { ListingTypeValue } from "@esparex/contracts";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogTitle,
-} from "@/components/ui/dialog";
+
 
 type ViewAdModalProps = {
     open: boolean;

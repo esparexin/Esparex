@@ -1,5 +1,15 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+    Button,
+    AlertDialog,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogAction,
+    AlertDialogCancel,
+} from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import { AlertTriangle, Clock, AlertCircle, Edit2, XCircle, CheckCircle2, Trash2, type LucideIcon } from "lucide-react";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
@@ -67,16 +77,15 @@ export function BusinessApplicationStatus({
     onWithdraw
 }: BusinessApplicationStatusProps) {
     const [isWithdrawing, setIsWithdrawing] = useState(false);
+    const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
     const businessDataStatus = businessData
         ? normalizeBusinessStatus(businessData.status, "pending")
         : "pending";
     const businessLabel = businessData?.name || "Pending Business";
 
-    const handleWithdraw = async () => {
-        if (!confirm("Are you sure you want to withdraw your business application? This action cannot be undone.")) {
-            return;
-        }
+    const confirmWithdraw = async () => {
         setIsWithdrawing(true);
+        setShowWithdrawDialog(false);
         try {
             await withdrawBusiness();
             notify.success("Business application withdrawn successfully");
@@ -88,8 +97,10 @@ export function BusinessApplicationStatus({
         }
     };
 
+    let cardContent: React.ReactNode = null;
+
     if (businessDataStatus === "pending") {
-        return (
+        cardContent = (
             <StatusCard
                 cardClass="from-yellow-50 to-amber-50 border border-yellow-200"
                 iconBgClass="bg-yellow-600"
@@ -109,7 +120,7 @@ export function BusinessApplicationStatus({
                             Edit Application
                         </Button>
                         <Button
-                            onClick={handleWithdraw}
+                            onClick={() => setShowWithdrawDialog(true)}
                             variant="outline"
                             disabled={isWithdrawing}
                             className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
@@ -159,10 +170,8 @@ export function BusinessApplicationStatus({
                 </div>
             </StatusCard>
         );
-    }
-
-    if (businessData && businessDataStatus === "rejected") {
-        return (
+    } else if (businessData && businessDataStatus === "rejected") {
+        cardContent = (
             <StatusCard
                 cardClass="from-red-50 to-rose-50 border border-red-200"
                 iconBgClass="bg-red-600"
@@ -217,10 +226,8 @@ export function BusinessApplicationStatus({
                 </div>
             </StatusCard>
         );
-    }
-
-    if (businessData && businessDataStatus === "suspended") {
-        return (
+    } else if (businessData && businessDataStatus === "suspended") {
+        cardContent = (
             <StatusCard
                 cardClass="from-orange-50 to-amber-50 border border-orange-200"
                 iconBgClass="bg-orange-600"
@@ -244,10 +251,8 @@ export function BusinessApplicationStatus({
                 </div>
             </StatusCard>
         );
-    }
-
-    if (businessData && businessDataStatus === "deleted") {
-        return (
+    } else if (businessData && businessDataStatus === "deleted") {
+        cardContent = (
             <StatusCard
                 cardClass="from-gray-50 to-slate-100 border border-gray-300"
                 iconBgClass="bg-gray-600"
@@ -285,5 +290,36 @@ export function BusinessApplicationStatus({
         );
     }
 
-    return null;
+    if (!cardContent) {
+        return null;
+    }
+
+    return (
+        <>
+            <AlertDialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
+                <AlertDialogContent className="max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-lg font-bold text-foreground">
+                            Withdraw Business Application?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm text-muted-foreground mt-2">
+                            Are you sure you want to withdraw your business application? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
+                        <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-slate-200">
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmWithdraw}
+                            className="h-10 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700"
+                        >
+                            Withdraw
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            {cardContent}
+        </>
+    );
 }

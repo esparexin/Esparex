@@ -16,13 +16,14 @@ export const locationsTabs: AdminTabItem[] = [
     { label: "Geo Analytics", href: "/locations/analytics" },
 ];
 
-// Finance pages: /plans, /invoices, /finance, /revenue
 export const financeTabs: AdminTabItem[] = [
     { label: "Plans", href: "/plans" },
+    { label: "Business Plans", href: "/business-plans" },
     { label: "Invoices", href: "/invoices" },
     { label: "Transactions", href: "/finance" },
     { label: "Revenue", href: "/revenue" },
 ];
+
 
 export const catalogManagementTabs: AdminTabItem[] = [
     { label: "Device Categories", href: "/categories?tab=categories" },

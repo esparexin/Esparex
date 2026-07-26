@@ -1,7 +1,12 @@
 'use client';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@esparex/ui";
 import { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+
 import type { ChatAttachment } from "@esparex/contracts";
 
 interface ChatImageLightboxProps {

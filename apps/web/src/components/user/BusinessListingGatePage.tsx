@@ -6,7 +6,7 @@ import { Building2 } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 interface BusinessListingGatePageProps {

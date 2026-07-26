@@ -1,9 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { TrendingUp } from "lucide-react";
-
-import { type Ad } from "@/schemas/ad.schema";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,14 +9,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@esparex/ui";
+import dynamic from "next/dynamic";
+import { TrendingUp } from "lucide-react";
+
+import { type Ad } from "@/schemas/ad.schema";
+
+
 import { formatAppDateTime } from "@/lib/formatters";
 
 const ReportAdDialog = dynamic(
@@ -154,7 +154,7 @@ export function ListingDetailDialogs({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.preventDefault();
                 void onDeleteConfirm();
               }}

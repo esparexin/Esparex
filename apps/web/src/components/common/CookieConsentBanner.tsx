@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { ShieldCheck } from "@/icons/IconRegistry";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { cn } from "@/lib/utils";

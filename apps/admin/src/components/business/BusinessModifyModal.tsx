@@ -1,15 +1,16 @@
 "use client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@esparex/ui";
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useEffect, useState } from "react";
 import { Loader2, Pencil, MapPin, Search } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-} from "@/components/ui/dialog";
+
 import { CHAT_STATUS } from "@esparex/contracts";
 import { Business } from "@esparex/contracts";
 import { AdminApiError } from "@/lib/api/adminClient";

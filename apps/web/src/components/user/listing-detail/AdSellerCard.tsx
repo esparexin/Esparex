@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, ChevronRight, MessageCircle, MessageSquareOff, Phone } from "lucide-react";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { generateAdSlug } from "@/lib/slug";
 import { getPageRoute } from "@/lib/routeUtils";
 

@@ -329,7 +329,7 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         await gotoEditPage(page);
 
         // Remove the first existing image
-        const removeButton = page.locator('button[aria-label="Remove image"]').first();
+        const removeButton = page.locator('button[aria-label^="Remove photo"]').first();
         await expect(removeButton).toBeVisible();
         await removeButton.click();
 

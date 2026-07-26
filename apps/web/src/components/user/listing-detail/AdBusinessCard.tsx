@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Building2, Store, MapPin, Calendar, ExternalLink } from "lucide-react";
 import { notify } from "@/lib/feedback";
 import { ROUTES } from "@/lib/logic/routes";

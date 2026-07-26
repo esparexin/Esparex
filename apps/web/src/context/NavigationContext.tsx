@@ -1,10 +1,19 @@
 "use client";
 
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Z_INDEX,
+} from "@esparex/ui";
 import { AlertTriangle } from 'lucide-react';
-import { Z_INDEX } from '@/lib/zIndexConfig';
+
 
 interface NavigationContextType {
     isDirty: boolean;

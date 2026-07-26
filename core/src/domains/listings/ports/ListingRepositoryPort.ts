@@ -37,7 +37,9 @@ export interface Listing {
     readonly moderationStatus?: string;
     readonly fraudScore?: number;
     readonly sellerTrustSnapshot?: number;
+    readonly sellerPriorityScore?: number;
     readonly isSpotlight?: boolean;
+
     readonly spotlightExpiresAt?: Date;
     readonly expiresAt?: Date;
     readonly views?: {

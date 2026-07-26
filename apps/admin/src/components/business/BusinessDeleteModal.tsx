@@ -1,14 +1,15 @@
 "use client";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@esparex/ui";
 import { useState, type ReactNode } from "react";
 import { Trash2 } from "lucide-react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+
 import { Business } from "@esparex/contracts";
 
 interface BusinessDeleteModalProps {

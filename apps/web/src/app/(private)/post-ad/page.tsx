@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import PostAdPageClient from "@/components/user/post-ad/PostAdPageClient";
+import { PromotionalBanner } from "@/components/common/PromotionalBanner";
+
 import {
     API_ROUTES,
     API_V1_BASE_PATH,
@@ -68,10 +70,21 @@ export default async function PostAdPage() {
     }
 
     const totalRemaining = balance?.totalRemaining ?? 0;
+
     if (!balance || totalRemaining <= 0) {
         return (
-            <div className="min-h-screen bg-white flex items-center justify-center px-4">
+            <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 gap-6">
+                <div className="max-w-lg w-full">
+                    <PromotionalBanner
+                        title="Unlock More Ad Posting Slots"
+                        description="Upgrade your account or purchase an Ad Pack to continue posting ads on Esparex marketplace."
+                        badgeText="SPECIAL OFFER"
+                        actionText="View Plans"
+                        actionHref="/account/plans"
+                    />
+                </div>
                 <div className="max-w-lg w-full rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-4">
+
                     <div>
                         <h1 className="text-xl font-semibold text-amber-900">Unable to post a new ad</h1>
                         <p className="mt-2 text-sm text-amber-800">

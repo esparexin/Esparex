@@ -1,4 +1,5 @@
 export const LIFECYCLE_STATUS = {
+    DRAFT: 'draft',
     PENDING: 'pending',
     LIVE: 'live',
     ACTIVE: 'active',

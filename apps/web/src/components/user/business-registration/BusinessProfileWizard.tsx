@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import type { User } from "@/types/User";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StepBasicDetails } from "./StepBasicDetails";
@@ -137,7 +137,7 @@ export function BusinessProfileWizard({
     return (
         <div className="bg-slate-50 py-6 md:py-8">
             <form
-                className="mx-auto flex max-w-4xl flex-col gap-6 px-4 pb-28 md:pb-0"
+                className="mx-auto flex max-w-4xl flex-col gap-6 px-4 pb-6 md:pb-0"
                 onSubmit={onSubmit}
                 noValidate
             >

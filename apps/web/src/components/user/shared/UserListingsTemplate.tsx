@@ -1,6 +1,6 @@
 import { PlusCircle, LayoutGrid } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface UserListingsTemplateProps<TStatus extends string, TItem> {

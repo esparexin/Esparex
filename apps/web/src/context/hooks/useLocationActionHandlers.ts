@@ -58,10 +58,14 @@ export function useLocationActionHandlers({
     ) => {
         const resolvedName = name || city;
         const resolvedState = state || city;
-        const resolvedDisplay =
+        let resolvedDisplay =
             resolvedState && resolvedState.trim().length > 0 && resolvedState !== resolvedName
                 ? `${resolvedName}, ${resolvedState}`
                 : resolvedName;
+
+        if ((options?.level === "area" || options?.level === "village") && city && city.toLowerCase() !== resolvedName.toLowerCase()) {
+            resolvedDisplay = `${resolvedName}, ${city}, ${resolvedState}`;
+        }
 
         const normalized = normalizeLocation(
             {

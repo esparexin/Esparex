@@ -4,8 +4,8 @@ import logger from "@esparex/core/utils/logger";
 import { respond } from "../../utils/respond";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { getUserId } from "./shared";
-import { getVisibleNotificationWindowQuery } from "@esparex/core/services/notification/NotificationRetentionService";
-import { queryNotificationsForUser } from "@esparex/core/services/NotificationService";
+import { getVisibleNotificationWindowQuery } from "@esparex/core/domains/notifications/application/NotificationRetentionService";
+import { queryNotificationsForUser } from "@esparex/core/domains/notifications/application/NotificationService";
 
 const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

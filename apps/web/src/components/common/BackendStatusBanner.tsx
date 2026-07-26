@@ -1,7 +1,9 @@
 "use client";
 
 import { useBackendStatus } from "@/context/BackendStatusContext";
-import { Z_INDEX } from "@/lib/zIndexConfig";
+import {
+  Z_INDEX,
+} from "@esparex/ui";
 
 export function BackendStatusBanner() {
     const { isBackendUp, checked, apiBaseUrl } = useBackendStatus();

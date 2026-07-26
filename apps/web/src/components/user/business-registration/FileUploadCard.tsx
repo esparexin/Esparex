@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { FileText, Upload, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { validateBusinessDocumentSelection } from "@/schemas/business.schema.shared";
 import {
@@ -96,17 +96,29 @@ export function FileUploadCard({
                         type="button"
                         variant="ghost"
                         size="icon"
+                        aria-label={`Remove ${title}`}
                         onClick={() => {
                             setLocalError(null);
                             onRemove();
                         }}
-                        className="h-11 w-11 shrink-0 rounded-full text-rose-500 hover:bg-rose-50"
+                        className="h-11 w-11 shrink-0 rounded-full text-rose-500 hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-500"
                     >
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
             ) : (
-                <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition-colors hover:border-blue-400 hover:bg-blue-50">
+                <label
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Choose file for ${title}`}
+                    onKeyDown={(e) => {
+                        if (e.key === " " || e.key === "Enter") {
+                            e.preventDefault();
+                            e.currentTarget.querySelector("input")?.click();
+                        }
+                    }}
+                    className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition-colors hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
                     <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
                         <Upload className="h-6 w-6 text-muted-foreground" />
                     </div>
@@ -120,6 +132,8 @@ export function FileUploadCard({
                         type="file"
                         accept={accept}
                         className="hidden"
+                        tabIndex={-1}
+                        aria-label={`Choose file for ${title}`}
                         onChange={(e) => {
                             const selectedFile = e.target.files?.[0];
                             if (!selectedFile) return;

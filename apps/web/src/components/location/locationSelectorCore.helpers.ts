@@ -1,4 +1,4 @@
-import { normalizeGeoPoint as parseGeoPoint } from "@shared";
+import { normalizeGeoPoint as parseGeoPoint } from "@esparex/shared";
 import type { Location } from "@/lib/api/user/locations";
 
 export type ErrorType = "network" | "timeout" | "server" | "not_found" | "unknown";

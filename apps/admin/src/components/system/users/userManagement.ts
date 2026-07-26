@@ -7,7 +7,7 @@ import {
 import {
     isActiveUserStatus,
     normalizeUserStatus,
-} from "@shared";
+} from "@esparex/shared";
 
 export type ManagedUser = User & {
     totalAdsPosted?: number;
@@ -38,7 +38,7 @@ export function getUserDisplayName(user: Pick<User, "name" | "mobile" | "email">
 }
 
 export function normalizeManagedUserStatus(status?: User["status"]) {
-    return normalizeUserStatus(status) ?? USER_STATUS.LIVE;
+    return normalizeUserStatus(status, 'active');
 }
 
 export function isManagedUserActive(status?: User["status"]) {
@@ -71,7 +71,7 @@ export function getUserStatusPresentation(status?: User["status"]) {
             return { status: LIFECYCLE_STATUS.DEACTIVATED, label: "Deleted" };
         case USER_STATUS.INACTIVE:
             return { status: LIFECYCLE_STATUS.DEACTIVATED, label: "Inactive" };
-        case USER_STATUS.LIVE:
+        case USER_STATUS.ACTIVE:
         default:
             return { status: LIFECYCLE_STATUS.LIVE, label: "Active" };
     }

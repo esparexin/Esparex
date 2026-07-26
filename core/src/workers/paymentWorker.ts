@@ -1,7 +1,7 @@
 import { Worker } from "bullmq";
 import { redisConnection, shouldDisableQueueConnection } from "../queues/redisConnection";
 import type { PaymentQueueJobData } from "../queues/paymentQueue";
-import { processSuccessfulPayment } from "../services/PaymentProcessingService";
+import { processSuccessfulPayment } from "../domains/payments/application/PaymentProcessingService";
 import logger from "../utils/logger";
 import { enqueueDeadLetter } from '../queues/deadLetterQueue';
 import { queueWorkerBackoffStrategy } from '../queues/queueDefaults';

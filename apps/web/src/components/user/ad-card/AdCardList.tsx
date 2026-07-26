@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Heart } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 import {
@@ -102,7 +102,7 @@ export const AdCardList = memo(function AdCardList({
             <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
               <div className="min-w-0">
                 <div className="flex min-w-0 items-start justify-between gap-2">
-                  <AdCardPriceDisplay price={ad.price} className="min-w-0 text-base md:text-xl font-extrabold tracking-tight" />
+                  <AdCardPriceDisplay price={ad.price} className="min-w-0 text-base md:text-lg font-bold tracking-tight" />
                   {onToggleSave && (
                     <Button
                       size="icon"
@@ -135,7 +135,7 @@ export const AdCardList = memo(function AdCardList({
                     </span>
                   )}
                 </div>
-                <h3 className="line-clamp-2 break-words font-bold leading-[1.3] text-[13px] text-foreground-secondary tracking-tight">
+                <h3 className="line-clamp-2 break-words font-medium leading-[1.3] text-[13px] text-foreground-secondary tracking-tight">
                   {ad.title}
                 </h3>
               </div>

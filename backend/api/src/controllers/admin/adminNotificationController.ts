@@ -7,7 +7,7 @@ import {
     createScheduledNotification,
     getNotificationHistory,
     searchNotificationRecipients,
-} from "@esparex/core/services/AdminNotificationService";
+} from "@esparex/core/domains/notifications/application/AdminNotificationService";
 import {
     getPaginationParams,
     sendAdminError,
@@ -242,7 +242,7 @@ export async function getHistory(req: Request, res: Response) {
             { includeLogs, includeScheduled, mergeWindow }
         );
 
-        const normalizedLogs: HistoryRecord[] = logs.map((log) => ({
+        const normalizedLogs: HistoryRecord[] = logs.map((log: Record<string, any>) => ({
             id: log._id.toString(),
             title: log.title,
             body: log.body,
@@ -259,7 +259,7 @@ export async function getHistory(req: Request, res: Response) {
             createdAt: log.createdAt,
         }));
 
-        const normalizedScheduled: HistoryRecord[] = scheduled.map((job) => ({
+        const normalizedScheduled: HistoryRecord[] = scheduled.map((job: Record<string, any>) => ({
             id: job._id.toString(),
             title: job.title,
             body: job.body,

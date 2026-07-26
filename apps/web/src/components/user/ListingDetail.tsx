@@ -19,7 +19,6 @@ const ListingRelatedBusinessesSection = dynamic(
 );
 import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
-import { AdTitlePriceCard } from "./listing-detail/AdTitlePriceCard";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
 
@@ -195,7 +194,7 @@ export function ListingDetail({
             ]}
           />
 
-          <div className="bg-gray-50 pb-24 md:pb-6">
+          <div className="bg-gray-50 pb-6">
             <div className="w-full md:px-6 lg:px-8 md:py-6">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 md:gap-6">
@@ -211,15 +210,7 @@ export function ListingDetail({
 
                     {isPendingOwner && <AdPendingStatusCard />}
 
-                    <AdTitlePriceCard
-                      ad={ad}
-                      categoryLabel={categoryLabel}
-                      viewCount={viewCount}
-                      variant="mobile"
-                    />
-
-                    <ListingDescriptionCard ad={ad} variant="mobile" />
-                    <ListingDescriptionCard ad={ad} variant="desktop" />
+                    <ListingDescriptionCard ad={ad} />
                   </div>
 
                   <ListingDetailSidebar

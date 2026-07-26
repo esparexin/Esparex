@@ -4,8 +4,11 @@ import { useState, useRef, useLayoutEffect, useMemo, type CSSProperties } from "
 import { Search, Minus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
-import { Z_INDEX } from "@/lib/zIndexConfig";
-import { Drawer } from "@/components/ui/drawer";
+import {
+  Drawer,
+  Z_INDEX,
+} from "@esparex/ui";
+
 import { useIsMobile } from "@/components/ui/useMobile";
 
 
@@ -129,17 +132,55 @@ export function BrandSearchSelect({
         );
     }
 
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!search || filtered.length === 0) return;
+        const visibleItems = filtered.slice(0, 10);
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActiveIndex((prev) => (prev < visibleItems.length - 1 ? prev + 1 : 0));
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActiveIndex((prev) => (prev > 0 ? prev - 1 : visibleItems.length - 1));
+        } else if (e.key === "Enter" && activeIndex >= 0 && activeIndex < visibleItems.length) {
+            e.preventDefault();
+            const selectedItem = visibleItems[activeIndex];
+            if (selectedItem) {
+                handleSelect(selectedItem);
+            }
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            setSearch("");
+            setActiveIndex(-1);
+        }
+    };
+
     // ── Search state (Inline Trailing Action: Plus) ────────────────────────
+    const isListOpen = Boolean(search && filtered.length > 0);
+    const activeOptionId = activeIndex >= 0 ? `brand-option-${activeIndex}` : undefined;
+
     return (
         <div className={cn("relative", className)} ref={containerRef}>
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-subtle pointer-events-none" />
                 <Input
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setActiveIndex(-1);
+                    }}
+                    onKeyDown={handleKeyDown}
                     placeholder={placeholder}
                     disabled={disabled}
                     className={cn("pl-9", "pr-4")}
+                    role="combobox"
+                    aria-expanded={isListOpen}
+                    aria-haspopup="listbox"
+                    aria-controls="brand-options-list"
+                    aria-activedescendant={activeOptionId}
+                    autoComplete="off"
                 />
             </div>
             {search && !canRequestBrand ? (
@@ -149,23 +190,29 @@ export function BrandSearchSelect({
             ) : null}
 
             {/* Dropdown or Drawer */}
-            {search && filtered.length > 0 && (
+            {isListOpen && (
                 isMobile ? (
                     <Drawer 
                         title="Select a Brand" 
                         open={true} 
                         onOpenChange={(open) => !open && setSearch("")}
                     >
-                        <div className="flex flex-col gap-1 pb-4">
-                            {filtered.slice(0, 15).map((b) => (
+                        <div id="brand-options-list" role="listbox" className="flex flex-col gap-1 pb-4">
+                            {filtered.slice(0, 15).map((b, idx) => (
                                 <button
                                     key={b}
+                                    id={`brand-option-${idx}`}
                                     type="button"
+                                    role="option"
+                                    aria-selected={activeIndex === idx}
                                     onClick={(e) => {
                                         e.preventDefault();
                                         handleSelect(b);
                                     }}
-                                    className="w-full px-4 py-3 text-left text-base font-medium text-foreground transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl"
+                                    className={cn(
+                                        "w-full px-4 py-3 text-left text-base font-medium text-foreground transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl",
+                                        activeIndex === idx && "bg-blue-50 text-link-dark font-bold"
+                                    )}
                                 >
                                     {b}
                                 </button>
@@ -180,18 +227,26 @@ export function BrandSearchSelect({
                             onPointerDown={() => setSearch("")}
                         />
                         <div
+                            id="brand-options-list"
+                            role="listbox"
                             style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent, position: "fixed" }}
                             className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-y-auto"
                         >
-                            {filtered.slice(0, 10).map((b) => (
+                            {filtered.slice(0, 10).map((b, idx) => (
                                 <button
                                     key={b}
+                                    id={`brand-option-${idx}`}
                                     type="button"
+                                    role="option"
+                                    aria-selected={activeIndex === idx}
                                     onPointerDown={(e) => {
                                         e.preventDefault();
                                         handleSelect(b);
                                     }}
-                                    className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100"
+                                    className={cn(
+                                        "w-full px-4 py-2.5 text-left text-sm font-medium text-foreground-secondary transition-colors hover:bg-slate-50 active:bg-slate-100",
+                                        activeIndex === idx && "bg-blue-50 text-link-dark font-bold"
+                                    )}
                                 >
                                     {b}
                                 </button>

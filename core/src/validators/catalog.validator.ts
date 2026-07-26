@@ -60,6 +60,7 @@ const categoryBaseSchema = z.object({
     icon: optionalCleanCatalogText(255),
     description: optionalCleanCatalogText(2000),
     parentId: optionalObjectIdSchema,
+    sortOrder: z.number().int().min(0).optional(),
     isActive: z.boolean().optional(),
     hasScreenSizes: z.boolean().optional(),
     listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),

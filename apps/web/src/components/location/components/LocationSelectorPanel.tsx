@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, Search, Target, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/components/ui/utils";
 
