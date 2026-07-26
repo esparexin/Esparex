@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/components/ui/utils";
 
+import { getRemovePhotoAriaLabel } from "./uploadHelpers";
+
 interface ListingImagesFieldProps {
     images: ListingImage[];
     onUpload: (files: File[]) => void;
@@ -33,7 +35,7 @@ export function ListingImagesField({
                 <label
                     tabIndex={0}
                     role="button"
-                    aria-label="Tap to add photos"
+                    aria-label="Add photos"
                     onKeyDown={(e) => {
                         if (e.key === " " || e.key === "Enter") {
                             e.preventDefault();
@@ -43,7 +45,7 @@ export function ListingImagesField({
                     className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                 >
                     <Upload className="w-6 h-6 text-foreground-subtle mb-1" />
-                    <span className="text-sm font-medium text-foreground-tertiary">Tap to add photos</span>
+                    <span className="text-sm font-medium text-foreground-tertiary">Add photos</span>
                     <input
                         type="file"
                         accept="image/*"
@@ -77,7 +79,7 @@ export function ListingImagesField({
                                     <button
                                         type="button"
                                         onClick={() => onRemove(img.id)}
-                                        aria-label={`Remove photo ${index + 1} of ${images.length}`}
+                                        aria-label={getRemovePhotoAriaLabel(index, images.length)}
                                         className="p-1 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                                     >
                                         <X className="w-3.5 h-3.5" />
