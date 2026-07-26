@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { Button } from "@esparex/ui";
 import {
     Building2,
@@ -64,7 +65,7 @@ export function BusinessTab({
 
     if (businessData && status === "live") {
         return (
-            <div className="space-y-4">
+            <PageContainer variant="default">
                 <Card className="rounded-3xl border-0 bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl">
                     <CardContent className="space-y-6 p-6 md:p-8">
                         <div className="flex items-start gap-4">
@@ -201,7 +202,7 @@ export function BusinessTab({
                         </Button>
                     </CardContent>
                 </Card>
-            </div>
+            </PageContainer>
         );
     }
 

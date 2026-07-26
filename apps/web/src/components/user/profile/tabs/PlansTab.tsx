@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { Button } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Package } from "lucide-react";
@@ -81,7 +82,7 @@ export function PlansTab({
     );
 
     return (
-        <div className="space-y-4 max-w-4xl">
+        <PageContainer variant="default">
             <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-xl overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <Crown className="w-40 h-40 text-white" />
@@ -135,6 +136,6 @@ export function PlansTab({
                     </CardContent>
                 </Card>
             )}
-        </div>
+        </PageContainer>
     );
 }

@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { EmptyStateShell as StateEmptyShell } from "../ui/EmptyStateShell";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { PageStateGuard, PageState } from "../ui/PageStateGuard";
 import { Skeleton } from "../ui/skeleton";
 
@@ -249,16 +250,14 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-gray-50 py-4 md:py-8">
-      <div className="w-full px-4 md:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-4 md:mb-6">
-            <h1 className="text-2xl font-bold">Saved Listings</h1>
-            <p className="text-muted-foreground mt-1 text-sm md:text-base">
-              Your saved ads, services & spare parts ({available.length} available
-              {unavailable.length > 0 ? `, ${unavailable.length} unavailable` : ""})
-            </p>
-          </div>
+    <PageContainer variant="wide">
+      <div className="mb-4 md:mb-6">
+        <h1 className="account-page-title">Saved Listings</h1>
+        <p className="account-body-text mt-1">
+          Your saved ads, services & spare parts ({available.length} available
+          {unavailable.length > 0 ? `, ${unavailable.length} unavailable` : ""})
+        </p>
+      </div>
 
           <PageStateGuard
             state={pageState}
@@ -385,9 +384,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
               )}
             </section>
           </PageStateGuard>
-        </div>
-      </div>
-    </div>
-  );
+        </PageContainer>
+    );
 }
 

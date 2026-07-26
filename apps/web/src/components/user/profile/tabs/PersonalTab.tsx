@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PageContainer } from "@/components/ui/PageContainer";
 import Image from "next/image";
 import { Button, RadioGroup, RadioGroupItem } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
@@ -56,9 +57,9 @@ export function PersonalTab({
     const safeProfilePhoto = toSafeImageSrc(profilePhoto, "");
 
     return (
-        <div className="space-y-5 max-w-4xl">
+        <PageContainer variant="default">
             <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
-                <Card className="border-0 shadow-sm md:border md:shadow-sm gap-0">
+                <Card className="account-card-surface border-0 shadow-sm md:border md:shadow-sm gap-0">
                     <CardHeader className="pb-2 px-4 md:px-6">
                         <CardTitle className="flex items-center gap-2 text-base md:text-lg font-bold text-foreground">
                             <User className="h-5 w-5 text-link" />
@@ -337,6 +338,6 @@ export function PersonalTab({
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </PageContainer>
     );
 }
