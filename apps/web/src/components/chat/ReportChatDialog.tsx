@@ -1,6 +1,15 @@
 'use client';
 
 import { ChatReportReasonValue } from "@esparex/contracts";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@esparex/ui";
 
 interface ReportReasonOption {
   value: ChatReportReasonValue;
@@ -30,19 +39,23 @@ export function ReportChatDialog({
   onCancel,
   onSubmit,
 }: ReportChatDialogProps) {
-  if (!open) return null;
-
   return (
-    <div className="chat-modal-overlay" role="dialog" aria-modal aria-label="Report conversation">
-      <div className="chat-modal">
-        <div className="chat-modal__header">
-          <h2 className="chat-modal__title">⚑ Report this conversation</h2>
-        </div>
-        <div className="chat-modal__content chat-modal__content--stack">
-          <label className="chat-modal__label">
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen && !isSubmitting) onCancel(); }}>
+      <DialogContent className="max-w-md pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            ⚑ Report this conversation
+          </DialogTitle>
+          <DialogDescription>
+            Help us keep Esparex safe by providing details about your concern.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          <label className="block text-sm font-medium text-slate-700">
             Reason
             <select
-              className="chat-modal__select"
+              className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               value={reportReason}
               onChange={(e) => onReasonChange(e.target.value as ChatReportReasonValue)}
             >
@@ -51,10 +64,11 @@ export function ReportChatDialog({
               ))}
             </select>
           </label>
-          <label className="chat-modal__label">
+
+          <label className="block text-sm font-medium text-slate-700">
             Additional details (optional)
             <textarea
-              className="chat-modal__textarea"
+              className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               value={reportDesc}
               onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
               placeholder="Describe the issue…"
@@ -63,15 +77,20 @@ export function ReportChatDialog({
             />
           </label>
         </div>
-        <div className="chat-modal__actions">
-          <button className="chat-modal__cancel" onClick={onCancel} disabled={isSubmitting}>
+
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={onCancel} disabled={isSubmitting} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
             Cancel
-          </button>
-          <button className="chat-modal__confirm" onClick={onSubmit} disabled={isSubmitting}>
+          </Button>
+          <Button
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          >
             {isSubmitting ? 'Submitting…' : 'Submit Report'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

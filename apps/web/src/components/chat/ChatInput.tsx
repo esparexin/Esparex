@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
+import { Spinner } from '@esparex/ui';
 
 interface ChatInputProps {
   onSend: (text: string) => Promise<boolean>;
@@ -93,7 +94,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           aria-label="Send message"
         >
           {isSending ? (
-            <span className="chat-input__spinner" aria-hidden />
+            <Spinner size="sm" />
           ) : (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
               <path d="M2 21l21-9L2 3v7l15 2-15 2z" />

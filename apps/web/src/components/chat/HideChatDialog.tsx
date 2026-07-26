@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@esparex/ui";
+
 interface HideChatDialogProps {
   open: boolean;
   isSubmitting: boolean;
@@ -8,28 +19,30 @@ interface HideChatDialogProps {
 }
 
 export function HideChatDialog({ open, isSubmitting, onCancel, onConfirm }: HideChatDialogProps) {
-  if (!open) return null;
-
   return (
-    <div className="chat-modal-overlay" role="dialog" aria-modal aria-label="Hide conversation">
-      <div className="chat-modal">
-        <div className="chat-modal__header">
-          <h2 className="chat-modal__title">📦 Archive this conversation?</h2>
-        </div>
-        <div className="chat-modal__content">
-          <p className="chat-modal__body">
+    <AlertDialog open={open} onOpenChange={(isOpen) => { if (!isOpen && !isSubmitting) onCancel(); }}>
+      <AlertDialogContent className="max-w-md pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            📦 Archive this conversation?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
             This conversation will be hidden from your inbox. The other person can still message you.
-          </p>
-        </div>
-        <div className="chat-modal__actions">
-          <button className="chat-modal__cancel" onClick={onCancel} disabled={isSubmitting}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="mt-4">
+          <AlertDialogCancel onClick={onCancel} disabled={isSubmitting}>
             Cancel
-          </button>
-          <button className="chat-modal__confirm" onClick={onConfirm} disabled={isSubmitting}>
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            disabled={isSubmitting}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
             {isSubmitting ? 'Hiding…' : 'Archive'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
