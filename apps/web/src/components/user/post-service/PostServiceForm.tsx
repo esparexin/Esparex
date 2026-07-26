@@ -31,7 +31,8 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
 
     const form = useForm<ServiceListingFormData>({
         resolver: zodResolver(ServiceListingPayloadSchema),
-        mode: "all",
+        mode: "onBlur",
+        reValidateMode: "onChange",
         shouldFocusError: true,
         defaultValues: {
             title: "",

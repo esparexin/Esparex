@@ -59,7 +59,8 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
 
     const form = useForm<PostSparePartFormValues>({
         resolver: zodResolver(PostSparePartFormSchema),
-        mode: "all",
+        mode: "onBlur",
+        reValidateMode: "onChange",
         shouldFocusError: true,
         defaultValues: {
             title: "",

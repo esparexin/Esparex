@@ -9,6 +9,7 @@ export interface FieldContextValue {
     errorId: string;
     hasError: boolean;
     error?: string;
+    required?: boolean;
 }
 
 export const FieldContext = React.createContext<FieldContextValue | null>(null);
@@ -43,6 +44,7 @@ export function Field({
                 errorId,
                 hasError: !!error,
                 error,
+                required,
             }}
         >
             <div className={cn("space-y-1.5", className)}>
