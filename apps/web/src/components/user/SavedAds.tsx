@@ -281,9 +281,18 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                 <CardContent className="p-0">
                   <StateEmptyShell>
                     <p className="text-lg font-semibold">No saved listings</p>
-                    <p className="text-sm text-muted-foreground">
-                      Save ads, services, or spare parts to view them later by clicking the heart icon
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      Save ads, services, or spare parts to view them later by clicking the heart icon on any listing card.
                     </p>
+                    <div className="pt-3">
+                      <Button
+                        type="button"
+                        onClick={() => router.push("/search")}
+                        className="w-full sm:w-auto sm:min-w-[200px] sm:max-w-[320px] bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      >
+                        Browse Marketplace
+                      </Button>
+                    </div>
                   </StateEmptyShell>
                 </CardContent>
               </Card>
