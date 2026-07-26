@@ -20,6 +20,7 @@ export * from "./atoms/Select";
 export * from "./atoms/Sheet";
 export * from "./atoms/Slider";
 export * from "./atoms/StatusChip";
+export * from "./atoms/Spinner";
 export * from "./atoms/Switch";
 export * from "./atoms/Textarea";
 
