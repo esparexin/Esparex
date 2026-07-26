@@ -8,16 +8,19 @@ import {
     BUSINESS_UPLOAD_MAX_MB,
     validateBusinessImageSelection,
 } from "@/schemas/business.schema.shared";
+import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
 import { useFilePreviewUrl } from "./useFilePreviewUrl";
 import type { StepBaseProps } from "./types";
 
 function ShopImageTile({
     file,
     index,
+    total,
     onRemove,
 }: {
     file: File | string;
     index: number;
+    total: number;
     onRemove: () => void;
 }) {
     const previewUrl = useFilePreviewUrl(file);
@@ -45,7 +48,7 @@ function ShopImageTile({
                     size="icon"
                     variant="secondary"
                     onClick={onRemove}
-                    aria-label={`Remove shop photo ${index + 1}`}
+                    aria-label={getRemovePhotoAriaLabel(index, total)}
                     className="h-11 w-11 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white focus-visible:ring-2 focus-visible:ring-primary"
                 >
                     <X className="h-4 w-4" />
@@ -123,6 +126,7 @@ export function ShopPhotosField({
                         key={`${typeof file === "string" ? file : file.name}-${index}`}
                         file={file}
                         index={index}
+                        total={formData.images.length}
                         onRemove={() => removeShopImage(index)}
                     />
                 ))}

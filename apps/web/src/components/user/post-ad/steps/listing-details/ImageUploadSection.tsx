@@ -9,6 +9,7 @@ import Image from "next/image";
 import { getNestedFieldMeta } from "../common/utils";
 import { useCallback } from "react";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
+import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
 
 export function ImageUploadSection() {
     const { listingImages, isUploadingImages, imageUploadError } = usePostAdImages();
@@ -50,7 +51,7 @@ export function ImageUploadSection() {
                                     <button
                                         type="button"
                                         onClick={() => removeImage(idx)}
-                                        aria-label={`Remove photo ${idx + 1} of ${listingImages.length}`}
+                                        aria-label={getRemovePhotoAriaLabel(idx, listingImages.length)}
                                         className="p-1.5 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                                     >
                                         <X className="w-3 h-3" />
