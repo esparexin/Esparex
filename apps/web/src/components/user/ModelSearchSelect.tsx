@@ -157,6 +157,34 @@ export function ModelSearchSelect({
         );
     }
 
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    const isListOpen = Boolean((isEditing || search) && availableModels.length > 0);
+    const activeOptionId = activeIndex >= 0 ? `model-option-${activeIndex}` : undefined;
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!isListOpen) return;
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setActiveIndex((prev) => (prev < availableModels.length - 1 ? prev + 1 : 0));
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            setActiveIndex((prev) => (prev > 0 ? prev - 1 : availableModels.length - 1));
+        } else if (e.key === "Enter" && activeIndex >= 0 && activeIndex < availableModels.length) {
+            e.preventDefault();
+            const selectedItem = availableModels[activeIndex];
+            if (selectedItem) {
+                handleSelect(selectedItem);
+            }
+        } else if (e.key === "Escape") {
+            e.preventDefault();
+            setIsEditing(false);
+            setSearch("");
+            setActiveIndex(-1);
+        }
+    };
+
     // ── Search State (Inline Trailing Action: Plus) ────────────────────────
     return (
         <div 
@@ -175,13 +203,11 @@ export function ModelSearchSelect({
                 <Input
                     autoFocus={isEditing}
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Escape") {
-                            setIsEditing(false);
-                            setSearch("");
-                        }
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setActiveIndex(-1);
                     }}
+                    onKeyDown={handleKeyDown}
                     onFocus={() => setIsEditing(true)}
                     placeholder={placeholder}
                     disabled={disabled}
@@ -190,6 +216,12 @@ export function ModelSearchSelect({
                         "focus-visible:ring-2 focus-visible:ring-primary/10 focus-visible:border-primary shadow-sm",
                         "pr-4"
                     )}
+                    role="combobox"
+                    aria-expanded={isListOpen}
+                    aria-haspopup="listbox"
+                    aria-controls="model-options-list"
+                    aria-activedescendant={activeOptionId}
+                    autoComplete="off"
                 />
             </div>
             {search && !canRequestModel ? (
@@ -198,7 +230,7 @@ export function ModelSearchSelect({
                 </p>
             ) : null}
 
-            {(isEditing || search) && availableModels.length > 0 && (
+            {isListOpen && (
                 isMobile ? (
                     <Drawer 
                         title="Select a Model" 
@@ -210,13 +242,19 @@ export function ModelSearchSelect({
                             }
                         }}
                     >
-                        <div className="flex flex-col gap-1 pb-4 px-2">
-                            {availableModels.map((m) => (
+                        <div id="model-options-list" role="listbox" className="flex flex-col gap-1 pb-4 px-2">
+                            {availableModels.map((m, idx) => (
                                 <button
                                     key={String(m.id || m._id)}
+                                    id={`model-option-${idx}`}
                                     type="button"
+                                    role="option"
+                                    aria-selected={activeIndex === idx}
                                     onClick={() => handleSelect(m)}
-                                    className="w-full px-4 py-3 text-left text-base font-semibold text-slate-700 transition-all hover:bg-slate-50 active:bg-slate-100 rounded-xl"
+                                    className={cn(
+                                        "w-full px-4 py-3 text-left text-base font-semibold text-slate-700 transition-all hover:bg-slate-50 active:bg-slate-100 rounded-xl",
+                                        activeIndex === idx && "bg-blue-50 text-link-dark font-bold"
+                                    )}
                                 >
                                     {m.name}
                                 </button>
@@ -237,13 +275,19 @@ export function ModelSearchSelect({
                             style={{ ...dropdownStyle, zIndex: Z_INDEX.selectContent }}
                             className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"
                         >
-                            <div className="overflow-y-auto max-h-[280px] p-1.5 space-y-1">
-                                {availableModels.map((m) => (
+                            <div id="model-options-list" role="listbox" className="overflow-y-auto max-h-[280px] p-1.5 space-y-1">
+                                {availableModels.map((m, idx) => (
                                     <button
                                         key={String(m.id || m._id)}
+                                        id={`model-option-${idx}`}
                                         type="button"
+                                        role="option"
+                                        aria-selected={activeIndex === idx}
                                         onClick={() => handleSelect(m)}
-                                        className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-primary/5 hover:text-primary active:bg-primary/10 flex items-center justify-between group rounded-lg"
+                                        className={cn(
+                                            "w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 transition-all hover:bg-primary/5 hover:text-primary active:bg-primary/10 flex items-center justify-between group rounded-lg",
+                                            activeIndex === idx && "bg-blue-50 text-link-dark font-bold"
+                                        )}
                                     >
                                         <span>{m.name}</span>
                                     </button>
