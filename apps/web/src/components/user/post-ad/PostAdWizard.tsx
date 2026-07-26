@@ -7,7 +7,7 @@ import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "@/comp
 import { ListingSubmissionSuccessModal } from "@/components/user/shared/ListingSubmissionSuccessModal";
 import { EditAdWrapper } from "./EditAdWrapper";
 import { cn } from "@/components/ui/utils";
-import { Button } from "@esparex/ui";
+import { Button, Spinner } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
 import { ValidationSummary } from "./steps/common/ValidationSummary";
@@ -78,7 +78,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={prevStep}
-                className="text-sm font-medium h-11 px-4 shrink-0"
+                className="text-sm font-medium h-11 px-4 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 ← Back
               </Button>
@@ -88,7 +88,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={handleClose}
-                className="text-sm font-medium h-11 px-4"
+                className="text-sm font-medium h-11 px-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Cancel
               </Button>
@@ -99,14 +99,14 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               onClick={currentStep === 2 ? submitAd : nextStep}
               disabled={isButtonDisabled}
               className={cn(
-                "flex-1 sm:flex-none min-w-0 sm:min-w-[200px] rounded-xl font-medium transition-all active:scale-[0.98]",
+                "flex-1 sm:flex-none min-w-0 sm:min-w-[200px] rounded-xl font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 "h-11 text-base",
                 "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
               )}
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <Spinner size="sm" />
                   <span>Processing...</span>
                 </div>
               ) : (
