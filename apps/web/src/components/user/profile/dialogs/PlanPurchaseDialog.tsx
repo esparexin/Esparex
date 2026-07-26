@@ -128,11 +128,11 @@ export function PlanPurchaseDialog({
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isProcessing}>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isProcessing} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                         Cancel
                     </Button>
                     <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-11 font-bold px-8 shadow-lg shadow-blue-200 active:scale-95 transition-all"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-11 font-bold px-8 shadow-lg shadow-blue-200 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         onClick={handleConfirm}
                         disabled={isProcessing}
                     >
