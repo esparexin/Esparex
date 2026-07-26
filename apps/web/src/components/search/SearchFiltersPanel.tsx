@@ -276,14 +276,14 @@ export function SearchFiltersPanel({
 
       <div className="pt-6 mt-auto border-t space-y-3">
         {onApply && (
-          <Button className="w-full h-11 bg-slate-900 hover:bg-slate-800" onClick={onApply}>
+          <Button className="w-full h-11 bg-slate-900 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" onClick={onApply}>
             Apply Filters
           </Button>
         )}
 
         <Button
           variant="ghost"
-          className="w-full h-11 text-muted-foreground hover:text-red-600 hover:bg-red-50 active:bg-red-50 active:text-red-600 active:scale-[0.98] transition-all"
+          className="w-full h-11 text-muted-foreground hover:text-red-600 hover:bg-red-50 active:bg-red-50 active:text-red-600 active:scale-[0.98] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           onClick={onReset}
         >
           Reset Filters
