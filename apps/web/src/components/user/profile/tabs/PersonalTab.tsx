@@ -56,7 +56,7 @@ export function PersonalTab({
     const safeProfilePhoto = toSafeImageSrc(profilePhoto, "");
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-5 max-w-4xl">
             <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
                 <Card className="border-0 shadow-sm md:border md:shadow-sm gap-0">
                     <CardHeader className="pb-2 px-4 md:px-6">
