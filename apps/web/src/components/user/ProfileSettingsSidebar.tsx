@@ -395,7 +395,9 @@ export function ProfileSettingsSidebar({
                 const isActive = activeTab === item.value;
                 return (
                   <button
-                    key={item.value} onClick={() => handleTabChange(item.value)}
+                    key={item.value}
+                    type="button"
+                    onClick={() => handleTabChange(item.value)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-sm
                       ${isActive ? "bg-blue-50 text-link-dark shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-foreground-tertiary hover:bg-slate-50 hover:text-foreground"}`}
                   >
@@ -407,7 +409,11 @@ export function ProfileSettingsSidebar({
                 );
               })}
               <Separator className="my-2" />
-              <button onClick={() => { void onLogout(); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors hover:bg-red-50 text-red-600 font-medium text-sm">
+              <button
+                type="button"
+                onClick={() => { void onLogout(); }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors hover:bg-red-50 text-red-600 font-medium text-sm"
+              >
                 <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
                 <span>Logout</span>
               </button>
@@ -418,26 +424,31 @@ export function ProfileSettingsSidebar({
               <p className="text-xs font-semibold text-blue-100 uppercase tracking-wider mb-1">Current Plan</p>
               <p className="text-base font-bold flex items-center gap-2"><Crown className="h-4 w-4 text-amber-400 fill-amber-400" />{user?.plan || "Free"}</p>
               {(!user?.plan || user.plan === "Free") && (
-                <Button onClick={() => handleTabChange("plans")} size="sm" className="w-full mt-3 bg-white/10 hover:bg-white/20 border-0 text-white text-xs h-9">Upgrade</Button>
+                <Button type="button" onClick={() => handleTabChange("plans")} size="sm" className="w-full mt-3 bg-white/10 hover:bg-white/20 border-0 text-white text-xs h-9">Upgrade</Button>
               )}
             </div>
           </aside>
 
           {/* MAIN CONTENT AREA */}
           <main className="min-h-0">
-            <div className="md:hidden">
+            <div className="md:hidden" inert={!isMobileMenuView ? true : undefined}>
               {isMobileMenuView ? (
                 <div className="space-y-3 animate-in fade-in slide-in-from-left-4 duration-300">
                   <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-3 opacity-10"><Crown className="w-20 h-20" /></div>
                     <div className="relative z-10 flex justify-between items-center">
                       <div><p className="text-xs text-blue-100 font-medium mb-1">Your Plan</p><p className="text-base font-bold flex items-center gap-2">{user?.plan || "Free"} <Crown className="h-4 w-4 text-amber-300 fill-amber-300" /></p></div>
-                      {(!user?.plan || user.plan === "Free") && <Button onClick={() => handleMobileTabClick("plans")} size="sm" className="bg-white text-link-dark hover:bg-blue-50 text-xs font-bold px-4 h-10 rounded-full">Upgrade</Button>}
+                      {(!user?.plan || user.plan === "Free") && <Button type="button" onClick={() => handleMobileTabClick("plans")} size="sm" className="bg-white text-link-dark hover:bg-blue-50 text-xs font-bold px-4 h-10 rounded-full">Upgrade</Button>}
                     </div>
                   </div>
                   <Card className="p-2 border-0 shadow-sm">
                     {visibleProfileTabItems.map((item) => (
-                      <button key={item.value} onClick={() => handleMobileTabClick(item.value)} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-foreground-secondary border-b border-gray-50 last:border-0">
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => handleMobileTabClick(item.value)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-foreground-secondary border-b border-gray-50 last:border-0"
+                      >
                         <div className="p-1.5 bg-gray-100 rounded-lg text-muted-foreground"><item.icon className="h-4.5 w-4.5" /></div>
                         <span className="text-sm font-medium flex-1">{item.label}</span>
                         {renderTabBadge(item.value)}
@@ -445,7 +456,11 @@ export function ProfileSettingsSidebar({
                       </button>
                     ))}
                     <Separator className="my-1" />
-                    <button onClick={() => { void onLogout(); }} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left active:bg-red-50 text-red-600">
+                    <button
+                      type="button"
+                      onClick={() => { void onLogout(); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left active:bg-red-50 text-red-600"
+                    >
                       <div className="p-2 bg-red-50 rounded-lg"><LogOut className="h-5 w-5" /></div><span className="text-sm font-semibold">Logout</span>
                     </button>
                   </Card>
