@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@esparex/ui";
+
 interface BlockChatDialogProps {
   open: boolean;
   isSubmitting: boolean;
@@ -8,28 +19,30 @@ interface BlockChatDialogProps {
 }
 
 export function BlockChatDialog({ open, isSubmitting, onCancel, onConfirm }: BlockChatDialogProps) {
-  if (!open) return null;
-
   return (
-    <div className="chat-modal-overlay" role="dialog" aria-modal aria-label="Block user">
-      <div className="chat-modal">
-        <div className="chat-modal__header">
-          <h2 className="chat-modal__title">🚫 Block this user?</h2>
-        </div>
-        <div className="chat-modal__content">
-          <p className="chat-modal__body">
+    <AlertDialog open={open} onOpenChange={(isOpen) => { if (!isOpen && !isSubmitting) onCancel(); }}>
+      <AlertDialogContent className="max-w-md pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            🚫 Block this user?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
             This chat will become read-only and you won&apos;t receive further messages.
-          </p>
-        </div>
-        <div className="chat-modal__actions">
-          <button className="chat-modal__cancel" onClick={onCancel} disabled={isSubmitting}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="mt-4">
+          <AlertDialogCancel onClick={onCancel} disabled={isSubmitting}>
             Cancel
-          </button>
-          <button className="chat-modal__confirm chat-modal__confirm--danger" onClick={onConfirm} disabled={isSubmitting}>
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            disabled={isSubmitting}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold"
+          >
             {isSubmitting ? 'Blocking…' : 'Block'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
