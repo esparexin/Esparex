@@ -20,8 +20,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const errorId = fieldContext?.hasError ? fieldContext.errorId : undefined;
     const resolvedDescribedBy = [customDescribedBy, errorId].filter(Boolean).join(" ") || undefined;
 
-    // ARIA Invalid: dynamically set to "true" if an error is present, unless explicitly overridden
+    // ARIA Invalid & Required: dynamically set from FieldContext unless explicitly overridden
     const isInvalid = props["aria-invalid"] ?? (fieldContext?.hasError ? "true" : undefined);
+    const isRequired = props["aria-required"] ?? (fieldContext?.required ? "true" : undefined);
 
     return (
       <input
@@ -38,6 +39,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         name={resolvedName}
         aria-describedby={resolvedDescribedBy}
         aria-invalid={isInvalid}
+        aria-required={isRequired}
       />
     );
   }
