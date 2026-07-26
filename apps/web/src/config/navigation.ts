@@ -58,7 +58,8 @@ export type ProfileTabValue =
   | "settings"
   | "smartalerts"
   | "purchases"
-  | "suggestions";
+  | "suggestions"
+  | "more";
 
 export const PROFILE_TAB_ITEMS: Array<{
   value: ProfileTabValue;

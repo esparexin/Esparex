@@ -43,6 +43,9 @@ import { PlanPurchaseDialog } from "./profile/dialogs/PlanPurchaseDialog";
 import { PhotoOptionsDialog } from "./profile/dialogs/PhotoOptionsDialog";
 
 // Modular Tab Components
+import { MobileAccountHeader } from "./MobileAccountHeader";
+import { MobileAccountBottomNav } from "./MobileAccountBottomNav";
+import { MoreMenuTab } from "./profile/tabs/MoreMenuTab";
 import { PersonalTab } from "./profile/tabs/PersonalTab";
 import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
@@ -82,7 +85,6 @@ export function ProfileSettingsSidebar({
 }: ProfileSettingsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
-  const [isMobileMenuView, setIsMobileMenuView] = useState(!initialTab);
 
   const isBusinessLive = normalizeBusinessStatus(user?.businessStatus, "pending") === "live";
 
@@ -197,9 +199,6 @@ export function ProfileSettingsSidebar({
     }
     return true;
   });
-  const activeTabLabel =
-    visibleProfileTabItems.find((item) => item.value === activeTab)?.label
-    ?? PROFILE_TAB_ITEMS.find((item) => item.value === activeTab)?.label;
   const businessStatusBanner = user?.businessStatus ? (
     <BusinessStatusBanner
       status={user.businessStatus}
@@ -240,12 +239,6 @@ export function ProfileSettingsSidebar({
     }
   };
 
-  const handleMobileTabClick = (tab: ProfileTabValue) => {
-    setIsMobileMenuView(false);
-    handleTabChange(tab);
-    window.scrollTo({ top: 0, behavior: "instant" });
-  };
-
   // Rendering logic
   const renderContent = () => {
     const setActiveTabFromChild = (tab: string) => {
@@ -255,6 +248,7 @@ export function ProfileSettingsSidebar({
     };
 
     switch (activeTab) {
+      case "more": return <MoreMenuTab user={user} onTabChange={handleTabChange} onLogout={onLogout} renderTabBadge={renderTabBadge} />;
       case "personal": return (
         <PersonalTab
           profilePhoto={profilePhoto}
@@ -360,29 +354,13 @@ export function ProfileSettingsSidebar({
   };
 
   return (
-    <div className="bg-gray-50">
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3 pb-6 md:pb-10">
+    <div className="bg-gray-50 min-h-screen">
+      <MobileAccountHeader activeTab={activeTab} onBackToMenu={() => handleTabChange("more")} />
+      
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3 pb-20 md:pb-10">
         {/* DESKTOP HEADER */}
         <div className="mb-6 hidden md:block">
           <AccountHeader />
-        </div>
-
-        {/* MOBILE STICKY HEADER — sits below the sticky mobile Header */}
-        <div className="sticky top-[100px] z-30 bg-gray-50/95 backdrop-blur-md border-b border-gray-100 py-2.5 -mx-4 px-4 mb-3 md:hidden transition-all shadow-sm">
-          {isMobileMenuView ? (
-            <div className="flex items-center gap-2">
-              <AccountHeader mobile className="w-full" />
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuView(true)} className="h-11 w-11 rounded-full hover:bg-gray-200 -ml-1">
-                <ChevronRight className="h-5 w-5 rotate-180 text-foreground-secondary" />
-              </Button>
-              <h1 className="text-base font-semibold text-foreground">
-                {activeTabLabel}
-              </h1>
-            </div>
-          )}
         </div>
 
         {/* LAYOUT CONTAINER */}
@@ -431,54 +409,13 @@ export function ProfileSettingsSidebar({
 
           {/* MAIN CONTENT AREA */}
           <main className="min-h-0">
-            <div className="md:hidden" inert={!isMobileMenuView ? true : undefined}>
-              {isMobileMenuView ? (
-                <div className="space-y-3 animate-in fade-in slide-in-from-left-4 duration-300">
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-3 opacity-10"><Crown className="w-20 h-20" /></div>
-                    <div className="relative z-10 flex justify-between items-center">
-                      <div><p className="text-xs text-blue-100 font-medium mb-1">Your Plan</p><p className="text-base font-bold flex items-center gap-2">{user?.plan || "Free"} <Crown className="h-4 w-4 text-amber-300 fill-amber-300" /></p></div>
-                      {(!user?.plan || user.plan === "Free") && <Button type="button" onClick={() => handleMobileTabClick("plans")} size="sm" className="bg-white text-link-dark hover:bg-blue-50 text-xs font-bold px-4 h-10 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Upgrade</Button>}
-                    </div>
-                  </div>
-                  <Card className="p-2 border-0 shadow-sm">
-                    {visibleProfileTabItems.map((item) => (
-                      <button
-                        key={item.value}
-                        type="button"
-                        onClick={() => handleMobileTabClick(item.value)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-colors active:bg-gray-100 text-foreground-secondary border-b border-gray-50 last:border-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                      >
-                        <div className="p-1.5 bg-gray-100 rounded-lg text-muted-foreground"><item.icon className="h-4.5 w-4.5" /></div>
-                        <span className="text-sm font-medium flex-1">{item.label}</span>
-                        {renderTabBadge(item.value)}
-                        <ChevronRight className="h-4 w-4 text-foreground-subtle" />
-                      </button>
-                    ))}
-                    <Separator className="my-1" />
-                    <button
-                      type="button"
-                      onClick={() => { void onLogout(); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left active:bg-red-50 text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                    >
-                      <div className="p-2 bg-red-50 rounded-lg"><LogOut className="h-5 w-5" /></div><span className="text-sm font-semibold">Logout</span>
-                    </button>
-                  </Card>
-                </div>
-              ) : (
-                <div className="animate-in fade-in slide-in-from-right-8 duration-300">
-                  {businessStatusBanner}
-                  {renderContent()}
-                </div>
-              )}
-            </div>
-            <div className="hidden md:block">
-              {businessStatusBanner}
-              {renderContent()}
-            </div>
+            {businessStatusBanner}
+            {renderContent()}
           </main>
         </div>
       </div>
+
+      <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
 
       {/* Extracted Dialogs */}
       <DeleteAccountDialog
@@ -503,4 +440,3 @@ export function ProfileSettingsSidebar({
   );
 
 }
-

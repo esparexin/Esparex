@@ -32,4 +32,6 @@ export {
     Clock,
     Camera,
     Upload,
+    ChevronLeft,
+    MoreHorizontal,
 } from "lucide-react";
