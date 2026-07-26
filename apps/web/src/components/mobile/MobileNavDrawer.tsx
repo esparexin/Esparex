@@ -10,7 +10,7 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@esparex/ui";
-import { LogOut, LogIn } from "lucide-react";
+import { LogOut, LogIn } from "@/icons/IconRegistry";
 import { getUserInitials } from "@/lib/headerUtils";
 import { useRouter } from "next/navigation";
 import { getNavigationItems, getNavigationSections, type ResolvedNavigationItem } from "@/config/navigation";

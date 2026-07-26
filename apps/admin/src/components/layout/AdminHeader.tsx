@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
-import { Bell, LogOut, ShieldCheck } from "lucide-react";
+import { Bell, LogOut, ShieldCheck } from "@esparex/ui";
 
 
 const SECTION_META: Record<string, { title: string; subtitle: string }> = {

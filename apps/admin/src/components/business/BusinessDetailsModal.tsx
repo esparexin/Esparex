@@ -24,7 +24,7 @@ import {
     Ban,
     RotateCcw,
     Pencil
-} from "lucide-react";
+} from "@esparex/ui";
 import { format } from "date-fns";
 import { buildBusinessFallbackLocationDisplay, resolveLocationDisplay } from "@/lib/location/display";
 

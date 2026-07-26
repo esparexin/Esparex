@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X } from "@esparex/ui";
 import { AdminGlobalSearch } from "./AdminGlobalSearch";
 
 const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");

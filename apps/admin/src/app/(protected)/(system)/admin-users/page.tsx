@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { UserPlus, Power, Trash2, Save, XCircle } from "lucide-react";
+import { UserPlus, Power, Trash2, Save, XCircle } from "@esparex/ui";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";

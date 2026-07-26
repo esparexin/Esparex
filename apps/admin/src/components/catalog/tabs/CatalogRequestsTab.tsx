@@ -2,7 +2,7 @@
 
 import { useAdminCatalogRequests } from "@/hooks/useAdminCatalogRequests";
 import { type CatalogRequestItem } from "@/lib/api/catalogRequests";
-import { ClipboardList, CheckCircle, XCircle, Clock, AlertCircle, ExternalLink, Loader2 } from "lucide-react";
+import { ClipboardList, CheckCircle, XCircle, Clock, AlertCircle, ExternalLink, Loader2 } from "@esparex/ui";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState, useEffect } from "react";
 import { CatalogModal } from "@/components/catalog/CatalogModal";

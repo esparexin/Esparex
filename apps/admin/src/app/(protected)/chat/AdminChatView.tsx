@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "lucide-react";
+import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { useToast } from "@/context/ToastContext";
 import {

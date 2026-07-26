@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Edit } from "lucide-react";
+import { Edit } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 
 interface ReviewSectionProps {

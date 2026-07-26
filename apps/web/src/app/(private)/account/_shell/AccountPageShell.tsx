@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { ProfileSettingsSidebar } from "@/components/user/ProfileSettingsSidebar";
 import { UserPage, getPageRoute } from "@/lib/routeUtils";
 import { useCurrentUser as useUser } from "@/hooks/useCurrentUser";
-import { LoadingSpinner } from "@/components/ui/LoadingAnimation";
+import { Spinner } from "@esparex/ui";
 import { markLogoutRedirectBypass } from "@/lib/authHelpers";
 import type { ProfileTabValue } from "@/config/navigation";
 import type { ConversationListView } from "@/lib/api/chatApi";
@@ -38,7 +38,7 @@ export function AccountPageShell({ tab, listingSubTab, messagesView, conversatio
         void router.push(getPageRoute(page, { adId, category, businessId, serviceId }));
     };
 
-    if (loading) return <LoadingSpinner />;
+    if (loading) return <div className="flex items-center justify-center min-h-screen"><Spinner size="xl" label="Loading your account" /></div>;
 
     return (
         <ProfileSettingsSidebar

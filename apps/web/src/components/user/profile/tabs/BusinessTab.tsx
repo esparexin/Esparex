@@ -12,7 +12,7 @@ import {
     PowerOff,
     LogOut,
     RefreshCw,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 
 import { type Business } from "@/lib/api/user/businesses";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";

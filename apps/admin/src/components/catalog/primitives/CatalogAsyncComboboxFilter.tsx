@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search } from "@esparex/ui";
 import type { SelectOption } from "./types";
 
 export function CatalogAsyncComboboxFilter({

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Edit, MapPin, Trash2 } from "lucide-react";
+import { Edit, MapPin, Trash2 } from "@esparex/ui";
 import { useAdminLocations } from "@/hooks/useAdminLocations";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { getLocationOptions } from "@/lib/api/locations";

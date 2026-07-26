@@ -1,5 +1,5 @@
 import { useId, type ReactNode } from "react";
-import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "lucide-react";
+import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
 
 import { FeatureCard } from "@/components/user/FeatureCard";
 import { ACCOUNT_COPY } from "@/config/copy/account";

@@ -15,7 +15,7 @@ import {
   AlertCircle,
   Loader2,
   KeyRound,
-} from "lucide-react";
+} from "@esparex/ui";
 
 // How long to wait for the auth check before showing the form anyway
 const AUTH_LOADING_TIMEOUT_MS = 4000;

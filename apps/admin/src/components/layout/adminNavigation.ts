@@ -1,6 +1,6 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@esparex/ui";
 import {
     BarChart3,
     Bell,
@@ -14,7 +14,7 @@ import {
     Users,
     Tag,
     List,
-} from "lucide-react";
+} from "@esparex/ui";
 
 export type AdminModuleKey =
     | "dashboard"

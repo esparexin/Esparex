@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { CircuitBoard } from "lucide-react";
+import { CircuitBoard } from "@/icons/IconRegistry";
 
 import { BrowseListingCard } from "@/components/user/BrowseListingCard";
 import { type Listing as SparePartListing } from "@/lib/api/user/listings";

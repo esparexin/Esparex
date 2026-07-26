@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "@esparex/ui";
 
 export function CatalogRejectSuggestionForm({
     itemName, rejectionReason, onRejectionReasonChange, onCancel, onConfirm, isSubmitting, placeholder,

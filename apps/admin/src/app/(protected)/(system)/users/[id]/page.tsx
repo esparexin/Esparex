@@ -14,7 +14,7 @@ import {
 import { StatusChip } from "@/components/ui/StatusChip";
 import { User } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@esparex/shared";
-import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Shield, User as UserIcon } from "@esparex/ui";
 
 type Props = {
     params: Promise<{

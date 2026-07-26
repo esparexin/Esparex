@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
-import { Wrench, Info } from "lucide-react";
+import { Wrench, Info } from "@/icons/IconRegistry";
 
 interface ListingDescriptionCardProps {
     ad: Ad;

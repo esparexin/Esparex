@@ -5,7 +5,7 @@ import {
     XCircle, 
     AlertTriangle, 
     ArrowRight
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 
 import type { BusinessStatusValue } from "@esparex/contracts";

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import type { AdminSessionItem } from "@/types/adminSession";
-import { Power, AlertTriangle, Loader2, AlertCircle } from "lucide-react";
+import { Power, AlertTriangle, Loader2, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";

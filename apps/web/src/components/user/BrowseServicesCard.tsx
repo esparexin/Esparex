@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Wrench } from "lucide-react";
+import { Wrench } from "@/icons/IconRegistry";
 
 import { BrowseListingCard } from "@/components/user/BrowseListingCard";
 import { type Listing as Service } from "@/lib/api/user/listings";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { EyeOff, ChevronDown } from "lucide-react";
+import { EyeOff, ChevronDown } from "@esparex/ui";
 
 type ColumnOption = {
     id: string;

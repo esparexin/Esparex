@@ -3,7 +3,7 @@ import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Search, Download, FileText } from "lucide-react";
+import { Search, Download, FileText } from "@esparex/ui";
 import { type ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch, getAdminApiBase } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";

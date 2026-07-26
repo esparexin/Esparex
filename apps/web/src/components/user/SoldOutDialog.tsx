@@ -10,7 +10,7 @@ import {
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { CheckCircle, Store, ExternalLink, MoreHorizontal } from "lucide-react";
+import { CheckCircle, Store, ExternalLink, MoreHorizontal } from "@/icons/IconRegistry";
 import { notify } from "@/lib/feedback";
 import { FormError } from "../ui/FormError";
 import logger from "@/lib/logger";

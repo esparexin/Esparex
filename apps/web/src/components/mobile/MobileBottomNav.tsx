@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle } from "@/icons/IconRegistry";
 import { usePathname } from "next/navigation";
 import { cn } from "@/components/ui/utils";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";

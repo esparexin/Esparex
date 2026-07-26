@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Briefcase, Smartphone, Wrench as WrenchIcon, Drone, Tv, Laptop, Tablet } from "lucide-react";
+import { Box, Briefcase, Smartphone, Wrench as WrenchIcon, Drone, Tv, Laptop, Tablet } from "@esparex/ui";
 
 export function getListingTypeIcon(type: string, size = 16) {
     const normalizedType = type.trim().replace(/\s+/g, " ").toLowerCase();

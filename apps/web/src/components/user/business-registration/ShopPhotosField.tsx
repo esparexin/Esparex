@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
-import { Upload, X } from "lucide-react";
+import { Upload, X } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { cn } from "@/components/ui/utils";

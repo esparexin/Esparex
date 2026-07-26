@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@/icons/IconRegistry";
 import {
   Bell,
   Building2,
@@ -13,7 +13,7 @@ import {
   Sparkles,
   Wrench,
   CreditCard,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 import {
   type UserPage,
 } from "@/lib/routeUtils";

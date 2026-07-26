@@ -1,4 +1,4 @@
-import { PlusCircle, LayoutGrid } from "lucide-react";
+import { PlusCircle, LayoutGrid } from "@/icons/IconRegistry";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";

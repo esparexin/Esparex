@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Loader2 } from "@esparex/ui";
 
 export function CatalogActiveToggleButton({
     isActive,

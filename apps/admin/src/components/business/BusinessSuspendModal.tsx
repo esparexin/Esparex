@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban } from "lucide-react";
+import { Ban } from "@esparex/ui";
 import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
 
 interface BusinessSuspendModalProps {

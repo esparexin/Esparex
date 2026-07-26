@@ -1,0 +1,242 @@
+{
+  "timestamp": "2026-07-25T13:45:35.597Z",
+  "summary": {
+    "status": "PASS",
+    "totalDirectories": 646,
+    "transitionalModules": 151,
+    "pureReexportShims": 74,
+    "facadesAndWrappers": 2,
+    "unmigratedServices": 75,
+    "emptyDirectoriesCount": 3,
+    "orphanedDirectoriesCount": 0,
+    "jscpdClonesFound": 32,
+    "architectureViolations": 0,
+    "ssotViolations": 0,
+    "dependencyViolations": 0,
+    "circularViolations": 0
+  },
+  "findings": {
+    "emptyDirectories": [
+      ".kombai/design-systems",
+      "apps/mobile/android/capacitor-cordova-android-plugins/.gradle/9.2.0/expanded",
+      "apps/mobile/android/capacitor-cordova-android-plugins/.gradle/9.2.0/vcsMetadata"
+    ],
+    "orphanedDirectories": [],
+    "transitionalShims": [
+      "core/src/services/AdEngagementService.ts",
+      "core/src/services/AdImageService.ts",
+      "core/src/services/AdMutationService.ts",
+      "core/src/services/AdOrchestrator.ts",
+      "core/src/services/AdminBusinessService.ts",
+      "core/src/services/AdminListingsService.ts",
+      "core/src/services/AdminLocationService.ts",
+      "core/src/services/AdminSessionService.ts",
+      "core/src/services/AdminUsersService.ts",
+      "core/src/services/BoostService.ts",
+      "core/src/services/ChatAvailabilityService.ts",
+      "core/src/services/ContactRevealService.ts",
+      "core/src/services/ContactService.ts",
+      "core/src/services/DuplicateRolloutGuard.ts",
+      "core/src/services/FeedDecisionEngine.ts",
+      "core/src/services/FeedService.ts",
+      "core/src/services/FraudDetectionService.ts",
+      "core/src/services/ListingModerationQueryService.ts",
+      "core/src/services/ListingMutationService.ts",
+      "core/src/services/ListingSubmissionPolicy.ts"
+    ],
+    "duplications": [
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 9,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 9,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 9,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 16,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 12,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 20,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 13,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 33,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 45,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 37,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 66,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 90,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 27,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 69,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 35,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 59,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 31,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 29,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 105,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 15,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 14,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 45,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 58,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 133,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 200,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 43,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 60,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 134,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 181,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 47,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 16,
+        "tokens": 0
+      },
+      {
+        "first": "[object Object] [Lundefined-Lundefined]",
+        "second": "[object Object] [Lundefined-Lundefined]",
+        "lines": 13,
+        "tokens": 0
+      }
+    ]
+  }
+}

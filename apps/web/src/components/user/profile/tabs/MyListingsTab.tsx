@@ -10,7 +10,7 @@ import {
 } from "@esparex/ui";
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "lucide-react";
+import { Package, Wrench, CircuitBoard, MapPin, Timer, Home, Wifi } from "@/icons/IconRegistry";
 import type { Listing, ListingStatsResponse } from "@/lib/api/user/listings";
 import type { User } from "@/types/User";
 import { useProfileListings } from "./useProfileListings";

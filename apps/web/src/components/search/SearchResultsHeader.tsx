@@ -9,7 +9,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ChevronDown, LayoutGrid, List, SortAsc } from "lucide-react";
+import { ChevronDown, LayoutGrid, List, SortAsc } from "@/icons/IconRegistry";
 import {
     PUBLIC_BROWSE_SORT_LABELS,
     type SortOption,

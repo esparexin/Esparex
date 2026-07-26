@@ -6,8 +6,8 @@ import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { User, Camera, Upload, Trash2, Building2, Save, Phone, Eye, EyeOff, Shield } from "lucide-react";
-import { PhoneInput } from "@/components/ui/PhoneInput";
+import { User, Camera, Upload, Trash2, Building2, Save, Phone, Eye, EyeOff, Shield } from "@/icons/IconRegistry";
+import { PhoneInput } from "../PhoneInput";
 import type {
     MobileVisibility,
     ProfileFormData,

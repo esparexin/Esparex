@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, CreditCard, Zap, BellRing, Package } from "lucide-react";
+import { X, CreditCard, Zap, BellRing, Package } from "@esparex/ui";
 import { createPlan, updatePlan } from "@/lib/api/plans";
 import { API_KEY_STATUS } from "@esparex/contracts";
 import { Plan } from "@esparex/contracts";

@@ -9,7 +9,7 @@ import {
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useEffect, useState } from "react";
-import { Loader2, Pencil, MapPin, Search } from "lucide-react";
+import { Loader2, Pencil, MapPin, Search } from "@esparex/ui";
 
 import { CHAT_STATUS } from "@esparex/contracts";
 import { Business } from "@esparex/contracts";

@@ -11,7 +11,7 @@ import {
   Grid3x3,
   List,
   MapPin,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 
 import { unsaveAd } from "@/lib/api/user/users";
 import type { SavedAd } from "@/lib/api/user/users";

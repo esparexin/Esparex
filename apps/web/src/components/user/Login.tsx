@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Loader2, Pencil, Smartphone } from "lucide-react";
+import { ArrowLeft, Loader2, Pencil, Smartphone } from "@/icons/IconRegistry";
 
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Eye, Edit2, Trash2, Crown, Settings2 } from "lucide-react";
+import { Bell, Eye, Edit2, Trash2, Crown, Settings2 } from "@/icons/IconRegistry";
 import LocationSelector from "@/components/location/LocationSelector";
 import type { Location } from "@/lib/api/user/locations";
 import type { SavedSearch } from "@/lib/api/user/savedSearches";

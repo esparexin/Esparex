@@ -2,7 +2,7 @@
 import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 
 import { useEffect, useState } from "react";
-import { BarChart3, TrendingUp, Wallet, BadgeIndianRupee, AlertCircle } from "lucide-react";
+import { BarChart3, TrendingUp, Wallet, BadgeIndianRupee, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";

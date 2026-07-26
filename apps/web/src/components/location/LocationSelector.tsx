@@ -8,7 +8,7 @@ import {
 } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
-import { Search, MapPin, Target, Loader2 } from "lucide-react";
+import { Search, MapPin, Target, Loader2 } from "@/icons/IconRegistry";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";

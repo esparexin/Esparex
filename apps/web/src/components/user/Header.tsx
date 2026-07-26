@@ -14,7 +14,7 @@ import {
   Building2,
   LayoutDashboard,
   LogOut,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 
 import { HeaderLocation } from "../layout/HeaderLocation";
 import { User } from "@/types/User";

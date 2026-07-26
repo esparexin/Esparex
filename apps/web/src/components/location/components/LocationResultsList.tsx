@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, MapPin, RefreshCw } from "lucide-react";
+import { AlertCircle, MapPin, RefreshCw } from "@/icons/IconRegistry";
 import type { Location } from "@/lib/api/user/locations";
 import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";

@@ -22,7 +22,7 @@
 
 import * as React from "react";
 import * as RadixDialog from "@radix-ui/react-dialog";
-import { X } from "lucide-react";
+import { X } from "@/icons/IconRegistry";
 import { cn } from "./utils";
 import {
   Z_INDEX,

@@ -8,8 +8,8 @@ import {
   DialogTitle,
 } from "@esparex/ui";
 import { useEffect, useState, type ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
-import { Ban, CheckCircle2, PlayCircle, Shield } from "lucide-react";
+import type { LucideIcon } from "@esparex/ui";
+import { Ban, CheckCircle2, PlayCircle, Shield } from "@esparex/ui";
 
 import {
     getUserDisplayName,

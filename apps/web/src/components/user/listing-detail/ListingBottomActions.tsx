@@ -11,7 +11,7 @@ import {
   Trash2,
   MessageCircle,
   Phone,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 

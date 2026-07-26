@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Filter } from "lucide-react";
+import { Search, Filter } from "@esparex/ui";
 
 /**
  * AdminFilterToolbar — canonical horizontal filter strip for all admin operational screens.

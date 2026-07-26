@@ -4,7 +4,7 @@ import { memo } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
-import { Heart } from "lucide-react";
+import { Heart } from "@/icons/IconRegistry";
 import { haptics } from "@/lib/haptics";
 import {
   resolveListingCategoryLabel,

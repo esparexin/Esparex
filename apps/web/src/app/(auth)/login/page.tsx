@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { X } from "lucide-react";
+import { X } from "@/icons/IconRegistry";
 import { LoginFlow } from "@/components/auth/LoginFlow";
 import {
   Button,

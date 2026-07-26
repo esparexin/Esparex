@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Building2 } from "lucide-react";
+import { Sparkles, Building2 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";

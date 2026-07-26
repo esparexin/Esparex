@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "lucide-react";
+import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "@esparex/ui";
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { categorySupportsAds, useAssignableCategories } from "@/hooks/useAssignableCategories";

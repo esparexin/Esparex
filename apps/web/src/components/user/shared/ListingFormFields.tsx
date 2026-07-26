@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Field } from "@/components/ui/field";
 import { MapPin, Upload, X } from "@/icons/IconRegistry";
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@/icons/IconRegistry";
 import type { ListingImage } from "@/types/listing";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";

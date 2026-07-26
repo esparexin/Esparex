@@ -15,7 +15,7 @@ import {
     TrendingUp,
     Calendar,
     Wallet,
-} from "lucide-react";
+} from "@esparex/ui";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
 import {

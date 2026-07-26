@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Image as ImageIcon, MapPin, ShieldAlert } from "lucide-react";
+import { Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
 import { AdminModerationActions } from "./AdminModerationActions";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";

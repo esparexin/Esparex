@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "@esparex/ui";
 import { type Location } from "@/types/location";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 

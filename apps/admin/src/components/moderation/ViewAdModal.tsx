@@ -6,7 +6,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@esparex/ui";
-import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "lucide-react";
+import { Check, ExternalLink, MapPin, Pause, Phone, Play, RefreshCw, User, X } from "@esparex/ui";
 import Link from "next/link";
 import type { ModerationItem } from "./moderationTypes";
 import { MODERATION_STATUS_BADGES, MODERATION_STATUS_LABELS } from "./moderationStatus";

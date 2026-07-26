@@ -5,7 +5,7 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle } from "@esparex/ui";
 
 interface FinancePageTemplateProps<T extends { id: string | number }> {
     title: string;

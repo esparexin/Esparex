@@ -1,5 +1,5 @@
 import { Button } from "@esparex/ui";
-import { AlertCircle, ArrowLeft, SearchX, RefreshCcw } from "lucide-react";
+import { AlertCircle, ArrowLeft, SearchX, RefreshCcw } from "@/icons/IconRegistry";
 import { AdDetailSkeleton } from "./AdDetailSkeleton";
 import { ROUTES } from "@/lib/logic/routes";
 import { useRouter } from "next/navigation";

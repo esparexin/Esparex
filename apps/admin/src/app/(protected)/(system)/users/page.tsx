@@ -8,7 +8,7 @@ import {
     AlertCircle,
     User as UserIcon,
     Mail,
-} from "lucide-react";
+} from "@esparex/ui";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";

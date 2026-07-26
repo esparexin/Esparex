@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@/icons/IconRegistry";
 
 export interface ListingImage {
     id: string;

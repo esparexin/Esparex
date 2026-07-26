@@ -1,4 +1,4 @@
-import { Megaphone, LayoutGrid } from "lucide-react";
+import { Megaphone, LayoutGrid } from "@/icons/IconRegistry";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

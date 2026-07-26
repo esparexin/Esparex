@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from "@esparex/ui";
 import Link from "next/link";
 
 interface DashboardCardProps {

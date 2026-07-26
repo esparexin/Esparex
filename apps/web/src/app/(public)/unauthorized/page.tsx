@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ShieldOff } from "lucide-react";
+import { ShieldOff } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 
 export const metadata: Metadata = {

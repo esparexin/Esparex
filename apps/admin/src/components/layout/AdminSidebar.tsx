@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, X } from "@esparex/ui";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useAdminSidebarCounts } from "@/hooks/useAdminSidebarCounts";
 import { SidebarNavigation } from "./SidebarNavigation";

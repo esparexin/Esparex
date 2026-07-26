@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plus, Wrench, CircuitBoard } from "lucide-react";
+import { Plus, Wrench, CircuitBoard } from "@/icons/IconRegistry";
 import { useAuth } from "@/context/AuthContext";
 import { isApprovedBusiness } from "@/guards/businessGuards";
 import { cn } from "@/components/ui/utils";
