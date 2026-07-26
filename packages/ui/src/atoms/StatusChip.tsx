@@ -49,6 +49,10 @@ const STATUS_MAP: Record<string, ChipStyle> = {
     revoked:     { dot: "bg-red-400",     text: "text-red-700",     label: "Revoked" },
     approved:    { dot: "bg-emerald-500", text: "text-emerald-700", label: "Approved" },
     duplicate:   { dot: "bg-amber-600",   text: "text-amber-800",   label: "Duplicate" },
+    success:     { dot: "bg-emerald-500", text: "text-emerald-700", label: "Success" },
+    delivered:   { dot: "bg-blue-600",    text: "text-blue-700",    label: "Delivered" },
+    initiated:   { dot: "bg-amber-500",   text: "text-amber-700",   label: "Initiated" },
+    failed:      { dot: "bg-red-500",     text: "text-red-700",     label: "Failed" },
 };
 
 const FALLBACK: ChipStyle = {
