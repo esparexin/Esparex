@@ -9,7 +9,7 @@ import logger from "@/lib/logger";
 import { normalizeError } from './normalizeError';
 import { APIError } from './APIError';
 
-// error event dispatch logic removed
+import { notify } from '@/lib/feedback';
 import {
     API_ROUTES,
 } from "@/lib/api/routes";
@@ -439,6 +439,7 @@ class APIClient {
                         logger.info(`[API STATE] Unauthenticated session: ${requestConfig?.url}`);
                     } else {
                         logger.error("[API ERROR]", apiError);
+                        notify.error(apiError);
                     }
                 }
 

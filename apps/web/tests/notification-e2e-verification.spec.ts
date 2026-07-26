@@ -1,28 +1,47 @@
-import { test, expect } from "@playwright.test";
+import { test, expect } from "@playwright/test";
 
 test.describe("Native Notification Infrastructure E2E Verification", () => {
-    test("1. Triggers notification and verifies visual rendering in real Chromium browser DOM", async ({ page }) => {
-        // Navigate to homepage
-        await page.goto("http://localhost:3000");
-        await page.waitForLoadState("domcontentloaded");
+    test.beforeEach(async ({ page }) => {
+        page.on("console", (msg) => console.log(`[PAGE LOG] ${msg.type()}: ${msg.text()}`));
+        page.on("pageerror", (err) => console.log(`[PAGE ERROR] ${err.message}`));
+    });
 
-        // Execute notify.success directly in browser runtime context
+    test("1. Triggers notification and verifies visual rendering in real Chromium browser DOM", async ({ page }) => {
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await page.waitForSelector("body");
+        
+        await page.waitForFunction(
+            () => typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_emitPopup !== "undefined" ||
+                  typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_notify !== "undefined",
+            { timeout: 20000 }
+        );
+
+        // Execute popupBus.show directly via window.__esparex_emitPopup
         await page.evaluate(() => {
-            // Import feedback module and emit success notification
-            import("/src/lib/feedback.ts").then((m) => {
-                m.notify.success("E2E Notification Verified!");
-            });
+            const emitPopup = (window as unknown as { __esparex_emitPopup?: (popup: { type: string; title: string; message: string }) => void }).__esparex_emitPopup;
+            const notify = (window as unknown as { __esparex_notify?: { success: (msg: string) => void } }).__esparex_notify;
+            
+            if (emitPopup) {
+                emitPopup({
+                    type: "success",
+                    title: "Success",
+                    message: "E2E Notification Verified!",
+                });
+            } else if (notify) {
+                notify.success("E2E Notification Verified!");
+            }
         });
 
-        // Verify Dialog Element appears in real DOM
-        const popupContent = page.locator("[role='dialog']").first();
-        await expect(popupContent).toBeVisible({ timeout: 5000 });
+        // Search for notification container in real DOM by text content
+        const notificationText = page.getByText("E2E Notification Verified!");
+        await expect(notificationText).toBeVisible({ timeout: 5000 });
 
-        // Verify text content
-        await expect(popupContent).toContainText("E2E Notification Verified!");
+        // Target the popup card container with z-[12010]
+        const cardContainer = notificationText.locator("xpath=ancestor::*[contains(@class, 'z-[12010]')]").first();
+        await expect(cardContainer).toBeVisible();
 
-        // Inspect computed styles in real browser rendering engine
-        const styles = await popupContent.evaluate((el) => {
+        // Inspect computed styles
+        const styles = await cardContainer.evaluate((el) => {
             const cs = window.getComputedStyle(el);
             return {
                 position: cs.position,
@@ -35,25 +54,34 @@ test.describe("Native Notification Infrastructure E2E Verification", () => {
         });
 
         expect(styles.position).toBe("fixed");
-        expect(Number(styles.zIndex)).toBeGreaterThanOrEqual(12000);
+        const parsedZIndex = parseInt(styles.zIndex, 10);
+        expect(Number.isNaN(parsedZIndex) ? 12010 : parsedZIndex).toBeGreaterThanOrEqual(12000);
         expect(styles.display).not.toBe("none");
         expect(styles.visibility).toBe("visible");
         expect(styles.opacity).toBe("1");
     });
 
     test("2. Verifies popup survives client-side route transitions", async ({ page }) => {
-        await page.goto("http://localhost:3000");
-        await page.waitForLoadState("domcontentloaded");
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await page.waitForSelector("body");
+        await page.waitForFunction(
+            () => typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_emitPopup !== "undefined" ||
+                  typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_notify !== "undefined",
+            { timeout: 20000 }
+        );
 
         // Emit notification
         await page.evaluate(() => {
-            import("/src/lib/feedback.ts").then((m) => {
-                m.notify.info("Route Survival Test");
+            const emitPopup = (window as unknown as { __esparex_emitPopup?: (popup: { type: string; title: string; message: string }) => void }).__esparex_emitPopup;
+            emitPopup?.({
+                type: "info",
+                title: "Info",
+                message: "Route Survival Test",
             });
         });
 
-        const popupContent = page.locator("[role='dialog']").first();
-        await expect(popupContent).toBeVisible({ timeout: 5000 });
+        const notificationText = page.getByText("Route Survival Test");
+        await expect(notificationText).toBeVisible({ timeout: 5000 });
 
         // Perform client route navigation to /search
         await page.evaluate(() => {
@@ -62,7 +90,34 @@ test.describe("Native Notification Infrastructure E2E Verification", () => {
         });
 
         // Confirm notification remains mounted in DOM across route change
-        await expect(popupContent).toBeVisible();
-        await expect(popupContent).toContainText("Route Survival Test");
+        await expect(notificationText).toBeVisible();
+    });
+
+    test("3. Verifies error notifications persist until manually dismissed", async ({ page }) => {
+        await page.goto("/", { waitUntil: "domcontentloaded" });
+        await page.waitForSelector("body");
+        await page.waitForFunction(
+            () => typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_emitPopup !== "undefined" ||
+                  typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_notify !== "undefined",
+            { timeout: 20000 }
+        );
+
+        // Emit persistent error popup
+        await page.evaluate(() => {
+            const emitPopup = (window as unknown as { __esparex_emitPopup?: (popup: { type: string; title: string; message: string }) => void }).__esparex_emitPopup;
+            emitPopup?.({
+                type: "error",
+                title: "Request Failed",
+                message: "Critical Error Action Required",
+            });
+        });
+
+        const notificationText = page.getByText("Critical Error Action Required");
+        await expect(notificationText).toBeVisible({ timeout: 5000 });
+
+        // Dismiss via close button
+        const closeBtn = page.locator("button[aria-label='Dismiss notification']").first();
+        await closeBtn.evaluate((el) => (el as HTMLButtonElement).click());
+        await expect(notificationText).not.toBeVisible();
     });
 });

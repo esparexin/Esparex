@@ -1,10 +1,11 @@
 "use client";
 
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 
 import { AppPopup } from "@/components/system/AppPopup";
 import { recordNotificationEvent } from "@/lib/analytics/notificationAnalytics";
 import { usePopupQueue } from "@esparex/ui";
+import { notify } from "@/lib/feedback";
 import {
   emitPopupEvent,
   hidePopupEvent,
@@ -12,15 +13,24 @@ import {
 } from "@/lib/popup/popupEvents";
 import type { PopupState } from "@esparex/shared";
 
+
 interface PopupContextValue {
   popup: PopupState | null;
   showPopup: typeof emitPopupEvent;
   hidePopup: typeof hidePopupEvent;
+  notify: typeof notify;
 }
 
 const PopupContext = createContext<PopupContextValue | null>(null);
 
 export function PopupProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      (window as unknown as { __esparex_notify?: typeof notify; __esparex_emitPopup?: typeof emitPopupEvent }).__esparex_notify = notify;
+      (window as unknown as { __esparex_notify?: typeof notify; __esparex_emitPopup?: typeof emitPopupEvent }).__esparex_emitPopup = emitPopupEvent;
+    }
+  }, []);
+
   const { activePopup, hidePopup } = usePopupQueue({
     subscribe: subscribePopupEvents,
     hideExternal: hidePopupEvent,
@@ -42,6 +52,7 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
       popup: activePopup,
       showPopup: emitPopupEvent,
       hidePopup,
+      notify,
     }),
     [activePopup, hidePopup]
   );
