@@ -209,8 +209,9 @@ export function PostServiceForm({ editServiceId }: { editServiceId?: string }) {
                                             key={typeId}
                                             type="button"
                                             onClick={() => toggleServiceType(typeId)}
+                                            aria-pressed={selected}
                                             className={cn(
-                                                "rounded-xl border px-3 py-3 text-left text-sm font-semibold transition-all",
+                                                "rounded-xl border px-3 py-3 text-left text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                                 selected
                                                     ? "bg-primary border-primary text-white shadow-sm"
                                                     : "bg-white border-slate-100 text-foreground-secondary hover:border-slate-200"
