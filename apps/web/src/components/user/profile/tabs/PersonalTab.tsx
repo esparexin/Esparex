@@ -132,7 +132,7 @@ export function PersonalTab({
 
                         <Separator className="my-2" />
 
-                        <div className="grid md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="profile-name">Full Name *</Label>
@@ -195,12 +195,12 @@ export function PersonalTab({
                         </div>
 
                     <div className="pt-2">
-                        <div className="p-3 md:p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
                             <div className="flex items-center gap-2 mb-1">
                                 <Building2 className="h-4 w-4 text-muted-foreground" />
                                 <h3 className="font-semibold text-sm text-foreground">Billing Details (Optional)</h3>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                                 <div className="space-y-1.5">
                                     <div className="flex items-center justify-between">
                                         <Label htmlFor="billing-business-name">Business Name</Label>
