@@ -253,13 +253,13 @@ export function PersonalTab({
                         </div>
                     </div>
 
-                    <div className="pt-3 flex justify-end">
-                        <div className="w-full sm:w-auto">
+                    <div className="fixed bottom-16 left-0 right-0 z-30 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg md:static md:p-0 md:bg-transparent md:border-0 md:shadow-none md:pt-3 md:flex md:justify-end">
+                        <div className="w-full md:w-auto">
                             <FormError message={profileGlobalError} />
                             <Button
                                 type="submit"
                                 disabled={isSavingProfile}
-                                className="mt-1 w-full sm:w-auto sm:min-w-[200px] sm:max-w-[320px] bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                className="w-full md:w-auto md:min-w-[200px] md:max-w-[320px] bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 h-12 md:h-10 text-sm font-semibold"
                             >
                                 <Save className="h-4 w-4 mr-2" />
                                 {isSavingProfile ? "Saving..." : "Save Changes"}
