@@ -90,7 +90,9 @@ export function PersonalTab({
                                     <button
                                         type="button"
                                         onClick={onPhotoClick}
-                                        className="absolute -bottom-1 -right-1 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700"
+                                        aria-label="Upload profile photo"
+                                        title="Upload profile photo"
+                                        className="absolute -bottom-1 -right-1 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                                     >
                                         <Camera className="h-3 w-3" />
                                     </button>
