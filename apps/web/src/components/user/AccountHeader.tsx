@@ -13,14 +13,14 @@ export function AccountHeader({ className = '', mobile = false }: AccountHeaderP
   return (
     <div className={className}>
       <div className="flex items-center gap-3">
-        <div className="p-2.5 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">
-          <SettingsIcon className="h-6 w-6 text-white" />
+        <div className="p-2 bg-blue-600 rounded-xl shadow-xs">
+          <SettingsIcon className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className={mobile ? "text-base font-bold text-foreground tracking-tight" : "text-xl md:text-2xl font-bold text-foreground tracking-tight"}>
+          <h1 className={mobile ? "text-base font-semibold text-slate-900 tracking-tight" : "account-page-title"}>
             {title}
           </h1>
-          <p className={mobile ? "text-xs text-muted-foreground font-medium" : "text-sm text-muted-foreground font-medium"}>
+          <p className="account-body-text mt-0.5">
             {subtitle}
           </p>
         </div>

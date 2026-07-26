@@ -13,6 +13,7 @@ import type { ProfileUser } from "@/components/user/profile/types";
 
 // UI Components
 import { Card } from "@/components/ui/card";
+import { PageContainer } from "@/components/ui/PageContainer";
 import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -357,9 +358,9 @@ export function ProfileSettingsSidebar({
     <div className="bg-gray-50 min-h-screen">
       <MobileAccountHeader activeTab={activeTab} onBackToMenu={() => handleTabChange("more")} />
       
-      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3 pb-20 md:pb-10">
+      <PageContainer variant="wide" className="pt-3 pb-20 md:pb-10">
         {/* DESKTOP HEADER */}
-        <div className="mb-6 hidden md:block">
+        <div className="mb-4 hidden md:block">
           <AccountHeader />
         </div>
 
@@ -413,7 +414,7 @@ export function ProfileSettingsSidebar({
             {renderContent()}
           </main>
         </div>
-      </div>
+      </PageContainer>
 
       <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
 
