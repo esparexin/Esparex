@@ -66,7 +66,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
     return (
         <html lang="en" className={geist.variable}>
-            <body>
+            <body className="font-sans antialiased">
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
             </body>
         </html>
