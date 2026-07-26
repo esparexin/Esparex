@@ -10,11 +10,17 @@ import { getNestedFieldMeta } from "../common/utils";
 import { useCallback } from "react";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
+import { useImageDropzone } from "@/components/user/shared/useImageDropzone";
 
 export function ImageUploadSection() {
     const { listingImages, isUploadingImages, imageUploadError } = usePostAdImages();
     const { form, stepValidationAttempts } = usePostAdFlow();
     const { addImages, removeImage, setMainImage } = usePostAdAction();
+
+    const { isDraggingOver, dropzoneProps } = useImageDropzone({
+        onUpload: addImages,
+        disabled: isUploadingImages,
+    });
 
     const { touchedFields, errors, submitCount } = form.formState;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
@@ -79,15 +85,12 @@ export function ImageUploadSection() {
                             tabIndex={0}
                             role="button"
                             aria-label={`Add product photo, ${listingImages.length} of ${MAX_AD_IMAGES} uploaded`}
-                            onKeyDown={(e) => {
-                                if (e.key === " " || e.key === "Enter") {
-                                    e.preventDefault();
-                                    e.currentTarget.querySelector("input")?.click();
-                                }
-                            }}
+                            {...dropzoneProps}
                             className={cn(
-                                "aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all bg-slate-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                                isUploadingImages ? "opacity-50 cursor-not-allowed border-slate-200" : "border-slate-200 hover:border-primary hover:bg-primary/5 hover:shadow-inner"
+                                "aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                isUploadingImages ? "opacity-50 cursor-not-allowed border-slate-200" :
+                                isDraggingOver ? "border-primary bg-primary/10 scale-[1.02] shadow-md" :
+                                "border-slate-200 bg-slate-50/50 hover:border-primary hover:bg-primary/5 hover:shadow-inner"
                             )}
                         >
                             <input
