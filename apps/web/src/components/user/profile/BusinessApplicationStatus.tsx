@@ -113,7 +113,7 @@ export function BusinessApplicationStatus({
                         <Button
                             onClick={onEditApplication}
                             variant="outline"
-                            className="flex-1"
+                            className="flex-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                             disabled={!onEditApplication}
                         >
                             <Edit2 className="h-4 w-4 mr-2" />
@@ -123,7 +123,7 @@ export function BusinessApplicationStatus({
                             onClick={() => setShowWithdrawDialog(true)}
                             variant="outline"
                             disabled={isWithdrawing}
-                            className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                            className="flex-1 text-red-600 border-red-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                             <Trash2 className="h-4 w-4 mr-2" />
                             {isWithdrawing ? "Withdrawing..." : "Withdraw Application"}
@@ -307,12 +307,12 @@ export function BusinessApplicationStatus({
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="flex gap-3 pt-4 sm:justify-end">
-                        <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-slate-200">
+                        <AlertDialogCancel className="h-10 rounded-xl px-4 font-medium border-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                             Cancel
                         </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={confirmWithdraw}
-                            className="h-10 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700"
+                            className="h-10 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                         >
                             Withdraw
                         </AlertDialogAction>
