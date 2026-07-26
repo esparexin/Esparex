@@ -7,6 +7,12 @@ import type { ProfilePlan, ProfilePlanType } from "../types";
 
 type PlanCard = Omit<ProfilePlan, "type"> & { type: string };
 
+const POPULAR_BADGE_CLASSES: Record<string, string> = {
+    Spotlight: "bg-amber-500 text-white",
+    "More Ads": "bg-blue-600 text-white",
+    "Alert Slots": "bg-emerald-600 text-white",
+};
+
 interface PlansTabProps {
     dynamicPlans: PlanCard[];
     currentPlan: string;
@@ -43,7 +49,7 @@ export function PlansTab({
                     .map((plan) => (
                     <Card key={plan.id} className={plan.popular ? `border-2 ${colorClass} relative gap-0` : "gap-0"}>
                         {plan.popular && (
-                            <Badge className={`absolute -top-2 left-1/2 transform -translate-x-1/2 bg-${colorClass.split('-')[1]}-600 text-xs text-white`}>
+                            <Badge className={`absolute -top-2 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${POPULAR_BADGE_CLASSES[plan.type] || "bg-primary text-white"}`}>
                                 Popular
                             </Badge>
                         )}

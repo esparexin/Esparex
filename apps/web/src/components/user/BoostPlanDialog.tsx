@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@esparex/ui";
-import { Badge } from "../ui/badge";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "@esparex/ui";
+import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
 import {
   Zap,
