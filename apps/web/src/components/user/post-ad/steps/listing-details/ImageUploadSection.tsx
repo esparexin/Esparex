@@ -1,8 +1,9 @@
 "use client";
 
+import { Spinner } from "@esparex/ui";
 import { usePostAdImages, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
-import { X, Upload, Loader2 } from "@/icons/IconRegistry";
+import { X, Upload } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { MAX_AD_IMAGES } from "@esparex/contracts";
 import Image from "next/image";
@@ -104,7 +105,7 @@ export function ImageUploadSection() {
                                 disabled={isUploadingImages}
                             />
                             {isUploadingImages ? (
-                                <Loader2 className="w-6 h-6 animate-spin text-foreground-subtle" />
+                                <Spinner size="md" />
                             ) : (
                                 <>
                                     <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-100">

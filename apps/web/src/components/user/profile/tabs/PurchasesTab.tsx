@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@esparex/ui";
-import { Badge } from "@/components/ui/badge";
+import { Button, StatusChip } from "@esparex/ui";
 import { ShoppingCart, FileText, Crown } from "@/icons/IconRegistry";
 import { notify } from "@/lib/feedback";
 import type { Transaction } from "@/lib/api/user/transactions";
@@ -103,13 +102,13 @@ export function PurchasesTab({
                                         <div className="flex items-center gap-2 mb-1">
                                             <h4 className="font-semibold text-sm">{purchase.planSnapshot?.name || "Premium Plan"}</h4>
                                             {purchase.status === "SUCCESS" && (
-                                                <Badge className="bg-blue-600 text-white text-xs rounded-full px-2">Delivered</Badge>
+                                                <StatusChip status="delivered" label="Delivered" />
                                             )}
                                             {purchase.status === "INITIATED" && (
-                                                <Badge className="bg-amber-500 text-white text-xs rounded-full px-2">Initiated</Badge>
+                                                <StatusChip status="initiated" label="Initiated" />
                                             )}
                                             {purchase.status === "FAILED" && (
-                                                <Badge variant="destructive" className="text-xs">Failed</Badge>
+                                                <StatusChip status="failed" label="Failed" />
                                             )}
                                         </div>
                                         <p className="text-xs text-muted-foreground">Order ID: {purchase.gatewayOrderId || purchase.id}</p>
