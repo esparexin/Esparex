@@ -69,7 +69,7 @@ export function PlansTab({
                                     setSelectedPlan(plan.id);
                                     setShowPlanDialog(true);
                                 }}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                             >
                                 Buy Now
                             </Button>

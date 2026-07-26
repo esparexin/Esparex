@@ -9,6 +9,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Spinner,
 } from "@esparex/ui";
 import { Badge } from "../ui/badge";
 import { Card, CardContent } from "../ui/card";
@@ -275,9 +276,9 @@ export function BoostPlanDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" className="h-11" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" className="h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button
-            className="h-11 bg-indigo-600 hover:bg-indigo-700 gap-2"
+            className="h-11 bg-indigo-600 hover:bg-indigo-700 gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             onClick={handleUseCredits}
             disabled={isProcessing || !selectedPlan}
           >
@@ -285,13 +286,13 @@ export function BoostPlanDialog({
             Use Wallet Credits
           </Button>
           <Button
-            className="h-11 bg-green-600 hover:bg-green-700 gap-2"
+            className="h-11 bg-green-600 hover:bg-green-700 gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             onClick={handlePurchase}
             disabled={isProcessing || !selectedPlan}
           >
             {isProcessing ? (
               <>
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <Spinner size="sm" />
                 Processing...
               </>
             ) : (
