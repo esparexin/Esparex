@@ -288,7 +288,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
                       <Button
                         type="button"
                         onClick={() => router.push("/search")}
-                        className="w-full sm:w-auto sm:min-w-[200px] sm:max-w-[320px] bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        className="w-full md:w-auto md:min-w-[200px] md:max-w-[320px] bg-blue-600 text-white hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       >
                         Browse Marketplace
                       </Button>

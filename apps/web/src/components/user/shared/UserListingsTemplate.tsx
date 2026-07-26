@@ -83,12 +83,12 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
                 {/* Sub-tabs */}
                 {subTabs && onSubTabChange && (
-                    <div className="flex gap-0 border-b border-slate-100 overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-0 border-b border-slate-100 overflow-x-auto no-scrollbar touch-pan-x py-1">
                         {subTabs.map(t => (
                             <button
                                 key={t.value}
                                 onClick={() => onSubTabChange(t.value)}
-                                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap
+                                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[44px]
                                     ${activeSubTab === t.value
                                         ? activeTabClass
                                         : "border-transparent text-muted-foreground hover:text-foreground-secondary"
@@ -104,12 +104,12 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
             <CardContent className="px-3 md:px-6 pt-3 pb-5">
                 {/* Status Pills */}
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
+                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar touch-pan-x mb-3">
                     {statusTabs.map((status) => (
                         <button
                             key={status}
                             onClick={() => onStatusChange(status)}
-                            className={`px-4 h-11 flex items-center justify-center rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${selectedStatus === status
+                            className={`px-4 h-11 flex items-center justify-center rounded-full text-xs font-semibold whitespace-nowrap transition-colors min-h-[44px] ${selectedStatus === status
                                 ? "bg-slate-900 text-white shadow"
                                 : "bg-slate-100 text-foreground-tertiary hover:bg-slate-200"
                                 }`}
@@ -134,7 +134,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     </div>
                 ) : items.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-                        <div className="mb-4 text-foreground-subtle">{emptyState.icon}</div>
+                        <div className="mb-4 text-foreground-subtle flex justify-center [&>svg]:h-10 [&>svg]:w-10 md:[&>svg]:h-12 md:[&>svg]:w-12">{emptyState.icon}</div>
                         <h3 className="text-sm font-semibold text-foreground mb-1">{emptyState.title}</h3>
                         <p className="text-xs text-muted-foreground max-w-[240px] mb-6">{emptyState.description}</p>
                         {emptyState.cta}

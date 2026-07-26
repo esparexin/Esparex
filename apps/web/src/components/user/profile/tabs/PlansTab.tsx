@@ -43,7 +43,7 @@ export function PlansTab({
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">{description}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {plansToDisplay
                     .filter((p) => isProfilePlanType(p.type) && p.type === type)
                     .map((plan) => (
@@ -81,7 +81,7 @@ export function PlansTab({
     );
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 max-w-4xl">
             <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-xl overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <Crown className="w-40 h-40 text-white" />

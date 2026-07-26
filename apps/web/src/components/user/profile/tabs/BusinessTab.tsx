@@ -108,17 +108,17 @@ export function BusinessTab({
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                             <Button
                                 onClick={() => navigateTo("profile-settings-business")}
-                                className="h-11 rounded-xl bg-white px-5 font-semibold text-link-dark hover:bg-blue-50"
+                                className="h-11 rounded-xl bg-white px-5 font-semibold text-link-dark hover:bg-blue-50 w-full md:w-auto"
                             >
                                 Edit Business Profile
                             </Button>
                             <Button
                                 onClick={() => navigateTo("public-profile", undefined, undefined, businessData.slug || businessData.id)}
                                 variant="secondary"
-                                className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-white/15"
+                                className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-white/15 w-full md:w-auto"
                             >
                                 View Public Store
                             </Button>
@@ -131,7 +131,7 @@ export function BusinessTab({
                                         }
                                     }}
                                     variant="secondary"
-                                    className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-white/15"
+                                    className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-white/15 w-full md:w-auto"
                                 >
                                     <PowerOff className="mr-2 h-4 w-4" />
                                     Deactivate
@@ -146,7 +146,7 @@ export function BusinessTab({
                                         }
                                     }}
                                     variant="secondary"
-                                    className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-red-500/20"
+                                    className="h-11 rounded-xl border border-white/20 bg-white/10 px-5 font-semibold text-white hover:bg-red-500/20 w-full md:w-auto"
                                 >
                                     <LogOut className="mr-2 h-4 w-4" />
                                     Close Business

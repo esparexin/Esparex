@@ -49,24 +49,24 @@ export function PurchasesTab({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
+                    <div className="flex overflow-x-auto gap-3 pb-1 no-scrollbar touch-pan-x md:grid md:grid-cols-3 md:gap-4 text-center">
+                        <div className="min-w-[110px] shrink-0 md:min-w-0 md:shrink">
                             <p className="text-2xl font-bold text-purple-600">
                                 {activeEntitlements}
                             </p>
-                            <p className="text-xs text-muted-foreground">Active Entitlements</p>
+                            <p className="text-xs text-muted-foreground whitespace-nowrap">Active Entitlements</p>
                         </div>
-                        <div>
+                        <div className="min-w-[110px] shrink-0 md:min-w-0 md:shrink">
                             <p className="text-2xl font-bold text-link">
                                 {pendingOrders}
                             </p>
-                            <p className="text-xs text-muted-foreground">Pending Orders</p>
+                            <p className="text-xs text-muted-foreground whitespace-nowrap">Pending</p>
                         </div>
-                        <div>
-                            <p className="text-2xl font-bold text-foreground-tertiary">
+                        <div className="min-w-[110px] shrink-0 md:min-w-0 md:shrink">
+                            <p className="text-2xl font-bold text-emerald-600">
                                 {successfulOrders}
                             </p>
-                            <p className="text-xs text-muted-foreground">Successful Orders</p>
+                            <p className="text-xs text-muted-foreground whitespace-nowrap">Successful</p>
                         </div>
                     </div>
                 </CardContent>

@@ -202,6 +202,10 @@ const nextConfig = {
         ];
     },
 
+    devIndicators: {
+        buildActivity: false,
+    },
+
     async redirects() {
         return [
             // ── Legacy /account route migrations ─────────────────────────────

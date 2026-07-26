@@ -81,7 +81,7 @@ export function AccountMessagesWorkspace({
         </p>
       </div>
 
-      <div className="md:grid md:min-h-[680px] md:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="md:grid md:min-h-[680px] md:grid-cols-[minmax(320px,380px)_1fr]">
         <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-100`}>
           <ChatList
             currentUserId={currentUserId}
