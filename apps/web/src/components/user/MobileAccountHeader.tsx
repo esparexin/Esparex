@@ -14,7 +14,7 @@ export function MobileAccountHeader({ activeTab, onBackToMenu }: MobileAccountHe
   const title = isMenuTab ? "Account Management" : currentTabItem?.label || "Account";
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex md:hidden items-center justify-between px-3 h-14 w-full">
+    <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex md:hidden items-center justify-between px-3 h-14 w-full">
       <div className="flex items-center gap-2 min-w-0">
         {!isMenuTab && (
           <button
