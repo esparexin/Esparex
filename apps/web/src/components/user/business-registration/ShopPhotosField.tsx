@@ -3,12 +3,14 @@ import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
+import { cn } from "@/components/ui/utils";
 import {
     BUSINESS_IMAGE_ACCEPT,
     BUSINESS_UPLOAD_MAX_MB,
     validateBusinessImageSelection,
 } from "@/schemas/business.schema.shared";
 import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
+import { useImageDropzone } from "@/components/user/shared/useImageDropzone";
 import { useFilePreviewUrl } from "./useFilePreviewUrl";
 import type { StepBaseProps } from "./types";
 
@@ -68,6 +70,7 @@ export function ShopPhotosField({
     helperText = "Upload 1 to 5 clear photos of the real shop or workspace reviewers should verify.",
 }: ShopPhotosFieldProps) {
     const [localError, setLocalError] = useState<string | null>(null);
+
     const removeShopImage = (index: number) => {
         const nextImages = [...formData.images];
         nextImages.splice(index, 1);
@@ -75,7 +78,7 @@ export function ShopPhotosField({
         setLocalError(null);
     };
 
-    const handleShopImageUpload = (files: FileList) => {
+    const handleShopImageUpload = (files: FileList | File[]) => {
         const remainingSlots = Math.max(0, 5 - formData.images.length);
         const nextFiles = Array.from(files).slice(0, remainingSlots);
 
@@ -101,13 +104,16 @@ export function ShopPhotosField({
             return;
         }
 
-        setLocalError(firstValidationError);
-
         setFormData({
             ...formData,
             images: [...formData.images, ...validFiles],
         });
+        setLocalError(null);
     };
+
+    const { isDraggingOver, dropzoneProps } = useImageDropzone({
+        onUpload: handleShopImageUpload,
+    });
 
     return (
         <div className="space-y-3">
@@ -136,13 +142,13 @@ export function ShopPhotosField({
                         tabIndex={0}
                         role="button"
                         aria-label={`Add shop photo, ${formData.images.length} of 5 uploaded`}
-                        onKeyDown={(e) => {
-                            if (e.key === " " || e.key === "Enter") {
-                                e.preventDefault();
-                                e.currentTarget.querySelector("input")?.click();
-                            }
-                        }}
-                        className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center transition-colors hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                        {...dropzoneProps}
+                        className={cn(
+                            "flex aspect-square cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-4 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                            isDraggingOver
+                                ? "border-primary bg-primary/10 scale-[1.02] shadow-md"
+                                : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50"
+                        )}
                     >
                         <Upload className="mb-3 h-6 w-6 text-foreground-subtle" />
                         <span className="text-sm font-semibold text-foreground-secondary">Add photo</span>

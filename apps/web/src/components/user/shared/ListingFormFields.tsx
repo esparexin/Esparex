@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/components/ui/utils";
 
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
+import { useImageDropzone } from "./useImageDropzone";
 
 interface ListingImagesFieldProps {
     images: ListingImage[];
@@ -29,6 +30,8 @@ export function ListingImagesField({
     error,
     helperText,
 }: ListingImagesFieldProps) {
+    const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload });
+
     return (
         <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
@@ -36,16 +39,18 @@ export function ListingImagesField({
                     tabIndex={0}
                     role="button"
                     aria-label="Add photos"
-                    onKeyDown={(e) => {
-                        if (e.key === " " || e.key === "Enter") {
-                            e.preventDefault();
-                            e.currentTarget.querySelector("input")?.click();
-                        }
-                    }}
-                    className="flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/50 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    {...dropzoneProps}
+                    className={cn(
+                        "flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                        isDraggingOver
+                            ? "border-primary bg-primary/10 scale-[1.01] shadow-md"
+                            : "border-slate-300 bg-slate-50/50 hover:bg-slate-50"
+                    )}
                 >
-                    <Upload className="w-6 h-6 text-foreground-subtle mb-1" />
-                    <span className="text-sm font-medium text-foreground-tertiary">Add photos</span>
+                    <Upload className={cn("w-6 h-6 mb-1 transition-colors", isDraggingOver ? "text-primary" : "text-foreground-subtle")} />
+                    <span className="text-sm font-medium text-foreground-tertiary">
+                        {isDraggingOver ? "Drop photos to upload" : "Tap or drop photos here"}
+                    </span>
                     <input
                         type="file"
                         accept="image/*"
