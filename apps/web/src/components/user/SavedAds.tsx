@@ -37,7 +37,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { EmptyStateShell as StateEmptyShell } from "../ui/EmptyStateShell";
-import { PageContainer } from "@/components/ui/PageContainer";
 import { PageStateGuard, PageState } from "../ui/PageStateGuard";
 import { Skeleton } from "../ui/skeleton";
 
@@ -250,7 +249,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <PageContainer variant="wide">
+    <div className="space-y-4">
       <div className="mb-4 md:mb-6">
         <h1 className="account-page-title">Saved Listings</h1>
         <p className="account-body-text mt-1">
@@ -384,7 +383,7 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
               )}
             </section>
           </PageStateGuard>
-        </PageContainer>
+        </div>
     );
 }
 

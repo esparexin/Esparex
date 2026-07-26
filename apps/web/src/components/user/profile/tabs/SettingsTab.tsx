@@ -4,7 +4,6 @@ import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIco
 import { FeatureCard } from "@/components/user/FeatureCard";
 import { ACCOUNT_COPY } from "@/config/copy/account";
 import { Button } from "@esparex/ui";
-import { PageContainer } from "@/components/ui/PageContainer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormError } from "@/components/ui/FormError";
 import { Separator } from "@/components/ui/separator";
@@ -62,7 +61,7 @@ export function SettingsTab({
     setShowDeleteDialog,
 }: SettingsTabProps) {
     return (
-        <PageContainer variant="default">
+        <div className="space-y-4 max-w-3xl">
             <Card className="account-card-surface gap-0">
                 <FeatureCard
                     title={
@@ -164,6 +163,6 @@ export function SettingsTab({
                     </Button>
                 </CardContent>
             </Card>
-        </PageContainer>
+        </div>
     );
 }
