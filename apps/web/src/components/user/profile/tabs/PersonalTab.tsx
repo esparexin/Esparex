@@ -96,13 +96,6 @@ export function PersonalTab({
                                     >
                                         <Camera className="h-5 w-5" />
                                     </button>
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handlePhotoChange}
-                                        className="hidden"
-                                    />
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex gap-2">
