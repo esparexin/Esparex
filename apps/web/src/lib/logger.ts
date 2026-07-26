@@ -1,4 +1,4 @@
-import { getLogger } from "@shared";
+import { getLogger } from "@esparex/shared";
 
 const logger = getLogger('frontend');
 

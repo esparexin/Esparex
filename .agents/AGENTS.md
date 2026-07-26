@@ -334,3 +334,13 @@ This standard applies to all domain modules (Location, Listings, Payments, Auth,
 #### Pillar 6: Automated CI/CD & Governance Gates
 * **Pre-Implementation Gate (ADR):** Any change touching shared DTOs or domain formatters requires an Architectural Decision Record evaluating backwards compatibility.
 * **Contract Impact Checklist:** Any PR changing an API contract dimension must complete the mandatory checklist verifying that Backend, Frontend, and Playwright E2E mocks are synchronized.
+
+---
+
+## 13. Native Popup Governance Standard (Strict Ban on External Toast & Sonner Packages)
+
+### 13.1 Mandatory Rules
+1. **Strict Ban on Third-Party Toast Libraries**: Introducing, importing, or installing external toast libraries (`sonner`, `react-hot-toast`, `react-toastify`, `toast`, etc.) is strictly forbidden across all packages and applications in the Esparex platform.
+2. **Single-Instance Native Popup SSOT**: All notifications, error alerts, info banners, warnings, and action confirmations MUST be dispatched exclusively through Esparex's canonical single-instance native popup architecture (`popupBus`, `notify`, `PopupProvider`, `AppPopup` / `PopupDialogView`).
+3. **Forbidden Toast Containers**: Developers and AI agents MUST NOT render `<Toaster />`, `<ToastContainer />`, or any ad-hoc toast provider elements in layouts or page components.
+4. **Queueing & Priority SSOT**: All user-facing popups must flow through `createUnifiedPopupBus` and `usePopupQueue` to preserve single-instance rendering, priority queueing (`error`/`confirm` = 3 > `warning` = 2 > `info` = 1), and 2000ms deduplication.

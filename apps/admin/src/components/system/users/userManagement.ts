@@ -7,7 +7,7 @@ import {
 import {
     isActiveUserStatus,
     normalizeUserStatus,
-} from "@shared";
+} from "@esparex/shared";
 
 export type ManagedUser = User & {
     totalAdsPosted?: number;
