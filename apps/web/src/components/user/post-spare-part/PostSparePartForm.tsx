@@ -211,7 +211,7 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                             ))}
                         </div>
                     ) : availableSpareParts.length > 0 ? (
-                        <div className="grid grid-cols-3 gap-2">
+                        <div role="radiogroup" aria-label="Select Spare Part" className="grid grid-cols-3 gap-2">
                             {availableSpareParts.map(part => {
                                 const id = part.id || (part as { _id?: string })._id || "";
                                 const selected = sparePartTypeId === id;
@@ -219,10 +219,12 @@ export default function PostSparePartForm({ editSparePartId }: { editSparePartId
                                     <button
                                         key={id}
                                         type="button"
+                                        role="radio"
+                                        aria-checked={selected}
                                         onClick={() => setValue("sparePartTypeId", id, { shouldValidate: true, shouldDirty: true })}
                                         disabled={isEditMode}
                                         className={cn(
-                                            "rounded-xl border px-2 py-3 text-sm font-semibold transition-all",
+                                            "rounded-xl border px-2 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                             selected
                                                 ? "bg-primary border-primary text-white shadow-sm"
                                                 : "bg-white border-slate-100 text-foreground-secondary hover:border-slate-200",
