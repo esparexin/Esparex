@@ -60,7 +60,7 @@ export function PersonalTab({
             <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
                 <Card className="border-0 shadow-sm md:border md:shadow-sm gap-0">
                     <CardHeader className="pb-2 px-4 md:px-6">
-                        <CardTitle className="flex items-center gap-2 text-base">
+                        <CardTitle className="flex items-center gap-2 text-base md:text-lg font-bold text-foreground">
                             <User className="h-5 w-5 text-link" />
                             Personal Information
                         </CardTitle>
