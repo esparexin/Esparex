@@ -63,7 +63,7 @@ export function LocationResultsList({
                                         <button
                                             key={`fallback-${loc.id || index}`}
                                             onMouseDown={(e) => { e.preventDefault(); void onSelect(loc); }}
-                                            className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left"
+                                            className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                                         >
                                             <MapPin className="mt-0.5 h-3 w-3 text-muted-foreground shrink-0" />
                                             <span className="min-w-0">
@@ -88,7 +88,7 @@ export function LocationResultsList({
                                 onMouseDown={(e) => { e.preventDefault(); void onSelect(loc); }}
                                 className={cn(
                                     "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
-                                    "hover:bg-accent cursor-pointer",
+                                    "hover:bg-accent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                     selectedIndex === index && "bg-accent"
                                 )}
                             >
