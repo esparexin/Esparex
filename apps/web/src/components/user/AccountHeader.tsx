@@ -51,7 +51,7 @@ export function AccountHeader({
               <ChevronLeft className="h-6 w-6" />
             </button>
           )}
-          <h1 className="text-sm font-normal text-slate-800 truncate">
+          <h1 className="account-page-title text-sm font-normal text-slate-800 truncate">
             {mobileTitle}
           </h1>
         </div>
@@ -60,8 +60,8 @@ export function AccountHeader({
       {/* DESKTOP: Page-level heading block (hidden below md, container-aligned) */}
       <div className={`hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 ${className}`}>
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-600 rounded-xl shadow-xs">
-            <SettingsIcon className="h-5 w-5 text-white" />
+          <div className="p-2.5 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">
+            <SettingsIcon className="h-6 w-6 text-white" />
           </div>
           <div>
             <h1 className="account-page-title">{ACCOUNT_COPY.title}</h1>

@@ -81,8 +81,8 @@ export function PlansTab({
     );
 
     return (
-        <div className="space-y-4 max-w-3xl">
-            <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-lg overflow-hidden relative">
+        <div className="account-container-default space-y-4">
+            <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-xl overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <Crown className="w-40 h-40 text-white" />
                 </div>

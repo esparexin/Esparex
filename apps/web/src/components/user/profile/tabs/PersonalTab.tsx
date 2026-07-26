@@ -57,20 +57,20 @@ export function PersonalTab({
     const safeProfilePhoto = toSafeImageSrc(profilePhoto, "");
 
     return (
-        <div className="space-y-4 max-w-3xl">
+        <div className="account-container-default space-y-4">
             <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
                 <Card className="account-card-surface border-0 shadow-sm md:border md:shadow-sm gap-0">
                     <CardHeader className="pb-2 px-4 md:px-6">
-                        <CardTitle className="flex items-center gap-2 text-base md:text-lg font-bold text-foreground">
+                        <CardTitle className="account-section-title flex items-center gap-2">
                             <User className="h-5 w-5 text-link" />
                             Personal Information
                         </CardTitle>
-                        <CardDescription>Update your personal details</CardDescription>
+                        <CardDescription className="account-body-text">Update your personal details</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-5 p-5 md:p-6">
+                    <CardContent className="space-y-5 p-0 pt-4">
                         {/* Profile Photo Section */}
                         <div className="space-y-2">
-                            <Label className="text-sm font-semibold">Profile Photo</Label>
+                            <Label className="account-field-label">Profile Photo</Label>
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-2 border-slate-100 overflow-hidden bg-slate-50 flex items-center justify-center shadow-inner">
