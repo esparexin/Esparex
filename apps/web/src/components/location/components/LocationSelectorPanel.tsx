@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, Search, Target, X } from "lucide-react";
-import { Button } from "@esparex/ui";
+import { Button, Spinner } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/components/ui/utils";
 
@@ -109,7 +109,10 @@ export function LocationSelectorPanel({
                             disabled={disabled}
                         />
                         {isSearching ? (
-                            <div className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                            <Spinner
+                                size="sm"
+                                className="absolute right-3 top-1/2 -translate-y-1/2"
+                            />
                         ) : query ? (
                             <button onClick={handleClearQuery} className="absolute right-3 top-1/2 -translate-y-1/2" type="button" aria-label="Clear search">
                                 <X className="h-4 w-4" />
