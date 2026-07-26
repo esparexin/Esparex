@@ -4,8 +4,7 @@ import React, { ReactNode } from "react";
 import { FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 import { ListingModalLayout, ListingModalBody, ListingModalFooter } from "./ListingModalLayout";
 import { ListingImagesField, ListingLocationField, getFirstFormErrorMessage } from "./ListingFormFields";
-import { Button } from "@esparex/ui";
-import { Loader2 } from "@/icons/IconRegistry";
+import { Button, Spinner } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import type { ListingImage } from "@/types/listing";
 
@@ -84,13 +83,13 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
                                 size="lg"
                                 disabled={isSubmitting}
                                 className={cn(
-                                    "w-full font-semibold transition-all active:scale-[0.98]",
+                                    "w-full font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                     "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 disabled:opacity-70"
                                 )}
                             >
                                 {isSubmitting ? (
                                     <span className="flex items-center gap-2">
-                                        <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
+                                        <Spinner size="sm" /> Submitting...
                                     </span>
                                 ) : (
                                     submitLabel || (isEditMode ? "Save Changes" : "Submit →")
