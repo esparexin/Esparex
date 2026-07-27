@@ -61,7 +61,7 @@ export function SettingsTab({
     setShowDeleteDialog,
 }: SettingsTabProps) {
     return (
-        <div className="space-y-4 max-w-3xl">
+        <div className="account-container-default space-y-4">
             <Card className="account-card-surface gap-0">
                 <FeatureCard
                     title="Notification Settings"

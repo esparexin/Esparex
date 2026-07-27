@@ -454,6 +454,7 @@ header.sticky {
 }
 
 /* =========================================
+<<<<<<< HEAD
    ACCOUNT MODULE COMPONENT TOKENS
    Canonical @layer components definitions for account-* utility classes.
    These classes are consumed by AccountHeader, PersonalTab, PlansTab,
@@ -501,6 +502,39 @@ header.sticky {
     letter-spacing: -0.02em;
   }
 
+  .account-field-label {
+    @apply text-xs font-medium text-slate-600;
+  }
+
+  .account-input-text {
+    @apply text-sm font-normal text-slate-900;
+  }
+
+  .account-micro-text {
+    @apply text-xs font-normal text-slate-400;
+  }
+
+  /* Container Width Variants */
+  .account-container-compact {
+    @apply w-full max-w-2xl mx-auto;
+  }
+
+  .account-container-default {
+    @apply w-full max-w-4xl mx-auto;
+  }
+
+  .account-container-wide {
+    @apply w-full max-w-7xl mx-auto;
+  }
+
+  .account-container-full {
+    @apply w-full;
+  }
+
+  .account-focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2;
+  }
+
   /* Mobile & Tablet Typography Overrides (< 1024px) */
   @media (max-width: 1023px) {
     .account-page-title {
@@ -521,4 +555,3 @@ header.sticky {
     }
   }
 }
-

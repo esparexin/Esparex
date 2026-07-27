@@ -90,11 +90,8 @@ export function Header({
     () => toSafeImageSrc(user?.profilePhoto, ""),
     [user?.profilePhoto]
   );
-  const [avatarSrc, setAvatarSrc] = useState<string>(safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
-
-  useEffect(() => {
-    setAvatarSrc(safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
-  }, [safeProfilePhoto]);
+  const [imgErrPhoto, setImgErrPhoto] = useState<string | null>(null);
+  const avatarSrc = imgErrPhoto === safeProfilePhoto ? DEFAULT_IMAGE_PLACEHOLDER : (safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
 
   const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
     navigateTo: (path) => {
@@ -298,7 +295,7 @@ export function Header({
                           height={32}
                           unoptimized
                           className="h-8 w-8 rounded-full object-cover"
-                          onError={() => setAvatarSrc(DEFAULT_IMAGE_PLACEHOLDER)}
+                          onError={() => setImgErrPhoto(safeProfilePhoto)}
                         />
                       ) : (
                         <div className="flex h-8 w-8 items-center justify-center bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 text-xs">

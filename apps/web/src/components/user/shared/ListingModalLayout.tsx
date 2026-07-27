@@ -1,10 +1,11 @@
 import React from "react";
-import { X, Loader2 } from "@/icons/IconRegistry";
+import { X } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Spinner,
   Z_INDEX,
 } from "@esparex/ui";
 
@@ -33,7 +34,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                 type="button"
                                 onClick={onClose}
                                 aria-label="Close modal"
-                                className="h-11 w-11 -ml-2 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                className="h-11 w-11 -ml-2 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -74,7 +75,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                         type="button"
                         onClick={onClose}
                         aria-label="Close modal"
-                        className="h-11 w-11 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        className="h-11 w-11 rounded-full flex items-center justify-center text-muted-foreground hover:bg-slate-100 hover:text-foreground transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -130,7 +131,7 @@ export function ListingModalLoading() {
             >
                 <DialogTitle className="sr-only">Loading modal</DialogTitle>
                 <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm gap-2">
-                    <Loader2 className="w-6 h-6 animate-spin text-foreground-subtle" />
+                    <Spinner size="md" />
                 </div>
             </DialogContent>
         </Dialog>
