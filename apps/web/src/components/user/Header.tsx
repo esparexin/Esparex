@@ -94,6 +94,8 @@ export function Header({
   const avatarSrc = imgErrPhoto === safeProfilePhoto ? DEFAULT_IMAGE_PLACEHOLDER : (safeProfilePhoto || DEFAULT_IMAGE_PLACEHOLDER);
 
   const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
+    isLoggedIn,
+    onShowLogin,
     navigateTo: (path) => {
       navigateTo(path as UserPage);
     },
@@ -160,6 +162,7 @@ export function Header({
   useEffect(() => {
     setShowLocationSelector(false);
     setShowSearchDropdown(false);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: resets transient UI state on route change
     setIsMobileSearchEditing(false);
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 

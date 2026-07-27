@@ -11,6 +11,7 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import {
     getNavigationItems,
 } from "@/config/navigation";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 /**
  * MobileBottomNav
@@ -25,15 +26,20 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
     const pathname = usePathname();
-    const { isBackendUp, handlePostAdClick } = usePostAdNavigation();
+    const { showLogin, isAuthModalOpen } = useAuthModal();
     const { status, user } = useAuth();
+    const isLoggedIn = status === "authenticated";
+    const { isBackendUp, handlePostAdClick } = usePostAdNavigation({
+        isLoggedIn,
+        onShowLogin: showLogin,
+    });
     const { actions, isVisible: isBottomActionsVisible } = useBottomBar();
     const policy = getMobileChromePolicy(pathname);
 
-    const isLoggedIn = status === "authenticated";
     const navItems = getNavigationItems("mobile-bottom-nav", { isLoggedIn, user });
     const hasContextActionBar = isBottomActionsVisible && actions.length > 0;
-    const shouldRender = enabled && policy.showMobileBottomNav && !hasContextActionBar;
+    // Hide bottom nav while auth modal is open — auth is the sole focus
+    const shouldRender = enabled && policy.showMobileBottomNav && !hasContextActionBar && !isAuthModalOpen;
 
     if (!shouldRender) {
         return null;
