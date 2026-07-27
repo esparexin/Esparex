@@ -7,7 +7,7 @@ import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { catalogManagementTabs } from "@/components/layout/adminModuleTabSets";
 import { ColumnDef } from "@/components/ui/DataTable";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { CatalogFormActions } from "@/components/catalog/CatalogFormActions";
 import { z } from "zod";
 
@@ -86,7 +86,6 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
     selectedCount,
     bulkActions,
 }: CatalogPageTemplateProps<TItem, TFormData>) {
-    const { showToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<TItem | null>(null);
     const [formData, setFormData] = useState<TFormData>(defaultFormData);
@@ -115,7 +114,7 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
         if (validationSchema) {
             const validation = validationSchema.safeParse(formData);
             if (!validation.success) {
-                showToast(validation.error.issues[0]?.message || "Invalid form data", "error");
+                showAdminPopup({ type: "error", title: "Error", message: validation.error.issues[0]?.message || "Invalid form data" });
                 return;
             }
         }
@@ -123,7 +122,7 @@ export function CatalogPageTemplate<TItem extends { id: string }, TFormData>({
         if (customSubmitValidation) {
             const errorMsg = customSubmitValidation(formData);
             if (errorMsg) {
-                showToast(errorMsg, "error");
+                showAdminPopup({ type: "error", title: "Error", message: errorMsg });
                 return;
             }
         }

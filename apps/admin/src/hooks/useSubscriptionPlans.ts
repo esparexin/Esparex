@@ -2,11 +2,10 @@ import { useState, useCallback } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { Plan } from "@esparex/contracts";
 
 export function useSubscriptionPlans() {
-    const { showToast } = useToast();
     const [plans, setPlans] = useState<Plan[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -29,12 +28,12 @@ export function useSubscriptionPlans() {
         } catch (err) {
             const msg = err instanceof Error ? err.message : "Failed to load plans";
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setLoading(false);
         }
-    }, [showToast]);
+    }, []);
 
     const handleToggleStatus = async (planId: string) => {
         setIsMutating(true);
@@ -42,14 +41,14 @@ export function useSubscriptionPlans() {
             await adminFetch(ADMIN_ROUTES.PLAN_TOGGLE(planId), {
                 method: "PATCH"
             });
-            showToast("Plan status updated successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Plan status updated successfully" });
             // Optimistic update would be hard without knowing previous state easily, 
             // so we refresh. More robust for finance.
             await fetchPlans();
             return { success: true };
         } catch (err) {
             const msg = err instanceof Error ? err.message : "Failed to toggle plan status";
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);

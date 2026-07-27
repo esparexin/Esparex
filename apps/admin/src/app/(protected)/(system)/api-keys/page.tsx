@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { ApiKeyItem } from "@/types/adminSession";
 import { Plus, ShieldCheck, Loader2, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
@@ -13,7 +13,6 @@ import { StatusChip } from "@/components/ui/StatusChip";
 import { useApiKeys } from "@/hooks/useApiKeys";
 
 export default function ApiKeysPage() {
-    const { showToast } = useToast();
     const [name, setName] = useState("");
     const [scopes, setScopes] = useState("");
     const [newKey, setNewKey] = useState<string | null>(null);
@@ -36,7 +35,7 @@ export default function ApiKeysPage() {
 
     const onCreateKey = async () => {
         if (!name.trim()) {
-            showToast("API key name is required", "error");
+            showAdminPopup({ type: "error", title: "Error", message: "API key name is required" });
             return;
         }
 

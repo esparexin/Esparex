@@ -2,7 +2,7 @@ import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 import { useCallback, useState } from "react";
 import { getCategories, toggleCategoryStatus, deleteCategory, createCategory, updateCategory } from "@/lib/api/categories";
 import type { Category } from "@esparex/contracts";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, AdminListPagination } from "@/hooks/useAdminCrudList";
 import { ListingTypeValue } from "@esparex/contracts";
@@ -22,7 +22,6 @@ type CategoryMutationPayload = {
 };
 
 export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
-    const { showToast } = useToast();
     const fetchCategoriesPage = useCallback(
         async ({
             filters,
@@ -84,12 +83,12 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             const response = await toggleCategoryStatus(id);
             if (response.success) {
                 setCategories(prev => prev.map(cat => cat.id === id ? { ...cat, isActive: !cat.isActive } : cat));
-                showToast("Category status updated", "success");
+                showAdminPopup({ type: "success", title: "Success", message: "Category status updated" });
             } else {
-                showToast(response.message || "Failed to update status", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to update status" });
             }
         } catch (err) {
-            showToast(mapErrorToMessage(err, "Failed to update status"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: mapErrorToMessage(err, "Failed to update status") });
         } finally {
             setIsTogglingId(null);
         }
@@ -102,9 +101,9 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
             const response = await deleteCategory(id);
             if (response.success) {
                 setCategories(prev => prev.filter(cat => cat.id !== id));
-                showToast("Category deleted successfully", "success");
+                showAdminPopup({ type: "success", title: "Success", message: "Category deleted successfully" });
             } else {
-                showToast(response.message || "Failed to delete category", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to delete category" });
             }
         } catch (err: unknown) {
             const anyErr = err as { status?: number; payload?: { dependencies?: Record<string, number> } };
@@ -117,9 +116,9 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
                     (deps.serviceTypes ?? 0) > 0 ? `${deps.serviceTypes} Service Type(s)` : null,
                     (deps.ads ?? 0) > 0 ? `${deps.ads} Ad(s)` : null,
                 ].filter(Boolean).join(", ");
-                showToast(`Cannot delete: Associated with ${details}. Deactivate it instead.`, "error");
+                showAdminPopup({ type: "error", title: "Error", message: `Cannot delete: Associated with ${details}. Deactivate it instead.` });
             } else {
-                showToast(mapErrorToMessage(err, "Failed to delete category"), "error");
+                showAdminPopup({ type: "error", title: "Error", message: mapErrorToMessage(err, "Failed to delete category") });
             }
         }
     };
@@ -128,15 +127,15 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         try {
             const response = await createCategory(data);
             if (response.success) {
-                showToast("Category created successfully", "success");
+                showAdminPopup({ type: "success", title: "Success", message: "Category created successfully" });
                 void fetchCategories();
                 return true;
             } else {
-                showToast(response.message || "Failed to create category", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to create category" });
                 return false;
             }
         } catch (err) {
-            showToast(mapErrorToMessage(err, "Failed to create category"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: mapErrorToMessage(err, "Failed to create category") });
             return false;
         }
     };
@@ -145,15 +144,15 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}) {
         try {
             const response = await updateCategory(id, data);
             if (response.success) {
-                showToast("Category updated successfully", "success");
+                showAdminPopup({ type: "success", title: "Success", message: "Category updated successfully" });
                 void fetchCategories();
                 return true;
             } else {
-                showToast(response.message || "Failed to update category", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to update category" });
                 return false;
             }
         } catch (err) {
-            showToast(mapErrorToMessage(err, "Failed to update category"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: mapErrorToMessage(err, "Failed to update category") });
             return false;
         }
     };

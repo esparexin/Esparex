@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import {
   fetchAdminChats,
   adminMuteChat,
@@ -45,7 +45,6 @@ function normalizeFilter(value: string | null): AdminChatFilter {
 }
 
 export default function AdminChatView() {
-  const { showToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,12 +57,7 @@ export default function AdminChatView() {
   const [items, setItems] = useState<AdminConvSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
-  const [mutingChat, setMutingChat] = useState<AdminConvSummary | null>(null);
-  const [muteReason, setMuteReason] = useState("");
-  const [isMuting, setIsMuting] = useState(false);
-
   useEffect(() => {
     void (async () => {
       setSearchInput((prev) => (prev === search ? prev : search));
