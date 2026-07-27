@@ -134,11 +134,19 @@ CategorySchema.pre('validate', function () {
     }
 });
 
-// Apply safe query scope plugin (adds .active() and .includeDeleted() chain methods)
-import { installSafeSoftDeleteQuery } from '../utils/safeSoftDeleteQuery';
-CategorySchema.plugin(installSafeSoftDeleteQuery);
-
-
+CategorySchema.pre('deleteOne',
+    { document: true, query: false },
+    async function (this: ICategory) {
+        const CategoryModel = getUserConnection().model('Category');
+        const count = await CategoryModel.countDocuments({
+            parentId: this._id,
+            isDeleted: { $ne: true }
+        });
+        if (count > 0) {
+            throw new Error('Cannot delete category with active dependent subcategories');
+        }
+    }
+);
 
 import { getUserConnection } from '../config/db';
 const Category: Model<ICategory> = (getUserConnection().models.Category as Model<ICategory> | undefined) || getUserConnection().model<ICategory>('Category', CategorySchema);
