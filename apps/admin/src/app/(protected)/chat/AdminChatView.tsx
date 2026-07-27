@@ -57,7 +57,12 @@ export default function AdminChatView() {
   const [items, setItems] = useState<AdminConvSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [mutingChat, setMutingChat] = useState<AdminConvSummary | null>(null);
+  const [muteReason, setMuteReason] = useState("");
+  const [isMuting, setIsMuting] = useState(false);
+
   useEffect(() => {
     void (async () => {
       setSearchInput((prev) => (prev === search ? prev : search));
@@ -118,12 +123,12 @@ export default function AdminChatView() {
     try {
       setIsMuting(true);
       await adminMuteChat(id, reason || undefined);
-      showToast("Conversation muted", "success");
+      showAdminPopup({ type: "success", title: "Success", message: "Conversation muted" });
       setMutingChat(null);
       setMuteReason("");
       refresh();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "Failed to mute", "error");
+      showAdminPopup({ type: "error", title: "Error", message: e instanceof Error ? e.message : "Failed to mute" });
     } finally {
       setIsMuting(false);
     }
@@ -140,7 +145,7 @@ export default function AdminChatView() {
       anchor.click();
       URL.revokeObjectURL(url);
     } catch {
-      showToast("Export failed", "error");
+      showAdminPopup({ type: "error", title: "Error", message: "Export failed" });
     }
   };
 
