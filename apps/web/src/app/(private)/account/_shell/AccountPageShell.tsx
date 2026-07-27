@@ -38,7 +38,7 @@ export function AccountPageShell({ tab, listingSubTab, messagesView, conversatio
         void router.push(getPageRoute(page, { adId, category, businessId, serviceId }));
     };
 
-    if (loading) return <div className="flex items-center justify-center min-h-screen"><Spinner size="xl" label="Loading your account" /></div>;
+    if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><Spinner size="xl" label="Loading your account" /></div>;
 
     return (
         <ProfileSettingsSidebar

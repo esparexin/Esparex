@@ -125,7 +125,7 @@ export function BrowseListingsView<TItem, TFilters>({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/40">
+    <div className="bg-slate-50/40">
       <BrowseFiltersBar
         {...sharedFilterProps}
         respectMobileChromePolicy={respectMobileChromePolicy}

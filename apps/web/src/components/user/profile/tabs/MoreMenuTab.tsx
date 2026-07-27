@@ -20,7 +20,7 @@ export function MoreMenuTab({
   renderTabBadge,
 }: MoreMenuTabProps) {
   return (
-    <div className="space-y-4 block md:hidden max-w-full pb-20">
+    <div className="space-y-4 block md:hidden max-w-full">
       {/* Navigation List */}
       <Card className="p-2 border-0 shadow-sm bg-white">
         <div className="space-y-1" role="list">

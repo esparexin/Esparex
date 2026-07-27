@@ -40,7 +40,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
     };
 
     return (
-        <main className="min-h-screen bg-slate-50 pb-20">
+        <div className="bg-slate-50 pb-4">
             <div className="mx-auto w-full max-w-5xl px-4 py-6 md:py-8 space-y-5">
                 <BackButton
                     label="Back"
@@ -138,6 +138,6 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                     )}
                 </section>
             </div>
-        </main>
+        </div>
     );
 }
