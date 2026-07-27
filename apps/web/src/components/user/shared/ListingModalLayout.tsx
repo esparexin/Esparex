@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Loader2 } from "@/icons/IconRegistry";
+import { X } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import {
   Dialog,

@@ -49,6 +49,7 @@ export function ModelSearchSelect({
     const [isLoading, setIsLoading] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
+    const [activeIndex, setActiveIndex] = useState(-1);
 
     // Resolve selected model name cleanly from React Query catalog SSOT or RHF prop value without local selection state.
     const selectedModel = useMemo(() => {
@@ -156,8 +157,6 @@ export function ModelSearchSelect({
             </div>
         );
     }
-
-    const [activeIndex, setActiveIndex] = useState(-1);
 
     const isListOpen = Boolean((isEditing || search) && availableModels.length > 0);
     const activeOptionId = activeIndex >= 0 ? `model-option-${activeIndex}` : undefined;

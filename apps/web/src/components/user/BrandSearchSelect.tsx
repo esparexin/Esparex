@@ -39,6 +39,7 @@ export function BrandSearchSelect({
     const [isEditing, setIsEditing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties | null>(null);
+    const [activeIndex, setActiveIndex] = useState(-1);
     const isMobile = useIsMobile();
 
     // value is always the brand *display name* (same as ModelSearchSelect pattern).
@@ -131,8 +132,6 @@ export function BrandSearchSelect({
             </div>
         );
     }
-
-    const [activeIndex, setActiveIndex] = useState(-1);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!search || filtered.length === 0) return;
