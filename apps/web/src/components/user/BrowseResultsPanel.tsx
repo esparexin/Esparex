@@ -119,8 +119,8 @@ export function BrowseResultsPanel<TItem>({
             <div
               className={
                 view === "list"
-                  ? "flex flex-col gap-3 pb-8"
-                  : "grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 pb-8 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
+                  ? "flex flex-col gap-3"
+                  : "grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
               }
             >
               {items.map((item, index) => (

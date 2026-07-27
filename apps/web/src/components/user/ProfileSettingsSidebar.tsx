@@ -322,7 +322,7 @@ export function ProfileSettingsSidebar({
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50">
       {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
       <AccountHeader
         activeTab={activeTab}

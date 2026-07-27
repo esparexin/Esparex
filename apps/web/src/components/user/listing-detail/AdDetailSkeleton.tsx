@@ -20,7 +20,7 @@ function TitleAndMetricsSkeleton({ isDesktop = false }: { isDesktop?: boolean })
 
 export function AdDetailSkeleton() {
     return (
-        <div className="bg-gray-50 pb-20 md:pb-6">
+        <div className="bg-gray-50 pb-6">
             <div className="max-w-7xl mx-auto md:px-6 lg:px-8 md:py-6">
                 {/* Breadcrumb Skeleton */}
                 <div className="flex gap-2 mb-4 px-4 md:px-0">

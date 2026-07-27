@@ -247,7 +247,7 @@ export function PlansTab({
     };
 
     return (
-        <div className="space-y-4 pb-6 sm:pb-8">
+        <div className="space-y-4">
             {/* Top Row: Single-Line Sub-Tabs Switcher + Desktop Current Plan Badge */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                 <div
