@@ -1,6 +1,14 @@
 "use client";
 
-import * as RadixDialog from "@radix-ui/react-dialog";
+import {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { X } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Z_INDEX } from "@esparex/ui";
@@ -14,10 +22,10 @@ interface AuthModalProps {
 
 export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
   return (
-    <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
-      <RadixDialog.Portal>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogPortal>
         {/* Overlay: provides backdrop on desktop, hidden under full-screen content on mobile */}
-        <RadixDialog.Overlay
+        <DialogOverlay
           style={{ zIndex: Z_INDEX.authModalOverlay }}
           className={cn(
             "fixed inset-0 bg-black/50 backdrop-blur-[2px]",
@@ -26,7 +34,8 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
             "duration-200"
           )}
         />
-        <RadixDialog.Content
+        <DialogContent
+          hideClose
           style={{ zIndex: Z_INDEX.authModalContent }}
           className={cn(
             // Mobile (default): Full screen, no borders, bg gradient, safe area padding
@@ -47,11 +56,11 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
           )}
         >
           {/* Accessible Title & Description for Screen Readers */}
-          <RadixDialog.Title className="sr-only">Authentication</RadixDialog.Title>
-          <RadixDialog.Description className="sr-only">Sign in or create an account.</RadixDialog.Description>
+          <DialogTitle className="sr-only">Authentication</DialogTitle>
+          <DialogDescription className="sr-only">Sign in or create an account.</DialogDescription>
           
           {/* Close Button */}
-          <RadixDialog.Close
+          <DialogClose
             className={cn(
               "absolute z-50 flex h-9 w-9 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none",
               // Mobile positioning
@@ -62,13 +71,11 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
             aria-label="Close"
           >
             <X className="h-4 w-4" />
-          </RadixDialog.Close>
+          </DialogClose>
           
-          <div className="flex-1 flex flex-col justify-center my-auto min-h-0 sm:min-h-0 sm:justify-start sm:my-0 px-8 sm:px-0">
-            <LoginFlow mode="modal" callbackUrl={callbackUrl} onClose={() => onOpenChange(false)} />
-          </div>
-        </RadixDialog.Content>
-      </RadixDialog.Portal>
-    </RadixDialog.Root>
+          <LoginFlow callbackUrl={callbackUrl} />
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 }
