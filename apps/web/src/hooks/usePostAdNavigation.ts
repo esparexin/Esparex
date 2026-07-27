@@ -6,10 +6,12 @@ import { useCallback } from 'react';
 
 interface UsePostAdNavigationProps {
     navigateTo?: (path: string) => void; // Optional custom navigator (e.g. header wrapper)
+    isLoggedIn?: boolean;
+    onShowLogin?: (callbackUrl?: string) => void;
 }
 
 export function usePostAdNavigation(
-    { navigateTo }: UsePostAdNavigationProps = {}
+    { navigateTo, isLoggedIn, onShowLogin }: UsePostAdNavigationProps = {}
 ) {
     const { isBackendUp } = useBackendStatus();
     const router = useRouter();
@@ -24,6 +26,11 @@ export function usePostAdNavigation(
             return;
         }
 
+        if (!isLoggedIn && onShowLogin) {
+            onShowLogin('/post-ad');
+            return;
+        }
+
         const targetPage: UserPage = 'post-ad';
 
         if (navigateTo) {
@@ -32,7 +39,7 @@ export function usePostAdNavigation(
         }
 
         void router.push(getPageRoute(targetPage));
-    }, [isBackendUp, navigateTo, router]);
+    }, [isBackendUp, isLoggedIn, onShowLogin, navigateTo, router]);
 
     return {
         isBackendUp,

@@ -4,11 +4,11 @@
 import { Header } from '@/components/user/Header';
 import { useRouter, useSearchParams, useSelectedLayoutSegments, usePathname } from 'next/navigation';
 import { useMemo, useCallback } from 'react';
+import { useAuthModal } from "@/context/AuthModalContext";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigation } from '@/context/NavigationContext';
 import {
     buildAuthCallbackUrl,
-    buildLoginUrl,
     markLogoutRedirectBypass,
     shouldUseLogoutRedirectBypass,
 } from "@/lib/authHelpers";
@@ -41,9 +41,11 @@ export function HeaderWrapper() {
         return buildAuthCallbackUrl(pathname || "/", searchParams);
     }, [pathname, searchParams]);
 
+    const { showLogin } = useAuthModal();
+
     const handleShowLogin = useCallback(() => {
-        void router.push(buildLoginUrl(loginCallbackUrl));
-    }, [loginCallbackUrl, router]);
+        showLogin(loginCallbackUrl);
+    }, [loginCallbackUrl, showLogin]);
 
     const handleLogout = useCallback(() => {
         confirmNavigation(async () => {

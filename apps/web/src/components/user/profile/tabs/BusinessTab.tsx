@@ -64,9 +64,9 @@ export function BusinessTab({
 
     if (businessData && (status === "live" || status === "active")) {
         return (
-            <div className="account-container-default space-y-4">
+            <>
                 <Card className="rounded-3xl border-0 bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl">
-                    <CardContent className="space-y-6 p-6 md:p-8">
+                    <CardContent className="space-y-6">
                         <div className="flex items-start gap-4">
                             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
                                 <Building2 className="h-7 w-7" />
@@ -201,7 +201,7 @@ export function BusinessTab({
                         </Button>
                     </CardContent>
                 </Card>
-            </div>
+            </>
         );
     }
 

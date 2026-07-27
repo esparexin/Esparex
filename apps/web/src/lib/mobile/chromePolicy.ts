@@ -56,7 +56,7 @@ export function getMobileChromePolicy(pathname?: string | null): MobileChromePol
     pathname.startsWith("/edit-service") ||
     pathname === "/post-spare-part-listing" ||
     pathname.startsWith("/edit-spare-part") ||
-    pathname === "/account/business/apply" ||
+    pathname.startsWith("/account") ||
     pathname === "/login" ||
     pathname === "/register"
   ) {

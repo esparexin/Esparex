@@ -47,6 +47,11 @@ export const Z_INDEX = {
   dialogContent: 301,           // Modal content (always above overlay)
   wizardModal: 301,             // Wizard modal uses same as dialog
 
+  // ── Auth Modal System ────────────────────────────────────────────────────
+  // Auth overlay sits ABOVE the header (999) so the entire viewport is covered
+  authModalOverlay: 1000,       // Auth modal backdrop (covers header + page)
+  authModalContent: 1010,       // Auth modal dialog card (above overlay)
+
   // ── Listing Modal ────────────────────────────────────────────────────────
   listingModal: 1001,           // Full-screen listing modal
 

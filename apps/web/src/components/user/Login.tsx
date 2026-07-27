@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Loader2, Pencil, Smartphone } from "@/icons/IconRegistry";
+import { ArrowLeft, Loader2, Pencil } from "@/icons/IconRegistry";
 
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
@@ -20,83 +20,99 @@ interface LoginProps {
 }
 
 export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
-  const {
-    backendReady,
-    step,
-    mobile, setMobile,
-    newUserName, setNewUserName,
-    existingUserName,
-    isSendingOTP, isVerifying,
-    mobileError, setMobileError,
-    nameError, setNameError,
-    authError, clearAuthErrorOfTypes,
-    mobileInputRef, nameInputRef, otpInputsRef,
-    requiresName, isValidMobile, isBlocked, isLocked,
-    isSendRateLimited, isVerifyRateLimited, otpInputDisabled, canResend,
-    mobileServerError, otpErrorMessage, otpRateLimitMessage,
-    lockRemainingSeconds, resendRemainingSeconds, rateLimitRemainingSeconds,
-    otp, otpValue, isOtpComplete, handleOtpChange, handleOtpKeyDown, handleOtpPaste,
-    handleMobileSubmit, handleResendOtp, resetToMobileStep, verifyOtpCode,
-  } = useOtpFlow(onLoginSuccess);
+  const flow = useOtpFlow(onLoginSuccess);
+  const { step } = flow;
 
   const isModal = mode === "modal";
 
+  // Modal mode: return just the content, relying on the parent Dialog for boundaries,
+  // background, and max-width.
+  if (isModal) {
+    return (
+      <div className="w-full flex flex-col justify-center my-auto">
+        <div className="relative text-center pb-3 pt-2 sm:pt-0">
+          <div className="mx-auto mb-6 w-fit">
+            <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+              <img src="https://esparexdev.s3.ap-south-1.amazonaws.com/public/images/recycle-icon.png" alt="Recycle Logo" className="h-12 w-12 object-contain" />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-2xl sm:text-2xl font-semibold tracking-tight">
+              {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {step === "enterMobile"
+                ? "Login to buy & sell mobile spares"
+                : "Enter the code sent to your mobile"}
+            </p>
+          </div>
+        </div>
+        <div className="px-6 sm:px-0 pb-3 sm:pb-0">
+          <LoginForm flow={flow} onBack={onBack} />
+        </div>
+      </div>
+    );
+  }
+
+  // Page mode: return the standardized Card primitive, 
+  // relying on the parent AuthLayout for page-level centering and gradients.
   return (
-    <div
-      className={cn(
-        "bg-white flex flex-col transition-all duration-200 ease-out",
-        isModal ? "min-h-0" : "h-full min-h-[100dvh]",
-        !isModal && "sm:bg-gradient-to-br sm:from-emerald-50 sm:via-white sm:to-green-50"
-      )}
-    >
-      <div
+    <Card className="w-full max-w-sm mx-auto border-0 shadow-none sm:border-slate-200/70 sm:shadow-lg rounded-none sm:rounded-xl">
+      <CardHeader className="relative space-y-2 text-center sm:pt-8 pb-3 sm:pb-4">
+        <div className="mx-auto mb-3 w-fit">
+          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+            <img src="https://esparexdev.s3.ap-south-1.amazonaws.com/public/images/recycle-icon.png" alt="Recycle Logo" className="h-12 w-12 object-contain" />
+          </div>
+        </div>
+        <div>
+          <CardTitle className="text-xl sm:text-2xl">
+            {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
+          </CardTitle>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {step === "enterMobile"
+              ? "Login to buy & sell mobile spares"
+              : "Enter the code sent to your mobile"}
+          </p>
+        </div>
+      </CardHeader>
+      <CardContent
         className={cn(
-          "w-full transition-all",
-          isModal
-            ? "px-4 py-4 sm:px-5 sm:py-5"
-            : "flex-1 px-4 py-6 sm:px-6 sm:py-8 flex items-center justify-center"
+          "px-4 sm:px-8",
+          step === "enterMobile" ? "space-y-4" : "space-y-4",
+          "pb-4 sm:pb-8"
         )}
       >
-        <Card
-          className={cn(
-            "w-full max-w-md border-0 shadow-none",
-            isModal ? "rounded-xl" : "rounded-none sm:rounded-xl sm:shadow-lg"
-          )}
-        >
-          <CardHeader
-            className={cn(
-              "relative space-y-2 text-center",
-              isModal ? "pb-2 pt-2 sm:pt-3" : "pb-3 sm:pb-4"
-            )}
-          >
-            <div className="mx-auto mb-1">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Smartphone className="h-6 w-6 text-primary" />
-              </div>
-            </div>
+        <LoginForm flow={flow} onBack={onBack} />
+      </CardContent>
+    </Card>
+  );
+}
 
-            <div>
-              <CardTitle className="text-xl sm:text-2xl">
-                {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
-              </CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {step === "enterMobile"
-                  ? "Login to buy & sell mobile spares"
-                  : "Enter the code sent to your mobile"}
-              </p>
-            </div>
-          </CardHeader>
+// ----------------------------------------------------------------------
+// Presentation-Agnostic LoginForm
+// ----------------------------------------------------------------------
 
-          <CardContent
-            className={cn(
-              "px-4 sm:px-6",
-              step === "enterMobile" ? "space-y-4" : "space-y-3",
-              isModal ? "pb-3 sm:pb-4" : "pb-4 sm:pb-5"
-            )}
-          >
-            {step === "enterMobile" ? (
-                <form
-                  key="step-enter-mobile"
+interface LoginFormProps {
+  flow: ReturnType<typeof useOtpFlow>;
+  onBack?: () => void;
+}
+
+export function LoginForm({ flow, onBack }: LoginFormProps) {
+  const {
+    backendReady, step, mobile, setMobile, newUserName, setNewUserName,
+    existingUserName, isSendingOTP, isVerifying, mobileError, setMobileError,
+    nameError, setNameError, authError, clearAuthErrorOfTypes,
+    mobileInputRef, nameInputRef, otpInputsRef, requiresName, isValidMobile,
+    isBlocked, isLocked, isSendRateLimited, isVerifyRateLimited, otpInputDisabled,
+    canResend, mobileServerError, otpErrorMessage, otpRateLimitMessage,
+    lockRemainingSeconds, resendRemainingSeconds, rateLimitRemainingSeconds,
+    otp, otpValue, isOtpComplete, handleOtpChange, handleOtpKeyDown, handleOtpPaste,
+    handleMobileSubmit, handleResendOtp, resetToMobileStep, verifyOtpCode,
+  } = flow;
+
+  return step === "enterMobile" ? (
+        <form
+          key="step-enter-mobile"
                   onSubmit={handleMobileSubmit}
                   className="space-y-4 animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
                 >
@@ -191,7 +207,7 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     </Button>
                   </div>
 
-                  {onBack && (
+                  {onBack && step !== "enterMobile" && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -208,10 +224,10 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                   key={`step-${step}`}
                   className="space-y-3 animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
                 >
-                  <div className="py-2 px-3 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm text-blue-800">
-                        OTP sent to <span className="font-semibold">+91 {mobile}</span>
+                  <div className="py-2.5 px-4 bg-slate-50/50 rounded-xl border border-slate-200/60 shadow-sm">
+                    <div className="flex items-center justify-center gap-2">
+                      <p className="text-sm text-slate-700">
+                        OTP sent to <span className="font-semibold text-slate-900">+91 {mobile}</span>
                       </p>
                       <Button
                         variant="ghost"
@@ -219,9 +235,9 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                         onClick={resetToMobileStep}
                         disabled={isSendingOTP}
                         aria-label="Edit mobile number"
-                        className="h-11 w-11 text-link-dark hover:text-blue-900"
+                        className="h-7 w-7 text-primary hover:text-primary/80 hover:bg-primary/10 rounded-full"
                       >
-                        <Pencil size={14} />
+                        <Pencil size={13} />
                       </Button>
                     </div>
                   </div>
@@ -360,10 +376,5 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
                     </Button>
                   </div>
                 </div>
-              )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+              );
 }

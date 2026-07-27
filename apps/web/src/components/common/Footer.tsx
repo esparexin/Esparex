@@ -111,25 +111,27 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Main Single Responsive Footer Content Grid */}
-                <div className="grid grid-cols-1 min-[460px]:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-4 md:mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 md:mb-6">
                     {/* Brand Block */}
-                    <div className="col-span-1 min-[460px]:col-span-2 md:col-span-1 space-y-4 text-left">
+                    <div className="col-span-2 md:col-span-1 space-y-4 text-left mb-2 md:mb-0">
                         {renderBrandBlock()}
                     </div>
 
                     {/* Link Sections */}
-                    {FOOTER_LINK_SECTIONS.map((section) => (
+                    {FOOTER_LINK_SECTIONS.map((section, index) => (
                         <div
                             key={section.title}
                             className={cn(
-                                "col-span-1 rounded-2xl border md:border-0 p-4 md:p-0 text-left",
-                                isDark ? "border-slate-800 bg-slate-900/60 md:bg-transparent" : "border-slate-200 bg-white md:bg-transparent"
+                                "col-span-1 rounded-2xl border md:border-0 p-3 sm:p-4 md:p-0 text-left",
+                                isDark ? "border-slate-800 bg-slate-900/60 md:bg-transparent" : "border-slate-200 bg-white md:bg-transparent",
+                                // Make the last section span 2 columns if it's the 3rd item to center it or take full width
+                                index === 2 ? "col-span-2 md:col-span-1" : ""
                             )}
                         >
-                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
+                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[11px] sm:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
                             </h3>
-                            <ul className="space-y-1.5 md:space-y-2">
+                            <ul className="space-y-1 md:space-y-2">
                                 {section.links.map((link) => (
                                     <li key={link.label} className="leading-5">
                                         {renderLink(link.label, link.href, link.pageKey, true)}
