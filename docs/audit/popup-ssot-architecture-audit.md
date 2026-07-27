@@ -77,4 +77,5 @@ The Esparex platform enforces a **single-instance, priority-queued native popup 
 - [x] `npm run lint` passes with 0 errors.
 - [x] `npm run type-check` passes cleanly.
 - [x] `npm run build` succeeds cleanly.
-- [x] Zero references remain to `ToastContext`, `ToastProvider`, and `useToast`.
+- [x] Repository search confirmed exactly 0 references remain to `ToastContext`, `ToastProvider`, and `useToast`.
+- [x] Single-instance native popup SSOT architecture fully enforced platform-wide.
