@@ -7,6 +7,7 @@ import { NavigationProvider } from "@/context/NavigationContext";
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider";
 import { AppBootstrapProvider } from "@/components/providers/AppBootstrapProvider";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
+import { AuthModalProvider } from "@/context/AuthModalContext";
 
 export function UserAppProviders({
     children,
@@ -21,8 +22,10 @@ export function UserAppProviders({
                 <AppBootstrapProvider initialHasAuthCookie={initialHasAuthCookie}>
                     <BackendStatusProvider>
                         <NavigationProvider>
-                            <PwaRegister />
-                            {children}
+                            <AuthModalProvider>
+                                <PwaRegister />
+                                {children}
+                            </AuthModalProvider>
                         </NavigationProvider>
                     </BackendStatusProvider>
                 </AppBootstrapProvider>

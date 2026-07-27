@@ -51,73 +51,109 @@ function PlanCardView({
     formatCurrency,
     setSelectedPlan,
     setShowPlanDialog,
+    hasMultiplePlans = false,
+    activeSlideIndex = 0,
+    totalSlides = 1,
+    onPrev,
+    onNext,
 }: {
     plan: PlanCard;
     activeConfig: SubTabConfig;
     formatCurrency: (amount: number) => string;
     setSelectedPlan: (id: string) => void;
     setShowPlanDialog: (show: boolean) => void;
+    hasMultiplePlans?: boolean;
+    activeSlideIndex?: number;
+    totalSlides?: number;
+    onPrev?: () => void;
+    onNext?: () => void;
 }) {
     const isRecommended = plan.popular;
 
     return (
         <div
-            className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all duration-200 flex flex-col justify-between relative h-full ${
+            className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all duration-200 relative h-auto space-y-4 ${
                 isRecommended
                     ? "border-2 border-slate-900 shadow-md"
                     : "border-slate-200 hover:border-slate-300 hover:shadow-xs"
             }`}
         >
+            {/* Recommended Badge Pill */}
             {isRecommended && (
                 <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs">
                     Recommended
                 </div>
             )}
 
-            <div>
-                {/* Card Header & Category Icon */}
-                <div className="text-center">
-                    <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-900">
-                        {activeConfig.icon}
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900 tracking-tight">
-                        {plan.name}
-                    </h3>
-                    <p className="text-[11px] text-slate-500 mt-0.5 min-h-[28px] flex items-center justify-center leading-normal">
-                        {activeConfig.description}
-                    </p>
-                </div>
-
-                {/* Price Section */}
-                <div className="my-3 text-center">
-                    <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                            {formatCurrency(plan.price)}
-                        </span>
-                    </div>
-                    <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
-                        / {plan.duration}
+            {/* In-Card Header Arrow Navigation (Image 2 style) */}
+            {hasMultiplePlans && (
+                <div className="flex items-center justify-between sm:hidden pt-0.5">
+                    <button
+                        type="button"
+                        onClick={onPrev}
+                        disabled={activeSlideIndex === 0}
+                        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
+                        aria-label="Previous Plan"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <span className="text-[10px] font-semibold text-slate-400 tracking-wider">
+                        {activeSlideIndex + 1} / {totalSlides}
                     </span>
+                    <button
+                        type="button"
+                        onClick={onNext}
+                        disabled={activeSlideIndex === totalSlides - 1}
+                        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
+                        aria-label="Next Plan"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
                 </div>
+            )}
 
-                {/* Primary Action Button */}
-                <Button
-                    onClick={() => {
-                        setSelectedPlan(plan.id);
-                        setShowPlanDialog(true);
-                    }}
-                    className={`w-full h-9 rounded-lg font-semibold text-xs transition-all active:scale-[0.98] ${
-                        isRecommended
-                            ? "bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
-                            : "bg-white border border-slate-300 hover:bg-slate-50 text-slate-900"
-                    }`}
-                >
-                    Buy Now
-                </Button>
+            {/* Card Content Header & Category Icon */}
+            <div className="text-center">
+                <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-900">
+                    {activeConfig.icon}
+                </div>
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
+                    {plan.name}
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                    {activeConfig.description}
+                </p>
             </div>
 
+            {/* Price Section */}
+            <div className="text-center my-2">
+                <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                        {formatCurrency(plan.price)}
+                    </span>
+                </div>
+                <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                    / {plan.duration}
+                </span>
+            </div>
+
+            {/* Primary Action Button */}
+            <Button
+                onClick={() => {
+                    setSelectedPlan(plan.id);
+                    setShowPlanDialog(true);
+                }}
+                className={`w-full h-9 rounded-lg font-semibold text-xs transition-all active:scale-[0.98] ${
+                    isRecommended
+                        ? "bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
+                        : "bg-white border border-slate-300 hover:bg-slate-50 text-slate-900"
+                }`}
+            >
+                Buy Now
+            </Button>
+
             {/* Features Checklist */}
-            <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 text-left">
+            <div className="pt-3 border-t border-slate-100 space-y-2 text-left">
                 <p className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">
                     Highlights
                 </p>
@@ -157,6 +193,7 @@ export function PlansTab({
 
     // Reset slide index when active category tab changes
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: resets carousel slide position when plan category changes
         setActiveSlideIndex(0);
         if (carouselRef.current) {
             carouselRef.current.scrollLeft = 0;
@@ -210,13 +247,13 @@ export function PlansTab({
     };
 
     return (
-        <div className="account-container-default space-y-4 pb-20 sm:pb-8">
-            {/* Top Row: Full-Width 3-Sub-Tab Switcher + Desktop Current Plan Badge */}
+        <div className="space-y-4 pb-6 sm:pb-8">
+            {/* Top Row: Single-Line Sub-Tabs Switcher + Desktop Current Plan Badge */}
             <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
                 <div
                     role="tablist"
                     aria-label="Plan Categories"
-                    className="flex items-center p-1 bg-slate-100/90 rounded-xl border border-slate-200/80 shadow-xs w-full md:max-w-md"
+                    className="flex items-center justify-between w-full md:max-w-md gap-1.5 sm:gap-2"
                 >
                     {SUB_TABS.map((tab) => {
                         const isActive = activeTab === tab.id;
@@ -233,20 +270,20 @@ export function PlansTab({
                                 tabIndex={isActive ? 0 : -1}
                                 onClick={() => setActiveTab(tab.id)}
                                 onKeyDown={(e) => handleKeyDown(e, tab.id)}
-                                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+                                className={`flex-1 flex flex-row items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-3 text-[10px] sm:text-xs font-bold rounded-full border transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
                                     isActive
-                                        ? "bg-white text-slate-900 shadow-xs border border-slate-200/80"
-                                        : "text-slate-500 hover:text-slate-900"
+                                        ? "bg-blue-50/30 text-blue-900 border-blue-200 shadow-sm"
+                                        : "bg-white text-slate-500 border-slate-200 hover:text-slate-700 hover:bg-slate-50"
                                 }`}
                             >
                                 <span className="shrink-0">{tab.icon}</span>
-                                <span>{tab.label}</span>
+                                <span className="whitespace-nowrap tracking-tight">{tab.label}</span>
                                 {count > 0 && (
                                     <span
-                                        className={`px-1.5 py-0.2 text-[10px] font-bold rounded-full border ${
+                                        className={`px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full ${
                                             isActive
-                                                ? "bg-blue-100 text-blue-800 border-blue-200"
-                                                : "bg-slate-200/80 text-slate-600 border-slate-300/50"
+                                                ? "bg-blue-100 text-blue-800"
+                                                : "bg-slate-100 text-slate-500"
                                         }`}
                                     >
                                         {count}
@@ -275,34 +312,8 @@ export function PlansTab({
             >
                 {filteredPlans.length > 0 ? (
                     <>
-                        {/* MOBILE VIEWPORT: Smooth Carousel / Slider Card Deck (Image 2 style) */}
+                        {/* MOBILE VIEWPORT: Carousel Card Deck (Image 2 style) */}
                         <div className="block sm:hidden pt-1">
-                            {filteredPlans.length > 1 && (
-                                <div className="flex items-center justify-between px-1 mb-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => scrollCarousel(activeSlideIndex - 1)}
-                                        disabled={activeSlideIndex === 0}
-                                        className="p-1 rounded-lg text-slate-600 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
-                                        aria-label="Previous Plan"
-                                    >
-                                        <ChevronLeft className="w-5 h-5" />
-                                    </button>
-                                    <span className="text-[11px] font-semibold text-slate-500">
-                                        {activeSlideIndex + 1} of {filteredPlans.length}
-                                    </span>
-                                    <button
-                                        type="button"
-                                        onClick={() => scrollCarousel(activeSlideIndex + 1)}
-                                        disabled={activeSlideIndex === filteredPlans.length - 1}
-                                        className="p-1 rounded-lg text-slate-600 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
-                                        aria-label="Next Plan"
-                                    >
-                                        <ChevronRight className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            )}
-
                             {/* Slider Track */}
                             <div
                                 ref={carouselRef}
@@ -317,6 +328,11 @@ export function PlansTab({
                                             formatCurrency={formatCurrency}
                                             setSelectedPlan={setSelectedPlan}
                                             setShowPlanDialog={setShowPlanDialog}
+                                            hasMultiplePlans={filteredPlans.length > 1}
+                                            activeSlideIndex={activeSlideIndex}
+                                            totalSlides={filteredPlans.length}
+                                            onPrev={() => scrollCarousel(activeSlideIndex - 1)}
+                                            onNext={() => scrollCarousel(activeSlideIndex + 1)}
                                         />
                                     </div>
                                 ))}
@@ -324,7 +340,7 @@ export function PlansTab({
 
                             {/* Pagination Dots Indicator (Image 2 style: ● ○ ○) */}
                             {filteredPlans.length > 1 && (
-                                <div className="flex items-center justify-center gap-1.5 mt-3">
+                                <div className="flex items-center justify-center gap-1.5 mt-2.5">
                                     {filteredPlans.map((_, idx) => (
                                         <button
                                             key={idx}

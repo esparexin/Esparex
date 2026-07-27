@@ -7,6 +7,10 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
     const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
 
     return (
-        <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>{children}</UserAppProviders>
+        <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>
+            <main className="min-h-[100dvh] flex flex-col bg-gradient-to-br from-emerald-50 via-white to-green-50">
+                {children}
+            </main>
+        </UserAppProviders>
     );
 }

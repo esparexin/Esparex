@@ -35,12 +35,11 @@ import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
 import { isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
-import { PROFILE_PHOTO_ACCEPT } from "@/lib/uploads/profilePhotoUpload";
+
 
 // Dialogs
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
 import { PlanPurchaseDialog } from "./profile/dialogs/PlanPurchaseDialog";
-import { PhotoOptionsDialog } from "./profile/dialogs/PhotoOptionsDialog";
 
 // Modular Tab Components
 
@@ -128,31 +127,17 @@ export function ProfileSettingsSidebar({
   const { purchaseHistory, loading: loadingPurchased } = usePurchases(activeTab === "purchases");
   const chatUnreadCount = useChatUnreadCount(user?.id ?? null, !!user);
 
-  const {
-    formData, setFormData,
-    profilePhoto,
-    profileErrors, setProfileErrors,
-    profileGlobalError, setProfileGlobalError,
-    isSavingProfile,
-    handleSaveProfile,
-    notifications, setNotifications,
-    mobileVisibility, setMobileVisibility,
-    showPhotoDialog, setShowPhotoDialog,
-    showDeleteDialog, setShowDeleteDialog,
-    deleteConfirmText, setDeleteConfirmText,
-    deleteReason, setDeleteReason,
-    deleteFeedback, setDeleteFeedback,
-    deleteAccountErrors,
-    deleteAccountGlobalError,
-    showPlanDialog, setShowPlanDialog,
-    selectedPlan, setSelectedPlan,
-    notificationSettingsError,
-    isSavingNotificationSettings,
-    handlePhotoSelect,
-    handlePhotoDelete,
-    handleDeleteAccount,
-    handleSaveNotificationSettings,
-  } = useProfileSettings({ user, onUpdateUser, onLogout });
+    const {
+        showDeleteDialog, setShowDeleteDialog,
+        deleteConfirmText, setDeleteConfirmText,
+        deleteReason, setDeleteReason,
+        deleteFeedback, setDeleteFeedback,
+        deleteAccountErrors,
+        deleteAccountGlobalError,
+        handleDeleteAccount,
+        showPlanDialog, setShowPlanDialog,
+        selectedPlan, setSelectedPlan,
+    } = useProfileSettings({ user, onLogout });
 
   useEffect(() => {
     if (initialTab) {
@@ -253,24 +238,8 @@ export function ProfileSettingsSidebar({
       case "more": return <MoreMenuTab user={user} onTabChange={handleTabChange} onLogout={onLogout} renderTabBadge={renderTabBadge} />;
       case "personal": return (
         <PersonalTab
-          profilePhoto={profilePhoto}
-          mobile={user?.mobile || ""}
-          isMobileVerified={user?.isPhoneVerified}
-          formData={formData}
-          setFormData={(data) => {
-            setFormData(data);
-            if (profileGlobalError) setProfileGlobalError(null);
-          }}
-          mobileVisibility={mobileVisibility} setMobileVisibility={(v) => setMobileVisibility(v)}
-          handleSaveProfile={handleSaveProfile} onPhotoClick={() => setShowPhotoDialog(true)}
-          handlePhotoDelete={handlePhotoDelete}
-          profileErrors={profileErrors}
-          profileGlobalError={profileGlobalError}
-          isSavingProfile={isSavingProfile}
-          clearProfileError={(field) => {
-            setProfileErrors((prev) => ({ ...prev, [field]: undefined }));
-            if (profileGlobalError) setProfileGlobalError(null);
-          }}
+          user={user}
+          onUpdateUser={onUpdateUser}
         />
       );
       case "mylistings": return (
@@ -311,11 +280,8 @@ export function ProfileSettingsSidebar({
 
       case "settings": return (
         <SettingsTab
-          notifications={notifications}
-          setNotifications={setNotifications}
-          handleSaveNotificationSettings={handleSaveNotificationSettings}
-          isSavingNotificationSettings={isSavingNotificationSettings}
-          notificationSettingsError={notificationSettingsError}
+          user={user}
+          onUpdateUser={onUpdateUser}
           setShowDeleteDialog={setShowDeleteDialog}
         />
       );
@@ -405,10 +371,10 @@ export function ProfileSettingsSidebar({
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <main className="min-h-0">
+          <section className="min-h-0">
             {businessStatusBanner}
             {renderContent()}
-          </main>
+          </section>
         </div>
       </PageContainer>
 
@@ -429,10 +395,6 @@ export function ProfileSettingsSidebar({
         deleteAccountGlobalError={deleteAccountGlobalError}
       />
       <PlanPurchaseDialog open={showPlanDialog} onOpenChange={setShowPlanDialog} selectedPlan={selectedPlan} plans={dynamicPlans} formatCurrency={formatPrice} onConfirm={() => setShowPlanDialog(false)} />
-      <PhotoOptionsDialog open={showPhotoDialog} onOpenChange={setShowPhotoDialog} onPhotoSelect={() => document.getElementById('photo-upload')?.click()} onPhotoDelete={handlePhotoDelete} />
-
-      {/* Hidden File Input for Photo Upload */}
-      <input type="file" id="photo-upload" name="profile-photo-upload" className="hidden" accept={PROFILE_PHOTO_ACCEPT} onChange={handlePhotoSelect} />
     </div>
   );
 

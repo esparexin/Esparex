@@ -1,4 +1,8 @@
-import { useId, type ReactNode } from "react";
+"use client";
+
+import { useId, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
 
 import { FeatureCard } from "@/components/user/FeatureCard";
@@ -8,19 +12,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FormError } from "@/components/ui/FormError";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import type { NotificationPreferences } from "../types";
+
+import { updateProfile } from "@/lib/api/user/users";
+import { notify } from "@/lib/feedback";
+import {
+  describeWebPushStatus,
+  isBrowserPushConfigured,
+  isBrowserPushSupported,
+  syncBrowserPushRegistration,
+} from "@/lib/notifications/webPush";
+import logger from "@/lib/logger";
+import { notificationSettingsSchema, type NotificationSettingsValues } from "@esparex/contracts";
+import type { User as UserType } from "@/types/User";
+import type { ProfileUser } from "../types";
 
 interface SettingsTabProps {
-    notifications: NotificationPreferences;
-    setNotifications: (n: NotificationPreferences) => void;
-    handleSaveNotificationSettings: () => void;
-    isSavingNotificationSettings?: boolean;
-    notificationSettingsError?: string | null;
+    user: ProfileUser | null;
+    onUpdateUser: (userData: UserType) => void;
     setShowDeleteDialog: (show: boolean) => void;
 }
 
 type SettingRowProps = {
-    icon: ReactNode;
+    icon: React.ReactNode;
     title: string;
     description: string;
     checked: boolean;
@@ -44,25 +57,78 @@ function SettingRow({ icon, title, description, checked, onCheckedChange }: Sett
     );
 }
 
-const updateNotificationSettings = (
-    current: NotificationPreferences,
-    nextPartial: Partial<NotificationPreferences>,
-    setNotifications: (value: NotificationPreferences) => void
-) => {
-    setNotifications({ ...current, ...nextPartial });
-};
-
 export function SettingsTab({
-    notifications,
-    setNotifications,
-    handleSaveNotificationSettings,
-    isSavingNotificationSettings = false,
-    notificationSettingsError,
+    user,
+    onUpdateUser,
     setShowDeleteDialog,
 }: SettingsTabProps) {
+    const [globalError, setGlobalError] = useState<string | null>(null);
+
+    const form = useForm<NotificationSettingsValues>({
+        resolver: zodResolver(notificationSettingsSchema),
+        defaultValues: {
+            adUpdates: user?.notificationSettings?.adUpdates ?? true,
+            promotions: user?.notificationSettings?.promotions ?? false,
+            emailNotifications: user?.notificationSettings?.emailNotifications ?? true,
+            pushNotifications: user?.notificationSettings?.pushNotifications ?? true,
+            instantAlerts: user?.notificationSettings?.instantAlerts ?? true,
+        },
+    });
+
+    const isSaving = form.formState.isSubmitting;
+
+    const onSubmit = async (data: NotificationSettingsValues) => {
+        setGlobalError(null);
+
+        try {
+            if (
+                data.pushNotifications &&
+                isBrowserPushSupported() &&
+                isBrowserPushConfigured() &&
+                window.Notification.permission === "default"
+            ) {
+                try {
+                    await window.Notification.requestPermission();
+                } catch {
+                    // Handled through the sync status message later
+                }
+            }
+
+            const updatedUser = await updateProfile({ notificationSettings: data });
+            if (!updatedUser) {
+                setGlobalError("Failed to save notification settings");
+                return;
+            }
+            
+            onUpdateUser(updatedUser);
+
+            if (data.pushNotifications) {
+                const pushSync = await syncBrowserPushRegistration({
+                    user: updatedUser as UserType & { notificationSettings?: { pushNotifications?: boolean } },
+                    interactive: false,
+                });
+
+                if (pushSync.status === "connected") {
+                    notify.success("Notification settings saved. Browser push is enabled.");
+                } else {
+                    notify.success("Notification settings saved.");
+                    const pushMessage = pushSync.reason ?? describeWebPushStatus(pushSync.status);
+                    if (pushMessage) {
+                        notify.info(pushMessage);
+                    }
+                }
+            } else {
+                notify.success("Notification settings saved!");
+            }
+        } catch (err: unknown) {
+            logger.error("Update notification settings failed", err);
+            setGlobalError(err instanceof Error ? err.message : "Failed to save notification settings");
+        }
+    };
+
     return (
-        <div className="account-container-default space-y-4">
-            <Card className="account-card-surface gap-0">
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+            <Card className="account-card-surface">
                 <FeatureCard
                     title="Notification Settings"
                     description={ACCOUNT_COPY.notificationsDescription}
@@ -74,71 +140,89 @@ export function SettingsTab({
                         the email, push, and instant-alert settings below.
                     </div>
 
-                    <SettingRow
-                        icon={<Tag className="h-4 w-4" />}
-                        title="Ad and business updates"
-                        description="Status changes on your listings and business account."
-                        checked={notifications.adUpdates}
-                        onCheckedChange={(checked) =>
-                            updateNotificationSettings(notifications, { adUpdates: checked }, setNotifications)
-                        }
-                    />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-6 pt-2">
+                        <Controller
+                            name="adUpdates"
+                            control={form.control}
+                            render={({ field }) => (
+                                <SettingRow
+                                    icon={<Tag className="h-4 w-4" />}
+                                    title="Ad and business updates"
+                                    description="Status changes on your listings and business account."
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            )}
+                        />
+                        <Controller
+                            name="promotions"
+                            control={form.control}
+                            render={({ field }) => (
+                                <SettingRow
+                                    icon={<Megaphone className="h-4 w-4" />}
+                                    title="Promotions and announcements"
+                                    description="Admin broadcasts, offers, and platform announcements."
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            )}
+                        />
+                        <Controller
+                            name="emailNotifications"
+                            control={form.control}
+                            render={({ field }) => (
+                                <SettingRow
+                                    icon={<Mail className="h-4 w-4" />}
+                                    title="Email delivery"
+                                    description="Allow notifications to be delivered by email."
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            )}
+                        />
+                        <Controller
+                            name="pushNotifications"
+                            control={form.control}
+                            render={({ field }) => (
+                                <SettingRow
+                                    icon={<Smartphone className="h-4 w-4" />}
+                                    title="Push delivery"
+                                    description="Allow notifications to be delivered as browser or app push on supported devices."
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            )}
+                        />
+                        <Controller
+                            name="instantAlerts"
+                            control={form.control}
+                            render={({ field }) => (
+                                <SettingRow
+                                    icon={<BellRing className="h-4 w-4" />}
+                                    title="Instant smart alerts"
+                                    description="Receive matching smart alerts immediately instead of suppressing them."
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            )}
+                        />
+                    </div>
+                    
                     <Separator />
-                    <SettingRow
-                        icon={<Megaphone className="h-4 w-4" />}
-                        title="Promotions and announcements"
-                        description="Admin broadcasts, offers, and platform announcements."
-                        checked={notifications.promotions}
-                        onCheckedChange={(checked) =>
-                            updateNotificationSettings(notifications, { promotions: checked }, setNotifications)
-                        }
-                    />
-                    <Separator />
-                    <SettingRow
-                        icon={<Mail className="h-4 w-4" />}
-                        title="Email delivery"
-                        description="Allow notifications to be delivered by email."
-                        checked={notifications.emailNotifications}
-                        onCheckedChange={(checked) =>
-                            updateNotificationSettings(notifications, { emailNotifications: checked }, setNotifications)
-                        }
-                    />
-                    <Separator />
-                    <SettingRow
-                        icon={<Smartphone className="h-4 w-4" />}
-                        title="Push delivery"
-                        description="Allow notifications to be delivered as browser or app push on supported secure devices. Saving will ask for browser permission when available."
-                        checked={notifications.pushNotifications}
-                        onCheckedChange={(checked) =>
-                            updateNotificationSettings(notifications, { pushNotifications: checked }, setNotifications)
-                        }
-                    />
-                    <Separator />
-                    <SettingRow
-                        icon={<BellRing className="h-4 w-4" />}
-                        title="Instant smart alerts"
-                        description="Receive matching smart alerts immediately instead of suppressing them."
-                        checked={notifications.instantAlerts}
-                        onCheckedChange={(checked) =>
-                            updateNotificationSettings(notifications, { instantAlerts: checked }, setNotifications)
-                        }
-                    />
-
-                    <Separator />
-                    <FormError message={notificationSettingsError} />
+                    <FormError message={globalError} />
                     <Button
+                        type="submit"
                         className="w-full h-10 gap-2 text-xs font-medium"
                         variant="outline"
-                        onClick={handleSaveNotificationSettings}
-                        disabled={isSavingNotificationSettings}
+                        disabled={isSaving}
                     >
                         <Save className="h-4 w-4" />
-                        {isSavingNotificationSettings ? "Saving..." : "Save Notification Settings"}
+                        {isSaving ? "Saving..." : "Save Notification Settings"}
                     </Button>
                 </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50/50 gap-0">
+            <Card className="border-red-200 bg-red-50/50 mt-6">
                 <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2 text-red-600">
                         <Trash2 className="h-4 w-4" />
@@ -150,6 +234,7 @@ export function SettingsTab({
                 </CardHeader>
                 <CardContent>
                     <Button
+                        type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
                         className="h-10 gap-2 text-xs font-medium"
@@ -159,6 +244,6 @@ export function SettingsTab({
                     </Button>
                 </CardContent>
             </Card>
-        </div>
+        </form>
     );
 }
