@@ -107,7 +107,7 @@ export const applyCatalogStatusFilter = (
 import { isAdminRole } from '@esparex/core/utils/roleNormalization';
 
 /**
- * Check if request has admin access
+ * Check if request has admin access (deprecated helper retained for backwards compatibility)
  */
 export const hasAdminAccess = (req: Request): boolean => {
     const catalogRequest = req as CatalogRequest;

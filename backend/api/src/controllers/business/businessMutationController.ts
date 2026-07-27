@@ -1,5 +1,6 @@
 import logger from '@esparex/core/utils/logger';
-import { Business, ApiResponse } from "@esparex/contracts";
+import { Business, ApiResponse, Role } from "@esparex/contracts";
+import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { respond } from "../../utils/respond";
 import { Request, Response } from 'express';
 import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
@@ -74,7 +75,10 @@ async function verifyBusinessOwnership(req: Request, res: Response, id: string) 
         return { business: null, user: null };
     }
 
-    if (business.userId.toString() !== user._id.toString() && !['admin', 'super_admin'].includes(user.role)) {
+    const userRole = normalizeRole(user.role);
+    const isAdminUser = userRole === Role.ADMIN || userRole === Role.SUPER_ADMIN;
+
+    if (business.userId.toString() !== user._id.toString() && !isAdminUser) {
         sendErrorResponse(req, res, 403, 'Unauthorized');
         return { business: null, user: null };
     }
@@ -95,7 +99,9 @@ export const updateBusiness = async (req: Request, res: Response) => {
 
         // 🔒 Suspended businesses cannot be edited by the owner — mirrors frontend canEditBusiness()
         // Only admin may update a suspended business (e.g. to correct data before un-suspending)
-        if (business.status === 'suspended' && !['admin', 'super_admin'].includes(user.role)) {
+        const role = normalizeRole(user.role);
+        const isAdmin = role === Role.ADMIN || role === Role.SUPER_ADMIN;
+        if (business.status === 'suspended' && !isAdmin) {
             sendErrorResponse(req, res, 403, 'Cannot edit a suspended business profile', { code: 'BUSINESS_SUSPENDED' });
             return;
         }

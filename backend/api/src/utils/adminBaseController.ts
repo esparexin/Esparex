@@ -42,9 +42,13 @@ export const buildLogFn = (req: Request): AdminLogFn =>
             getIp(req),
             getUserAgent(req)
         );
+import { Role } from '@esparex/contracts';
+import { normalizeRole } from '@esparex/core/utils/roleNormalization';
+
 export const checkPermission = (user: AuthUser | undefined, module: string, action: string): boolean => {
     if (!user) return false;
-    if (user.role === 'super_admin') return true;
+    const role = normalizeRole(user.role);
+    if (role === Role.SUPER_ADMIN) return true;
     if (user.permissions?.includes('*') || user.permissions?.includes('all')) return true;
 
     // Check specific permission
