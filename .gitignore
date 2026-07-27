@@ -142,6 +142,7 @@ last*.json
 .jscpd-report/
 test-results/
 frontend/test-results/
+audit-reports/
 
 # Keep only example/template env files — never real values
 # *.env.example and *.env.*.example are intentionally tracked

@@ -1,4 +1,4 @@
-# ADR-001: Classify `packages/kernel` as Dormant Strategic Asset
+# ADR-010: Classify `packages/kernel` as Dormant Strategic Asset
 
 **Status:** Accepted  
 **Date:** 2026-07-19  
@@ -70,5 +70,5 @@ Only consider adopting `packages/kernel` if a planned domain-layer redesign demo
 
 ## Related Documents
 
-- [`docs/DELETION_GATE.md`](../DELETION_GATE.md) — Repository deletion governance
-- [`docs/architecture/Enterprise-Architecture-v1.md`](Enterprise-Architecture-v1.md) — Enterprise architecture specification
+- [DELETION_GATE.md](../../docs/governance/DELETION_GATE.md) — Repository deletion governance
+- [PROJECT_SPECIFICATION.md](../../docs/development/PROJECT_SPECIFICATION.md) — Monorepo specification and context boundaries

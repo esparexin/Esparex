@@ -26,9 +26,4 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 * [Phase-1-Completion.md](reports/Phase-1-Completion.md) — Phase 1 verification details.
 * [documentation_mapping_matrix.md](reports/documentation_mapping_matrix.md) — Authoritative record of the July 2026 documentation consolidation.
 
-### 🗄️ [Historical Archive](archive/)
-* [Enterprise-Architecture-v1.md](archive/Enterprise-Architecture-v1.md) — Legacy architectural blueprint.
-* [Repository-Baseline-v1.md](archive/Repository-Baseline-v1.md) — Obsolete pre-contracts baseline.
-* [contracts-migration-v1.0/](archive/contracts-migration-v1.0/) — Historical logs and designs for Phase 1.
-* [esparex-core/](archive/esparex-core/) — Obsolete Esparex Core phase index.
-* [governance/](archive/governance/) — Old modular governance files superseded by merged files.
+

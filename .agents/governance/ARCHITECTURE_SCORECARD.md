@@ -2,7 +2,7 @@
 
 **Module**: 6C of 6 — Architecture Governance Framework
 **Last Updated**: 2026-07-13
-**Related Decisions**: [ADR-007](../../decisions/ADR-007-monorepo-package-topology.md), [ADR-008](../../decisions/ADR-008-domain-architecture-and-bounded-contexts.md)
+**Related Decisions**: [ADR-007](../decisions/ADR-007-monorepo-package-topology.md), [ADR-008](../decisions/ADR-008-domain-architecture-and-bounded-contexts.md)
 
 ---
 

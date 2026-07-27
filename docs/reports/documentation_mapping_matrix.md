@@ -19,7 +19,7 @@ This matrix serves as the authoritative record of the documentation and governan
 | `docs/Esparex_Core/POST_AD_2.0_AUDIT.md` | Relocate | `docs/reports/POST_AD_2.0_AUDIT.md` | Keep | Completed audit moved to `reports/`. |
 | `docs/performance-audit-2026-07.md` | Relocate | `docs/reports/performance-audit-2026-07.md` | Keep | Performance audit moved to `reports/`. |
 | `tech-debt-insights.md` (root) | Relocate | `docs/reports/tech-debt-insights-2026-07.md` | Keep | Tech debt snapshot moved to `reports/`. |
-| `docs/architecture/adr/ADR-001-packages-kernel-dormant.md` | Relocate | `.agents/decisions/ADR-001-packages-kernel-dormant.md` | Keep | Moved to decisions folder; kept number `ADR-001`. |
+| `docs/architecture/adr/ADR-001-packages-kernel-dormant.md` | Relocate | `.agents/decisions/ADR-010-packages-kernel-dormant.md` | Keep | Moved to decisions folder; re-indexed to `ADR-010`. |
 | `docs/architecture/Enterprise-Architecture-v1.md` | Archive | `docs/archive/Enterprise-Architecture-v1.md` | Keep | Historical architectural blueprint. |
 | `docs/reports/Repository-Baseline-v1.md` | Archive | `docs/archive/Repository-Baseline-v1.md` | Keep | Historical quality metrics baseline. |
 | `docs/migrations/contracts/AUDIT.md` | Archive | `docs/archive/contracts-migration-v1.0/AUDIT.md` | Keep | Historical contracts migration audit. |

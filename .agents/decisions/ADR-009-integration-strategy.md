@@ -43,7 +43,7 @@ All incoming mutation payloads (e.g., API requests, webhook events) must be veri
 Integration events (cross-context messages) must not be fired directly during a database write. Instead:
 1. The domain writes its state changes and enqueues the integration event into an `Outbox` table within the same database transaction.
 2. A separate worker process polls the outbox, publishes the events to the messaging queue, and marks them as processed.
-This guarantees **at-least-once delivery** of cross-context integration events. Detailed saga orchestration, dead-letter queue (DLQ) behavior, event versioning, and message replay strategy are deferred to [ADR-010](./ADR-010-eventing-and-messaging-strategy.md).
+This guarantees **at-least-once delivery** of cross-context integration events. Detailed saga orchestration, dead-letter queue (DLQ) behavior, event versioning, and message replay strategy are deferred to dedicated eventing architecture decisions.
 
 ### 5. Retries & Transient Failures
 - Adapters implementing ports must handle transient network issues using automated retry mechanisms with exponential backoff and jitter.

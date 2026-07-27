@@ -4,7 +4,7 @@
 **Date**: 2026-07-13
 **Owners**: Architecture Owner, Domain Lead
 **Impacted Modules**: `@esparex/core`, `@esparex/shared`, `@esparex/backend-api`
-**Related Decisions**: [ADR-005](./ADR-005-package-boundary-enforcement.md), [ADR-007](./ADR-007-monorepo-package-topology.md), [ADR-006](./ADR-006-adr-decision-lifecycle.md), [ADR-009](./ADR-009-integration-strategy.md)
+**Related Decisions**: [ADR-005](./ADR-005-core-backend-separation.md), [ADR-007](./ADR-007-monorepo-package-topology.md), [ADR-006](./ADR-006-adr-decision-lifecycle.md), [ADR-009](./ADR-009-integration-strategy.md)
 
 ---
 
@@ -80,7 +80,7 @@ Every architectural decision follows a formalized validation lifecycle:
 `Decision` ──► `Implementation` ──► `Verification` ──► `Telemetry` ──► `Retirement`
 
 Detailed standards, automation scripts, and release scorecard metrics are maintained in our decoupled governance modules:
-- **Detailed Rules & Budgets**: [ARCHITECTURE_STANDARD.md](../governance/arch/ARCHITECTURE_STANDARD.md)
-- **Migration & Refactoring Roadmap**: [IMPLEMENTATION_GUIDE.md](../governance/arch/IMPLEMENTATION_GUIDE.md)
-- **Scorecard Metrics & Budgeting**: [ARCHITECTURE_SCORECARD.md](../governance/arch/ARCHITECTURE_SCORECARD.md)
-- **Automation Setup & Scripts**: [ARCHITECTURE_CI.md](../governance/arch/ARCHITECTURE_CI.md)
+- **Detailed Rules & Budgets**: [STANDARDS.md](../governance/STANDARDS.md)
+- **Migration & Refactoring Roadmap**: [IMPLEMENTATION_GUIDE.md](../governance/IMPLEMENTATION_GUIDE.md)
+- **Scorecard Metrics & Budgeting**: [ARCHITECTURE_SCORECARD.md](../governance/ARCHITECTURE_SCORECARD.md)
+- **Automation Setup & Scripts**: [ENFORCEMENT.md](../governance/ENFORCEMENT.md)
