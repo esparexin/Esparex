@@ -2,7 +2,8 @@ import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { respond } from "../../utils/respond";
-import { ApiResponse } from "@esparex/contracts";
+import { ApiResponse, Role } from "@esparex/contracts";
+import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/domains/payments/application/TransactionService';
@@ -78,7 +79,9 @@ export const getInvoice = async (req: Request, res: Response) => {
 
         if (invoice) {
             const ownerId = invoice.userId?.toString?.() ?? String(invoice.userId);
-            if (ownerId !== (req.user)._id.toString() && !['admin', 'super_admin'].includes((req.user).role)) {
+            const role = normalizeRole(req.user?.role);
+            const isAdmin = role === Role.ADMIN || role === Role.SUPER_ADMIN;
+            if (ownerId !== req.user._id.toString() && !isAdmin) {
                 return sendErrorResponse(req, res, 403, 'Unauthorized');
             }
 
@@ -95,8 +98,10 @@ export const getInvoice = async (req: Request, res: Response) => {
         }
 
         const user = transaction.userId as unknown as InvoiceUser;
+        const reqUserRole = normalizeRole(req.user?.role);
+        const isReqUserAdmin = reqUserRole === Role.ADMIN || reqUserRole === Role.SUPER_ADMIN;
 
-        if (user._id.toString() !== (req.user)._id.toString() && !['admin', 'super_admin'].includes((req.user).role)) {
+        if (user._id.toString() !== req.user._id.toString() && !isReqUserAdmin) {
             return sendErrorResponse(req, res, 403, 'Unauthorized');
         }
 

@@ -13,7 +13,8 @@ import { z } from 'zod';
 import { getAdsQuerySchema, homeFeedQuerySchema, trendingAdsQuerySchema } from '@esparex/core/validators/ad.validator';
 import { LISTING_STATUS } from "@esparex/contracts";
 import { respond } from "../../utils/respond";
-import { PaginatedResponse, HomeFeedResponse, ApiResponse } from "@esparex/contracts";
+import { PaginatedResponse, HomeFeedResponse, ApiResponse, Role } from "@esparex/contracts";
+import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { Ad } from "@esparex/contracts";
 import type { AuthUser } from '../../types/auth.types';
 import { ListingTypeValue } from "@esparex/contracts";
@@ -45,7 +46,8 @@ const asCachedSearchResult = (value: unknown): CachedSearchResult | null => {
 const getViewerIdForFeed = (req: Request): string | undefined => {
     const user = req.user;
     if (!user?._id) return undefined;
-    if (user.role === 'admin' || user.role === 'super_admin') return undefined;
+    const role = normalizeRole(user.role);
+    if (role === Role.ADMIN || role === Role.SUPER_ADMIN) return undefined;
     return String(user._id);
 };
 
@@ -79,7 +81,8 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
 
         const viewer = req.user as AuthUser;
         const viewerId = viewer?._id?.toString();
-        const isAdmin = viewer?.role === 'admin' || viewer?.role === 'super_admin';
+        const viewerRole = normalizeRole(viewer?.role);
+        const isAdmin = viewerRole === Role.ADMIN || viewerRole === Role.SUPER_ADMIN;
 
         let adId: string | null = null;
         if (mongoose.Types.ObjectId.isValid(idOrSlug)) {

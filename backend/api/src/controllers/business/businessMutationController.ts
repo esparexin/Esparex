@@ -250,7 +250,8 @@ export const renewBusiness = async (req: Request, res: Response) => {
         const { business, user } = await verifyBusinessOwnership(req, res, id);
         if (!business || !user) return;
 
-        const actorType: ActorTypeValue = user.role === 'admin' || user.role === 'super_admin' ? 'admin' : 'user';
+        const role = normalizeRole(user.role);
+        const actorType: ActorTypeValue = role === Role.ADMIN || role === Role.SUPER_ADMIN ? 'admin' : 'user';
         const updated = await businessLifecycleService.renewBusiness(id, {
             type: actorType,
             id: user._id.toString()
