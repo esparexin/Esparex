@@ -55,7 +55,7 @@ export {
   DollarSign,
   Download,
   DraftingCompass,
-  Drone,
+  Bot as Drone,
   Edit,
   Edit2,
   ExternalLink,
