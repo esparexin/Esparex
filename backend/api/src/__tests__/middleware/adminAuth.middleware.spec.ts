@@ -22,7 +22,7 @@ jest.mock("@esparex/core/utils/cookieHelper", () => ({
     getAuthCookieOptions: jest.fn(() => ({ path: "/" })),
 }));
 
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
 import Admin from "@esparex/core/models/Admin";
 import { verifyAdminToken } from "@esparex/core/utils/auth";
 import { validateAdminSession } from "@esparex/core/services/AdminSessionService";
@@ -137,5 +137,48 @@ describe("adminAuth middleware", () => {
         middleware(req, res, next);
 
         expect(next).toHaveBeenCalledTimes(1);
+    });
+
+    it("grants superAdmin role bypass for catalog operations regardless of permission array", () => {
+        const req = {
+            user: { role: "superAdmin", permissions: [] },
+            originalUrl: "/api/v1/admin/catalog/brands/123",
+        } as unknown as Request;
+        const res = createMockRes();
+        const next = jest.fn();
+
+        const middleware = requirePermission("catalog:write");
+        middleware(req, res, next);
+
+        expect(next).toHaveBeenCalledTimes(1);
+    });
+
+    it("grants moderator with explicit catalog:write permission access", () => {
+        const req = {
+            user: { role: "moderator", permissions: ["catalog:write"] },
+            originalUrl: "/api/v1/admin/catalog/brands/123",
+        } as unknown as Request;
+        const res = createMockRes();
+        const next = jest.fn();
+
+        const middleware = requirePermission("catalog:write");
+        middleware(req, res, next);
+
+        expect(next).toHaveBeenCalledTimes(1);
+    });
+
+    it("denies unpermitted user access with 403 Forbidden", () => {
+        const req = {
+            user: { role: "user", permissions: [] },
+            originalUrl: "/api/v1/admin/catalog/brands/123",
+        } as unknown as Request;
+        const res = createMockRes();
+        const next = jest.fn();
+
+        const middleware = requirePermission("catalog:write");
+        middleware(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(next).not.toHaveBeenCalled();
     });
 });
