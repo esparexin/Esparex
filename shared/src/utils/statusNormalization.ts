@@ -49,6 +49,11 @@ export function normalizeBusinessStatus(value: unknown, fallback: BusinessStatus
     return fallback;
 }
 
+export function isBusinessActiveStatus(value: unknown): boolean {
+    const status = normalizeBusinessStatus(value);
+    return status === 'active' || status === 'live' || (typeof value === 'string' && ['active', 'live', 'approved'].includes(value.trim().toLowerCase()));
+}
+
 /**
  * Specific normalizer for Listing / Ad status.
  * Canonical for marketplace items (Ads, Spare Parts, Services as published listings).

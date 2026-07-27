@@ -18,7 +18,6 @@ import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import {
   Crown,
-  ChevronRight,
   LogOut,
 } from "@/components/ui/icons";
 
@@ -34,7 +33,7 @@ import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
-import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 import { PROFILE_PHOTO_ACCEPT } from "@/lib/uploads/profilePhotoUpload";
 
@@ -44,7 +43,7 @@ import { PlanPurchaseDialog } from "./profile/dialogs/PlanPurchaseDialog";
 import { PhotoOptionsDialog } from "./profile/dialogs/PhotoOptionsDialog";
 
 // Modular Tab Components
-import { MobileAccountHeader } from "./MobileAccountHeader";
+
 import { MobileAccountBottomNav } from "./MobileAccountBottomNav";
 import { MoreMenuTab } from "./profile/tabs/MoreMenuTab";
 import { PersonalTab } from "./profile/tabs/PersonalTab";
@@ -57,6 +56,7 @@ import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { SavedAds } from "./SavedAds";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
 import { AccountHeader } from "./AccountHeader";
+import { AccountNavItemList } from "./AccountNavItemList";
 import { BusinessStatusBanner } from "@/components/business/BusinessStatusBanner";
 import type { ConversationListView } from "@/lib/api/chatApi";
 import type { IConversationDTO } from "@esparex/contracts";
@@ -87,7 +87,7 @@ export function ProfileSettingsSidebar({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
 
-  const isBusinessLive = normalizeBusinessStatus(user?.businessStatus, "pending") === "live";
+  const isBusinessLive = isBusinessActiveStatus(user?.businessStatus);
 
   const { data: adCounts = {} } = useMyListingsStatsQuery({ 
     enabled: activeTab === "mylistings" && !!user,
@@ -181,11 +181,12 @@ export function ProfileSettingsSidebar({
 
   const visibleProfileTabItems = PROFILE_TAB_ITEMS.filter((item) => {
     if (!user) return false;
+    const normalizedRole = (user.role || "user").toLowerCase();
     const allowedRoles = [
       "user",
       "business",
       "admin",
-      "superAdmin",
+      "superadmin",
       "moderator",
       "editor",
       "viewer",
@@ -194,8 +195,8 @@ export function ProfileSettingsSidebar({
       "content_moderator",
       "custom",
     ];
-    if (!allowedRoles.includes(user.role)) return false;
-    if (item.businessOnly) {
+    if (!allowedRoles.includes(normalizedRole)) return false;
+    if (item.businessOnly && item.value !== "business") {
       return isBusinessLive;
     }
     return true;
@@ -356,37 +357,25 @@ export function ProfileSettingsSidebar({
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <MobileAccountHeader activeTab={activeTab} onBackToMenu={() => handleTabChange("more")} />
-      
-      <PageContainer variant="wide" className="pt-3 pb-20 md:pb-10">
-        {/* DESKTOP HEADER */}
-        <div className="mb-4 hidden md:block">
-          <AccountHeader />
-        </div>
+      {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
+      <AccountHeader
+        activeTab={activeTab}
+        onBackToMenu={() => handleTabChange("more")}
+      />
 
+      <PageContainer variant="wide" className="pt-1 pb-20 md:pb-10">
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6">
           {/* LEFT SIDEBAR (Desktop Only) */}
-          <aside className="hidden md:block space-y-1">
+          <aside className="hidden md:block space-y-1" aria-label="Account navigation">
             <Card className="p-2 border-0 shadow-sm bg-white/80 backdrop-blur">
-              {visibleProfileTabItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.value;
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    onClick={() => handleTabChange(item.value)}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-all duration-200 font-medium group text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
-                      ${isActive ? "bg-blue-50 text-link-dark shadow-sm shadow-blue-100 ring-1 ring-blue-200" : "text-foreground-tertiary hover:bg-slate-50 hover:text-foreground"}`}
-                  >
-                    <Icon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors ${isActive ? "text-link" : "text-foreground-subtle group-hover:text-foreground-tertiary"}`} />
-                    <span>{item.label}</span>
-                    {renderTabBadge(item.value)}
-                    {isActive && <ChevronRight className="h-4 w-4 opacity-50 ml-auto" />}
-                  </button>
-                );
-              })}
+              <AccountNavItemList
+                items={visibleProfileTabItems}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                renderTabBadge={renderTabBadge}
+                variant="sidebar"
+              />
               <Separator className="my-2" />
               <button
                 type="button"

@@ -62,7 +62,7 @@ export function BusinessTab({
         : "pending";
     const locationLabel = resolveListingLocationLabel(businessData?.location, "full");
 
-    if (businessData && status === "live") {
+    if (businessData && (status === "live" || status === "active")) {
         return (
             <div className="space-y-4 max-w-3xl">
                 <Card className="rounded-3xl border-0 bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl">

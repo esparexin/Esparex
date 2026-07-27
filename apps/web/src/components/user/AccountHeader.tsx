@@ -1,31 +1,75 @@
-import { SettingsIcon } from '@/components/ui/icons';
-import { ACCOUNT_COPY } from '@/config/copy/account';
+"use client";
+
+import { ChevronLeft, SettingsIcon } from "@/components/ui/icons";
+import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
+import { ACCOUNT_COPY } from "@/config/copy/account";
 
 interface AccountHeaderProps {
+  /** Passed when rendering the mobile sticky context — drives tab title and back button */
+  activeTab?: ProfileTabValue;
+  /** Called when the back button is pressed on mobile */
+  onBackToMenu?: () => void;
+  /** Optional extra class for the desktop page-header wrapper */
   className?: string;
-  mobile?: boolean;
 }
 
-export function AccountHeader({ className = '', mobile = false }: AccountHeaderProps) {
-  const title = mobile ? ACCOUNT_COPY.mobileTitle : ACCOUNT_COPY.title;
-  const subtitle = mobile ? ACCOUNT_COPY.mobileSubtitle : ACCOUNT_COPY.subtitle;
+/**
+ * Single responsive account header.
+ *
+ * Mobile (< md):  Sticky top bar with back-chevron and active tab title.
+ * Desktop (≥ md): Page-level heading block with icon, title, and subtitle.
+ *
+ * Replaces the former MobileAccountHeader + AccountHeader split.
+ */
+export function AccountHeader({
+  activeTab,
+  onBackToMenu,
+  className = "",
+}: AccountHeaderProps) {
+  // ── Mobile header state ──────────────────────────────────────────────────
+  const isMenuTab = activeTab === "more" || !activeTab;
+  const currentTabItem = PROFILE_TAB_ITEMS.find((item) => item.value === activeTab);
+  const mobileTitle = isMenuTab
+    ? ACCOUNT_COPY.title
+    : currentTabItem?.label ?? "Account";
 
   return (
-    <div className={className}>
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-blue-600 rounded-xl shadow-xs">
-          <SettingsIcon className="h-5 w-5 text-white" />
-        </div>
-        <div>
-          <h1 className={mobile ? "text-base font-semibold text-slate-900 tracking-tight" : "account-page-title"}>
-            {title}
+    <>
+      {/* MOBILE: Sticky contextual header (hidden on md+) */}
+      <header
+        className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex md:hidden items-center px-3 h-14 w-full"
+        aria-label="Account section header"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          {!isMenuTab && onBackToMenu && (
+            <button
+              type="button"
+              onClick={onBackToMenu}
+              aria-label="Back to Account Menu"
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-700 hover:bg-slate-100 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+          )}
+          <h1 className="text-sm font-normal text-slate-800 truncate">
+            {mobileTitle}
           </h1>
-          <p className="account-body-text mt-0.5">
-            {subtitle}
-          </p>
+        </div>
+      </header>
+
+      {/* DESKTOP: Page-level heading block (hidden below md, container-aligned) */}
+      <div className={`hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 ${className}`}>
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-600 rounded-xl shadow-xs">
+            <SettingsIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="account-page-title">{ACCOUNT_COPY.title}</h1>
+            <p className="account-body-text mt-0.5">{ACCOUNT_COPY.subtitle}</p>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

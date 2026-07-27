@@ -452,3 +452,73 @@ header.sticky {
     background-color: hsl(var(--background)) !important;
   }
 }
+
+/* =========================================
+   ACCOUNT MODULE COMPONENT TOKENS
+   Canonical @layer components definitions for account-* utility classes.
+   These classes are consumed by AccountHeader, PersonalTab, PlansTab,
+   SettingsTab, SavedAds, and any future account sub-pages.
+   ========================================= */
+@layer components {
+  /* Page-level heading used once per account page (h1 equivalent) */
+  .account-page-title {
+    font-size: var(--text-h4);    /* 18px */
+    font-weight: 700;
+    line-height: 1.25;
+    color: hsl(var(--foreground));
+    letter-spacing: -0.01em;
+  }
+
+  /* Section-level heading within a card or content block (h3 equivalent) */
+  .account-section-title {
+    font-size: var(--text-body);  /* 14px */
+    font-weight: 600;
+    line-height: 1.4;
+    color: hsl(var(--foreground));
+  }
+
+  /* Secondary body copy used for descriptions and captions */
+  .account-body-text {
+    font-size: var(--text-caption); /* 12px */
+    font-weight: 400;
+    line-height: 1.5;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Standard card surface for account module cards */
+  .account-card-surface {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Price / stat display value (large emphasis number) */
+  .account-price-stat {
+    font-size: var(--text-h3);    /* 20px */
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  /* Mobile & Tablet Typography Overrides (< 1024px) */
+  @media (max-width: 1023px) {
+    .account-page-title {
+      font-size: var(--text-body); /* 14px compact font on mobile & tablet */
+      font-weight: 500;            /* no bold on mobile & tablet */
+    }
+    .account-section-title {
+      font-size: var(--text-small); /* 13px small font on mobile & tablet */
+      font-weight: 500;             /* no bold on mobile & tablet */
+    }
+    .account-body-text {
+      font-size: var(--text-tiny); /* 11px compact font on mobile & tablet */
+      font-weight: 400;            /* no bold on mobile & tablet */
+    }
+    .account-price-stat {
+      font-size: var(--text-body-lg); /* 16px compact stat on mobile & tablet */
+      font-weight: 600;               /* medium emphasis on mobile & tablet */
+    }
+  }
+}
+

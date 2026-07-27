@@ -39,7 +39,7 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
-import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
@@ -83,6 +83,7 @@ export function Header({
   const { setIsOpen: setIsMobileDrawerOpen } = useMobileNavDrawer();
 
   const businessStatus = normalizeBusinessStatus(user?.businessStatus, "pending");
+  const isBusinessLive = isBusinessActiveStatus(user?.businessStatus);
   const shouldShowPendingReview = businessStatus === "pending" && Boolean(user?.businessId);
   const canRegister = Boolean(user && canRegisterBusiness(user));
   const safeProfilePhoto = useMemo(
@@ -240,18 +241,18 @@ export function Header({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`hidden lg:flex gap-2 ${
-                    businessStatus === "live" ? "text-primary font-semibold" : "text-muted-foreground"
+                  className={`hidden md:flex gap-2 ${
+                    isBusinessLive ? "text-primary font-semibold" : "text-muted-foreground"
                   } hover:text-foreground`}
                   onClick={() => {
-                    if (businessStatus === "live" || shouldShowPendingReview || !canRegister) {
+                    if (isBusinessLive || shouldShowPendingReview || !canRegister) {
                       navigateTo("business-entry");
                     } else {
                       navigateTo("business-register");
                     }
                   }}
                 >
-                  {businessStatus === "live" ? (
+                  {isBusinessLive ? (
                     <>
                       <LayoutDashboard className="h-4 w-4" />
                       <span className="hidden xl:inline">Business Hub</span>

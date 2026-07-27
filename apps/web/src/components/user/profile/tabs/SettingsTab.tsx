@@ -64,16 +64,12 @@ export function SettingsTab({
         <div className="space-y-4 max-w-3xl">
             <Card className="account-card-surface gap-0">
                 <FeatureCard
-                    title={
-                        <>
-                            <SettingsIcon className="h-5 w-5" /> Notification Settings
-                        </>
-                    }
+                    title="Notification Settings"
                     description={ACCOUNT_COPY.notificationsDescription}
                     Icon={SettingsIcon}
                 />
                 <CardContent className="space-y-4">
-                    <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-link-dark">
+                    <div className="rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-3 text-xs text-link-dark leading-relaxed">
                         These toggles control the notifications you actually receive. Smart alert delivery also respects
                         the email, push, and instant-alert settings below.
                     </div>
@@ -131,7 +127,7 @@ export function SettingsTab({
                     <Separator />
                     <FormError message={notificationSettingsError} />
                     <Button
-                        className="w-full h-11 gap-2"
+                        className="w-full h-10 gap-2 text-xs font-medium"
                         variant="outline"
                         onClick={handleSaveNotificationSettings}
                         disabled={isSavingNotificationSettings}
@@ -142,13 +138,13 @@ export function SettingsTab({
                 </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50 gap-0">
+            <Card className="border-red-200 bg-red-50/50 gap-0">
                 <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2 text-red-600">
-                        <Trash2 className="h-5 w-5" />
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-red-600">
+                        <Trash2 className="h-4 w-4" />
                         Delete Account
                     </CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardDescription className="text-xs text-slate-500">
                         Permanently delete your account. Secure confirmation required.
                     </CardDescription>
                 </CardHeader>
@@ -156,7 +152,7 @@ export function SettingsTab({
                     <Button
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-11 gap-2"
+                        className="h-10 gap-2 text-xs font-medium"
                     >
                         <AlertTriangle className="h-4 w-4" />
                         Delete My Account

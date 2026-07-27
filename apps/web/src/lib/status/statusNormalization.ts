@@ -1,5 +1,6 @@
 import { 
   normalizeBusinessStatus,
+  isBusinessActiveStatus,
   normalizeAdStatus,
   normalizeServiceStatus,
 } from "@esparex/shared";
@@ -15,6 +16,7 @@ function normalizeLowercase(value: unknown): string {
 
 export { 
   normalizeBusinessStatus,
+  isBusinessActiveStatus,
   normalizeAdStatus,
   normalizeServiceStatus
 };

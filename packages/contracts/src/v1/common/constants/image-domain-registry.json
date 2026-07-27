@@ -23,19 +23,37 @@
     },
     {
       "protocol": "https",
-      "hostname": "**.amazonaws.com",
+      "hostname": "esparexdev.s3.ap-south-1.amazonaws.com",
       "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
-      "hostname": "**.cloudfront.net",
+      "hostname": "*.s3.ap-south-1.amazonaws.com",
       "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
-      "hostname": "**.esparex.com",
+      "hostname": "*.s3.amazonaws.com",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "*.amazonaws.com",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "*.cloudfront.net",
+      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "*.esparex.com",
       "port": "",
       "pathname": "/**"
     }
