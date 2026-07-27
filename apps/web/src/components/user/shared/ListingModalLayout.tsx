@@ -18,8 +18,6 @@ interface ListingModalLayoutProps {
 }
 
 export function ListingModalLayout({ title, subtitle, onClose, fullScreen, children }: ListingModalLayoutProps) {
-    const titleId = React.useId();
-
     if (fullScreen) {
         return (
             <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -39,7 +37,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                 <X className="w-4 h-4" />
                             </button>
                             <div className="flex-1 flex items-baseline gap-2 ml-1">
-                                <DialogTitle id={titleId} className="font-bold text-foreground text-base leading-none">
+                                <DialogTitle className="font-bold text-foreground text-base leading-none">
                                     {title}
                                 </DialogTitle>
                                 {subtitle && (
@@ -80,7 +78,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                         <X className="w-4 h-4" />
                     </button>
                     <div className="flex-1 flex items-baseline gap-2">
-                        <DialogTitle id={titleId} className="font-bold text-foreground text-base leading-none">
+                        <DialogTitle className="font-bold text-foreground text-base leading-none">
                             {title}
                         </DialogTitle>
                         {subtitle && (

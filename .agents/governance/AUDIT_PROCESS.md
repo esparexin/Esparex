@@ -53,7 +53,7 @@ Every audit concludes with one of four standardized outcomes:
 | Outcome | Definition | Effect |
 |---|---|---|
 | **PASS** | All checks satisfied. No observations. | Audit closed. |
-| **PASS WITH OBSERVATIONS** | All critical checks satisfied. Non-blocking findings documented. | Audit closed. Observations tracked in [AUDIT_STATUS.md](./AUDIT_STATUS.md) and, where applicable, the [Risk Register](../ARCHITECTURE_RISK_REGISTER.md). |
+| **PASS WITH OBSERVATIONS** | All critical checks satisfied. Non-blocking findings documented. | Audit closed. Observations tracked in [AUDIT_STATUS.md](./AUDIT_STATUS.md) and, where applicable, the [Risk Register](./ARCHITECTURE_RISK_REGISTER.md). |
 | **FAIL** | One or more critical checks failed. | Audit open. Must be resolved before the next release gate. |
 | **BLOCKED** | Cannot complete audit due to missing access, evidence, or tooling. | Audit suspended. Reason documented. Unblocking condition stated. |
 

@@ -58,7 +58,7 @@ When attempting to change the Category on the Post Ad page after previously maki
 ## 3. Root Cause Analysis
 The issue lies inside the `useCascadeConfirmation` hook within:
 
-[apps/web/src/components/ui/cascade-confirm-dialog.tsx](file:///c:/Users/Administrator/Documents/GitHub/Esparex/apps/web/src/components/ui/cascade-confirm-dialog.tsx)
+`apps/web/src/components/ui/cascade-confirm-dialog.tsx`
 
 ```typescript
   const handleConfirm = useCallback(() => {

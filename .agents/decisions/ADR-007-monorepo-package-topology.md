@@ -4,7 +4,7 @@
 **Date**: 2026-07-13
 **Owners**: Architecture Owner, Platform Owner
 **Impacted Modules**: Repository Root, `@esparex/core`, `@esparex/shared`, `@esparex/backend-api`, `apps/*`
-**Related Decisions**: [ADR-005](./ADR-005-package-boundary-enforcement.md), [ADR-008](./ADR-008-domain-architecture-and-bounded-contexts.md), [ADR-009](./ADR-009-integration-strategy.md)
+**Related Decisions**: [ADR-005](./ADR-005-core-backend-separation.md), [ADR-008](./ADR-008-domain-architecture-and-bounded-contexts.md), [ADR-009](./ADR-009-integration-strategy.md)
 
 ---
 

@@ -7,7 +7,6 @@ This workflow provides a step-by-step checklist for migrating legacy bounded con
 ## 1. Discovery
 - [ ] Run live codebase discovery on the target context files under `core/src/services/<context>` and `backend/api/src/controllers/<context>`.
 - [ ] Inspect external dependencies (e.g., Mongoose models, Redis cache helpers, third-party libraries).
-- [ ] Rebuild the local knowledge graph using `$env:GRAPHIFY_NO_BACKUP=1; graphify update .` to map context dependencies and composition roots.
 
 ## 2. Repository Capability Audit
 - [ ] Audit all data retrieval and mutation methods in the context.

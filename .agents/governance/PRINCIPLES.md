@@ -84,7 +84,7 @@ apps (presentation)
 
 > Significant structural decisions are recorded in an ADR before the implementation begins, not after. The decision record is evidence that the change was intentional.
 
-**Applied to Esparex**: See [ADR-006](../../decisions/ADR-006-adr-decision-lifecycle.md) for the definition of "significant structural decision."
+**Applied to Esparex**: See [ADR-006](../decisions/ADR-006-adr-decision-lifecycle.md) for the definition of "significant structural decision."
 
 ---
 

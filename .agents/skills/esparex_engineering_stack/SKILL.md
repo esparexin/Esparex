@@ -25,7 +25,7 @@ This skill establishes the authoritative engineering contract, library limits, a
 
 ## Directives
 Before executing any task involving code changes:
-1. Resolve the specific workspace boundaries by loading [frameworks.md](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/skills/esparex_engineering_stack/references/frameworks.md).
-2. Validate that the proposed library or API client is not banned in [prohibited.md](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/skills/esparex_engineering_stack/references/prohibited.md).
-3. Follow the canonical execution steps defined in [patterns.md](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/skills/esparex_engineering_stack/references/patterns.md).
-4. Verify conformity using the validation checklists in [checklists/](file:///c:/Users/Administrator/Documents/GitHub/Esparex/.agents/skills/esparex_engineering_stack/checklists/).
+1. Resolve the specific workspace boundaries by loading [frameworks.md](references/frameworks.md).
+2. Validate that the proposed library or API client is not banned in [prohibited.md](references/prohibited.md).
+3. Follow the canonical execution steps defined in [patterns.md](references/patterns.md).
+4. Verify conformity using the validation checklists in [checklists/](checklists/).

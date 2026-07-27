@@ -1,4 +1,4 @@
-# Architecture Decision Record — ADR-001
+# Architecture Decision Record — ADR-011
 
 **Status**: Accepted
 **Date**: 2026-07-22
