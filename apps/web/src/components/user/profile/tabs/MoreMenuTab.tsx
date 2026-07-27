@@ -3,8 +3,7 @@
 import type { User } from "@/types/User";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { Card } from "@/components/ui/card";
-import { Button } from "@esparex/ui";
-import { Crown, LogOut } from "@/components/ui/icons";
+import { LogOut } from "@/components/ui/icons";
 import { AccountNavItemList } from "../../AccountNavItemList";
 
 interface MoreMenuTabProps {
@@ -15,37 +14,13 @@ interface MoreMenuTabProps {
 }
 
 export function MoreMenuTab({
-  user,
+  user: _user,
   onTabChange,
   onLogout,
   renderTabBadge,
 }: MoreMenuTabProps) {
   return (
     <div className="space-y-4 block md:hidden max-w-full pb-20">
-      {/* Current Plan Banner */}
-      <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-md relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-2 opacity-10">
-          <Crown className="w-16 h-16" />
-        </div>
-        <p className="text-xs font-semibold text-blue-100 uppercase tracking-wider mb-1">
-          Current Plan
-        </p>
-        <p className="text-base font-bold flex items-center gap-2">
-          <Crown className="h-4 w-4 text-amber-400 fill-amber-400" />
-          {user?.plan || "Free"}
-        </p>
-        {(!user?.plan || user.plan === "Free") && (
-          <Button
-            type="button"
-            onClick={() => onTabChange("plans")}
-            size="sm"
-            className="w-full mt-3 bg-white/15 hover:bg-white/25 border-0 text-white text-xs h-9 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
-          >
-            Upgrade Plan
-          </Button>
-        )}
-      </div>
-
       {/* Navigation List */}
       <Card className="p-2 border-0 shadow-sm bg-white">
         <div className="space-y-1" role="list">

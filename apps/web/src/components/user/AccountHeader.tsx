@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ChevronLeft, SettingsIcon } from "@/components/ui/icons";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { ACCOUNT_COPY } from "@/config/copy/account";
@@ -9,6 +10,8 @@ interface AccountHeaderProps {
   activeTab?: ProfileTabValue;
   /** Called when the back button is pressed on mobile */
   onBackToMenu?: () => void;
+  /** Optional element rendered on the top right corner of the mobile sticky header */
+  rightElement?: React.ReactNode;
   /** Optional extra class for the desktop page-header wrapper */
   className?: string;
 }
@@ -16,14 +19,13 @@ interface AccountHeaderProps {
 /**
  * Single responsive account header.
  *
- * Mobile (< md):  Sticky top bar with back-chevron and active tab title.
+ * Mobile (< md):  Sticky top bar with back-chevron, active tab title, and optional rightElement slot.
  * Desktop (≥ md): Page-level heading block with icon, title, and subtitle.
- *
- * Replaces the former MobileAccountHeader + AccountHeader split.
  */
 export function AccountHeader({
   activeTab,
   onBackToMenu,
+  rightElement,
   className = "",
 }: AccountHeaderProps) {
   // ── Mobile header state ──────────────────────────────────────────────────
@@ -37,7 +39,7 @@ export function AccountHeader({
     <>
       {/* MOBILE: Sticky contextual header (hidden on md+) */}
       <header
-        className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex md:hidden items-center px-3 h-14 w-full"
+        className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex md:hidden items-center justify-between px-3 h-14 w-full"
         aria-label="Account section header"
       >
         <div className="flex items-center gap-2 min-w-0">
@@ -51,10 +53,16 @@ export function AccountHeader({
               <ChevronLeft className="h-6 w-6" />
             </button>
           )}
-          <h1 className="account-page-title text-sm font-normal text-slate-800 truncate">
+          <h1 className="account-page-title text-sm font-semibold text-slate-800 truncate">
             {mobileTitle}
           </h1>
         </div>
+
+        {rightElement && (
+          <div className="flex items-center shrink-0 ml-2">
+            {rightElement}
+          </div>
+        )}
       </header>
 
       {/* DESKTOP: Page-level heading block (hidden below md, container-aligned) */}
@@ -72,4 +80,3 @@ export function AccountHeader({
     </>
   );
 }
-

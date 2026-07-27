@@ -361,6 +361,13 @@ export function ProfileSettingsSidebar({
       <AccountHeader
         activeTab={activeTab}
         onBackToMenu={() => handleTabChange("more")}
+        rightElement={
+          activeTab === "plans" ? (
+            <div className="text-[11px] font-medium text-slate-500 bg-slate-100/90 border border-slate-200/80 px-2.5 py-1 rounded-full shrink-0">
+              Current: <span className="font-bold text-slate-800">{user?.plan || "Free"}</span>
+            </div>
+          ) : undefined
+        }
       />
 
       <PageContainer variant="wide" className="pt-1 pb-20 md:pb-10">
