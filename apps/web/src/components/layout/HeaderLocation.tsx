@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { MapPin } from "@/icons/IconRegistry";
 import { useLocationData } from "@/context/LocationContext";
 import { getHeaderLocationText } from "@/lib/location/locationService";
 import { useMounted } from "@/hooks/useMounted";

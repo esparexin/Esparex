@@ -4,7 +4,8 @@ import type { User } from "@/types/User";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
-import { Crown, ChevronRight, LogOut } from "@/components/ui/icons";
+import { Crown, LogOut } from "@/components/ui/icons";
+import { AccountNavItemList } from "../../AccountNavItemList";
 
 interface MoreMenuTabProps {
   user: (User & { plan?: string }) | null;
@@ -47,23 +48,14 @@ export function MoreMenuTab({
 
       {/* Navigation List */}
       <Card className="p-2 border-0 shadow-sm bg-white">
-        <div className="space-y-1">
-          {PROFILE_TAB_ITEMS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.value}
-                type="button"
-                onClick={() => onTabChange(item.value)}
-                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left font-medium text-sm text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[44px]"
-              >
-                <Icon className="h-5 w-5 text-slate-500 flex-shrink-0" />
-                <span className="flex-1 text-slate-900 font-semibold">{item.label}</span>
-                {renderTabBadge(item.value)}
-                <ChevronRight className="h-4 w-4 text-slate-400 ml-auto" />
-              </button>
-            );
-          })}
+        <div className="space-y-1" role="list">
+          <AccountNavItemList
+            items={PROFILE_TAB_ITEMS}
+            activeTab="more"
+            onTabChange={onTabChange}
+            renderTabBadge={renderTabBadge}
+            variant="menu"
+          />
         </div>
 
         <div className="my-2 border-t border-slate-100" />

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "@/icons/IconRegistry";
 import type { User } from "@/types/User";
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";

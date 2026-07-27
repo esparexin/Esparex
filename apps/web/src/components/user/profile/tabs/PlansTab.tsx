@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
-import { Crown, Package } from "lucide-react";
+import { Crown, Package } from "@/icons/IconRegistry";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import type { ProfilePlan, ProfilePlanType } from "../types";
 
@@ -35,31 +35,31 @@ export function PlansTab({
     const plansToDisplay = dynamicPlans;
 
     const renderPlanGrid = (type: ProfilePlanType, title: string, description: string, icon: React.ReactNode, colorClass: string) => (
-        <div>
-            <div className="mb-3">
-                <h3 className="font-bold flex items-center gap-2">
+        <div className="space-y-3">
+            <div className="mb-2">
+                <h3 className="account-section-title flex items-center gap-2">
                     {icon}
                     {title}
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">{description}</p>
+                <p className="account-body-text mt-0.5">{description}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {plansToDisplay
                     .filter((p) => isProfilePlanType(p.type) && p.type === type)
                     .map((plan) => (
-                    <Card key={plan.id} className={plan.popular ? `border-2 ${colorClass} relative gap-0` : "gap-0"}>
+                    <Card key={plan.id} className={plan.popular ? `account-card-surface border-2 ${colorClass} relative gap-0` : "account-card-surface gap-0"}>
                         {plan.popular && (
                             <Badge className={`absolute -top-2 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${POPULAR_BADGE_CLASSES[plan.type] || "bg-primary text-white"}`}>
                                 Popular
                             </Badge>
                         )}
                         <CardHeader className="pb-2">
-                            <CardTitle className="text-base">{plan.name}</CardTitle>
-                            <div className="flex items-baseline gap-1">
-                                <span className={`text-xl md:text-2xl font-bold ${colorClass.replace('border', 'text')}`}>
+                            <CardTitle className="account-section-title text-base">{plan.name}</CardTitle>
+                            <div className="flex items-baseline gap-1 pt-1">
+                                <span className={`account-price-stat ${colorClass.replace('border', 'text')}`}>
                                     {formatCurrency(plan.price)}
                                 </span>
-                                <span className="text-xs text-muted-foreground">/ {plan.duration}</span>
+                                <span className="account-micro-text">/ {plan.duration}</span>
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-3">
@@ -69,7 +69,7 @@ export function PlansTab({
                                     setSelectedPlan(plan.id);
                                     setShowPlanDialog(true);
                                 }}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 rounded-lg shadow-xs transition-all active:scale-98 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 font-medium text-xs md:text-sm"
                             >
                                 Buy Now
                             </Button>
@@ -81,23 +81,23 @@ export function PlansTab({
     );
 
     return (
-        <div className="space-y-4 max-w-4xl">
-            <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-xl overflow-hidden relative">
+        <div className="space-y-4 max-w-3xl">
+            <Card className="bg-gradient-to-br from-blue-600 to-indigo-700 border-0 shadow-lg overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                     <Crown className="w-40 h-40 text-white" />
                 </div>
-                <CardContent className="p-8 relative z-10">
+                <CardContent className="p-6 md:p-8 relative z-10">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
-                            <h2 className="text-xl font-bold flex items-center gap-3 text-white">
-                                <Crown className="h-6 w-6 text-amber-400 fill-amber-400" />
+                            <h2 className="text-lg md:text-xl font-bold flex items-center gap-2.5 text-white tracking-tight">
+                                <Crown className="h-5 w-5 text-amber-400 fill-amber-400" />
                                 Plans & Boosting
                             </h2>
-                            <p className="text-blue-100 mt-2 text-sm">
+                            <p className="text-blue-100 mt-1 text-xs md:text-sm">
                                 Reach 10x more buyers and sell items faster
                             </p>
                         </div>
-                        <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-md px-4 py-2 text-sm rounded-full">
+                        <Badge className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold rounded-full">
                             Current: {currentPlan}
                         </Badge>
                     </div>
@@ -108,7 +108,7 @@ export function PlansTab({
                 "Spotlight",
                 "Spotlight Ads",
                 "Get your ad to the top of search results",
-                <span className="h-8 w-8 rounded-xl bg-blue-100 flex items-center justify-center text-sm shadow-inner group-hover:scale-110 transition-transform">⭐</span>,
+                <span className="h-6 w-6 rounded-lg bg-blue-100 flex items-center justify-center text-xs shadow-xs">⭐</span>,
                 "border-green-500"
             )}
 
@@ -116,7 +116,7 @@ export function PlansTab({
                 "More Ads",
                 "More Ads Packs",
                 "Post more ads and reach a wider audience",
-                <Package className="h-5 w-5 text-link" />,
+                <Package className="h-4.5 w-4.5 text-link" />,
                 "border-blue-500"
             )}
 
@@ -124,13 +124,13 @@ export function PlansTab({
                 "Alert Slots",
                 "Smart Alert Slots",
                 "Increase the number of active alerts you can run",
-                <span className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center text-sm">🔔</span>,
+                <span className="h-6 w-6 rounded-full bg-purple-100 flex items-center justify-center text-xs">🔔</span>,
                 "border-purple-500"
             )}
 
             {plansToDisplay.length === 0 && (
                 <Card className="border-dashed border-slate-300">
-                    <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                    <CardContent className="p-6 text-center text-xs text-slate-500">
                         Plans are temporarily unavailable. Please try again shortly.
                     </CardContent>
                 </Card>

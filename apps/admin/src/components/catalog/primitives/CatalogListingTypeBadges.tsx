@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase, Smartphone, Wrench as WrenchIcon } from "lucide-react";
+import { Briefcase, Smartphone, Wrench as WrenchIcon } from "@esparex/ui";
 import type { ReactNode } from "react";
 
 const LISTING_TYPE = { AD: "ad", SERVICE: "service", SPARE_PART: "spare_part" };

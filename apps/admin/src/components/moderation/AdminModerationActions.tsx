@@ -1,4 +1,4 @@
-import { Ban, Check, Eye, Pause, Trash2, X, ExternalLink } from "lucide-react";
+import { Ban, Check, Eye, Pause, Trash2, X, ExternalLink } from "@esparex/ui";
 import type { ReactNode } from "react";
 import type { ModerationStatus } from "./moderationTypes";
 

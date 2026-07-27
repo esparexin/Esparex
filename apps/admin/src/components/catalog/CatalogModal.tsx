@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X } from "@esparex/ui";
 import { ReactNode, useEffect } from "react";
 
 interface CatalogModalProps {

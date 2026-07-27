@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { AlertCircle, Heart, Trash2 } from "lucide-react";
+import { AlertCircle, Heart, Trash2 } from "@/icons/IconRegistry";
 import type { Ad } from "@/schemas/ad.schema";
 import { toSafeImageSrc, DEFAULT_IMAGE_PLACEHOLDER } from "@/lib/image/imageUrl";
 import { Badge } from "../../ui/badge";

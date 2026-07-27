@@ -6,7 +6,7 @@ import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
 import { useSmartAlertLogs } from "@/hooks/useSmartAlertLogs";
 import { useAdminSmartAlerts } from "@/hooks/useAdminSmartAlerts";
-import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "lucide-react";
+import { Loader2, RefreshCw, BellRing, Navigation, Trash2, History } from "@esparex/ui";
 import { format } from "date-fns";
 
 type AlertLog = {

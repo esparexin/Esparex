@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/common/InfoPage";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "@/icons/IconRegistry";
 
 export const metadata: Metadata = {
     title: "Contact Us | Esparex",

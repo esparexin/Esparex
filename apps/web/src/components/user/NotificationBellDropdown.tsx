@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     Bell,
     Inbox,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 import { usePathname, useRouter } from "next/navigation";
 
 import { queryKeys } from "@/hooks/queries";

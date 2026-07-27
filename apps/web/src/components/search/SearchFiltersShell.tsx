@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "@/icons/IconRegistry";
 import type { Category } from "@/lib/api/user/categories";
 import {
   Button,

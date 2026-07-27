@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { Eye, Clock, MapPin } from "lucide-react";
+import { Eye, Clock, MapPin } from "@/icons/IconRegistry";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
 import {
   resolveListingLocationLabel,

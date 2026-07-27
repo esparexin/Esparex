@@ -5,7 +5,7 @@ import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { catalogManagementTabs } from "@/components/layout/adminModuleTabSets";
 import DeviceCatalogTabs from "@/components/catalog/DeviceCatalogTabs";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from "@esparex/ui";
 
 export default function CategoriesPage() {
     return (

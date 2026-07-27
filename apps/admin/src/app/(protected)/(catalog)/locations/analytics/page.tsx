@@ -16,7 +16,7 @@ import {
     normalizeSearchParamValue,
     updateSearchParams,
 } from "@/lib/urlSearchParams";
-import { MapPin, TrendingUp, BarChart2, Users, Search, Flame } from "lucide-react";
+import { MapPin, TrendingUp, BarChart2, Users, Search, Flame } from "@esparex/ui";
 
 function LocationAnalyticsPageContent({
     initialCity,

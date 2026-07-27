@@ -1,28 +1,15 @@
 "use client";
 
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
+import { useCallback } from "react";
 import { usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@esparex/ui";
 import { Loader2 } from "@/icons/IconRegistry";
 import { MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
-import { cn } from "@/components/ui/utils";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta } from "../common/utils";
-import { useCallback } from "react";
-
-function DescriptionCharCounter() {
-    const description = useWatch({ name: "description" }) as string || "";
-    return (
-        <span className={cn(
-            "text-xs font-normal tracking-tight",
-            description.length >= MAX_AD_DESCRIPTION_CHARS ? "text-amber-600" : "text-foreground-subtle"
-        )}>
-            {description.length} / {MAX_AD_DESCRIPTION_CHARS}
-        </span>
-    );
-}
+import { getNestedFieldMeta, CharCounter } from "../common/utils";
 
 export function DescriptionSection() {
     const { register } = useFormContext<PostAdFormData>();
@@ -68,7 +55,7 @@ export function DescriptionSection() {
                     className="min-h-[160px] rounded-xl border-2 border-slate-100 focus:border-primary font-normal text-base py-3"
                 />
                 <div className="flex justify-end mt-1">
-                    <DescriptionCharCounter />
+                    <CharCounter name="description" max={MAX_AD_DESCRIPTION_CHARS} />
                 </div>
             </Field>
         </section>

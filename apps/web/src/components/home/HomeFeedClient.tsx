@@ -2,7 +2,7 @@
 "use client";
 
 import { startTransition, useEffect, useMemo, useState } from "react";
-import { Loader2, PackageOpen } from "lucide-react";
+import { Loader2, PackageOpen } from "@/icons/IconRegistry";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
 import { useHomeAdsQuery } from "@/hooks/queries/useListingsQuery";

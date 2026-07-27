@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchX, Bell } from "lucide-react";
+import { SearchX, Bell } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 import Link from "next/link";
 

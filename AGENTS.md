@@ -428,4 +428,151 @@ This standard applies to all domain modules (Location, Listings, Payments, Auth,
 * **Pre-Implementation Gate (ADR):** Any change touching shared DTOs or domain formatters requires an Architectural Decision Record evaluating backwards compatibility.
 * **Contract Impact Checklist:** Any PR changing an API contract dimension must complete the mandatory checklist verifying that Backend, Frontend, and Playwright E2E mocks are synchronized.
 
+---
+
+## 🚨 ARCHITECTURAL OWNERSHIP & ANTI-DUPLICATION GOVERNANCE STANDARD (MANDATORY)
+
+### 1. Ownership Matrix
+
+Every architectural responsibility across the Esparex platform must have exactly one designated owner:
+
+| Responsibility | Architectural Owner | Allowed Consumers | Prohibited In |
+| --- | --- | --- | --- |
+| **Layout Shell & Bounds** | `PageContainer` / `PageShell` | Feature Pages | Feature sub-tabs, internal components |
+| **Design Tokens** | `packages/ui/src/tokens` | All Packages & Apps | Local inline magic values |
+| **UI Primitives** | `@esparex/ui` (`packages/ui`) | `apps/web`, `apps/admin` | App-level local implementations |
+| **Business Components** | Feature Modules (`components/user/*`) | Feature Pages | Shared `@esparex/ui` package |
+| **Business Logic & Rules** | `@esparex/core` | Controllers, Hooks, UI | UI presentation components |
+| **API Contracts & DTOs** | `@esparex/contracts` | All Packages & Apps | App-level duplicate DTO types |
+
+---
+
+### 2. "Do Not Duplicate" Component Rule
+
+The following foundational primitives must **NEVER** have multiple implementations across any package or app:
+
+```text
+PROHIBITED FROM DUPLICATION:
+- Button          - Input           - Select          - Checkbox
+- RadioGroup      - Switch          - Dialog          - Drawer
+- Sheet           - Card            - Table           - Spinner
+- Badge           - StatusChip      - Toast / Popup   - Modal
+```
+
+---
+
+### 3. Duplication Boundary Criteria (Allowed vs. Prohibited)
+
+```text
+✅ ALLOWED
+✓ Feature business logic & workflows
+✓ Feature-specific forms & step wizards
+✓ Page composition & layout slot wiring
+✓ Feature-scoped custom hooks
+✓ Domain validation rules
+
+❌ STRICTLY PROHIBITED
+✗ Duplicate UI primitives (e.g. apps/web/src/components/ui/Input.tsx)
+✗ Nested layout containers (e.g. <PageContainer> inside <PageContainer>)
+✗ Local token overrides or inline color/font/spacing duplicates
+✗ Viewport-duplicated top-level headers/footers (e.g. DesktopHeader vs MobileHeader)
+✗ Duplicate utility functions or string formatters
+```
+
+---
+
+### 4. Component Creation Decision Tree
+
+Before creating or adding any UI component, follow this exact decision tree:
+
+```text
+Need a UI component?
+ │
+ ├── Already exists in @esparex/ui?
+ │    ├── YES ──► CONSUME IT (Do NOT create a local duplicate).
+ │    └── NO
+ │         │
+ │         ├── Reusable across multiple apps or features?
+ │         │    ├── YES ──► CREATE INSIDE @esparex/ui (with ADR approval).
+ │         │    └── NO  ──► CREATE INSIDE FEATURE MODULE (as a business component).
+```
+
+---
+
+### 5. Ownership Before Creation Rule
+
+> Before creating any component, hook, utility, or schema, developer/agent must determine its authoritative architectural owner. If an owner already exists, extend or consume that implementation instead of creating a new one.
+
+---
+
+### 6. PR Anti-Duplication Audit Checklist
+
+Every UI-related Pull Request must verify:
+
+- [ ] **Primitive Check**: Is this component already available in `@esparex/ui`?
+- [ ] **Single Implementation**: Does this introduce a second/parallel implementation of an existing control?
+- [ ] **Package Location**: Does a reusable primitive belong inside `packages/ui`?
+- [ ] **Single Container**: Does this introduce a duplicate/nested layout container (`PageContainer`)?
+- [ ] **Responsive Unity**: Does this duplicate DOM structures for mobile vs desktop?
+- [ ] **Design Tokens**: Does this use canonical design tokens (`--color-surface`, `--size-*`)?
+- [ ] **SSOT Governance**: Does this preserve single-instance architectural ownership?
+
+---
+
+### 7. Architecture Decision Record (ADR) Requirement
+
+Any new reusable primitive, layout container, design token, or cross-feature component requires a documented **Architecture Decision Record (ADR)** evaluating:
+1. Rationale and intended consumers.
+2. Why existing `@esparex/ui` implementations cannot be extended.
+3. Backwards compatibility & migration strategy.
+
+---
+
+### 8. SSOT Violation Reference Matrix
+
+```text
+❌ PROHIBITED: Local primitive duplicate
+   apps/web/src/components/ui/Input.tsx (Local implementation)
+   packages/ui/src/atoms/Input.tsx      (Shared SSOT)
+   👉 CORRECT: export { Input } from "@esparex/ui";
+
+---------------------------------------------------------
+
+❌ PROHIBITED: Nested layout containers
+   <PageContainer variant="wide">
+      <main>
+         <PageContainer variant="default">  <-- DUPLICATE CONTAINER
+         </PageContainer>
+      </main>
+   </PageContainer>
+   👉 CORRECT: Sub-tabs use <div className="space-y-4 max-w-3xl"> inside <main>.
+
+---------------------------------------------------------
+
+❌ PROHIBITED: Viewport component duplication
+   DesktopHeader.tsx
+   MobileHeader.tsx
+   👉 CORRECT: Header.tsx using CSS media query utilities (hidden md:flex, flex md:hidden).
+```
+
+---
+
+### 9. Migration Before Creation Rule
+
+> If a new feature requires modifying an existing shared primitive, developer/agent MUST migrate or extend the shared primitive rather than introducing a parallel implementation. Creating a second implementation to avoid modifying the shared component is strictly prohibited.
+
+---
+
+### 10. Repository Health Goals
+
+- **Zero** duplicated UI primitives across all applications.
+- **Zero** duplicated layout containers (`<PageContainer>` nesting).
+- **Zero** duplicate responsive components (`Desktop*` vs `Mobile*`).
+- **Zero** local implementations of shared foundation controls.
+- **One** owner for every reusable component.
+- **One** owner for every design token.
+- **One** owner for every layout responsibility.
+- **Zero** architectural drift.
+
+
 

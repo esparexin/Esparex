@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight } from "@/icons/IconRegistry";
 
 interface BreadcrumbItem {
   label: string;

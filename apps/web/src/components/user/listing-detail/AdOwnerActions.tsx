@@ -1,6 +1,6 @@
 import { Button } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp } from "lucide-react";
+import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp } from "@/icons/IconRegistry";
 
 interface AdOwnerActionsProps {
     isSold: boolean;

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search } from "@esparex/ui";
 import {
     EMPTY_ADMIN_SEARCH_STATE,
     searchAdminRecords,

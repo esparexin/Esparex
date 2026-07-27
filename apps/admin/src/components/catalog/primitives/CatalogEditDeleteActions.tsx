@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "@esparex/ui";
 import { CatalogActionIconButton, CatalogActionsRow } from "./CatalogActionsRow";
 
 export function CatalogEditDeleteActions({

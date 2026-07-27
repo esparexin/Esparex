@@ -1,21 +1,11 @@
 import React from 'react';
 
-interface EmptyStateShellProps {
-    children: React.ReactNode;
-}
-
 /**
- * EmptyStateShell - Governance-compliant empty state component
- * 
- * Rules:
- * - Text content only
- * - No icons
- * - No buttons
- * - No custom styling beyond basic centering
+ * EmptyStateShell - Governance-compliant empty state wrapper
  */
-export function EmptyStateShell({ children }: EmptyStateShellProps) {
+export function EmptyStateShell({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+        <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
             {children}
         </div>
     );

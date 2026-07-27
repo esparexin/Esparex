@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 
 interface BackButtonProps {

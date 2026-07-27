@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus } from "@esparex/ui";
 import { CatalogIndexPage } from "@/components/catalog/CatalogIndexPage";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";

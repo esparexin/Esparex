@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@esparex/ui";
 import { useState, type ReactNode } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2 } from "@esparex/ui";
 
 import { Business } from "@esparex/contracts";
 

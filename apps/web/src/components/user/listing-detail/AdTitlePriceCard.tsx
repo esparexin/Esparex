@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatPrice, formatStableNumber } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
-import { Shield, CheckCircle, MapPin, Clock, Eye } from "lucide-react";
+import { Shield, CheckCircle, MapPin, Clock, Eye } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 interface AdTitlePriceCardProps {

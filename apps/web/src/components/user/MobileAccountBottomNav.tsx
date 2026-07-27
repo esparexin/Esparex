@@ -42,8 +42,9 @@ export function MobileAccountBottomNav({
             key={item.value}
             type="button"
             onClick={() => onTabChange(item.value)}
+            aria-current={isActive ? "page" : undefined}
             className={`flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 transition-all rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-              isActive ? "text-blue-600 font-bold" : "text-slate-500 hover:text-slate-700 font-medium"
+              isActive ? "text-blue-600 font-medium" : "text-slate-500 hover:text-slate-700 font-normal"
             }`}
           >
             <div className="relative">

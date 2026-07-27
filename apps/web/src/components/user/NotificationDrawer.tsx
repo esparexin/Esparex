@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, CheckCheck, Trash2, Inbox } from "lucide-react";
+import { Bell, CheckCheck, Trash2, Inbox } from "@/icons/IconRegistry";
 import { type Notification } from "@/lib/api/user/notifications";
 
 import {

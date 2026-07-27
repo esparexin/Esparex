@@ -34,4 +34,4 @@ export {
     Upload,
     ChevronLeft,
     MoreHorizontal,
-} from "lucide-react";
+} from "@esparex/ui";

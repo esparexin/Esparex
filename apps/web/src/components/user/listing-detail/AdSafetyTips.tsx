@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "@/icons/IconRegistry";
 
 export function AdSafetyTips() {
     return (

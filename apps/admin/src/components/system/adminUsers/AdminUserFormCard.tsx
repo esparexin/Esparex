@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@esparex/ui";
 import { USER_STATUS } from "@esparex/contracts";
 import type {
     AdminStatus,

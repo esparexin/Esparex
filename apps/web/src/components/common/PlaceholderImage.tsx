@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
-import { ImageOff, Loader2 } from "lucide-react";
+import { ImageOff, Loader2 } from "@/icons/IconRegistry";
 import { cn } from "@/lib/utils";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 

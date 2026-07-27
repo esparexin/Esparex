@@ -1,4 +1,3 @@
-
 /**
  * Central Icon Registry – ESPAREX
  *
@@ -24,7 +23,6 @@ export {
     Mail,
     MapPin,
     Settings,
-
     Menu,
     ArrowLeft,
     ArrowRight,
@@ -33,7 +31,7 @@ export {
     Plus,
     Minus,
     X,
-} from "lucide-react";
+} from "@esparex/ui";
 
 /* =======================
    Actions & UI
@@ -49,6 +47,7 @@ export {
     Filter,
     Heart,
     MessageCircle,
+    MessageCircleMore,
     VolumeX,
     EyeOff,
     Image,
@@ -63,7 +62,9 @@ export {
     ChevronDown,
     ChevronUp,
     Maximize,
-} from "lucide-react";
+    Pencil,
+    LogIn,
+} from "@esparex/ui";
 
 /* =======================
    Status & Feedback
@@ -74,13 +75,16 @@ export {
     AlertCircle,
     AlertTriangle,
     Clock,
+    Clock3,
     Loader2,
     Info,
     HelpCircle,
-} from "lucide-react";
+    Crown,
+    Timer,
+} from "@esparex/ui";
 
 /* =======================
-   Devices (Esparex Core)
+   Devices & Categories (Esparex Core)
 ======================= */
 export {
     Drone,
@@ -93,8 +97,17 @@ export {
     HardDrive,
     Headphones,
     Speaker,
-    Watch
-} from "lucide-react";
+    Watch,
+    Car,
+    Sofa,
+    Bike,
+    Shirt,
+    Gamepad2,
+    PawPrint,
+    GraduationCap,
+    Wifi,
+    WifiOff,
+} from "@esparex/ui";
 
 /* =======================
    Business & Commerce
@@ -111,7 +124,10 @@ export {
     Award,
     Star,
     Users,
-} from "lucide-react";
+    IndianRupee,
+    ShoppingBag,
+    PackageOpen,
+} from "@esparex/ui";
 
 /* =======================
    Social & Brand
@@ -121,14 +137,13 @@ export {
     Twitter,
     Instagram,
     Linkedin,
-} from "lucide-react";
+} from "@esparex/ui";
 
 /* =======================
    Admin & System
 ======================= */
 export {
     TestTube2,
-    ShoppingBag,
     Check,
     Calendar,
     CalendarClock,
@@ -175,14 +190,17 @@ export {
     Link,
     ExternalLink,
     Bell,
+    BellRing,
     Map,
-    Map as Globe,
+    Globe,
     Navigation,
     List,
     Link2,
     LayoutDashboard,
+    LayoutGrid,
     Settings2,
     Sliders,
+    SlidersHorizontal,
     ToggleLeft,
     ToggleRight,
     MousePointer2,
@@ -207,14 +225,26 @@ export {
     Megaphone,
     DraftingCompass,
     CircuitBoard,
-    WifiOff,
-    RefreshCcw
-} from "lucide-react";
+    RefreshCcw,
+    ArrowUpDown,
+    ClipboardList,
+    Inbox,
+    PlusCircle,
+    SearchX,
+    SortAsc,
+    CheckCheck,
+    CheckIcon,
+    ChevronDownIcon,
+    ChevronRightIcon,
+    CircleIcon,
+    ImageOff,
+    MessageSquareOff,
+} from "@esparex/ui";
 
 /* =======================
    Dynamic Registry
 ======================= */
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@esparex/ui";
 import {
     Drone as RegistryDrone,
     Smartphone as RegistrySmartphone,
@@ -245,7 +275,7 @@ import {
     Flame as RegistryFlame,
     Sparkles as RegistrySparkles,
     Palette as RegistryPalette,
-} from "lucide-react";
+} from "@esparex/ui";
 
 export const IconRegistry: Record<string, LucideIcon> = {
     Drone: RegistryDrone,
@@ -279,4 +309,5 @@ export const IconRegistry: Record<string, LucideIcon> = {
     Palette: RegistryPalette,
 };
 
+export type { LucideIcon } from "@esparex/ui";
 export type IconName = keyof typeof IconRegistry;

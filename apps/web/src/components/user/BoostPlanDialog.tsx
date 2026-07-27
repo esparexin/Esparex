@@ -20,7 +20,7 @@ import {
   Clock,
   CheckCircle2,
   Sparkles,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 import { formatPrice } from "@/lib/formatters";
 import { notify } from "@/lib/feedback";
 import { getPlans, type Plan as ApiPlan } from "@/lib/api/user/plans";

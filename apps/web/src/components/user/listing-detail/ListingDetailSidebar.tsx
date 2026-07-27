@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "@/icons/IconRegistry";
 
 import type { Ad } from "@/schemas/ad.schema";
 

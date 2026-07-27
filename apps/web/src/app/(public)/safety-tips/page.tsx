@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/common/InfoPage";
-import { AlertTriangle, ShieldCheck, MapPin, Search } from "lucide-react";
+import { AlertTriangle, ShieldCheck, MapPin, Search } from "@/icons/IconRegistry";
 
 export const metadata: Metadata = {
     title: "Safety Tips | Esparex",

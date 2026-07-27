@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield } from "lucide-react";
+import { Shield } from "@/icons/IconRegistry";
 import { AdCardCover, AdCardMeta, AdCardActions } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {

@@ -19,7 +19,7 @@ import {
     Watch,
     Tv,
     LucideIcon
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 
 export interface CategoryVisual {
     icon: LucideIcon;

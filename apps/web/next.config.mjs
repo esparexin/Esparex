@@ -26,6 +26,12 @@ const dynamicS3BucketPattern = s3BucketName
 const regionalS3RemotePatterns = [
     {
         protocol: 'https',
+        hostname: 'esparexdev.s3.ap-south-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
         hostname: `*.s3.${s3Region}.amazonaws.com`,
         port: '',
         pathname: '/**',

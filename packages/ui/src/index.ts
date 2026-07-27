@@ -6,6 +6,9 @@ export * from "./hooks/usePopupQueue";
 // Tokens
 export * from "./tokens/zIndex";
 
+// Icons SSOT
+export * from "./atoms/icons";
+
 // UI Primitives
 export * from "./atoms/AlertDialog";
 export * from "./atoms/Button";

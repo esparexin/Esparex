@@ -3,7 +3,7 @@
 
 import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw } from "@/icons/IconRegistry";
 
 import { type ListingFilters, type Listing, type ListingPageResult } from "@/lib/api/user/listings";
 import { getCategories } from "@/lib/api/user/categories";

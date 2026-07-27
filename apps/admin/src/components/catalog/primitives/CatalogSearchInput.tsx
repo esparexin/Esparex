@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search } from "@esparex/ui";
 
 export function CatalogSearchInput({
     value,

@@ -1,4 +1,4 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "@/icons/IconRegistry";
 
 import { Card, CardContent } from "@/components/ui/card";
 

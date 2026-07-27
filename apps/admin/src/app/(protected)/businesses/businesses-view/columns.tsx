@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, MapPin, Ban, RotateCcw } from "lucide-react";
+import { Building2, MapPin, Ban, RotateCcw } from "@esparex/ui";
 import { format } from "date-fns";
 import type { ColumnDef } from "@/components/ui/DataTable";
 import { Business } from "@esparex/contracts";

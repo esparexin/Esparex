@@ -215,8 +215,11 @@ export function isValidPersistedImageUrl(url: string): boolean {
         const isWhitelistedRemotePattern = imageDomainRegistry.nextRemotePatterns.some((pattern: { hostname: string }) => {
             const patternHost = pattern.hostname.toLowerCase();
             if (patternHost === host) return true;
+            if (patternHost.startsWith('*.')) {
+                return host.endsWith(patternHost.slice(1)) || host === patternHost.slice(2);
+            }
             if (patternHost.startsWith('**.')) {
-                return host.endsWith(patternHost.slice(3)) || host === patternHost.slice(3);
+                return host.endsWith(patternHost.slice(2)) || host === patternHost.slice(3);
             }
             return false;
         });

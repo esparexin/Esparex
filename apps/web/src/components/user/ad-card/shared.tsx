@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "lucide-react";
+import { Sparkles } from "@/icons/IconRegistry";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
 import { formatPrice } from "@/lib/formatters";

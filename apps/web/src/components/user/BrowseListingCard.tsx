@@ -3,7 +3,7 @@
 import { memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, MapPin, type LucideIcon } from "lucide-react";
+import { Clock, MapPin, type LucideIcon } from "@/icons/IconRegistry";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";

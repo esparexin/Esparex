@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@/icons/IconRegistry";
 import { IconRegistry } from "@/icons/IconRegistry";
 
 /**

@@ -3,7 +3,7 @@
 import { useMemo, useRef } from "react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ChevronLeft, ChevronRight, CheckCircle, MapPin, RefreshCcw, Wrench } from "lucide-react";
+import { AlertCircle, ChevronLeft, ChevronRight, CheckCircle, MapPin, RefreshCcw, Wrench } from "@/icons/IconRegistry";
 
 import { getBusinesses, type Business } from "@/lib/api/user/businesses";
 import type { UserPage } from "@/lib/routeUtils";

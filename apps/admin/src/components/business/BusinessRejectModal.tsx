@@ -1,6 +1,6 @@
 "use client";
 
-import { XCircle } from "lucide-react";
+import { XCircle } from "@esparex/ui";
 import { BusinessReasonModal } from "@/components/business/BusinessReasonModal";
 
 interface BusinessRejectModalProps {

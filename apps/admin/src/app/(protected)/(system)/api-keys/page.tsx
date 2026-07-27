@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { useToast } from "@/context/ToastContext";
 import type { ApiKeyItem } from "@/types/adminSession";
-import { Plus, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
+import { Plus, ShieldCheck, Loader2, AlertCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { administrationTabs } from "@/components/layout/adminModuleTabSets";

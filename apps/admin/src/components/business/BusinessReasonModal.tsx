@@ -9,7 +9,7 @@ import {
 } from "@esparex/ui";
 import { useState, type ReactNode } from "react";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
-import type { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "@esparex/ui";
 
 
 interface BusinessReasonModalProps {

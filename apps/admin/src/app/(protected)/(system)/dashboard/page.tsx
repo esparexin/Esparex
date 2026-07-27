@@ -8,7 +8,7 @@ import { adminFetch } from "@/lib/api/adminClient";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import type { TrendPoint } from "@/components/dashboard/TrendsChart";
-import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign, Wrench, Package } from "lucide-react";
+import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign, Wrench, Package } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { fetchAdminAdSummary, fetchAdminServiceSummary, fetchAdminSparePartSummary } from "@/lib/api/moderation";

@@ -1,6 +1,6 @@
 "use client";
 
-import { Filter } from "lucide-react";
+import { Filter } from "@esparex/ui";
 import type { SelectOption } from "./types";
 
 export function CatalogSelectFilter({

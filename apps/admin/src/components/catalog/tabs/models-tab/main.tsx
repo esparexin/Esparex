@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { GitBranch, Layers, CheckCircle, XCircle } from "lucide-react";
+import { GitBranch, Layers, CheckCircle, XCircle } from "@esparex/ui";
 import { useAdminModels } from "@/hooks/useAdminModels";
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";

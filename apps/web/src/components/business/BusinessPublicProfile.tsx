@@ -13,7 +13,7 @@ import {
   Phone,
   Share2,
   Star,
-} from "lucide-react";
+} from "@/icons/IconRegistry";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

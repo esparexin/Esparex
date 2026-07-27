@@ -2,7 +2,7 @@
 
 import type { Ref } from "react";
 import Link from "next/link";
-import { Ban, Eye, MoreVertical, PlayCircle, Search, Shield, User as UserIcon } from "lucide-react";
+import { Ban, Eye, MoreVertical, PlayCircle, Search, Shield, User as UserIcon } from "@esparex/ui";
 import {
     isManagedUserActive,
     type ManagedUser,

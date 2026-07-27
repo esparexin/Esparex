@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { formatStableNumber } from "@/lib/formatters";
 import { getCategoryIcon } from "@/utils/getCategoryIcon";
-import { MapPin, Tag, IndianRupee } from "lucide-react";
+import { MapPin, Tag, IndianRupee } from "@/icons/IconRegistry";
 import { cn } from "@/lib/utils";
 
 type SpecificFilterOption = {

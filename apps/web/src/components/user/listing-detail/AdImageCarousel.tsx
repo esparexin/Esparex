@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
-import { Share2, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Share2, Heart, ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";
 import { MARKETPLACE_CARD_FILL_SIZES } from "@/lib/imageSizes";
 

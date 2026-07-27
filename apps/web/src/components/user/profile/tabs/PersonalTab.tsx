@@ -1,12 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
 import Image from "next/image";
 import { Button, RadioGroup, RadioGroupItem } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { User, Camera, Upload, Trash2, Building2, Save, Phone, Eye, EyeOff, Shield } from "lucide-react";
-import { PhoneInput } from "@/components/ui/PhoneInput";
+import { User, Camera, Upload, Trash2, Building2, Save, Phone, Eye, EyeOff, Shield } from "@/icons/IconRegistry";
+import { PhoneInput } from "../PhoneInput";
 import type {
     MobileVisibility,
     ProfileFormData,
@@ -56,9 +57,9 @@ export function PersonalTab({
     const safeProfilePhoto = toSafeImageSrc(profilePhoto, "");
 
     return (
-        <div className="space-y-5 max-w-4xl">
+        <div className="space-y-4 max-w-3xl">
             <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
-                <Card className="border-0 shadow-sm md:border md:shadow-sm gap-0">
+                <Card className="account-card-surface border-0 shadow-sm md:border md:shadow-sm gap-0">
                     <CardHeader className="pb-2 px-4 md:px-6">
                         <CardTitle className="flex items-center gap-2 text-base md:text-lg font-bold text-foreground">
                             <User className="h-5 w-5 text-link" />
@@ -194,80 +195,80 @@ export function PersonalTab({
                             </div>
                         </div>
 
-                    <div className="pt-2">
-                        <div className="p-5 md:p-6 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
-                            <div className="flex items-center gap-2 mb-1">
-                                <Building2 className="h-4 w-4 text-muted-foreground" />
-                                <h3 className="font-semibold text-sm text-foreground">Billing Details (Optional)</h3>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-                                <div className="space-y-1.5">
-                                    <div className="flex items-center justify-between max-w-[420px]">
-                                        <Label htmlFor="billing-business-name">Business Name</Label>
-                                        <span className={`text-xs font-medium ${(formData.businessName || "").length > 100 ? "text-destructive" : "text-muted-foreground"}`}>
-                                            {(formData.businessName || "").length}/100
-                                        </span>
-                                    </div>
-                                    <Input
-                                        id="billing-business-name"
-                                        name="businessName"
-                                        placeholder="Registered Business Name"
-                                        value={formData.businessName || ""}
-                                        maxLength={100}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                            if (profileErrors?.businessName) clearProfileError?.("businessName");
-                                            setFormData({ ...formData, businessName: e.target.value });
-                                        }}
-                                        className={`bg-white max-w-[420px] ${profileErrors?.businessName ? "border-red-500" : ""}`}
-                                        aria-invalid={!!profileErrors?.businessName}
-                                        aria-describedby={profileErrors?.businessName ? "profile-business-name-error" : undefined}
-                                        autoComplete="organization"
-                                    />
-                                    <FormError id="profile-business-name-error" message={profileErrors?.businessName} />
+                        <div className="pt-2">
+                            <div className="p-5 md:p-6 bg-slate-50 rounded-xl border border-slate-100 space-y-3">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                                    <h3 className="font-semibold text-sm text-foreground">Billing Details (Optional)</h3>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <div className="flex items-center justify-between max-w-[420px]">
-                                        <Label htmlFor="billing-gst-number">GST Number</Label>
-                                        <span className={`text-xs font-medium ${(formData.gstNumber || "").length > 0 && (formData.gstNumber || "").length !== 15 ? "text-amber-600" : "text-muted-foreground"}`}>
-                                            {(formData.gstNumber || "").length}/15
-                                        </span>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center justify-between max-w-[420px]">
+                                            <Label htmlFor="billing-business-name">Business Name</Label>
+                                            <span className={`text-xs font-medium ${(formData.businessName || "").length > 100 ? "text-destructive" : "text-muted-foreground"}`}>
+                                                {(formData.businessName || "").length}/100
+                                            </span>
+                                        </div>
+                                        <Input
+                                            id="billing-business-name"
+                                            name="businessName"
+                                            placeholder="Registered Business Name"
+                                            value={formData.businessName || ""}
+                                            maxLength={100}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                if (profileErrors?.businessName) clearProfileError?.("businessName");
+                                                setFormData({ ...formData, businessName: e.target.value });
+                                            }}
+                                            className={`bg-white max-w-[420px] ${profileErrors?.businessName ? "border-red-500" : ""}`}
+                                            aria-invalid={!!profileErrors?.businessName}
+                                            aria-describedby={profileErrors?.businessName ? "profile-business-name-error" : undefined}
+                                            autoComplete="organization"
+                                        />
+                                        <FormError id="profile-business-name-error" message={profileErrors?.businessName} />
                                     </div>
-                                    <Input
-                                        id="billing-gst-number"
-                                        name="gstNumber"
-                                        placeholder="22AAAAA0000A1Z5"
-                                        value={formData.gstNumber || ""}
-                                        maxLength={15}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                                            if (profileErrors?.gstNumber) clearProfileError?.("gstNumber");
-                                            setFormData({ ...formData, gstNumber: e.target.value.toUpperCase() });
-                                        }}
-                                        className={`bg-white max-w-[420px] ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
-                                        aria-invalid={!!profileErrors?.gstNumber}
-                                        aria-describedby={profileErrors?.gstNumber ? "profile-gst-number-error" : undefined}
-                                        autoComplete="off"
-                                    />
-                                    <FormError id="profile-gst-number-error" message={profileErrors?.gstNumber} />
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center justify-between max-w-[420px]">
+                                            <Label htmlFor="billing-gst-number">GST Number</Label>
+                                            <span className={`text-xs font-medium ${(formData.gstNumber || "").length > 0 && (formData.gstNumber || "").length !== 15 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                                {(formData.gstNumber || "").length}/15
+                                            </span>
+                                        </div>
+                                        <Input
+                                            id="billing-gst-number"
+                                            name="gstNumber"
+                                            placeholder="22AAAAA0000A1Z5"
+                                            value={formData.gstNumber || ""}
+                                            maxLength={15}
+                                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                if (profileErrors?.gstNumber) clearProfileError?.("gstNumber");
+                                                setFormData({ ...formData, gstNumber: e.target.value.toUpperCase() });
+                                            }}
+                                            className={`bg-white max-w-[420px] ${profileErrors?.gstNumber ? "border-red-500" : ""}`}
+                                            aria-invalid={!!profileErrors?.gstNumber}
+                                            aria-describedby={profileErrors?.gstNumber ? "profile-gst-number-error" : undefined}
+                                            autoComplete="off"
+                                        />
+                                        <FormError id="profile-gst-number-error" message={profileErrors?.gstNumber} />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="fixed bottom-16 left-0 right-0 z-30 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg md:static md:p-0 md:bg-transparent md:border-0 md:shadow-none md:pt-3 md:flex md:justify-end">
-                        <div className="w-full md:w-auto">
-                            <FormError message={profileGlobalError} />
-                            <Button
-                                type="submit"
-                                disabled={isSavingProfile}
-                                className="w-full md:w-auto md:min-w-[200px] md:max-w-[320px] bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 h-12 md:h-10 text-sm font-semibold"
-                            >
-                                <Save className="h-4 w-4 mr-2" />
-                                {isSavingProfile ? "Saving..." : "Save Changes"}
-                            </Button>
+                        <div className="fixed bottom-16 left-0 right-0 z-30 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg md:static md:p-0 md:bg-transparent md:border-0 md:shadow-none md:pt-3 md:flex md:justify-end">
+                            <div className="w-full md:w-auto">
+                                <FormError message={profileGlobalError} />
+                                <Button
+                                    type="submit"
+                                    disabled={isSavingProfile}
+                                    className="w-full md:w-auto md:min-w-[200px] md:max-w-[320px] bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 h-12 md:h-10 text-sm font-semibold"
+                                >
+                                    <Save className="h-4 w-4 mr-2" />
+                                    {isSavingProfile ? "Saving..." : "Save Changes"}
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
             </form>
 
             {/* Mobile Number Visibility Card */}

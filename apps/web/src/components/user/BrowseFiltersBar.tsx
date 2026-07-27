@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "@/icons/IconRegistry";
 
 import type { Category } from "@/lib/api/user/categories";
 import {

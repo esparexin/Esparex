@@ -1,28 +1,15 @@
 "use client";
 
-import { useFormContext, useWatch } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
+import { useCallback } from "react";
 import { usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@esparex/ui";
 import { Loader2 } from "@/icons/IconRegistry";
 import { MAX_AD_TITLE_CHARS } from "@esparex/contracts";
-import { cn } from "@/components/ui/utils";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta } from "../common/utils";
-import { useCallback } from "react";
-
-function TitleCharCounter() {
-    const title = useWatch({ name: "title" }) as string || "";
-    return (
-        <span className={cn(
-            "text-xs font-normal tracking-tight",
-            title.length >= MAX_AD_TITLE_CHARS ? "text-amber-600" : "text-foreground-subtle"
-        )}>
-            {title.length} / {MAX_AD_TITLE_CHARS}
-        </span>
-    );
-}
+import { getNestedFieldMeta, CharCounter } from "../common/utils";
 
 export function TitleSection() {
     const { register } = useFormContext<PostAdFormData>();
@@ -68,7 +55,7 @@ export function TitleSection() {
                     className="h-12 rounded-xl border-2 border-slate-100 focus:border-primary font-normal text-base"
                 />
                 <div className="flex justify-between items-center mt-1">
-                    <TitleCharCounter />
+                    <CharCounter name="title" max={MAX_AD_TITLE_CHARS} />
                 </div>
             </Field>
         </section>

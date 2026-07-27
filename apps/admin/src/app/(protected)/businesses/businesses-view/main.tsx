@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock } from "lucide-react";
+import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";

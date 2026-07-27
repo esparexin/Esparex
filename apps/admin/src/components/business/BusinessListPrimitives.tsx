@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Eye, Pencil, Search, Trash2 } from "lucide-react";
+import { Eye, Pencil, Search, Trash2 } from "@esparex/ui";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import type { BusinessAdminModalController } from "@/components/business/BusinessAdminModals";
