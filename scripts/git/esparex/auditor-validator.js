@@ -9,26 +9,33 @@ const META = { id: 'AUDIT-001', name: 'Repository Auditor Baseline', version: '1
 function run(val) {
   const AUDIT_REPORT = path.join(ROOT, 'audit-reports/repository-audit.json');
 
-  // Verify canonical report exists or execute auditor
-  if (!fs.existsSync(AUDIT_REPORT)) {
+  let data = null;
+  if (fs.existsSync(AUDIT_REPORT)) {
     try {
-      execSync('node scripts/repository-auditor.js', { cwd: ROOT, stdio: ['pipe', 'pipe', 'pipe'] });
+      data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
+    } catch (e) {
+      data = null;
+    }
+  }
+
+  // If report missing or previously reported FAIL, re-run auditor to verify against current state
+  if (!data || (data.summary && data.summary.status === 'FAIL')) {
+    try {
+      execSync('node scripts/repository-auditor.js', { cwd: ROOT, stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, CI: 'true' } });
+      if (fs.existsSync(AUDIT_REPORT)) {
+        data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
+      }
     } catch (e) {
       val.error(`Repository Auditor Execution Failure: ${e.message}`);
       return;
     }
   }
 
-  if (fs.existsSync(AUDIT_REPORT)) {
-    try {
-      const data = JSON.parse(fs.readFileSync(AUDIT_REPORT, 'utf-8'));
-      if (data.summary && data.summary.status === 'FAIL') {
-        val.error('Repository Auditor Report Status: FAIL. Resolve violations in audit-reports/repository-audit.json.');
-      } else {
-        val.info(`Repository Auditor Verified: ${data.summary ? data.summary.transitionalModules : 0} transitional modules, 0 boundary errors.`);
-      }
-    } catch (e) {
-      val.warning('Repository Auditor Report present but unparseable.');
+  if (data) {
+    if (data.summary && data.summary.status === 'FAIL') {
+      val.error('Repository Auditor Report Status: FAIL. Resolve violations in audit-reports/repository-audit.json.');
+    } else {
+      val.info(`Repository Auditor Verified: ${data.summary ? data.summary.transitionalModules : 0} transitional modules, 0 boundary errors.`);
     }
   } else {
     val.error('Repository Auditor Report missing: audit-reports/repository-audit.json');

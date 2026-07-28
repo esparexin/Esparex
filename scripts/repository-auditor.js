@@ -29,7 +29,8 @@ console.log('=== Running Esparex Enterprise Repository Auditor ===\n');
 // Helper to run command safely
 function runCmd(cmd, options = {}) {
   try {
-    return execSync(cmd, { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], ...options });
+    const env = { ...process.env, CI: 'true', ...(options.env || {}) };
+    return execSync(cmd, { cwd: ROOT, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], ...options, env });
   } catch (err) {
     return err.stdout || err.stderr || '';
   }
@@ -166,12 +167,20 @@ const reportData = {
     emptyDirectories: dirInfo.emptyDirs,
     orphanedDirectories: dirInfo.orphanedDirs,
     transitionalShims: transitionalInfo.shimList.slice(0, 20),
-    duplications: (jscpdData.duplicates || []).map(d => ({
-      first: `${d.firstFile} [L${d.firstStart}-L${d.firstEnd}]`,
-      second: `${d.secondFile} [L${d.secondStart}-L${d.secondEnd}]`,
-      lines: d.lines,
-      tokens: d.tokens
-    }))
+    duplications: (jscpdData.duplicates || []).map(d => {
+      const f1 = d.firstFile?.name || d.firstFile || '';
+      const f1Start = d.firstFile?.start ?? d.firstStart;
+      const f1End = d.firstFile?.end ?? d.firstEnd;
+      const f2 = d.secondFile?.name || d.secondFile || '';
+      const f2Start = d.secondFile?.start ?? d.secondStart;
+      const f2End = d.secondFile?.end ?? d.secondEnd;
+      return {
+        first: `${f1} [L${f1Start}-L${f1End}]`,
+        second: `${f2} [L${f2Start}-L${f2End}]`,
+        lines: d.lines,
+        tokens: d.tokens
+      };
+    })
   }
 };
 
