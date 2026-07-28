@@ -40,11 +40,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const hideLogin = useCallback(() => {
     setIsOpen(false);
     if (pathname === "/login") {
-      if (typeof window !== "undefined" && window.history.length > 1) {
-        router.back();
-      } else {
-        router.push("/");
-      }
+      router.replace("/");
     }
   }, [pathname, router]);
 
