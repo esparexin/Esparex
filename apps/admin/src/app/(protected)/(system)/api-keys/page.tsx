@@ -139,7 +139,7 @@ export default function ApiKeysPage() {
                             <div className="font-bold flex items-center gap-2">
                                 <ShieldCheck size={16} /> IMPORTANT: Copy this key now!
                             </div>
-                            <p className="mt-1 text-[11px] opacity-80">We only show it once for security reasons. If lost, you must revoke and create a new one.</p>
+                            <p className="mt-1 text-tiny opacity-80">We only show it once for security reasons. If lost, you must revoke and create a new one.</p>
                             <div className="mt-2 font-mono break-all bg-white/50 p-2 rounded border border-emerald-200 select-all">{newKey}</div>
                         </div>
                     )}

@@ -93,14 +93,14 @@ export const AdCardGrid = memo(function AdCardGrid({
             <div className="flex items-center gap-1.5 flex-wrap">
               {deviceCondition && (
                 <Badge className={cn(
-                  "border-none font-bold px-2 h-4 text-[9px] rounded-full uppercase tracking-tighter leading-none flex items-center",
+                  "border-none font-bold px-2 h-4 text-tiny rounded-full uppercase tracking-tighter leading-none flex items-center",
                   deviceCondition === 'power_on' ? "bg-green-100/60 text-green-700" : "bg-red-100/60 text-red-700"
                 )}>
                   {deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}
                 </Badge>
               )}
               {isBusiness && (
-                <Badge className="bg-blue-50 text-blue-600 border-blue-100/50 text-[9px] h-4 px-1.5 rounded-full font-bold uppercase tracking-tighter leading-none flex items-center gap-1">
+                <Badge className="bg-blue-50 text-blue-600 border-blue-100/50 text-tiny h-4 px-1.5 rounded-full font-bold uppercase tracking-tighter leading-none flex items-center gap-1">
                   <Shield className="h-2 w-2" />
                   Verified
                 </Badge>

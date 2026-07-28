@@ -160,7 +160,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
             <Loader2 className="animate-spin h-3.5 w-3.5 text-amber-600" />
             Waking up server...
           </p>
-          <p className="text-[10px] text-amber-700 leading-tight">
+          <p className="text-tiny text-amber-700">
             Our high-security backend is initializing. Please wait a few seconds.
           </p>
         </div>
@@ -233,7 +233,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           <p className="text-xs text-amber-900 font-semibold">
             {authError?.type === "locked" ? authError.message : "Too many failed attempts."}
           </p>
-          <p className="text-[11px] text-amber-700 mt-0.5">
+          <p className="text-tiny text-amber-700 mt-0.5">
             Try again in {formatSeconds(lockRemainingSeconds)}
           </p>
         </div>
@@ -246,7 +246,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       )}
 
       {resendRemainingSeconds > 0 && !isLocked && (
-        <p className="text-center text-[11px] font-medium text-slate-500">
+        <p className="text-center text-tiny font-medium text-slate-500">
           Resend available in {formatSeconds(resendRemainingSeconds)}
         </p>
       )}
@@ -283,7 +283,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       )}
 
       {requiresName && !newUserName.trim() && (
-        <p className="text-center text-[11px] font-medium text-slate-500 -mb-1">
+        <p className="text-center text-tiny font-medium text-slate-500 -mb-1">
           Enter your name above to enable OTP entry
         </p>
       )}

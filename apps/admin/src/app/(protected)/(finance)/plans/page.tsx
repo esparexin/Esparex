@@ -113,10 +113,10 @@ export default function PlansPage() {
                         <div className="font-bold text-slate-900 flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
-                                <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase tracking-wider">Default</span>
+                                <span className="text-tiny bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase tracking-wider">Default</span>
                             )}
                         </div>
-                        <div className="text-[10px] font-mono text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
+                        <div className="text-tiny font-mono text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
                             {plan.code}
                         </div>
                     </div>
@@ -130,7 +130,7 @@ export default function PlansPage() {
                     <span className="font-bold text-sm text-slate-700">
                         {plan.price === 0 ? "Free" : `${plan.currency} ${plan.price}`}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium">
+                    <span className="text-tiny text-slate-400 font-medium">
                         {plan.durationDays ? `${plan.durationDays} Days` : "Lifetime"}
                     </span>
                 </div>
@@ -143,7 +143,7 @@ export default function PlansPage() {
                     <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
                         <Activity size={12} className="text-slate-400" /> {plan.type.replace("_", " ")}
                     </span>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                    <span className="text-tiny text-slate-500 uppercase tracking-widest flex items-center gap-1">
                         <Users size={10} /> {plan.userType}
                     </span>
                 </div>

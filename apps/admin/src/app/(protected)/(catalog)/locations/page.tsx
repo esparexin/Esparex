@@ -210,7 +210,7 @@ function LocationsPageContent({
                     {
                         header: "Level",
                         cell: (location) => (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
+                            <span className="px-2 py-0.5 rounded text-tiny font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
                                 {location.level}
                             </span>
                         ),

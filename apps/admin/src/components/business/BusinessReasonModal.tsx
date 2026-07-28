@@ -140,7 +140,7 @@ export function BusinessReasonModal({
                         />
                         {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
                         {minLength ? (
-                            <p className="text-[10px] text-slate-400 mt-1">
+                            <p className="text-tiny text-slate-400 mt-1">
                                 {reason.trim().length} / min {minLength} characters
                             </p>
                         ) : null}

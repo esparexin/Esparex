@@ -263,13 +263,13 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-slate-900 truncate">{log.action.replace(/_/g, ' ')}</p>
-                    <p className="text-[10px] text-slate-400 font-medium">
+                    <p className="text-tiny text-slate-400 font-medium">
                       {log.adminId && typeof log.adminId === 'object' 
                         ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
                         : 'System'} • {log.targetType}
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                  <span className="text-tiny font-bold text-slate-400 uppercase tracking-tighter">
                     {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>

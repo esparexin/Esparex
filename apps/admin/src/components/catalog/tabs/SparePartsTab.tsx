@@ -249,7 +249,7 @@ export default function SparePartsTab() {
                                 }))}
                                 categoryFooter={
                                     formData.categoryIds.some((id) => !assignableSpareCategoryIds.has(id)) ? (
-                                        <p className="text-[10px] text-red-600 font-bold animate-pulse">
+                                        <p className="text-tiny text-red-600 font-bold animate-pulse">
                                             * Please uncheck red-highlighted categories to save changes.
                                         </p>
                                     ) : null
@@ -286,7 +286,7 @@ export default function SparePartsTab() {
                                     ))}
                                 </div>
                                 {formData.listingType.length === 0 ? (
-                                    <p className="text-[10px] font-bold italic text-amber-600">
+                                    <p className="text-tiny font-bold italic text-amber-600">
                                         * No visibility selected will hide this part from all workflows.
                                     </p>
                                 ) : null}
@@ -300,7 +300,7 @@ export default function SparePartsTab() {
                                     label={
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold">Active Status</span>
-                                            <span className="text-[10px] text-slate-500 font-medium">Inactive parts are hidden from the public catalog and ad creation steps.</span>
+                                            <span className="text-tiny text-slate-500 font-medium">Inactive parts are hidden from the public catalog and ad creation steps.</span>
                                         </div>
                                     }
                                 />

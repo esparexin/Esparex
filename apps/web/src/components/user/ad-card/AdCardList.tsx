@@ -123,25 +123,25 @@ export const AdCardList = memo(function AdCardList({
                 <div className="flex items-center gap-1.5 mt-0.5 mb-1.5 flex-wrap">
                   {deviceCondition && (
                     <span className={cn(
-                      "font-bold px-2 h-4 text-[9px] rounded-full uppercase tracking-tighter leading-none flex items-center",
+                      "font-bold px-2 h-4 text-tiny rounded-full uppercase tracking-tighter leading-none flex items-center",
                       deviceCondition === 'power_on' ? "bg-green-100/60 text-green-700" : "bg-red-100/60 text-red-700"
                     )}>
                       {deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}
                     </span>
                   )}
                   {isBusiness && (
-                    <span className="bg-blue-50 text-blue-600 border border-blue-100/50 text-[9px] h-4 px-1.5 rounded-full font-bold uppercase tracking-tighter leading-none flex items-center gap-1">
+                    <span className="bg-blue-50 text-blue-600 border border-blue-100/50 text-tiny h-4 px-1.5 rounded-full font-bold uppercase tracking-tighter leading-none flex items-center gap-1">
                       Verified
                     </span>
                   )}
                 </div>
-                <h3 className="line-clamp-2 break-words font-medium leading-[1.3] text-[13px] text-foreground-secondary tracking-tight">
+                <h3 className="line-clamp-2 break-words font-medium leading-[1.3] text-small text-foreground-secondary tracking-tight">
                   {ad.title}
                 </h3>
               </div>
               
-              <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-foreground-subtle font-medium">
-                <span className="max-w-full rounded-full bg-slate-100/80 px-2 py-0.5 text-[9px] font-bold text-muted-foreground/80 uppercase tracking-wide">
+              <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-tiny text-foreground-subtle font-medium">
+                <span className="max-w-full rounded-full bg-slate-100/80 px-2 py-0.5 text-tiny font-bold text-muted-foreground/80 uppercase tracking-wide">
                   {categoryLabel}
                 </span>
                 {locationLabel && (

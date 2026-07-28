@@ -190,7 +190,7 @@ export default function UsersPage() {
             header: "Role",
             cell: (user) => (
                 <span
-                    className={`rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                    className={`rounded px-2 py-1 text-tiny font-bold uppercase tracking-wider ${
                         USER_ROLE_COLORS[user.role] ?? "bg-slate-100 text-slate-600"
                     }`}
                 >

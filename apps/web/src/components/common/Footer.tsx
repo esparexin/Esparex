@@ -128,7 +128,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                                 index === 2 ? "col-span-2 md:col-span-1" : ""
                             )}
                         >
-                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-[11px] sm:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
+                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-tiny sm:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
                             </h3>
                             <ul className="space-y-1 md:space-y-2">

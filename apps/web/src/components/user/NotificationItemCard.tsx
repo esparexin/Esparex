@@ -101,13 +101,13 @@ export function NotificationItemCard({
                         >
                             {notification.title}
                         </p>
-                        <span className="shrink-0 text-[10px] font-medium text-slate-400">
+                        <span className="shrink-0 text-tiny font-medium text-slate-400">
                             <RelativeTimeText value={notification.createdAt} />
                         </span>
                     </div>
                     <p
                         className={cn(
-                            "mt-0.5 line-clamp-1 text-[11px] leading-4",
+                            "mt-0.5 line-clamp-1 text-tiny",
                             notification.isRead ? "text-slate-400" : "text-slate-600 font-medium"
                         )}
                     >

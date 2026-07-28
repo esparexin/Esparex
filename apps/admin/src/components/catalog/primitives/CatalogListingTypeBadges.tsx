@@ -17,7 +17,7 @@ export function CatalogListingTypeBadges({ types = [] }: { types?: string[] }) {
             {types.map((type) => {
                 const item = config[type];
                 if (!item) return null;
-                return <span key={type} className={`px-2 py-0.5 rounded text-[10px] border font-bold flex items-center gap-1 ${item.className}`}>{item.icon} {item.label}</span>;
+                return <span key={type} className={`px-2 py-0.5 rounded text-tiny border font-bold flex items-center gap-1 ${item.className}`}>{item.icon} {item.label}</span>;
             })}
         </div>
     );

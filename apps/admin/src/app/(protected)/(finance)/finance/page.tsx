@@ -124,7 +124,7 @@ export default function FinancePage() {
         {
             header: "Transaction ID",
             cell: (t) => (
-                <div className="font-mono text-[10px] text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">
+                <div className="font-mono text-tiny text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">
                     {t.gatewayPaymentId || t.id.substring(0, 12)}
                 </div>
             )
@@ -138,7 +138,7 @@ export default function FinancePage() {
                         <div className="font-bold text-slate-900 leading-none mb-1">
                             {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Unknown'}
                         </div>
-                        <div className="text-[10px] text-slate-400 font-medium">
+                        <div className="text-tiny text-slate-400 font-medium">
                             {user?.email || user?.mobile || 'No contact'}
                         </div>
                     </div>
@@ -157,7 +157,7 @@ export default function FinancePage() {
         {
             header: "Status",
             cell: (t) => (
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${t.status === 'SUCCESS' ? "bg-emerald-100 text-emerald-700" :
+                <span className={`px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider ${t.status === 'SUCCESS' ? "bg-emerald-100 text-emerald-700" :
                         t.status === 'FAILED' ? "bg-red-100 text-red-700" :
                             "bg-amber-100 text-amber-700"
                     }`}>
@@ -178,7 +178,7 @@ export default function FinancePage() {
             cell: (t) => (
                 <div className="text-xs text-slate-500 font-medium">
                     {new Date(t.createdAt).toLocaleDateString()}
-                    <span className="text-[10px] text-slate-300 ml-2">
+                    <span className="text-tiny text-slate-300 ml-2">
                         {new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                 </div>

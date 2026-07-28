@@ -141,7 +141,7 @@ export function AdminHeader() {
             <div className="flex flex-col gap-3 px-4 py-3 lg:px-8">
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-700">
+                        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-sky-700">
                             <ShieldCheck size={13} />
                             Admin Console
                         </div>
@@ -173,7 +173,7 @@ export function AdminHeader() {
                                 <p className="text-sm font-semibold leading-none text-slate-900">
                                     {admin?.firstName} {admin?.lastName}
                                 </p>
-                                <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                                <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-tiny font-bold uppercase tracking-[0.14em] text-slate-600">
                                     {admin?.role}
                                 </span>
                             </div>
@@ -193,7 +193,7 @@ export function AdminHeader() {
 
 
                         <div className="flex items-center gap-2 sm:hidden">
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-600">
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-tiny font-bold uppercase tracking-[0.14em] text-slate-600">
                                 {admin?.role}
                             </span>
                             <button

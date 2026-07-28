@@ -104,7 +104,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                         <div className="space-y-4">
                             {sections.map(([bucket, items]) => (
                                 <div key={bucket} className="space-y-2">
-                                    <p className="px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                                    <p className="px-2 text-tiny font-bold uppercase tracking-[0.14em] text-slate-400">
                                         {SECTION_LABELS[bucket]}
                                     </p>
                                     <div className="space-y-1">

@@ -171,7 +171,7 @@ export function NotificationDrawer({
                       <p id={descId} className="text-xs text-muted-foreground line-clamp-2">
                         {notification.message}
                       </p>
-                      <span id={dateId} className="inline-block text-[10px] text-slate-400">
+                      <span id={dateId} className="inline-block text-tiny text-slate-400">
                         {new Date(notification.createdAt).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",

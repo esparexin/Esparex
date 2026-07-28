@@ -30,7 +30,7 @@ export function AdTitlePriceCard({
                         </Badge>
                         {ad.deviceCondition && (
                             <Badge className={cn(
-                                "flex-shrink-0 text-[10px] h-5 px-2 border-0 rounded-full font-bold uppercase tracking-tight",
+                                "flex-shrink-0 text-tiny h-5 px-2 border-0 rounded-full font-bold uppercase tracking-tight",
                                 ad.deviceCondition === 'power_on' ? "bg-green-100/80 text-green-700" : "bg-red-100/80 text-red-700"
                             )}>
                                 {ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}

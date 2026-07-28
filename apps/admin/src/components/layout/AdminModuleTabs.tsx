@@ -83,7 +83,7 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                         {typeof tab.count === "number" && (
                             <span
                                 className={cn(
-                                    "rounded-full px-1.5 py-0.5 text-[10px]",
+                                    "rounded-full px-1.5 py-0.5 text-tiny",
                                     isActive ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-600"
                                 )}
                             >

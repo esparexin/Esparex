@@ -49,7 +49,7 @@ export function BusinessStatusBadge({
 
     return (
         <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${styles.pill}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-tiny font-bold uppercase tracking-wider border ${styles.pill}`}
         >
             <span
                 className={`w-1.5 h-1.5 rounded-full ${styles.dot} ${

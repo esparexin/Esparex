@@ -33,7 +33,7 @@ function ActionButton({ label, ariaLabel, className, onClick, children }: Action
             >
                 {children}
             </button>
-            <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-[10px] font-medium text-white opacity-0 transition-opacity group-hover/btn:opacity-100">
+            <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-tiny font-medium text-white opacity-0 transition-opacity group-hover/btn:opacity-100">
                 {label}
             </span>
         </div>

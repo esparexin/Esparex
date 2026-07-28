@@ -122,7 +122,7 @@ export function BroadcastComposer({
                                 </option>
                             ))}
                         </select>
-                        <p className="mt-1 text-[11px] text-slate-400">
+                        <p className="mt-1 text-tiny text-slate-400">
                             Platform audiences are device-platform segments with registered push tokens, not location or seller segments.
                         </p>
                     </div>
@@ -141,7 +141,7 @@ export function BroadcastComposer({
                                 value={recipientQuery}
                                 onChange={(event) => setRecipientQuery(event.target.value)}
                             />
-                            <p className="mt-1 text-[11px] text-slate-400">
+                            <p className="mt-1 text-tiny text-slate-400">
                                 Select one or more active users. Search starts after 2 characters.
                             </p>
                         </div>
@@ -189,7 +189,7 @@ export function BroadcastComposer({
                                                 {user.email || user.mobile || user.id}
                                             </div>
                                         </div>
-                                        <span className="shrink-0 rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                        <span className="shrink-0 rounded-full border border-slate-200 px-2 py-0.5 text-tiny font-semibold uppercase tracking-wide text-slate-500">
                                             Add
                                         </span>
                                     </button>
@@ -238,7 +238,7 @@ export function BroadcastComposer({
                         value={actionUrl}
                         onChange={(event) => setActionUrl(event.target.value)}
                     />
-                    <p className="mt-1 text-[11px] text-slate-400">
+                    <p className="mt-1 text-tiny text-slate-400">
                         Optional deep link shown as an Open button in the user notification inbox.
                     </p>
                 </div>
@@ -253,7 +253,7 @@ export function BroadcastComposer({
                         value={sendAt}
                         onChange={(event) => setSendAt(event.target.value)}
                     />
-                    <p className="mt-1 text-[11px] text-slate-400">Leave empty to send immediately.</p>
+                    <p className="mt-1 text-tiny text-slate-400">Leave empty to send immediately.</p>
                 </div>
 
                 {error ? (

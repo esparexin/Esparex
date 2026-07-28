@@ -140,7 +140,7 @@ export default function AdminUsersPage() {
                         <div className="flex flex-wrap gap-1 max-w-[380px]">
                             {admin.permissions.length > 0
                                 ? admin.permissions.map((p) => (
-                                    <span key={p} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] text-slate-700">{p}</span>
+                                    <span key={p} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-tiny text-slate-700">{p}</span>
                                 ))
                                 : <span className="text-xs italic text-slate-400">No explicit permissions</span>
                             }

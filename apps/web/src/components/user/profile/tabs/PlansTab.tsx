@@ -80,7 +80,7 @@ function PlanCardView({
         >
             {/* Recommended Badge Pill */}
             {isRecommended && (
-                <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs">
+                <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-tiny font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs">
                     Recommended
                 </div>
             )}
@@ -97,7 +97,7 @@ function PlanCardView({
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <span className="text-[10px] font-semibold text-slate-400 tracking-wider">
+                    <span className="text-tiny font-semibold text-slate-400 tracking-wider">
                         {activeSlideIndex + 1} / {totalSlides}
                     </span>
                     <button
@@ -120,7 +120,7 @@ function PlanCardView({
                 <h3 className="text-sm font-bold text-slate-900 tracking-tight">
                     {plan.name}
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                <p className="text-tiny text-slate-500 mt-0.5 leading-relaxed">
                     {activeConfig.description}
                 </p>
             </div>
@@ -132,7 +132,7 @@ function PlanCardView({
                         {formatCurrency(plan.price)}
                     </span>
                 </div>
-                <span className="text-[11px] font-medium text-slate-400 block mt-0.5">
+                <span className="text-tiny font-medium text-slate-400 block mt-0.5">
                     / {plan.duration}
                 </span>
             </div>
@@ -154,7 +154,7 @@ function PlanCardView({
 
             {/* Features Checklist */}
             <div className="pt-3 border-t border-slate-100 space-y-2 text-left">
-                <p className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">
+                <p className="text-tiny font-bold text-slate-900 uppercase tracking-wider">
                     Highlights
                 </p>
                 <PlanFeatureList features={plan.features} />
@@ -270,7 +270,7 @@ export function PlansTab({
                                 tabIndex={isActive ? 0 : -1}
                                 onClick={() => setActiveTab(tab.id)}
                                 onKeyDown={(e) => handleKeyDown(e, tab.id)}
-                                className={`flex-1 flex flex-row items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-3 text-[10px] sm:text-xs font-bold rounded-full border transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+                                className={`flex-1 flex flex-row items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-3 text-tiny sm:text-xs font-bold rounded-full border transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
                                     isActive
                                         ? "bg-blue-50/30 text-blue-900 border-blue-200 shadow-sm"
                                         : "bg-white text-slate-500 border-slate-200 hover:text-slate-700 hover:bg-slate-50"
@@ -280,7 +280,7 @@ export function PlansTab({
                                 <span className="whitespace-nowrap tracking-tight">{tab.label}</span>
                                 {count > 0 && (
                                     <span
-                                        className={`px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold rounded-full ${
+                                        className={`px-1.5 py-0.5 text-tiny font-bold rounded-full ${
                                             isActive
                                                 ? "bg-blue-100 text-blue-800"
                                                 : "bg-slate-100 text-slate-500"

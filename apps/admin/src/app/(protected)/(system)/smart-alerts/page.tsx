@@ -257,14 +257,14 @@ export default function SmartAlertsPage() {
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
                                                     <span className="font-bold text-slate-900">{alert.name || 'Unnamed Alert'}</span>
-                                                    <span className="text-[10px] text-slate-400 font-mono">UID: {alert.userId}</span>
+                                                    <span className="text-tiny text-slate-400 font-mono">UID: {alert.userId}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex gap-1 flex-wrap max-w-xs">
                                                     {Object.entries(alert.criteria || {}).map(([k, v]) => 
                                                         v ? (
-                                                            <span key={k} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] border border-slate-200">
+                                                            <span key={k} className="px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded text-tiny border border-slate-200">
                                                                 {k}: {String(v)}
                                                             </span>
                                                         ) : null
@@ -273,7 +273,7 @@ export default function SmartAlertsPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded w-fit ${alert.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
+                                                    <span className={`text-tiny font-bold uppercase px-1.5 py-0.5 rounded w-fit ${alert.isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'}`}>
                                                         {alert.isActive ? 'Active' : 'Inactive'}
                                                     </span>
                                                     <span className="text-xs text-slate-500 mt-1">Exp: {alert.expiresAt ? format(new Date(alert.expiresAt), "MMM d, yyyy") : 'Never'}</span>
@@ -283,7 +283,7 @@ export default function SmartAlertsPage() {
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-medium text-slate-700">Count: {alert.expiryWarningCount || 0}</span>
                                                     {alert.expiryWarningSentAt && (
-                                                        <span className="text-[10px] text-slate-400 italic">{format(new Date(alert.expiryWarningSentAt), "MMM d HH:mm")}</span>
+                                                        <span className="text-tiny text-slate-400 italic">{format(new Date(alert.expiryWarningSentAt), "MMM d HH:mm")}</span>
                                                     )}
                                                 </div>
                                             </td>

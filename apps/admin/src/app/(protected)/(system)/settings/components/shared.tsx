@@ -121,7 +121,7 @@ export function Field({
     <label className="block space-y-1.5">
       <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
       {children}
-      {hint ? <span className="block text-[11px] text-slate-400">{hint}</span> : null}
+      {hint ? <span className="block text-tiny text-slate-400">{hint}</span> : null}
     </label>
   );
 }
