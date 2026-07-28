@@ -201,14 +201,19 @@ export const getBusinesses = async (
 };
 
 export const registerBusiness = async (
-    data: CreateBusinessDTO
+    data: CreateBusinessDTO,
+    options?: { idempotencyKey?: string }
 ): Promise<Business | null> => {
     try {
-        // Use apiClient.post directly (throws on API error) rather than toApiResult
-        // which swallows errors and returns null, preventing the catch block from
-        // surfacing real error messages to the form.
+        const headers: Record<string, string> = {};
+        if (options?.idempotencyKey?.trim()) {
+            headers['Idempotency-Key'] = options.idempotencyKey.trim();
+        }
+
         const response = await apiClient.post<{ data?: ApiBusiness; success?: boolean }>(
-            API_ROUTES.USER.BUSINESSES_PUBLIC, data, { silent: true }
+            API_ROUTES.USER.BUSINESSES_PUBLIC,
+            data,
+            { silent: true, headers }
         );
         const apiData = response.data;
         if (!apiData) return null;

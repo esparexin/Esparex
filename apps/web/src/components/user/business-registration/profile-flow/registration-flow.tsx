@@ -23,6 +23,8 @@ import type { SubmissionStatus } from "./types";
 import { buildBusinessPayloadBase, mapBusinessToCreateDefaults } from "./helpers";
 import { processStagedFiles } from "./upload";
 
+import { useFormDraftPersistence } from "@/hooks/useFormDraftPersistence";
+import { useUnsavedChangesGuard } from "@/hooks/useUnsavedChangesGuard";
 import { useProfileWizardController } from "./hooks";
 
 export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onClose }: {
@@ -37,6 +39,15 @@ export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onCl
         defaultValues: { ...defaults, idProof: null, businessProof: null, certificates: [], images: [], idProofType: undefined },
     });
     const wizard = useProfileWizardController<BusinessRegistrationFormInput>(form, { requireDocuments: true });
+    
+    // Draft persistence & dirty state guard
+    const { idempotencyKey, clearDraft } = useFormDraftPersistence({
+        form,
+        userId: user?.id,
+        enabled: !user?.businessId && user?.businessStatus !== "live" && user?.businessStatus !== "pending",
+    });
+    useUnsavedChangesGuard({ isDirty: form.formState.isDirty });
+
     const handleClose = () => { if (onClose) { onClose(); return; } void router.push("/"); };
 
     const onValidSubmit = async (data: BusinessRegistrationFormData) => {
@@ -49,8 +60,9 @@ export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onCl
             const certificates = await processStagedFiles(data.certificates ?? [], { label: "Uploading supporting certificates", onProgress: setSubmissionStatus });
             const payload: CreateBusinessDTO = { ...buildBusinessPayloadBase(data), images, documents: { idProof, idProofType: data.idProofType, businessProof, certificates } };
             setSubmissionStatus({ title: "Submitting application", detail: "Sending your business details and verification documents to the review team." });
-            const created = await registerBusiness(payload);
+            const created = await registerBusiness(payload, { idempotencyKey });
             if (!created) throw new Error("Business registration failed.");
+            clearDraft();
             setSubmissionStatus(null);
             setShowSuccessDialog(true);
         } catch (error: unknown) {
