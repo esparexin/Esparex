@@ -19,6 +19,7 @@ export const TYPOGRAPHY_FONT_SIZE: Record<string, [string, { lineHeight: string;
   'body': ['0.875rem', { lineHeight: '1.55', letterSpacing: '0' }],        // 14px (Default Body)
   'small': ['0.8125rem', { lineHeight: '1.5', letterSpacing: '0' }],       // 13px (Secondary / Tables)
   'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0' }],       // 12px (Helper / Badges)
+  'tiny': ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0' }],        // 11px (Dense Labels / Timestamps)
 };
 
 export const TYPOGRAPHY_FONT_WEIGHT: Record<string, string> = {
@@ -34,5 +35,5 @@ export const TYPOGRAPHY_TOKENS = {
   fontWeight: TYPOGRAPHY_FONT_WEIGHT,
 };
 
-export type TypographyFontSize = 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'caption';
+export type TypographyFontSize = 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'caption' | 'tiny';
 export type TypographyFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';

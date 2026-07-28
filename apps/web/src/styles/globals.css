@@ -58,16 +58,6 @@
 
   --radius: 0.625rem;
 
-  /* Typography scale — legacy tokens (deprecated, scheduled for future removal) */
-  --font-size: 16px;         /* Deprecated — html base is 16px */
-  --text-2xl: 1.5rem;        /* Deprecated — prefer --text-h2 */
-  --text-xl: 1.25rem;        /* Deprecated — prefer --text-h3 */
-  --text-lg: 1.125rem;       /* Deprecated — prefer --text-h4 */
-  --text-base: 1rem;         /* Deprecated — prefer --text-body-lg */
-  --text-sm: 0.875rem;       /* Deprecated — prefer --text-body */
-  --text-xs: 0.75rem;        /* Deprecated — prefer --text-caption */
-  --text-2xs: 0.625rem;      /* Deprecated — prefer --text-tiny */
-
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
