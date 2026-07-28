@@ -47,7 +47,7 @@ export const AdCardMeta = memo(function AdCardMeta({
 
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
-      <div className="font-bold line-clamp-2 text-[13px] leading-[1.3] min-h-[2.2rem] text-foreground-secondary tracking-tight">
+      <div className="font-semibold line-clamp-2 text-small leading-snug min-h-[2.2rem] text-foreground-secondary tracking-tight">
         {ad.title.replace(/\*\*/g, '')}
       </div>
 
@@ -64,7 +64,7 @@ export const AdCardMeta = memo(function AdCardMeta({
         </span>
         {!isDashboard && (
           <span className={cn(
-            "shrink-0 text-[10px] font-bold px-2 h-4 flex items-center rounded-full border leading-none tracking-wide uppercase",
+            "shrink-0 text-caption font-semibold px-2 h-4.5 flex items-center rounded-full border leading-none tracking-wider uppercase",
             listingTypeBadge.className
           )}>
             {listingTypeBadge.label}
@@ -73,7 +73,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       <div className={cn(
-        "flex items-center justify-between text-[10px] text-foreground-subtle pt-1 mt-1 border-t border-slate-100/60",
+        "flex items-center justify-between text-caption text-foreground-tertiary pt-1 mt-1 border-t border-slate-100/60",
         isDashboard && "grid grid-cols-2 gap-2 justify-start",
         isList && "border-none pt-0 mt-0"
       )}>

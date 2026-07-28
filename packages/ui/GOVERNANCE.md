@@ -58,3 +58,30 @@ To introduce existing duplicated application components into `packages/ui`, you 
 - [ ] All automated tests pass.
 - [ ] Storybook stories are added or updated (if applicable).
 - [ ] Manual verification confirms rendering across Mobile and Desktop breakpoints.
+
+---
+
+## 6. Typography Architecture & Usage Matrix (SSOT)
+
+All user-facing text across the Esparex platform must consume the canonical 8-level typography tokens (`TYPOGRAPHY_TOKENS`) or the shared `<Heading>` and `<Text>` primitives.
+
+### Canonical Typography Usage Matrix
+
+| UI Element / Semantic Role | Typography Token / Primitive | Default Font Weight | Line Height | Tracking |
+| :--- | :--- | :--- | :--- | :--- |
+| **Page Title (h1)** | `Heading` variant="h1" (30px) | `700` (Bold) | `1.25` | `-0.02em` (`tracking-tight`) |
+| **Section Title (h2)** | `Heading` variant="h2" (24px) | `700` (Bold) | `1.3` | `-0.01em` (`tracking-tight`) |
+| **Dialog / Modal Title** | `Heading` variant="h3" (20px) | `600` (Semibold) | `1.35` | `-0.01em` (`tracking-tight`) |
+| **Card Title (h4)** | `Heading` variant="h4" (18px) | `600` (Semibold) | `1.4` | `0` (`tracking-normal`) |
+| **Primary Body Copy** | `Text` variant="body" (14px) | `400` (Normal) | `1.55` | `0` (`tracking-normal`) |
+| **Button Text** | `Text` variant="body" (14px) | `500` / `600` | `1.4` | `0` (`tracking-normal`) |
+| **Secondary Copy / Table Cell**| `Text` variant="small" (13px) | `400` / `500` | `1.5` | `0` (`tracking-normal`) |
+| **Table Header** | `Text` variant="small" (13px) | `600` (Semibold) | `1.4` | `0` (`tracking-normal`) |
+| **Helper Text / Input Label** | `Text` variant="caption" (12px)| `500` (Medium) | `1.4` | `0` (`tracking-normal`) |
+| **Status Badge (All-Caps)** | `Text` variant="caption" (12px)| `600` (Semibold) | `1.2` | `+0.05em` (`tracking-wider`) |
+
+### Typography Rules:
+1. **Sub-12px Minimum:** Text below 12px (`0.75rem`) is prohibited for standard UI elements to guarantee WCAG 2.2 AA readability. Exceptional 11px `tiny` copy is reserved strictly for legal micro-disclaimers.
+2. **Tracking Rules:** `Display`/`H1`/`H2` use negative tracking (`-0.02em` / `tracking-tight`). Body/Small/Caption use `0` (`tracking-normal`). All-Caps Badges use `+0.05em` (`tracking-wider`). Arbitrary `tracking-[N]` utilities are forbidden.
+3. **No Arbitrary Sizes:** Arbitrary `text-[Npx]` classes are forbidden. Components must consume tokenized classes (`text-h1`, `text-body`, `text-caption`, etc.) or `<Heading>` / `<Text>` primitives.
+

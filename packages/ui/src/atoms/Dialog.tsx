@@ -70,43 +70,73 @@ const DialogContent = React.forwardRef<
     hideClose?: boolean;
     /** When true, uses a mobile keyboard-safe top anchored layout. */
     mobileSafe?: boolean;
+    /** Layout positioning variant: 'centered' (default), 'bottomSheet', 'mobileSafe', or 'fullscreen'. */
+    variant?: "centered" | "bottomSheet" | "mobileSafe" | "fullscreen";
   }
->(({ className, children, hideClose = false, mobileSafe = false, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <RadixDialog.Content
-      ref={ref}
-      style={{ zIndex: Z_INDEX.dialogContent }}
-      className={cn(
-        mobileSafe
-          ? [
-              // Mobile: anchor near the top so keyboard resize does not shift the whole dialog upward.
-              "fixed left-[50%] top-4 w-[calc(100vw-2rem)] max-w-lg outline-none",
-              "-translate-x-1/2",
-              "sm:top-[50%] sm:-translate-y-1/2",
-            ]
-          : [
-              // Positioning — centred, fills up to 90vh
-              "fixed left-[50%] top-[50%]",
-              "translate-x-[-50%] translate-y-[-50%]",
-              "w-full max-w-lg mx-4",
-            ],
-        // Appearance — matches the previous custom dialog exactly
-        mobileSafe
-          ? "flex h-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lg sm:max-h-[90vh]"
-          : "bg-white rounded-lg shadow-lg p-5 max-h-[90vh] overflow-y-auto",
-        // Entry / exit animations via tailwindcss-animate
-        "duration-200",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        mobileSafe
-          ? "sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]"
-          : "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-        className
-      )}
-      {...props}
-    >
+>(({ className, children, hideClose = false, mobileSafe = false, variant, ...props }, ref) => {
+  const activeVariant = variant ?? (mobileSafe ? "mobileSafe" : "centered");
+
+  /**
+   * TRANSFORM SAFETY RULE (MANDATORY):
+   * Every DialogContent variant must completely own its positioning contract.
+   * A variant specifying layout coordinates (top, left, bottom, right) MUST explicitly specify
+   * its transform state (translate-x, translate-y) to prevent inherited transform state leakage.
+   */
+  const getVariantStyles = () => {
+    switch (activeVariant) {
+      case "fullscreen":
+        return [
+          "fixed inset-0 w-full h-[100dvh] max-w-none max-h-none translate-x-0 translate-y-0 rounded-none border-none bg-white p-0 flex flex-col overflow-hidden shadow-none",
+          "duration-200",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        ];
+      case "bottomSheet":
+        return [
+          "fixed bottom-0 left-0 right-0 top-auto translate-x-0 translate-y-0 w-full max-w-none h-auto max-h-[92dvh] rounded-t-2xl border-none p-0 bg-white flex flex-col overflow-hidden shadow-2xl",
+          "sm:fixed sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:right-auto sm:translate-x-[-50%] sm:translate-y-[-50%]",
+          "sm:w-full sm:max-w-md md:max-w-[540px] sm:h-auto sm:max-h-[calc(100dvh-3rem)]",
+          "sm:rounded-2xl sm:shadow-2xl sm:shadow-slate-900/15 sm:border sm:border-slate-200/80",
+          "duration-200",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          "sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]",
+          "sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95",
+        ];
+      case "mobileSafe":
+        return [
+          "fixed left-[50%] top-4 bottom-auto right-auto w-[calc(100vw-2rem)] max-w-lg outline-none -translate-x-1/2 translate-y-0 sm:top-[50%] sm:-translate-y-1/2",
+          "flex h-full max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl bg-white shadow-lg",
+          "duration-200",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%] sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]",
+        ];
+      case "centered":
+      default:
+        return [
+          "fixed left-[50%] top-[50%] bottom-auto right-auto translate-x-[-50%] translate-y-[-50%] w-[calc(100%-2rem)] max-w-lg mx-auto",
+          "bg-white rounded-2xl shadow-xl p-5 max-h-[calc(100dvh-2rem)] overflow-y-auto border border-slate-200/80",
+          "duration-200",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+        ];
+    }
+  };
+
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <RadixDialog.Content
+        ref={ref}
+        style={{ zIndex: Z_INDEX.dialogContent }}
+        className={cn(getVariantStyles(), className)}
+        {...props}
+      >
       {children}
       {!hideClose && (
         <RadixDialog.Close
@@ -124,7 +154,8 @@ const DialogContent = React.forwardRef<
       )}
     </RadixDialog.Content>
   </DialogPortal>
-));
+  );
+});
 DialogContent.displayName = "DialogContent";
 
 // ── Header ───────────────────────────────────────────────────────────────────
@@ -168,7 +199,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <RadixDialog.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("text-h3 font-semibold leading-snug tracking-tight text-slate-900", className)}
     {...props}
   />
 ));

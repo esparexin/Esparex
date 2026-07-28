@@ -5,11 +5,14 @@ export * from "./hooks/usePopupQueue";
 
 // Tokens
 export * from "./tokens/zIndex";
+export * from "./tokens/typography";
 
 // Icons SSOT
 export * from "./atoms/icons";
 
 // UI Primitives
+export * from "./atoms/Heading";
+export * from "./atoms/Text";
 export * from "./atoms/AlertDialog";
 export * from "./atoms/Button";
 export * from "./atoms/Checkbox";
