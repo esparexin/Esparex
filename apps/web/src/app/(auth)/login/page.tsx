@@ -1,32 +1,35 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuthModal } from "@/context/AuthModalContext";
+import { LoginFlow } from "@/components/auth/LoginFlow";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { showLogin } = useAuthModal();
-  const hasTriggeredRef = useRef(false);
 
   const callbackUrl = useMemo(() => {
     const raw = searchParams.get("callbackUrl");
     return normalizeAuthCallbackUrl(raw);
   }, [searchParams]);
 
-  useEffect(() => {
-    if (hasTriggeredRef.current) return;
-    hasTriggeredRef.current = true;
+  const handleDismiss = useCallback(() => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+    void router.replace("/");
+  }, [router]);
 
-    // Trigger canonical global AuthModal
-    showLogin(callbackUrl);
-
-    // Soft redirect back to target destination or home feed
-    const targetUrl = callbackUrl && callbackUrl !== "/login" ? callbackUrl : "/";
-    router.replace(targetUrl);
-  }, [callbackUrl, router, showLogin]);
-
-  return null;
+  return (
+    <div className="min-h-[100dvh] w-full flex items-center justify-center p-4 sm:p-8 bg-slate-50">
+      <LoginFlow
+        mode="modal"
+        callbackUrl={callbackUrl}
+        onClose={handleDismiss}
+        onBack={handleDismiss}
+      />
+    </div>
+  );
 }
