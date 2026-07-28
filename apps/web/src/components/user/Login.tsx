@@ -24,7 +24,6 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
   const { step } = flow;
   const isModal = mode === "modal";
 
-  // Single Canonical Login Card — Unified SSOT for both page and modal modes
   return (
     <Card
       className={cn(
@@ -32,10 +31,10 @@ export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-2 text-center pt-2 sm:pt-6 pb-3 sm:pb-4">
-        <div className="mx-auto mb-2 w-fit">
-          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm border border-primary/20">
-            <Smartphone className="h-7 w-7" />
+      <CardHeader className="relative space-y-2 text-center pt-2 sm:pt-6 pb-2 sm:pb-3">
+        <div className="mx-auto mb-3 w-fit">
+          <div className="h-14 w-14 rounded-2xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-500 shadow-xs">
+            <Smartphone className="h-7 w-7 stroke-[2.2]" />
           </div>
         </div>
         <div>
@@ -90,7 +89,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         </Label>
 
         <div className="relative">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-500 pointer-events-none">
+          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-600 pointer-events-none">
             +91
           </span>
           <Input
@@ -114,8 +113,8 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
             placeholder="9876543210"
             maxLength={10}
             className={cn(
-              "pl-12 pr-4 h-11 tracking-wider font-semibold text-slate-900 border-slate-200 rounded-xl focus:border-blue-600 focus:ring-blue-600/20",
-              isValidMobile && "border-blue-600 ring-2 ring-blue-600/10"
+              "pl-12 pr-4 h-11 tracking-wider font-semibold text-slate-900 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-blue-500/20",
+              isValidMobile && "border-blue-500 ring-2 ring-blue-500/10"
             )}
             aria-label="Mobile number"
             aria-required="true"
@@ -164,7 +163,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         <Button
           type="submit"
           disabled={isSendingOTP || !isValidMobile || isSendRateLimited || !backendReady}
-          className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-600/20 transition-all disabled:opacity-50"
+          className="w-full h-11 sm:h-12 rounded-xl bg-[#8ba4f9] hover:bg-[#7895f8] active:bg-[#6686f7] text-white font-bold text-sm shadow-md shadow-blue-400/20 transition-all disabled:opacity-50"
         >
           {isSendingOTP && (
             <Loader2 className="animate-spin mr-2" size={18} />
@@ -314,15 +313,6 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         )}
       </div>
 
-      {authError?.type === "generic" && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-2.5 mt-2">
-          <FormError
-            message={authError.message}
-            className="mt-0 text-xs text-red-600"
-          />
-        </div>
-      )}
-
       <div className="transition-transform active:scale-[0.985]">
         <Button
           disabled={
@@ -334,7 +324,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
             (requiresName && !newUserName.trim())
           }
           onClick={() => void verifyOtpCode(otpValue)}
-          className="mt-2 w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md shadow-blue-600/20 transition-all disabled:opacity-50"
+          className="mt-2 w-full h-11 sm:h-12 rounded-xl bg-[#8ba4f9] hover:bg-[#7895f8] active:bg-[#6686f7] text-white font-bold text-sm shadow-md shadow-blue-400/20 transition-all disabled:opacity-50"
         >
           {isVerifying && (
             <Loader2 className="animate-spin mr-2" size={18} />
