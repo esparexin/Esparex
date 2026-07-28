@@ -6,6 +6,7 @@ import { XIcon } from "lucide-react";
 
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
+import { OVERLAY_STYLES } from "../styles/overlay";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -113,7 +114,7 @@ function SheetTitle({
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn("text-h4 text-foreground font-semibold", className)}
+      className={cn(OVERLAY_STYLES.panelTitle, className)}
       {...props}
     />
   );
@@ -126,7 +127,7 @@ function SheetDescription({
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(OVERLAY_STYLES.description, className)}
       {...props}
     />
   );

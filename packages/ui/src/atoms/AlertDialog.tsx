@@ -5,6 +5,7 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "../utils";
 import { buttonVariants } from "./Button";
+import { OVERLAY_STYLES } from "../styles/overlay";
 
 function AlertDialog({
   ...props
@@ -99,7 +100,7 @@ function AlertDialogTitle({
   return (
     <AlertDialogPrimitive.Title
       data-slot="alert-dialog-title"
-      className={cn("text-lg font-semibold", className)}
+      className={cn(OVERLAY_STYLES.modalTitle, className)}
       {...props}
     />
   );
@@ -112,7 +113,7 @@ function AlertDialogDescription({
   return (
     <AlertDialogPrimitive.Description
       data-slot="alert-dialog-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(OVERLAY_STYLES.description, className)}
       {...props}
     />
   );

@@ -25,6 +25,7 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "../utils";
 import { Z_INDEX } from "../tokens/zIndex";
+import { OVERLAY_STYLES } from "../styles/overlay";
 
 // ── Root ────────────────────────────────────────────────────────────────────
 const Dialog = RadixDialog.Root;
@@ -203,7 +204,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <RadixDialog.Title
     ref={ref}
-    className={cn("text-h3 font-semibold leading-snug tracking-tight text-slate-900", className)}
+    className={cn(OVERLAY_STYLES.modalTitle, "leading-snug tracking-tight", className)}
     {...props}
   />
 ));
@@ -216,7 +217,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <RadixDialog.Description
     ref={ref}
-    className={cn("text-sm text-muted-foreground mt-1", className)}
+    className={cn(OVERLAY_STYLES.description, "mt-1", className)}
     {...props}
   />
 ));
