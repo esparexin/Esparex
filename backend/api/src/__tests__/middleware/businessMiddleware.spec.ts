@@ -46,7 +46,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('returns 403 Forbidden when no business exists for user', async () => {
-            mockReq.user = { _id: 'user_123' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123' } as any;
             mockBusinessFindOne.mockResolvedValue(null);
 
             await requireBusinessApproved(mockReq as Request, mockRes as Response, mockNext);
@@ -56,7 +56,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('returns 403 Forbidden when business status is pending', async () => {
-            mockReq.user = { _id: 'user_123' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123' } as any;
             mockBusinessFindOne.mockResolvedValue({ status: 'pending' });
 
             await requireBusinessApproved(mockReq as Request, mockRes as Response, mockNext);
@@ -66,7 +66,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('calls next() and attaches req.business when business status is live', async () => {
-            mockReq.user = { _id: 'user_123' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123' } as any;
             const liveBusiness = { _id: 'biz_123', status: 'live' };
             mockBusinessFindOne.mockResolvedValue(liveBusiness);
 
@@ -86,7 +86,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('returns 403 BUSINESS_NOT_VERIFIED when user has no verified business status', async () => {
-            mockReq.user = { _id: 'user_123', id: 'user_123' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
             mockBusinessFindOne.mockReturnValue({
                 select: jest.fn().mockReturnValue({
                     lean: jest.fn().mockResolvedValue(null),
@@ -100,7 +100,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('calls next() when user has live business status', async () => {
-            mockReq.user = { _id: 'user_123', id: 'user_123', businessStatus: 'live' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123', id: 'user_123', businessStatus: 'live' } as any;
 
             await requireVerifiedBusiness(mockReq as Request, mockRes as Response, mockNext);
 
@@ -119,7 +119,7 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('enforces verification when creating service listings', async () => {
-            mockReq.user = { _id: 'user_123', id: 'user_123' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
             mockReq.body = { listingType: LISTING_TYPE.SERVICE };
 
             mockBusinessFindOne.mockReturnValue({
@@ -135,7 +135,8 @@ describe('businessMiddleware — API Authorization Security Matrix', () => {
         });
 
         it('enforces verification when creating spare_part listings', async () => {
-            mockReq.user = { _id: 'user_123', id: 'user_123' } as unknown as Express.User;
+            mockReq.user = { _id: 'user_123', id: 'user_123' } as any;
+            mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
             mockReq.body = { listingType: LISTING_TYPE.SPARE_PART };
 
             mockBusinessFindOne.mockReturnValue({
