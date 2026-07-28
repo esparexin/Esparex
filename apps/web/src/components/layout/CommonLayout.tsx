@@ -12,6 +12,8 @@ import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
 import { getMobileChromePolicy, isChatRoute } from '@/lib/mobile/chromePolicy';
 
+import { PageContainer } from '@/components/ui/PageContainer';
+
 interface CommonLayoutProps {
     children: ReactNode;
     initialHasAuthCookie?: boolean;
@@ -55,7 +57,9 @@ export function CommonLayout({
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
                     <main className={hideShellExtras ? "flex-1 min-h-0" : hasMobileBottomNav ? "flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" : "flex-1"}>
-                        {children}
+                        <PageContainer variant={hideShellExtras ? "full" : "wide"}>
+                            {children}
+                        </PageContainer>
                     </main>
                     {!hideShellExtras && <BusinessPostFAB />}
                     {!hideShellExtras && <Footer currentYear={currentYear} />}
