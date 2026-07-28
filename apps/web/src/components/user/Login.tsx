@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, Loader2, Pencil, Smartphone } from "@/icons/IconRegistry";
+import Image from "next/image";
+import { ArrowLeft, Loader2, Pencil } from "@/icons/IconRegistry";
 
 import { cn } from "@/lib/utils";
 import { useOtpFlow } from "@/hooks/useOtpFlow";
@@ -33,8 +34,14 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
     >
       <CardHeader className="relative space-y-2 text-center pt-2 sm:pt-6 pb-2 sm:pb-3">
         <div className="mx-auto mb-3 w-fit">
-          <div className="h-14 w-14 rounded-2xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-500 shadow-xs">
-            <Smartphone className="h-7 w-7 stroke-[2.2]" />
+          <div className="h-14 w-14 rounded-2xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2.5 shadow-xs">
+            <Image
+              src="/images/recycle-icon.png"
+              alt="Esparex Recycle Logo"
+              width={36}
+              height={36}
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
         <div>
