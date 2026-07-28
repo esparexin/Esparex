@@ -21,7 +21,11 @@ export function ListingSubmissionSuccessModal({
 
     return (
         <Dialog open={true} onOpenChange={(open) => { if (!open) onPrimaryAction(); }}>
-            <DialogContent hideClose className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-6 text-center shadow-2xl border-none">
+            <DialogContent
+                hideClose
+                aria-describedby="submission-success-description"
+                className="w-full max-w-sm space-y-6 rounded-2xl bg-white p-6 text-center shadow-2xl border-none"
+            >
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                     <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -32,7 +36,7 @@ export function ListingSubmissionSuccessModal({
                     <DialogTitle className="text-xl font-bold text-foreground">
                         {titleText}
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-foreground-tertiary">
+                    <DialogDescription id="submission-success-description" className="text-sm text-foreground-tertiary">
                         Your {entityLabel.toLowerCase()} is pending admin review.<br />
                         It will go live after approval.
                     </DialogDescription>
