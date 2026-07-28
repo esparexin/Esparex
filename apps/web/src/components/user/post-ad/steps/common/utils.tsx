@@ -18,3 +18,6 @@ export function CharCounter({ name, max }: { name: string; max: number }) {
         </span>
     );
 }
+
+export { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
+
