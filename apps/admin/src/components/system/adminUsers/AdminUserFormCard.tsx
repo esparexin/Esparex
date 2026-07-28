@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LucideIcon } from "@esparex/ui";
-import { USER_STATUS } from "@esparex/contracts";
+import { USER_STATUS, Role } from "@esparex/contracts";
 import type {
     AdminStatus,
     AdminRole,
@@ -46,7 +46,7 @@ type AdminUserFormCardProps =
         onSecondary: () => void;
     };
 
-const ROLE_OPTIONS: AdminRole[] = ["moderator", "admin", "superAdmin"];
+const ROLE_OPTIONS: AdminRole[] = [Role.MODERATOR, Role.ADMIN, Role.SUPER_ADMIN];
 const STATUS_OPTIONS: AdminStatus[] = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,

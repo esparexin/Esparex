@@ -1,11 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type CSSProperties } from "react";
-import { createPortal } from "react-dom";
-import {
-  Button,
-  Z_INDEX,
-} from "@esparex/ui";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Button } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
 import { useLocationStatus, useLocationDispatch, useLocationData } from "@/context/LocationContext";
 import { Search, MapPin, Target, Loader2 } from "@/icons/IconRegistry";
@@ -55,7 +51,6 @@ export default function LocationSelector({
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
     const manuallyClearedRef = useRef(false);
 
     const applySelection = useCallback((loc: Location, _source: "manual" | "gps" = "manual") => {
@@ -106,55 +101,24 @@ export default function LocationSelector({
     useEffect(() => {
         if (isPanel || !isOpen) return;
 
-        const updatePosition = () => {
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                const spaceBelow = window.innerHeight - rect.bottom;
-                const dropdownMaxH = 320;
-                if (spaceBelow < dropdownMaxH && rect.top > dropdownMaxH) {
-                    setDropdownStyle({ 
-                        position: "fixed", 
-                        bottom: window.innerHeight - rect.top + 4, 
-                        left: rect.left, 
-                        width: rect.width, 
-                        zIndex: Z_INDEX.locationSelectorDropdown, 
-                        maxHeight: dropdownMaxH 
-                    });
-                } else {
-                    setDropdownStyle({ 
-                        position: "fixed", 
-                        top: rect.bottom + 4, 
-                        left: rect.left, 
-                        width: rect.width, 
-                        zIndex: Z_INDEX.locationSelectorDropdown, 
-                        maxHeight: Math.min(dropdownMaxH, spaceBelow - 8) 
-                    });
-                }
-            }
-        };
-
-        updatePosition();
-
-        const handleClickOutside = (event: MouseEvent) => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent | PointerEvent) => {
             const target = event.target as Node;
             if (containerRef.current?.contains(target) || dropdownRef.current?.contains(target)) return;
             setIsOpen(false);
             if (!hasSelection && query.length < 2) setQuery("");
         };
 
-        const handleScrollOrResize = () => updatePosition();
-
         const timeoutId = setTimeout(() => {
+            document.addEventListener("pointerdown", handleClickOutside);
             document.addEventListener("mousedown", handleClickOutside);
-            window.addEventListener("scroll", handleScrollOrResize, true);
-            window.addEventListener("resize", handleScrollOrResize);
+            document.addEventListener("touchstart", handleClickOutside);
         }, 0);
 
         return () => {
             clearTimeout(timeoutId);
+            document.removeEventListener("pointerdown", handleClickOutside);
             document.removeEventListener("mousedown", handleClickOutside);
-            window.removeEventListener("scroll", handleScrollOrResize, true);
-            window.removeEventListener("resize", handleScrollOrResize);
+            document.removeEventListener("touchstart", handleClickOutside);
         };
     }, [hasSelection, isOpen, isPanel, query]);
 
@@ -240,11 +204,6 @@ export default function LocationSelector({
 
     const handlePanelDetect = useCallback(() => { void searchApi.handleDetect(); }, [searchApi]);
 
-    const handleBackdropMouseDown = useCallback(() => {
-        setIsOpen(false);
-        if (!hasSelection && query.length < 2) setQuery("");
-    }, [hasSelection, query.length]);
-
     const getLocationPrimaryLabel = useCallback((loc: Location) => (
         normalizeLocationName(loc.name || loc.city || loc.display || "")
     ), []);
@@ -306,6 +265,12 @@ export default function LocationSelector({
                     ref={inputRef}
                     value={hasSelection ? selectedLabel : query}
                     readOnly={hasSelection}
+                    role="combobox"
+                    aria-expanded={isOpen && !hasSelection}
+                    aria-haspopup="listbox"
+                    aria-controls="location-results-listbox"
+                    aria-autocomplete="list"
+                    aria-activedescendant={selectedIndex >= 0 ? `location-option-${selectedIndex}` : undefined}
                     onChange={(e) => {
                         if (hasSelection) return;
                         setQuery(e.target.value);
@@ -346,10 +311,8 @@ export default function LocationSelector({
                 </div>
             </div>
 
-            {isOpen && !hasSelection && !disabled && typeof document !== "undefined" && createPortal(
-                <>
-                    <div style={{ zIndex: Z_INDEX.locationSelectorBackdrop }} className="fixed inset-0 bg-transparent" onMouseDown={handleBackdropMouseDown} />
-                    <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            {isOpen && !hasSelection && !disabled && (
+                <div ref={dropdownRef} className="absolute top-full left-0 right-0 z-50 mt-1.5 max-h-[280px] bg-popover border rounded-xl shadow-xl overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-2 py-1 border-b">
                         <Button variant="ghost" className="h-auto min-h-[44px] py-2 w-full justify-between text-muted-foreground px-2 text-xs font-normal hover:bg-primary/5 group" disabled={searchApi.isDetecting || !!searchApi.successFeedback} onClick={() => searchApi.handleDetect(() => setIsOpen(false))}>
                             <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -381,11 +344,8 @@ export default function LocationSelector({
                         )}
                     </div>
                     {renderResults()}
-                    </div>
-                </>,
-                document.body
+                </div>
             )}
         </div>
     );
 }
-

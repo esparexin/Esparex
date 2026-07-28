@@ -1,4 +1,5 @@
 import { Role } from '@esparex/contracts';
+import { isSuperAdminRole, normalizeRole } from '../utils/roleNormalization';
 
 export type AdminRole = Role;
 
@@ -20,8 +21,6 @@ export const ADMIN_PERMISSION_KEYS = {
     PARTS_READ: 'parts:read',
     PARTS_WRITE: 'parts:write',
 } as const;
-
-
 
 const PERMISSION_ROLE_ALLOWLIST: Record<string, AdminRole[]> = {
     'users:read': [Role.ADMIN, Role.MODERATOR],
@@ -50,13 +49,15 @@ const normalizePermission = (permission: string): string =>
 
 export const roleGrantsPermission = (role: string | undefined, permission: string): boolean => {
     if (!role) return false;
-    if ((role as Role) === Role.SUPER_ADMIN) return true;
+    if (isSuperAdminRole(role)) return true;
 
+    const normalizedRole = normalizeRole(role);
     const normalizedPermission = normalizePermission(permission);
     const roleAllowlist = PERMISSION_ROLE_ALLOWLIST[normalizedPermission];
     if (!roleAllowlist) return false;
 
-    return roleAllowlist.includes(role as AdminRole);
+    return roleAllowlist.includes(normalizedRole);
 };
 
 export const normalizeAdminPermission = normalizePermission;
+

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./PostAdContext";
+import { PostAdProvider, usePostAdFlow, usePostAdImages, usePostAdAction } from "./context";
 import { StepOne } from "./steps/listing-information";
 import { StepTwo } from "./steps/listing-details";
 import { PostAdShell } from "./PostAdShell";
@@ -44,7 +44,8 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     );
   }
 
-  const stepSubtitle = `Step ${currentStep} of 2: ${STEP_LABELS[currentStep - 1]}`;
+  const stepLabel = STEP_LABELS[currentStep - 1] || "Listing Information";
+  const stepSubtitle = `STEP ${currentStep} OF 2: ${stepLabel.toUpperCase()}`;
 
   return (
     <PostAdShell>
@@ -78,7 +79,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={prevStep}
-                className="text-sm font-medium h-11 px-4 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-sm font-semibold h-11 px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 ← Back
               </Button>
@@ -88,7 +89,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={handleClose}
-                className="text-sm font-medium h-11 px-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-sm font-semibold h-11 px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Cancel
               </Button>
@@ -99,13 +100,13 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               onClick={currentStep === 2 ? submitAd : nextStep}
               disabled={isButtonDisabled}
               className={cn(
-                "flex-1 sm:flex-none min-w-0 sm:min-w-[200px] rounded-xl font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                "h-11 text-base",
-                "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100"
+                "flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                "h-11 text-sm sm:text-base",
+                "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-md shadow-blue-600/20 disabled:opacity-50"
               )}
             >
               {isSubmitting ? (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Spinner size="sm" />
                   <span>Processing...</span>
                 </div>

@@ -104,13 +104,15 @@ export const applyCatalogStatusFilter = (
     }
 };
 
+import { isAdminRole } from '@esparex/core/utils/roleNormalization';
+
 /**
  * Check if request has admin access
  */
 export const hasAdminAccess = (req: Request): boolean => {
     const catalogRequest = req as CatalogRequest;
     const role = catalogRequest.user?.role;
-    return role === 'admin' || role === 'super_admin';
+    return isAdminRole(role);
 };
 
 /**

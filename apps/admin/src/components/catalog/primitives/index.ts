@@ -5,7 +5,6 @@ export { CatalogSelectFilter } from "./CatalogSelectFilter";
 export { CatalogAsyncComboboxFilter } from "./CatalogAsyncComboboxFilter";
 export { CatalogCategoryFilter } from "./CatalogCategoryFilter";
 export { CatalogActiveStatusFilter } from "./CatalogActiveStatusFilter";
-export { CatalogStatusBadge } from "./CatalogStatusBadge";
 export { CatalogActiveToggleButton } from "./CatalogActiveToggleButton";
 export { CatalogActionIconButton, CatalogActionsRow } from "./CatalogActionsRow";
 export { CatalogEditDeleteActions, CatalogEditDeleteActionPair } from "./CatalogEditDeleteActions";

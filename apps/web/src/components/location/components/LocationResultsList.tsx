@@ -33,7 +33,7 @@ export function LocationResultsList({
     getLocationSecondaryLabel: (loc: Location) => string;
 }) {
     return (
-        <div className="py-0.5">
+        <div className="py-0.5" role="listbox" id="location-results-listbox" aria-label="Location search results">
             {query ? (
                 showSkeleton ? (
                     <LocationSkeleton count={4} />
@@ -62,8 +62,17 @@ export function LocationResultsList({
                                     {locations.slice(0, 3).map((loc, index) => (
                                         <button
                                             key={`fallback-${loc.id || index}`}
-                                            onMouseDown={(e) => { e.preventDefault(); void onSelect(loc); }}
-                                            className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                            id={`location-fallback-option-${index}`}
+                                            role="option"
+                                            aria-selected={selectedIndex === index}
+                                            type="button"
+                                            onPointerDown={(e) => e.stopPropagation()}
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                            }}
+                                            onClick={() => void onSelect(loc)}
+                                            className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer select-none"
                                         >
                                             <MapPin className="mt-0.5 h-3 w-3 text-muted-foreground shrink-0" />
                                             <span className="min-w-0">
@@ -85,10 +94,19 @@ export function LocationResultsList({
                         return (
                             <button
                                 key={`loc-${loc.id || index}`}
-                                onMouseDown={(e) => { e.preventDefault(); void onSelect(loc); }}
+                                id={`location-option-${index}`}
+                                role="option"
+                                aria-selected={selectedIndex === index}
+                                type="button"
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }}
+                                onClick={() => void onSelect(loc)}
                                 className={cn(
                                     "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
-                                    "hover:bg-accent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                    "hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                     selectedIndex === index && "bg-accent"
                                 )}
                             >

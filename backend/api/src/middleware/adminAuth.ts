@@ -124,6 +124,8 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
+import { isSuperAdminRole, normalizeRole } from '@esparex/core/utils/roleNormalization';
+
 export const requirePermission = (permission: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
         const user = req.user;
@@ -133,7 +135,7 @@ export const requirePermission = (permission: string) => {
         }
 
         // Super Admin has all permissions
-        if ((user.role as Role) === Role.SUPER_ADMIN) {
+        if (isSuperAdminRole(user.role)) {
             return next();
         }
 

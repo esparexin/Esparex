@@ -3,6 +3,8 @@ import * as React from "react";
 import { Drawer as VaulDrawer } from "vaul";
 import { X } from "lucide-react";
 
+import { Z_INDEX } from "../tokens/zIndex";
+
 export function Drawer({
   title,
   children,
@@ -21,9 +23,13 @@ export function Drawer({
       {trigger && <VaulDrawer.Trigger asChild>{trigger}</VaulDrawer.Trigger>}
 
       <VaulDrawer.Portal>
-        <VaulDrawer.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" />
+        <VaulDrawer.Overlay 
+          style={{ zIndex: Z_INDEX.drawerOverlay }}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm" 
+        />
         <VaulDrawer.Content
-          className="bg-background flex flex-col rounded-t-[20px] shadow-2xl fixed bottom-0 left-0 right-0 z-50 max-h-[96vh] focus:outline-none"
+          style={{ zIndex: Z_INDEX.drawerContent }}
+          className="bg-background flex flex-col rounded-t-[20px] shadow-2xl fixed bottom-0 left-0 right-0 max-h-[96vh] focus:outline-none"
         >
           {/* Drag Handle */}
           <div className="mx-auto mt-4 h-1.5 w-12 shrink-0 rounded-full bg-slate-200" />

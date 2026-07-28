@@ -1,5 +1,5 @@
 import { CHAT_STATUS, LIFECYCLE_STATUS, USER_STATUS, Role } from "@esparex/contracts";
-export type AdminRole = Role.SUPER_ADMIN | Role.ADMIN | Role.MODERATOR | "superAdmin" | "admin" | "moderator";
+export type AdminRole = Role.SUPER_ADMIN | Role.ADMIN | Role.MODERATOR;
 export const ADMIN_STATUS_OPTIONS = [
     USER_STATUS.LIVE,
     USER_STATUS.INACTIVE,
@@ -44,7 +44,7 @@ export const DEFAULT_CREATE_FORM: AdminCreateFormState = {
     lastName: "",
     email: "",
     password: "",
-    role: "moderator",
+    role: Role.MODERATOR,
     permissionsText: "",
 };
 
@@ -52,15 +52,16 @@ export const DEFAULT_EDIT_FORM: AdminEditFormState = {
     firstName: "",
     lastName: "",
     email: "",
-    role: "moderator",
+    role: Role.MODERATOR,
     status: USER_STATUS.LIVE,
     permissionsText: "",
 };
 
 export const ROLE_COLORS: Record<string, string> = {
+    [Role.SUPER_ADMIN]: "bg-purple-100 text-purple-700",
     superAdmin: "bg-purple-100 text-purple-700",
-    admin: "bg-blue-100 text-blue-700",
-    moderator: "bg-amber-100 text-amber-700",
+    [Role.ADMIN]: "bg-blue-100 text-blue-700",
+    [Role.MODERATOR]: "bg-amber-100 text-amber-700",
     user_manager: "bg-teal-100 text-teal-700",
     finance_manager: "bg-green-100 text-green-700",
     content_moderator: "bg-orange-100 text-orange-700",
@@ -76,7 +77,7 @@ export function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {
         firstName: String(raw.firstName || ""),
         lastName: String(raw.lastName || ""),
         email: String(raw.email || ""),
-        role: rawRole === "super_admin" ? "superAdmin" : rawRole,
+        role: rawRole,
         status: String(raw.status || CHAT_STATUS.ACTIVE),
         permissions: Array.isArray(raw.permissions)
             ? raw.permissions.filter((item): item is string => typeof item === "string")
@@ -113,11 +114,12 @@ export function parsePermissionsText(permissionsText: string) {
 
 export function toEditableAdminFormState(admin: ManagedAdmin): AdminEditFormState {
     const normalizedStatus = admin.status as AdminStatus;
+    const roleCandidates: string[] = [Role.SUPER_ADMIN, "superAdmin", Role.ADMIN, Role.MODERATOR];
     return {
         firstName: admin.firstName,
         lastName: admin.lastName,
         email: admin.email,
-        role: (["superAdmin", "admin", "moderator"].includes(admin.role) ? admin.role : "moderator") as AdminRole,
+        role: (roleCandidates.includes(admin.role) ? admin.role : Role.MODERATOR) as AdminRole,
         status: ADMIN_STATUS_OPTIONS.includes(normalizedStatus) ? normalizedStatus : USER_STATUS.LIVE,
         permissionsText: admin.permissions.join(", "),
     };

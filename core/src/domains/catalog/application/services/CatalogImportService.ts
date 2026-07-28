@@ -37,7 +37,8 @@ export class CatalogImportService {
                         name: item.name,
                         icon: item.icon,
                         description: item.description,
-                        isActive: true
+                        isActive: true,
+                        approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
                     }
                 },
                 upsert: true

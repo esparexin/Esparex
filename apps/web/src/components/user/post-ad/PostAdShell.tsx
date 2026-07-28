@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { usePostAdAction, usePostAdState } from "./PostAdContext";
+import { usePostAdAction, usePostAdState } from "./context";
 import { PostAdFormSkeleton } from "./loading/PostAdFormSkeleton";
 import { AlertCircle, RefreshCcw, WifiOff } from "@/icons/IconRegistry";
 import { useBackendStatus } from "@/context/BackendStatusContext";

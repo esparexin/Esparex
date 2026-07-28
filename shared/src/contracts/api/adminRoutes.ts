@@ -136,6 +136,12 @@ export const ADMIN_ROUTES = {
   API_KEYS: "/api-keys",
   API_KEY_REVOKE: (id: string) => `/api-keys/${id}/revoke`,
 
+  // Chat
+  CHAT_LIST: "/chat/list",
+  CHAT_DETAIL: (id: string) => `/chat/${id}`,
+  CHAT_MUTE: (id: string) => `/chat/mute/${id}`,
+  CHAT_EXPORT: (id: string) => `/chat/export/${id}`,
+
   // Locations
   LOCATIONS: "/locations",
   LOCATION_ANALYTICS: "/locations/analytics",

@@ -20,6 +20,7 @@ import { initializeEventDispatcher } from '@esparex/core/events';
 import { assertCriticalStartupReadiness, validateMetadataHealth } from '@esparex/core/utils/startupValidator';
 import { warmAllCaches } from '@esparex/core/utils/cacheWarmer';
 import { resetAllOpenCircuitBreakers } from '@esparex/core/utils/resilience';
+import { runCatalogApprovalStatusMigration } from '@esparex/core/migrations/catalogApprovalMigration';
 
 
 const PORT = env.PORT;
@@ -83,9 +84,9 @@ export async function startServer() {
         logger.info('Boot safety mode active: skipping all index sync/create/drop operations on API startup');
         await assertDuplicateRolloutReadiness();
         await assertCriticalStartupReadiness();
-
         // Ensure at least one LIVE admin is present for operations
         await ensureLiveAdminPresence();
+        await runCatalogApprovalStatusMigration();
 
         const shouldRunSchedulers =
             env.PROCESS_ROLE === 'scheduler'

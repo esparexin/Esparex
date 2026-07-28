@@ -39,8 +39,8 @@ export const getBrands = async (req: Request, res: Response) => {
     }
     const queryParams: QueryRecord = { ...(req.query as QueryRecord) };
     delete queryParams.categoryId; delete queryParams.categoryIds; delete queryParams.status;
-    const categoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
-    const adminCategoryFilter = CategoryQueryBuilder.forPlural().withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+    const categoryFilter = CategoryQueryBuilder.forEntity('Brand').withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
+    const adminCategoryFilter = CategoryQueryBuilder.forEntity('Brand').withFilters({ categoryIds: categoryObjectId ? [categoryObjectId] : [] }).build();
     const rawStatus = Array.isArray(req.query.status) ? req.query.status[0] : req.query.status;
     applyCatalogStatusFilter(adminCategoryFilter, rawStatus);
     return handlePaginatedContent(req, res, BrandModel, {

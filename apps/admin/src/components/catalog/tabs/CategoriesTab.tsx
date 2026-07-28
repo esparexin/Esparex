@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Edit, Trash2, Monitor, AlertTriangle, Loader2 } from "@esparex/ui";
-import { LISTING_TYPE, ListingTypeValue } from "@esparex/contracts";
+import { LISTING_TYPE } from "@esparex/contracts";
+import type { ListingTypeValue } from "@esparex/contracts";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import {
     CatalogActionsRow,
@@ -19,7 +20,6 @@ import {
     CatalogTextInputField,
 } from "@/components/catalog/CatalogUiPrimitives";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
-import { CatalogSelectField } from "@/components/catalog/CatalogUiPrimitives";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
@@ -28,9 +28,6 @@ import { Category } from "@esparex/contracts";
 
 type CategoryFormData = {
     name: string;
-    icon?: string;
-    parentId?: string;
-    sortOrder: number;
     isActive: boolean;
     hasScreenSizes: boolean;
     listingType: ListingTypeValue[];
@@ -119,23 +116,16 @@ export default function CategoriesTab() {
                     const payload: Record<string, unknown> = { ...data };
                     delete payload._editingSlug;
                     delete payload._editingId;
-                    if (!payload.parentId) delete payload.parentId;
-                    payload.sortOrder = Number(payload.sortOrder) || 0;
                     return handleCreate(payload as unknown as Parameters<typeof handleCreate>[0]);
                 }}
                 handleUpdate={(id, data) => {
                     const payload: Record<string, unknown> = { ...data };
                     delete payload._editingSlug;
                     delete payload._editingId;
-                    if (!payload.parentId) payload.parentId = null;
-                    payload.sortOrder = Number(payload.sortOrder) || 0;
                     return handleUpdate(id, payload as unknown as Parameters<typeof handleUpdate>[1]);
                 }}
                 defaultFormData={{
                     name: "",
-                    icon: "",
-                    parentId: "",
-                    sortOrder: 0,
                     isActive: true,
                     hasScreenSizes: false,
                     listingType: [LISTING_TYPE.AD],
@@ -143,14 +133,10 @@ export default function CategoriesTab() {
                     _editingSlug: "",
                 }}
                 customSubmitValidation={(formData) => {
-                    const slug =
-                        formData._editingSlug ||
-                        deriveSlug(formData.name);
+                    const slug = formData._editingSlug || deriveSlug(formData.name);
                     const validation = adminCategorySchema.safeParse({
                         name: formData.name,
                         slug,
-                        parentId: formData.parentId || null,
-                        sortOrder: Number(formData.sortOrder) || 0,
                         listingType: formData.listingType,
                         hasScreenSizes: formData.hasScreenSizes,
                     });
@@ -162,9 +148,6 @@ export default function CategoriesTab() {
                     if (item) {
                         setFormData({
                             name: item.name,
-                            icon: item.icon || "",
-                            parentId: item.parentId ? String(item.parentId) : "",
-                            sortOrder: typeof item.sortOrder === "number" ? item.sortOrder : 0,
                             isActive: item.isActive,
                             hasScreenSizes: item.hasScreenSizes || false,
                             listingType: Array.isArray(item.listingType)
@@ -191,14 +174,6 @@ export default function CategoriesTab() {
                     {
                         header: "Listing Types",
                         cell: (category) => <CatalogListingTypeBadges types={category.listingType} />,
-                    },
-                    {
-                        header: "Sort Order",
-                        cell: (category) => (
-                            <span className="font-mono text-xs font-semibold text-slate-600">
-                                {category.sortOrder ?? 0}
-                            </span>
-                        ),
                     },
                     {
                         header: "Screen Sizes",
@@ -263,13 +238,6 @@ export default function CategoriesTab() {
                     </>
                 }
                 formRenderer={(formData, setFormData, isEditing) => {
-                    const parentOptions = [
-                        { value: "", label: "None (Root Category)" },
-                        ...categories
-                            .filter((cat) => cat.id !== formData._editingId)
-                            .map((cat) => ({ value: cat.id, label: cat.name })),
-                    ];
-
                     return (
                         <>
                             <CatalogTextInputField
@@ -278,29 +246,6 @@ export default function CategoriesTab() {
                                 value={formData.name}
                                 maxLength={50}
                                 onChange={(name) => setFormData((prev) => ({ ...prev, name }))}
-                            />
-
-                            <CatalogSelectField
-                                label="Parent Category"
-                                value={formData.parentId || ""}
-                                options={parentOptions}
-                                onChange={(parentId) => setFormData((prev) => ({ ...prev, parentId }))}
-                            />
-
-                            <CatalogTextInputField
-                                label="Sort Order"
-                                placeholder="0"
-                                value={String(formData.sortOrder)}
-                                onChange={(val) => setFormData((prev) => ({ ...prev, sortOrder: parseInt(val, 10) || 0 }))}
-                            />
-
-                            <CatalogTextInputField
-                                label="Icon Name"
-                                placeholder="e.g. smartphone, drone, briefcase..."
-                                value={formData.icon || ""}
-                                maxLength={30}
-                                required={false}
-                                onChange={(icon) => setFormData((prev) => ({ ...prev, icon }))}
                             />
 
                             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
