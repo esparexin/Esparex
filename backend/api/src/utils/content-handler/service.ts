@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import type { Document, Model } from 'mongoose';
-import { LISTING_TYPE_VALUES, ListingTypeValue } from "@esparex/contracts";
+import { LISTING_TYPE_VALUES, ListingTypeValue, Role } from "@esparex/contracts";
+import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { getPaginationParams, sendPaginatedResponse, sendSuccessResponse, sendAdminError } from '../adminBaseController';
 import { getCache, setCache, CACHE_TTLS } from '@esparex/core/utils/redisCache';
 import { FeatureFlag, isEnabled } from '@esparex/core/config/featureFlags';
@@ -15,7 +16,8 @@ const IG = new Set(['page','limit','q','search','includeDeleted','sort','order',
 export async function handlePaginatedContent<T extends Document>(req: Request, res: Response, model: Model<T>, options: ContentOptions = {}) {
     try {
         const user = (req as any).user;
-        const isAdmin = Boolean((req as any).admin) || user?.role === 'admin' || user?.role === 'super_admin';
+        const role = normalizeRole(user?.role);
+        const isAdmin = Boolean((req as any).admin) || role === Role.ADMIN || role === Role.SUPER_ADMIN;
         const isUrlAdmin = req.originalUrl.includes('/admin');
         const { searchFields = ['name'], defaultSort = { name: 1 }, publicQuery = { isActive: true }, adminQuery = {}, populate, select, transformResponse, queryParams } = options;
         const eq = (queryParams || req.query) as Record<string, unknown>;

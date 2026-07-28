@@ -111,7 +111,6 @@ export const toggleBrandStatus = async (req: Request, res: Response) => {
 
 export const deleteBrand = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) return res.status(403).json({ success: false, error: 'Admin access required', path: req.originalUrl || req.path, status: 403 });
         const id = String(req.params.id);
         if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ success: false, error: 'Invalid Brand ID format', path: req.originalUrl || req.path, status: 400 });
 

@@ -29,7 +29,6 @@
         "@esparex/shared": "*",
         "@esparex/ui": "*",
         "@hookform/resolvers": "^5.2.2",
-        "@radix-ui/react-dialog": "^1.1.15",
         "date-fns": "^4.1.0",
         "lucide-react": "^0.562.0",
         "next": "^16.0.6",

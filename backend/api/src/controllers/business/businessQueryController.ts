@@ -1,5 +1,6 @@
 import logger from '@esparex/core/utils/logger';
-import { Business, ApiResponse } from "@esparex/contracts";
+import { Business, ApiResponse, Role } from "@esparex/contracts";
+import { normalizeRole } from '@esparex/core/utils/roleNormalization';
 import { respond } from "../../utils/respond";
 import { Request, Response } from 'express';
 import * as businessCoreService from '@esparex/core/services/business/BusinessCoreService';
@@ -84,8 +85,9 @@ export const getBusinessById = async (req: Request, res: Response) => {
         if (!business) return;
 
         const user = req.user;
-        const isOwner = user && business.userId.toString() === user._id.toString();
-        const isAdmin = user && (user.role === 'admin' || user.role === 'super_admin' || user.isAdmin);
+        const userRole = normalizeRole(user?.role);
+        const isOwner = Boolean(user && business.userId.toString() === user._id.toString());
+        const isAdmin = Boolean(user && (userRole === Role.ADMIN || userRole === Role.SUPER_ADMIN || user.isAdmin));
 
         if (!isBusinessPublishedStatus(business.status) && !isOwner && !isAdmin) {
             sendErrorResponse(req, res, 403, 'Profile unverified', {
