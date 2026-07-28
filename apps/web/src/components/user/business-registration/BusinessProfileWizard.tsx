@@ -1,10 +1,11 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, useEffect, type ReactNode } from "react";
 import { ArrowLeft, Loader2 } from "@/icons/IconRegistry";
 import type { User } from "@/types/User";
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
+import { scrollToFirstError } from "@/lib/formHelpers";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";
@@ -134,11 +135,24 @@ export function BusinessProfileWizard({
         ? submitLabel
         : "Continue to verification";
 
+    const headingRef = useRef<HTMLHeadingElement>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            headingRef.current?.focus();
+        }
+    }, [safeCurrentStep]);
+
     return (
         <div className="bg-slate-50 py-6 md:py-8">
             <form
                 className="mx-auto flex max-w-4xl flex-col gap-6 px-4 pb-6 md:pb-0"
-                onSubmit={onSubmit}
+                onSubmit={(e) => {
+                    onSubmit(e);
+                    if (formError) {
+                        scrollToFirstError();
+                    }
+                }}
                 noValidate
             >
                 <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm md:px-5">
@@ -160,9 +174,32 @@ export function BusinessProfileWizard({
                     </div>
                 </div>
 
-                <FormError message={formError} className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" />
+                {/* Step indicator accessibility */}
+                <nav aria-label="Wizard Steps" className="flex items-center gap-2">
+                    {steps.map((step, idx) => (
+                        <div
+                            key={step.label}
+                            aria-current={idx === safeCurrentStep ? "step" : undefined}
+                            className={`flex items-center gap-1.5 text-xs font-semibold ${
+                                idx === safeCurrentStep ? "text-blue-600 font-bold" : "text-slate-400"
+                            }`}
+                        >
+                            <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${
+                                idx === safeCurrentStep ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-600"
+                            }`}>
+                                {idx + 1}
+                            </span>
+                            <span>{step.label}</span>
+                            {idx < steps.length - 1 ? <span className="mx-1 text-slate-300">/</span> : null}
+                        </div>
+                    ))}
+                </nav>
+
+                <div role="alert" aria-live="polite">
+                    <FormError message={formError} className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" />
+                </div>
                 {submissionStatus ? (
-                    <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900">
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900" role="status" aria-live="polite">
                         <div className="flex items-start gap-3">
                             <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin" />
                             <div className="space-y-1">
@@ -175,7 +212,11 @@ export function BusinessProfileWizard({
 
                 <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
                     <div className="border-b border-slate-100 px-5 py-5 md:px-8 md:py-6">
-                        <h2 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                        <h2
+                            ref={headingRef}
+                            tabIndex={-1}
+                            className="text-xl font-semibold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+                        >
                             {activeStep.title}
                         </h2>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-tertiary">
