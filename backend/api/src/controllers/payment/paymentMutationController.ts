@@ -8,7 +8,7 @@ import {
     findPendingTransaction,
     createPaymentTransaction,
     getUserForPayment,
-} from '@esparex/core/services/TransactionService';
+} from '@esparex/core/domains/payments/application/TransactionService';
 import { getPlanById } from '@esparex/core/domains/payments/application/PlanService';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";
 import { getErrorMessage } from './shared';
-import * as invoiceService from '@esparex/core/services/InvoiceService';
+import * as invoiceService from '@esparex/core/domains/payments/application/InvoiceService';
 
 export const getInvoices = async (req: Request, res: Response) => {
     try {

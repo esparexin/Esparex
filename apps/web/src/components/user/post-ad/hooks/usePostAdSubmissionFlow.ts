@@ -10,7 +10,10 @@ import { UseFormReturn } from "react-hook-form";
 import { ListingImage } from "@/types/listing";
 import { createAdListing, updateAdListing } from "@/lib/api/user/listings/postingAPI";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
-import { usePostAdFormNormalization } from "./usePostAdFormNormalization";
+import {
+    buildPostAdEditPayload,
+    buildPostAdIdentityPatch,
+} from "@/lib/listings/postingFormNormalization";
 
 interface UsePostAdSubmissionFlowProps {
     form: UseFormReturn<PostAdFormData>;
@@ -32,10 +35,33 @@ export function usePostAdSubmissionFlow({
     setFormError,
     setSubmittedAd,
 }: UsePostAdSubmissionFlowProps) {
-    const { buildEditAdPayload, normalizeIdentityFieldsBeforeSubmit } = usePostAdFormNormalization(
-        form,
-        isLocationLocked
-    );
+    const buildEditAdPayload = useCallback((payload: PostAdFormData) => {
+        return buildPostAdEditPayload(payload, isLocationLocked);
+    }, [isLocationLocked]);
+
+    const normalizeIdentityFieldsBeforeSubmit = useCallback(() => {
+        const nextValues = buildPostAdIdentityPatch({
+            categoryId: form.getValues("categoryId"),
+            category: form.getValues("category"),
+            brandId: form.getValues("brandId"),
+            modelId: form.getValues("modelId"),
+            spareParts: form.getValues("spareParts"),
+        });
+
+        (Object.entries(nextValues) as Array<[keyof PostAdFormData, PostAdFormData[keyof PostAdFormData]]>).forEach(([field, value]) => {
+            const currentValue = form.getValues(field as keyof PostAdFormData);
+            const hasChanged = Array.isArray(value)
+                ? JSON.stringify(currentValue ?? []) !== JSON.stringify(value)
+                : String(currentValue ?? "") !== String(value ?? "");
+
+            if (hasChanged) {
+                form.setValue(field, value, {
+                    shouldValidate: false,
+                    shouldDirty: false,
+                });
+            }
+        });
+    }, [form]);
 
     const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }): Promise<Listing> => {
         trackPostAdEvent({ event: "publish_clicked", metadata: { isEditMode } });

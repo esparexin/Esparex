@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const { TYPOGRAPHY_TOKENS } = require("../../packages/ui/src/tokens/typography");
+
 const config = {
 	content: [
 		"./src/**/*.{js,ts,jsx,tsx}",
@@ -7,12 +9,12 @@ const config = {
 	darkMode: ["class"],
 	theme: {
 		extend: {
-			fontFamily: {
-				sans: ['var(--font-primary)', 'system-ui', 'sans-serif'],
-			},
+			fontFamily: TYPOGRAPHY_TOKENS.fontFamily,
 			fontSize: {
-				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px
+				...TYPOGRAPHY_TOKENS.fontSize,
+				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px legacy fallback
 			},
+			fontWeight: TYPOGRAPHY_TOKENS.fontWeight,
 			colors: {
 				link: {
 					DEFAULT: 'hsl(var(--link))',

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 
 type AdminMutationOptions<T> = {
     failureMessage: string;
@@ -10,7 +10,6 @@ type AdminMutationOptions<T> = {
 };
 
 export function useAdminMutation() {
-    const { showToast } = useToast();
     const [isPending, setIsPending] = useState(false);
 
     const runMutation = async <T>(
@@ -23,10 +22,12 @@ export function useAdminMutation() {
             const result = await operation();
 
             if (successMessage) {
-                showToast(
-                    typeof successMessage === "function" ? successMessage(result) : successMessage,
-                    "success"
-                );
+                const message = typeof successMessage === "function" ? successMessage(result) : successMessage;
+                showAdminPopup({
+                    type: "success",
+                    title: "Success",
+                    message,
+                });
             }
 
             if (onSuccess) {
@@ -35,7 +36,12 @@ export function useAdminMutation() {
 
             return result;
         } catch (error) {
-            showToast(error instanceof Error ? error.message : failureMessage, "error");
+            const message = error instanceof Error ? error.message : failureMessage;
+            showAdminPopup({
+                type: "error",
+                title: "Error",
+                message,
+            });
             return null;
         } finally {
             setIsPending(false);

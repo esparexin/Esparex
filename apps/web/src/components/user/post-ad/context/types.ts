@@ -95,6 +95,8 @@ export type PostAdCatalogState = {
     sparePartsError: string | null;
     brandsError: string | null;
     brandIsPending: boolean;
+    isLoadingBrands: boolean;
+    isLoadingModels: boolean;
 };
 
 export type PostAdLocationState = {

@@ -3,7 +3,7 @@
  */
 
 import nodemailer from 'nodemailer';
-import { EmailService } from '../../services/EmailService';
+import { EmailService } from '../../domains/notifications/application/EmailService';
 import { getSystemConfigDoc } from '../../utils/systemConfigHelper';
 
 jest.mock('nodemailer');

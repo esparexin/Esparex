@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { CircuitBoard } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
-import { Button } from "@esparex/ui";
 import { Field } from "@/components/ui/field";
 
 import { getNestedFieldMeta } from "../common/utils";
@@ -27,29 +26,40 @@ export function CategorySection() {
     }, [isEditMode, handleCategoryChange]);
 
     const GridContent = (
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
             {dynamicCategories.map((cat) => {
                 const Icon = cat.icon || CircuitBoard;
                 const selected = cat.id === categoryId;
                 return (
-                    <Button 
+                    <button 
                         key={cat.id} 
                         type="button" 
-                        variant={selected ? "default" : "outline"} 
                         onClick={() => onCategoryClick(cat.id)} 
                         disabled={isEditMode && !selected}
                         aria-pressed={selected}
                         className={cn(
-                            "flex flex-col items-center justify-center gap-0.5 h-[52px] py-1 px-1 rounded-xl transition-all duration-200 border-2", 
-                            selected ? "bg-primary text-primary-foreground border-primary shadow-sm" : "bg-white hover:bg-slate-50 border-slate-100", 
+                            "flex flex-col items-center justify-center gap-1.5 h-[68px] sm:h-[72px] py-1.5 px-2 rounded-xl transition-all duration-200 cursor-pointer select-none group border", 
+                            selected 
+                                ? "bg-blue-50/90 border-2 border-blue-600 text-blue-950 font-bold shadow-sm ring-2 ring-blue-600/15" 
+                                : "bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 shadow-2xs", 
                             isEditMode && "opacity-60 cursor-not-allowed"
                         )}
                     >
-                        <Icon className={cn("w-5 h-5", selected ? "text-primary-foreground" : "text-foreground-subtle")} aria-hidden="true" focusable="false" />
-                        <span className={cn("text-[11px] sm:text-xs font-medium text-center leading-tight w-full px-1", selected ? "text-primary-foreground" : "text-foreground-tertiary", !selected && "whitespace-normal break-words line-clamp-2")}>
+                        <Icon 
+                            className={cn(
+                                "w-5 h-5 sm:w-6 sm:h-6 transition-colors", 
+                                selected ? "text-blue-600 stroke-[2.2]" : "text-slate-400 group-hover:text-blue-600"
+                            )} 
+                            aria-hidden="true" 
+                            focusable="false" 
+                        />
+                        <span className={cn(
+                            "text-[11px] sm:text-xs font-semibold text-center leading-tight tracking-tight w-full px-0.5", 
+                            selected ? "text-blue-950 font-bold" : "text-slate-700 group-hover:text-slate-900 line-clamp-2"
+                        )}>
                             {cat.name}
                         </span>
-                    </Button>
+                    </button>
                 );
             })}
         </div>

@@ -42,7 +42,7 @@ export const buildDynamicCategories = (
             return types.includes(listingType);
         })
         .map((category) => ({
-            id: String(category.id || ""),
+            id: String(category.id || (category as any)._id || ""),
             name: category.name,
             slug: category.slug || "",
             icon: getCategoryIcon(category.icon || category.name || category.slug),

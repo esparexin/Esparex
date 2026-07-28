@@ -261,8 +261,8 @@ const sendEmailAlert = async (event: ReliabilityAlertEvent): Promise<ChannelDeli
     const failures: string[] = [];
 
     // Lazy load EmailService to resolve startup circular dependency
-    const servicePath = '../services/EmailService';
-    const { emailService } = require(servicePath) as typeof import('../services/EmailService');
+    const servicePath = '../domains/notifications/application/EmailService';
+    const { emailService } = require(servicePath) as typeof import('../domains/notifications/application/EmailService');
 
     for (const recipient of recipients) {
         const ok = await emailService.sendEmail(recipient, subject, html);

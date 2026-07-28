@@ -79,7 +79,7 @@ export function useBrandCatalog({
     const loadBrandsForCategory = useCallback(
         async (categoryId: string) => {
             const normalizedCategoryId =
-                sanitizeMongoObjectId(categoryId);
+                sanitizeMongoObjectId(categoryId) || categoryId?.trim() || "";
 
             if (!normalizedCategoryId) {
                 setActiveCategoryId("");
@@ -109,7 +109,7 @@ export function useBrandCatalog({
             search?: string
         ) => {
             const normalizedBrandId =
-                sanitizeMongoObjectId(brandId);
+                sanitizeMongoObjectId(brandId) || brandId?.trim() || "";
 
             if (!normalizedBrandId) {
                 setSelectedBrandId("");
@@ -120,7 +120,7 @@ export function useBrandCatalog({
             // Keep category synchronized if provided.
             if (categoryId) {
                 const normalizedCategoryId =
-                    sanitizeMongoObjectId(categoryId);
+                    sanitizeMongoObjectId(categoryId) || categoryId?.trim() || "";
 
                 if (normalizedCategoryId) {
                     setActiveCategoryId(normalizedCategoryId);
@@ -319,6 +319,9 @@ export function useBrandCatalog({
         [activeCategoryId, modelSearch, queryClient]
     );
 
+    const isLoadingBrands = brandsQuery.isLoading || brandsQuery.isFetching;
+    const isLoadingModels = modelsQuery.isLoading || modelsQuery.isFetching;
+
     return {
         brandMap,
         availableBrands,
@@ -326,6 +329,8 @@ export function useBrandCatalog({
         availableSizes,
         activeCategoryId,
         brandsError,
+        isLoadingBrands,
+        isLoadingModels,
         loadBrandsForCategory,
         loadModelsForBrand,
         refreshBrands,

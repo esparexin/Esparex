@@ -3,7 +3,7 @@ import { adminFetch } from "@/lib/api/adminClient";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { 
     normalizeManagedUser, 
     type ManagedUser, 
@@ -31,7 +31,6 @@ type UsersOverview = {
 };
 
 export function useClientUsers() {
-    const { showToast } = useToast();
     const [users, setUsers] = useState<ManagedUser[]>([]);
     const [loading, setLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
@@ -98,12 +97,12 @@ export function useClientUsers() {
         } catch (err) {
             const msg = AdminApiError.resolveMessage(err, "Failed to load users");
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setLoading(false);
         }
-    }, [showToast]);
+    }, []);
 
     const handleUserAction = async (type: UserActionType, user: ManagedUser, reason?: string) => {
         setIsMutating(true);
@@ -123,11 +122,11 @@ export function useClientUsers() {
                 throw new Error(`Unsupported action type: ${type}`);
             }
 
-            showToast(`User ${type} action completed`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `User ${type} action completed` });
             return { success: true };
         } catch (err) {
             const msg = AdminApiError.resolveMessage(err, `Failed to ${type} user`);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);

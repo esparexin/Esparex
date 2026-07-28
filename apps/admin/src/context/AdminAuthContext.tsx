@@ -23,23 +23,15 @@ type AdminAuthState = {
 
 const AdminAuthContext = createContext<AdminAuthState | undefined>(undefined);
 
+import { normalizeRole } from "@esparex/shared";
+
 function normalizeAdmin(payload: unknown): AdminUser | null {
   if (!payload || typeof payload !== "object") return null;
   const item = payload as Record<string, unknown>;
   const id = item.id || item._id;
   if (!id || typeof item.email !== "string" || typeof item.role !== "string") return null;
 
-  const rawRole = item.role.trim().toLowerCase();
-  let normalizedRole = "moderator";
-  if (rawRole === "super_admin" || rawRole === "superadmin") {
-    normalizedRole = "superAdmin";
-  } else if (rawRole === "admin") {
-    normalizedRole = "admin";
-  } else if (rawRole === "moderator") {
-    normalizedRole = "moderator";
-  } else {
-    normalizedRole = item.role;
-  }
+  const normalizedRole = normalizeRole(item.role as string);
 
   return {
     id: String(id),

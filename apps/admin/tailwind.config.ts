@@ -1,16 +1,18 @@
 import type { Config } from "tailwindcss";
+import { TYPOGRAPHY_TOKENS } from "../../packages/ui/src/tokens/typography";
 
 const config: Config = {
     content: [
         "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+        "../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
         extend: {
-            fontFamily: {
-                sans: ['var(--font-primary)', 'system-ui', 'sans-serif'],
-            },
+            fontFamily: TYPOGRAPHY_TOKENS.fontFamily,
+            fontSize: TYPOGRAPHY_TOKENS.fontSize,
+            fontWeight: TYPOGRAPHY_TOKENS.fontWeight,
             colors: {
                 background: "var(--background)",
                 foreground: "var(--foreground)",

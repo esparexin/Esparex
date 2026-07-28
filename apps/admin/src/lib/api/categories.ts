@@ -17,7 +17,6 @@ export interface CategoryData {
     id?: string;
     name: string;
     slug?: string;
-    type?: string;
     isActive?: boolean;
     isDeleted?: boolean;
     approvalStatus?: "pending" | "approved" | "rejected";
@@ -56,7 +55,7 @@ export async function createCategory(data: CategoryData) {
 
 export async function updateCategory(id: string, data: CategoryData) {
     return adminFetch<CategoryData>(ADMIN_ROUTES.CATEGORY_BY_ID(id), {
-        method: "PUT",
+        method: "PATCH",
         body: data
     });
 }

@@ -27,7 +27,7 @@ import {
 
 import crypto from 'crypto';
 import speakeasy from 'speakeasy';
-import { emailService } from '@esparex/core/services/EmailService';
+import { emailService } from '@esparex/core/domains/notifications/application/EmailService';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { comparePassword, generateAdminToken, verifyAdminToken } from '@esparex/core/utils/auth';
 import { USER_STATUS } from "@esparex/contracts";

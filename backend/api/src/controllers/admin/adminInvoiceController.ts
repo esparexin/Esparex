@@ -5,13 +5,13 @@ import { logAdminAction } from '../../utils/adminLogger';
 import { PAYMENT_STATUS } from "@esparex/contracts";
 import { generateInvoiceNumber } from '@esparex/core/utils/invoiceNumber';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
-import * as invoiceService from '@esparex/core/services/InvoiceService';
+import * as invoiceService from '@esparex/core/domains/payments/application/InvoiceService';
 import {
     createPaymentTransaction,
     findTransactionForUpdate,
     saveTransaction,
     getUserForPayment,
-} from '@esparex/core/services/TransactionService';
+} from '@esparex/core/domains/payments/application/TransactionService';
 import { findPlanByIdOrCode, upsertUserPlan } from '@esparex/core/domains/payments/application/PlanService';
 import { findUserByEmail } from '@esparex/core/domains/identity/application/users/UserService';
 import { 

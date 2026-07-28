@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
@@ -52,8 +52,6 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
     extraQueryParams,
     rejectValidationMessage,
 }: UseAdminBusinessListOptions<TOverview>) {
-    const { showToast } = useToast();
-
     const [businesses, setBusinesses] = useState<Business[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -129,7 +127,7 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
     const handleReject = async (id: string, reason: string) => {
         const validationMessage = rejectValidationMessage?.(reason);
         if (validationMessage) {
-            showToast(validationMessage, "error");
+            showAdminPopup({ type: "error", title: "Error", message: validationMessage });
             throw new Error(validationMessage);
         }
 
@@ -138,13 +136,13 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "PATCH",
                 body: { status: "rejected", reason },
             });
-            showToast("Business rejected", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Business rejected" });
             setRejectTarget(null);
             setSelectedBusiness(null);
             await fetchBusinesses();
         } catch (err) {
             const message = getErrorMessage(err, "Failed to reject business");
-            showToast(message, "error");
+            showAdminPopup({ type: "error", title: "Error", message });
             throw err instanceof Error ? err : new Error(message);
         }
     };
@@ -155,13 +153,13 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "PUT",
                 body: patch,
             });
-            showToast("Business updated", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Business updated" });
             setModifyTarget(null);
             setSelectedBusiness(null);
             await fetchBusinesses();
         } catch (err) {
             const message = getErrorMessage(err, "Failed to update business");
-            showToast(message, "error");
+            showAdminPopup({ type: "error", title: "Error", message });
             throw err instanceof Error ? err : new Error(message);
         }
     };
@@ -171,12 +169,12 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
             await adminFetch(ADMIN_ROUTES.DELETE_BUSINESS(id), {
                 method: "DELETE",
             });
-            showToast("Business deleted", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Business deleted" });
             setDeleteTarget(null);
             setSelectedBusiness(null);
             await fetchBusinesses();
         } catch (err) {
-            showToast(getErrorMessage(err, "Failed to delete business"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to delete business") });
         }
     };
 
@@ -186,11 +184,11 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "PATCH",
                 body: { status: "suspended", reason },
             });
-            showToast("Business suspended", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Business suspended" });
             setSelectedBusiness(null);
             await fetchBusinesses();
         } catch (err) {
-            showToast(mapErrorToMessage(err, "Failed to suspend business"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: mapErrorToMessage(err, "Failed to suspend business") });
             throw err;
         }
     };
@@ -201,11 +199,11 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "PATCH",
                 body: { status: "live" },
             });
-            showToast("Business reactivated successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Business reactivated successfully" });
             setSelectedBusiness(null);
             await fetchBusinesses();
         } catch (err) {
-            showToast(mapErrorToMessage(err, "Failed to activate business"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: mapErrorToMessage(err, "Failed to activate business") });
         }
     };
 
@@ -215,10 +213,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "POST",
                 body: { ids },
             });
-            showToast(`${ids.length} businesses approved`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `${ids.length} businesses approved` });
             await fetchBusinesses();
         } catch (err) {
-            showToast(getErrorMessage(err, "Failed to approve businesses"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to approve businesses") });
         }
     };
 
@@ -228,10 +226,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "POST",
                 body: { ids, reason },
             });
-            showToast(`${ids.length} businesses rejected`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `${ids.length} businesses rejected` });
             await fetchBusinesses();
         } catch (err) {
-            showToast(getErrorMessage(err, "Failed to reject businesses"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to reject businesses") });
         }
     };
 
@@ -241,10 +239,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "POST",
                 body: { ids },
             });
-            showToast(`${ids.length} businesses deactivated`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `${ids.length} businesses deactivated` });
             await fetchBusinesses();
         } catch (err) {
-            showToast(getErrorMessage(err, "Failed to deactivate businesses"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to deactivate businesses") });
         }
     };
 
@@ -254,10 +252,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "POST",
                 body: { ids },
             });
-            showToast(`${ids.length} businesses expired`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `${ids.length} businesses expired` });
             await fetchBusinesses();
         } catch (err) {
-            showToast(getErrorMessage(err, "Failed to expire businesses"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to expire businesses") });
         }
     };
 
@@ -267,10 +265,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                 method: "POST",
                 body: { ids },
             });
-            showToast(`${ids.length} businesses renewed`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `${ids.length} businesses renewed` });
             await fetchBusinesses();
         } catch (err) {
-            showToast(getErrorMessage(err, "Failed to renew businesses"), "error");
+            showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to renew businesses") });
         }
     };
 
@@ -308,10 +306,10 @@ export function useAdminBusinessList<TOverview extends Record<string, number>>({
                     method: "POST",
                     body: { ids },
                 });
-                showToast(`Expiry warnings resent for ${ids.length} businesses`, "success");
+                showAdminPopup({ type: "success", title: "Success", message: `Expiry warnings resent for ${ids.length} businesses` });
                 await fetchBusinesses();
             } catch (err) {
-                showToast(getErrorMessage(err, "Failed to resend business warnings"), "error");
+                showAdminPopup({ type: "error", title: "Error", message: getErrorMessage(err, "Failed to resend business warnings") });
             }
         },
     };

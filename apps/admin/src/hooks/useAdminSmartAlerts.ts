@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { bulkResendAlertWarnings } from "@/lib/api/smartAlerts";
 
 type AlertItem = {
@@ -29,7 +29,6 @@ export function useAdminSmartAlerts() {
         total: 0,
         pages: 1
     });
-    const { showToast } = useToast();
 
     const getAlerts = useCallback(async (params: { page: number; limit: number }) => {
         setLoading(true);
@@ -59,20 +58,20 @@ export function useAdminSmartAlerts() {
     const handleDeleteAlert = async (id: string) => {
         try {
             await adminFetch(ADMIN_ROUTES.SMART_ALERTS + `/${id}`, { method: "DELETE" });
-            showToast("Alert deleted", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Alert deleted" });
             await getAlerts({ page: pagination.page, limit: pagination.limit });
         } catch {
-            showToast("Failed to delete alert", "error");
+            showAdminPopup({ type: "error", title: "Error", message: "Failed to delete alert" });
         }
     };
 
     const handleBulkResend = async (ids: string[]) => {
         try {
             await bulkResendAlertWarnings(ids);
-            showToast(`Resent warnings for ${ids.length} alerts`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `Resent warnings for ${ids.length} alerts` });
             await getAlerts({ page: pagination.page, limit: pagination.limit });
         } catch {
-            showToast("Failed to resend warnings", "error");
+            showAdminPopup({ type: "error", title: "Error", message: "Failed to resend warnings" });
         }
     };
 

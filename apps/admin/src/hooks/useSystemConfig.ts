@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react";
 import { getSystemConfig, updateSystemConfig } from "@/lib/api/systemConfig";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { SystemConfig, SystemConfigPatch } from "@/types/systemConfig";
 
 export function useSystemConfig() {
-    const { showToast } = useToast();
     const [config, setConfig] = useState<SystemConfig | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -20,11 +19,11 @@ export function useSystemConfig() {
         } catch (loadError) {
             const msg = loadError instanceof Error ? loadError.message : "Failed to load system configuration";
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
         } finally {
             setLoading(false);
         }
-    }, [showToast]);
+    }, []);
 
     const handleSaveSection = async (patch: SystemConfigPatch, successMessage: string) => {
         setSaving(true);
@@ -34,12 +33,12 @@ export function useSystemConfig() {
             const updated = await updateSystemConfig(patch);
             setConfig(updated);
             setSuccess(successMessage);
-            showToast(successMessage, "success");
+            showAdminPopup({ type: "success", title: "Success", message: successMessage });
             return { success: true };
         } catch (saveError) {
             const msg = saveError instanceof Error ? saveError.message : "Failed to update settings";
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setSaving(false);

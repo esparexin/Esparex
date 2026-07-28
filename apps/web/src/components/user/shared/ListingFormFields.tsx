@@ -171,7 +171,7 @@ export function ListingTitleField({ label, error, required = true, registerProps
                     {...registerProps}
                     placeholder={placeholder}
                     maxLength={maxLength}
-                    className="pr-16"
+                    className="pr-16 h-11 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600"
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tabular-nums",
@@ -205,7 +205,7 @@ export function ListingPriceField({ label = "Price (₹)", error, required = tru
                     {...registerProps}
                     placeholder={placeholder}
                     className={cn(
-                        "",
+                        "h-11 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600",
                         showCurrencySymbol && "pl-8"
                     )}
                 />
@@ -231,7 +231,7 @@ export function ListingDescriptionField({ label = "Description", error, required
                     {...registerProps}
                     placeholder={placeholder}
                     maxLength={maxLength}
-                    className="min-h-[132px] pb-6"
+                    className="min-h-[120px] pb-6 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600"
                 />
                 <span className={cn(
                     "pointer-events-none absolute right-3 bottom-2 text-xs font-medium tabular-nums",
@@ -264,8 +264,8 @@ export function CategorySelectorGrid({
     return (
         <div className="space-y-1.5">
             <div className={cn(
-                "grid grid-cols-3 sm:grid-cols-4 gap-2 rounded-xl p-1",
-                error ? "ring-2 ring-red-100 bg-red-50/30" : ""
+                "grid grid-cols-3 sm:grid-cols-4 gap-2.5 rounded-xl",
+                error ? "ring-2 ring-red-100 bg-red-50/30 p-1" : ""
             )}>
             {categories.map((cat) => {
                 const Icon = cat.icon || DefaultIcon;
@@ -277,15 +277,18 @@ export function CategorySelectorGrid({
                         onClick={() => onSelect(cat.id || "")}
                         disabled={disabled}
                         className={cn(
-                            "flex flex-col items-center gap-1 rounded-xl border px-1 py-3 text-center transition-all",
+                            "flex flex-col items-center justify-center gap-1.5 h-[68px] sm:h-[72px] py-1.5 px-2 rounded-xl transition-all duration-200 cursor-pointer select-none group border",
                             selected
-                                ? "bg-primary border-primary text-white"
-                                : "bg-white border-slate-200 text-foreground-tertiary hover:border-slate-300",
-                            disabled && !selected ? "opacity-40" : ""
+                                ? "bg-blue-50/90 border-2 border-blue-600 text-blue-950 font-bold shadow-sm ring-2 ring-blue-600/15"
+                                : "bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 shadow-2xs",
+                            disabled && !selected ? "opacity-40 cursor-not-allowed" : ""
                         )}
                     >
-                        <Icon className={cn("w-5 h-5", selected ? "text-white" : "text-foreground-subtle")} />
-                        <span className="w-full truncate px-1 text-xs font-semibold leading-tight">
+                        <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6 transition-colors", selected ? "text-blue-600 stroke-[2.2]" : "text-slate-400 group-hover:text-blue-600")} />
+                        <span className={cn(
+                            "text-[11px] sm:text-xs font-semibold text-center leading-tight tracking-tight w-full px-0.5",
+                            selected ? "text-blue-950 font-bold" : "text-slate-700 group-hover:text-slate-900 line-clamp-2"
+                        )}>
                             {cat.name}
                         </span>
                     </button>

@@ -32,9 +32,31 @@ export class CategoryQueryBuilder {
         return new CategoryQueryBuilder(CategoryFieldType.SINGULAR);
     }
 
+    /** Convenience helper for canonical categoryId lookup */
+    static byCategory(categoryId?: string | null): CategoryQueryBuilder {
+        return new CategoryQueryBuilder(CategoryFieldType.SINGULAR).withFilters({ categoryId });
+    }
+
     /** Initialize builder for entities with plural 'categoryIds' array field */
     static forPlural(): CategoryQueryBuilder {
         return new CategoryQueryBuilder(CategoryFieldType.PLURAL);
+    }
+
+    /**
+     * SSOT Entity Cardinality Helper
+     * Infers whether entity uses singular 'categoryId' or plural 'categoryIds' array field.
+     */
+    static forEntity(entity: 'Brand' | 'Model' | 'SparePart' | 'ServiceType' | 'ScreenSize' | 'Ad'): CategoryQueryBuilder {
+        switch (entity) {
+            case 'Brand':
+            case 'Model':
+            case 'SparePart':
+            case 'ServiceType':
+                return CategoryQueryBuilder.forPlural();
+            case 'ScreenSize':
+            case 'Ad':
+                return CategoryQueryBuilder.forSingular();
+        }
     }
 
     /** Set input filters for query construction. */

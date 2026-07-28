@@ -1,6 +1,6 @@
 import logger from '@esparex/core/utils/logger';
 import { Request, Response } from 'express';
-import { createInvoiceRecord } from '@esparex/core/services/InvoiceService';
+import { createInvoiceRecord } from '@esparex/core/domains/payments/application/InvoiceService';
 import { findUserByEmail } from '@esparex/core/domains/identity/application/users/UserService';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { respond } from "../../utils/respond";

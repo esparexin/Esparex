@@ -20,6 +20,7 @@ export * from './utils/formatters';
 export * from './utils/statusNormalization';
 export * from './utils/userStatus';
 export * from './utils/securityPatterns';
+export * from './utils/roleNormalization';
 export * from './utils/resolveCategoryId';
 // geoUtils — radius constants are now in @esparex/contracts; export only utility functions
 export type { GeoJSONPoint } from './utils/geoUtils';

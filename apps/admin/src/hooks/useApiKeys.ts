@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { AdminApiError, adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { ApiKeyItem } from "@/types/adminSession";
 
 const normalizeApiKey = (raw: Record<string, unknown>): ApiKeyItem => ({
@@ -28,7 +28,6 @@ type CreatedApiKeyPayload = {
 };
 
 export function useApiKeys(initialStatus: string = "all") {
-    const { showToast } = useToast();
     const [items, setItems] = useState<ApiKeyItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
@@ -56,11 +55,11 @@ export function useApiKeys(initialStatus: string = "all") {
         } catch (err) {
             const msg = AdminApiError.resolveMessage(err, "Failed to load API keys");
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
         } finally {
             setLoading(false);
         }
-    }, [statusFilter, showToast]);
+    }, [statusFilter]);
 
     const handleCreateKey = async (name: string, scopes: string[]) => {
         setIsMutating(true);
@@ -71,12 +70,12 @@ export function useApiKeys(initialStatus: string = "all") {
             });
             const parsed = parseAdminResponse<never, CreatedApiKeyPayload>(response);
             const created = parsed.data || {};
-            showToast("API key created successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "API key created successfully" });
             await fetchApiKeys();
             return { success: true, key: typeof created.key === "string" ? created.key : null };
         } catch (err) {
             const msg = AdminApiError.resolveMessage(err, "Failed to create API key");
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);
@@ -87,12 +86,12 @@ export function useApiKeys(initialStatus: string = "all") {
         setIsMutating(true);
         try {
             await adminFetch(ADMIN_ROUTES.API_KEY_REVOKE(id), { method: "PATCH", body: {} });
-            showToast("API key revoked", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "API key revoked" });
             await fetchApiKeys();
             return { success: true };
         } catch (err) {
             const msg = AdminApiError.resolveMessage(err, "Failed to revoke API key");
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);

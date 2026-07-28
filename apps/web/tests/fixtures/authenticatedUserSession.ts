@@ -64,6 +64,7 @@ export async function seedAuthenticatedUserSession(
   const expires = Math.floor(Date.now() / 1000) + 60 * 60;
 
   await context.addInitScript((location) => {
+    window.localStorage.setItem("esparex_auth_session", "1");
     window.localStorage.setItem("esparex_user_session", "1");
     window.localStorage.setItem("esparex_cookie_consent", "accepted");
     window.localStorage.setItem("esparex_location_prompt_dismissed", "true");
@@ -77,7 +78,8 @@ export async function seedAuthenticatedUserSession(
     {
       name: "esparex_auth",
       value: token,
-      url: SMOKE_FRONTEND_BASE_URL,
+      domain: "localhost",
+      path: "/",
       httpOnly: true,
       secure: false,
       sameSite: "Lax",
@@ -86,7 +88,8 @@ export async function seedAuthenticatedUserSession(
     {
       name: "esparex_auth",
       value: token,
-      url: "http://127.0.0.1:3000",
+      domain: "127.0.0.1",
+      path: "/",
       httpOnly: true,
       secure: false,
       sameSite: "Lax",
@@ -96,34 +99,42 @@ export async function seedAuthenticatedUserSession(
 }
 
 export async function installAuthenticatedUserApiMocks(page: Page) {
-  await page.route(/\/api\/v1\/health\/?$/, (route) =>
+  await page.route("**/**/api/v1/health**", (route) =>
     fulfillJson(route, { success: true, status: "ok", mode: "smoke" })
   );
 
-  await page.route(/\/api\/v1\/csrf-token\/?$/, (route) =>
+  await page.route("**/**/api/v1/csrf-token**", (route) =>
     fulfillJson(route, { csrfToken: "mock-csrf-token-for-smoke" })
   );
 
-  await page.route(/\/api\/v1\/auth\/csrf\/?$/, (route) =>
+  await page.route("**/**/api/v1/auth/csrf**", (route) =>
     fulfillJson(route, { csrfToken: "mock-csrf-token-for-smoke" })
   );
 
-  await page.route(/\/api\/v1\/users\/me\/?$/, (route) =>
+  await page.route("**/**/api/v1/auth/me**", (route) =>
+    fulfillJson(route, { success: true, user: smokeUser })
+  );
+
+  await page.route("**/**/api/v1/users/me**", (route) =>
     fulfillJson(route, envelope(smokeUser))
   );
 
-  await page.route(/\/api\/v1\/users\/me\/posting-balance\/?$/, (route) =>
+  await page.route("**/**/api/v1/users/me/posting-balance**", (route) =>
     fulfillJson(
       route,
       envelope({ totalRemaining: 3, freeRemaining: 1, paidCredits: 2 })
     )
   );
 
-  await page.route(/\/api\/v1\/users\/saved-ads(\?.*)?$/, (route) =>
+  await page.route("**/**/api/v1/users/saved-ads**", (route) =>
     fulfillJson(route, envelope([]))
   );
 
-  await page.route(/\/api\/v1\/auth\/logout\/?$/, (route) =>
+  await page.route("**/**/api/v1/notifications**", (route) =>
+    fulfillJson(route, envelope([]))
+  );
+
+  await page.route("**/**/api/v1/auth/logout**", (route) =>
     fulfillJson(route, { success: true })
   );
 }

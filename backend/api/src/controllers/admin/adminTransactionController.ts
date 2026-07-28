@@ -4,7 +4,7 @@ import {
     sendAdminError,
     sendPaginatedResponse 
 } from '../../utils/adminBaseController';
-import * as transactionService from '@esparex/core/services/TransactionService';
+import * as transactionService from '@esparex/core/domains/payments/application/TransactionService';
 
 /**
  * Get all transactions with pagination and filtering

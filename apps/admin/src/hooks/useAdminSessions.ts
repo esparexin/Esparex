@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { AdminApiError, adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import type { AdminSessionItem } from "@/types/adminSession";
 
 const normalizeAdminSession = (raw: Record<string, unknown>): AdminSessionItem => ({
@@ -17,7 +17,6 @@ const normalizeAdminSession = (raw: Record<string, unknown>): AdminSessionItem =
 });
 
 export function useAdminSessions(initialStatus: string = "active") {
-    const { showToast } = useToast();
     const [sessions, setSessions] = useState<AdminSessionItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [isMutating, setIsMutating] = useState(false);
@@ -40,11 +39,11 @@ export function useAdminSessions(initialStatus: string = "active") {
         } catch (err: unknown) {
             const msg = AdminApiError.resolveMessage(err, "Failed to load admin sessions");
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
         } finally {
             setLoading(false);
         }
-    }, [statusFilter, showToast]);
+    }, [statusFilter]);
 
     const handleRevokeSession = async (sessionId: string) => {
         setIsMutating(true);
@@ -53,12 +52,12 @@ export function useAdminSessions(initialStatus: string = "active") {
                 method: "PATCH", 
                 body: {} 
             });
-            showToast("Admin session revoked successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Admin session revoked successfully" });
             await fetchSessions();
             return { success: true };
         } catch (err: unknown) {
             const msg = AdminApiError.resolveMessage(err, "Failed to revoke session");
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);

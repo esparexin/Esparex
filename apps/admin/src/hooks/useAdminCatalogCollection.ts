@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { useAdminCrudList, type AdminListPagination } from "@/hooks/useAdminCrudList";
 
@@ -127,7 +127,6 @@ export function useAdminCatalogCollection<
     deleteStrategy = "filter",
     initialPagination,
 }: UseAdminCatalogCollectionOptions<F, CreatePayload, UpdatePayload>, options?: { initialFilters?: Partial<F>; initialPagination?: Partial<AdminListPagination> }) {
-    const { showToast } = useToast();
 
     const fetchPage = useCallback(
         (params: { filters: F; pagination: AdminListPagination; signal?: AbortSignal }) =>
@@ -171,27 +170,29 @@ export function useAdminCatalogCollection<
             try {
                 const response = await operation();
                 if (!response.success) {
-                    showToast(response.message || errorMessage, "error");
+                    const message = response.message || errorMessage;
+                    showAdminPopup({ type: "error", title: "Error", message });
                     if (onError) {
-                        await onError(new Error(response.message || errorMessage));
+                        await onError(new Error(message));
                     }
                     return false;
                 }
 
-                showToast(successMessage, "success");
+                showAdminPopup({ type: "success", title: "Success", message: successMessage });
                 if (onSuccess) {
                     await onSuccess();
                 }
                 return true;
             } catch (error) {
-                showToast(extractAdminApiErrorMessage(error, errorMessage), "error");
+                const message = extractAdminApiErrorMessage(error, errorMessage);
+                showAdminPopup({ type: "error", title: "Error", message });
                 if (onError) {
                     await onError(error);
                 }
                 return false;
             }
         },
-        [showToast]
+        []
     );
 
     const handleDelete = useCallback(

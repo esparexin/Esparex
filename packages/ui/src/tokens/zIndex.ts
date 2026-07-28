@@ -40,6 +40,8 @@ export const Z_INDEX = {
   // ── Sheet/Drawer System ─────────────────────────────────────────────────
   sheetOverlay: 200,            // Sheet/drawer backdrop
   sheetContent: 201,            // Sheet/drawer content
+  drawerOverlay: 1010,          // Drawer backdrop (above listing/auth modals)
+  drawerContent: 1011,          // Drawer content (above listing/auth modals)
 
   // ── Dialog System ────────────────────────────────────────────────────────
   // Aligned with Radix UI dialog primitives

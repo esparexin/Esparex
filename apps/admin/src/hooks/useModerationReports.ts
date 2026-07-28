@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { adminFetch } from "@/lib/api/adminClient";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 
 export type ReportQueueItem = {
     id: string;
@@ -51,7 +51,6 @@ interface ReportFilters {
 }
 
 export function useModerationReports() {
-    const { showToast } = useToast();
     const [items, setItems] = useState<ReportQueueItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [isMutating, setIsMutating] = useState(false);
@@ -89,11 +88,11 @@ export function useModerationReports() {
         } catch (fetchError) {
             const msg = fetchError instanceof Error ? fetchError.message : "Failed to load reports";
             setError(msg);
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
         } finally {
             setLoading(false);
         }
-    }, [showToast]);
+    }, []);
 
     const updateReportStatus = async (reportId: string, nextStatus: string) => {
         setIsMutating(true);
@@ -102,7 +101,7 @@ export function useModerationReports() {
                 method: "PATCH",
                 body: { status: nextStatus },
             });
-            showToast(`Report marked ${nextStatus}`, "success");
+            showAdminPopup({ type: "success", title: "Success", message: `Report marked ${nextStatus}` });
             setItems((prev) =>
                 prev.map((item) =>
                     item.reportId === reportId || item.id === reportId
@@ -113,7 +112,7 @@ export function useModerationReports() {
             return { success: true };
         } catch (mutationError) {
             const msg = mutationError instanceof Error ? mutationError.message : `Failed to update report status`;
-            showToast(msg, "error");
+            showAdminPopup({ type: "error", title: "Error", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);

@@ -55,7 +55,7 @@ jest.mock("@esparex/core/services/AdminSessionService", () => ({
     ),
 }));
 
-jest.mock("@esparex/core/services/EmailService", () => ({
+jest.mock("@esparex/core/domains/notifications/application/EmailService", () => ({
     __esModule: true,
 
     emailService: {

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCcw, Search, Shield, AlertTriangle, Ban, X } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import {
   fetchAdminChats,
   adminMuteChat,
@@ -45,7 +45,6 @@ function normalizeFilter(value: string | null): AdminChatFilter {
 }
 
 export default function AdminChatView() {
-  const { showToast } = useToast();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -124,12 +123,12 @@ export default function AdminChatView() {
     try {
       setIsMuting(true);
       await adminMuteChat(id, reason || undefined);
-      showToast("Conversation muted", "success");
+      showAdminPopup({ type: "success", title: "Success", message: "Conversation muted" });
       setMutingChat(null);
       setMuteReason("");
       refresh();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "Failed to mute", "error");
+      showAdminPopup({ type: "error", title: "Error", message: e instanceof Error ? e.message : "Failed to mute" });
     } finally {
       setIsMuting(false);
     }
@@ -146,7 +145,7 @@ export default function AdminChatView() {
       anchor.click();
       URL.revokeObjectURL(url);
     } catch {
-      showToast("Export failed", "error");
+      showAdminPopup({ type: "error", title: "Error", message: "Export failed" });
     }
   };
 

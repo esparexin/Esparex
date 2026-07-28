@@ -11,7 +11,7 @@ import {
     updateLocation,
 } from "@/lib/api/locations";
 import { Location, LocationFilters } from "@/types/location";
-import { useToast } from "@/context/ToastContext";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 
 type UseAdminLocationsOptions = {
@@ -27,38 +27,23 @@ type PaginationState = {
     totalPages: number;
 };
 
+type MutableLocationPayload = Partial<Location> & {
+    selectedStateId?: string;
+    parentId?: string;
+};
+
 const DEFAULT_LIMIT = 20;
 
-type MutableLocationPayload = Partial<Location> & {
-    parentStateId?: string;
-    latitude?: string | number;
-    longitude?: string | number;
-    country?: string;
-    name?: string;
-    parentId?: string;
-    level?: Location["level"];
-};
-
-const stripLocationFormHelpers = (data: MutableLocationPayload): Partial<Location> => {
-    const normalized = { ...data } as MutableLocationPayload;
-    delete normalized.parentStateId;
-
-    if (normalized.parentId === "") {
-        delete normalized.parentId;
-    }
-    if (normalized.country === "") {
-        delete normalized.country;
-    }
-
-    return normalized;
-};
+function stripLocationFormHelpers(data: MutableLocationPayload): Partial<Location> {
+    const { selectedStateId: _s, parentId: _p, ...clean } = data;
+    return clean;
+}
 
 export function useAdminLocations({
     filters,
     page,
     limit = DEFAULT_LIMIT,
 }: UseAdminLocationsOptions) {
-    const { showToast } = useToast();
     const [locations, setLocations] = useState<Location[]>([]);
     const [states, setStates] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
@@ -145,14 +130,14 @@ export function useAdminLocations({
         try {
             const response = await toggleLocationStatus(id);
             if (!response.success) {
-                showToast(response.message || "Failed to update location status", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to update location status" });
                 return;
             }
 
             await refresh();
-            showToast("Location status updated", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Location status updated" });
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to update location status", "error");
+            showAdminPopup({ type: "error", title: "Error", message: err instanceof Error ? err.message : "Failed to update location status" });
         }
     };
 
@@ -186,15 +171,15 @@ export function useAdminLocations({
             }
 
             if (!response.success) {
-                showToast(response.message || "Failed to create location", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to create location" });
                 return false;
             }
 
             await refresh();
-            showToast("Location created successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Location created successfully" });
             return true;
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to create location", "error");
+            showAdminPopup({ type: "error", title: "Error", message: err instanceof Error ? err.message : "Failed to create location" });
             return false;
         }
     };
@@ -203,15 +188,15 @@ export function useAdminLocations({
         try {
             const response = await updateLocation(id, stripLocationFormHelpers(data));
             if (!response.success) {
-                showToast(response.message || "Failed to update location", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to update location" });
                 return false;
             }
 
             await refresh();
-            showToast("Location updated successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Location updated successfully" });
             return true;
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to update location", "error");
+            showAdminPopup({ type: "error", title: "Error", message: err instanceof Error ? err.message : "Failed to update location" });
             return false;
         }
     };
@@ -220,15 +205,15 @@ export function useAdminLocations({
         try {
             const response = await deleteLocation(id);
             if (!response.success) {
-                showToast(response.message || "Failed to delete location", "error");
+                showAdminPopup({ type: "error", title: "Error", message: response.message || "Failed to delete location" });
                 return false;
             }
 
             await refresh();
-            showToast("Location deleted successfully", "success");
+            showAdminPopup({ type: "success", title: "Success", message: "Location deleted successfully" });
             return true;
         } catch (err) {
-            showToast(err instanceof Error ? err.message : "Failed to delete location", "error");
+            showAdminPopup({ type: "error", title: "Error", message: err instanceof Error ? err.message : "Failed to delete location" });
             return false;
         }
     };
