@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
@@ -16,13 +16,11 @@ const AuthModalContext = createContext<AuthModalContextType | undefined>(undefin
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
-  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
-  // Synchronize /login URL with AuthModal state
+  // Support ?login=true query parameter (e.g. for server-side unauthenticated redirects)
   useEffect(() => {
-    if (pathname === "/login") {
+    if (searchParams?.get("login") === "true") {
       const raw = searchParams?.get("callbackUrl");
       const normalized = normalizeAuthCallbackUrl(raw);
       if (normalized && normalized !== "/") {
@@ -30,7 +28,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       }
       setIsOpen(true);
     }
-  }, [pathname, searchParams]);
+  }, [searchParams]);
 
   const showLogin = useCallback((url?: string) => {
     if (url) setCallbackUrl(url);
@@ -39,10 +37,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   const hideLogin = useCallback(() => {
     setIsOpen(false);
-    if (pathname === "/login") {
-      router.replace("/");
-    }
-  }, [pathname, router]);
+  }, []);
 
   const handleOpenChange = useCallback(
     (open: boolean) => {

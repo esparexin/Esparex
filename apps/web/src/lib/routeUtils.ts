@@ -95,7 +95,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     browse: buildPublicBrowseRoute({ type: "ad" }),
     "browse-service-listings": buildPublicBrowseRoute({ type: "service" }),
     "post-ad": "/post-ad",
-    login: "/login",
+    login: "/?login=true",
     // ── /account/* namespace (SSOT for all private account pages) ──
     account: "/account",
     "my-ads": "/account/ads",
