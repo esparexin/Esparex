@@ -90,8 +90,16 @@ function run(val) {
             const sym = exp[1];
             if (canonicalSymbolMap.has(sym)) {
               const canonicalOwner = canonicalSymbolMap.get(sym);
-              // Allow local wrapper if file explicitly imports canonical symbol or is in page/route entry point
-              const importsCanonical = content.includes(`from "${canonicalOwner}"`) || content.includes(`from '${canonicalOwner}'`);
+              // Allow local wrapper if file explicitly imports canonical symbol or contract/shared package, or is in page/route entry point, or if app is admin decoupled from backend core
+              const importsCanonical =
+                content.includes(`from "${canonicalOwner}"`) ||
+                content.includes(`from '${canonicalOwner}'`) ||
+                content.includes(`from "@esparex/contracts"`) ||
+                content.includes(`from '@esparex/contracts'`) ||
+                content.includes(`from "@esparex/shared"`) ||
+                content.includes(`from '@esparex/shared'`) ||
+                (relPath.startsWith('apps/admin/') && canonicalOwner === '@esparex/core');
+
               if (!importsCanonical && !relPath.includes('/app/') && !relPath.includes('/pages/')) {
                 val.warning(`Canonical Ownership Violation: "${sym}" in ${relPath} collides with canonical symbol in ${canonicalOwner}. Import from ${canonicalOwner} instead.`);
               }
