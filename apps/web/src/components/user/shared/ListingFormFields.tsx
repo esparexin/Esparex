@@ -16,35 +16,41 @@ import { useImageDropzone } from "./useImageDropzone";
 interface ListingImagesFieldProps {
     images: ListingImage[];
     onUpload: (files: File[]) => void;
-    onRemove: (id: string) => void;
+    onRemove: (idOrIndex: any) => void;
+    onSetMain?: (index: number) => void;
     firstImageBadgeLabel?: string;
     error?: string;
     helperText?: string;
+    disabled?: boolean;
 }
 
 export function ListingImagesField({
     images,
     onUpload,
     onRemove,
+    onSetMain,
     firstImageBadgeLabel = "MAIN",
     error,
     helperText,
+    disabled = false,
 }: ListingImagesFieldProps) {
-    const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload });
+    const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload, disabled });
 
     return (
         <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
                 <label
-                    tabIndex={0}
+                    tabIndex={disabled ? -1 : 0}
                     role="button"
                     aria-label="Add photos"
                     {...dropzoneProps}
                     className={cn(
                         "flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                        isDraggingOver
-                            ? "border-primary bg-primary/10 scale-[1.01] shadow-md"
-                            : "border-slate-300 bg-slate-50/50 hover:bg-slate-50"
+                        disabled
+                            ? "opacity-50 cursor-not-allowed border-slate-200"
+                            : isDraggingOver
+                                ? "border-primary bg-primary/10 scale-[1.01] shadow-md"
+                                : "border-slate-300 bg-slate-50/50 hover:bg-slate-50"
                     )}
                 >
                     <Upload className={cn("w-6 h-6 mb-1 transition-colors", isDraggingOver ? "text-primary" : "text-foreground-subtle")} />
@@ -58,6 +64,7 @@ export function ListingImagesField({
                         className="hidden"
                         tabIndex={-1}
                         aria-label="Upload photos"
+                        disabled={disabled}
                         onChange={(e) => {
                             if (!e.target.files) return;
                             onUpload(Array.from(e.target.files));
@@ -69,7 +76,7 @@ export function ListingImagesField({
                     <div className="grid grid-cols-4 gap-2">
                         {images.map((img, index) => (
                             <div
-                                key={img.id}
+                                key={img.id || index}
                                 className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-100 group"
                             >
                                 <Image
@@ -80,15 +87,26 @@ export function ListingImagesField({
                                     sizes="25vw"
                                     className="object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex items-start justify-end p-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => onRemove(img.id)}
-                                        aria-label={getRemovePhotoAriaLabel(index, images.length)}
-                                        className="p-1 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                                    >
-                                        <X className="w-3.5 h-3.5" />
-                                    </button>
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex flex-col justify-between p-1">
+                                    <div className="flex justify-end">
+                                        <button
+                                            type="button"
+                                            onClick={() => onRemove(img.id ?? index)}
+                                            aria-label={getRemovePhotoAriaLabel(index, images.length)}
+                                            className="p-1 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                    {onSetMain && index !== 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => onSetMain(index)}
+                                            className="w-full py-1 text-[10px] font-medium text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                        >
+                                            Set as Main
+                                        </button>
+                                    )}
                                 </div>
                                 {index === 0 && (
                                     <span className="absolute bottom-0 left-0 right-0 bg-primary py-0.5 text-center text-xs font-semibold text-white pointer-events-none">
@@ -191,24 +209,71 @@ interface ListingPriceFieldProps {
     registerProps: UseFormRegisterReturn;
     placeholder?: string;
     showCurrencySymbol?: boolean;
+    isFree?: boolean;
+    onToggleFree?: () => void;
+    disabled?: boolean;
 }
-export function ListingPriceField({ label = "Price (₹)", error, required = true, registerProps, placeholder = "0", showCurrencySymbol = false }: ListingPriceFieldProps) {
+export function ListingPriceField({
+    label = "Price (₹)",
+    error,
+    required = true,
+    registerProps,
+    placeholder = "0",
+    showCurrencySymbol = false,
+    isFree = false,
+    onToggleFree,
+    disabled = false,
+}: ListingPriceFieldProps) {
     return (
         <Field label={label} error={error} required={required}>
-            <div className="relative">
-                {showCurrencySymbol && (
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
-                )}
-                <Input
-                    type="number"
-                    min={0}
-                    {...registerProps}
-                    placeholder={placeholder}
-                    className={cn(
-                        "h-11 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600",
-                        showCurrencySymbol && "pl-8"
+            <div className="flex flex-row gap-3">
+                <div className="relative flex-1 min-w-0">
+                    {showCurrencySymbol && (
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
                     )}
-                />
+                    <Input
+                        type="number"
+                        min={0}
+                        disabled={disabled || isFree}
+                        {...registerProps}
+                        placeholder={placeholder}
+                        className={cn(
+                            "h-11 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600",
+                            showCurrencySymbol && "pl-8",
+                            isFree && "bg-slate-50 border-slate-100 text-foreground-subtle"
+                        )}
+                    />
+                </div>
+                {onToggleFree && (
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={!!isFree}
+                        onClick={onToggleFree}
+                        onKeyDown={(e) => {
+                            if (e.key === " " || e.key === "Enter") {
+                                e.preventDefault();
+                                onToggleFree();
+                            }
+                        }}
+                        className={cn(
+                            "flex items-center justify-center gap-2 h-11 px-4 rounded-xl border cursor-pointer transition-all duration-200 shrink-0 sm:w-[35%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                            isFree ? "bg-green-50 border-green-200 text-green-800" : "bg-white border-slate-200 hover:border-slate-300 text-foreground-secondary"
+                        )}
+                    >
+                        <div className={cn(
+                            "w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all",
+                            isFree ? "bg-green-600 border-green-600" : "bg-white border-slate-300"
+                        )}>
+                            {isFree && (
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
+                        </div>
+                        <span className="text-xs font-medium whitespace-nowrap">Free</span>
+                    </button>
+                )}
             </div>
         </Field>
     );
@@ -275,7 +340,8 @@ export function CategorySelectorGrid({
                         key={cat.id}
                         type="button"
                         onClick={() => onSelect(cat.id || "")}
-                        disabled={disabled}
+                        disabled={disabled || (disabled && !selected)}
+                        aria-pressed={selected}
                         className={cn(
                             "flex flex-col items-center justify-center gap-1.5 h-[68px] sm:h-[72px] py-1.5 px-2 rounded-xl transition-all duration-200 cursor-pointer select-none group border",
                             selected
