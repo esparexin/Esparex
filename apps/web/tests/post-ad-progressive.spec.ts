@@ -123,7 +123,7 @@ async function withRuntimeEvidence(
 }
 
 async function installPostAdCatalogMocks(page: Page) {
-  await page.route(/\/api\/v1\/catalog\/categories\/[^/]+\/schema(\?.*)?$/, (route) =>
+  await page.route("**/**/api/v1/catalog/categories/*/schema**", (route) =>
     fulfillJson(route, envelope({
       categoryId: CATEGORY_ID,
       categoryName: smokeCategory.name,
@@ -131,23 +131,23 @@ async function installPostAdCatalogMocks(page: Page) {
     }))
   );
 
-  await page.route(/\/api\/v1\/catalog\/categories(\?.*)?$/, (route) =>
+  await page.route("**/**/api/v1/catalog/categories**", (route) =>
     fulfillJson(route, envelope([smokeCategory]))
   );
 
-  await page.route(/\/api\/v1\/catalog\/brands(\?.*)?$/, (route) =>
+  await page.route("**/**/api/v1/catalog/brands**", (route) =>
     fulfillJson(route, envelope([smokeBrand]))
   );
 
-  await page.route(/\/api\/v1\/catalog\/models(\?.*)?$/, (route) =>
+  await page.route("**/**/api/v1/catalog/models**", (route) =>
     fulfillJson(route, envelope([smokeModel]))
   );
 
-  await page.route(/\/api\/v1\/catalog\/spare-parts(\?.*)?$/, (route) =>
+  await page.route("**/**/api/v1/catalog/spare-parts**", (route) =>
     fulfillJson(route, envelope([smokeSparePart]))
   );
 
-  await page.route(/\/api\/v1\/locations\/log-event\/?$/, (route) =>
+  await page.route("**/**/api/v1/locations/log-event**", (route) =>
     fulfillJson(route, { success: true })
   );
 }
