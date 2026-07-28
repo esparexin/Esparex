@@ -14,13 +14,13 @@ import {
     findPendingTransaction, 
     createPaymentTransaction, 
     getUserForPayment 
-} from '@esparex/core/services/TransactionService';
+} from '@esparex/core/domains/payments/application/TransactionService';
 import { getPlanById } from '@esparex/core/domains/payments/application/PlanService';
 import { getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-jest.mock('@esparex/core/services/TransactionService');
+jest.mock('@esparex/core/domains/payments/application/TransactionService');
 jest.mock('@esparex/core/domains/payments/application/PlanService');
 jest.mock('@esparex/core/config/razorpay');
 jest.mock('@esparex/core/utils/logger');
