@@ -97,48 +97,37 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
             }
             form.clearErrors("images" as Path<T>);
 
-            // 1. Image Upload Pipeline (Sequential S3 Pre-upload)
-            const finalImageUrls: string[] = [];
-            for (let idx = 0; idx < imagesToProcess.length; idx++) {
-                const img = imagesToProcess[idx];
-                if (!img) continue;
-                if (img.isRemote) {
-                    finalImageUrls.push(img.preview);
-                    continue;
-                }
-                
-                // If it is a string and starts with http, it is already a URL (fallback)
-                if (typeof img.preview === 'string' && img.preview.startsWith('http')) {
-                    finalImageUrls.push(img.preview);
-                    continue;
-                }
+            // 1. Image Upload Pipeline (Parallel S3 Pre-upload)
+            const csrfToken = (await apiClient.getCsrfToken()) || "";
+            const headers = { "x-csrf-token": csrfToken };
 
-                if (!img.file) continue;
+            const finalImageUrls: string[] = await Promise.all(
+                imagesToProcess.map(async (img, idx) => {
+                    if (!img) return "";
+                    if (img.isRemote) return img.preview;
+                    if (typeof img.preview === 'string' && img.preview.startsWith('http')) return img.preview;
+                    if (!img.file) return "";
 
-                const formData = new FormData();
-                formData.append("image", img.file);
-                formData.append("folder", "ads");
+                    const formData = new FormData();
+                    formData.append("image", img.file);
+                    formData.append("folder", "ads");
 
-                const csrfToken = (await apiClient.getCsrfToken()) || "";
-                const headers = {
-                    "x-csrf-token": csrfToken,
-                };
+                    const response = await fetch("/api/upload/ad-image", {
+                        method: "POST",
+                        headers,
+                        body: formData,
+                        credentials: "include",
+                    });
+                    const payload = await response.json().catch(() => ({} as { success?: boolean; url?: string; error?: string }));
+                    const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
 
-                const response = await fetch("/api/upload/ad-image", {
-                    method: "POST",
-                    headers,
-                    body: formData,
-                    credentials: "include",
-                });
-                const payload = await response.json().catch(() => ({} as { success?: boolean; url?: string; error?: string }));
-                const remoteUrl = typeof payload?.url === "string" ? payload.url : "";
+                    if (!response.ok || !remoteUrl) {
+                        throw new Error(payload?.error || `Failed to upload image ${idx + 1}. Please try again.`);
+                    }
 
-                if (!response.ok || !remoteUrl) {
-                    throw new Error(payload?.error || `Failed to upload image ${idx + 1}. Please try again.`);
-                }
-
-                finalImageUrls.push(remoteUrl);
-            }
+                    return remoteUrl;
+                })
+            ).then((urls) => urls.filter((url): url is string => Boolean(url)));
 
             // 2. Payload Construction
             const location = data.location;

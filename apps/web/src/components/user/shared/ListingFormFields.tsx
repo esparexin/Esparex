@@ -45,18 +45,27 @@ export function ListingImagesField({
                     aria-label="Add photos"
                     {...dropzoneProps}
                     className={cn(
-                        "flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                        "flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden",
                         disabled
-                            ? "opacity-50 cursor-not-allowed border-slate-200"
+                            ? "opacity-60 cursor-not-allowed border-slate-200 bg-slate-50"
                             : isDraggingOver
                                 ? "border-primary bg-primary/10 scale-[1.01] shadow-md"
                                 : "border-slate-300 bg-slate-50/50 hover:bg-slate-50"
                     )}
                 >
-                    <Upload className={cn("w-6 h-6 mb-1 transition-colors", isDraggingOver ? "text-primary" : "text-foreground-subtle")} />
-                    <span className="text-sm font-medium text-foreground-tertiary">
-                        {isDraggingOver ? "Drop photos to upload" : "Tap or drop photos here"}
-                    </span>
+                    {disabled ? (
+                        <div className="flex flex-col items-center justify-center text-primary animate-pulse">
+                            <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-1.5" />
+                            <span className="text-xs font-semibold">Processing & Compressing Photos...</span>
+                        </div>
+                    ) : (
+                        <>
+                            <Upload className={cn("w-6 h-6 mb-1 transition-colors", isDraggingOver ? "text-primary" : "text-foreground-subtle")} />
+                            <span className="text-sm font-medium text-foreground-tertiary">
+                                {isDraggingOver ? "Drop photos to upload" : "Tap or drop photos here"}
+                            </span>
+                        </>
+                    )}
                     <input
                         type="file"
                         accept="image/*"
@@ -72,28 +81,34 @@ export function ListingImagesField({
                         }}
                     />
                 </label>
+
                 {images.length > 0 && (
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
                         {images.map((img, index) => (
                             <div
                                 key={img.id || index}
-                                className="relative aspect-square rounded-lg overflow-hidden border border-slate-200 bg-slate-100 group"
+                                className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
                             >
                                 <Image
                                     src={img.preview}
                                     alt={`Photo ${index + 1}`}
                                     fill
                                     unoptimized
-                                    sizes="25vw"
+                                    sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
                                     className="object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex flex-col justify-between p-1">
+
+                                {/* Mobile Always-Visible Remove Button / Desktop Hover Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 opacity-100 sm:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex flex-col justify-between p-1.5 pointer-events-auto">
                                     <div className="flex justify-end">
                                         <button
                                             type="button"
-                                            onClick={() => onRemove(img.id ?? index)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onRemove(img.id ?? index);
+                                            }}
                                             aria-label={getRemovePhotoAriaLabel(index, images.length)}
-                                            className="p-1 bg-black/60 text-white rounded-full hover:bg-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                            className="p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[32px] min-w-[32px] flex items-center justify-center"
                                         >
                                             <X className="w-3.5 h-3.5" />
                                         </button>
@@ -101,15 +116,19 @@ export function ListingImagesField({
                                     {onSetMain && index !== 0 && (
                                         <button
                                             type="button"
-                                            onClick={() => onSetMain(index)}
-                                            className="w-full py-1 text-[10px] font-medium text-white bg-black/60 rounded backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onSetMain(index);
+                                            }}
+                                            className="w-full py-1 text-[10px] font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation"
                                         >
-                                            Set as Main
+                                            Set Main
                                         </button>
                                     )}
                                 </div>
+
                                 {index === 0 && (
-                                    <span className="absolute bottom-0 left-0 right-0 bg-primary py-0.5 text-center text-xs font-semibold text-white pointer-events-none">
+                                    <span className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-[10px] font-bold text-white uppercase tracking-wider pointer-events-none shadow-xs">
                                         {firstImageBadgeLabel}
                                     </span>
                                 )}
@@ -117,6 +136,7 @@ export function ListingImagesField({
                         ))}
                     </div>
                 )}
+
                 {helperText && !error ? (
                     <p className="text-xs text-muted-foreground">{helperText}</p>
                 ) : null}
