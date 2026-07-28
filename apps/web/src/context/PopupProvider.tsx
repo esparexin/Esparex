@@ -10,7 +10,7 @@ import {
   emitPopupEvent,
   hidePopupEvent,
   subscribePopupEvents,
-} from "@/lib/popup/popupEvents";
+} from "@/lib/popup";
 import type { PopupState } from "@esparex/shared";
 
 

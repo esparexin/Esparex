@@ -10,5 +10,3 @@ export * from './application/NotificationRetentionService';
 export * from './application/NotificationTemplateService';
 export * from './application/PushGatewayService';
 
-export * from './ports/NotificationRepositoryPort';
-export * from './ports/SmartAlertRepositoryPort';

@@ -342,7 +342,7 @@ export function Header({
                 </DropdownMenu>
               </>
             ) : (
-              <Button variant="ghost" size="sm" onClick={() => (onShowLogin ? onShowLogin() : navigateTo("login"))}>
+              <Button variant="ghost" size="sm" onClick={onShowLogin}>
                 Login
               </Button>
             )}

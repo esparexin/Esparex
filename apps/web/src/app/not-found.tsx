@@ -72,7 +72,7 @@ export default function NotFound() {
                                 { label: 'Safety Tips', href: '/safety-tips' },
                                 { label: 'Post Ad', href: '/post-ad' },
                                 { label: 'Support', href: '/contact' },
-                                { label: 'Login', href: '/login' },
+                                { label: 'Home Feed', href: '/' },
                             ].map((link) => (
                                 <Link
                                     key={link.label}

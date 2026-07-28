@@ -23,7 +23,6 @@ const BLACKLIST = [
     '/chat',
     '/payments',
     '/post-ad',
-    '/login',
     '/sw.js'
 ];
 

@@ -1,4 +1,4 @@
-import { popupBus, subscribePopupEvents } from "@/lib/popup/popupEvents";
+import { popupBus, subscribePopupEvents } from "@/lib/popup";
 import { notify } from "@/lib/feedback";
 import { popupQueueReducer, initialPopupQueueState } from "@esparex/shared";
 import { vi } from "vitest";

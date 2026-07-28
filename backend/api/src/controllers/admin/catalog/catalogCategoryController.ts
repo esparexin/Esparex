@@ -129,10 +129,6 @@ export const getCategorySchema = async (req: Request, res: Response) => {
  */
 export const updateCategorySchema = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) {
-            return sendCatalogError(req, res, 'Admin access required', 403);
-        }
-
         const id = req.params.id as string;
         const parsed = categorySchemaUpdateBodySchema.safeParse(req.body);
         if (!parsed.success) {
@@ -162,7 +158,6 @@ export const updateCategorySchema = async (req: Request, res: Response) => {
  */
 export const createCategory = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) return sendCatalogError(req, res, 'Admin access required', 403);
         const parsed = categoryCreateSchema.safeParse(req.body);
         if (!parsed.success) return sendValidationError(req, res, parsed.error);
 
@@ -199,7 +194,6 @@ export const createCategory = async (req: Request, res: Response) => {
  */
 export const updateCategory = async (req: Request, res: Response) => {
     try {
-        if (!hasAdminAccess(req)) return sendCatalogError(req, res, 'Admin access required', 403);
         const categoryId = req.params.id as string;
         
         // Strip immutable/internal fields that admin frontends might send
@@ -275,10 +269,6 @@ export const toggleCategoryStatus = async (req: Request, res: Response) => {
  * Delete category (soft delete with dependency check)
  */
 export const deleteCategory = async (req: Request, res: Response) => {
-    if (!hasAdminAccess(req)) {
-        return sendCatalogError(req, res, 'Admin access required', 403);
-    }
-
     const categoryId = req.params.id as string;
 
     try {

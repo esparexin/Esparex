@@ -52,7 +52,7 @@ const DialogOverlay = React.forwardRef<
     style={{ zIndex: Z_INDEX.dialogOverlay }}
     className={cn(
       // Radix injects data-[state] so we can animate in/out with tailwindcss-animate
-      "fixed inset-0 bg-black/20 backdrop-blur-sm",
+      "fixed inset-0 bg-black/15 backdrop-blur-[2px]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
@@ -72,8 +72,12 @@ const DialogContent = React.forwardRef<
     mobileSafe?: boolean;
     /** Layout positioning variant: 'centered' (default), 'bottomSheet', 'mobileSafe', or 'fullscreen'. */
     variant?: "centered" | "bottomSheet" | "mobileSafe" | "fullscreen";
+    /** Custom z-index for the background overlay backdrop. */
+    overlayZIndex?: number;
+    /** Custom class names for the background overlay backdrop. */
+    overlayClassName?: string;
   }
->(({ className, children, hideClose = false, mobileSafe = false, variant, ...props }, ref) => {
+>(({ className, children, hideClose = false, mobileSafe = false, variant, overlayZIndex, overlayClassName, ...props }, ref) => {
   const activeVariant = variant ?? (mobileSafe ? "mobileSafe" : "centered");
 
   /**
@@ -130,7 +134,7 @@ const DialogContent = React.forwardRef<
 
   return (
     <DialogPortal>
-      <DialogOverlay />
+      <DialogOverlay style={{ zIndex: overlayZIndex ?? Z_INDEX.dialogOverlay }} className={overlayClassName} />
       <RadixDialog.Content
         ref={ref}
         style={{ zIndex: Z_INDEX.dialogContent }}

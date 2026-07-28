@@ -1,11 +1,12 @@
 import { useBackendStatus } from '@/context/BackendStatusContext';
+import { usePostAdModal } from '@/context/PostAdModalContext';
 import { notify } from "@/lib/feedback";
 import { useRouter } from 'next/navigation';
 import { getPageRoute, type UserPage } from '@/lib/routeUtils';
 import { useCallback } from 'react';
 
 interface UsePostAdNavigationProps {
-    navigateTo?: (path: string) => void; // Optional custom navigator (e.g. header wrapper)
+    navigateTo?: (path: string) => void;
     isLoggedIn?: boolean;
     onShowLogin?: (callbackUrl?: string) => void;
 }
@@ -14,7 +15,9 @@ export function usePostAdNavigation(
     { navigateTo, isLoggedIn, onShowLogin }: UsePostAdNavigationProps = {}
 ) {
     const { isBackendUp } = useBackendStatus();
+    const { openPostAd } = usePostAdModal();
     const router = useRouter();
+
     const handlePostAdClick = useCallback((e?: React.MouseEvent) => {
         if (e) {
             e.preventDefault();
@@ -31,6 +34,11 @@ export function usePostAdNavigation(
             return;
         }
 
+        if (openPostAd) {
+            openPostAd();
+            return;
+        }
+
         const targetPage: UserPage = 'post-ad';
 
         if (navigateTo) {
@@ -39,7 +47,7 @@ export function usePostAdNavigation(
         }
 
         void router.push(getPageRoute(targetPage));
-    }, [isBackendUp, isLoggedIn, onShowLogin, navigateTo, router]);
+    }, [isBackendUp, isLoggedIn, onShowLogin, openPostAd, navigateTo, router]);
 
     return {
         isBackendUp,

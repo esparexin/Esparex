@@ -1,7 +1,9 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useMemo } from "react";
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
 interface AuthModalContextType {
   isAuthModalOpen: boolean;
@@ -14,6 +16,19 @@ const AuthModalContext = createContext<AuthModalContextType | undefined>(undefin
 export function AuthModalProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [callbackUrl, setCallbackUrl] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  // Support ?login=true query parameter (e.g. for server-side unauthenticated redirects)
+  useEffect(() => {
+    if (searchParams?.get("login") === "true") {
+      const raw = searchParams?.get("callbackUrl");
+      const normalized = normalizeAuthCallbackUrl(raw);
+      if (normalized && normalized !== "/") {
+        setCallbackUrl(normalized);
+      }
+      setIsOpen(true);
+    }
+  }, [searchParams]);
 
   const showLogin = useCallback((url?: string) => {
     if (url) setCallbackUrl(url);
@@ -22,8 +37,18 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
 
   const hideLogin = useCallback(() => {
     setIsOpen(false);
-    // Optional: reset callback url after animation finishes, but keeping it is fine too.
   }, []);
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        hideLogin();
+      } else {
+        setIsOpen(true);
+      }
+    },
+    [hideLogin]
+  );
 
   const value = useMemo(
     () => ({ isAuthModalOpen: isOpen, showLogin, hideLogin }),
@@ -35,7 +60,7 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
       {children}
       <AuthModal
         open={isOpen}
-        onOpenChange={setIsOpen}
+        onOpenChange={handleOpenChange}
         callbackUrl={callbackUrl}
       />
     </AuthModalContext.Provider>

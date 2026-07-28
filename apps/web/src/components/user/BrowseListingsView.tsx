@@ -4,8 +4,10 @@ import {
   BrowseFiltersBar,
   BrowseFiltersHeaderTrigger,
 } from "@/components/user/BrowseFiltersBar";
-import { BrowseListingResults } from "@/components/user/BrowseListingResults";
-import type { BrowseResultsContentProps } from "@/components/user/BrowseResultsPanel";
+import {
+  BrowseResultsPanel,
+  type BrowseResultsContentProps,
+} from "@/components/user/BrowseResultsPanel";
 import { useBrowseListingsController } from "@/components/user/useBrowseListingsController";
 import type { LocationData } from "@/context/LocationContext";
 import type { Category } from "@/lib/api/user/categories";
@@ -131,7 +133,7 @@ export function BrowseListingsView<TItem, TFilters>({
         respectMobileChromePolicy={respectMobileChromePolicy}
       />
 
-      <BrowseListingResults
+      <BrowseResultsPanel
         items={items}
         total={total}
         sort={sort}
