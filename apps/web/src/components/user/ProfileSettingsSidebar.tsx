@@ -33,7 +33,7 @@ import { useSmartAlerts } from "@/hooks/useSmartAlerts";
 import { usePurchases } from "@/hooks/usePurchases";
 import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
-import { isBusinessActiveStatus } from "@/lib/status/statusNormalization";
+import { isApprovedBusiness } from "@/guards/businessGuards";
 import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 
@@ -86,7 +86,7 @@ export function ProfileSettingsSidebar({
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
 
-  const isBusinessLive = isBusinessActiveStatus(user?.businessStatus);
+  const isBusinessLive = Boolean(user && isApprovedBusiness(user));
 
   const { data: adCounts = {} } = useMyListingsStatsQuery({ 
     enabled: activeTab === "mylistings" && !!user,
