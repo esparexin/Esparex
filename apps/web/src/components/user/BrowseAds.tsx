@@ -1,67 +1,73 @@
 "use client";
 
-
-import { startTransition, useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { RefreshCw } from "@/icons/IconRegistry";
-
-import { type ListingFilters, type Listing, type ListingPageResult } from "@/lib/api/user/listings";
-import { getCategories } from "@/lib/api/user/categories";
-import type { Category } from "@/lib/api/user/categories";
-import { useAdsListQuery } from "@/hooks/queries/useListingsQuery";
-
+import {
+  BrowseListingsView,
+  type BrowseBuildFiltersArgs,
+} from "@/components/user/BrowseListingsView";
+import {
+  applyRequestedLocationFilters,
+  applyProximityLocationFilters,
+  buildBaseBrowseFilters,
+} from "@/components/user/browseFilterBuilders";
 import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
-import { Breadcrumbs } from "@/components/user/Breadcrumbs";
-import { Button } from "@esparex/ui";
-import { Skeleton } from "@/components/ui/skeleton";
+import type { Category } from "@/lib/api/user/categories";
 import {
-  buildBrowseBrandOptions,
-  type BrowseBrandOption,
-  resolveBrowseBrandSelection,
-  resolveBrowseCategorySelection,
-} from "@/lib/browse/browseFilterNormalization";
-import { useLocationData } from "@/context/LocationContext";
-import {
-  getSearchLocationLabel,
-  sanitizeLocationLabel,
-} from "@/lib/location/locationLabels";
-import {
-  shouldUseGeoRadiusLocation,
-  isUserSelectedLocation,
-  shouldApplyLocationFilter,
-} from "@/lib/location/queryMode";
-import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
-import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
+  getAdsPage,
+  type Listing,
+  type ListingFilters,
+  type ListingPageResult,
+} from "@/lib/api/user/listings";
+import { API_ROUTES } from "@/lib/api/routes";
+import { PUBLIC_BROWSE_SORT_MAP } from "@/lib/publicBrowseSort";
 
-import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
-import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
-
-import { useFilterState, DEFAULT_PRICE_RANGE } from "./hooks/useFilterState";
-import { useUrlSync } from "./hooks/useUrlSync";
-import { useFilterToQuery } from "./hooks/useFilterToQuery";
-import { useBrowseEmptyState, buildPriceSummary } from "./hooks/useBrowseEmptyState";
-import { BrowseEmptyState } from "./BrowseEmptyState";
-
-const PAGE_SIZE = 20;
-
-import { SearchFilters } from "@/components/search/SearchFilters";
-import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
-
-let categoriesRequest: Promise<Category[]> | null = null;
-
-const loadCategories = async (): Promise<Category[]> => {
-  if (!categoriesRequest) {
-    categoriesRequest = getCategories().catch(() => []);
-  }
-  return categoriesRequest;
-};
+const DEFAULT_RADIUS_KM = 50;
 
 interface BrowseAdsProps {
-  initialSearchQuery?: string;
   initialCategory?: string;
+  initialSearchQuery?: string;
   initialResults?: ListingPageResult;
   initialCategories?: Category[];
 }
+
+const buildAdFilters = ({
+  page,
+  pageSize,
+  query,
+  selectedCategory,
+  categories,
+  location,
+  sort,
+  urlLocationId,
+  urlLocationLabel,
+  radiusKm,
+}: BrowseBuildFiltersArgs): ListingFilters => {
+  const filters = buildBaseBrowseFilters<ListingFilters>({
+    page,
+    pageSize,
+    query,
+    selectedCategory,
+    categories,
+  });
+
+  filters.sortBy = PUBLIC_BROWSE_SORT_MAP[sort];
+
+  if (
+    !applyRequestedLocationFilters({
+      filters,
+      urlLocationId,
+      urlLocationLabel,
+      radiusKm,
+    })
+  ) {
+    applyProximityLocationFilters({
+      filters,
+      location,
+      radiusKm: radiusKm ?? DEFAULT_RADIUS_KM,
+    });
+  }
+
+  return filters;
+};
 
 export function BrowseAds({
   initialCategory,
@@ -69,404 +75,40 @@ export function BrowseAds({
   initialResults,
   initialCategories,
 }: BrowseAdsProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { location, isLoaded } = useLocationData();
-  const routeParams = useMemo(() => parsePublicBrowseParams(searchParams), [searchParams]);
-
-  // ── Filter state ─────────────────────────────────────────────────────────────
-  const {
-    query, setQuery,
-    selectedCategory, setSelectedCategory,
-    priceRange, setPriceRange,
-    selectedBrands, setSelectedBrands,
-    radiusKm, setRadiusKm,
-    categoryFilters, setCategoryFilters,
-    sort, setSort,
-    page, setPage,
-    handleReset
-  } = useFilterState(routeParams, initialSearchQuery, initialCategory);
-  
-  const [view, setView] = usePersistedBrowseView("grid");
-
-  const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
-  const [availableBrands, setAvailableBrands] = useState<BrowseBrandOption[]>([]);
-
-
-
-
-  // ── Load categories once ─────────────────────────────────────────────────────
-  useEffect(() => {
-    if (initialCategories && initialCategories.length > 0) {
-      categoriesRequest = Promise.resolve(initialCategories);
-      return;
-    }
-
-    let cancelled = false;
-
-    void loadCategories().then((data) => {
-      if (!cancelled) {
-        setCategories(data);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [initialCategories]);
-
-  // ── Query Hook Integration ───────────────────────────────────────────────────
-  const urlLocationId = routeParams.locationId ?? "";
-  const urlLocationLabel = sanitizeLocationLabel(routeParams.location) ?? "";
-  const canonicalUrlLocationLabel = urlLocationId ? urlLocationLabel : "";
-  const urlModelId = routeParams.modelId ?? "";
-  const globalLocationLabel = useMemo(() => getSearchLocationLabel(location), [location]);
-  const shouldUseContextGeoRadius = useMemo(
-    () => !urlLocationId && isUserSelectedLocation(location) && shouldUseGeoRadiusLocation(location),
-    [location, urlLocationId]
-  );
-  const showRadiusFilter = urlLocationId ? false : shouldUseContextGeoRadius;
-
-  const filters: ListingFilters = useFilterToQuery(
-    query, selectedCategory, categories, selectedBrands,
-    availableBrands,
-    urlModelId, priceRange, urlLocationId,
-    location, shouldUseContextGeoRadius, radiusKm, sort, page
-  );
-
-  const hasLocationFilter = useMemo(
-    () => shouldApplyLocationFilter(location, urlLocationId),
-    [location, urlLocationId]
-  );
-
-  const shouldUseInitialResults =
-    Boolean(initialResults) &&
-    page === 1 &&
-    sort === "newest" &&
-    query.trim() === initialSearchQuery.trim() &&
-    (selectedCategory ?? null) === (initialCategory ?? null) &&
-    selectedBrands.length === 0 &&
-    priceRange[0] === DEFAULT_PRICE_RANGE[0] &&
-    priceRange[1] === DEFAULT_PRICE_RANGE[1] &&
-    radiusKm === 50 &&
-    Object.keys(categoryFilters).length === 0 &&
-    !hasLocationFilter;
-
-  const { data, isLoading, isFetching, error, refetch } = useAdsListQuery(filters, {
-    enabled: isLoaded,
-    initialData: shouldUseInitialResults ? initialResults : undefined,
-  });
-
-  const pageAds = useMemo(() => data?.data ?? [], [data]);
-  useEffect(() => {
-    if (page !== 1) return;
-    const timer = setTimeout(() => {
-      setAvailableBrands(buildBrowseBrandOptions(pageAds));
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [page, pageAds]);
-
-  // displayAds is derived from the query result — no need for separate state.
-  // On page 1 we reset; on subsequent pages we append unique items.
-  const displayAds = useMemo(
-    () => (page === 1 ? pageAds : appendUniqueBrowseItems([] as Listing[], pageAds)),
-    [page, pageAds]
-  );
-
-  const total = data?.pagination.total ?? (displayAds.length > 0 ? displayAds.length : 0);
-  const hasMore =
-    typeof data?.pagination.hasMore === "boolean"
-      ? data.pagination.hasMore
-      : total > page * PAGE_SIZE;
-  const {
-    activeFilterCount, isEmptyState, desktopShellClassName
-  } = useBrowseEmptyState(
-    selectedCategory, categories, availableBrands, canonicalUrlLocationLabel, location,
-    query, priceRange, urlLocationId, globalLocationLabel,
-    selectedBrands, showRadiusFilter, radiusKm, sort,
-    isLoading, error, displayAds
-  );
-
-  useEffect(() => {
-    if (availableBrands.length === 0 || selectedBrands.length === 0) return;
-    const normalizedBrandSelection = resolveBrowseBrandSelection(selectedBrands, availableBrands);
-    if (normalizedBrandSelection.join(",") !== selectedBrands.join(",")) {
-      void (async () => { setSelectedBrands(normalizedBrandSelection); })();
-    }
-  }, [availableBrands, selectedBrands, setSelectedBrands]);
-
-  // ── Trigger fetch when filters change (reset to page 1) ─────────────────
-  useEffect(() => {
-    void (async () => { setPage(1); })();
-  }, [query, selectedCategory, selectedBrands, priceRange, sort, radiusKm, setPage]);
-
-  // ── Sync URL params → state ─────────────────────────────────────────────────
-  useUrlSync(
-    routeParams, router,
-    query, setQuery,
-    selectedCategory, setSelectedCategory,
-    priceRange, setPriceRange,
-    selectedBrands, setSelectedBrands,
-    radiusKm, setRadiusKm,
-    sort, setSort,
-    page, setPage,
-    showRadiusFilter, urlModelId, urlLocationId, canonicalUrlLocationLabel
-  );
-
-  // ── Load More ────────────────────────────────────────────────────────────────
-  const handleLoadMore = useCallback(() => {
-    startTransition(() => {
-      setPage((prev: number) => prev + 1);
-    });
-  }, [setPage]);
-
-  // ── Skeleton ─────────────────────────────────────────────────────────────────
-  const gridSkeleton = (
-    <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="space-y-3">
-          <Skeleton className="aspect-square w-full rounded-xl" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-        </div>
-      ))}
-    </div>
-  );
-
-  const handleSetSelectedCategory = useCallback((val: string | null) => {
-    setSelectedCategory(val);
-  }, [setSelectedCategory]);
-
-  const categoryHierarchy = useMemo(() => {
-    if (!selectedCategory || categories.length === 0) return [];
-    const current = categories.find(
-      (c) => c.id === selectedCategory || c.slug === selectedCategory.toLowerCase()
-    );
-    if (!current) return [];
-
-    const path = [current];
-    let parentId = current.parentId;
-    while (parentId) {
-      const parent = categories.find((c) => c.id === parentId);
-      if (!parent) break;
-      path.unshift(parent);
-      parentId = parent.parentId;
-    }
-    return path;
-  }, [selectedCategory, categories]);
-
-  const currentCategoryName = useMemo(() => {
-    if (!selectedCategory) return null;
-    return resolveBrowseCategorySelection(selectedCategory, categories).label ?? null;
-  }, [selectedCategory, categories]);
-
-  const breadcrumbItems = useMemo(() => {
-    const items = [{ label: "Home", onClick: () => router.push("/") }];
-    
-    // Add "Categories" segment
-    items.push({ label: "Categories", onClick: () => router.push("/search") });
-
-    // Add actual hierarchy
-    categoryHierarchy.forEach((cat) => {
-      items.push({
-        label: cat.displayName || cat.name,
-        onClick: () => router.push(`/category/${cat.slug}`),
-      });
-    });
-
-    return items;
-  }, [categoryHierarchy, router]);
-
-  const handleRefetch = useCallback(() => { void refetch(); }, [refetch]);
-
-  const filterProps = {
-    selectedCategory,
-    setSelectedCategory: handleSetSelectedCategory,
-    priceRange,
-    setPriceRange,
-    selectedBrands,
-    setSelectedBrands,
-    categories,
-    availableBrands,
-    categoryFilters,
-    setCategoryFilters,
-    radiusKm,
-    setRadiusKm,
-    showRadiusFilter,
-    onReset: handleReset,
-    activeFilterCount,
-    desktopShellClassName,
-  };
-
   return (
-    <div className="w-full">
-      {breadcrumbItems.length > 2 && (
-        <Breadcrumbs items={breadcrumbItems} />
-      )}
-      <section data-primary className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
-          {/* Desktop Filter Sidebar */}
-          <div className="hidden lg:block">
-            <SearchFilters {...filterProps} />
-          </div>
-
-          {/* ── Results Column ───────────────────────────────────────────── */}
-            <div className="flex-1 min-w-0 space-y-4">
-              {/* Results header: count + sort + view toggle */}
-              <SearchResultsHeader
-                total={isLoading && displayAds.length === 0 ? 0 : total}
-                sort={sort}
-                view={view}
-                onSortChange={setSort}
-                onViewChange={setView}
-                filterNode={<SearchFilters {...filterProps} />}
-                categoryName={currentCategoryName}
-              />
-
-              {/* ── Active Filter Chips ────────────────────────────────────── */}
-              {activeFilterCount > 0 && (
-                <div className="flex flex-wrap gap-2 items-center justify-between py-2 border-b border-slate-100">
-                  <div className="flex flex-wrap gap-2 items-center">
-                    {query && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-semibold">
-                        Search: &quot;{query}&quot;
-                        <button onClick={() => setQuery("")} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear search">✕</button>
-                      </span>
-                    )}
-                    {selectedCategory && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 text-xs font-semibold border border-indigo-100">
-                        {currentCategoryName}
-                        <button onClick={() => setSelectedCategory(null)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear category">✕</button>
-                      </span>
-                    )}
-                    {selectedBrands.map((brandId) => {
-                      const brandName = availableBrands.find(b => b.value === brandId)?.label || brandId;
-                      return (
-                        <span key={brandId} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-800 text-xs font-semibold border border-blue-100">
-                          {brandName}
-                          <button onClick={() => setSelectedBrands(prev => prev.filter(b => b !== brandId))} className="hover:text-red-500 font-bold ml-0.5" aria-label={`Clear brand ${brandName}`}>✕</button>
-                        </span>
-                      );
-                    })}
-                    {(priceRange[0] > 0 || priceRange[1] < DEFAULT_PRICE_RANGE[1]) && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-100">
-                        {buildPriceSummary(priceRange)}
-                        <button onClick={() => setPriceRange(DEFAULT_PRICE_RANGE)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear price filter">✕</button>
-                      </span>
-                    )}
-                    {showRadiusFilter && radiusKm !== 50 && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-semibold border border-amber-100">
-                        Within {radiusKm} km
-                        <button onClick={() => setRadiusKm(50)} className="hover:text-red-500 font-bold ml-0.5" aria-label="Clear radius filter">✕</button>
-                      </span>
-                    )}
-                    <button
-                      onClick={handleReset}
-                      className="text-xs text-slate-500 hover:text-slate-800 font-bold hover:underline ml-2"
-                    >
-                      Clear All
-                    </button>
-                  </div>
-                  <span className="text-xs font-bold text-slate-500">
-                    {total} {total === 1 ? "listing" : "listings"}
-                  </span>
-                </div>
-              )}
-
-              {/* ── Error state ──────────────────────────────────────────── */}
-              {error && (
-                <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
-                  <p className="text-red-600 font-medium mb-3">
-                    {error instanceof Error ? error.message : "Failed to load listings. Please try again."}
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRefetch}
-                    className="gap-2"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    Try Again
-                  </Button>
-                </div>
-              )}
-
-              {/* ── Loading skeleton (initial load only) ─────────────────── */}
-              {isLoading && displayAds.length === 0 && !error && gridSkeleton}
-
-              {/* ── Empty state ──────────────────────────────────────────── */}
-              {isEmptyState && (
-                <BrowseEmptyState
-                  activeFilterCount={activeFilterCount}
-                  query={query}
-                  categoryName={routeParams.category}
-                  onResetFilters={handleReset}
-                  onPostAdClick={() => router.push("/post-ad")}
-                />
-              )}
-
-            {/* ── Ads Grid / List ──────────────────────────────────────── */}
-            {displayAds.length > 0 && (
-              <div
-                className={
-                  view === "list"
-                    ? "flex flex-col gap-3"
-                    : "grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-4"
-                }
-              >
-                {displayAds.map((ad: Listing, index: number) =>
-                  view === "list" ? (
-                    <AdCardList
-                      key={ad.id}
-                      ad={ad}
-                      href={buildPublicListingDetailRoute({
-                        id: ad.id,
-                        listingType: ad.listingType,
-                        seoSlug: ad.seoSlug,
-                        title: ad.title,
-                      })}
-                      priority={index < 4}
-                    />
-                  ) : (
-                    <AdCardGrid
-                      key={ad.id}
-                      ad={ad}
-                      href={buildPublicListingDetailRoute({
-                        id: ad.id,
-                        listingType: ad.listingType,
-                        seoSlug: ad.seoSlug,
-                        title: ad.title,
-                      })}
-                      priority={index < 4}
-                    />
-                  )
-                )}
-              </div>
-            )}
-
-            {/* ── Load More ────────────────────────────────────────────── */}
-            {hasMore && !isFetching && (
-              <div className="flex justify-center pt-6">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={handleLoadMore}
-                  className="min-w-[180px]"
-                >
-                  Load More
-                </Button>
-              </div>
-            )}
-
-            {/* ── Inline load-more skeleton (pagination) ───────────────── */}
-            {isFetching && displayAds.length > 0 && (
-              <div className="flex justify-center py-6">
-                <RefreshCw className="h-5 w-5 animate-spin text-foreground-subtle" />
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-    </div>
+    <BrowseListingsView<Listing, ListingFilters>
+      browseType="ad"
+      initialCategory={initialCategory}
+      initialSearchQuery={initialSearchQuery}
+      initialResults={initialResults}
+      initialCategories={initialCategories}
+      logScope="BrowseAds"
+      loadErrorMessage="Failed to load ads. Please try again."
+      buildFilters={buildAdFilters}
+      fetchPage={(filters) =>
+        getAdsPage(
+          { ...filters, type: "ad" },
+          { endpoint: API_ROUTES.USER.LISTINGS }
+        )
+      }
+      searchAriaLabel="Search marketplace ads"
+      searchPlaceholder="Search for mobiles, parts, services..."
+      inputClassName="pl-9 h-11 rounded-xl"
+      selectTriggerClassName="flex-1 sm:flex-none sm:w-[160px] h-11 rounded-xl"
+      emptyTitle="No ads found"
+      getEmptyDescription={(searchQuery) =>
+        searchQuery
+          ? `No ads matching "${searchQuery}".`
+          : "No ads available in this area yet."
+      }
+      renderCard={(listing, view, index) =>
+        view === "list" ? (
+          <AdCardList key={listing.id} ad={listing} priority={index < 4} />
+        ) : (
+          <AdCardGrid key={listing.id} ad={listing} priority={index < 4} />
+        )
+      }
+      getItemKey={(listing) => listing.id}
+    />
   );
 }
