@@ -1,6 +1,6 @@
 import logger from '../../utils/logger';
 import { lifecycleEvents } from '../LifecycleEventDispatcher';
-import { emailService } from '../../services/EmailService';
+import { emailService } from '../../domains/notifications/application/EmailService';
 import Ad from '../../models/Ad';
 import User from '../../models/User';
 import { getFrontendAppUrl } from '../../utils/appUrl';

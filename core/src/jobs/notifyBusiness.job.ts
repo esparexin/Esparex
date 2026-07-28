@@ -1,5 +1,5 @@
 import Business from '../models/Business';
-import { emailService } from '../services/EmailService';
+import { emailService } from '../domains/notifications/application/EmailService';
 import { jobRunner } from '../utils/jobRunner';
 import logger from '../utils/logger';
 import { runWithDistributedJobLock } from '../utils/distributedJobLock';
