@@ -24,7 +24,12 @@ export function withGuard<P extends object>(
                 guard(user);
                 return true;
             } catch (e) {
-                logger.error("Access denied:", e);
+                const message = e instanceof Error ? e.message : String(e);
+                if (message === "BUSINESS_ACCESS_DENIED" || message === "AUTH_REQUIRED") {
+                    logger.debug(`[Guard] Access restricted for user (${user.id || 'guest'}): ${message}`);
+                } else {
+                    logger.error("[Guard] Unexpected error during authorization check:", e);
+                }
                 return false;
             }
         }, [user]);
@@ -41,7 +46,9 @@ export function withGuard<P extends object>(
             }
 
             if (user && !authorized) {
-                void router.replace('/unauthorized');
+                // Canonical User State Destination Matrix:
+                // Normal User / Pending / Rejected -> Redirect to /account/business/apply (renders registration / pending / reapply UI)
+                void router.replace('/account/business/apply');
             }
         }, [user, isLoading, authorized, router, pathname, searchParams]);
 

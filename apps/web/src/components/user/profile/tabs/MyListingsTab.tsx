@@ -31,6 +31,7 @@ import {
 
 import { formatPrice, formatStableNumber } from "@/lib/formatters";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
+import { isApprovedBusiness } from "@/guards/businessGuards";
 
 // ── Types & Constants ────────────────────────────────────────────────────────
 type ListingSubTab = "ads" | "services" | "spare-parts";
@@ -69,9 +70,10 @@ interface MyListingsTabProps {
 export function MyListingsTab({
     adCounts,
     user, navigateTo, getStatusBadge,
-    isBusinessApproved, onRegisterBusiness,
+    isBusinessApproved: isBusinessApprovedProp, onRegisterBusiness,
     initialSubTab = "ads",
 }: MyListingsTabProps) {
+    const isBusinessApproved = isBusinessApprovedProp ?? Boolean(user && isApprovedBusiness(user));
     const router = useRouter();
     const searchParams = useSearchParams();
     const subTab = initialSubTab;
