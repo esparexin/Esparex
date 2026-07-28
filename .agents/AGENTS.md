@@ -877,3 +877,438 @@ Reject the PR if it:
 ### Engineering Principle
 
 > **A layout change is complete only when it is architecturally correct, visually consistent, responsive, accessible, and verified.**
+---
+
+## 18. Code Change Justification Protocol (Mandatory)
+
+Before adding, modifying, or deleting any code, the AI must answer the following questions with evidence.
+
+### 18.1 Why Are You Adding This Code?
+
+For every new line of code, explain:
+
+* What problem does this solve?
+* Which requirement, bug, or issue requires this code?
+* Why can't the existing implementation be reused?
+* Which existing file or function was evaluated before deciding to add new code?
+* What evidence proves a new implementation is necessary?
+
+If these questions cannot be answered, **do not add the code**.
+
+---
+
+### 18.2 Why Are You Deleting This Code?
+
+For every deleted line, explain:
+
+* Why is this code no longer needed?
+* Is it unused, dead, duplicate, obsolete, or replaced?
+* How was this verified?
+* Which files reference this code?
+* Will deleting it affect any functionality?
+
+If deletion cannot be justified with evidence, **do not delete the code**.
+
+---
+
+### 18.3 Why Are You Modifying This Code?
+
+Before changing existing code, explain:
+
+* What is wrong with the current implementation?
+* What evidence proves it needs modification?
+* Why is this the smallest safe change?
+* Could the issue be solved without modifying this code?
+
+---
+
+### 18.4 What Engineering Basis Are You Using?
+
+Every change must explicitly identify its basis from the following list:
+
+* Existing repository architecture
+* SSOT (Single Source of Truth)
+* DRY (Don't Repeat Yourself)
+* SOLID principles
+* Performance optimization
+* Security improvement
+* Bug fix
+* Accessibility
+* Code simplification
+* Dead code removal
+* Duplicate elimination
+* Approved design document
+* Existing coding standard
+
+**"No reason" or "seems better" is not acceptable.**
+
+---
+
+### 18.5 Why Not Reuse Existing Code?
+
+Before writing new code, answer:
+
+* Did you search for an existing implementation?
+* Which files were inspected?
+* Why can't the existing implementation be reused?
+* Why is extraction or refactoring not sufficient?
+
+If reusable code exists, **reuse it instead of creating new code**.
+
+---
+
+### 18.6 Change Impact Analysis
+
+Before making changes, describe:
+
+* Files affected
+* Components affected
+* APIs affected
+* Database impact
+* UI impact
+* Performance impact
+* Security impact
+* Breaking changes (if any)
+
+---
+
+### 18.7 Line Change Accountability
+
+For every commit, report:
+
+```text
+Lines Added:    +XX
+Lines Deleted:  -YY
+Net Change:     ±ZZ
+
+Reason for Additions:   ...
+Reason for Deletions:   ...
+Reason for Modifications: ...
+Evidence:               ...
+```
+
+---
+
+### 18.8 Anti-Code-Bloat Rule
+
+The AI must not add code simply to satisfy a request.
+
+Before writing code, it must ask itself:
+
+* Can this be solved by deleting code?
+* Can this be solved by refactoring?
+* Can this be solved by reusing existing code?
+* Can this be solved by extracting shared logic?
+* Can this be solved by configuration instead of new code?
+
+**Preferred order of operations:**
+
+1. Delete unnecessary code.
+2. Reuse existing code.
+3. Refactor existing code.
+4. Extract shared code.
+5. Add new code only as a last resort.
+
+---
+
+### 18.9 Evidence-Based Change Rule
+
+Every code change must include evidence such as:
+
+* Repository search results
+* Call hierarchy
+* Dependency analysis
+* Duplicate analysis
+* Usage analysis
+* Type references
+* Import graph
+* Runtime verification (when applicable)
+
+**Never make changes based on assumptions.**
+
+---
+
+### 18.10 Block Condition
+
+The AI must stop and refuse to proceed if it cannot answer:
+
+> **On what engineering basis am I adding, modifying, or deleting this code?**
+
+If the answer is not supported by repository evidence, the change must not be made.
+
+---
+
+### Summary
+
+This protocol shifts every code change from speculative editing to evidence-based engineering decisions, ensuring that every `+1` or `-1` line in a diff has a documented technical justification rooted in repository evidence.
+
+---
+
+## 19. Engineering Decision Challenge (Mandatory)
+
+> **The AI is not a code generator. It is an engineering reviewer that writes code only after proving, with repository evidence, that the change is necessary, correct, minimal, and preferable to all simpler alternatives.**
+
+Before writing, modifying, or deleting any code, the AI must pause and answer every question below using repository evidence. If any question cannot be answered with evidence, the change must not proceed.
+
+---
+
+### 19.1 Why Am I Changing This Code?
+
+* What exact problem am I solving?
+* Who requested this change?
+* What evidence proves this problem exists?
+* Can I reproduce or verify the problem?
+
+**If there is no evidence, stop.**
+
+---
+
+### 19.2 On What Engineering Basis Am I Making This Change?
+
+Every change must explicitly identify one or more of the following:
+
+* Bug fix
+* SSOT (Single Source of Truth)
+* DRY (Don't Repeat Yourself)
+* SOLID principles
+* Performance optimization
+* Security improvement
+* Accessibility
+* Architecture consistency
+* Duplicate elimination
+* Dead code removal
+* Technical debt reduction
+* Compliance with repository standards
+
+**If none apply, stop.**
+
+---
+
+### 19.3 Why This Solution?
+
+Before implementing, answer:
+
+* Why is this the best solution?
+* What alternatives were considered?
+* Why were they rejected?
+* Why is this the smallest safe change?
+
+---
+
+### 19.4 Why Not Delete Code Instead?
+
+Before adding any code, verify:
+
+* Can deleting obsolete code solve the issue?
+* Can simplifying existing logic solve it?
+* Can removing duplication solve it?
+
+**If yes, prefer deletion over addition.**
+
+---
+
+### 19.5 Why Not Reuse Existing Code?
+
+Repository-first policy. Before creating anything new, answer:
+
+* Which files were searched?
+* Which existing implementations were evaluated?
+* Why can't they be reused?
+* Why can't shared logic be extracted?
+
+**Creating new code is the last option.**
+
+---
+
+### 19.6 Explain Every `+1` and `-1`
+
+Every added, modified, or deleted line must have an explicit reason:
+
+```text
++ Added because...
+
+- Removed because...
+
+~ Modified because...
+```
+
+**"No reason" is not acceptable.**
+
+---
+
+### 19.7 What Happens If I Do Nothing?
+
+Before making any change, answer:
+
+* What breaks if this code remains unchanged?
+* Is the change necessary or merely desirable?
+* Is the benefit measurable?
+
+**If nothing important changes, reconsider making the edit.**
+
+---
+
+### 19.8 Could This Introduce New Problems?
+
+Assess the risk of:
+
+* Duplicate code
+* Dead code
+* Regression
+* Performance degradation
+* Security issues
+* API breakage
+* UI inconsistencies
+
+Explain how each identified risk is mitigated.
+
+---
+
+### 19.9 What Evidence Supports This Decision?
+
+Every change must cite repository evidence such as:
+
+* Search results
+* Call hierarchy
+* Type references
+* Import graph
+* Dependency analysis
+* Duplicate report
+* Runtime verification
+* Test results
+
+**Assumptions are prohibited.**
+
+---
+
+### 19.10 Final Engineering Gate
+
+Before proceeding with any change, the AI must be able to answer:
+
+> **If a senior engineer reviewed this change tomorrow, could I defend every added, modified, and deleted line with repository evidence?**
+
+**If the answer is No, the change must not proceed.**
+
+---
+
+### Enforcement Summary
+
+This section operates as a pre-flight checklist. No code change — regardless of request urgency or apparent simplicity — may bypass this challenge. Every gate must pass before a single line is written, modified, or deleted.
+
+---
+
+## 20. Change Classification (Mandatory Risk Gate)
+
+Before any modification, classify the change into one of the four levels below. The level determines which protocol gates apply. Misclassifying a higher-risk change as a lower level is a governance violation.
+
+---
+
+### Level 0 — No Code Change
+
+**Examples:** Documentation, code comments, formatting, whitespace, README edits.
+
+**Required:**
+* One-sentence justification explaining what was corrected and why.
+
+---
+
+### Level 1 — Low Risk
+
+**Examples:** Variable rename, typo fix, UI label text, log message, small CSS adjustment, minor copy change.
+
+**Required:**
+* Problem — what is being fixed and why.
+* Engineering basis — which principle applies (§19.2).
+* Evidence — repository proof the problem exists.
+* Impact — confirm no functional, API, or accessibility change.
+
+---
+
+### Level 2 — Medium Risk
+
+**Examples:** New component, refactor, hook extraction, utility changes, API modifications, business logic changes, shared package updates.
+
+**Required:**
+* Full Section 19 Engineering Decision Challenge.
+* All §18 Code Change Justification questions.
+
+---
+
+### Level 3 — High Risk
+
+**Examples:** Authentication, payments, database schema, RBAC, security controls, core architecture, shared packages (`packages/contracts`, `packages/ui`, `packages/core`).
+
+**Required:**
+* Full Section 19 Engineering Decision Challenge.
+* Full §18 Code Change Justification.
+* Duplicate audit — proof no parallel implementation exists or will be created.
+* Dead code audit — proof no orphaned references remain after the change.
+* Impact analysis — all affected files, components, APIs, and consumers documented.
+* Test plan — how the change will be verified (unit, integration, E2E).
+* Rollback plan — explicit steps to revert if the change causes a regression.
+* Senior engineer gate (§19.10) — all lines defensible with repository evidence.
+
+---
+
+### Classification Integrity Rule
+
+The AI must classify the change **before** searching the repository or writing any code. If mid-implementation the change grows in scope, the classification must be upgraded and the corresponding additional gates applied before continuing.
+
+---
+
+## 21. Burden of Proof Rule
+
+The burden of proof belongs to the change, not to the reviewer.
+
+Before any code is written, modified, or deleted, the AI must prove — with repository evidence — all five of the following:
+
+1. **The problem exists.** Evidence: reproduction steps, error logs, failing tests, or an explicit user report.
+2. **The proposed solution is correct.** Evidence: architecture review, analogous patterns in the codebase, or documented design decision.
+3. **Simpler alternatives were rejected.** Evidence: alternatives listed, evaluated, and dismissed with reasoning.
+4. **Repository evidence supports the decision.** Evidence: search results, call hierarchy, import graph, or type references.
+5. **The change is the minimum necessary.** Evidence: no additional lines were added beyond what is required to solve the stated problem.
+
+**If the AI cannot prove all five points, the repository must remain unchanged.**
+
+This rule is not a suggestion. It is a hard gate applied before any edit — regardless of how obvious the change appears.
+
+---
+
+## 22. Stability Principle
+
+Existing, correct, maintainable code has higher value than newly written code.
+
+The AI must not modify code solely because:
+
+* it prefers a different style or naming convention;
+* another implementation looks cleaner or more elegant;
+* it wants architectural symmetry across files;
+* it wants to increase abstraction without a concrete requirement;
+* it anticipates future requirements without current evidence.
+
+### What "correct" and "maintainable" mean
+
+Code is considered correct and maintainable if:
+
+* It passes existing tests.
+* It meets current accessibility and performance standards.
+* It has no known bugs related to the task at hand.
+* It does not violate an active governance rule.
+
+If all four conditions are true, the code must not be modified unless a specific, measurable defect requires it.
+
+### Stability Violation Examples
+
+The following are prohibited without a filed, evidence-backed justification:
+
+* Renaming a working function because the new name "reads better."
+* Splitting a working component because it "feels too large."
+* Adding an abstraction layer because the code "might grow."
+* Restructuring a file because the layout "seems inconsistent."
+* Replacing a working pattern because a newer pattern "is preferred."
+
+### Engineering Principle
+
+> **Code changes require demonstrable value — not preference, aesthetic judgment, or speculative future benefit.**
+
+A change that makes code look different without making it measurably more correct, more performant, more accessible, or more secure is net-negative: it adds review cost, regression risk, and diff noise with no verified return.
