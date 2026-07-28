@@ -41,8 +41,13 @@ const getActiveCategories = async () => {
     return categories;
 };
 
+import { delCache } from '../../../../utils/redisCache';
+
 export const clearCategoryCanonicalCache = () => {
     activeCategoryCache = null;
+    void delCache('catalog:counts:overview').catch(() => {
+        // Non-blocking catch for environments without active Redis connection
+    });
 };
 
 export const resolveEquivalentActiveCategoryIds = async (categoryId: string): Promise<string[]> => {

@@ -1,18 +1,26 @@
 import { z } from 'zod';
 import { ObjectIdSchema } from "@esparex/contracts";
-import { LISTING_TYPE_VALUES } from "@esparex/contracts";
+import { CreateCategorySchema, CreateBrandSchema, CreateModelSchema } from "@esparex/contracts";
+
 /**
  * Common Admin Validation Schemas
- * Used to provide pre-submit guards for admin management forms.
- * Mirrored behavior from shared limits while avoiding Zod instance boundaries.
+ * Re-exports and extends canonical contract schemas from @esparex/contracts for SSOT compliance.
  */
 
-export const adminCategorySchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be 50 characters or fewer'),
-    slug: z.string().min(2, 'Slug must be at least 2 characters').regex(/^[a-z0-9-]+$/, 'Slug must only contain lowercase letters, numbers, and hyphens'),
+export const adminCategorySchema = CreateCategorySchema.pick({
+    name: true,
+    slug: true,
+    parentId: true,
+    sortOrder: true,
+    listingType: true,
+    hasScreenSizes: true
+}).partial({
+    parentId: true,
+    sortOrder: true,
+    listingType: true,
+    hasScreenSizes: true
+}).extend({
     status: z.enum(['live', 'inactive', 'pending', 'rejected']).optional(),
-    listingType: z.array(z.enum(LISTING_TYPE_VALUES)).optional(),
-    hasScreenSizes: z.boolean().optional()
 });
 
 export const adminServiceModerationSchema = z.object({
@@ -20,18 +28,22 @@ export const adminServiceModerationSchema = z.object({
     moderationComment: z.string().max(1000).optional()
 });
 
-export const adminBrandSchema = z.object({
-    name: z.string().min(1, 'Brand name is required').max(100, 'Brand name too long'),
-    categoryIds: z.array(ObjectIdSchema),
+export const adminBrandSchema = CreateBrandSchema.pick({
+    name: true,
+    categoryIds: true,
 });
 
-export const adminModelSchema = z.object({
-    name: z.string().min(1, 'Model name is required').max(100, 'Model name too long'),
-    brandId: ObjectIdSchema,
-    categoryIds: z.array(ObjectIdSchema),
-    parentModelId: ObjectIdSchema.optional().nullable(),
-    variantOfModelId: ObjectIdSchema.optional().nullable(),
-    isParentModel: z.boolean().optional(),
+export const adminModelSchema = CreateModelSchema.pick({
+    name: true,
+    brandId: true,
+    categoryIds: true,
+    parentModelId: true,
+    variantOfModelId: true,
+    isParentModel: true,
+}).partial({
+    parentModelId: true,
+    variantOfModelId: true,
+    isParentModel: true,
 });
 
 export const adminLocationSchema = z.object({
