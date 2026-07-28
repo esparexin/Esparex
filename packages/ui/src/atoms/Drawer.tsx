@@ -4,6 +4,7 @@ import { Drawer as VaulDrawer } from "vaul";
 import { X } from "lucide-react";
 
 import { Z_INDEX } from "../tokens/zIndex";
+import { OVERLAY_STYLES } from "../styles/overlay";
 
 export function Drawer({
   title,
@@ -36,7 +37,7 @@ export function Drawer({
           
           {/* Header */}
           <div className="flex shrink-0 items-center justify-between p-4 pb-2">
-            <VaulDrawer.Title className="text-lg font-semibold text-foreground">
+            <VaulDrawer.Title className={OVERLAY_STYLES.panelTitle}>
               {title}
             </VaulDrawer.Title>
             <VaulDrawer.Description className="sr-only">
