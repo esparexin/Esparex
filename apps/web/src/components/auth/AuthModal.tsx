@@ -23,6 +23,8 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideClose
+        overlayZIndex={Z_INDEX.authModalOverlay}
+        overlayClassName="fixed inset-0 bg-black/40 backdrop-blur-md"
         style={{ zIndex: Z_INDEX.authModalContent }}
         className={cn(
           // Mobile (default): Full screen, no borders, bg gradient, safe area padding
