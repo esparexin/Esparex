@@ -28,6 +28,8 @@ function SidebarFooterMeta({ role }: { role?: string }) {
     );
 }
 
+import { isSuperAdminRole } from "@esparex/shared";
+
 export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsMinified }: AdminSidebarProps) {
     const { admin } = useAdminAuth();
     const counts = useAdminSidebarCounts();
@@ -35,7 +37,7 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
     const hasAccess = useCallback((roles: string[]) => {
         if (!admin) return false;
         if (roles.includes("all")) return true;
-        if (admin.role === "superAdmin") return true;
+        if (isSuperAdminRole(admin.role) || admin.role === "superAdmin") return true;
         if (admin.role === "admin" && roles.includes("admin")) return true;
         if (admin.role === "moderator" && roles.includes("moderator")) return true;
         return false;

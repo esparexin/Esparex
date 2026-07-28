@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 import { Role } from "@esparex/contracts";
-import { isSuperAdminRole } from "@esparex/core/utils/roleNormalization";
+import { isSuperAdminRole } from "@esparex/shared";
 
 /**
  * System-level routes (admin-users, api-keys, audit-logs, settings, etc.)
