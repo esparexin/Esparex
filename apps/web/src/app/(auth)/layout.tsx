@@ -8,7 +8,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
 
     return (
         <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>
-            <main className="min-h-[100dvh] flex flex-col bg-gradient-to-br from-emerald-50 via-white to-green-50">
+            <main className="min-h-[100dvh] flex flex-col bg-slate-50">
                 {children}
             </main>
         </UserAppProviders>

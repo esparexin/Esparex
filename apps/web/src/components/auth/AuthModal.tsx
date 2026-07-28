@@ -27,7 +27,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         className={cn(
           // Mobile (default): Full screen, no borders, bg gradient, safe area padding
           "fixed inset-0 w-full h-[100dvh] max-w-none max-h-none border-0 rounded-none p-0 outline-none overflow-y-auto flex flex-col",
-          "bg-gradient-to-br from-emerald-50 via-white to-green-50",
+          "bg-white",
           "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
           // Desktop (sm+): Centered modal, max-w-[420px], reduced width, taller with more padding
           "sm:inset-auto sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:right-auto sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-[420px] sm:h-auto sm:border sm:rounded-2xl sm:bg-white sm:bg-none sm:shadow-2xl sm:px-12 sm:py-16",
