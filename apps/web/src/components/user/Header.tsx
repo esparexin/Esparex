@@ -167,201 +167,199 @@ export function Header({
   }, [pathname, setShowLocationSelector, setShowSearchDropdown]);
 
   return (
-    <>
-      {/* ── DESKTOP HEADER (MD+) ───────────────────────────────────────────────────────────── */}
-      <header
-        style={{ zIndex: Z_INDEX.userHeader }}
-        className="sticky top-0 w-full border-b glass shadow-premium hidden md:block"
-      >
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-6">
-          {/* Logo */}
-          <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Image
-              src="/icons/logo.png"
-              alt="Esparex Logo"
-              width={512}
-              height={206}
-              style={{ height: "40px", width: "auto" }}
-            />
-          </button>
+    <header
+      style={{ zIndex: Z_INDEX.userHeader }}
+      className="sticky top-0 z-50 w-full border-b glass shadow-premium pt-[env(safe-area-inset-top)] md:pt-0 relative"
+    >
+      {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
+      <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
+        {/* Logo */}
+        <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Image
+            src="/icons/logo.png"
+            alt="Esparex Logo"
+            width={512}
+            height={206}
+            style={{ height: "40px", width: "auto" }}
+          />
+        </button>
 
-          {/* Location Selector */}
-          <div className="relative" ref={locationDropdownRef}>
-            <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
-            <LocationOverlayHost
-              isOpen={showLocationSelector}
-              onClose={() => setShowLocationSelector(false)}
-              containerRef={locationDropdownRef}
-            />
-          </div>
-
-          {/* Global Search Bar */}
-          <div className="flex-1 max-w-xl relative" ref={searchRef}>
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
-              <Input
-                id="header-global-search"
-                className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base md:text-sm"
-                placeholder="Search for mobiles, parts, services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => { handleSearchFocus(); setShowLocationSelector(false); }}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              />
-            </div>
-            {showSearchDropdown && (
-              <div
-                style={{ zIndex: Z_INDEX.userHeaderDropdown }}
-                className="absolute top-full left-0 right-0 mt-2 bg-popover border rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-2"
-              >
-                <div className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-1">Recent</div>
-                {recentSearches.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => handleSearch(s)}
-                    className="w-full text-left px-2 py-2 hover:bg-muted rounded flex items-center gap-2 text-sm"
-                  >
-                    <Clock className="h-3 w-3 text-muted-foreground" />
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Desktop User Actions */}
-          <div className="flex items-center gap-3 ml-auto">
-            {!isMounted || isAuthLoading ? (
-              <>
-                <div className="hidden lg:flex h-8 w-32 rounded-xl bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
-                <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
-              </>
-            ) : isLoggedIn ? (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`hidden md:flex gap-2 ${
-                    isBusinessLive ? "text-primary font-semibold" : "text-muted-foreground"
-                  } hover:text-foreground`}
-                  onClick={() => {
-                    if (isBusinessLive || shouldShowPendingReview || !canRegister) {
-                      navigateTo("business-entry");
-                    } else {
-                      navigateTo("business-register");
-                    }
-                  }}
-                >
-                  {isBusinessLive ? (
-                    <>
-                      <LayoutDashboard className="h-4 w-4" />
-                      <span className="hidden xl:inline">Business Hub</span>
-                    </>
-                  ) : shouldShowPendingReview ? (
-                    <>
-                      <Building2 className="h-4 w-4 text-amber-500" />
-                      <span className="hidden xl:inline text-amber-600">Pending Review</span>
-                    </>
-                  ) : businessStatus === "rejected" ? (
-                    <>
-                      <Building2 className="h-4 w-4 text-red-500" />
-                      <span className="hidden xl:inline text-red-600">Fix Application</span>
-                    </>
-                  ) : (
-                    <>
-                      <Building2 className="h-4 w-4" />
-                      <span className="hidden xl:inline">Register Business</span>
-                    </>
-                  )}
-                </Button>
-
-                <NotificationBellDropdown
-                  notificationsData={notificationsData}
-                  unreadCount={notifUnreadCount}
-                  onRefresh={refetchNotifications}
-                  variant="desktop"
-                />
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="relative rounded-full h-8 w-8 flex-shrink-0 border-none hover:bg-transparent p-0 overflow-hidden ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      aria-label="Open account menu"
-                    >
-                      {safeProfilePhoto ? (
-                        <Image
-                          src={avatarSrc}
-                          alt={user?.name || "Profile"}
-                          width={32}
-                          height={32}
-                          unoptimized
-                          className="h-8 w-8 rounded-full object-cover"
-                          onError={() => setImgErrPhoto(safeProfilePhoto)}
-                        />
-                      ) : (
-                        <div className="flex h-8 w-8 items-center justify-center bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 text-xs">
-                          {getUserInitials(user?.name || "", user?.mobile)}
-                        </div>
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" sideOffset={6} className="w-56 rounded-xl shadow-lg border-slate-100 p-1">
-                    <DropdownMenuLabel className="font-normal p-3 bg-slate-50/50 rounded-t-xl mb-1">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-semibold leading-none">{user?.name || "Esparex User"}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {user?.mobile ? `****** ${user.mobile.slice(-4)}` : ""}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-slate-100" />
-                    {profileMenuItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <DropdownMenuItem
-                          key={item.id}
-                          onClick={() => handleMenuItemClick(item)}
-                          className="cursor-pointer rounded-lg focus:bg-slate-50"
-                        >
-                          <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
-                          <span>{item.label}</span>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                    <DropdownMenuSeparator className="bg-slate-100" />
-                    <DropdownMenuItem
-                      onClick={onLogout}
-                      className="cursor-pointer rounded-lg text-red-600 focus:bg-red-50 focus:text-red-700"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={onShowLogin}>
-                Login
-              </Button>
-            )}
-
-            <Button
-              size="sm"
-              onClick={handlePostAdClick}
-              disabled={!isBackendUp}
-              className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              title={!isBackendUp ? "Service temporarily unavailable" : "Post a new ad"}
-            >
-              <TrendingUp className="h-4 w-4" /> Post Ad
-            </Button>
-          </div>
+        {/* Location Selector */}
+        <div className="relative" ref={locationDropdownRef}>
+          <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
+          <LocationOverlayHost
+            isOpen={showLocationSelector}
+            onClose={() => setShowLocationSelector(false)}
+            containerRef={locationDropdownRef}
+          />
         </div>
-      </header>
 
-      {/* ── MOBILE HEADER (< MD) ───────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 w-full glass shadow-premium md:hidden pt-[env(safe-area-inset-top)] relative">
+        {/* Global Search Bar */}
+        <div className="flex-1 max-w-xl relative" ref={searchRef}>
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+            <Input
+              id="header-global-search"
+              className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base md:text-sm"
+              placeholder="Search for mobiles, parts, services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => { handleSearchFocus(); setShowLocationSelector(false); }}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+          </div>
+          {showSearchDropdown && (
+            <div
+              style={{ zIndex: Z_INDEX.userHeaderDropdown }}
+              className="absolute top-full left-0 right-0 mt-2 bg-popover border rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-2"
+            >
+              <div className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-1">Recent</div>
+              {recentSearches.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleSearch(s)}
+                  className="w-full text-left px-2 py-2 hover:bg-muted rounded flex items-center gap-2 text-sm"
+                >
+                  <Clock className="h-3 w-3 text-muted-foreground" />
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop User Actions */}
+        <div className="flex items-center gap-3 ml-auto">
+          {!isMounted || isAuthLoading ? (
+            <>
+              <div className="hidden lg:flex h-8 w-32 rounded-xl bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
+              <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
+            </>
+          ) : isLoggedIn ? (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`hidden md:flex gap-2 ${
+                  isBusinessLive ? "text-primary font-semibold" : "text-muted-foreground"
+                } hover:text-foreground`}
+                onClick={() => {
+                  if (isBusinessLive || shouldShowPendingReview || !canRegister) {
+                    navigateTo("business-entry");
+                  } else {
+                    navigateTo("business-register");
+                  }
+                }}
+              >
+                {isBusinessLive ? (
+                  <>
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span className="hidden xl:inline">Business Hub</span>
+                  </>
+                ) : shouldShowPendingReview ? (
+                  <>
+                    <Building2 className="h-4 w-4 text-amber-500" />
+                    <span className="hidden xl:inline text-amber-600">Pending Review</span>
+                  </>
+                ) : businessStatus === "rejected" ? (
+                  <>
+                    <Building2 className="h-4 w-4 text-red-500" />
+                    <span className="hidden xl:inline text-red-600">Fix Application</span>
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="h-4 w-4" />
+                    <span className="hidden xl:inline">Register Business</span>
+                  </>
+                )}
+              </Button>
+
+              <NotificationBellDropdown
+                notificationsData={notificationsData}
+                unreadCount={notifUnreadCount}
+                onRefresh={refetchNotifications}
+                variant="desktop"
+              />
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative rounded-full h-8 w-8 flex-shrink-0 border-none hover:bg-transparent p-0 overflow-hidden ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    aria-label="Open account menu"
+                  >
+                    {safeProfilePhoto ? (
+                      <Image
+                        src={avatarSrc}
+                        alt={user?.name || "Profile"}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="h-8 w-8 rounded-full object-cover"
+                        onError={() => setImgErrPhoto(safeProfilePhoto)}
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 text-xs">
+                        {getUserInitials(user?.name || "", user?.mobile)}
+                      </div>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" sideOffset={6} className="w-56 rounded-xl shadow-lg border-slate-100 p-1">
+                  <DropdownMenuLabel className="font-normal p-3 bg-slate-50/50 rounded-t-xl mb-1">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-semibold leading-none">{user?.name || "Esparex User"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {user?.mobile ? `****** ${user.mobile.slice(-4)}` : ""}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-slate-100" />
+                  {profileMenuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <DropdownMenuItem
+                        key={item.id}
+                        onClick={() => handleMenuItemClick(item)}
+                        className="cursor-pointer rounded-lg focus:bg-slate-50"
+                      >
+                        <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <span>{item.label}</span>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  <DropdownMenuSeparator className="bg-slate-100" />
+                  <DropdownMenuItem
+                    onClick={onLogout}
+                    className="cursor-pointer rounded-lg text-red-600 focus:bg-red-50 focus:text-red-700"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <Button variant="ghost" size="sm" onClick={onShowLogin}>
+              Login
+            </Button>
+          )}
+
+          <Button
+            size="sm"
+            onClick={handlePostAdClick}
+            disabled={!isBackendUp}
+            className="rounded-full px-4 gap-2 shadow-sm hover:shadow-md transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            title={!isBackendUp ? "Service temporarily unavailable" : "Post a new ad"}
+          >
+            <TrendingUp className="h-4 w-4" /> Post Ad
+          </Button>
+        </div>
+      </div>
+
+      {/* ── MOBILE HEADER INNER (< MD) ───────────────────────────────────────────────────────────── */}
+      <div className="md:hidden">
         {/* Top Location Bar */}
         <div className="h-9 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
           <button
@@ -476,8 +474,7 @@ export function Header({
             )}
           </div>
         </div>
-
-      </header>
-    </>
+      </div>
+    </header>
   );
 }
