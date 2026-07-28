@@ -60,7 +60,6 @@ export function buildBaseBrowseFilters<TFilter extends BaseBrowseFilterShape>({
 export function applyRequestedLocationFilters<TFilter extends RequestedLocationFilterShape>({
   filters,
   urlLocationId,
-  urlLocationLabel: _urlLocationLabel,
   radiusKm,
 }: {
   filters: TFilter;
