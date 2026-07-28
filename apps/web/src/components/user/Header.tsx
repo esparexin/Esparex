@@ -39,8 +39,8 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
-import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
-import { canRegisterBusiness } from "@/guards/businessGuards";
+import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { canRegisterBusiness, isApprovedBusiness } from "@/guards/businessGuards";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { DEFAULT_APP_LOCATION } from "@/types/location";
 import { parsePublicBrowseParams } from "@/lib/publicBrowseRoutes";
@@ -83,7 +83,7 @@ export function Header({
   const { setIsOpen: setIsMobileDrawerOpen } = useMobileNavDrawer();
 
   const businessStatus = normalizeBusinessStatus(user?.businessStatus, "pending");
-  const isBusinessLive = isBusinessActiveStatus(user?.businessStatus);
+  const isBusinessLive = Boolean(user && isApprovedBusiness(user));
   const shouldShowPendingReview = businessStatus === "pending" && Boolean(user?.businessId);
   const canRegister = Boolean(user && canRegisterBusiness(user));
   const safeProfilePhoto = useMemo(
