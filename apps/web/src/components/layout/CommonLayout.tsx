@@ -33,7 +33,6 @@ export function CommonLayout({
     const chatRoute = isChatRoute(pathname);
     const segments = pathname?.split("/").filter(Boolean) ?? [];
     const isWizardRoute =
-        segments[0] === "post-ad" ||
         segments[0] === "edit-ad" ||
         segments[0] === "post-service" ||
         (segments[0] === "account" && segments[1] === "business" && segments[2] === "apply");

@@ -32,7 +32,6 @@ export function HeaderWrapper() {
     const isAuthLoading = status === "loading";
     const isAdminRoute = segments[0] === 'admin';
     const isWizardRoute =
-        segments[0] === "post-ad" ||
         segments[0] === "edit-ad" ||
         segments[0] === "post-service" ||
         (segments[0] === "account" && segments[1] === "business" && segments[2] === "apply");
