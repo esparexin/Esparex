@@ -64,7 +64,7 @@ export const buildAuthCallbackUrl = (
 };
 
 export const buildLoginUrl = (callbackUrl: string): string =>
-    `/login?callbackUrl=${encodeURIComponent(normalizeAuthCallbackUrl(callbackUrl))}`;
+    `/?login=true&callbackUrl=${encodeURIComponent(normalizeAuthCallbackUrl(callbackUrl))}`;
 
 const LOGOUT_REDIRECT_BYPASS_KEY = "esparex_logout_redirect_bypass";
 const LOGOUT_REDIRECT_BYPASS_PREFIXES = [

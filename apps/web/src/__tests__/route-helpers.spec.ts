@@ -21,9 +21,9 @@ describe("route helpers", () => {
     });
 
     it("builds safe login URLs from normalized callbacks", () => {
-        expect(buildLoginUrl("//evil.com")).toBe("/login?callbackUrl=%2F");
+        expect(buildLoginUrl("//evil.com")).toBe("/?login=true&callbackUrl=%2F");
         expect(buildLoginUrl("/account/ads?status=pending")).toBe(
-            "/login?callbackUrl=%2Faccount%2Fads%3Fstatus%3Dpending"
+            "/?login=true&callbackUrl=%2Faccount%2Fads%3Fstatus%3Dpending"
         );
         expect(normalizeAuthCallbackUrl("/search?q=iphone")).toBe("/search?q=iphone");
     });

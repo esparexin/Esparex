@@ -3,26 +3,21 @@
 /**
  * SSOT for login-callback URL logic shared by public page clients
  * (AdPageClient, ServicePageClient, BusinessPageClient, etc.)
- *
- * Handles two scenarios:
- *  1. Pre-login: builds `loginCallbackUrl` (current page → stored as callbackUrl
- *     query param when redirecting to /login).
- *  2. Post-login: reads `callbackUrl` from search params and provides
- *     `navigateBack` so the page can return the user to their original destination.
  */
 
 import { useCallback, useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { buildAuthCallbackUrl, buildLoginUrl, normalizeAuthCallbackUrl } from "@/lib/authHelpers";
+import { buildAuthCallbackUrl, normalizeAuthCallbackUrl } from "@/lib/authHelpers";
+import { useAuthModal } from "@/context/AuthModalContext";
 
 export interface UseLoginCallbackReturn {
-    /** The return URL to embed in `/login?callbackUrl=…` (current page, callbackUrl stripped) */
+    /** The return URL for post-login actions (current page, callbackUrl stripped) */
     loginCallbackUrl: string;
     /** The post-login destination stored in the current URL's callbackUrl param (if any) */
     returnUrl: string | null;
     /** Navigate back: follow returnUrl if present, otherwise call fallback or router.back() */
     navigateBack: (fallback?: () => void) => void;
-    /** Redirect to /login with the current page stored as the callbackUrl */
+    /** Open global AuthModal with the current page stored as the callbackUrl */
     handleShowLogin: () => void;
 }
 
@@ -30,8 +25,9 @@ export function useLoginCallback(): UseLoginCallbackReturn {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const { showLogin } = useAuthModal();
 
-    // Build the URL to pass as callbackUrl to /login  (strip any existing callbackUrl param)
+    // Build the URL to pass as callbackUrl to AuthModal (strip any existing callbackUrl param)
     const loginCallbackUrl = useMemo(() => {
         return buildAuthCallbackUrl(pathname, searchParams);
     }, [pathname, searchParams]);
@@ -45,7 +41,6 @@ export function useLoginCallback(): UseLoginCallbackReturn {
 
     const navigateBack = useCallback((fallback?: () => void) => {
         if (returnUrl) {
-            // replace: login page must not remain in the history stack
             void router.replace(returnUrl);
             return;
         }
@@ -57,8 +52,8 @@ export function useLoginCallback(): UseLoginCallbackReturn {
     }, [returnUrl, router]);
 
     const handleShowLogin = useCallback(() => {
-        void router.push(buildLoginUrl(loginCallbackUrl));
-    }, [loginCallbackUrl, router]);
+        showLogin(loginCallbackUrl);
+    }, [loginCallbackUrl, showLogin]);
 
     return { loginCallbackUrl, returnUrl, navigateBack, handleShowLogin };
 }
