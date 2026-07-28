@@ -53,7 +53,7 @@ describe("route helpers", () => {
                 id: "507f1f77bcf86cd799439011",
                 slug: "phones",
             })
-        ).toBe("/search?type=ad&categoryId=507f1f77bcf86cd799439011");
+        ).toBe("/category/phones");
 
         expect(
             buildCatalogLinkedBrowseRoute({
