@@ -1,34 +1,32 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LoginFlow } from "@/components/auth/LoginFlow";
+import { useAuthModal } from "@/context/AuthModalContext";
 import { normalizeAuthCallbackUrl } from "@/lib/authHelpers";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showLogin } = useAuthModal();
+  const hasTriggeredRef = useRef(false);
 
   const callbackUrl = useMemo(() => {
     const raw = searchParams.get("callbackUrl");
     return normalizeAuthCallbackUrl(raw);
   }, [searchParams]);
 
-  const handleDismiss = useCallback(() => {
-    if (window.history.length > 1) {
-      router.back();
-      return;
-    }
-    void router.replace("/");
-  }, [router]);
+  useEffect(() => {
+    if (hasTriggeredRef.current) return;
+    hasTriggeredRef.current = true;
 
-  return (
-    <div className="flex-1 w-full flex items-center justify-center p-4 sm:p-8">
-      <LoginFlow
-        mode="page"
-        callbackUrl={callbackUrl}
-        onBack={handleDismiss}
-      />
-    </div>
-  );
+    // Trigger canonical global AuthModal
+    showLogin(callbackUrl);
+
+    // Soft redirect back to target destination or home feed
+    const targetUrl = callbackUrl && callbackUrl !== "/login" ? callbackUrl : "/";
+    router.replace(targetUrl);
+  }, [callbackUrl, router, showLogin]);
+
+  return null;
 }

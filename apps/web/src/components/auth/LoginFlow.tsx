@@ -15,7 +15,7 @@ interface LoginFlowProps {
 
 export function LoginFlow({
   callbackUrl,
-  mode = "page",
+  mode = "modal",
   onClose,
   onBack,
 }: LoginFlowProps) {

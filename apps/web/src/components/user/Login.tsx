@@ -19,7 +19,7 @@ interface LoginProps {
   mode?: "page" | "modal";
 }
 
-export function Login({ onLoginSuccess, onBack, mode = "page" }: LoginProps) {
+export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
   const flow = useOtpFlow(onLoginSuccess);
   const { step } = flow;
   const isModal = mode === "modal";
