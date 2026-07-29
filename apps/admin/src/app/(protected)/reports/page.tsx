@@ -94,8 +94,8 @@ export default function ReportsPage() {
                 header: "Listing",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <div className="font-semibold text-slate-900">{item.ad?.title || "Unknown listing"}</div>
-                        <div className="text-tiny font-mono text-slate-400">{item.id}</div>
+                        <div className="font-semibold text-foreground">{item.ad?.title || "Unknown listing"}</div>
+                        <div className="text-tiny font-mono text-foreground-subtle">{item.id}</div>
                     </div>
                 ),
             },
@@ -103,7 +103,7 @@ export default function ReportsPage() {
                 header: "Reason",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <div className="text-sm font-medium text-slate-700">{item.reason}</div>
+                        <div className="text-sm font-medium text-foreground-secondary">{item.reason}</div>
                         {item.isAutoHidden ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-tiny font-semibold text-amber-700">
                                 <ShieldAlert size={10} /> Auto-hidden
@@ -116,17 +116,17 @@ export default function ReportsPage() {
                 header: "Status",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-slate-700">
+                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-foreground-secondary">
                             {item.status}
                         </span>
-                        <div className="text-xs text-slate-400">{item.reportCount} reports</div>
+                        <div className="text-xs text-foreground-subtle">{item.reportCount} reports</div>
                     </div>
                 ),
             },
             {
                 header: "Reported",
                 cell: (item) => (
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-foreground-tertiary">
                         {item.reportedAt ? new Date(item.reportedAt).toLocaleString() : "Unknown"}
                     </div>
                 ),
@@ -171,7 +171,7 @@ export default function ReportsPage() {
                                 <XCircle size={12} /> Dismiss
                             </button>
                         ) : null}
-                        {isMutating && <Loader2 size={12} className="animate-spin text-slate-400" />}
+                        {isMutating && <Loader2 size={12} className="animate-spin text-foreground-subtle" />}
                     </div>
                 ),
             },

@@ -57,10 +57,10 @@ export function CatalogAsyncComboboxFilter({
         <div ref={rootRef} className={`relative ${className}`.trim()}>
             <button type="button" disabled={disabled}
                 onClick={() => setOpen((current) => !current)}
-                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-slate-700 transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left text-sm text-foreground-secondary transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
                 <span className="truncate">{selectedLabel}</span>
-                {loading ? <Loader2 size={14} className="shrink-0 animate-spin text-slate-400" /> : <Search size={14} className="shrink-0 text-slate-400" />}
+                {loading ? <Loader2 size={14} className="shrink-0 animate-spin text-foreground-subtle" /> : <Search size={14} className="shrink-0 text-foreground-subtle" />}
             </button>
             {open ? (
                 <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
@@ -70,18 +70,18 @@ export function CatalogAsyncComboboxFilter({
                         />
                     </div>
                     <div className="max-h-64 overflow-y-auto py-1" role="listbox">
-                        <button type="button" className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                        <button type="button" className="block w-full px-3 py-2 text-left text-sm text-foreground-secondary hover:bg-slate-50"
                             onClick={() => { onChange("all"); setOpen(false); }}>{allLabel}</button>
                         {visibleOptions.map((option) => (
-                            <button key={option.value} type="button" className="block w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                            <button key={option.value} type="button" className="block w-full px-3 py-2 text-left text-sm text-foreground-secondary hover:bg-slate-50"
                                 onClick={() => { onChange(option.value); setOpen(false); }} role="option" aria-selected={option.value === value}>
                                 <span className="block truncate">{option.label}</span>
                             </button>
                         ))}
                         {options.length > visibleOptions.length ? (
-                            <div className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500">Showing {visibleOptions.length} of {options.length}. Search to narrow results.</div>
+                            <div className="border-t border-slate-100 px-3 py-2 text-xs text-foreground-tertiary">Showing {visibleOptions.length} of {options.length}. Search to narrow results.</div>
                         ) : null}
-                        {!loading && visibleOptions.length === 0 ? <div className="px-3 py-3 text-sm text-slate-500">No matches</div> : null}
+                        {!loading && visibleOptions.length === 0 ? <div className="px-3 py-3 text-sm text-foreground-tertiary">No matches</div> : null}
                     </div>
                 </div>
             ) : null}

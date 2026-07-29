@@ -45,10 +45,10 @@ export default function AdminSessionsPage() {
                 const admin = session.adminId && typeof session.adminId === "object" ? session.adminId : null;
                 return (
                     <div>
-                        <div className="font-semibold text-slate-900">
+                        <div className="font-semibold text-foreground">
                             {admin?.firstName ? `${admin.firstName} ${admin.lastName || ""}`.trim() : "Unknown admin"}
                         </div>
-                        <div className="text-xs text-slate-500">{admin?.email || "-"}</div>
+                        <div className="text-xs text-foreground-tertiary">{admin?.email || "-"}</div>
                     </div>
                 );
             },
@@ -56,7 +56,7 @@ export default function AdminSessionsPage() {
         {
             header: "Session",
             cell: (session) => (
-                <div className="space-y-1 text-xs text-slate-600">
+                <div className="space-y-1 text-xs text-foreground-secondary">
                     <div className="font-mono">{session.tokenId || session.id}</div>
                     <div>{session.ip || "Unknown IP"}</div>
                 </div>
@@ -65,7 +65,7 @@ export default function AdminSessionsPage() {
         {
             header: "Device",
             cell: (session) => (
-                <div className="max-w-[280px] truncate text-xs text-slate-600">
+                <div className="max-w-[280px] truncate text-xs text-foreground-secondary">
                     {session.device || "Unknown device"}
                 </div>
             ),
@@ -169,7 +169,7 @@ export default function AdminSessionsPage() {
                             type="button"
                             disabled={isMutating}
                             onClick={() => setRevokingSession(null)}
-                            className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                            className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all disabled:opacity-50"
                         >
                             Cancel
                         </button>

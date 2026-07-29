@@ -53,13 +53,13 @@ export function RejectAdModal({
             <DialogContent className="w-[calc(100%-2rem)] max-w-lg p-0">
                 <DialogHeader className="border-b border-slate-100 px-6 py-4">
                     <DialogTitle>{`Reject ${entityLabel.charAt(0).toUpperCase()}${entityLabel.slice(1)}`}</DialogTitle>
-                    <DialogDescription className="text-xs text-slate-500">
+                    <DialogDescription className="text-xs text-foreground-tertiary">
                         {title ? `${entityLabel}: ${title}` : `${affectedCount} selected ${entityLabel}(s)`}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 px-6 py-5">
-                    <label className="block space-y-1.5 text-sm font-medium text-slate-700">
+                    <label className="block space-y-1.5 text-sm font-medium text-foreground-secondary">
                         <span>Rejection reason</span>
                         <select
                             value={reason}
@@ -74,7 +74,7 @@ export function RejectAdModal({
                         </select>
                     </label>
 
-                    <label className="block space-y-1.5 text-sm font-medium text-slate-700">
+                    <label className="block space-y-1.5 text-sm font-medium text-foreground-secondary">
                         <span>Comment (optional)</span>
                         <textarea
                             value={comment}
@@ -89,7 +89,7 @@ export function RejectAdModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
                     >
                         Cancel
                     </button>

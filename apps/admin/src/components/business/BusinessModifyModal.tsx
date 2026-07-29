@@ -146,10 +146,10 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
 
     const field = (key: FormTextKey, label: string, opts?: { type?: string; rows?: number }) => (
         <div>
-            <label className="block text-tiny font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
+            <label className="block text-tiny font-bold text-foreground-tertiary uppercase tracking-wider mb-1">{label}</label>
             {opts?.rows ? (
                 <textarea
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
                     rows={opts.rows}
                     value={form[key]}
                     onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
@@ -158,7 +158,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
             ) : (
                 <input
                     type={opts?.type ?? "text"}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     value={form[key]}
                     onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
                     disabled={loading}
@@ -273,9 +273,9 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                             <Pencil size={18} />
                         </div>
                         <div>
-                            <DialogTitle className="text-base font-bold text-slate-900">Modify Business</DialogTitle>
-                            <DialogDescription className="text-xs text-slate-500 mt-0.5">
-                                Editing <span className="font-semibold text-slate-700">{business.name}</span> — status will remain unchanged.
+                            <DialogTitle className="text-base font-bold text-foreground">Modify Business</DialogTitle>
+                            <DialogDescription className="text-xs text-foreground-tertiary mt-0.5">
+                                Editing <span className="font-semibold text-foreground-secondary">{business.name}</span> — status will remain unchanged.
                             </DialogDescription>
                         </div>
                     </div>
@@ -284,7 +284,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                 <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
                     {/* Core Info */}
                     <section className="space-y-3">
-                        <p className="text-tiny font-bold text-slate-400 uppercase tracking-widest">Business Info</p>
+                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest">Business Info</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {field("name", "Business Name *")}
                             {field("mobile", "Mobile Number")}
@@ -298,7 +298,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
 
                     {/* Location */}
                     <section className="space-y-3">
-                        <p className="text-tiny font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between gap-1.5">
+                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest flex items-center justify-between gap-1.5">
                             <span className="flex items-center gap-1.5"><MapPin size={12} /> Location</span>
                             <button
                                 type="button"
@@ -316,23 +316,23 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                         </p>
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
                             <div className="space-y-1">
-                                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Canonical location</p>
-                                <p className="text-xs text-slate-600">
+                                <p className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">Canonical location</p>
+                                <p className="text-xs text-foreground-secondary">
                                     Search an active city, district, village, or area to repair the verified location link and map coordinates.
                                 </p>
                             </div>
                             <div className="relative">
-                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" />
                                 <input
                                     type="text"
                                     value={locationQuery}
                                     onChange={(e) => setLocationQuery(e.target.value)}
                                     disabled={loading}
                                     placeholder="Search active city or area"
-                                    className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-10 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                 />
                                 {locationSearchLoading ? (
-                                    <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400" />
+                                    <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-foreground-subtle" />
                                 ) : null}
                             </div>
                             {selectedLocationLabel ? (
@@ -353,10 +353,10 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                                             onClick={() => handleCanonicalLocationSelect(location)}
                                             className="w-full rounded-lg border border-transparent px-3 py-2 text-left transition-all hover:border-primary/20 hover:bg-slate-50"
                                         >
-                                            <p className="text-sm font-semibold text-slate-900">
+                                            <p className="text-sm font-semibold text-foreground">
                                                 {formatLocationLabel(location)}
                                             </p>
-                                            <p className="mt-1 text-tiny uppercase tracking-wide text-slate-500">
+                                            <p className="mt-1 text-tiny uppercase tracking-wide text-foreground-tertiary">
                                                 {location.level}
                                             </p>
                                         </button>
@@ -384,7 +384,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                     <button
                         onClick={onClose}
                         disabled={loading}
-                        className="px-5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-white transition-all text-sm"
+                        className="px-5 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-white transition-all text-sm"
                     >
                         Cancel
                     </button>

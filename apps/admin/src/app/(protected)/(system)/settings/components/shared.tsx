@@ -58,14 +58,14 @@ export function SettingsSection({
         <header className="border-b border-slate-100 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-              <p className="mt-1 text-xs text-slate-500">{description}</p>
+              <h2 className="text-base font-semibold text-foreground">{title}</h2>
+              <p className="mt-1 text-xs text-foreground-tertiary">{description}</p>
             </div>
             {help ? (
               <button
                 type="button"
                 onClick={() => setHelpOpen(true)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-semibold text-foreground-secondary hover:bg-slate-50"
                 aria-label={`Help for ${title}`}
                 title={`Help for ${title}`}
               >
@@ -81,14 +81,14 @@ export function SettingsSection({
       {helpOpen && help ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-5 shadow-xl">
-            <h3 className="text-base font-semibold text-slate-900">{title} Help</h3>
-            <div className="mt-3 space-y-3 text-sm text-slate-700">
+            <h3 className="text-base font-semibold text-foreground">{title} Help</h3>
+            <div className="mt-3 space-y-3 text-sm text-foreground-secondary">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">What this controls</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">What this controls</p>
                 <p className="mt-1">{help.description}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Impact</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Impact</p>
                 <p className="mt-1">{help.impact}</p>
               </div>
             </div>
@@ -119,9 +119,9 @@ export function Field({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">{label}</span>
       {children}
-      {hint ? <span className="block text-tiny text-slate-400">{hint}</span> : null}
+      {hint ? <span className="block text-tiny text-foreground-subtle">{hint}</span> : null}
     </label>
   );
 }

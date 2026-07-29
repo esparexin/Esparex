@@ -199,7 +199,7 @@ export default function BrandsTab() {
                         cell: (brand) => {
                             if (brand.isDeleted) {
                                 return (
-                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider bg-slate-200 text-slate-700">
+                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider bg-slate-200 text-foreground-secondary">
                                         Deleted
                                     </span>
                                );
@@ -219,7 +219,7 @@ export default function BrandsTab() {
                             const lifecycleStatus = deriveCatalogLifecycleStatus(brand);
                             if (brand.isDeleted) {
                                 return (
-                                    <div className="text-xs font-medium text-slate-400">
+                                    <div className="text-xs font-medium text-foreground-subtle">
                                         Hidden record
                                     </div>
                                 );
@@ -381,7 +381,7 @@ export default function BrandsTab() {
                             </div>
                         </div>
                     )}
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-foreground-secondary">
                         To hide this brand temporarily, <strong>deactivate it</strong> instead of deleting.
                     </p>
                     <div className="flex justify-end gap-3 pt-2">
@@ -392,7 +392,7 @@ export default function BrandsTab() {
                                 setDeletingBrand(null);
                                 setDeleteError(null);
                             }}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
                         >
                             Cancel
                         </button>

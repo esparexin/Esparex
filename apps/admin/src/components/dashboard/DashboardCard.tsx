@@ -39,10 +39,10 @@ export function DashboardCard({
                 )}
             </div>
             <div>
-                <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{value}</h3>
+                <p className="text-sm font-medium text-foreground-tertiary mb-1">{title}</p>
+                <h3 className="text-2xl font-bold text-foreground tracking-tight">{value}</h3>
                 {description && (
-                    <p className="mt-2 text-xs text-slate-400 font-medium italic">{description}</p>
+                    <p className="mt-2 text-xs text-foreground-subtle font-medium italic">{description}</p>
                 )}
             </div>
         </div>

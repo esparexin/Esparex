@@ -53,10 +53,10 @@ export function NotificationHistory({
             header: "Notification",
             cell: (log) => (
                 <div className="max-w-[320px]">
-                    <div className="font-bold text-slate-900 truncate">{log.title}</div>
-                    <div className="text-xs text-slate-500 line-clamp-2">{log.body}</div>
+                    <div className="font-bold text-foreground truncate">{log.title}</div>
+                    <div className="text-xs text-foreground-tertiary line-clamp-2">{log.body}</div>
                     {log.actionUrl ? (
-                        <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-tiny font-medium text-slate-600">
+                        <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-tiny font-medium text-foreground-secondary">
                             <LinkIcon size={10} />
                             <span className="truncate">{log.actionUrl}</span>
                         </div>
@@ -70,9 +70,9 @@ export function NotificationHistory({
                 <div className="flex items-center gap-2">
                     {getTargetIcon(log.targetType)}
                     <div>
-                        <div className="text-xs font-semibold text-slate-700">{getTargetLabel(log.targetType, log.targetValue)}</div>
+                        <div className="text-xs font-semibold text-foreground-secondary">{getTargetLabel(log.targetType, log.targetValue)}</div>
                         {log.targetType === "users" && log.userIds?.length ? (
-                            <div className="text-tiny text-slate-400">{log.userIds.length} users</div>
+                            <div className="text-tiny text-foreground-subtle">{log.userIds.length} users</div>
                         ) : null}
                     </div>
                 </div>
@@ -113,9 +113,9 @@ export function NotificationHistory({
         {
             header: "Date",
             cell: (log) => (
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-foreground-tertiary">
                     <div>{new Date(log.createdAt).toLocaleDateString()}</div>
-                    <div className="text-tiny text-slate-400">
+                    <div className="text-tiny text-foreground-subtle">
                         {log.status === "scheduled" ? "Scheduled" : "Sent"}{" "}
                         {new Date(log.sendAt || log.createdAt).toLocaleTimeString([], {
                             hour: "2-digit",
@@ -130,8 +130,8 @@ export function NotificationHistory({
     return (
         <div className="space-y-4 lg:col-span-2">
             <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
-                    <HistoryIcon size={20} className="text-slate-400" />
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
+                    <HistoryIcon size={20} className="text-foreground-subtle" />
                     Delivery History
                 </h2>
                 <DataTable
@@ -150,8 +150,8 @@ export function NotificationHistory({
                 />
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
-                <div className="flex items-center gap-2 font-semibold text-slate-700">
+            <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-foreground-secondary">
+                <div className="flex items-center gap-2 font-semibold text-foreground-secondary">
                     <Clock3 size={16} />
                     What this screen is for
                 </div>
@@ -159,7 +159,7 @@ export function NotificationHistory({
                     This is the outbound broadcast console. Use it for platform announcements, scheduled reminders,
                     and targeted outreach to specific users or device-platform audiences.
                 </p>
-                <p className="mt-2 text-xs text-slate-500">
+                <p className="mt-2 text-xs text-foreground-tertiary">
                     Device platform targeting means users with registered web, Android, or iOS push tokens. It is not a content,
                     city, or seller segment builder.
                 </p>

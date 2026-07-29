@@ -20,7 +20,7 @@ export function CatalogFormActions({
             <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-600 transition-all hover:bg-slate-200"
+                className="flex-1 rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-bold text-foreground-secondary transition-all hover:bg-slate-200"
             >
                 {cancelLabel}
             </button>

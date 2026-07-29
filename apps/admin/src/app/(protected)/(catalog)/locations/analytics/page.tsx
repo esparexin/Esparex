@@ -138,7 +138,7 @@ function LocationAnalyticsPageContent({
             <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={16} />
                         <input
                             type="text"
                             placeholder="Filter by city..."
@@ -206,24 +206,24 @@ function LocationAnalyticsPageContent({
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
                                     <TrendingUp size={18} className="text-primary" />
-                                    <h3 className="font-bold text-slate-900">Top Cities by Ads</h3>
+                                    <h3 className="font-bold text-foreground">Top Cities by Ads</h3>
                                 </div>
                                 <div className="divide-y divide-slate-50">
                                     {data.topCities?.length ? data.topCities.map((city, i) => (
                                         <div key={`${city.city}-${city.state}-${i}`} className="flex items-center justify-between px-5 py-3">
                                             <div className="flex items-center gap-3">
-                                                <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 text-xs font-bold flex items-center justify-center">
+                                                <span className="w-6 h-6 rounded-full bg-slate-100 text-foreground-tertiary text-xs font-bold flex items-center justify-center">
                                                     {i + 1}
                                                 </span>
                                                 <div>
-                                                    <div className="font-semibold text-slate-900 text-sm">{city.city}</div>
-                                                    <div className="text-xs text-slate-400">{city.state}</div>
+                                                    <div className="font-semibold text-foreground text-sm">{city.city}</div>
+                                                    <div className="text-xs text-foreground-subtle">{city.state}</div>
                                                 </div>
                                             </div>
-                                            <span className="font-bold text-slate-700 text-sm">{city.adsCount ?? 0} ads</span>
+                                            <span className="font-bold text-foreground-secondary text-sm">{city.adsCount ?? 0} ads</span>
                                         </div>
                                     )) : (
-                                        <p className="px-5 py-4 text-sm text-slate-400">No city data available.</p>
+                                        <p className="px-5 py-4 text-sm text-foreground-subtle">No city data available.</p>
                                     )}
                                 </div>
                             </div>
@@ -231,12 +231,12 @@ function LocationAnalyticsPageContent({
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
                                     <BarChart2 size={18} className="text-primary" />
-                                    <h3 className="font-bold text-slate-900">Ads by State</h3>
+                                    <h3 className="font-bold text-foreground">Ads by State</h3>
                                 </div>
                                 <div className="divide-y divide-slate-50">
                                     {adsByStateRows.length ? adsByStateRows.map((row) => (
                                         <div key={row.key} className="flex items-center justify-between px-5 py-3">
-                                            <span className="text-sm font-medium text-slate-700">{row.label}</span>
+                                            <span className="text-sm font-medium text-foreground-secondary">{row.label}</span>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
                                                     <div
@@ -246,11 +246,11 @@ function LocationAnalyticsPageContent({
                                                         }}
                                                     />
                                                 </div>
-                                                <span className="font-bold text-slate-700 text-sm w-12 text-right">{row.count}</span>
+                                                <span className="font-bold text-foreground-secondary text-sm w-12 text-right">{row.count}</span>
                                             </div>
                                         </div>
                                     )) : (
-                                        <p className="px-5 py-4 text-sm text-slate-400">No state data available.</p>
+                                        <p className="px-5 py-4 text-sm text-foreground-subtle">No state data available.</p>
                                     )}
                                 </div>
                             </div>
@@ -260,20 +260,20 @@ function LocationAnalyticsPageContent({
                             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
                                     <Flame size={18} className="text-orange-500" />
-                                    <h3 className="font-bold text-slate-900">Hot Zones</h3>
-                                    <span className="ml-auto text-xs text-slate-400 font-medium">High search & ad activity</span>
+                                    <h3 className="font-bold text-foreground">Hot Zones</h3>
+                                    <span className="ml-auto text-xs text-foreground-subtle font-medium">High search & ad activity</span>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                                     {data.hotZones.map((zone, idx) => (
                                         <div key={`${zone._id}-${idx}`} className="flex items-center justify-between px-5 py-3">
                                             <div>
-                                                <div className="font-semibold text-slate-900 text-sm flex items-center gap-1.5">
+                                                <div className="font-semibold text-foreground text-sm flex items-center gap-1.5">
                                                     {zone.isHotZone && <Flame size={13} className="text-orange-500" />}
                                                     {zone.city}
                                                 </div>
-                                                <div className="text-xs text-slate-400">{zone.state}</div>
+                                                <div className="text-xs text-foreground-subtle">{zone.state}</div>
                                             </div>
-                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                            <span className="text-xs font-bold text-foreground-tertiary bg-slate-100 px-2 py-1 rounded">
                                                 score {Math.round(zone.popularityScore)}
                                             </span>
                                         </div>
@@ -323,8 +323,8 @@ function StatCard({ icon, label, value, color }: {
                 {icon}
             </div>
             <div>
-                <div className="text-2xl font-black text-slate-900">{value?.toLocaleString() ?? "—"}</div>
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">{label}</div>
+                <div className="text-2xl font-black text-foreground">{value?.toLocaleString() ?? "—"}</div>
+                <div className="text-xs font-medium text-foreground-tertiary uppercase tracking-wider">{label}</div>
             </div>
         </div>
     );

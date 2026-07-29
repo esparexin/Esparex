@@ -57,15 +57,15 @@ export default function ApiKeysPage() {
             header: "Key",
             cell: (item) => (
                 <div>
-                    <div className="font-semibold text-slate-900">{item.name}</div>
-                    <div className="font-mono text-xs text-slate-500">{item.keyPrefix}</div>
+                    <div className="font-semibold text-foreground">{item.name}</div>
+                    <div className="font-mono text-xs text-foreground-tertiary">{item.keyPrefix}</div>
                 </div>
             ),
         },
         {
             header: "Scopes",
             cell: (item) => (
-                <div className="max-w-[300px] text-xs text-slate-600">
+                <div className="max-w-[300px] text-xs text-foreground-secondary">
                     {item.scopes.length > 0 ? item.scopes.join(", ") : "No scopes"}
                 </div>
             ),
@@ -106,7 +106,7 @@ export default function ApiKeysPage() {
         >
             <div className="space-y-6">
                 <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="mb-3 flex items-center gap-2 text-slate-900">
+                    <div className="mb-3 flex items-center gap-2 text-foreground">
                         <Plus size={16} />
                         <h2 className="text-base font-semibold">Create API Key</h2>
                     </div>

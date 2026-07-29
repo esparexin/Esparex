@@ -61,14 +61,14 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                     "rounded-full border px-3 py-2 text-xs",
                     isActive
                         ? "border-sky-200 bg-sky-50 text-sky-700"
-                        : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:text-slate-700"
+                        : "border-slate-200 bg-white text-foreground-tertiary hover:border-slate-300 hover:text-foreground-secondary"
                 );
 
                 const primaryStyles = cn(
                     "text-sm pb-3 border-b-2 -mb-[1px]",
                     isActive
                         ? "border-sky-600 text-sky-700"
-                        : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+                        : "border-transparent text-foreground-tertiary hover:text-foreground hover:border-slate-300"
                 );
 
                 return (
@@ -84,7 +84,7 @@ export function AdminModuleTabs({ tabs, variant = "pills", className }: AdminMod
                             <span
                                 className={cn(
                                     "rounded-full px-1.5 py-0.5 text-tiny",
-                                    isActive ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-600"
+                                    isActive ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-foreground-secondary"
                                 )}
                             >
                                 {tab.count}

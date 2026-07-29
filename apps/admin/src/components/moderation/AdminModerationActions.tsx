@@ -65,7 +65,7 @@ export function AdminModerationActions({
                     label="View Details"
                     ariaLabel="View details"
                     onClick={onView}
-                    className="text-slate-600 hover:bg-slate-100"
+                    className="text-foreground-secondary hover:bg-slate-100"
                 >
                     <Eye size={16} />
                 </ActionButton>
@@ -120,7 +120,7 @@ export function AdminModerationActions({
                     label="Delete"
                     ariaLabel="Delete"
                     onClick={onDelete!}
-                    className="text-slate-700 hover:bg-slate-100"
+                    className="text-foreground-secondary hover:bg-slate-100"
                 >
                     <Trash2 size={16} />
                 </ActionButton>
@@ -142,7 +142,7 @@ export function AdminModerationActions({
                     href={publicUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="p-2 text-slate-400 hover:bg-slate-50 hover:text-primary rounded-md transition-colors"
+                    className="p-2 text-foreground-subtle hover:bg-slate-50 hover:text-primary rounded-md transition-colors"
                     title="View Public Page"
                 >
                     <ExternalLink size={16} />

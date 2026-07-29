@@ -6,20 +6,21 @@ export const metadata = {
 
 export default function NotFound() {
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-background flex items-center justify-center px-4">
             <div className="max-w-md w-full text-center">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10">
-                    <div className="mx-auto mb-6 h-16 w-16 rounded-2xl bg-gray-100 flex items-center justify-center">
+                <div className="bg-white rounded-2xl shadow-sm border border-border p-10">
+                    <div className="mx-auto mb-6 h-16 w-16 rounded-2xl bg-secondary flex items-center justify-center">
                         <span className="text-3xl">🔍</span>
                     </div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Error 404</p>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-3">Page Not Found</h1>
-                    <p className="text-gray-500 text-sm mb-8">
-                        The admin page you&apos;re looking for doesn&apos;t exist or may have been moved.
+                    <p className="text-xs font-bold uppercase tracking-widest text-foreground-subtle mb-2">Error 404</p>
+                    <h1 className="text-2xl font-bold text-foreground mb-3">Page Not Found</h1>
+                    <p className="text-foreground-tertiary text-sm mb-8">
+                        The admin page or resource you requested could not be found.
                     </p>
+
                     <Link
                         href="/dashboard"
-                        className="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors"
+                        className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold px-6 py-3 rounded-xl shadow-xs transition-colors"
                     >
                         ← Back to Dashboard
                     </Link>

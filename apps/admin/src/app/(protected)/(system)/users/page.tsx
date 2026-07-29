@@ -159,12 +159,12 @@ export default function UsersPage() {
             header: "User Name",
             cell: (user) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-foreground-subtle">
                         <UserIcon size={20} />
                     </div>
                     <div>
-                        <div className="font-bold text-slate-900">{user.name || "Unknown"}</div>
-                        <div className="text-xs text-slate-500">ID: {user.id}</div>
+                        <div className="font-bold text-foreground">{user.name || "Unknown"}</div>
+                        <div className="text-xs text-foreground-tertiary">ID: {user.id}</div>
                     </div>
                 </div>
             )
@@ -172,7 +172,7 @@ export default function UsersPage() {
         {
             header: "Mobile",
             cell: (user) => (
-                <div className="text-sm font-medium text-slate-700 flex items-center gap-1">
+                <div className="text-sm font-medium text-foreground-secondary flex items-center gap-1">
                     {user.mobile}
                 </div>
             )
@@ -180,8 +180,8 @@ export default function UsersPage() {
         {
             header: "Email",
             cell: (user) => (
-                <div className="text-xs text-slate-600 flex items-center gap-1">
-                    <Mail size={12} className="text-slate-400" />
+                <div className="text-xs text-foreground-secondary flex items-center gap-1">
+                    <Mail size={12} className="text-foreground-subtle" />
                     {user.email || "No email"}
                 </div>
             )
@@ -191,7 +191,7 @@ export default function UsersPage() {
             cell: (user) => (
                 <span
                     className={`rounded px-2 py-1 text-tiny font-bold uppercase tracking-wider ${
-                        USER_ROLE_COLORS[user.role] ?? "bg-slate-100 text-slate-600"
+                        USER_ROLE_COLORS[user.role] ?? "bg-slate-100 text-foreground-secondary"
                     }`}
                 >
                     {user.role}
@@ -212,7 +212,7 @@ export default function UsersPage() {
         {
             header: "Total Ads Posted",
             cell: (user) => (
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-xs font-semibold text-foreground-secondary">
                     {Number(user.totalAdsPosted ?? user.totalAds ?? 0)}
                 </span>
             )
@@ -256,8 +256,8 @@ export default function UsersPage() {
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
                         <Link href={ADMIN_UI_ROUTES.users()} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Users</p>
-                            <p className="mt-2 text-2xl font-bold text-slate-900">{overview.totalUsers.toLocaleString()}</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Total Users</p>
+                            <p className="mt-2 text-2xl font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Individuals</p>

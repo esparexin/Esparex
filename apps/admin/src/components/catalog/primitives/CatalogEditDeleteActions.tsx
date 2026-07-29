@@ -34,8 +34,8 @@ export function CatalogEditDeleteActionPair({
 }) {
     return (
         <>
-            <CatalogActionIconButton onClick={onEdit} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title={editTitle} icon={<Edit size={18} />} />
-            <CatalogActionIconButton onClick={onDelete} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title={deleteTitle} icon={<Trash2 size={18} />} />
+            <CatalogActionIconButton onClick={onEdit} className="p-1.5 text-foreground-subtle hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title={editTitle} icon={<Edit size={18} />} />
+            <CatalogActionIconButton onClick={onDelete} className="p-1.5 text-foreground-subtle hover:text-red-600 hover:bg-red-50 rounded-lg transition-all" title={deleteTitle} icon={<Trash2 size={18} />} />
         </>
     );
 }

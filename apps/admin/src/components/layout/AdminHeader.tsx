@@ -137,7 +137,7 @@ export function AdminHeader() {
         return compactRoutes.includes(firstSegment);
     }, [pathname]);
     return (
-        <header className="sticky top-0 z-30 shrink-0 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <header className="sticky top-0 z-30 shrink-0 border-b border-border/80 bg-background/90 backdrop-blur">
             <div className="flex flex-col gap-3 px-4 py-3 lg:px-8">
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
@@ -148,14 +148,14 @@ export function AdminHeader() {
                         {!isCompactRoute && (
                             <>
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                                    <h1 className="text-xl font-semibold tracking-tight text-slate-950 lg:text-2xl">
+                                    <h1 className="text-xl font-semibold tracking-tight text-foreground lg:text-2xl">
                                         {sectionMeta.title}
                                     </h1>
-                                    <span className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+                                    <span className="text-xs font-medium uppercase tracking-[0.14em] text-foreground-subtle">
                                         {todayLabel}
                                     </span>
                                 </div>
-                                <p className="mt-1 max-w-2xl text-sm text-slate-500">
+                                <p className="mt-1 max-w-2xl text-sm text-foreground-tertiary">
                                     {sectionMeta.subtitle}
                                 </p>
                             </>
@@ -163,23 +163,23 @@ export function AdminHeader() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button className="relative rounded-full border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm transition-colors hover:bg-slate-50 hover:text-slate-700">
+                        <button className="relative rounded-full border border-border bg-card p-2.5 text-foreground-tertiary shadow-sm transition-colors hover:bg-accent hover:text-foreground">
                             <Bell size={18} />
-                            <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-white bg-rose-500"></span>
+                            <span className="absolute right-2 top-2 h-2 w-2 rounded-full border-2 border-card bg-rose-500"></span>
                         </button>
 
-                        <div className="hidden items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm sm:flex">
+                        <div className="hidden items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2 shadow-sm sm:flex">
                             <div className="text-right">
-                                <p className="text-sm font-semibold leading-none text-slate-900">
+                                <p className="text-sm font-semibold leading-none text-foreground">
                                     {admin?.firstName} {admin?.lastName}
                                 </p>
-                                <span className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-tiny font-bold uppercase tracking-[0.14em] text-slate-600">
+                                <span className="mt-1 inline-flex rounded-full bg-muted px-2 py-0.5 text-tiny font-bold uppercase tracking-[0.14em] text-foreground-secondary">
                                     {admin?.role}
                                 </span>
                             </div>
                             <button
                                 onClick={() => void logout()}
-                                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-all hover:bg-rose-50 hover:text-rose-600"
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-foreground-secondary transition-all hover:bg-rose-50 hover:text-rose-600"
                                 title="Logout"
                             >
                                 <LogOut size={18} />
@@ -193,12 +193,12 @@ export function AdminHeader() {
 
 
                         <div className="flex items-center gap-2 sm:hidden">
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-tiny font-bold uppercase tracking-[0.14em] text-slate-600">
+                            <span className="rounded-full bg-muted px-2.5 py-1 text-tiny font-bold uppercase tracking-[0.14em] text-foreground-secondary">
                                 {admin?.role}
                             </span>
                             <button
                                 onClick={() => void logout()}
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
+                                className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground-secondary shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
                                 title="Logout"
                             >
                                 <LogOut size={18} />

@@ -37,7 +37,7 @@ export function AdsColumnVisibilityMenu({
             <button
                 type="button"
                 onClick={() => setShowColumnMenu(!showColumnMenu)}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 transition-all active:scale-95"
             >
                 <EyeOff size={14} />
                 <span>Columns</span>
@@ -46,14 +46,14 @@ export function AdsColumnVisibilityMenu({
 
             {showColumnMenu && (
                 <div className="absolute right-0 top-full z-40 mt-2 min-w-[200px] rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in duration-200">
-                    <div className="px-2 py-1.5 text-tiny font-bold uppercase tracking-wider text-slate-400">
+                    <div className="px-2 py-1.5 text-tiny font-bold uppercase tracking-wider text-foreground-subtle">
                         Toggle Columns
                     </div>
                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                         {columnOptions.map((opt) => (
                             <label
                                 key={opt.id}
-                                className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+                                className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-foreground-secondary hover:bg-slate-50 cursor-pointer transition-colors"
                             >
                                 <input
                                     type="checkbox"

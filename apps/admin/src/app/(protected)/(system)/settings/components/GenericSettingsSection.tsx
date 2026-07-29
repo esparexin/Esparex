@@ -134,9 +134,9 @@ export function GenericSettingsSection({
             {field.type === "toggle" ? (
               <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-900">{field.label}</p>
+                  <p className="text-sm font-medium text-foreground">{field.label}</p>
                   {field.description && (
-                    <p className="text-xs text-slate-500">{field.description}</p>
+                    <p className="text-xs text-foreground-tertiary">{field.description}</p>
                   )}
                 </div>
                 <div className="self-start sm:self-center">

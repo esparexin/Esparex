@@ -210,7 +210,7 @@ function LocationsPageContent({
                     {
                         header: "Level",
                         cell: (location) => (
-                            <span className="px-2 py-0.5 rounded text-tiny font-bold uppercase tracking-wider bg-slate-100 text-slate-600">
+                            <span className="px-2 py-0.5 rounded text-tiny font-bold uppercase tracking-wider bg-slate-100 text-foreground-secondary">
                                 {location.level}
                             </span>
                         ),
@@ -219,10 +219,10 @@ function LocationsPageContent({
                         header: "Stats",
                         cell: (location) => (
                             <div className="text-xs space-y-0.5">
-                                <div className="text-slate-600">
+                                <div className="text-foreground-secondary">
                                     <span className="font-bold">{location.adsCount || 0}</span> Ads
                                 </div>
-                                <div className="text-slate-400">{location.usersCount || 0} Users</div>
+                                <div className="text-foreground-subtle">{location.usersCount || 0} Users</div>
                             </div>
                         ),
                     },
@@ -242,13 +242,13 @@ function LocationsPageContent({
                             <CatalogActionsRow>
                                 <CatalogActionIconButton
                                     onClick={() => openEditModal(location)}
-                                    className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                                    className="p-1.5 text-foreground-subtle hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                                     title="Edit"
                                     icon={<Edit size={18} />}
                                 />
                                 <CatalogActionIconButton
                                     onClick={() => setDeletingLocation(location)}
-                                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                    className="p-1.5 text-foreground-subtle hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                     title="Delete"
                                     icon={<Trash2 size={18} />}
                                 />

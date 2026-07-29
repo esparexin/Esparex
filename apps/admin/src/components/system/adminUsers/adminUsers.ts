@@ -66,7 +66,7 @@ export const ROLE_COLORS: Record<string, string> = {
     finance_manager: "bg-green-100 text-green-700",
     content_moderator: "bg-orange-100 text-orange-700",
     editor: "bg-sky-100 text-sky-700",
-    viewer: "bg-slate-100 text-slate-600",
+    viewer: "bg-slate-100 text-foreground-secondary",
 };
 
 export function normalizeAdmin(raw: Record<string, unknown>): ManagedAdmin {

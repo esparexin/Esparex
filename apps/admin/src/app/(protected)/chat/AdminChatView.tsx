@@ -159,7 +159,7 @@ export default function AdminChatView() {
         <button
           type="button"
           onClick={refresh}
-          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
         >
           <RefreshCcw size={14} /> Refresh
         </button>
@@ -175,7 +175,7 @@ export default function AdminChatView() {
               className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 filter === option.value
                   ? "bg-sky-600 text-white"
-                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  : "border border-slate-200 bg-white text-foreground-secondary hover:bg-slate-50"
               }`}
             >
               {option.icon}
@@ -183,7 +183,7 @@ export default function AdminChatView() {
             </button>
           ))}
           <div className="relative ml-auto">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-subtle" />
             <input
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
@@ -206,7 +206,7 @@ export default function AdminChatView() {
 
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50 text-xs font-semibold text-slate-500">
+            <thead className="border-b border-slate-100 bg-slate-50 text-xs font-semibold text-foreground-tertiary">
               <tr>
                 <th className="px-4 py-3 text-left">Buyer</th>
                 <th className="px-4 py-3 text-left">Seller</th>
@@ -230,19 +230,19 @@ export default function AdminChatView() {
                 ))
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={7} className="px-4 py-8 text-center text-foreground-subtle">
                     No chats found for this filter.
                   </td>
                 </tr>
               ) : (
                 items.map((conv) => (
                   <tr key={conv.id} className="transition-colors hover:bg-slate-50">
-                    <td className="px-4 py-3 font-medium text-slate-800">{conv.buyerName}</td>
-                    <td className="px-4 py-3 text-slate-600">{conv.sellerName}</td>
-                    <td className="max-w-[160px] truncate px-4 py-3 text-slate-600" title={conv.adTitle}>
+                    <td className="px-4 py-3 font-medium text-foreground">{conv.buyerName}</td>
+                    <td className="px-4 py-3 text-foreground-secondary">{conv.sellerName}</td>
+                    <td className="max-w-[160px] truncate px-4 py-3 text-foreground-secondary" title={conv.adTitle}>
                       {conv.adTitle}
                     </td>
-                    <td className="max-w-[200px] truncate px-4 py-3 text-slate-500" title={conv.lastMessage}>
+                    <td className="max-w-[200px] truncate px-4 py-3 text-foreground-tertiary" title={conv.lastMessage}>
                       {conv.lastMessage ?? "—"}
                     </td>
                     <td className="px-4 py-3">
@@ -254,7 +254,7 @@ export default function AdminChatView() {
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">Active</span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-400">{timeAgo(conv.updatedAt)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-foreground-subtle">{timeAgo(conv.updatedAt)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button
@@ -279,7 +279,7 @@ export default function AdminChatView() {
                         <button
                           type="button"
                           onClick={() => handleExport(conv.id)}
-                          className="text-slate-500 hover:underline text-xs font-medium"
+                          className="text-foreground-tertiary hover:underline text-xs font-medium"
                         >
                           Export
                         </button>
@@ -293,7 +293,7 @@ export default function AdminChatView() {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between text-sm text-slate-500">
+          <div className="flex items-center justify-between text-sm text-foreground-tertiary">
             <span>{total} total conversations</span>
             <div className="flex items-center gap-2">
               <button
@@ -331,14 +331,14 @@ export default function AdminChatView() {
               <AlertTriangle size={20} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-800">Mute Conversation</h3>
-              <p className="text-sm text-slate-500">Silence this chat for all participants.</p>
+              <h3 className="text-lg font-bold text-foreground">Mute Conversation</h3>
+              <p className="text-sm text-foreground-tertiary">Silence this chat for all participants.</p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">
+              <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-foreground-subtle">
                 Reason for Muting (Optional)
               </label>
               <textarea
@@ -353,7 +353,7 @@ export default function AdminChatView() {
               <button
                 type="button"
                 onClick={() => setMutingChat(null)}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-100"
               >
                 Cancel
               </button>

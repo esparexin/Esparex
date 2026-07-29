@@ -171,8 +171,8 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
 
     if (!open) return null;
 
-    const inputCls = "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100";
-    const labelCls = "block text-xs font-semibold text-slate-600 mb-1";
+    const inputCls = "w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-foreground focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-100";
+    const labelCls = "block text-xs font-semibold text-foreground-secondary mb-1";
 
     // API errors from adminFetch surface via the popup system (emitAdminErrorPopup)
     // and are not re-shown here. Only field-level Zod errors appear inline.
@@ -188,10 +188,10 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                             <CreditCard size={18} />
                         </div>
                         <div>
-                            <h2 className="text-base font-semibold text-slate-900">
+                            <h2 className="text-base font-semibold text-foreground">
                                 {isEdit ? "Edit Plan" : "Create New Plan"}
                             </h2>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-foreground-tertiary">
                                 {isEdit ? `Editing: ${editPlan?.name}` : "Configure plan type, pricing, and limits"}
                             </p>
                         </div>
@@ -199,7 +199,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                        className="rounded-lg p-1.5 text-foreground-subtle hover:bg-slate-100 hover:text-foreground-secondary"
                     >
                         <X size={18} />
                     </button>
@@ -227,7 +227,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                                 onClick={() => field.onChange(t)}
                                                 className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-semibold transition-all ${field.value === t
                                                         ? TYPE_META[t].color + " ring-2 ring-offset-1 ring-sky-400"
-                                                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50"
+                                                        : "border-slate-200 bg-white text-foreground-tertiary hover:bg-slate-50"
                                                     }`}
                                             >
                                                 {TYPE_META[t].icon}
@@ -250,7 +250,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                     onChange={(e) => setValue("code", e.target.value.toUpperCase(), { shouldValidate: true })}
                                     disabled={isEdit}
                                 />
-                                {isEdit && <p className="mt-1 text-tiny text-slate-400">Code cannot be changed after creation.</p>}
+                                {isEdit && <p className="mt-1 text-tiny text-foreground-subtle">Code cannot be changed after creation.</p>}
                                 <FieldError message={errors.code?.message} />
                             </div>
                             <div>
@@ -310,7 +310,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
 
                         {/* Limits — conditional by type */}
                         <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-500">Limits & Credits</p>
+                            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-foreground-tertiary">Limits & Credits</p>
                             {formType === "AD_PACK" && (
                                 <div className="grid grid-cols-3 gap-4">
                                     <div>
@@ -332,7 +332,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                     <div>
                                         <label className={labelCls}>Spotlight Credits</label>
                                         <input type="number" min={1} {...register("spotlightCredits", { valueAsNumber: true })} className={inputCls} />
-                                        <p className="mt-1 text-tiny text-slate-400">1 credit = 1 ad featured for the duration</p>
+                                        <p className="mt-1 text-tiny text-foreground-subtle">1 credit = 1 ad featured for the duration</p>
                                     </div>
                                     <div>
                                         <label className={labelCls}>Priority Weight</label>
@@ -364,7 +364,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                         <label className={labelCls}>Notification Channels</label>
                                         <div className="flex gap-3 pt-1">
                                             {["push", "email", "sms"].map((ch) => (
-                                                <label key={ch} className="flex items-center gap-1.5 text-xs font-medium text-slate-700 cursor-pointer">
+                                                <label key={ch} className="flex items-center gap-1.5 text-xs font-medium text-foreground-secondary cursor-pointer">
                                                     <input
                                                         type="checkbox"
                                                         checked={notificationChannels.includes(ch)}
@@ -388,7 +388,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
 
                         {/* Flags */}
                         <div className="flex flex-wrap items-center gap-5">
-                            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground-secondary">
                                 <input
                                     type="checkbox"
                                     {...register("isDefault")}
@@ -400,7 +400,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                 />
                                 Free / Default Plan
                             </label>
-                            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground-secondary">
                                 <input
                                     type="checkbox"
                                     {...register(API_KEY_STATUS.ACTIVE as keyof PlanFormValues)}
@@ -409,13 +409,13 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                 Active (visible to users)
                             </label>
                             {formType === "SPOTLIGHT" && (
-                                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground-secondary">
                                     <input type="checkbox" {...register("showOnHomePage")} className="accent-amber-500" />
                                     Feature on Home Page
                                 </label>
                             )}
                             {formType === "AD_PACK" && (
-                                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                                <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground-secondary">
                                     <input type="checkbox" {...register("businessBadge")} className="accent-blue-600" />
                                     Business Badge
                                 </label>
@@ -434,7 +434,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
                         >
                             Cancel
                         </button>

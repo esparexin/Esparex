@@ -32,7 +32,7 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
             {Object.entries(sections).map(([sectionName, sectionItems]) => (
                 <div key={sectionName} className="space-y-1.5">
                     {!isMinified && sectionName !== "General" && (
-                        <h3 className="px-3 text-tiny font-bold uppercase tracking-[0.14em] text-slate-500 mb-2">
+                        <h3 className="px-3 text-tiny font-bold uppercase tracking-[0.14em] text-foreground-subtle mb-2">
                             {sectionName}
                         </h3>
                     )}
@@ -63,7 +63,7 @@ export function SidebarNavigation({ items, counts, isMinified = false }: Sidebar
                                             size={20}
                                             className={cn(
                                                 "shrink-0",
-                                                isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                                                isActive ? "text-white" : "text-foreground-subtle group-hover:text-white"
                                             )}
                                         />
                                         {!isMinified && (

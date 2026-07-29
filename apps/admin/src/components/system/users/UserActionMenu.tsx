@@ -36,7 +36,7 @@ export function UserActionMenu({
                     event.stopPropagation();
                     onToggle();
                 }}
-                className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100"
+                className="rounded-lg p-1 text-foreground-subtle transition-colors hover:bg-slate-100"
                 aria-label={`Open actions for ${user.name || user.mobile}`}
             >
                 <MoreVertical size={20} />
@@ -50,7 +50,7 @@ export function UserActionMenu({
                     <Link
                         href={ADMIN_UI_ROUTES.userById(user.id)}
                         onClick={onClose}
-                        className="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
+                        className="block w-full px-4 py-2 text-left text-foreground-secondary hover:bg-slate-50"
                     >
                         <span className="flex items-center gap-2">
                             <Eye size={16} />
@@ -60,7 +60,7 @@ export function UserActionMenu({
                     <Link
                         href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })}
                         onClick={onClose}
-                        className="block w-full px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
+                        className="block w-full px-4 py-2 text-left text-foreground-secondary hover:bg-slate-50"
                     >
                         <span className="flex items-center gap-2">
                             <Search size={16} />
@@ -72,7 +72,7 @@ export function UserActionMenu({
                             onOpenDetails(user);
                             onClose();
                         }}
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-foreground-secondary hover:bg-slate-50"
                     >
                         <UserIcon size={16} />
                         Quick Details
@@ -82,7 +82,7 @@ export function UserActionMenu({
                             onOpenAction(user.isVerified ? "unverify" : "verify", user);
                             onClose();
                         }}
-                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-slate-700 hover:bg-slate-50"
+                        className="flex w-full items-center gap-2 px-4 py-2 text-left text-foreground-secondary hover:bg-slate-50"
                     >
                         <Shield size={16} />
                         {user.isVerified ? "Revoke Verification" : "Verify User"}

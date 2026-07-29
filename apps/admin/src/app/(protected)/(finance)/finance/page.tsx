@@ -124,7 +124,7 @@ export default function FinancePage() {
         {
             header: "Transaction ID",
             cell: (t) => (
-                <div className="font-mono text-tiny text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">
+                <div className="font-mono text-tiny text-foreground-tertiary bg-slate-50 px-2 py-1 rounded border border-slate-100 uppercase">
                     {t.gatewayPaymentId || t.id.substring(0, 12)}
                 </div>
             )
@@ -135,10 +135,10 @@ export default function FinancePage() {
                 const user = (t.userId && typeof t.userId === 'object') ? t.userId : null;
                 return (
                     <div>
-                        <div className="font-bold text-slate-900 leading-none mb-1">
+                        <div className="font-bold text-foreground leading-none mb-1">
                             {user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Unknown'}
                         </div>
-                        <div className="text-tiny text-slate-400 font-medium">
+                        <div className="text-tiny text-foreground-subtle font-medium">
                             {user?.email || user?.mobile || 'No contact'}
                         </div>
                     </div>
@@ -148,8 +148,8 @@ export default function FinancePage() {
         {
             header: "Amount",
             cell: (t) => (
-                <div className="font-bold text-slate-900">
-                    <span className="text-slate-400 font-medium mr-1">{t.currency}</span>
+                <div className="font-bold text-foreground">
+                    <span className="text-foreground-subtle font-medium mr-1">{t.currency}</span>
                     {t.amount?.toLocaleString() || '0'}
                 </div>
             )
@@ -168,7 +168,7 @@ export default function FinancePage() {
         {
             header: "Description",
             cell: (t) => (
-                <div className="text-xs text-slate-500 max-w-[200px] truncate italic">
+                <div className="text-xs text-foreground-tertiary max-w-[200px] truncate italic">
                     {t.description || 'System transaction'}
                 </div>
             )
@@ -176,9 +176,9 @@ export default function FinancePage() {
         {
             header: "Date",
             cell: (t) => (
-                <div className="text-xs text-slate-500 font-medium">
+                <div className="text-xs text-foreground-tertiary font-medium">
                     {new Date(t.createdAt).toLocaleDateString()}
-                    <span className="text-tiny text-slate-300 ml-2">
+                    <span className="text-tiny text-foreground-subtle ml-2">
                         {new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                 </div>
@@ -204,7 +204,7 @@ export default function FinancePage() {
             }}
             actions={
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
+                    <button className="flex items-center gap-2 bg-white border border-slate-200 text-foreground-secondary px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
                         <Download size={16} /> Export
                     </button>
                     <button className="flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-blue-600 transition-colors">
@@ -245,7 +245,7 @@ export default function FinancePage() {
             filters={
                 <>
                     <div className="relative flex-1 w-full text-black">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
                         <input
                             type="text"
                             placeholder="Search by Payment ID, User or description..."
@@ -255,7 +255,7 @@ export default function FinancePage() {
                         />
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                        <Filter className="text-slate-400" size={18} />
+                        <Filter className="text-foreground-subtle" size={18} />
                         <select
                             className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
                             value={statusFilter}

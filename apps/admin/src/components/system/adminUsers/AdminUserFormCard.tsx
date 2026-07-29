@@ -141,7 +141,7 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
 
     return (
         <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            {title ? <h2 className="mb-3 text-base font-semibold text-slate-900">{title}</h2> : null}
+            {title ? <h2 className="mb-3 text-base font-semibold text-foreground">{title}</h2> : null}
 
             <form onSubmit={(event) => void onValidSubmit(event)} noValidate>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
@@ -237,7 +237,7 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
                     </button>
                     <button
                         type="button"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-foreground-secondary hover:bg-slate-50"
                         onClick={handleSecondary}
                     >
                         <SecondaryIcon size={14} /> {secondaryLabel}

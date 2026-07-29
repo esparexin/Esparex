@@ -22,7 +22,7 @@ const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").t
   ssr: false,
   loading: () => (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px] flex items-center justify-center">
-      <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest animate-pulse">Loading Chart...</span>
+      <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
     </div>
   ),
 });
@@ -251,30 +251,30 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-slate-900 mb-4">Live Activity</h2>
+          <h2 className="text-lg font-bold text-foreground mb-4">Live Activity</h2>
           {error ? (
             <p className="text-red-500 text-sm italic">{error}</p>
           ) : (
             <div className="space-y-4">
               {liveLogs.length > 0 ? liveLogs.map((log) => (
                 <div key={log.id} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
-                  <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400">
+                  <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-foreground-subtle">
                     <Users size={16} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-slate-900 truncate">{log.action.replace(/_/g, ' ')}</p>
-                    <p className="text-tiny text-slate-400 font-medium">
+                    <p className="text-sm font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
+                    <p className="text-tiny text-foreground-subtle font-medium">
                       {log.adminId && typeof log.adminId === 'object' 
                         ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
                         : 'System'} • {log.targetType}
                     </p>
                   </div>
-                  <span className="text-tiny font-bold text-slate-400 uppercase tracking-tighter">
+                  <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-tighter">
                     {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               )) : (
-                <p className="text-xs text-slate-400 italic">No recent activity detected.</p>
+                <p className="text-xs text-foreground-subtle italic">No recent activity detected.</p>
               )}
             </div>
           )}

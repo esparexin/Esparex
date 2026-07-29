@@ -11,8 +11,8 @@ export function CatalogEntityCell({
         <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${iconClassName}`}>{icon}</div>
             <div>
-                <div className="font-bold text-slate-900">{title}</div>
-                {subtitle ? <div className="text-xs text-slate-500">{subtitle}</div> : null}
+                <div className="font-bold text-foreground">{title}</div>
+                {subtitle ? <div className="text-xs text-foreground-tertiary">{subtitle}</div> : null}
             </div>
         </div>
     );

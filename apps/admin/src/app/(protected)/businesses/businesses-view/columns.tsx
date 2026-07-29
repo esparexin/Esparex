@@ -19,10 +19,10 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
             header: "Business",
             cell: (biz) => (
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 shrink-0 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400"><Building2 size={20} /></div>
+                    <div className="w-10 h-10 shrink-0 rounded-xl bg-slate-100 flex items-center justify-center text-foreground-subtle"><Building2 size={20} /></div>
                     <div className="min-w-0">
-                        <div className="font-bold text-slate-900 leading-tight truncate">{biz.name}</div>
-                        <div className="text-tiny text-slate-400 font-mono mt-0.5 truncate">{biz.id}</div>
+                        <div className="font-bold text-foreground leading-tight truncate">{biz.name}</div>
+                        <div className="text-tiny text-foreground-subtle font-mono mt-0.5 truncate">{biz.id}</div>
                     </div>
                 </div>
             ),
@@ -47,8 +47,8 @@ export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: 
             },
         },
         { header: "Category", cell: (biz) => <BusinessTypesCell businessTypes={biz.businessTypes} /> },
-        { header: "Location", cell: (biz) => <div className="flex items-center gap-1.5 text-xs text-slate-600"><MapPin size={12} className="text-slate-400 shrink-0" /><span className="truncate max-w-[110px]">{biz.location?.city || "—"}</span></div> },
-        { header: "Active Since", cell: (biz) => <div className="space-y-0.5"><div className="text-xs text-slate-700 font-medium">{biz.approvedAt ? format(new Date(biz.approvedAt), "MMM d, yyyy") : "N/A"}</div>{biz.expiresAt && <div className="text-tiny text-slate-400 italic">Exp {format(new Date(biz.expiresAt), "MMM d, yyyy")}</div>}</div> },
+        { header: "Location", cell: (biz) => <div className="flex items-center gap-1.5 text-xs text-foreground-secondary"><MapPin size={12} className="text-foreground-subtle shrink-0" /><span className="truncate max-w-[110px]">{biz.location?.city || "—"}</span></div> },
+        { header: "Active Since", cell: (biz) => <div className="space-y-0.5"><div className="text-xs text-foreground-secondary font-medium">{biz.approvedAt ? format(new Date(biz.approvedAt), "MMM d, yyyy") : "N/A"}</div>{biz.expiresAt && <div className="text-tiny text-foreground-subtle italic">Exp {format(new Date(biz.expiresAt), "MMM d, yyyy")}</div>}</div> },
         createBusinessStatusColumn(true),
         createBusinessActionsColumn({
             onView, onEdit, onDelete, editTitle: "Edit Business", deleteTitle: "Delete Business",

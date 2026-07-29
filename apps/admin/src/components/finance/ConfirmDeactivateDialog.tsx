@@ -36,7 +36,7 @@ export function ConfirmDeactivateDialog({ isOpen, onClose, onConfirm, isMutating
                         type="button"
                         disabled={isMutating}
                         onClick={onClose}
-                        className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                        className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all disabled:opacity-50"
                     >
                         Cancel
                     </button>
