@@ -377,10 +377,10 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center text-tiny font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border select-none shadow-2xs",
+        "inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border select-none",
         isPowerOn
-          ? "bg-emerald-600 text-white border-emerald-600"
-          : "bg-red-600 text-white border-red-600",
+          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+          : "bg-red-50 text-red-700 border-red-200",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
