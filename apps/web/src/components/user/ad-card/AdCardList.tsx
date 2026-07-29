@@ -14,6 +14,7 @@ import {
   type AdCardData,
   useAdCardBase,
   getPlanBadge,
+  getConditionBadge,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -66,6 +67,7 @@ export const AdCardList = memo(function AdCardList({
 
   const categoryLabel = resolveListingCategoryLabel(ad, "General");
   const planBadge = getPlanBadge(ad);
+  const conditionBadge = getConditionBadge(ad);
 
   return (
     <AdCardLinkWrapper href={resolvedHref} enabled={useDeclarativeLink}>
@@ -154,10 +156,11 @@ export const AdCardList = memo(function AdCardList({
                   )}
                 </div>
 
-                <div className="mt-2.5 flex min-w-0 items-center gap-2">
-                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] sm:text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
+                <div className="mt-2.5 flex min-w-0 items-center justify-between gap-2">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
                     {categoryLabel}
                   </span>
+                  {conditionBadge}
                 </div>
               </div>
             </div>

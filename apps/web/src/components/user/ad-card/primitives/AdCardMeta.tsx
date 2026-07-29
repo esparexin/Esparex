@@ -128,8 +128,8 @@ export const AdCardMeta = memo(function AdCardMeta({
               )}
             </div>
 
-            {/* Condition Badge (Power On / Power Off) — Date removed per specification */}
-            {!isDashboard && conditionBadge && (
+            {/* Condition Badge (Power On / Power Off) — Rendered on bottom chip row in list view */}
+            {!isDashboard && !isList && conditionBadge && (
               <div className="shrink-0 ml-auto flex items-center">
                 {conditionBadge}
               </div>
