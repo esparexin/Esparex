@@ -65,11 +65,11 @@ export const AdCardMeta = memo(function AdCardMeta({
   return (
     <div className={cn("flex flex-col justify-between gap-1.5", className)}>
       {/* Price Row — Standalone bold green price display */}
-      <div className="flex items-center justify-between min-h-[1.25rem]">
+      <div className="flex items-center justify-between min-h-[1.5rem]">
         <span
           className={cn(
-            "font-bold tracking-tight text-emerald-600 dark:text-emerald-400",
-            isDashboard ? "text-base" : "text-sm"
+            "font-extrabold tracking-tight text-emerald-600 dark:text-emerald-400",
+            isList ? "text-base sm:text-lg" : isDashboard ? "text-base" : "text-sm sm:text-base"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >
@@ -77,9 +77,12 @@ export const AdCardMeta = memo(function AdCardMeta({
         </span>
       </div>
 
-      {/* Title — De-congested with leading-relaxed and equalized 2-line height container */}
-      <div className="min-h-[2.5rem] sm:min-h-[2.75rem] flex items-start">
-        <h3 className="font-medium line-clamp-2 text-xs sm:text-small leading-relaxed text-foreground-secondary tracking-tight">
+      {/* Title — De-congested with leading-snug and flexible line-clamp container */}
+      <div className="min-h-[2rem] sm:min-h-[2.5rem] flex items-start my-0.5">
+        <h3 className={cn(
+          "font-semibold line-clamp-2 leading-snug text-slate-800 tracking-tight",
+          isList ? "text-xs sm:text-sm" : "text-xs sm:text-small"
+        )}>
           {sanitizeListingTitle(ad.title, ad)}
         </h3>
       </div>

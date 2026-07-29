@@ -92,10 +92,10 @@ export const AdCardList = memo(function AdCardList({
                 }
           }
         >
-          <CardContent className="p-3">
-            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex min-w-0 items-start gap-3 sm:gap-5">
               {/* List View Image */}
-              <div className="relative h-24 w-24 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-muted/20">
+              <div className="relative h-28 w-28 sm:h-32 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-muted/20">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
@@ -103,7 +103,7 @@ export const AdCardList = memo(function AdCardList({
                     fill
                     priority={priority}
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 88px, 112px"
+                    sizes="(max-width: 768px) 112px, 144px"
                   />
                 ) : (
                   <div
@@ -114,14 +114,14 @@ export const AdCardList = memo(function AdCardList({
                   </div>
                 )}
                 {planBadge && (
-                  <div className="absolute top-1 left-1 z-10">
+                  <div className="absolute top-1.5 left-1.5 z-10">
                     {planBadge}
                   </div>
                 )}
               </div>
 
               {/* List View Content */}
-              <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+              <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5 min-h-[7rem] sm:min-h-[8rem]">
                 <div className="flex min-w-0 items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <AdCardMeta ad={ad} variant="list" />
@@ -130,7 +130,7 @@ export const AdCardList = memo(function AdCardList({
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-11 w-11 rounded-full hover:bg-muted/40 shrink-0 -mt-1 -mr-1"
+                      className="h-9 w-9 rounded-full hover:bg-muted/40 shrink-0 -mt-1 -mr-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -145,7 +145,7 @@ export const AdCardList = memo(function AdCardList({
                     >
                       <Heart
                         className={cn(
-                          "h-5 w-5",
+                          "h-4 w-4 sm:h-5 sm:w-5",
                           isSaved
                             ? "fill-red-500 text-red-500"
                             : "text-foreground-subtle"
@@ -155,8 +155,8 @@ export const AdCardList = memo(function AdCardList({
                   )}
                 </div>
 
-                <div className="mt-2 flex min-w-0 items-center gap-2">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
+                <div className="mt-2.5 flex min-w-0 items-center gap-2">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] sm:text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
                     {categoryLabel}
                   </span>
                 </div>
