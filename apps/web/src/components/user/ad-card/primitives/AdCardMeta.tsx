@@ -14,18 +14,25 @@ import {
 /* Helpers                                                                     */
 /* -------------------------------------------------------------------------- */
 
-/** Decode common HTML entities so titles like "&amp;" render as "&". */
+const HTML_ENTITY_MAP: Record<string, string> = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+  "&#039;": "'",
+  "&apos;": "'",
+  "&nbsp;": " ",
+};
+
+/** Decode common HTML entities in a single regex pass to prevent double-unescaping. */
 function decodeHtmlEntities(str: string): string {
-  return str
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, " ");
+  if (!str) return "";
+  return str.replace(/&(?:amp|lt|gt|quot|#39|#039|apos|nbsp);/g, (match) => HTML_ENTITY_MAP[match] || match);
 }
 
 function cleanTitle(raw: string): string {
+  if (!raw) return "";
   return decodeHtmlEntities(raw.replace(/\*\*/g, "").trim());
 }
 
@@ -82,6 +89,7 @@ export const AdCardMeta = memo(function AdCardMeta({
   })();
 
   return (
+<<<<<<< Updated upstream
     <div className={cn("flex flex-col justify-between gap-1.5", className)}>
       {/* Price Row — Standalone bold green price display */}
       <div className="flex items-center justify-between min-h-[1.25rem]">
@@ -93,6 +101,23 @@ export const AdCardMeta = memo(function AdCardMeta({
           aria-label={`Price: ${priceDisplay}`}
         >
           {priceDisplay}
+=======
+    <div className={cn("flex flex-col gap-0.5", className)}>
+      <div className="font-semibold line-clamp-2 text-small leading-snug min-h-[2.2rem] text-foreground-secondary tracking-tight">
+        {cleanTitle(ad.title)}
+      </div>
+
+      <div className="flex items-center justify-between gap-1.5 mt-0.5">
+        <span className={cn("font-bold tracking-tight", isDashboard ? "text-primary text-base" : "text-link-dark text-sm")}>
+          {(() => {
+            if (listingTypeBadge.type === "service" && (adRecord.priceMin || adRecord.priceMax)) {
+              if (adRecord.priceMin && adRecord.priceMax) return `${formatPrice(adRecord.priceMin as number)} - ${formatPrice(adRecord.priceMax as number)}`;
+              if (adRecord.priceMin) return `From ${formatPrice(adRecord.priceMin as number)}`;
+              return formatPrice(adRecord.priceMax as number);
+            }
+            return (ad.price === 0 || ad.price === undefined) ? "Free" : formatPrice(ad.price);
+          })()}
+>>>>>>> Stashed changes
         </span>
       </div>
 
