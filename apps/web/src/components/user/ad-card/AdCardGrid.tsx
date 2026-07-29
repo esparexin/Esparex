@@ -8,7 +8,6 @@ import {
   AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
-  getConditionBadge,
 } from "./shared";
 
 interface AdCardGridProps {
@@ -16,9 +15,6 @@ interface AdCardGridProps {
   isSaved?: boolean;
   /**
    * IMPORTANT: Stabilize with useCallback at the call site.
-   * This prop is not included in the memo equality check because function
-   * references change on every render if not memoized — callers are
-   * responsible for ensuring referential stability.
    */
   onToggleSave?: (adId: string | number, e: React.MouseEvent) => void;
   onClick?: () => void;
@@ -62,10 +58,7 @@ export const AdCardGrid = memo(function AdCardGrid({
       disableDeclarativeLink: Boolean(onToggleSave),
     });
 
-  const deviceCondition = adRecord.deviceCondition as string | undefined;
   const isBusiness = Boolean(adRecord.isBusiness);
-
-  const conditionBadge = getConditionBadge(deviceCondition);
 
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
@@ -103,15 +96,8 @@ export const AdCardGrid = memo(function AdCardGrid({
             )}
           </AdCardCover>
 
-          {/* Content section — no hard-coded min-height; content determines height */}
-          <CardContent className="p-2.5 sm:p-3 space-y-1">
-            {/* Condition badge — device-specific, positioned above title */}
-            {conditionBadge && (
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {conditionBadge}
-              </div>
-            )}
-
+          {/* Content section */}
+          <CardContent className="p-3">
             <AdCardMeta ad={ad} variant="default" />
           </CardContent>
         </Card>

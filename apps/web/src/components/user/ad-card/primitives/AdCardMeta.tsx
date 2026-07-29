@@ -5,7 +5,10 @@ import { MapPin, Clock } from "@/icons/IconRegistry";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { cn } from "@/components/ui/utils";
-import type { AdCardData } from "../shared";
+import {
+  type AdCardData,
+  getConditionBadge,
+} from "../shared";
 
 /* -------------------------------------------------------------------------- */
 /* Helpers                                                                     */
@@ -58,6 +61,7 @@ export const AdCardMeta = memo(function AdCardMeta({
   const isList = variant === "list";
 
   const locationLabel = resolveListingLocationLabel(ad.location, "brief");
+  const conditionBadge = getConditionBadge(ad);
 
   /* ── Price display ─────────────────────────────────────────────── */
   const isService =
@@ -77,81 +81,82 @@ export const AdCardMeta = memo(function AdCardMeta({
       : formatPrice(ad.price);
   })();
 
-  const isFree = ad.price === 0 || ad.price === undefined;
-
   return (
-    <div className={cn("flex flex-col gap-0.5", className)}>
-      {/* Title — cleaned of markdown and decoded HTML entities */}
-      <div className="font-semibold line-clamp-2 text-small leading-snug min-h-[2.2rem] text-foreground-secondary tracking-tight">
+    <div className={cn("flex flex-col gap-1", className)}>
+      {/* Title — 2-line clamp, clean line-height, proper text size */}
+      <h3 className="font-semibold line-clamp-2 text-xs sm:text-sm leading-[1.35] min-h-[2.4rem] text-foreground-secondary tracking-tight">
         {cleanTitle(ad.title)}
-      </div>
+      </h3>
 
-      {/* Price row — price only, no competing badge */}
-      <div className="flex items-center mt-0.5">
+      {/* Price + Condition Row */}
+      <div className="flex items-center justify-between gap-1.5 mt-0.5 min-h-[1.5rem]">
+        {/* Price text — ALWAYS text-green-600 for both numeric price and "Free" */}
         <span
           className={cn(
-            "font-bold tracking-tight",
-            isDashboard ? "text-primary text-base" : "text-sm",
-            isFree
-              ? "text-foreground-subtle"
-              : "text-green-600"
+            "font-bold tracking-tight text-green-600 text-sm sm:text-base",
+            isDashboard && "text-primary text-base"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >
           {priceDisplay}
         </span>
+
+        {/* Condition Badge (Power On / Power Off) — rendered right next to price */}
+        {!isDashboard && conditionBadge && (
+          <div className="shrink-0">{conditionBadge}</div>
+        )}
       </div>
 
-      {/* Location + date row */}
+      {/* Location + Date Metadata Row — clean layout, no overlap */}
       <div
         className={cn(
-          "flex items-center justify-between text-caption text-foreground-tertiary pt-1 mt-1 border-t border-slate-100/60",
-          isDashboard && "grid grid-cols-2 gap-2 justify-start",
+          "flex items-center justify-between text-caption text-foreground-tertiary pt-1.5 mt-1 border-t border-slate-100 gap-2 min-w-0",
+          isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}
       >
         {isDashboard ? (
           <>
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" aria-hidden="true" />
-              <span className="truncate">
+            <div className="flex items-center gap-1 shrink-0">
+              <Clock className="h-3 w-3 text-foreground-subtle shrink-0" aria-hidden="true" />
+              <span className="truncate text-caption">
                 {"createdAt" in ad
                   ? formatStableDate(ad.createdAt as string)
                   : "Just now"}
               </span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="text-foreground-subtle">
+            <div className="flex items-center gap-1 shrink-0">
+              <span className="text-foreground-subtle text-caption">
                 {dashboardViews} views
               </span>
             </div>
           </>
         ) : (
           <>
-            {/* Location — min-w prevents flex collapse to "M." on narrow mobile */}
-            <div className="flex items-center gap-1 flex-1 min-w-0">
+            {/* Location — truncated cleanly with flex-1 min-w-0 */}
+            <div className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden">
               {locationLabel && (
                 <>
                   <MapPin
-                    className="h-2.5 w-2.5 flex-shrink-0 text-foreground-subtle/80"
+                    className="h-3 w-3 shrink-0 text-foreground-subtle/80"
                     aria-hidden="true"
                   />
-                  <span className="truncate font-medium min-w-[40px]">
+                  <span className="truncate font-medium text-caption block shrink min-w-0">
                     {locationLabel}
                   </span>
                 </>
               )}
             </div>
 
-            {/* Date — foreground-subtle without opacity modifier for WCAG AA contrast */}
-            <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+            {/* Date — shrink-0 ml-auto, clear spacing, WCAG AA contrast */}
+            <div className="flex items-center gap-1 shrink-0 ml-auto">
               {!isList && (
                 <Clock
-                  className="h-2.5 w-2.5 text-foreground-subtle/80"
+                  className="h-3 w-3 shrink-0 text-foreground-subtle/80"
                   aria-hidden="true"
                 />
               )}
-              <span className="whitespace-nowrap font-medium text-foreground-subtle">
+              <span className="whitespace-nowrap font-medium text-caption text-foreground-subtle">
                 {"time" in ad ? (ad as { time: string }).time : "Just now"}
               </span>
             </div>

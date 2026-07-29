@@ -57,7 +57,7 @@ export const AdCardList = memo(function AdCardList({
   priority = false,
   className,
 }: AdCardListProps) {
-  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } =
+  const { imageUrl, adId, useDeclarativeLink, handleCardClick } =
     useAdCardBase({
       ad,
       href,
@@ -65,10 +65,9 @@ export const AdCardList = memo(function AdCardList({
       disableDeclarativeLink: Boolean(onToggleSave),
     });
 
-  const deviceCondition = adRecord.deviceCondition as string | undefined;
   const categoryLabel = resolveListingCategoryLabel(ad, "General");
   const locationLabel = resolveListingLocationLabel(ad.location, "brief");
-  const conditionBadge = getConditionBadge(deviceCondition);
+  const conditionBadge = getConditionBadge(ad);
   const planBadge = getPlanBadge(ad);
 
   return (
@@ -151,7 +150,7 @@ export const AdCardList = memo(function AdCardList({
                       {conditionBadge}
                     </div>
                   )}
-                  <h3 className="line-clamp-2 break-words font-medium leading-[1.3] text-small text-foreground-secondary tracking-tight">
+                  <h3 className="line-clamp-2 break-words font-medium leading-[1.35] text-small text-foreground-secondary tracking-tight">
                     {ad.title}
                   </h3>
                 </div>

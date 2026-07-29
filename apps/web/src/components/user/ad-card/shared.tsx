@@ -115,21 +115,76 @@ export function useAdCardBase({
 }
 
 /* -------------------------------------------------------------------------- */
+/* Condition resolution (robust multi-source resolution)                     */
+/* -------------------------------------------------------------------------- */
+
+export function resolveDeviceCondition(
+  ad: AdCardData
+): "power_on" | "power_off" | undefined {
+  const adRecord = toAdRecord(ad);
+
+  // 1. Direct fields check
+  const raw =
+    (typeof adRecord.deviceCondition === "string"
+      ? adRecord.deviceCondition
+      : undefined) ||
+    (typeof adRecord.condition === "string"
+      ? adRecord.condition
+      : undefined) ||
+    (adRecord.specs && typeof adRecord.specs === "object"
+      ? (adRecord.specs as Record<string, unknown>).deviceCondition ||
+        (adRecord.specs as Record<string, unknown>).condition
+      : undefined);
+
+  if (typeof raw === "string" && raw.trim()) {
+    const norm = raw.toLowerCase().trim().replace(/[\s_-]+/g, "_");
+    if (
+      norm.includes("power_on") ||
+      norm.includes("powers_on") ||
+      norm === "working"
+    ) {
+      return "power_on";
+    }
+    if (
+      norm.includes("power_off") ||
+      norm.includes("powers_off") ||
+      norm === "dead"
+    ) {
+      return "power_off";
+    }
+  }
+
+  // 2. Fallback title parsing for explicit condition indicators
+  const title = typeof ad.title === "string" ? ad.title.toLowerCase() : "";
+  if (
+    title.includes("powers on") ||
+    title.includes("power on") ||
+    title.includes("(power on)") ||
+    title.includes("- power on")
+  ) {
+    return "power_on";
+  }
+  if (
+    title.includes("powers off") ||
+    title.includes("power off") ||
+    title.includes("(power off)") ||
+    title.includes("- power off")
+  ) {
+    return "power_off";
+  }
+
+  return undefined;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Badge design tokens                                                         */
 /* -------------------------------------------------------------------------- */
 
-/**
- * Shared badge pill base classes.
- * All image-overlay badges use these — pill shape, bold, uppercase, small.
- */
 const BADGE_BASE =
   "border-0 text-[10px] font-bold uppercase tracking-wide leading-none h-5 px-2 rounded-full shadow-sm flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
-/*                                                                             */
-/* Precedence: Spotlight > Featured > Premium > Boosted                       */
-/* Only the highest-priority badge is shown — never stacked.                  */
 /* -------------------------------------------------------------------------- */
 
 export function getPlanBadge(
@@ -208,8 +263,6 @@ export function getPlanBadge(
 
 /* -------------------------------------------------------------------------- */
 /* Status badge (image overlay — top-right)                                   */
-/*                                                                             */
-/* Precedence: Sold > Reserved > New                                          */
 /* -------------------------------------------------------------------------- */
 
 export function getStatusBadge(
@@ -227,10 +280,7 @@ export function getStatusBadge(
   if (status === "sold") {
     return (
       <Badge
-        className={cn(
-          "bg-slate-700/90 text-white border-0",
-          merged
-        )}
+        className={cn("bg-slate-700/90 text-white border-0", merged)}
         aria-label="Listing sold"
       >
         Sold
@@ -270,24 +320,37 @@ export function getStatusBadge(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Condition badge (content section — below title, devices only)              */
+/* Condition badge (accepts string or full AdCardData)                         */
 /* -------------------------------------------------------------------------- */
 
 export function getConditionBadge(
-  deviceCondition: string | undefined,
+  input: string | AdCardData | undefined,
   className?: string
 ): ReactNode | null {
-  if (!deviceCondition) return null;
+  let condition: "power_on" | "power_off" | undefined;
 
-  const isPowerOn = deviceCondition === "power_on";
+  if (typeof input === "string") {
+    const norm = input.toLowerCase().trim().replace(/[\s_-]+/g, "_");
+    if (norm.includes("power_on") || norm.includes("powers_on") || norm === "working") {
+      condition = "power_on";
+    } else if (norm.includes("power_off") || norm.includes("powers_off") || norm === "dead") {
+      condition = "power_off";
+    }
+  } else if (input && typeof input === "object") {
+    condition = resolveDeviceCondition(input);
+  }
+
+  if (!condition) return null;
+
+  const isPowerOn = condition === "power_on";
 
   return (
     <span
       className={cn(
-        "inline-flex items-center font-bold px-2 h-5 text-[10px] rounded-full uppercase tracking-wide leading-none",
+        "inline-flex items-center font-bold px-2 h-5 text-[10px] rounded-full uppercase tracking-wider leading-none shadow-2xs border",
         isPowerOn
-          ? "bg-green-50 text-green-700"
-          : "bg-red-50 text-red-700",
+          ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+          : "bg-red-50 text-red-700 border-red-200/80",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
@@ -298,7 +361,7 @@ export function getConditionBadge(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Price display                                                               */
+/* Price display (ALWAYS text-green-600 as requested by user)                 */
 /* -------------------------------------------------------------------------- */
 
 export function AdCardPriceDisplay({
@@ -312,8 +375,7 @@ export function AdCardPriceDisplay({
   return (
     <div
       className={cn(
-        "font-bold",
-        isFree ? "text-foreground-subtle" : "text-green-600",
+        "font-bold text-green-600 tracking-tight",
         className
       )}
       aria-label={`Price: ${isFree ? "Free" : formatPrice(price)}`}
