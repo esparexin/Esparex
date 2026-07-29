@@ -184,14 +184,9 @@ export function Header({
           />
         </button>
 
-        {/* Location Selector */}
+        {/* Location Selector — desktop trigger only (overlay is rendered at header root) */}
         <div className="relative" ref={locationDropdownRef}>
           <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
-          <LocationOverlayHost
-            isOpen={showLocationSelector}
-            onClose={() => setShowLocationSelector(false)}
-            containerRef={locationDropdownRef}
-          />
         </div>
 
         {/* Global Search Bar */}
@@ -475,6 +470,18 @@ export function Header({
           </div>
         </div>
       </div>
+
+      {/* ── LOCATION OVERLAY ─────────────────────────────────────────────────────────────────────────
+           Rendered at the <header> root — NEVER inside a display:none container.
+           Radix UI's DismissableLayer requires an interactive DOM branch to function correctly.
+           On mobile: renders a bottom Sheet portalled to document.body.
+           On desktop: renders a position:fixed dropdown anchored to locationDropdownRef bounds.
+      ────────────────────────────────────────────────────────────────────────────────────────────── */}
+      <LocationOverlayHost
+        isOpen={showLocationSelector}
+        onClose={() => setShowLocationSelector(false)}
+        containerRef={locationDropdownRef}
+      />
     </header>
   );
 }
