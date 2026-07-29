@@ -96,7 +96,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                             focusable="false"
                                         />
                                     </div>
-                                    <span className="w-full truncate text-[10px] md:text-[13px] font-medium text-slate-700 text-center group-hover:text-blue-600 transition-colors">
+                                    <span className="w-full truncate text-tiny md:text-small font-medium text-slate-700 text-center group-hover:text-blue-600 transition-colors">
                                         {cat.name}
                                     </span>
                                 </Link>

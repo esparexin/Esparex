@@ -257,7 +257,7 @@ export default function CatalogRequestsTab() {
                                              href={`/listing/${req.listingId}`}
                                              target="_blank"
                                              rel="noopener noreferrer"
-                                             className="inline-flex items-center gap-1 ml-10 text-[11px] font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                                             className="inline-flex items-center gap-1 ml-10 text-tiny font-semibold text-blue-600 hover:text-blue-800 hover:underline"
                                          >
                                              <ExternalLink size={10} />
                                              View Listing
@@ -270,7 +270,7 @@ export default function CatalogRequestsTab() {
                     {
                         header: "Status",
                         cell: (req) => (
-                            <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                            <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider ${
                                 req.status === "approved" || req.status === "resolved" ? "bg-emerald-100 text-emerald-700" :
                                 req.status === "rejected" ? "bg-red-100 text-red-700" :
                                 req.status === "duplicate" ? "bg-blue-100 text-blue-700" :
@@ -287,7 +287,7 @@ export default function CatalogRequestsTab() {
                             const count = req.requestCount ?? 1;
                             const isHot = count >= 5;
                             return (
-                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold ${
+                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-tiny font-bold ${
                                     isHot
                                         ? "bg-rose-100 text-rose-700"
                                         : count >= 2

@@ -45,7 +45,7 @@ export function LocationResultsList({
                         <div className="space-y-0.5">
                             <p className="text-xs font-medium text-destructive">{searchError.message}</p>
                             {searchError.retryable && (
-                                <p className="text-[11px] text-muted-foreground">
+                                <p className="text-tiny text-muted-foreground">
                                     {retryCount > 0 && `Attempt ${retryCount} of 3`}
                                 </p>
                             )}
@@ -57,7 +57,7 @@ export function LocationResultsList({
                         )}
                         {locations.length > 0 && (
                             <div className="pt-2 border-t">
-                                <p className="text-[11px] text-muted-foreground mb-1">Cached results:</p>
+                                <p className="text-tiny text-muted-foreground mb-1">Cached results:</p>
                                 <div className="space-y-0.5">
                                     {locations.slice(0, 3).map((loc, index) => (
                                         <button
@@ -79,7 +79,7 @@ export function LocationResultsList({
                                                 <span className="block truncate text-xs font-medium text-foreground">
                                                     {getLocationPrimaryLabel(loc)}
                                                 </span>
-                                                <span className="block truncate text-[11px] text-muted-foreground">
+                                                <span className="block truncate text-tiny text-muted-foreground">
                                                     {getLocationSecondaryLabel(loc)}
                                                 </span>
                                             </span>
@@ -115,7 +115,7 @@ export function LocationResultsList({
                                     <span className="block truncate text-xs font-semibold text-foreground">
                                         {getLocationPrimaryLabel(loc)}
                                     </span>
-                                    <span className="block truncate text-[11px] text-muted-foreground">
+                                    <span className="block truncate text-tiny text-muted-foreground">
                                         {getLocationSecondaryLabel(loc)}
                                     </span>
                                 </span>

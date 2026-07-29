@@ -50,12 +50,12 @@ export function MobileAccountBottomNav({
             <div className="relative">
               <Icon className={`h-5 w-5 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
               {!!item.badge && item.badge > 0 && (
-                <span className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm">
+                <span className="absolute -top-1 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-tiny font-bold text-white shadow-sm">
                   {item.badge > 99 ? "99+" : item.badge}
                 </span>
               )}
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight truncate max-w-[64px]">
+            <span className="text-tiny mt-0.5 tracking-tight truncate max-w-[64px]">
               {item.label}
             </span>
           </button>

@@ -47,7 +47,7 @@ export class AdminErrorBoundary extends Component<Props, State> {
                         Try Again
                     </button>
                     {process.env.NODE_ENV !== "production" && (
-                        <pre className="mt-4 max-w-full overflow-auto rounded bg-slate-900 p-4 text-left text-[10px] text-red-400">
+                        <pre className="mt-4 max-w-full overflow-auto rounded bg-slate-900 p-4 text-left text-tiny text-red-400">
                             {this.state.error?.message}
                         </pre>
                     )}

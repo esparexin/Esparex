@@ -217,7 +217,7 @@ export function NotificationBellDropdown({
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 rounded-full px-2.5 text-[11px] font-medium text-foreground-tertiary hover:bg-slate-100"
+                                className="h-7 rounded-full px-2.5 text-tiny font-medium text-foreground-tertiary hover:bg-slate-100"
                                 onClick={() => markAllReadMutation.mutate()}
                                 disabled={markAllReadMutation.isPending}
                             >
@@ -235,7 +235,7 @@ export function NotificationBellDropdown({
                             </div>
                             <div className="space-y-0.5">
                                 <p className="text-xs font-semibold text-foreground">No notifications</p>
-                                <p className="text-[11px] leading-4 text-muted-foreground">Updates will appear here.</p>
+                                <p className="text-tiny leading-4 text-muted-foreground">Updates will appear here.</p>
                             </div>
                         </div>
                     ) : (

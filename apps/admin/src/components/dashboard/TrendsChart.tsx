@@ -44,11 +44,11 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 bg-blue-500 rounded-full" />
-                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ads</span>
+                        <span className="text-tiny uppercase font-bold text-slate-400 tracking-wider">Ads</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                         <div className="w-3 h-3 bg-emerald-500 rounded-full" />
-                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Users</span>
+                        <span className="text-tiny uppercase font-bold text-slate-400 tracking-wider">Users</span>
                     </div>
                 </div>
             </div>

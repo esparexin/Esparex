@@ -140,7 +140,7 @@ export default function AuditLogsPage() {
                             <div className="font-bold text-slate-900 leading-none mb-1">
                                 {admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}` : 'System'}
                             </div>
-                            <div className="text-[10px] text-slate-400">{admin?.email || 'automated-task'}</div>
+                            <div className="text-tiny text-slate-400">{admin?.email || 'automated-task'}</div>
                         </div>
                     </div>
                 );
@@ -151,7 +151,7 @@ export default function AuditLogsPage() {
             cell: (log) => (
                 <div className="flex flex-col">
                     <span className="font-bold text-xs text-primary uppercase tracking-tight">{log.action.replace(/_/g, ' ')}</span>
-                    <span className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <span className="text-tiny text-slate-400 flex items-center gap-1">
                         <Database size={10} /> {log.targetType}
                     </span>
                 </div>
@@ -160,7 +160,7 @@ export default function AuditLogsPage() {
         {
             header: "Target ID",
             cell: (log) => (
-                <div className="font-mono text-[10px] text-slate-500 truncate max-w-[120px]">
+                <div className="font-mono text-tiny text-slate-500 truncate max-w-[120px]">
                     {log.targetId || 'N/A'}
                 </div>
             )
@@ -168,7 +168,7 @@ export default function AuditLogsPage() {
         {
             header: "Details",
             cell: (log) => (
-                <div className="max-w-[300px] truncate text-[10px] text-slate-500 italic bg-slate-50 p-1 rounded border border-slate-100 overflow-hidden">
+                <div className="max-w-[300px] truncate text-tiny text-slate-500 italic bg-slate-50 p-1 rounded border border-slate-100 overflow-hidden">
                     {log.metadata ? JSON.stringify(log.metadata) : 'No extra data'}
                 </div>
             )
@@ -176,7 +176,7 @@ export default function AuditLogsPage() {
         {
             header: "Security",
             cell: (log) => (
-                <div className="text-[10px] text-slate-400">
+                <div className="text-tiny text-slate-400">
                     <div className="flex items-center gap-1"><Shield size={10} /> {log.ipAddress || 'unknown'}</div>
                     <div className="flex items-center gap-1 truncate max-w-[150px]"><Terminal size={10} /> {log.userAgent || 'unknown'}</div>
                 </div>
@@ -187,7 +187,7 @@ export default function AuditLogsPage() {
             cell: (log) => (
                 <div className="text-xs text-slate-500 font-medium">
                     <div className="flex items-center gap-1"><Calendar size={12} className="text-slate-300" /> {new Date(log.createdAt).toLocaleDateString()}</div>
-                    <div className="text-[10px] ml-4">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                    <div className="text-tiny ml-4">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
                 </div>
             )
         }

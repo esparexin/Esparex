@@ -179,11 +179,11 @@ export default function CategoriesTab() {
                         header: "Screen Sizes",
                         cell: (category) =>
                             category.hasScreenSizes ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-tiny font-semibold text-blue-700">
                                     <Monitor size={11} aria-hidden="true" focusable="false" /> Yes
                                 </span>
                             ) : (
-                                <span className="text-[11px] text-slate-400">—</span>
+                                <span className="text-tiny text-slate-400">—</span>
                             ),
                     },
                     {
@@ -249,14 +249,14 @@ export default function CategoriesTab() {
                             />
 
                             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">URL Slug</p>
+                                <p className="text-tiny font-medium uppercase tracking-wider text-slate-400">URL Slug</p>
                                 <p className="mt-0.5 font-mono text-sm text-slate-700 break-all">
                                     {isEditing && formData._editingSlug
                                         ? formData._editingSlug
                                         : deriveSlug(formData.name) || "auto-generated from name"}
                                 </p>
                                 {isEditing && (
-                                    <p className="mt-1 text-[11px] text-amber-600">
+                                    <p className="mt-1 text-tiny text-amber-600">
                                         ⚠ Slug is fixed on create. Changing name will not change the slug.
                                     </p>
                                 )}

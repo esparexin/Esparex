@@ -156,7 +156,7 @@ export default function AdminSessionsPage() {
                                 They will need to log in again to regain access.
                             </p>
                             {revokingSession && (
-                                <div className="mt-3 text-[10px] font-mono text-amber-700 bg-amber-100/50 p-2 rounded border border-amber-200">
+                                <div className="mt-3 text-tiny font-mono text-amber-700 bg-amber-100/50 p-2 rounded border border-amber-200">
                                     IP: {revokingSession.ip || "Unknown"} <br/>
                                     ID: {revokingSession.id}
                                 </div>

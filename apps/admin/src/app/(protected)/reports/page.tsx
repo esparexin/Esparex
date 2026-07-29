@@ -95,7 +95,7 @@ export default function ReportsPage() {
                 cell: (item) => (
                     <div className="space-y-1">
                         <div className="font-semibold text-slate-900">{item.ad?.title || "Unknown listing"}</div>
-                        <div className="text-[10px] font-mono text-slate-400">{item.id}</div>
+                        <div className="text-tiny font-mono text-slate-400">{item.id}</div>
                     </div>
                 ),
             },
@@ -105,7 +105,7 @@ export default function ReportsPage() {
                     <div className="space-y-1">
                         <div className="text-sm font-medium text-slate-700">{item.reason}</div>
                         {item.isAutoHidden ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-tiny font-semibold text-amber-700">
                                 <ShieldAlert size={10} /> Auto-hidden
                             </span>
                         ) : null}
@@ -116,7 +116,7 @@ export default function ReportsPage() {
                 header: "Status",
                 cell: (item) => (
                     <div className="space-y-1">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700">
+                        <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-tiny font-bold uppercase tracking-[0.12em] text-slate-700">
                             {item.status}
                         </span>
                         <div className="text-xs text-slate-400">{item.reportCount} reports</div>

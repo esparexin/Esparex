@@ -46,7 +46,7 @@ export function AdsColumnVisibilityMenu({
 
             {showColumnMenu && (
                 <div className="absolute right-0 top-full z-40 mt-2 min-w-[200px] rounded-xl border border-slate-200 bg-white p-2 shadow-xl animate-in fade-in zoom-in duration-200">
-                    <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <div className="px-2 py-1.5 text-tiny font-bold uppercase tracking-wider text-slate-400">
                         Toggle Columns
                     </div>
                     <div className="max-h-[300px] overflow-y-auto custom-scrollbar">

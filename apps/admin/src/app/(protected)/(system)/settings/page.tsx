@@ -146,7 +146,7 @@ export default function SettingsPage() {
       ) : (
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
           <aside className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm h-fit">
-            <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-3 text-[10px] leading-relaxed text-slate-600 mb-4">
+            <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-3 text-tiny leading-relaxed text-slate-600 mb-4">
               Runtime sections match the live system contract. Experimental flags are excluded.
             </div>
             <nav className="space-y-1">

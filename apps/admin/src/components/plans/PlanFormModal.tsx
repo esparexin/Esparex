@@ -250,7 +250,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                     onChange={(e) => setValue("code", e.target.value.toUpperCase(), { shouldValidate: true })}
                                     disabled={isEdit}
                                 />
-                                {isEdit && <p className="mt-1 text-[10px] text-slate-400">Code cannot be changed after creation.</p>}
+                                {isEdit && <p className="mt-1 text-tiny text-slate-400">Code cannot be changed after creation.</p>}
                                 <FieldError message={errors.code?.message} />
                             </div>
                             <div>
@@ -332,7 +332,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                                     <div>
                                         <label className={labelCls}>Spotlight Credits</label>
                                         <input type="number" min={1} {...register("spotlightCredits", { valueAsNumber: true })} className={inputCls} />
-                                        <p className="mt-1 text-[10px] text-slate-400">1 credit = 1 ad featured for the duration</p>
+                                        <p className="mt-1 text-tiny text-slate-400">1 credit = 1 ad featured for the duration</p>
                                     </div>
                                     <div>
                                         <label className={labelCls}>Priority Weight</label>

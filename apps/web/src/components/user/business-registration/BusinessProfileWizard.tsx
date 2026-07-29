@@ -184,7 +184,7 @@ export function BusinessProfileWizard({
                                 idx === safeCurrentStep ? "text-blue-600 font-bold" : "text-slate-400"
                             }`}
                         >
-                            <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${
+                            <span className={`flex h-5 w-5 items-center justify-center rounded-full text-tiny ${
                                 idx === safeCurrentStep ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-600"
                             }`}>
                                 {idx + 1}

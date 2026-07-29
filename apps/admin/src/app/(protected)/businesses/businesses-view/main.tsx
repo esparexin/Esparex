@@ -80,7 +80,7 @@ export default function BusinessesView() {
                     {overviewCards.map(({ label, value, color }) => (
                         <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 shadow-sm">
                             <ChartBar size={16} className="text-slate-300" />
-                            <div><div className={`text-lg font-bold ${color}`}>{value}</div><div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">{label}</div></div>
+                            <div><div className={`text-lg font-bold ${color}`}>{value}</div><div className="text-tiny text-slate-400 font-semibold uppercase tracking-wider">{label}</div></div>
                         </div>
                     ))}
                 </div>

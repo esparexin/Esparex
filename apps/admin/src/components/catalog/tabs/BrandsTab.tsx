@@ -199,7 +199,7 @@ export default function BrandsTab() {
                         cell: (brand) => {
                             if (brand.isDeleted) {
                                 return (
-                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-200 text-slate-700">
+                                    <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-tiny font-bold uppercase tracking-wider bg-slate-200 text-slate-700">
                                         Deleted
                                     </span>
                                );

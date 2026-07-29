@@ -159,7 +159,7 @@ export function AdsTable({
                             {getListingPriceSummary(item)}
                         </span>
                         {item.listingType && item.listingType !== "ad" && (
-                            <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+                            <span className={`text-tiny font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
                                 item.listingType === "service"
                                     ? "bg-blue-100 text-blue-700"
                                     : "bg-violet-100 text-violet-700"
@@ -168,7 +168,7 @@ export function AdsTable({
                             </span>
                         )}
                     </div>
-                    <div className="text-[11px] text-slate-400 truncate">
+                    <div className="text-tiny text-slate-400 truncate">
                         {item.categoryName || "-"} / {item.brandName || "-"} / {item.modelName || "-"}
                     </div>
                 </div>
@@ -181,7 +181,7 @@ export function AdsTable({
                 <div className="space-y-0.5 text-xs text-slate-700 min-w-[130px]">
                     <div className="font-semibold text-slate-900 truncate">{item.sellerName || "Unknown"}</div>
                     <div>{item.sellerPhone || "—"}</div>
-                    <div className="text-slate-400 text-[10px] truncate max-w-[120px]">{item.sellerId || "-"}</div>
+                    <div className="text-slate-400 text-tiny truncate max-w-[120px]">{item.sellerId || "-"}</div>
                 </div>
             )
         },
@@ -196,7 +196,7 @@ export function AdsTable({
                             <MapPin size={14} className="mt-0.5 shrink-0" />
                             <span className="line-clamp-2">{item.locationLabel || "Unknown location"}</span>
                         </div>
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${geo.color}`}>
+                        <span className={`text-tiny font-bold uppercase tracking-wider ${geo.color}`}>
                             {geo.label}
                         </span>
                     </div>
@@ -222,17 +222,17 @@ export function AdsTable({
                 <div className="space-y-1.5 min-w-[80px]">
                     <div className="flex items-center gap-1">
                         <ShieldAlert size={11} className="text-slate-400 shrink-0" />
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${riskColor(item.fraudScore)}`}>
+                        <span className={`text-tiny font-bold px-1.5 py-0.5 rounded ${riskColor(item.fraudScore)}`}>
                             F {item.fraudScore}
                         </span>
                     </div>
                     {item.riskScore != null && (
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${riskColor(item.riskScore)}`}>
+                        <span className={`text-tiny font-bold px-1.5 py-0.5 rounded ${riskColor(item.riskScore)}`}>
                             R {item.riskScore}
                         </span>
                     )}
                     {item.reportCount > 0 && (
-                        <span className="text-[10px] text-slate-500 font-medium">
+                        <span className="text-tiny text-slate-500 font-medium">
                             {item.reportCount} report{item.reportCount !== 1 ? "s" : ""}
                         </span>
                     )}

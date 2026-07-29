@@ -69,7 +69,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                 >
                     <FileText size={28} className="text-primary" />
                     <span className="mt-3 text-xs font-semibold text-slate-700">Open PDF document</span>
-                    <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                    <span className="mt-1 inline-flex items-center gap-1 text-tiny font-medium text-primary">
                         <ExternalLink size={12} /> View full file
                     </span>
                 </a>
@@ -123,7 +123,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <div className="flex items-center gap-2 flex-wrap">
                                 <DialogTitle className="text-xl font-bold text-slate-900 leading-tight">{business.name}</DialogTitle>
                                 {trustScore < 30 && (
-                                    <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase border border-red-200 shrink-0">Low Trust</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-tiny font-bold uppercase border border-red-200 shrink-0">Low Trust</span>
                                 )}
                                 {/* Trust Score inline on mobile */}
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreBg} ${scoreColor} shrink-0`}>
@@ -135,7 +135,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 <span className="capitalize font-medium">{business.status === 'live' ? 'Approved' : business.status}</span>
                                 {' • '}Submitted {format(new Date(business.createdAt), "PP")}
                                 {business.isDeleted && (
-                                    <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100 text-[10px]">
+                                    <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded border border-red-100 text-tiny">
                                         <XCircle size={9} /> DELETED
                                     </span>
                                 )}
@@ -157,7 +157,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     {/* Basic Info Grid — single row, each card full-width on mobile */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Contact</div>
+                            <div className="text-tiny font-bold text-slate-400 uppercase tracking-widest mb-2">Contact</div>
                             <div className="space-y-1.5">
                                 <div className="flex items-center gap-2 text-sm text-slate-700 min-w-0">
                                     <Mail size={13} className="text-primary shrink-0" />
@@ -177,17 +177,17 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </div>
 
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Identifiers</div>
+                            <div className="text-tiny font-bold text-slate-400 uppercase tracking-widest mb-2">Identifiers</div>
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between gap-2">
                                     <span className="text-xs text-slate-600">GST</span>
-                                    <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
+                                    <span className="font-mono text-tiny bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
                                         {business.gstNumber || 'N/A'}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-2">
                                     <span className="text-xs text-slate-600">Reg No</span>
-                                    <span className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
+                                    <span className="font-mono text-tiny bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
                                         {business.registrationNumber || 'N/A'}
                                     </span>
                                 </div>
@@ -195,7 +195,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </div>
 
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Location</div>
+                            <div className="text-tiny font-bold text-slate-400 uppercase tracking-widest mb-2">Location</div>
                             <div className="flex gap-2">
                                 <MapPin size={13} className="text-primary shrink-0 mt-0.5" />
                                 <span className="text-xs text-slate-700 leading-snug">
@@ -227,11 +227,11 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                     <div className="min-w-0">
                                         <span className="text-xs font-bold uppercase text-slate-700">ID Proof</span>
                                         {idProofTypeLabel ? (
-                                            <p className="mt-1 text-[11px] font-medium text-slate-500">{idProofTypeLabel}</p>
+                                            <p className="mt-1 text-tiny font-medium text-slate-500">{idProofTypeLabel}</p>
                                         ) : null}
                                     </div>
                                     {groupedDocs.id_proof.length > 0 && (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.id_proof[0]?.version}</span>
+                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.id_proof[0]?.version}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
@@ -248,7 +248,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
                                     <span className="text-xs font-bold text-slate-700 uppercase">Business Proof</span>
                                     {groupedDocs.business_proof.length > 0 && (
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.business_proof[0]?.version}</span>
+                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.business_proof[0]?.version}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">

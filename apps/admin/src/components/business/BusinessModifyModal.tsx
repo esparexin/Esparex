@@ -146,7 +146,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
 
     const field = (key: FormTextKey, label: string, opts?: { type?: string; rows?: number }) => (
         <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
+            <label className="block text-tiny font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</label>
             {opts?.rows ? (
                 <textarea
                     className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
@@ -284,7 +284,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                 <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
                     {/* Core Info */}
                     <section className="space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Business Info</p>
+                        <p className="text-tiny font-bold text-slate-400 uppercase tracking-widest">Business Info</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {field("name", "Business Name *")}
                             {field("mobile", "Mobile Number")}
@@ -298,7 +298,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
 
                     {/* Location */}
                     <section className="space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between gap-1.5">
+                        <p className="text-tiny font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between gap-1.5">
                             <span className="flex items-center gap-1.5"><MapPin size={12} /> Location</span>
                             <button
                                 type="button"
@@ -356,7 +356,7 @@ export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessMo
                                             <p className="text-sm font-semibold text-slate-900">
                                                 {formatLocationLabel(location)}
                                             </p>
-                                            <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500">
+                                            <p className="mt-1 text-tiny uppercase tracking-wide text-slate-500">
                                                 {location.level}
                                             </p>
                                         </button>

@@ -89,7 +89,7 @@ export function CategoryAssignmentField({
                                     )}
                                 >
                                     {option.name}
-                                    {option.hint ? <span className="ml-1 text-[10px] opacity-70">{option.hint}</span> : null}
+                                    {option.hint ? <span className="ml-1 text-tiny opacity-70">{option.hint}</span> : null}
                                 </span>
                             </label>
                         );

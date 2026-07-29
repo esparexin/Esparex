@@ -329,7 +329,7 @@ export default function LocationSelector({
                                     ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
                                         <>
                                             <span className="truncate w-full font-semibold text-foreground">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                            <span className="text-[10px] text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                            <span className="text-tiny text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
                                         </>
                                     ) : (
                                         <span className="truncate w-full">Detect My Location</span>
@@ -339,7 +339,7 @@ export default function LocationSelector({
                         </Button>
                         {searchApi.detectFeedback && !searchApi.isDetecting && (
                             <div className="px-2 py-1 bg-destructive/5 rounded-lg border border-destructive/10 mt-1">
-                                <p className="text-[10px] font-medium text-destructive">{searchApi.detectFeedback}</p>
+                                <p className="text-tiny font-medium text-destructive">{searchApi.detectFeedback}</p>
                             </div>
                         )}
                     </div>

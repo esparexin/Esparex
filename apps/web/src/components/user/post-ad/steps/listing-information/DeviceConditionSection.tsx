@@ -32,7 +32,7 @@ export function DeviceConditionSection() {
         <div className="space-y-4">
             {categoryId && (
                 <section className="space-y-2">
-                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Working Spare Parts</label>
+                    <label className="text-tiny font-bold text-slate-400 uppercase tracking-wider block">Working Spare Parts</label>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-4 gap-2">
                             {Array.from({ length: 8 }).map((_, i) => (

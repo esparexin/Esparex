@@ -67,7 +67,7 @@ export function ViewAdModal({
             >
                 <div className="flex items-center justify-between shrink-0 border-b border-slate-100 px-6 py-4">
                     <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">Moderation</p>
+                        <p className="text-tiny font-semibold uppercase tracking-widest text-slate-400">Moderation</p>
                         <DialogTitle className="text-lg font-bold text-slate-900 mt-0.5">{presentation.modalTitle}</DialogTitle>
                     </div>
                     <button
@@ -134,10 +134,10 @@ export function ViewAdModal({
                                         {getListingPriceSummary(ad)}
                                     </div>
                                     <div className="text-sm text-slate-600">{new Date(ad.createdAt).toLocaleString()}</div>
-                                    <div className="text-[11px] text-slate-400 mt-1">
+                                    <div className="text-tiny text-slate-400 mt-1">
                                         Modified: {ad.updatedAt ? new Date(ad.updatedAt).toLocaleString() : "N/A"}
                                         {ad.isDeleted && (
-                                            <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1 py-0.5 rounded border border-red-100 uppercase text-[9px]">
+                                            <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1 py-0.5 rounded border border-red-100 uppercase text-tiny">
                                                 Deleted
                                             </span>
                                         )}

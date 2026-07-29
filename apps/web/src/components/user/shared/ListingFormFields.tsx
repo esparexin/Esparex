@@ -120,7 +120,7 @@ export function ListingImagesField({
                                                 e.stopPropagation();
                                                 onSetMain(index);
                                             }}
-                                            className="w-full py-1 text-[10px] font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation"
+                                            className="w-full py-1 text-tiny font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation"
                                         >
                                             Set Main
                                         </button>
@@ -128,7 +128,7 @@ export function ListingImagesField({
                                 </div>
 
                                 {index === 0 && (
-                                    <span className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-[10px] font-bold text-white uppercase tracking-wider pointer-events-none shadow-xs">
+                                    <span className="absolute bottom-0 left-0 right-0 bg-primary/95 py-0.5 text-center text-tiny font-bold text-white uppercase tracking-wider pointer-events-none shadow-xs">
                                         {firstImageBadgeLabel}
                                     </span>
                                 )}
@@ -372,7 +372,7 @@ export function CategorySelectorGrid({
                     >
                         <Icon className={cn("w-5 h-5 sm:w-6 sm:h-6 transition-colors", selected ? "text-blue-600 stroke-[2.2]" : "text-slate-400 group-hover:text-blue-600")} />
                         <span className={cn(
-                            "text-[11px] sm:text-xs font-semibold text-center leading-tight tracking-tight w-full px-0.5",
+                            "text-tiny sm:text-xs font-semibold text-center leading-tight tracking-tight w-full px-0.5",
                             selected ? "text-blue-950 font-bold" : "text-slate-700 group-hover:text-slate-900 line-clamp-2"
                         )}>
                             {cat.name}

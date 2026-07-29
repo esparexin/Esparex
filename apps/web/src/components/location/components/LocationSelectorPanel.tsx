@@ -40,7 +40,7 @@ export function LocationSelectorPanel({
                 <div className="mb-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground">Choose location</p>
-                        <p className="text-[11px] text-muted-foreground">Use GPS or search by city and state.</p>
+                        <p className="text-tiny text-muted-foreground">Use GPS or search by city and state.</p>
                     </div>
                     {onClose ? (
                         <Button
@@ -80,7 +80,7 @@ export function LocationSelectorPanel({
                                 ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
                                     <>
                                         <span className="truncate w-full font-semibold">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                        <span className="text-[10px] text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                        <span className="text-tiny text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
                                     </>
                                 ) : (
                                     <span className="truncate w-full">Detect My Location</span>
@@ -93,7 +93,7 @@ export function LocationSelectorPanel({
                         <div className="rounded-lg border border-destructive/10 bg-destructive/5 px-3 py-2">
                             <div className="flex items-start gap-2">
                                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
-                                <p className="text-[11px] font-medium leading-4 text-destructive">{detectFeedback}</p>
+                                <p className="text-tiny font-medium leading-4 text-destructive">{detectFeedback}</p>
                             </div>
                         </div>
                     )}

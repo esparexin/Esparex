@@ -56,7 +56,7 @@ export function NotificationHistory({
                     <div className="font-bold text-slate-900 truncate">{log.title}</div>
                     <div className="text-xs text-slate-500 line-clamp-2">{log.body}</div>
                     {log.actionUrl ? (
-                        <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-600">
+                        <div className="mt-2 inline-flex max-w-full items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-tiny font-medium text-slate-600">
                             <LinkIcon size={10} />
                             <span className="truncate">{log.actionUrl}</span>
                         </div>
@@ -72,7 +72,7 @@ export function NotificationHistory({
                     <div>
                         <div className="text-xs font-semibold text-slate-700">{getTargetLabel(log.targetType, log.targetValue)}</div>
                         {log.targetType === "users" && log.userIds?.length ? (
-                            <div className="text-[10px] text-slate-400">{log.userIds.length} users</div>
+                            <div className="text-tiny text-slate-400">{log.userIds.length} users</div>
                         ) : null}
                     </div>
                 </div>
@@ -98,7 +98,7 @@ export function NotificationHistory({
             header: "Status",
             cell: (log) => (
                 <span
-                    className={`rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                    className={`rounded px-2 py-1 text-tiny font-bold uppercase tracking-wider ${
                         log.status === "sent"
                             ? "bg-emerald-100 text-emerald-700"
                             : log.status === "failed"
@@ -115,7 +115,7 @@ export function NotificationHistory({
             cell: (log) => (
                 <div className="text-xs text-slate-500">
                     <div>{new Date(log.createdAt).toLocaleDateString()}</div>
-                    <div className="text-[10px] text-slate-400">
+                    <div className="text-tiny text-slate-400">
                         {log.status === "scheduled" ? "Scheduled" : "Sent"}{" "}
                         {new Date(log.sendAt || log.createdAt).toLocaleTimeString([], {
                             hour: "2-digit",
