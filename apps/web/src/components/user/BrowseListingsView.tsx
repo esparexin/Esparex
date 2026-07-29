@@ -3,6 +3,7 @@
 import { useLocationData } from "@/context/LocationContext";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { BrowseFiltersHeaderTrigger } from "@/components/user/BrowseFiltersBar";
+import { BrowseFilterSidebar } from "@/components/user/BrowseFilterSidebar";
 import {
   BrowseResultsPanel,
   type BrowseResultsContentProps,
@@ -147,6 +148,15 @@ export function BrowseListingsView<TItem, TFilters>({
         query={query}
         categoryName={categoryName}
         locationLabel={locationLabel}
+        sidebarNode={
+          <BrowseFilterSidebar
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+            onReset={handleReset}
+            activeFilterCount={activeFilterCount}
+          />
+        }
         filterNode={
           <BrowseFiltersHeaderTrigger
             {...sharedFilterProps}

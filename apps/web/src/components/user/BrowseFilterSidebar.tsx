@@ -1,0 +1,280 @@
+"use client";
+
+import { useState } from "react";
+import { SlidersHorizontal, ChevronDown, ChevronRight, RotateCcw } from "@/icons/IconRegistry";
+import { Button } from "@esparex/ui";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import type { Category } from "@/lib/api/user/categories";
+
+export interface BrowseFilterSidebarProps {
+  categories: Category[];
+  selectedCategory: string;
+  onCategoryChange: (categorySlugOrId: string) => void;
+  brandId?: string;
+  onBrandChange?: (brandId: string) => void;
+  minPrice?: number;
+  maxPrice?: number;
+  onPriceChange?: (min?: number, max?: number) => void;
+  sellerType?: "all" | "user" | "business";
+  onSellerTypeChange?: (sellerType: "all" | "user" | "business") => void;
+  deviceCondition?: string;
+  onDeviceConditionChange?: (condition: string) => void;
+  onReset: () => void;
+  activeFilterCount?: number;
+  className?: string;
+}
+
+export function BrowseFilterSidebar({
+  categories,
+  selectedCategory,
+  onCategoryChange,
+  sellerType = "all",
+  onSellerTypeChange,
+  deviceCondition,
+  onDeviceConditionChange,
+  minPrice,
+  maxPrice,
+  onPriceChange,
+  onReset,
+  activeFilterCount = 0,
+  className,
+}: BrowseFilterSidebarProps) {
+  const [minInput, setMinInput] = useState<string>(minPrice ? String(minPrice) : "");
+  const [maxInput, setMaxInput] = useState<string>(maxPrice ? String(maxPrice) : "");
+  const [categoryExpanded, setCategoryExpanded] = useState(true);
+  const [sellerTypeExpanded, setSellerTypeExpanded] = useState(true);
+  const [conditionExpanded, setConditionExpanded] = useState(true);
+  const [priceExpanded, setPriceExpanded] = useState(true);
+
+  const handleApplyPrice = () => {
+    const min = minInput ? Number.parseInt(minInput, 10) : undefined;
+    const max = maxInput ? Number.parseInt(maxInput, 10) : undefined;
+    if (onPriceChange) {
+      onPriceChange(min, max);
+    }
+  };
+
+  return (
+    <div
+      role="region"
+      aria-label="Filter listings"
+      className={cn(
+        "w-[260px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-5",
+        className
+      )}
+    >
+      {/* Header Bar */}
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal className="size-4 text-slate-700" />
+          <h2 className="text-base font-bold text-slate-900 tracking-tight">Filters</h2>
+          {activeFilterCount > 0 && (
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 text-xs font-bold text-white">
+              {activeFilterCount}
+            </span>
+          )}
+        </div>
+
+        {activeFilterCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            className="h-8 text-xs font-semibold text-slate-500 hover:text-red-600 px-2 gap-1"
+          >
+            <RotateCcw className="size-3" />
+            Clear
+          </Button>
+        )}
+      </div>
+
+      {/* 1. Category Tree Section */}
+      <div className="space-y-2 border-b border-slate-100 pb-4">
+        <button
+          type="button"
+          onClick={() => setCategoryExpanded(!categoryExpanded)}
+          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <span>Categories</span>
+          <ChevronDown
+            className={cn("size-4 transition-transform", !categoryExpanded && "-rotate-90")}
+          />
+        </button>
+
+        {categoryExpanded && (
+          <nav aria-label="Category Tree Navigation" className="pt-1 space-y-1">
+            <button
+              type="button"
+              onClick={() => onCategoryChange("all")}
+              className={cn(
+                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
+                !selectedCategory || selectedCategory === "all"
+                  ? "bg-slate-900 text-white font-semibold"
+                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+              )}
+            >
+              <span>All Categories</span>
+            </button>
+
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => onCategoryChange(cat.slug || cat.id)}
+                  className={cn(
+                    "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors pl-4",
+                    isSelected
+                      ? "bg-slate-900 text-white font-semibold"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  )}
+                >
+                  <span className="truncate">{cat.name}</span>
+                  {isSelected && <ChevronRight className="size-3 shrink-0" />}
+                </button>
+              );
+            })}
+          </nav>
+        )}
+      </div>
+
+      {/* 2. Price Range Section */}
+      <div className="space-y-3 border-b border-slate-100 pb-4">
+        <button
+          type="button"
+          onClick={() => setPriceExpanded(!priceExpanded)}
+          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <span>Price Range (₹)</span>
+          <ChevronDown
+            className={cn("size-4 transition-transform", !priceExpanded && "-rotate-90")}
+          />
+        </button>
+
+        {priceExpanded && (
+          <div className="space-y-3 pt-1">
+            <div className="flex items-center gap-2">
+              <div className="space-y-1 flex-1">
+                <Label htmlFor="sidebar-min-price" className="text-[11px] text-slate-500 font-medium">Min</Label>
+                <Input
+                  id="sidebar-min-price"
+                  type="number"
+                  placeholder="₹ Min"
+                  value={minInput}
+                  onChange={(e) => setMinInput(e.target.value)}
+                  className="h-9 text-xs rounded-lg border-slate-200"
+                />
+              </div>
+              <span className="text-slate-300 pt-4">-</span>
+              <div className="space-y-1 flex-1">
+                <Label htmlFor="sidebar-max-price" className="text-[11px] text-slate-500 font-medium">Max</Label>
+                <Input
+                  id="sidebar-max-price"
+                  type="number"
+                  placeholder="₹ Max"
+                  value={maxInput}
+                  onChange={(e) => setMaxInput(e.target.value)}
+                  className="h-9 text-xs rounded-lg border-slate-200"
+                />
+              </div>
+            </div>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleApplyPrice}
+              className="w-full h-8 text-xs font-semibold rounded-lg border-slate-200 bg-slate-50 hover:bg-slate-100"
+            >
+              Apply Price
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* 3. Seller Type Section */}
+      <div className="space-y-3 border-b border-slate-100 pb-4">
+        <button
+          type="button"
+          onClick={() => setSellerTypeExpanded(!sellerTypeExpanded)}
+          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <span>Seller Type</span>
+          <ChevronDown
+            className={cn("size-4 transition-transform", !sellerTypeExpanded && "-rotate-90")}
+          />
+        </button>
+
+        {sellerTypeExpanded && (
+          <div className="space-y-2 pt-1">
+            {[
+              { id: "all", label: "All Sellers" },
+              { id: "user", label: "Individual Users" },
+              { id: "business", label: "Verified Businesses" },
+            ].map((option) => (
+              <label
+                key={option.id}
+                className="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer hover:text-slate-900"
+              >
+                <input
+                  type="radio"
+                  name="sellerType"
+                  value={option.id}
+                  checked={sellerType === option.id}
+                  onChange={() => onSellerTypeChange?.(option.id as "all" | "user" | "business")}
+                  className="size-3.5 text-slate-900 border-slate-300 focus:ring-slate-400"
+                />
+                <span>{option.label}</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 4. Condition Section */}
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => setConditionExpanded(!conditionExpanded)}
+          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <span>Condition</span>
+          <ChevronDown
+            className={cn("size-4 transition-transform", !conditionExpanded && "-rotate-90")}
+          />
+        </button>
+
+        {conditionExpanded && (
+          <div className="space-y-2 pt-1">
+            {[
+              { id: "power_on", label: "Powers On (Working)" },
+              { id: "power_off", label: "Powers Off (Parts / Repair)" },
+            ].map((cond) => {
+              const isChecked = deviceCondition === cond.id;
+              return (
+                <div key={cond.id} className="flex items-center gap-2.5">
+                  <Checkbox
+                    id={`sidebar-cond-${cond.id}`}
+                    checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      onDeviceConditionChange?.(checked ? cond.id : "");
+                    }}
+                  />
+                  <Label
+                    htmlFor={`sidebar-cond-${cond.id}`}
+                    className="text-xs font-medium text-slate-700 cursor-pointer hover:text-slate-900"
+                  >
+                    {cond.label}
+                  </Label>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
