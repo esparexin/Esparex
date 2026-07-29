@@ -1,6 +1,11 @@
+import dns from 'node:dns';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+// Force Node.js to prioritize IPv4 addresses over NAT64 IPv6 synthesis (64:ff9b::)
+// to prevent Next.js image proxy from rejecting AWS S3 upstream IP addresses as private.
+dns.setDefaultResultOrder('ipv4first');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -7,10 +7,8 @@ import {
   AlertCircle,
   ArrowUpDown,
   ChevronDown,
-  Clock,
   Grid3x3,
   List,
-  MapPin,
 } from "@/icons/IconRegistry";
 
 import { unsaveAd } from "@/lib/api/user/users";
@@ -21,12 +19,7 @@ import { notify } from "@/lib/feedback";
 import type { Ad } from "@/schemas/ad.schema";
 import { queryKeys } from "@/hooks/queries/queryKeys";
 import { useSavedAdsQuery } from "@/hooks/queries/useListingsQuery";
-import { formatPrice, formatStableDate } from "@/lib/formatters";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
-import {
-  resolveListingCategoryLabel,
-  resolveListingLocationLabel,
-} from "@/lib/listings/listingPresentation";
 
 import { Button } from "@esparex/ui";
 import { Card, CardContent } from "../ui/card";
@@ -40,10 +33,7 @@ import { EmptyStateShell as StateEmptyShell } from "../ui/EmptyStateShell";
 import { PageStateGuard, PageState } from "../ui/PageStateGuard";
 import { Skeleton } from "../ui/skeleton";
 
-import {
-  SavedAdImageFrame,
-  SavedAdTypeBadge,
-} from "./saved-ads/SavedAdCardItems";
+import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import {
   useSavedAdsSort,
   SORT_LABELS,
@@ -64,18 +54,6 @@ const getDetailUrl = (ad: Ad): string => {
     seoSlug: ad.seoSlug,
     title: ad.title,
   });
-};
-
-const getListingTypeLabel = (ad: Ad): string => {
-  switch (ad.listingType) {
-    case "service":    return "Service";
-    case "spare_part": return "Spare Part";
-    default:           return getCategoryLabelRaw(ad);
-  }
-};
-
-const getCategoryLabelRaw = (ad: Ad): string => {
-  return resolveListingCategoryLabel(ad, "General");
 };
 
 export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
@@ -108,8 +86,6 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
     },
   });
 
-  const getCategoryLabel = useCallback((ad: Ad) => getListingTypeLabel(ad), []);
-
   const handleUnsave = useCallback((adId: string | number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (unsaveMutation.isPending) return;
@@ -130,105 +106,33 @@ export function SavedAds({ navigateTo: _navigateTo }: SavedAdsProps) {
 
   // ── Ad card renderers ────────────────────────────────────────────────────────
 
-  const renderGridCard = useCallback((ad: SavedAd, unavailable = false) => (
-    <Card
-      key={ad.id}
-      className={`overflow-hidden rounded-xl border border-black transition-all duration-300 ${
-        unavailable
-          ? "opacity-60 cursor-default"
-          : "hover:shadow-2xl hover:-translate-y-1 cursor-pointer group"
-      }`}
-      onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
-    >
-      <SavedAdImageFrame
+  const renderGridCard = useCallback(
+    (ad: SavedAd, unavailable = false) => (
+      <AdCardGrid
+        key={ad.id}
         ad={ad}
-        unavailable={unavailable}
-        containerClassName="relative aspect-square bg-gray-100 overflow-hidden"
-        imageClassName={`object-cover ${unavailable ? "" : "group-hover:scale-105 transition-transform duration-300"}`}
-        imageSizes="(max-width: 768px) 50vw, 33vw"
-        removeButtonClassName={`absolute top-2 right-2 h-11 w-11 rounded-full hover:bg-white hover:scale-110 transition-all ${
-          unavailable ? "bg-red-50 border border-red-200" : ""
-        }`}
-        removeIconClassName="h-3.5 w-3.5"
-        onRemove={(e) => handleUnsave(ad.id, e)}
+        isSaved={true}
+        onToggleSave={(adId, e) => handleUnsave(adId, e)}
+        href={unavailable ? undefined : getDetailUrl(ad)}
+        className={unavailable ? "opacity-60 cursor-default" : undefined}
       />
+    ),
+    [handleUnsave]
+  );
 
-      <CardContent className="p-3 space-y-1.5">
-        <h3 className={`font-medium line-clamp-2 text-sm leading-tight ${unavailable ? "text-foreground-subtle" : ""}`}>
-          {ad.title}
-        </h3>
-        <div className={`text-base md:text-lg font-bold ${unavailable ? "text-foreground-subtle" : "text-link"}`}>
-          {formatPrice(ad.price)}
-        </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="h-3 w-3 flex-shrink-0" />
-          <span className="truncate">{resolveListingLocationLabel(ad.location, "brief")}</span>
-        </div>
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1.5 border-t">
-          <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} />
-          <div className="flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {ad._savedAt
-              ? `Saved ${formatStableDate(ad._savedAt)}`
-              : formatStableDate(ad.createdAt)}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  ), [router, handleUnsave, getCategoryLabel]);
-
-  const renderListCard = useCallback((ad: SavedAd, unavailable = false) => (
-    <Card
-      key={ad.id}
-      className={`overflow-hidden rounded-xl border border-slate-200/80 transition-all ${
-        unavailable ? "opacity-60 cursor-default" : "hover:shadow-xl cursor-pointer"
-      }`}
-      onClick={unavailable ? undefined : () => router.push(getDetailUrl(ad))}
-    >
-      <CardContent className="p-0">
-        <div className="flex gap-2 md:gap-4">
-          <SavedAdImageFrame
-            ad={ad}
-            unavailable={unavailable}
-            containerClassName="relative w-24 sm:w-32 md:w-48 h-24 sm:h-28 md:h-36 flex-shrink-0 bg-gray-100 overflow-hidden"
-            imageClassName="object-cover"
-            imageSizes="(max-width: 640px) 100px, (max-width: 768px) 150px, 200px"
-            removeButtonClassName={`absolute top-1 right-1 md:top-2 md:right-2 h-11 w-11 rounded-full hover:bg-white ${
-              unavailable ? "bg-red-50 border border-red-200" : ""
-            }`}
-            removeIconClassName="h-3 w-3 md:h-3.5 md:w-3.5"
-            onRemove={(e) => handleUnsave(ad.id, e)}
-          />
-
-          <div className="flex-1 py-2 pr-2 md:py-4 md:pr-4 min-w-0">
-            <div className="flex flex-col gap-1.5 md:gap-2 mb-1.5 md:mb-2">
-              <SavedAdTypeBadge label={getCategoryLabel(ad)} unavailable={unavailable} className="w-fit" />
-              <div className={`text-base md:text-xl font-bold ${unavailable ? "text-foreground-subtle" : "text-link"}`}>
-                {formatPrice(ad.price)}
-              </div>
-              <h3 className={`font-medium line-clamp-2 text-xs md:text-sm leading-tight ${unavailable ? "text-foreground-subtle" : ""}`}>
-                {ad.title}
-              </h3>
-            </div>
-            <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-1 md:gap-4 text-2xs md:text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                <span className="truncate">{resolveListingLocationLabel(ad.location, "brief")}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
-                <span className="truncate">
-                  {ad._savedAt
-                    ? `Saved ${formatStableDate(ad._savedAt)}`
-                    : formatStableDate(ad.createdAt)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  ), [router, handleUnsave, getCategoryLabel]);
+  const renderListCard = useCallback(
+    (ad: SavedAd, unavailable = false) => (
+      <AdCardList
+        key={ad.id}
+        ad={ad}
+        isSaved={true}
+        onToggleSave={(adId, e) => handleUnsave(adId, e)}
+        href={unavailable ? undefined : getDetailUrl(ad)}
+        className={unavailable ? "opacity-60 cursor-default" : undefined}
+      />
+    ),
+    [handleUnsave]
+  );
 
   const renderListingCollection = useCallback((adsToRender: Ad[], unavailable: boolean) => {
     if (viewMode === "grid") {
