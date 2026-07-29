@@ -1,13 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { CircuitBoard } from "@/icons/IconRegistry";
-
-import { BrowseListingCard } from "@/components/user/BrowseListingCard";
+import { AdCardGrid, AdCardList } from "@/components/user/ad-card";
 import { type Listing as SparePartListing } from "@/lib/api/user/listings";
-import { formatPrice } from "@/lib/formatters";
-import { toSafeImageSrc } from "@/lib/image/imageUrl";
-import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 
 export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
@@ -19,28 +14,16 @@ export const BrowseSparePartsCard = memo(function BrowseSparePartsCard({
   view?: "grid" | "list";
   priority?: boolean;
 }) {
-  const imageUrl = toSafeImageSrc(listing.images?.[0], "");
-  const location = resolveListingLocationLabel(listing.location, "brief");
+  const href = buildPublicListingDetailRoute({
+    id: listing.id,
+    listingType: "spare_part",
+    seoSlug: listing.seoSlug,
+    title: listing.title,
+  });
 
-  return (
-    <BrowseListingCard
-      href={buildPublicListingDetailRoute({
-        id: listing.id,
-        listingType: "spare_part",
-        seoSlug: listing.seoSlug,
-        title: listing.title,
-      })}
-      imageUrl={imageUrl}
-      title={listing.title}
-      priceLabel={formatPrice(listing.price)}
-      priceClassName="text-teal-700"
-      badgeLabel="SPARE PART"
-      badgeClassName="bg-teal-600 text-white"
-      view={view}
-      location={location}
-      createdAt={listing.createdAt}
-      fallbackIcon={CircuitBoard}
-      priority={priority}
-    />
-  );
+  if (view === "list") {
+    return <AdCardList ad={listing} href={href} priority={priority} />;
+  }
+
+  return <AdCardGrid ad={listing} href={href} priority={priority} />;
 });
