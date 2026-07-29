@@ -182,8 +182,9 @@ export function resolveDeviceCondition(
 
 export function formatCompactCardDate(dateStr: string | undefined): string {
   if (!dateStr) return "Just now";
-  // Remove current year (2026) to save 35px on narrow mobile cards
-  return dateStr.replace(/\s*2026\s*/g, "").trim() || dateStr;
+  const currentYear = new Date().getFullYear().toString();
+  const yearRegex = new RegExp(`\\s*${currentYear}\\s*`, "g");
+  return dateStr.replace(yearRegex, "").trim() || dateStr;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -360,21 +361,14 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider leading-none px-1.5 py-0.5 rounded-full border",
+        "inline-flex items-center text-[9px] font-bold uppercase tracking-wider leading-none px-1.5 py-0.5 rounded border select-none shadow-2xs",
         isPowerOn
-          ? "bg-emerald-50/90 text-emerald-700 border-emerald-200/80"
-          : "bg-red-50/90 text-red-700 border-red-200/80",
+          ? "bg-emerald-600 text-white border-emerald-600"
+          : "bg-red-600 text-white border-red-600",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
     >
-      <span
-        className={cn(
-          "h-1.5 w-1.5 rounded-full shrink-0",
-          isPowerOn ? "bg-emerald-500" : "bg-red-500"
-        )}
-        aria-hidden="true"
-      />
       {isPowerOn ? "Power On" : "Power Off"}
     </span>
   );

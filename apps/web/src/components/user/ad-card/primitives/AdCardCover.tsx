@@ -27,12 +27,15 @@ export const AdCardCover = memo(function AdCardCover({
   children,
 }: AdCardCoverProps) {
   const adRecord = ad as Record<string, unknown>;
+  const status =
+    typeof adRecord?.status === "string" ? adRecord.status.toLowerCase() : "";
   const isSold =
-    typeof customStatus === "string" &&
-    customStatus.toLowerCase().includes("sold");
+    status === "sold" ||
+    (typeof customStatus === "string" &&
+      customStatus.toLowerCase().includes("sold"));
 
-  // Resolve promotion badge once — never call twice
-  const planBadge = getPlanBadge(ad);
+  // Resolve promotion badge once — hide on sold items per business rules
+  const planBadge = isSold ? null : getPlanBadge(ad);
 
   // Business verification badge
   const showVerifiedBadge =

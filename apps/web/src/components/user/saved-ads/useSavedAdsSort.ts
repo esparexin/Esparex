@@ -4,7 +4,21 @@ import { useCallback, useMemo, useState } from "react";
 import type { SavedAd } from "@/lib/api/user/users";
 import type { Ad } from "@/schemas/ad.schema";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
-import { isUnavailable } from "./SavedAdCardItems";
+
+export const UNAVAILABLE_STATUSES = new Set(["deactivated", "rejected", "expired", "deleted"]);
+
+export const isUnavailable = (ad: Ad) => UNAVAILABLE_STATUSES.has(ad.status ?? "");
+
+export const getUnavailableLabel = (status: string): string => {
+  switch (status) {
+    case "deactivated": return "Deactivated";
+    case "expired":     return "Expired";
+    case "sold":        return "Sold";
+    case "rejected":    return "Removed";
+    case "deleted":     return "Deleted";
+    default:            return "Unavailable";
+  }
+};
 
 export type SortOption = "newest" | "oldest" | "price-low" | "price-high" | "location";
 

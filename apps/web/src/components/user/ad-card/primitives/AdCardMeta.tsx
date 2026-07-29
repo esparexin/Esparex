@@ -8,7 +8,6 @@ import { cn } from "@/components/ui/utils";
 import {
   type AdCardData,
   getConditionBadge,
-  formatCompactCardDate,
 } from "../shared";
 
 /* -------------------------------------------------------------------------- */
@@ -82,38 +81,32 @@ export const AdCardMeta = memo(function AdCardMeta({
       : formatPrice(ad.price);
   })();
 
-  const rawDate = "time" in ad ? (ad as { time: string }).time : undefined;
-  const compactDate = formatCompactCardDate(rawDate);
-
   return (
-    <div className={cn("flex flex-col gap-1", className)}>
-      {/* Title — Global Token "small" (13px / leading-normal = 1.5). Zero clipping! */}
-      <h3 className="font-semibold line-clamp-2 text-small leading-normal text-slate-800 tracking-tight mb-0.5">
-        {cleanTitle(ad.title)}
-      </h3>
-
-      {/* Price + Condition Row — ALWAYS text-green-600 for both numeric price and "Free" */}
-      <div className="flex items-center justify-between gap-1.5 min-h-[1.5rem]">
+    <div className={cn("flex flex-col justify-between gap-1.5", className)}>
+      {/* Price Row — Standalone bold green price display */}
+      <div className="flex items-center justify-between min-h-[1.25rem]">
         <span
           className={cn(
-            "font-bold tracking-tight text-green-600 text-body sm:text-h4",
+            "font-bold tracking-tight text-green-600 text-sm sm:text-base",
             isDashboard && "text-primary text-base"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >
           {priceDisplay}
         </span>
-
-        {/* Compact Condition Status Chip — dot indicator, lightweight */}
-        {!isDashboard && conditionBadge && (
-          <div className="shrink-0 ml-auto">{conditionBadge}</div>
-        )}
       </div>
 
-      {/* Location + Date Metadata Row — clean layout, no overlap, compact date */}
+      {/* Title — De-congested with leading-relaxed and equalized 2-line height container */}
+      <div className="min-h-[2.5rem] sm:min-h-[2.75rem] flex items-start">
+        <h3 className="font-medium line-clamp-2 text-xs sm:text-small leading-relaxed text-foreground-secondary tracking-tight">
+          {cleanTitle(ad.title)}
+        </h3>
+      </div>
+
+      {/* Location + Condition Badge (replaces Date) Metadata Row */}
       <div
         className={cn(
-          "flex items-center justify-between text-tiny text-slate-500 pt-1.5 mt-1 border-t border-slate-100 gap-2 min-w-0",
+          "flex items-center justify-between text-tiny text-foreground-tertiary pt-1.5 mt-0.5 border-t border-border/40 gap-2 min-w-0",
           isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}
@@ -121,7 +114,7 @@ export const AdCardMeta = memo(function AdCardMeta({
         {isDashboard ? (
           <>
             <div className="flex items-center gap-1 shrink-0">
-              <Clock className="h-3 w-3 text-slate-400 shrink-0" aria-hidden="true" />
+              <Clock className="h-3 w-3 text-foreground-subtle shrink-0" aria-hidden="true" />
               <span className="truncate text-tiny">
                 {"createdAt" in ad
                   ? formatStableDate(ad.createdAt as string)
@@ -129,40 +122,34 @@ export const AdCardMeta = memo(function AdCardMeta({
               </span>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-slate-500 text-tiny">
+              <span className="text-foreground-tertiary text-tiny">
                 {dashboardViews} views
               </span>
             </div>
           </>
         ) : (
           <>
-            {/* Location — truncated cleanly with flex-1 min-w-0 */}
+            {/* Location — clean display with flex-1 min-w-0 */}
             <div className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden">
               {locationLabel && (
                 <>
                   <MapPin
-                    className="h-3 w-3 shrink-0 text-slate-400"
+                    className="h-3 w-3 shrink-0 text-foreground-subtle"
                     aria-hidden="true"
                   />
-                  <span className="truncate font-medium text-tiny block shrink min-w-0">
+                  <span className="truncate font-medium text-tiny block shrink min-w-0 text-foreground-tertiary">
                     {locationLabel}
                   </span>
                 </>
               )}
             </div>
 
-            {/* Date — compact date without redundant year, shrink-0 ml-auto */}
-            <div className="flex items-center gap-1 shrink-0 ml-auto">
-              {!isList && (
-                <Clock
-                  className="h-3 w-3 shrink-0 text-slate-400"
-                  aria-hidden="true"
-                />
-              )}
-              <span className="whitespace-nowrap font-medium text-tiny text-slate-500">
-                {compactDate}
-              </span>
-            </div>
+            {/* Condition Badge (Power On / Power Off) — Date removed per specification */}
+            {!isDashboard && conditionBadge && (
+              <div className="shrink-0 ml-auto flex items-center">
+                {conditionBadge}
+              </div>
+            )}
           </>
         )}
       </div>

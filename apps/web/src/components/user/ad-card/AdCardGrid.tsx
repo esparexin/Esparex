@@ -32,6 +32,10 @@ function areAdCardGridPropsEqual(
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.ad.price === nextProps.ad.price &&
     prevProps.ad.title === nextProps.ad.title &&
+    prevProps.ad.isSpotlight === nextProps.ad.isSpotlight &&
+    (prevProps.ad as Record<string, unknown>).isFeatured === (nextProps.ad as Record<string, unknown>).isFeatured &&
+    (prevProps.ad as Record<string, unknown>).isPremium === (nextProps.ad as Record<string, unknown>).isPremium &&
+    (prevProps.ad as Record<string, unknown>).isBoosted === (nextProps.ad as Record<string, unknown>).isBoosted &&
     prevProps.isSaved === nextProps.isSaved &&
     prevProps.priority === nextProps.priority &&
     prevProps.href === nextProps.href &&
@@ -65,15 +69,28 @@ export const AdCardGrid = memo(function AdCardGrid({
       {/* article gives screen readers proper document structure for list items */}
       <article aria-label={ad.title}>
         <Card
+          tabIndex={useDeclarativeLink ? undefined : 0}
+          role={useDeclarativeLink ? undefined : "button"}
           className={cn(
             "overflow-hidden transition-all duration-300 group cursor-pointer",
             "border-border bg-white shadow-premium rounded-2xl",
             "hover:shadow-premium-hover hover:-translate-y-1.5",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             ad.isSpotlight &&
               "ring-2 ring-amber-400/30 shadow-[0_8px_30px_rgba(245,158,11,0.15)]",
             className
           )}
           onClick={useDeclarativeLink ? undefined : handleCardClick}
+          onKeyDown={
+            useDeclarativeLink
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleCardClick();
+                  }
+                }
+          }
         >
           {/* Image section — AdCardCover handles promotion + verified badges internally */}
           <AdCardCover

@@ -6,18 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Heart } from "@/icons/IconRegistry";
 import { haptics } from "@/lib/haptics";
-import {
-  resolveListingCategoryLabel,
-  resolveListingLocationLabel,
-} from "@/lib/listings/listingPresentation";
+import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
+import { AdCardMeta } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {
   AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
   getPlanBadge,
-  getConditionBadge,
-  AdCardPriceDisplay,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -41,6 +37,10 @@ function areAdCardListPropsEqual(
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.ad.price === nextProps.ad.price &&
     prevProps.ad.title === nextProps.ad.title &&
+    prevProps.ad.isSpotlight === nextProps.ad.isSpotlight &&
+    (prevProps.ad as Record<string, unknown>).isFeatured === (nextProps.ad as Record<string, unknown>).isFeatured &&
+    (prevProps.ad as Record<string, unknown>).isPremium === (nextProps.ad as Record<string, unknown>).isPremium &&
+    (prevProps.ad as Record<string, unknown>).isBoosted === (nextProps.ad as Record<string, unknown>).isBoosted &&
     prevProps.isSaved === nextProps.isSaved &&
     prevProps.priority === nextProps.priority &&
     prevProps.href === nextProps.href &&
@@ -66,25 +66,36 @@ export const AdCardList = memo(function AdCardList({
     });
 
   const categoryLabel = resolveListingCategoryLabel(ad, "General");
-  const locationLabel = resolveListingLocationLabel(ad.location, "brief");
-  const conditionBadge = getConditionBadge(ad);
   const planBadge = getPlanBadge(ad);
 
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
       <article aria-label={ad.title}>
         <Card
+          tabIndex={useDeclarativeLink ? undefined : 0}
+          role={useDeclarativeLink ? undefined : "button"}
           className={cn(
             "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border border-border rounded-xl group bg-white",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             ad.isSpotlight ? "ring-2 ring-yellow-500 ring-offset-2" : "",
             className
           )}
           onClick={useDeclarativeLink ? undefined : handleCardClick}
+          onKeyDown={
+            useDeclarativeLink
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleCardClick();
+                  }
+                }
+          }
         >
           <CardContent className="p-3">
             <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               {/* List View Image */}
-              <div className="relative h-22 w-22 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-slate-50">
+              <div className="relative h-22 w-22 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-muted/20">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
@@ -99,11 +110,11 @@ export const AdCardList = memo(function AdCardList({
                     className="w-full h-full flex items-center justify-center bg-muted/20 text-foreground-subtle"
                     aria-hidden="true"
                   >
-                    <span className="text-2xs">No Image</span>
+                    <span className="text-tiny text-foreground-tertiary">No Image</span>
                   </div>
                 )}
                 {planBadge && (
-                  <div className="absolute top-1 left-1 z-10 scale-75 origin-top-left">
+                  <div className="absolute top-1 left-1 z-10">
                     {planBadge}
                   </div>
                 )}
@@ -111,61 +122,42 @@ export const AdCardList = memo(function AdCardList({
 
               {/* List View Content */}
               <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-                <div className="min-w-0">
-                  <div className="flex min-w-0 items-start justify-between gap-2">
-                    <AdCardPriceDisplay
-                      price={ad.price}
-                      className="min-w-0 text-base md:text-lg font-bold tracking-tight"
-                    />
-                    {onToggleSave && (
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-11 w-11 rounded-full hover:bg-slate-100 -mt-1 -mr-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          haptics.toggle();
-                          onToggleSave(adId, e);
-                        }}
-                        aria-label={
-                          isSaved
-                            ? "Remove from favorites"
-                            : "Add to favorites"
-                        }
-                      >
-                        <Heart
-                          className={cn(
-                            "h-5 w-5",
-                            isSaved
-                              ? "fill-red-500 text-red-500"
-                              : "text-foreground-subtle"
-                          )}
-                        />
-                      </Button>
-                    )}
+                <div className="flex min-w-0 items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <AdCardMeta ad={ad} variant="list" />
                   </div>
-                  {conditionBadge && (
-                    <div className="flex items-center gap-1.5 mt-0.5 mb-1.5 flex-wrap">
-                      {conditionBadge}
-                    </div>
+                  {onToggleSave && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-11 w-11 rounded-full hover:bg-muted/40 shrink-0 -mt-1 -mr-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        haptics.toggle();
+                        onToggleSave(adId, e);
+                      }}
+                      aria-label={
+                        isSaved
+                          ? "Remove from favorites"
+                          : "Add to favorites"
+                      }
+                    >
+                      <Heart
+                        className={cn(
+                          "h-5 w-5",
+                          isSaved
+                            ? "fill-red-500 text-red-500"
+                            : "text-foreground-subtle"
+                        )}
+                      />
+                    </Button>
                   )}
-                  <h3 className="line-clamp-2 break-words font-medium leading-[1.35] text-small text-foreground-secondary tracking-tight">
-                    {ad.title}
-                  </h3>
                 </div>
 
-                <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-caption text-foreground-tertiary font-medium">
-                  <span className="max-w-full rounded-full bg-slate-100/80 px-2 py-0.5 text-2xs font-bold text-muted-foreground uppercase tracking-wide">
+                <div className="mt-2 flex min-w-0 items-center gap-2">
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
                     {categoryLabel}
-                  </span>
-                  {locationLabel && (
-                    <span className="min-w-0 max-w-full truncate sm:max-w-[150px]">
-                      {locationLabel}
-                    </span>
-                  )}
-                  <span className="whitespace-nowrap sm:ml-auto text-foreground-subtle">
-                    {"time" in ad ? (ad as { time: string }).time : "Today"}
                   </span>
                 </div>
               </div>
