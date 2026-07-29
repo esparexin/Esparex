@@ -3,38 +3,12 @@
 import { memo } from "react";
 import { MapPin, Clock } from "@/icons/IconRegistry";
 import { formatPrice, formatStableDate } from "@/lib/formatters";
-import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
+import { resolveListingLocationLabel, sanitizeListingTitle } from "@/lib/listings/listingPresentation";
 import { cn } from "@/components/ui/utils";
 import {
   type AdCardData,
   getConditionBadge,
 } from "../shared";
-
-/* -------------------------------------------------------------------------- */
-/* Helpers                                                                     */
-/* -------------------------------------------------------------------------- */
-
-const HTML_ENTITY_MAP: Record<string, string> = {
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-  "&#039;": "'",
-  "&apos;": "'",
-  "&nbsp;": " ",
-};
-
-/** Decode common HTML entities in a single regex pass to prevent double-unescaping. */
-function decodeHtmlEntities(str: string): string {
-  if (!str) return "";
-  return str.replace(/&(?:amp|lt|gt|quot|#39|#039|apos|nbsp);/g, (match) => HTML_ENTITY_MAP[match] || match);
-}
-
-function cleanTitle(raw: string): string {
-  if (!raw) return "";
-  return decodeHtmlEntities(raw.replace(/\*\*/g, "").trim());
-}
 
 /* -------------------------------------------------------------------------- */
 /* Component                                                                   */
@@ -106,7 +80,7 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Title — De-congested with leading-relaxed and equalized 2-line height container */}
       <div className="min-h-[2.5rem] sm:min-h-[2.75rem] flex items-start">
         <h3 className="font-medium line-clamp-2 text-xs sm:text-small leading-relaxed text-foreground-secondary tracking-tight">
-          {cleanTitle(ad.title)}
+          {sanitizeListingTitle(ad.title, ad)}
         </h3>
       </div>
 

@@ -8,6 +8,7 @@ import {
     resolveListingTypeBadge,
     resolveListingTypeValue,
     resolveReadableListingReferenceLabel,
+    sanitizeListingTitle,
 } from "@/lib/listings/listingPresentation";
 
 const CATEGORY_ID = "507f1f77bcf86cd799439011";
@@ -51,15 +52,45 @@ describe("listingPresentation", () => {
         ).toBe("phones");
     });
 
-    it("resolves brief and full location labels from normalized listings", () => {
-        const location = {
-            city: "Bengaluru",
-            state: "Karnataka",
-            display: "Koramangala, Bengaluru",
+    it("resolves location labels following full geographic fallback hierarchy", () => {
+        const cityAndState = {
+            city: "Macherla",
+            state: "Andhra Pradesh",
+            country: "India",
         };
+        expect(resolveListingLocationLabel(cityAndState, "brief")).toBe("Macherla");
+        expect(resolveListingLocationLabel(cityAndState, "full")).toBe("Macherla, Andhra Pradesh");
 
-        expect(resolveListingLocationLabel(location, "brief")).toBe("Bengaluru");
-        expect(resolveListingLocationLabel(location, "full")).toBe("Koramangala, Bengaluru");
+        const cityOnly = { city: "Bengaluru", country: "India" };
+        expect(resolveListingLocationLabel(cityOnly, "brief")).toBe("Bengaluru");
+
+        const districtAndState = { district: "Guntur", state: "Andhra Pradesh", country: "India" };
+        expect(resolveListingLocationLabel(districtAndState, "brief")).toBe("Guntur");
+        expect(resolveListingLocationLabel(districtAndState, "full")).toBe("Guntur, Andhra Pradesh");
+
+        const stateOnly = { state: "Karnataka", country: "India" };
+        expect(resolveListingLocationLabel(stateOnly, "brief")).toBe("Karnataka");
+
+        const countryOnly = { country: "India" };
+        expect(resolveListingLocationLabel(countryOnly, "brief")).toBe("Location unavailable");
+        expect(resolveListingLocationLabel(countryOnly, "full")).toBe("India");
+
+        expect(resolveListingLocationLabel(null, "brief")).toBe("Location unavailable");
+        expect(resolveListingLocationLabel(undefined, "brief")).toBe("Location unavailable");
+    });
+
+    it("sanitizes runtime and corrupt system strings from listing titles", () => {
+        const validTitle = "Apple iPhone 13 - Powers On";
+        expect(sanitizeListingTitle(validTitle)).toBe("Apple iPhone 13 - Powers On");
+
+        const categoryContext = { categoryName: "Smartphones" };
+        expect(sanitizeListingTitle("websocket.js:119 WebSocket connection to 'ws://localhost:500", categoryContext)).toBe("Smartphones");
+        expect(sanitizeListingTitle("webpack error loading chunk", categoryContext)).toBe("Smartphones");
+        expect(sanitizeListingTitle("https://example.com/api", categoryContext)).toBe("Smartphones");
+        expect(sanitizeListingTitle("Error: Uncaught Exception", categoryContext)).toBe("Smartphones");
+        expect(sanitizeListingTitle("[object Object]", categoryContext)).toBe("Smartphones");
+        expect(sanitizeListingTitle(null, categoryContext)).toBe("Smartphones");
+        expect(sanitizeListingTitle(undefined, categoryContext)).toBe("Smartphones");
     });
 
     it("extracts readable labels from object-backed catalog references", () => {

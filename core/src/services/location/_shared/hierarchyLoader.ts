@@ -174,8 +174,15 @@ export const normalizeLocationResponse = (input: unknown): NormalizedLocationRes
 export const buildNormalizedFromLocationDoc = (loc: LocationInputObject): NormalizedLocation => {
     const coords = normalizeCoordinates(loc?.coordinates);
 
-    // city/state flat fields removed from schema (Sprint 3). Derive from name + level.
-    const city = toTitleCase(asString(loc?.name) || '');
+    // When processing ad embedded location subdocuments, prefer the stored flat `city`
+    // field (e.g. "Macherla") over `name` (which may be a state/district name like
+    // "Andhra Pradesh"). For canonical Location model documents (Sprint 3+), `city` is
+    // absent and the fallback to `name` applies unchanged.
+    const city = toTitleCase(
+        asString((loc as { city?: unknown })?.city) ||
+        asString(loc?.name) ||
+        ''
+    );
     const state = toTitleCase(asString((loc as { state?: unknown })?.state) || asString(loc?.country) || '');
     const country = toTitleCase(asString(loc?.country) || '');
     const fallbackDisplay = asString(loc?.name) || asString(loc?.display);

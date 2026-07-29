@@ -32,6 +32,7 @@ interface BrowseFiltersBarProps {
   onReset: () => void;
   getCategoryValue?: (category: Category) => string;
   respectMobileChromePolicy?: boolean;
+  showKeywordInput?: boolean;
   inputClassName?: string;
   selectTriggerClassName?: string;
 }
@@ -70,6 +71,7 @@ export const BrowseFiltersBar = memo(function BrowseFiltersBar({
   onReset,
   getCategoryValue = (category) => category.id,
   respectMobileChromePolicy = false,
+  showKeywordInput = false,
   inputClassName = "pl-9 h-11 rounded-xl bg-white border-slate-200 focus:border-slate-300 transition-colors",
   selectTriggerClassName = "h-11 flex-1 sm:flex-none sm:w-44 rounded-xl bg-slate-50 border-slate-200",
 }: BrowseFiltersBarProps) {
@@ -80,34 +82,45 @@ export const BrowseFiltersBar = memo(function BrowseFiltersBar({
     return null;
   }
 
+  const hasCategoryFilter = Boolean(categories && categories.length > 0);
+  const hasControls = showKeywordInput || hasCategoryFilter || Boolean(inputValue || selectedCategory);
+
+  if (!hasControls) {
+    return null;
+  }
+
   return (
     <div className="sticky top-[6.25rem] md:top-0 z-30 bg-white border-b border-slate-100 shadow-sm">
       <div className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-        <div className="relative w-full sm:flex-1 sm:min-w-[180px] sm:max-w-md">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-foreground-subtle pointer-events-none" />
-          <Input
-            id={inputId}
-            aria-label={searchAriaLabel}
-            placeholder={searchPlaceholder}
-            className={inputClassName}
-            value={inputValue}
-            onChange={(event) => onInputChange(event.target.value)}
-          />
-        </div>
+        {showKeywordInput ? (
+          <div className="relative w-full sm:flex-1 sm:min-w-[180px] sm:max-w-md">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-foreground-subtle pointer-events-none" />
+            <Input
+              id={inputId}
+              aria-label={searchAriaLabel}
+              placeholder={searchPlaceholder}
+              className={inputClassName}
+              value={inputValue}
+              onChange={(event) => onInputChange(event.target.value)}
+            />
+          </div>
+        ) : null}
 
         <div className="flex items-center gap-2 sm:contents">
-          <Select
-            value={selectedCategory || "all"}
-            onValueChange={(value) => onCategoryChange(value === "all" ? "" : value)}
-          >
-            <SelectTrigger className={selectTriggerClassName}>
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {renderCategoryItems(categories, getCategoryValue)}
-            </SelectContent>
-          </Select>
+          {hasCategoryFilter ? (
+            <Select
+              value={selectedCategory || "all"}
+              onValueChange={(value) => onCategoryChange(value === "all" ? "" : value)}
+            >
+              <SelectTrigger className={selectTriggerClassName}>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {renderCategoryItems(categories, getCategoryValue)}
+              </SelectContent>
+            </Select>
+          ) : null}
 
           {(inputValue || selectedCategory) && (
             <Button
