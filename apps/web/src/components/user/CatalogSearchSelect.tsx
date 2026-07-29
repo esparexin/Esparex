@@ -273,9 +273,6 @@ export function CatalogSearchSelect<T>({
                                                 type="button"
                                                 role="option"
                                                 aria-selected={isSelected}
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
-                                                }}
                                                 onClick={() => {
                                                     handleItemSelect(item);
                                                 }}

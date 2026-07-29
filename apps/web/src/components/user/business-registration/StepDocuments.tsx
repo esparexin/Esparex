@@ -83,7 +83,7 @@ export function StepDocuments({
             </div>
 
             <div className="grid gap-3 md:grid-cols-2">
-                <div className={canUploadIdProof ? "opacity-100" : "pointer-events-none opacity-60"}>
+                <div className={canUploadIdProof ? "opacity-100" : "opacity-60"}>
                     <FileUploadCard
                         title={`Owner ID proof${isRegistration ? " *" : ""}`}
                         description={
