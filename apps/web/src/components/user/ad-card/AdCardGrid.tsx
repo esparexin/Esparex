@@ -54,18 +54,17 @@ export const AdCardGrid = memo(function AdCardGrid({
   href,
   className,
 }: AdCardGridProps) {
-  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } =
+  const { adRecord, href: resolvedHref, imageUrl, adId, useDeclarativeLink, handleCardClick } =
     useAdCardBase({
       ad,
       href,
       onClick,
-      disableDeclarativeLink: Boolean(onToggleSave),
     });
 
   const isBusiness = Boolean(adRecord.isBusiness);
 
   return (
-    <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
+    <AdCardLinkWrapper href={resolvedHref} enabled={useDeclarativeLink}>
       {/* article gives screen readers proper document structure for list items */}
       <article aria-label={ad.title}>
         <Card

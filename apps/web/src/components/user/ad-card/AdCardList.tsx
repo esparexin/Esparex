@@ -57,19 +57,18 @@ export const AdCardList = memo(function AdCardList({
   priority = false,
   className,
 }: AdCardListProps) {
-  const { imageUrl, adId, useDeclarativeLink, handleCardClick } =
+  const { href: resolvedHref, imageUrl, adId, useDeclarativeLink, handleCardClick } =
     useAdCardBase({
       ad,
       href,
       onClick,
-      disableDeclarativeLink: Boolean(onToggleSave),
     });
 
   const categoryLabel = resolveListingCategoryLabel(ad, "General");
   const planBadge = getPlanBadge(ad);
 
   return (
-    <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
+    <AdCardLinkWrapper href={resolvedHref} enabled={useDeclarativeLink}>
       <article aria-label={ad.title}>
         <Card
           tabIndex={useDeclarativeLink ? undefined : 0}

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
 import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
@@ -94,21 +95,36 @@ export function resolveAdId(adRecord: Record<string, unknown>): string {
 
 export function useAdCardBase({
   ad,
-  href,
+  href: explicitHref,
   onClick,
   disableDeclarativeLink = false,
 }: UseAdCardBaseOptions) {
+  const adRecord = toAdRecord(ad);
+  const adId = resolveAdId(adRecord);
+
+  // Compute canonical listing detail route if explicit href is not passed
+  const resolvedHref =
+    explicitHref ||
+    (adId
+      ? buildPublicListingDetailRoute({
+          id: adId,
+          listingType: typeof adRecord.listingType === "string" ? adRecord.listingType : undefined,
+          seoSlug: typeof adRecord.seoSlug === "string" ? adRecord.seoSlug : undefined,
+          title: typeof adRecord.title === "string" ? adRecord.title : undefined,
+        })
+      : undefined);
+
   const { useDeclarativeLink, handleCardClick } = useAdCardNavigation({
-    href,
+    href: resolvedHref,
     onClick,
     disableDeclarativeLink,
   });
-  const adRecord = toAdRecord(ad);
 
   return {
     adRecord,
+    href: resolvedHref,
     imageUrl: resolveAdImageUrl(adRecord),
-    adId: resolveAdId(adRecord),
+    adId,
     useDeclarativeLink,
     handleCardClick,
   };
