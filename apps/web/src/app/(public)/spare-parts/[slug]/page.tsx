@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
 type Props = {
     params: Promise<{ slug: string }>;
@@ -7,5 +7,5 @@ type Props = {
 /** Permanent redirect — canonical path is now /spare-part-listings/[slug] */
 export default async function SparePartsSlugRedirect({ params }: Props) {
     const { slug } = await params;
-    redirect(`/spare-part-listings/${slug}`);
+    permanentRedirect(`/spare-part-listings/${slug}`);
 }
