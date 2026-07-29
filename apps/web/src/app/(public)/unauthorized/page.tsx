@@ -1,13 +1,13 @@
-"use client";
-
-import Link from "next/link";
+import type { Metadata } from "next";
 import { ShieldOff } from "@/icons/IconRegistry";
-import { Button } from "@esparex/ui";
-import { useAuthModal } from "@/context/AuthModalContext";
+import { UnauthorizedActions } from "@/components/common/UnauthorizedActions";
+
+export const metadata: Metadata = {
+    title: "Unauthorized Access | Esparex",
+    robots: { index: false, follow: false },
+};
 
 export default function UnauthorizedPage() {
-    const { showLogin } = useAuthModal();
-
     return (
         <main className="min-h-dvh flex items-center justify-center px-4">
             <div
@@ -27,17 +27,7 @@ export default function UnauthorizedPage() {
                     Please login with the correct account.
                 </p>
 
-                <div className="flex justify-center gap-3">
-                    <Button asChild>
-                        <Link href="/">
-                            Go Home
-                        </Link>
-                    </Button>
-
-                    <Button variant="outline" onClick={() => showLogin("/")}>
-                        Login
-                    </Button>
-                </div>
+                <UnauthorizedActions />
             </div>
         </main>
     );
