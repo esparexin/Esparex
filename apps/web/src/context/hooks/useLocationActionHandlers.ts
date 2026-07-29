@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { apiClient } from "@/lib/api/client";
 import { API_ROUTES } from "@/lib/api/routes";
-import { DEFAULT_APP_LOCATION, type AppLocation, type GeoJSONPoint } from "@/types/location";
+import { DEFAULT_APP_LOCATION, type AppLocation, type AppLocationSource, type GeoJSONPoint } from "@/types/location";
 import { normalizeToAppLocation as normalizeLocation } from "@/lib/location/locationService";
 
 interface UseLocationActionHandlersProps {
@@ -54,6 +54,7 @@ export function useLocationActionHandlers({
             level?: AppLocation["level"];
             persistProfile?: boolean;
             logSelectionAnalytics?: boolean;
+            source?: AppLocationSource;
         }
     ) => {
         const resolvedName = name || city;
@@ -67,6 +68,8 @@ export function useLocationActionHandlers({
             resolvedDisplay = `${resolvedName}, ${city}, ${resolvedState}`;
         }
 
+        const targetSource = options?.source || "manual";
+
         const normalized = normalizeLocation(
             {
                 city,
@@ -77,9 +80,9 @@ export function useLocationActionHandlers({
                 display: resolvedDisplay,
                 locationId: id,
                 coordinates,
-                source: "manual",
+                source: targetSource,
             },
-            "manual"
+            targetSource
         );
 
         if (!normalized) return;

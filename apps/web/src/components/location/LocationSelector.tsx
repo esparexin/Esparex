@@ -53,7 +53,7 @@ export default function LocationSelector({
     const dropdownRef = useRef<HTMLDivElement>(null);
     const manuallyClearedRef = useRef(false);
 
-    const applySelection = useCallback((loc: Location, _source: "manual" | "gps" = "manual") => {
+    const applySelection = useCallback((loc: Location, source: "manual" | "gps" = "manual") => {
         manuallyClearedRef.current = false;
         if (!isPanel) {
             const rawLabel = normalizeLocationName(loc.display || loc.name || loc.city);
@@ -67,12 +67,15 @@ export default function LocationSelector({
 
         if (mode === "postAd") return;
 
+        const targetSource = source === "gps" ? "auto" : "manual";
+
         setManualLocation(
             loc.city || loc.name, loc.state, loc.name || loc.city,
             loc.locationId || loc.id, loc.coordinates,
             {
                 country: loc.country, level: loc.level, persistProfile: mode === "profile",
                 logSelectionAnalytics: mode === "search",
+                source: targetSource,
             }
         );
     }, [isPanel, mode, onLocationSelect, setManualLocation]);
@@ -131,27 +134,26 @@ export default function LocationSelector({
     const handleSelect = useCallback(async (loc: Location) => {
         searchApi.setIsSearching(true);
         try {
-            const canonicalGeoJSONPoint = normalizeGeoPoint(loc.coordinates);
-            if (!canonicalGeoJSONPoint) {
-                searchApi.setSearchError({
-                    type: "unknown",
-                    message: "This location doesn't have map coordinates yet. Please search for a nearby city or area.",
-                    retryable: false
-                });
-                return;
-            }
+            const canonicalGeoJSONPoint = normalizeGeoPoint(loc.coordinates) || {
+                type: "Point" as const,
+                coordinates: [78.4867, 17.3850] as [number, number]
+            };
             const finalLoc = {
-                id: loc.locationId || loc.id, locationId: loc.locationId || loc.id,
-                slug: loc.slug, city: loc.city || loc.name, state: loc.state,
-                country: loc.country, name: loc.name || loc.city,
+                id: loc.locationId || loc.id || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
+                locationId: loc.locationId || loc.id || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
+                slug: loc.slug || [loc.city || loc.name, loc.state].filter(Boolean).join("-").toLowerCase(),
+                city: loc.city || loc.name,
+                state: loc.state || loc.city || loc.name,
+                country: loc.country || "India",
+                name: loc.name || loc.city,
                 display: loc.display || loc.displayName || [loc.city || loc.name, loc.state].filter(Boolean).join(", "),
                 displayName: loc.displayName || loc.name || loc.city,
-                level: loc.level, coordinates: canonicalGeoJSONPoint,
+                level: loc.level || "city",
+                coordinates: canonicalGeoJSONPoint,
             };
 
             applySelection(finalLoc as Location, "manual");
             if (isPanel) {
-                await new Promise<void>(r => setTimeout(r, 80));
                 onClose?.();
             }
         } finally {
@@ -326,13 +328,13 @@ export default function LocationSelector({
                                         <span className="text-green-600 font-semibold truncate w-full">{searchApi.successFeedback}</span>
                                     ) : searchApi.isDetecting ? (
                                         <span className="truncate w-full">{searchApi.detectFeedback || "Detecting location..."}</span>
-                                    ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
+                                    ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
                                         <>
                                             <span className="truncate w-full font-semibold text-foreground">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                            <span className="text-tiny text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                            <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
                                         </>
                                     ) : (
-                                        <span className="truncate w-full">Detect My Location</span>
+                                        <span className="truncate w-full font-medium">Use Current Location</span>
                                     )}
                                 </div>
                             </div>

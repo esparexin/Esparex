@@ -77,13 +77,13 @@ export function LocationSelectorPanel({
                                     <span className="text-green-600 font-semibold truncate w-full">{successFeedback}</span>
                                 ) : isDetecting ? (
                                     <span className="truncate w-full">{detectFeedback || "Detecting location..."}</span>
-                                ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
+                                ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
                                     <>
                                         <span className="truncate w-full font-semibold">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                        <span className="text-tiny text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                        <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
                                     </>
                                 ) : (
-                                    <span className="truncate w-full">Detect My Location</span>
+                                    <span className="truncate w-full font-medium">Use Current Location</span>
                                 )}
                             </div>
                         </div>

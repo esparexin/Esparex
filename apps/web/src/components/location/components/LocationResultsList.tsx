@@ -66,11 +66,6 @@ export function LocationResultsList({
                                             role="option"
                                             aria-selected={selectedIndex === index}
                                             type="button"
-                                            onPointerDown={(e) => e.stopPropagation()}
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
                                             onClick={() => void onSelect(loc)}
                                             className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer select-none"
                                         >
@@ -92,24 +87,19 @@ export function LocationResultsList({
                 ) : locations.length > 0 ? (
                     locations.slice(0, MAX_DROPDOWN_RESULTS).map((loc, index) => {
                         return (
-                            <button
-                                key={`loc-${loc.id || index}`}
-                                id={`location-option-${index}`}
-                                role="option"
-                                aria-selected={selectedIndex === index}
-                                type="button"
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                }}
-                                onClick={() => void onSelect(loc)}
-                                className={cn(
-                                    "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
-                                    "hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                                    selectedIndex === index && "bg-accent"
-                                )}
-                            >
+                                <button
+                                    key={`loc-${loc.id || index}`}
+                                    id={`location-option-${index}`}
+                                    role="option"
+                                    aria-selected={selectedIndex === index}
+                                    type="button"
+                                    onClick={() => void onSelect(loc)}
+                                    className={cn(
+                                        "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
+                                        "hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                        selectedIndex === index && "bg-accent"
+                                    )}
+                                >
                                 <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
                                 <span className="min-w-0 flex-1">
                                     <span className="block truncate text-xs font-semibold text-foreground">
