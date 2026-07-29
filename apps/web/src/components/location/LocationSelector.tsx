@@ -8,10 +8,11 @@ import { Search, MapPin, Target, Loader2 } from "@/icons/IconRegistry";
 import type { Location } from "@/lib/api/user/locations";
 import { normalizeLocationName } from "@/lib/location/locationService";
 import { cn } from "@/components/ui/utils";
-import { normalizeGeoPoint, type SelectorVariant } from "./locationSelectorCore.helpers";
+import { toCanonicalGeoPoint } from "@esparex/shared";
+import { type SelectorVariant } from "./locationSelectorCore.helpers";
 import { useLocationSearch } from "./useLocationSearch";
 
-import { LocationResultsList } from "./components/LocationResultsList";
+import { LocationResultsList, POPULAR_CITIES } from "./components/LocationResultsList";
 import { LocationSelectorPanel } from "./components/LocationSelectorPanel";
 
 type SnappedLocation = Location & { isSnapped?: boolean };
@@ -134,7 +135,7 @@ export default function LocationSelector({
     const handleSelect = useCallback(async (loc: Location) => {
         searchApi.setIsSearching(true);
         try {
-            const canonicalGeoJSONPoint = normalizeGeoPoint(loc.coordinates) || {
+            const canonicalGeoJSONPoint = toCanonicalGeoPoint(loc.coordinates) || {
                 type: "Point" as const,
                 coordinates: [78.4867, 17.3850] as [number, number]
             };
@@ -162,29 +163,35 @@ export default function LocationSelector({
     }, [applySelection, isPanel, onClose, searchApi]);
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-        if (!isOpen || searchApi.locations.length === 0) return;
+        const activeList = query.trim() ? searchApi.locations : POPULAR_CITIES;
+        const isInteractionActive = isPanel || (isOpen && !hasSelection);
+        if (!isInteractionActive || activeList.length === 0) return;
 
         switch (e.key) {
             case "ArrowDown":
                 e.preventDefault();
-                setSelectedIndex((prev) => (prev < searchApi.locations.length - 1 ? prev + 1 : prev));
+                setSelectedIndex((prev) => (prev < activeList.length - 1 ? prev + 1 : prev));
                 break;
             case "ArrowUp":
                 e.preventDefault();
                 setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
                 break;
             case "Enter":
-                e.preventDefault();
-                if (selectedIndex >= 0 && searchApi.locations[selectedIndex]) {
-                    void handleSelect(searchApi.locations[selectedIndex]);
+                if (selectedIndex >= 0 && activeList[selectedIndex]) {
+                    e.preventDefault();
+                    void handleSelect(activeList[selectedIndex]);
                 }
                 break;
             case "Escape":
                 e.preventDefault();
-                setIsOpen(false);
+                if (isPanel) {
+                    onClose?.();
+                } else {
+                    setIsOpen(false);
+                }
                 break;
         }
-    }, [handleSelect, isOpen, searchApi.locations, selectedIndex]);
+    }, [handleSelect, isPanel, isOpen, hasSelection, onClose, query, searchApi.locations, selectedIndex]);
 
     const handleClear = useCallback(() => {
         manuallyClearedRef.current = true;
@@ -219,7 +226,7 @@ export default function LocationSelector({
             return loc.country ? normalizeLocationName(loc.country) : "";
         }
 
-        return parts.join(", ") || normalizeLocationName(loc.display || "");
+        return parts.join(", ");
     }, []);
 
     const renderResults = () => (
@@ -253,6 +260,7 @@ export default function LocationSelector({
                 disabled={disabled}
                 isSearching={searchApi.isSearching}
                 handleClearQuery={handleClearQuery}
+                onKeyDown={handleKeyDown}
             >
                 {renderResults()}
             </LocationSelectorPanel>

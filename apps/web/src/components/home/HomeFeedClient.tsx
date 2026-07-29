@@ -10,7 +10,7 @@ import { AdCardGrid, AdCardSkeleton } from "@/components/user/ad-card";
 import { Button } from "@esparex/ui";
 import { getListingHref } from "@/lib/listingUtils";
 import { shouldUseGeoRadiusLocation, isUserSelectedLocation } from "@/lib/location/queryMode";
-import { getLatitude, getLongitude } from "@esparex/shared";
+import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 import { appendUniqueFeedPage, replaceFeedPage } from "./homeFeed.helpers";
 
 const HOME_FEED_PAGE_SIZE = 12;
@@ -37,15 +37,20 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
     const hasUserLocation = isUserSelectedLocation(location);
     const shouldUseGeoSearch = hasUserLocation && shouldUseGeoRadiusLocation(location);
     
-    const requestParams = useMemo(() => ({
-        cursor,
-        limit: HOME_FEED_PAGE_SIZE,
-        locationId: hasUserLocation ? location.locationId : undefined,
-        level: hasUserLocation ? location.level : undefined,
-        lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
-        lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
-        radiusKm: shouldUseGeoSearch ? 50 : undefined,
-    }), [cursor, hasUserLocation, latitude, location.level, location.locationId, longitude, shouldUseGeoSearch]);
+    const requestParams = useMemo(() => {
+        const rawLocationId = hasUserLocation ? (location.locationId || location.id) : undefined;
+        const validLocationId = sanitizeMongoObjectId(rawLocationId) || undefined;
+
+        return {
+            cursor,
+            limit: HOME_FEED_PAGE_SIZE,
+            locationId: validLocationId,
+            level: hasUserLocation ? location.level : undefined,
+            lat: shouldUseGeoSearch && typeof latitude === "number" ? latitude : undefined,
+            lng: shouldUseGeoSearch && typeof longitude === "number" ? longitude : undefined,
+            radiusKm: shouldUseGeoSearch ? 50 : undefined,
+        };
+    }, [cursor, hasUserLocation, latitude, location.id, location.level, location.locationId, longitude, shouldUseGeoSearch]);
 
     const shouldUseInitialData = !cursor && !hasUserLocation;
 

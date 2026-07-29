@@ -20,6 +20,18 @@ interface AdCardMetaProps {
   variant?: "default" | "dashboard" | "list";
 }
 
+/** Decode common HTML entities so titles like "&amp;" render as "&". */
+function decodeHtmlEntities(str: string): string {
+  if (!str) return "";
+  return str
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, "&");
+}
+
 export const AdCardMeta = memo(function AdCardMeta({
   ad,
   className,
@@ -48,7 +60,7 @@ export const AdCardMeta = memo(function AdCardMeta({
   return (
     <div className={cn("flex flex-col gap-0.5", className)}>
       <div className="font-semibold line-clamp-2 text-small leading-snug min-h-[2.2rem] text-foreground-secondary tracking-tight">
-        {ad.title.replace(/\*\*/g, '')}
+        {decodeHtmlEntities((ad.title || "").replace(/\*\*/g, ""))}
       </div>
 
       <div className="flex items-center justify-between gap-1.5 mt-0.5">

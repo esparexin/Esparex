@@ -40,7 +40,7 @@ export function SpecificationSection() {
     return (
         <div className="flex flex-col gap-2.5">
             {dynamicAttributeFilters.length > 0 ? (
-                <section className={cn("space-y-2.5 rounded-2xl border border-slate-100 bg-slate-50/40 p-2.5", isEditMode && "opacity-60 pointer-events-none")}>
+                <fieldset disabled={isEditMode} className={cn("space-y-2.5 rounded-2xl border border-slate-100 bg-slate-50/40 p-2.5 border-0 m-0", isEditMode && "opacity-60 cursor-not-allowed")}>
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-foreground-tertiary">Category Details</p>
                     </div>
@@ -52,33 +52,37 @@ export function SpecificationSection() {
                             updateAttribute
                         ))}
                     </div>
-                </section>
+                </fieldset>
             ) : null}
 
             {requiresScreenSize && (
-                <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 pointer-events-none")}>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-                        {availableSizes.map((size) => {
-                            const isSelected = screenSize === size;
-                            return (
-                                <button
-                                    key={size}
-                                    type="button"
-                                    onClick={() => onScreenSizeChange(size)}
-                                    aria-pressed={isSelected}
-                                    className={cn(
-                                        "flex h-11 items-center justify-center rounded-xl border-2 text-sm font-medium transition-all duration-200 active:scale-[0.98]",
-                                        isSelected
-                                            ? "border-primary bg-primary/5 text-primary shadow-sm"
-                                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                                    )}
-                                >
-                                    {size}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </Field>
+                <fieldset disabled={isEditMode} className="w-full border-0 p-0 m-0">
+                    <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                            {availableSizes.map((size) => {
+                                const isSelected = screenSize === size;
+                                return (
+                                    <button
+                                        key={size}
+                                        type="button"
+                                        disabled={isEditMode}
+                                        onClick={() => onScreenSizeChange(size)}
+                                        aria-pressed={isSelected}
+                                        className={cn(
+                                            "flex h-11 items-center justify-center rounded-xl border-2 text-sm font-medium transition-all duration-200 active:scale-[0.98]",
+                                            isSelected
+                                                ? "border-primary bg-primary/5 text-primary shadow-sm"
+                                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+                                            isEditMode && "cursor-not-allowed opacity-60"
+                                        )}
+                                    >
+                                        {size}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </Field>
+                </fieldset>
             )}
 
         </div>

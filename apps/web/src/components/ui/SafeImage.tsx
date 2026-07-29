@@ -22,6 +22,7 @@ export function SafeImage({
   alt,
   fallback = DEFAULT_IMAGE_PLACEHOLDER,
   className,
+  unoptimized,
   ...props
 }: SafeImageProps) {
   const [errorSrc, setErrorSrc] = useState<string | null>(null);
@@ -34,11 +35,18 @@ export function SafeImage({
     setErrorSrc(src as string);
   };
 
+  // Direct S3 & external CDN URLs skip local Next.js image proxying to prevent 400 errors and lower server overhead
+  const isExternalS3 = typeof currentSrc === "string" && (
+    currentSrc.includes("amazonaws.com") ||
+    currentSrc.includes("cloudfront.net")
+  );
+
   return (
     <Image
       {...props}
       src={currentSrc}
       alt={alt}
+      unoptimized={unoptimized ?? isExternalS3}
       onError={handleError}
       className={cn(
         "transition-opacity duration-300",

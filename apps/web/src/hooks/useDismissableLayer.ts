@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 interface UseDismissableLayerParams<T extends HTMLElement> {
     isOpen: boolean;
-    containerRef: React.RefObject<T | null>;
+    containerRef: React.RefObject<T | null> | Array<React.RefObject<HTMLElement | null>>;
     onDismiss: () => void;
 }
 
@@ -17,10 +17,12 @@ export function useDismissableLayer<T extends HTMLElement>({
         if (!isOpen) return undefined;
 
         const handleClickOutside = (event: MouseEvent) => {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(event.target as Node)
-            ) {
+            const target = event.target as Node;
+            const refs = Array.isArray(containerRef) ? containerRef : [containerRef];
+            const isInsideAny = refs.some(
+                (ref) => ref.current && ref.current.contains(target)
+            );
+            if (!isInsideAny) {
                 onDismiss();
             }
         };

@@ -1,6 +1,7 @@
+import { useState, useRef, useCallback } from "react";
 import { useNotificationsQuery } from "@/hooks/queries";
 import { useNotificationSync } from "@/hooks/useNotificationSync";
-import { useLocationSelector } from "@/hooks/useLocationSelector";
+import { useLocationData } from "@/context/LocationContext";
 import { useHeaderSearch } from "@/hooks/useHeaderSearch";
 import { getHeaderLocationText } from "@/lib/location/locationService";
 
@@ -29,9 +30,12 @@ export function useSharedHeaderLogic({
 
     useNotificationSync({ enabled: shouldFetchNotifications });
 
-    // 2. Location Logic
-    const locationProps = useLocationSelector({ mode: "header" });
-    const { globalLocation: location } = locationProps;
+    // 2. Location Logic (directly consuming LocationContext SSOT)
+    const { location } = useLocationData();
+    const [showLocationSelector, setShowLocationSelector] = useState(false);
+    const locationDropdownRef = useRef<HTMLDivElement>(null);
+    const toggleLocationSelector = useCallback(() => setShowLocationSelector((prev) => !prev), []);
+
     const headerLocationDetails = getHeaderLocationText(location);
     const resolvedHeaderLocation = headerLocationDetails.headerText || "Select Location";
 
@@ -46,7 +50,12 @@ export function useSharedHeaderLogic({
     };
 
     return {
-        ...locationProps,
+        showLocationSelector,
+        setShowLocationSelector,
+        locationDropdownRef,
+        toggleLocationSelector,
+        globalLocation: location,
+        location,
         ...searchProps,
         headerLocationDetails,
         resolvedHeaderLocation,

@@ -7,7 +7,7 @@ import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "../LocationSkeleton";
 import { MAX_DROPDOWN_RESULTS } from "../locationSelectorCore.helpers";
 
-const POPULAR_CITIES: Location[] = [
+export const POPULAR_CITIES: Location[] = [
     { id: "hyderabad", locationId: "hyderabad", slug: "hyderabad", city: "Hyderabad", state: "Telangana", country: "India", name: "Hyderabad", display: "Hyderabad, Telangana", displayName: "Hyderabad", level: "city", coordinates: { type: "Point", coordinates: [78.4867, 17.3850] }, isActive: true, isPopular: true },
     { id: "vijayawada", locationId: "vijayawada", slug: "vijayawada", city: "Vijayawada", state: "Andhra Pradesh", country: "India", name: "Vijayawada", display: "Vijayawada, Andhra Pradesh", displayName: "Vijayawada", level: "city", coordinates: { type: "Point", coordinates: [80.6480, 16.5062] }, isActive: true, isPopular: true },
     { id: "visakhapatnam", locationId: "visakhapatnam", slug: "visakhapatnam", city: "Visakhapatnam", state: "Andhra Pradesh", country: "India", name: "Visakhapatnam", display: "Visakhapatnam, Andhra Pradesh", displayName: "Visakhapatnam", level: "city", coordinates: { type: "Point", coordinates: [83.2185, 17.6868] }, isActive: true, isPopular: true },
@@ -134,9 +134,13 @@ export function LocationResultsList({
                             key={`popular-${loc.id}`}
                             id={`popular-option-${index}`}
                             role="option"
+                            aria-selected={selectedIndex === index}
                             type="button"
                             onClick={() => void onSelect(loc)}
-                            className="flex items-center gap-2.5 w-full px-3 py-2 text-left transition-colors rounded-xl hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            className={cn(
+                                "flex items-center gap-2.5 w-full px-3 py-2 text-left transition-colors rounded-xl hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                                selectedIndex === index && "bg-accent"
+                            )}
                         >
                             <MapPin className="h-4 w-4 shrink-0 text-primary" />
                             <span className="min-w-0 flex-1">

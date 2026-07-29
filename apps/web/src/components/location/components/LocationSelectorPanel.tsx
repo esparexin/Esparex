@@ -18,6 +18,7 @@ export function LocationSelectorPanel({
     disabled,
     isSearching,
     handleClearQuery,
+    onKeyDown,
     children,
 }: {
     className?: string;
@@ -32,10 +33,11 @@ export function LocationSelectorPanel({
     disabled?: boolean;
     isSearching: boolean;
     handleClearQuery: () => void;
+    onKeyDown?: (e: React.KeyboardEvent) => void;
     children: React.ReactNode;
 }) {
     return (
-        <div className={cn("flex h-full min-h-0 flex-col bg-background", className)}>
+        <div className={cn("flex h-full min-h-0 flex-col bg-background", className)} onKeyDown={onKeyDown}>
             <div className="sticky top-0 z-10 border-b bg-background/95 px-3 pb-3 pt-2 backdrop-blur" style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}>
                 <div className="mb-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -105,6 +107,7 @@ export function LocationSelectorPanel({
                             className="h-11 rounded-xl pl-9 pr-9 text-sm"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={onKeyDown}
                             autoFocus
                             disabled={disabled}
                         />

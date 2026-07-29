@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
+import { sanitizeMongoObjectId } from "@esparex/shared";
 import { API_ROUTES } from "@/lib/api/routes";
 import { apiClient } from "@/lib/api/client";
 import { type AppLocation } from "@/types/location";
@@ -56,9 +57,12 @@ export function useLocationStorage() {
         locationId?: string;
     }) => {
         try {
-            // Remove empty locationId to prevent Zod ObjectId validation errors
+            // Remove invalid/non-ObjectId locationId to prevent Zod ObjectId validation errors
             const payload = { ...data };
-            if (!payload.locationId) {
+            const validLocationId = payload.locationId ? sanitizeMongoObjectId(payload.locationId) : undefined;
+            if (validLocationId) {
+                payload.locationId = validLocationId;
+            } else {
                 delete payload.locationId;
             }
             await apiClient.post(API_ROUTES.USER.LOG_LOCATION_EVENT, payload, { silent: true });
