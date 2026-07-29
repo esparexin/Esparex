@@ -45,16 +45,20 @@ const jscpdFile = path.join(AUDIT_DIR, 'jscpd-report.json');
 if (fs.existsSync(jscpdFile)) {
   try {
     jscpdData = JSON.parse(fs.readFileSync(jscpdFile, 'utf8'));
-  } catch (e) {}
+  } catch (_e) {
+    /* ignore read error */
+  }
 }
 
 // 2. Run Knip for dead code & unused export scanning
 console.log('[2/6] Running Knip Unused Export & Orphan Scanner...');
 const knipOutput = runCmd('npx knip --reporter json');
-let knipData = [];
+let _knipData = [];
 try {
-  knipData = JSON.parse(knipOutput);
-} catch (e) {}
+  _knipData = JSON.parse(knipOutput);
+} catch (_e) {
+  /* ignore parse error */
+}
 
 // 3. Scan Transitional Layer (core/src/services)
 console.log('[3/6] Scanning Transitional Layer (core/src/services)...');
@@ -104,7 +108,7 @@ function scanDirectories() {
   function checkEmpty(d) {
     if (d.includes('node_modules') || d.includes('.next') || d.includes('dist') || d.includes('.git') || d.includes('graphify-out') || d.includes('.venv')) return;
     let items = [];
-    try { items = fs.readdirSync(d); } catch (e) { return; }
+    try { items = fs.readdirSync(d); } catch (_e) { return; }
     if (items.length === 0) {
       emptyDirs.push(path.relative(ROOT, d));
       return;

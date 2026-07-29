@@ -117,6 +117,6 @@ async function main() {
 
 main().catch(async (err) => {
     console.error('[migrate-status-semantics] Failed:', err);
-    try { await mongoose.disconnect(); } catch {}
+    try { await mongoose.disconnect(); } catch { /* ignore cleanup error */ }
     process.exit(1);
 });

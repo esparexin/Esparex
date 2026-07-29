@@ -29,7 +29,8 @@ export const sanitizeFileName = (filename: string): string => {
 
   name = name
     .replace(/\.\./g, "")
-    .replace(/[:\/\\]/g, "_")
+    .replace(/[:/\\]/g, "_")
+    // eslint-disable-next-line no-control-regex
     .replace(/[\x00-\x1F\x7F]/g, "")
     .replace(/_+/g, "_")
     .replace(/^[_.\-\s]+/, "")
