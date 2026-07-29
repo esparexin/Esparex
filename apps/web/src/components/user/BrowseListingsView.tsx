@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocationData } from "@/context/LocationContext";
+import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { BrowseFiltersHeaderTrigger } from "@/components/user/BrowseFiltersBar";
 import {
   BrowseResultsPanel,
@@ -75,6 +77,7 @@ export function BrowseListingsView<TItem, TFilters>({
   VirtualizedListComponent,
   virtualizationThreshold,
 }: BrowseListingsViewProps<TItem, TFilters>) {
+  const { location } = useLocationData();
   const {
     query,
     inputValue,
@@ -108,6 +111,14 @@ export function BrowseListingsView<TItem, TFilters>({
     fetchPage,
   });
 
+  const selectedCategoryObj = categories.find((c) =>
+    getCategoryValue
+      ? getCategoryValue(c) === selectedCategory
+      : c.id === selectedCategory || c.name === selectedCategory
+  );
+  const categoryName = selectedCategoryObj?.name || (selectedCategory && selectedCategory !== "all" ? selectedCategory : undefined);
+  const locationLabel = resolveListingLocationLabel(location, "brief");
+
   const sharedFilterProps = {
     inputId,
     inputValue,
@@ -124,7 +135,7 @@ export function BrowseListingsView<TItem, TFilters>({
   };
 
   return (
-    <div className="bg-slate-50/40">
+    <div className="bg-slate-50/40 min-h-screen">
       <BrowseResultsPanel
         items={items}
         total={total}
@@ -134,6 +145,8 @@ export function BrowseListingsView<TItem, TFilters>({
         error={error}
         hasMore={hasMore}
         query={query}
+        categoryName={categoryName}
+        locationLabel={locationLabel}
         filterNode={
           <BrowseFiltersHeaderTrigger
             {...sharedFilterProps}
