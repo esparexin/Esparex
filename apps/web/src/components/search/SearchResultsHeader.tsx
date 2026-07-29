@@ -152,7 +152,7 @@ export function SearchResultsHeader({
                                 {categoryName}
                             </h2>
                         )}
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="hidden md:flex items-center gap-2 min-w-0">
                             <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
                             <p className="text-xs md:text-sm text-slate-700 font-medium truncate">
                                 <span className="text-slate-950 font-bold">{total}</span> {total === 1 ? "listing" : "listings"} available

@@ -20,10 +20,10 @@ export function BrowseBreadcrumb({
   const displayTitle = categoryName ? categoryName : "All Categories";
 
   return (
-    <div className={cn("space-y-2 py-2 md:py-3", className)}>
+    <div className={cn("space-y-1.5 py-1 md:py-3", className)}>
       {/* Semantic Accessible Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center text-xs md:text-sm text-slate-500 font-medium overflow-x-auto no-scrollbar">
-        <ol className="flex items-center space-x-1.5 md:space-x-2 whitespace-nowrap">
+      <nav aria-label="Breadcrumb" className="flex items-center text-[11px] md:text-sm text-slate-500 font-medium overflow-x-auto no-scrollbar">
+        <ol className="flex items-center space-x-1 md:space-x-2 whitespace-nowrap">
           <li>
             <Link
               href="/"
@@ -33,7 +33,7 @@ export function BrowseBreadcrumb({
             </Link>
           </li>
           <li aria-hidden="true" className="text-slate-300">
-            <ChevronRight className="size-3.5" />
+            <ChevronRight className="size-3" />
           </li>
           <li>
             <Link
@@ -50,9 +50,9 @@ export function BrowseBreadcrumb({
           {categoryName && (
             <>
               <li aria-hidden="true" className="text-slate-300">
-                <ChevronRight className="size-3.5" />
+                <ChevronRight className="size-3" />
               </li>
-              <li className="text-slate-900 font-semibold truncate max-w-[200px] md:max-w-[300px]" aria-current="page">
+              <li className="text-slate-900 font-semibold truncate max-w-[160px] md:max-w-[300px]" aria-current="page">
                 {categoryName}
               </li>
             </>
@@ -61,12 +61,12 @@ export function BrowseBreadcrumb({
       </nav>
 
       {/* Main Page Title + Location Context Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1.5 sm:gap-4 border-b border-slate-100 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 border-b border-slate-100 pb-2 md:pb-3">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-snug">
             {displayTitle}
             {locationLabel && (
-              <span className="text-slate-600 font-normal text-lg md:text-xl ml-1.5">
+              <span className="text-slate-600 font-normal text-sm md:text-xl ml-1.5">
                 in <span className="font-semibold text-slate-800">{locationLabel}</span>
               </span>
             )}

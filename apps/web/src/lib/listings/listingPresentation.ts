@@ -142,7 +142,14 @@ export function sanitizeListingTitle(
         return resolveListingCategoryLabel(listing, "Listing");
     }
 
-    const trimmed = rawTitle.replace(/\*\*/g, "").trim();
+    const trimmed = String(rawTitle)
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\*\*/g, "")
+        .trim();
     if (!trimmed) {
         return resolveListingCategoryLabel(listing, "Listing");
     }
