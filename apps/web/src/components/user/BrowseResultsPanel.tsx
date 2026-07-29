@@ -142,17 +142,21 @@ export function BrowseResultsPanel<TItem>({
             ? shouldUseVirtualizedList && VirtualizedListComponent
               ? <VirtualizedListComponent items={items} view={view} />
               : (
-                <div
-                  className={
-                    view === "list"
-                      ? "flex flex-col gap-3"
-                      : "grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-3"
-                  }
-                >
-                  {items.map((item, index) => (
-                    <Fragment key={getItemKey(item)}>{renderCard(item, view, index)}</Fragment>
-                  ))}
-                </div>
+                <>
+                  {/* Mobile Layout: Fixed to List View */}
+                  <div className="flex flex-col gap-3 lg:hidden">
+                    {items.map((item, index) => (
+                      <Fragment key={getItemKey(item)}>{renderCard(item, "list", index)}</Fragment>
+                    ))}
+                  </div>
+
+                  {/* Desktop Layout: Fixed to 3-Column Grid View */}
+                  <div className="hidden lg:grid lg:grid-cols-3 gap-5">
+                    {items.map((item, index) => (
+                      <Fragment key={getItemKey(item)}>{renderCard(item, "grid", index)}</Fragment>
+                    ))}
+                  </div>
+                </>
               )
             : null}
 

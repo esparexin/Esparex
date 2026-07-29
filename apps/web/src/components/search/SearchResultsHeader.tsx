@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, buttonVariants } from "@esparex/ui";
+import { buttonVariants } from "@esparex/ui";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ChevronDown, LayoutGrid, List, SortAsc } from "@/icons/IconRegistry";
+import { ChevronDown, SortAsc } from "@/icons/IconRegistry";
 import {
     PUBLIC_BROWSE_SORT_LABELS,
     type SortOption,
@@ -20,9 +20,9 @@ export type { SortOption } from "@/lib/publicBrowseSort";
 type SearchResultsHeaderProps = {
     total: number;
     sort: SortOption;
-    view: "grid" | "list";
+    view?: "grid" | "list";
     onSortChange: (v: SortOption) => void;
-    onViewChange: (v: "grid" | "list") => void;
+    onViewChange?: (v: "grid" | "list") => void;
     filterNode?: React.ReactNode;
     activeFilterCount?: number;
     categoryName?: string | null;
@@ -134,9 +134,7 @@ function SortDropdown({
 export function SearchResultsHeader({
     total,
     sort,
-    view,
     onSortChange,
-    onViewChange,
     filterNode,
     categoryName,
 }: SearchResultsHeaderProps) {
@@ -163,7 +161,7 @@ export function SearchResultsHeader({
                     </div>
                 </div>
 
-                {/* Right side: Single SortDropdown instance & View Toggle */}
+                {/* Right side: SortDropdown instance */}
                 <div className="flex items-center gap-2 md:gap-3 shrink-0">
                     <SortDropdown
                         open={sortOpen}
@@ -171,49 +169,6 @@ export function SearchResultsHeader({
                         sort={sort}
                         onSelect={onSortChange}
                     />
-
-                    {/* Desktop View Toggle */}
-                    <div className="hidden md:flex items-center rounded-[10px] border border-slate-200 bg-slate-50/50 p-1">
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => onViewChange("grid")}
-                            aria-label="Grid view"
-                            className={cn(
-                                "h-8 w-8 rounded-md",
-                                view === "grid" ? "bg-white shadow-sm text-foreground" : "text-foreground-subtle hover:text-foreground-tertiary"
-                            )}
-                        >
-                            <LayoutGrid className="size-4" />
-                        </Button>
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => onViewChange("list")}
-                            aria-label="List view"
-                            className={cn(
-                                "h-8 w-8 rounded-md",
-                                view === "list" ? "bg-white shadow-sm text-foreground" : "text-foreground-subtle hover:text-foreground-tertiary"
-                            )}
-                        >
-                            <List className="size-4" />
-                        </Button>
-                    </div>
-
-                    {/* Mobile View Toggle */}
-                    <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
-                        aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
-                        className="flex md:hidden h-10 w-10 shrink-0 rounded-lg border-slate-200 bg-white shadow-sm"
-                    >
-                        {view === "grid" ? (
-                            <List className="size-4 text-foreground-tertiary" />
-                        ) : (
-                            <LayoutGrid className="size-4 text-foreground-tertiary" />
-                        )}
-                    </Button>
                 </div>
             </div>
         </div>
