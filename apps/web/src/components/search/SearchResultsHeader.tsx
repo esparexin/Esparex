@@ -141,7 +141,7 @@ export function SearchResultsHeader({
     const [sortOpen, setSortOpen] = React.useState(false);
 
     return (
-        <div className="sticky top-14 md:top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-100 py-2 px-3 md:px-0 md:py-3 mb-2 md:mb-0">
+        <div className="py-1 mb-2 border-none bg-transparent shadow-none">
             <div className="flex items-center justify-between gap-3">
                 {/* Left side: Filter Trigger (Mobile only) & Category Title */}
                 <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">

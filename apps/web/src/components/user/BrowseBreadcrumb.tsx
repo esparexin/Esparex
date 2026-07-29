@@ -20,7 +20,7 @@ export function BrowseBreadcrumb({
   const displayTitle = categoryName ? categoryName : "All Categories";
 
   return (
-    <div className={cn("space-y-1.5 py-1 md:py-3", className)}>
+    <div className={cn("space-y-1 py-0.5 md:py-2", className)}>
       {/* Semantic Accessible Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="flex items-center text-[11px] md:text-sm text-slate-500 font-medium overflow-x-auto no-scrollbar">
         <ol className="flex items-center space-x-1 md:space-x-2 whitespace-nowrap">
@@ -61,7 +61,7 @@ export function BrowseBreadcrumb({
       </nav>
 
       {/* Main Page Title + Location Context Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 border-b border-slate-100 pb-2">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-0.5 sm:gap-4 border-b border-slate-100/80 pb-1.5">
         <div>
           <h1 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-snug">
             {displayTitle}
