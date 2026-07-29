@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sparkles, Crown, Star, Zap } from "@/icons/IconRegistry";
+import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
 import { formatPrice } from "@/lib/formatters";
@@ -377,7 +378,7 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border select-none",
+        "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
           : "bg-red-50 text-red-700 border-red-200",
@@ -385,7 +386,17 @@ export function getConditionBadge(
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
     >
-      {isPowerOn ? "Power On" : "Power Off"}
+      {isPowerOn ? (
+        <>
+          <Zap className="size-3 text-emerald-600 fill-emerald-600 shrink-0" aria-hidden="true" />
+          <span>ON</span>
+        </>
+      ) : (
+        <>
+          <Power className="size-3 text-red-600 shrink-0" aria-hidden="true" />
+          <span>OFF</span>
+        </>
+      )}
     </span>
   );
 }
