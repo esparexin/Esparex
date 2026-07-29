@@ -59,7 +59,7 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             {...props}
         >
             <SortAsc className="size-3.5 text-foreground-subtle" />
-            <span className="font-medium text-slate-700 text-xs md:text-sm">{SORT_LABELS[sort]}</span>
+            <span className="font-medium text-slate-700 text-small">{SORT_LABELS[sort]}</span>
             <ChevronDown className={cn("size-3.5 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
@@ -147,7 +147,7 @@ export function SearchResultsHeader({
                 <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
                     {filterNode && <div className="shrink-0 lg:hidden">{filterNode}</div>}
                     {categoryName && (
-                        <h2 className="hidden sm:block text-base md:text-lg font-bold text-slate-900 tracking-tight leading-none truncate">
+                        <h2 className="hidden sm:block text-h4 font-bold text-slate-900 tracking-tight leading-none truncate">
                             {categoryName}
                         </h2>
                     )}

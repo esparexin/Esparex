@@ -22,7 +22,7 @@ export function BrowseBreadcrumb({
   return (
     <div className={cn("space-y-1 py-0.5 md:py-2", className)}>
       {/* Semantic Accessible Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="flex items-center text-[11px] md:text-sm text-slate-500 font-medium overflow-x-auto no-scrollbar">
+      <nav aria-label="Breadcrumb" className="flex items-center text-tiny md:text-small text-slate-500 font-medium overflow-x-auto no-scrollbar">
         <ol className="flex items-center space-x-1 md:space-x-2 whitespace-nowrap">
           <li>
             <Link
@@ -63,10 +63,10 @@ export function BrowseBreadcrumb({
       {/* Main Page Title + Location Context Banner */}
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-0.5 sm:gap-4 border-b border-slate-100/80 pb-1.5">
         <div>
-          <h1 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-snug">
+          <h1 className="text-h3 sm:text-h2 font-bold text-slate-900 tracking-tight leading-snug">
             {displayTitle}
             {locationLabel && (
-              <span className="text-slate-500 font-normal text-xs sm:text-sm md:text-base ml-1.5">
+              <span className="text-slate-500 font-normal text-small md:text-body ml-1.5">
                 in <span className="font-semibold text-slate-800">{locationLabel}</span>
               </span>
             )}
@@ -74,7 +74,7 @@ export function BrowseBreadcrumb({
         </div>
 
         {typeof total === "number" && (
-          <div className="flex items-center gap-1.5 text-xs md:text-sm text-slate-500 font-medium shrink-0">
+          <div className="flex items-center gap-1.5 text-caption md:text-small text-slate-500 font-medium shrink-0">
             <span className={cn("size-2 rounded-full", total > 0 ? "bg-emerald-500 animate-pulse" : "bg-slate-300")} />
             <span>
               <strong className="text-slate-900 font-semibold">{total}</strong> {total === 1 ? "listing" : "listings"} found

@@ -101,7 +101,7 @@ export const AdCardCover = memo(function AdCardCover({
       {showVerifiedBadge && (
         <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2 z-10">
           <Badge
-            className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 h-5 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-sm"
+            className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-tiny font-bold px-1.5 h-5 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-sm"
             aria-label="Verified Business"
           >
             <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" />
