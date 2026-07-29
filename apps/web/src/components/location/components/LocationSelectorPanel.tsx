@@ -123,7 +123,7 @@ export function LocationSelectorPanel({
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col px-3 pb-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
-                <div className={cn("min-h-0 flex-1 overflow-y-auto pt-2 pr-1", isSearching && "pointer-events-none opacity-60")}>
+                <div className={cn("min-h-0 flex-1 overflow-y-auto pt-2 pr-1", isSearching && "opacity-60")}>
                     {children}
                 </div>
             </div>

@@ -7,6 +7,15 @@ import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "../LocationSkeleton";
 import { MAX_DROPDOWN_RESULTS } from "../locationSelectorCore.helpers";
 
+const POPULAR_CITIES: Location[] = [
+    { id: "hyderabad", locationId: "hyderabad", slug: "hyderabad", city: "Hyderabad", state: "Telangana", country: "India", name: "Hyderabad", display: "Hyderabad, Telangana", displayName: "Hyderabad", level: "city", coordinates: { type: "Point", coordinates: [78.4867, 17.3850] }, isActive: true, isPopular: true },
+    { id: "vijayawada", locationId: "vijayawada", slug: "vijayawada", city: "Vijayawada", state: "Andhra Pradesh", country: "India", name: "Vijayawada", display: "Vijayawada, Andhra Pradesh", displayName: "Vijayawada", level: "city", coordinates: { type: "Point", coordinates: [80.6480, 16.5062] }, isActive: true, isPopular: true },
+    { id: "visakhapatnam", locationId: "visakhapatnam", slug: "visakhapatnam", city: "Visakhapatnam", state: "Andhra Pradesh", country: "India", name: "Visakhapatnam", display: "Visakhapatnam, Andhra Pradesh", displayName: "Visakhapatnam", level: "city", coordinates: { type: "Point", coordinates: [83.2185, 17.6868] }, isActive: true, isPopular: true },
+    { id: "bengaluru", locationId: "bengaluru", slug: "bengaluru", city: "Bengaluru", state: "Karnataka", country: "India", name: "Bengaluru", display: "Bengaluru, Karnataka", displayName: "Bengaluru", level: "city", coordinates: { type: "Point", coordinates: [77.5946, 12.9716] }, isActive: true, isPopular: true },
+    { id: "mumbai", locationId: "mumbai", slug: "mumbai", city: "Mumbai", state: "Maharashtra", country: "India", name: "Mumbai", display: "Mumbai, Maharashtra", displayName: "Mumbai", level: "city", coordinates: { type: "Point", coordinates: [72.8777, 19.0760] }, isActive: true, isPopular: true },
+    { id: "delhi", locationId: "delhi", slug: "delhi", city: "Delhi", state: "Delhi", country: "India", name: "Delhi", display: "Delhi, NCT", displayName: "Delhi", level: "city", coordinates: { type: "Point", coordinates: [77.1025, 28.7041] }, isActive: true, isPopular: true },
+];
+
 export function LocationResultsList({
     query,
     showSkeleton,
@@ -118,8 +127,28 @@ export function LocationResultsList({
                     </div>
                 )
             ) : (
-                <div className="p-4 text-center text-muted-foreground text-xs">
-                    Type to search city, area, district or state.
+                <div className="space-y-1">
+                    <p className="text-tiny font-medium text-muted-foreground px-2 py-1">Popular Cities</p>
+                    {POPULAR_CITIES.map((loc, index) => (
+                        <button
+                            key={`popular-${loc.id}`}
+                            id={`popular-option-${index}`}
+                            role="option"
+                            type="button"
+                            onClick={() => void onSelect(loc)}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 text-left transition-colors rounded-xl hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                            <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                            <span className="min-w-0 flex-1">
+                                <span className="block truncate text-xs font-semibold text-foreground">
+                                    {loc.name}
+                                </span>
+                                <span className="block truncate text-tiny text-muted-foreground">
+                                    {loc.state}
+                                </span>
+                            </span>
+                        </button>
+                    ))}
                 </div>
             )}
         </div>
