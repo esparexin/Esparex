@@ -1,26 +1,15 @@
 "use client";
 
 import { memo, useState } from "react";
-import { usePathname } from "next/navigation";
-import { Search, SlidersHorizontal } from "@/icons/IconRegistry";
-
+import { Search, SlidersHorizontal, Check } from "@/icons/IconRegistry";
 import type { Category } from "@/lib/api/user/categories";
-import {
-  Button,
-  Drawer,
-} from "@esparex/ui";
-
+import { Button, Drawer } from "@esparex/ui";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
-interface BrowseFiltersBarProps {
+export interface BrowseFiltersHeaderTriggerProps {
   inputId?: string;
   inputValue: string;
   selectedCategory: string;
@@ -31,112 +20,17 @@ interface BrowseFiltersBarProps {
   onCategoryChange: (value: string) => void;
   onReset: () => void;
   getCategoryValue?: (category: Category) => string;
-  respectMobileChromePolicy?: boolean;
-  showKeywordInput?: boolean;
-  inputClassName?: string;
-  selectTriggerClassName?: string;
-}
-
-interface BrowseFiltersHeaderTriggerProps extends BrowseFiltersBarProps {
   activeFilterCount?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  onPriceChange?: (min?: number, max?: number) => void;
+  sellerType?: "all" | "user" | "business";
+  onSellerTypeChange?: (sellerType: "all" | "user" | "business") => void;
+  deviceCondition?: string;
+  onDeviceConditionChange?: (condition: string) => void;
 }
 
-function renderCategoryItems(
-  categories: Category[],
-  getCategoryValue: (category: Category) => string
-) {
-  return categories.map((category) => {
-    const value = getCategoryValue(category);
-    if (!value) {
-      return null;
-    }
-
-    return (
-      <SelectItem key={category.id} value={value}>
-        {category.name}
-      </SelectItem>
-    );
-  });
-}
-
-export const BrowseFiltersBar = memo(function BrowseFiltersBar({
-  inputId,
-  inputValue,
-  selectedCategory,
-  categories,
-  searchAriaLabel,
-  searchPlaceholder,
-  onInputChange,
-  onCategoryChange,
-  onReset,
-  getCategoryValue = (category) => category.id,
-  respectMobileChromePolicy = false,
-  showKeywordInput = false,
-  inputClassName = "pl-9 h-11 rounded-xl bg-white border-slate-200 focus:border-slate-300 transition-colors",
-  selectTriggerClassName = "h-11 flex-1 sm:flex-none sm:w-44 rounded-xl bg-slate-50 border-slate-200",
-}: BrowseFiltersBarProps) {
-  const pathname = usePathname();
-  const chromePolicy = getMobileChromePolicy(pathname);
-
-  if (respectMobileChromePolicy && !chromePolicy.showStickySearch) {
-    return null;
-  }
-
-  const hasCategoryFilter = Boolean(categories && categories.length > 0);
-  const hasControls = showKeywordInput || hasCategoryFilter || Boolean(inputValue || selectedCategory);
-
-  if (!hasControls) {
-    return null;
-  }
-
-  return (
-    <div className="sticky top-[6.25rem] md:top-0 z-30 bg-white border-b border-slate-100 shadow-sm">
-      <div className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-        {showKeywordInput ? (
-          <div className="relative w-full sm:flex-1 sm:min-w-[180px] sm:max-w-md">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-foreground-subtle pointer-events-none" />
-            <Input
-              id={inputId}
-              aria-label={searchAriaLabel}
-              placeholder={searchPlaceholder}
-              className={inputClassName}
-              value={inputValue}
-              onChange={(event) => onInputChange(event.target.value)}
-            />
-          </div>
-        ) : null}
-
-        <div className="flex items-center gap-2 sm:contents">
-          {hasCategoryFilter ? (
-            <Select
-              value={selectedCategory || "all"}
-              onValueChange={(value) => onCategoryChange(value === "all" ? "" : value)}
-            >
-              <SelectTrigger className={selectTriggerClassName}>
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {renderCategoryItems(categories, getCategoryValue)}
-              </SelectContent>
-            </Select>
-          ) : null}
-
-          {(inputValue || selectedCategory) && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onReset}
-              className="shrink-0 h-11 text-muted-foreground hover:text-red-600"
-            >
-              Clear
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
+type FilterTab = "category" | "budget" | "seller" | "condition";
 
 export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigger({
   inputId,
@@ -148,25 +42,51 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
   onInputChange,
   onCategoryChange,
   onReset,
-  getCategoryValue = (category) => category.id,
-  inputClassName = "pl-9 h-11 rounded-xl bg-white border-slate-200 focus:border-slate-300 transition-colors",
-  selectTriggerClassName = "h-11 w-full rounded-xl bg-slate-50 border-slate-200",
+  getCategoryValue = (category) => category.slug || category.id,
   activeFilterCount = 0,
+  minPrice,
+  maxPrice,
+  onPriceChange,
+  sellerType = "all",
+  onSellerTypeChange,
+  deviceCondition,
+  onDeviceConditionChange,
 }: BrowseFiltersHeaderTriggerProps) {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<FilterTab>("category");
+
+  const [localMin, setLocalMin] = useState<string>(minPrice ? String(minPrice) : "");
+  const [localMax, setLocalMax] = useState<string>(maxPrice ? String(maxPrice) : "");
+
+  const handleApply = () => {
+    if (onPriceChange && (localMin || localMax)) {
+      onPriceChange(
+        localMin ? Number.parseInt(localMin, 10) : undefined,
+        localMax ? Number.parseInt(localMax, 10) : undefined
+      );
+    }
+    setOpen(false);
+  };
+
+  const handleClearAll = () => {
+    setLocalMin("");
+    setLocalMax("");
+    onReset();
+    setOpen(false);
+  };
 
   return (
     <Drawer
-      title="Filter Results"
+      title="FILTERS & SORT"
       open={open}
       onOpenChange={setOpen}
       trigger={
         <Button
           variant="outline"
           onClick={(e) => e.currentTarget.blur()}
-          className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none"
+          className="h-10 px-3.5 gap-2 text-slate-800 border-slate-200 hover:bg-slate-50 font-semibold text-xs sm:text-sm rounded-full shadow-none"
         >
-          <SlidersHorizontal className="size-4 text-muted-foreground" />
+          <SlidersHorizontal className="size-4 text-slate-600" />
           <span>Filters</span>
           {activeFilterCount > 0 ? (
             <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
@@ -176,47 +96,252 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
         </Button>
       }
     >
-      <div className="space-y-4 pb-8 pt-2">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-foreground-subtle pointer-events-none" />
-          <Input
-            id={inputId}
-            aria-label={searchAriaLabel}
-            placeholder={searchPlaceholder}
-            className={inputClassName}
-            value={inputValue}
-            onChange={(event) => onInputChange(event.target.value)}
-          />
+      <div className="flex flex-col h-[75vh] max-h-[560px] -mx-4 -mb-4">
+        {/* Search Bar Header */}
+        <div className="px-4 py-2 border-b border-slate-100">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 pointer-events-none" />
+            <Input
+              id={inputId}
+              aria-label={searchAriaLabel}
+              placeholder={searchPlaceholder}
+              className="pl-9 h-10 text-xs rounded-xl bg-slate-50 border-slate-200"
+              value={inputValue}
+              onChange={(event) => onInputChange(event.target.value)}
+            />
+          </div>
         </div>
 
-        <Select
-          value={selectedCategory || "all"}
-          onValueChange={(value) => {
-            onCategoryChange(value === "all" ? "" : value);
-            setOpen(false);
-          }}
-        >
-          <SelectTrigger className={selectTriggerClassName}>
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {renderCategoryItems(categories, getCategoryValue)}
-          </SelectContent>
-        </Select>
+        {/* 2-Panel Layout: Left Tabs + Right Options */}
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          {/* Left Vertical Navigation Tabs */}
+          <div className="w-[125px] shrink-0 bg-slate-50 border-r border-slate-100 overflow-y-auto">
+            <button
+              type="button"
+              onClick={() => setActiveTab("category")}
+              className={cn(
+                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                activeTab === "category"
+                  ? "bg-white text-slate-900 border-slate-900 font-bold shadow-sm"
+                  : "text-slate-600 border-transparent hover:text-slate-900"
+              )}
+            >
+              By Category
+            </button>
 
-        {(inputValue || selectedCategory) ? (
+            <button
+              type="button"
+              onClick={() => setActiveTab("budget")}
+              className={cn(
+                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                activeTab === "budget"
+                  ? "bg-white text-slate-900 border-slate-900 font-bold shadow-sm"
+                  : "text-slate-600 border-transparent hover:text-slate-900"
+              )}
+            >
+              By Budget
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("seller")}
+              className={cn(
+                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                activeTab === "seller"
+                  ? "bg-white text-slate-900 border-slate-900 font-bold shadow-sm"
+                  : "text-slate-600 border-transparent hover:text-slate-900"
+              )}
+            >
+              By Seller
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("condition")}
+              className={cn(
+                "w-full text-left px-3 py-3.5 text-xs font-semibold border-l-4 transition-colors",
+                activeTab === "condition"
+                  ? "bg-white text-slate-900 border-slate-900 font-bold shadow-sm"
+                  : "text-slate-600 border-transparent hover:text-slate-900"
+              )}
+            >
+              Condition
+            </button>
+          </div>
+
+          {/* Right Content Panel */}
+          <div className="flex-1 p-4 overflow-y-auto bg-white">
+            {activeTab === "category" && (
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => onCategoryChange("all")}
+                  className={cn(
+                    "flex w-full items-center justify-between p-2.5 rounded-lg text-xs font-medium transition-colors",
+                    !selectedCategory || selectedCategory === "all"
+                      ? "bg-slate-900 text-white font-semibold"
+                      : "text-slate-700 hover:bg-slate-50"
+                  )}
+                >
+                  <span>All Categories</span>
+                  {(!selectedCategory || selectedCategory === "all") && (
+                    <Check className="size-4 shrink-0" />
+                  )}
+                </button>
+
+                {categories.map((cat) => {
+                  const val = getCategoryValue(cat);
+                  const isSelected = selectedCategory === val || selectedCategory === cat.slug || selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => onCategoryChange(val)}
+                      className={cn(
+                        "flex w-full items-center justify-between p-2.5 rounded-lg text-xs font-medium transition-colors",
+                        isSelected
+                          ? "bg-slate-900 text-white font-semibold"
+                          : "text-slate-700 hover:bg-slate-50"
+                      )}
+                    >
+                      <span className="truncate">{cat.name}</span>
+                      {isSelected && <Check className="size-4 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {activeTab === "budget" && (
+              <div className="space-y-4">
+                <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Price Range (₹)
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min Price"
+                    value={localMin}
+                    onChange={(e) => setLocalMin(e.target.value)}
+                    className="h-10 text-xs rounded-xl border-slate-200"
+                  />
+                  <span className="text-slate-300">-</span>
+                  <Input
+                    type="number"
+                    placeholder="Max Price"
+                    value={localMax}
+                    onChange={(e) => setLocalMax(e.target.value)}
+                    className="h-10 text-xs rounded-xl border-slate-200"
+                  />
+                </div>
+
+                <div className="pt-2 space-y-2">
+                  <Label className="text-[11px] font-semibold text-slate-500">Quick Presets</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: "Under ₹5,000", min: "", max: "5000" },
+                      { label: "₹5k - ₹15k", min: "5000", max: "15000" },
+                      { label: "₹15k - ₹30k", min: "15000", max: "30000" },
+                      { label: "Above ₹30k", min: "30000", max: "" },
+                    ].map((preset) => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => {
+                          setLocalMin(preset.min);
+                          setLocalMax(preset.max);
+                        }}
+                        className="px-3 py-1.5 rounded-full border border-slate-200 text-[11px] font-medium text-slate-700 hover:border-slate-900 hover:bg-slate-50 transition-colors"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "seller" && (
+              <div className="space-y-3">
+                <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Seller Type
+                </Label>
+                <div className="space-y-2">
+                  {[
+                    { id: "all", label: "All Sellers" },
+                    { id: "user", label: "Individual Users" },
+                    { id: "business", label: "Verified Businesses" },
+                  ].map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        name="mobileSellerType"
+                        value={item.id}
+                        checked={sellerType === item.id}
+                        onChange={() => onSellerTypeChange?.(item.id as "all" | "user" | "business")}
+                        className="size-4 text-slate-900 border-slate-300 focus:ring-slate-400"
+                      />
+                      <span className="text-xs font-medium text-slate-800">{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeTab === "condition" && (
+              <div className="space-y-3">
+                <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Device Condition
+                </Label>
+                <div className="space-y-2">
+                  {[
+                    { id: "power_on", label: "Powers On (Working)" },
+                    { id: "power_off", label: "Powers Off (Parts / Repair)" },
+                  ].map((item) => {
+                    const isChecked = deviceCondition === item.id;
+                    return (
+                      <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-slate-100 hover:bg-slate-50">
+                        <Checkbox
+                          id={`drawer-cond-${item.id}`}
+                          checked={isChecked}
+                          onCheckedChange={(checked) => {
+                            onDeviceConditionChange?.(checked ? item.id : "");
+                          }}
+                        />
+                        <Label
+                          htmlFor={`drawer-cond-${item.id}`}
+                          className="text-xs font-medium text-slate-800 cursor-pointer flex-1"
+                        >
+                          {item.label}
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sticky Bottom Action Footer (Protected from Floating Elements) */}
+        <div className="p-3 bg-white border-t border-slate-100 flex items-center gap-3 pb-8 sm:pb-3">
           <Button
             variant="outline"
-            onClick={() => {
-              onReset();
-              setOpen(false);
-            }}
-            className="h-11 w-full rounded-xl"
+            onClick={handleClearAll}
+            className="flex-1 h-11 text-xs font-semibold rounded-xl border-slate-200 text-slate-700"
           >
-            Clear Filters
+            Clear all
           </Button>
-        ) : null}
+          <Button
+            onClick={handleApply}
+            className="flex-1 h-11 text-xs font-bold rounded-xl bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
+          >
+            Apply Filters
+          </Button>
+        </div>
       </div>
     </Drawer>
   );
