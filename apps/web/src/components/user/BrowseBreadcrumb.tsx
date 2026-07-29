@@ -61,12 +61,12 @@ export function BrowseBreadcrumb({
       </nav>
 
       {/* Main Page Title + Location Context Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 border-b border-slate-100 pb-2 md:pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-4 border-b border-slate-100 pb-2">
         <div>
-          <h1 className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight leading-snug">
+          <h1 className="text-base sm:text-lg md:text-xl font-bold text-slate-900 tracking-tight leading-snug">
             {displayTitle}
             {locationLabel && (
-              <span className="text-slate-600 font-normal text-sm md:text-xl ml-1.5">
+              <span className="text-slate-500 font-normal text-xs sm:text-sm md:text-base ml-1.5">
                 in <span className="font-semibold text-slate-800">{locationLabel}</span>
               </span>
             )}
