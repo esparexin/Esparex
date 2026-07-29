@@ -94,8 +94,8 @@ export const AdCardMeta = memo(function AdCardMeta({
       <div className="flex items-center justify-between min-h-[1.25rem]">
         <span
           className={cn(
-            "font-bold tracking-tight text-green-600 text-sm sm:text-base",
-            isDashboard && "text-primary text-base"
+            "font-bold tracking-tight text-emerald-600 dark:text-emerald-400",
+            isDashboard ? "text-base" : "text-sm"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >

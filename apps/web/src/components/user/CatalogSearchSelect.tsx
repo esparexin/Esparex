@@ -164,6 +164,7 @@ export function CatalogSearchSelect<T>({
                     const id = getId(item);
                     const isSelected = activeIndex === idx;
                     return (
+                        /* Keep focus on search input during mouse click so blur handler does not close dropdown prematurely */
                         <button
                             key={id || label}
                             id={`select-option-${idx}`}
@@ -273,9 +274,6 @@ export function CatalogSearchSelect<T>({
                                                 type="button"
                                                 role="option"
                                                 aria-selected={isSelected}
-                                                onMouseDown={(e) => {
-                                                    e.preventDefault();
-                                                }}
                                                 onClick={() => {
                                                     handleItemSelect(item);
                                                 }}

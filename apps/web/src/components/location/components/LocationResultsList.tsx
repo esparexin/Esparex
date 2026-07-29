@@ -1,11 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import { AlertCircle, MapPin, RefreshCw } from "@/icons/IconRegistry";
 import type { Location } from "@/lib/api/user/locations";
 import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import LocationSkeleton from "../LocationSkeleton";
 import { MAX_DROPDOWN_RESULTS } from "../locationSelectorCore.helpers";
+
+export const POPULAR_CITIES: Location[] = [
+    { id: "hyderabad", locationId: "hyderabad", slug: "hyderabad", city: "Hyderabad", state: "Telangana", country: "India", name: "Hyderabad", display: "Hyderabad, Telangana", displayName: "Hyderabad", level: "city", coordinates: { type: "Point", coordinates: [78.4867, 17.3850] }, isActive: true, isPopular: true },
+    { id: "vijayawada", locationId: "vijayawada", slug: "vijayawada", city: "Vijayawada", state: "Andhra Pradesh", country: "India", name: "Vijayawada", display: "Vijayawada, Andhra Pradesh", displayName: "Vijayawada", level: "city", coordinates: { type: "Point", coordinates: [80.6480, 16.5062] }, isActive: true, isPopular: true },
+    { id: "visakhapatnam", locationId: "visakhapatnam", slug: "visakhapatnam", city: "Visakhapatnam", state: "Andhra Pradesh", country: "India", name: "Visakhapatnam", display: "Visakhapatnam, Andhra Pradesh", displayName: "Visakhapatnam", level: "city", coordinates: { type: "Point", coordinates: [83.2185, 17.6868] }, isActive: true, isPopular: true },
+    { id: "bengaluru", locationId: "bengaluru", slug: "bengaluru", city: "Bengaluru", state: "Karnataka", country: "India", name: "Bengaluru", display: "Bengaluru, Karnataka", displayName: "Bengaluru", level: "city", coordinates: { type: "Point", coordinates: [77.5946, 12.9716] }, isActive: true, isPopular: true },
+    { id: "mumbai", locationId: "mumbai", slug: "mumbai", city: "Mumbai", state: "Maharashtra", country: "India", name: "Mumbai", display: "Mumbai, Maharashtra", displayName: "Mumbai", level: "city", coordinates: { type: "Point", coordinates: [72.8777, 19.0760] }, isActive: true, isPopular: true },
+    { id: "delhi", locationId: "delhi", slug: "delhi", city: "Delhi", state: "Delhi", country: "India", name: "Delhi", display: "Delhi, NCT", displayName: "Delhi", level: "city", coordinates: { type: "Point", coordinates: [77.1025, 28.7041] }, isActive: true, isPopular: true },
+];
 
 export function LocationResultsList({
     query,
@@ -32,6 +42,15 @@ export function LocationResultsList({
     getLocationPrimaryLabel: (loc: Location) => string;
     getLocationSecondaryLabel: (loc: Location) => string;
 }) {
+    useEffect(() => {
+        if (selectedIndex < 0) return;
+        const optionId = query ? `location-option-${selectedIndex}` : `popular-option-${selectedIndex}`;
+        const el = document.getElementById(optionId) || document.getElementById(`location-fallback-option-${selectedIndex}`);
+        if (el) {
+            el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+    }, [selectedIndex, query]);
+
     return (
         <div className="py-0.5" role="listbox" id="location-results-listbox" aria-label="Location search results">
             {query ? (
@@ -66,11 +85,6 @@ export function LocationResultsList({
                                             role="option"
                                             aria-selected={selectedIndex === index}
                                             type="button"
-                                            onPointerDown={(e) => e.stopPropagation()}
-                                            onMouseDown={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                            }}
                                             onClick={() => void onSelect(loc)}
                                             className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer select-none"
                                         >
@@ -92,24 +106,19 @@ export function LocationResultsList({
                 ) : locations.length > 0 ? (
                     locations.slice(0, MAX_DROPDOWN_RESULTS).map((loc, index) => {
                         return (
-                            <button
-                                key={`loc-${loc.id || index}`}
-                                id={`location-option-${index}`}
-                                role="option"
-                                aria-selected={selectedIndex === index}
-                                type="button"
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                }}
-                                onClick={() => void onSelect(loc)}
-                                className={cn(
-                                    "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
-                                    "hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                                    selectedIndex === index && "bg-accent"
-                                )}
-                            >
+                                <button
+                                    key={`loc-${loc.id || index}`}
+                                    id={`location-option-${index}`}
+                                    role="option"
+                                    aria-selected={selectedIndex === index}
+                                    type="button"
+                                    onClick={() => void onSelect(loc)}
+                                    className={cn(
+                                        "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
+                                        "hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                        selectedIndex === index && "bg-accent"
+                                    )}
+                                >
                                 <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
                                 <span className="min-w-0 flex-1">
                                     <span className="block truncate text-xs font-semibold text-foreground">
@@ -128,8 +137,32 @@ export function LocationResultsList({
                     </div>
                 )
             ) : (
-                <div className="p-4 text-center text-muted-foreground text-xs">
-                    Type to search city, area, district or state.
+                <div className="space-y-1">
+                    <p className="text-tiny font-medium text-muted-foreground px-2 py-1">Popular Cities</p>
+                    {POPULAR_CITIES.map((loc, index) => (
+                        <button
+                            key={`popular-${loc.id}`}
+                            id={`popular-option-${index}`}
+                            role="option"
+                            aria-selected={selectedIndex === index}
+                            type="button"
+                            onClick={() => void onSelect(loc)}
+                            className={cn(
+                                "flex items-center gap-2.5 w-full px-3 py-2 text-left transition-colors rounded-xl hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                                selectedIndex === index && "bg-accent"
+                            )}
+                        >
+                            <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                            <span className="min-w-0 flex-1">
+                                <span className="block truncate text-xs font-semibold text-foreground">
+                                    {loc.name}
+                                </span>
+                                <span className="block truncate text-tiny text-muted-foreground">
+                                    {loc.state}
+                                </span>
+                            </span>
+                        </button>
+                    ))}
                 </div>
             )}
         </div>

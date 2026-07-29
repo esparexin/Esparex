@@ -112,11 +112,6 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
                 clearAuthErrorOfTypes(["generic"]);
               }
             }}
-            onKeyDown={(e) => {
-              if (["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"].includes(e.key)) return;
-              if (e.metaKey || e.ctrlKey) return;
-              if (!/[0-9]/.test(e.key)) e.preventDefault();
-            }}
             placeholder="9876543210"
             maxLength={10}
             className={cn(

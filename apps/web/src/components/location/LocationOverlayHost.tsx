@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject, useState, useEffect, type CSSProperties } from "react";
+import { RefObject, useState, useEffect, useRef, type CSSProperties } from "react";
 import { useIsMobile } from "@/components/ui/useMobile";
 import LocationSelector from "@/components/location/LocationSelector";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, Z_INDEX } from "@esparex/ui";
@@ -29,6 +29,7 @@ export function LocationOverlayHost({
     containerRef,
 }: LocationOverlayHostProps) {
     const isMobile = useIsMobile();
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     // Anchor position for the desktop dropdown — computed from the trigger ref.
     // Using position:fixed so the component can live outside the trigger's
@@ -47,9 +48,19 @@ export function LocationOverlayHost({
         }
     }, [isOpen, isMobile, containerRef]);
 
+    // Restore focus to trigger element when overlay closes
+    const prevOpenRef = useRef(isOpen);
+    useEffect(() => {
+        if (prevOpenRef.current && !isOpen) {
+            const triggerEl = containerRef.current?.querySelector<HTMLElement>("button, input, [tabindex]") || containerRef.current;
+            triggerEl?.focus();
+        }
+        prevOpenRef.current = isOpen;
+    }, [isOpen, containerRef]);
+
     useDismissableLayer({
         isOpen: isOpen && !isMobile,
-        containerRef,
+        containerRef: [containerRef, dropdownRef],
         onDismiss: onClose,
     });
 
@@ -72,6 +83,7 @@ export function LocationOverlayHost({
 
     return (
         <div
+            ref={dropdownRef}
             style={{ zIndex: Z_INDEX.userHeaderDropdown, ...dropdownStyle }}
             className="max-h-[52vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0"
             onClick={(e) => e.stopPropagation()}

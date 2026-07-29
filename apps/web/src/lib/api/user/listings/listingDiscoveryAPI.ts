@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import { API_ROUTES } from '@esparex/shared';
+import { API_ROUTES, sanitizeMongoObjectId } from '@esparex/shared';
 import { toApiResult, toPaginatedApiResult, unwrapApiPayload } from '@/lib/api/result';
 import logger from "@/lib/logger";
 import { fetchUserApiJson, type ServerFetchOptions } from '../server';
@@ -211,7 +211,10 @@ export const getHomeAds = async (
                 params.append('cursorId', effectiveParams.cursor.id.trim());
             }
         }
-        if (effectiveParams.locationId) params.append('locationId', effectiveParams.locationId);
+        if (effectiveParams.locationId) {
+            const validLocationId = sanitizeMongoObjectId(effectiveParams.locationId);
+            if (validLocationId) params.append('locationId', validLocationId);
+        }
         if (effectiveParams.level) params.append('level', effectiveParams.level);
         if (typeof effectiveParams.lat === 'number' && Number.isFinite(effectiveParams.lat)) params.append('lat', String(effectiveParams.lat));
         if (typeof effectiveParams.lng === 'number' && Number.isFinite(effectiveParams.lng)) params.append('lng', String(effectiveParams.lng));
@@ -247,7 +250,10 @@ export const getTrendingAds = async (
         const effectiveParams = paramsInput ?? {};
         const params = new URLSearchParams();
 
-        if (effectiveParams.locationId) params.append('locationId', effectiveParams.locationId);
+        if (effectiveParams.locationId) {
+            const validLocationId = sanitizeMongoObjectId(effectiveParams.locationId);
+            if (validLocationId) params.append('locationId', validLocationId);
+        }
         if (effectiveParams.categoryId) params.append('categoryId', effectiveParams.categoryId);
         if (effectiveParams.limit) params.append('limit', String(effectiveParams.limit));
         const url = withQueryParams(API_ROUTES.USER.LISTINGS_TRENDING, params);

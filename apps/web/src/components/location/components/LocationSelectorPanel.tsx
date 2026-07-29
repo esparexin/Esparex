@@ -18,6 +18,7 @@ export function LocationSelectorPanel({
     disabled,
     isSearching,
     handleClearQuery,
+    onKeyDown,
     children,
 }: {
     className?: string;
@@ -32,10 +33,11 @@ export function LocationSelectorPanel({
     disabled?: boolean;
     isSearching: boolean;
     handleClearQuery: () => void;
+    onKeyDown?: (e: React.KeyboardEvent) => void;
     children: React.ReactNode;
 }) {
     return (
-        <div className={cn("flex h-full min-h-0 flex-col bg-background", className)}>
+        <div className={cn("flex h-full min-h-0 flex-col bg-background", className)} onKeyDown={onKeyDown}>
             <div className="sticky top-0 z-10 border-b bg-background/95 px-3 pb-3 pt-2 backdrop-blur" style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}>
                 <div className="mb-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -77,13 +79,13 @@ export function LocationSelectorPanel({
                                     <span className="text-green-600 font-semibold truncate w-full">{successFeedback}</span>
                                 ) : isDetecting ? (
                                     <span className="truncate w-full">{detectFeedback || "Detecting location..."}</span>
-                                ) : (location?.source !== "default" && location?.display && location?.display !== "India") ? (
+                                ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
                                     <>
                                         <span className="truncate w-full font-semibold">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
-                                        <span className="text-tiny text-muted-foreground mt-0.5 w-full truncate">Current Location</span>
+                                        <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
                                     </>
                                 ) : (
-                                    <span className="truncate w-full">Detect My Location</span>
+                                    <span className="truncate w-full font-medium">Use Current Location</span>
                                 )}
                             </div>
                         </div>
@@ -105,6 +107,7 @@ export function LocationSelectorPanel({
                             className="h-11 rounded-xl pl-9 pr-9 text-sm"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={onKeyDown}
                             autoFocus
                             disabled={disabled}
                         />
@@ -123,7 +126,7 @@ export function LocationSelectorPanel({
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col px-3 pb-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
-                <div className={cn("min-h-0 flex-1 overflow-y-auto pt-2 pr-1", isSearching && "pointer-events-none opacity-60")}>
+                <div className={cn("min-h-0 flex-1 overflow-y-auto pt-2 pr-1", isSearching && "opacity-60")}>
                     {children}
                 </div>
             </div>

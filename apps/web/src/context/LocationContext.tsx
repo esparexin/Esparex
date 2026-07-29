@@ -61,6 +61,7 @@ export type LocationDispatchContextType = {
             level?: LocationData["level"];
             persistProfile?: boolean;
             logSelectionAnalytics?: boolean;
+            source?: LocationData["source"];
         }
     ) => void;
     clearLocation: () => void;

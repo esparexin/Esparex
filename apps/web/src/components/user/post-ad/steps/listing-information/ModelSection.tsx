@@ -36,9 +36,9 @@ export function ModelSection() {
     if (requiresScreenSize) return null;
 
     return (
-        <section className="space-y-2" aria-labelledby="model-heading">
+        <fieldset disabled={!brandNameValue || isEditMode} className="w-full border-0 p-0 m-0 space-y-2">
             <h2 id="model-heading" className="sr-only">Model</h2>
-            <Field label="Model" error={modelError as string} className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] pointer-events-none")}>
+            <Field label="Model" error={modelError as string} className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] cursor-not-allowed")}>
                 {!brandNameValue ? (
                     <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
                         Select brand first...
@@ -50,6 +50,7 @@ export function ModelSection() {
                         categoryId={categoryId} 
                         value={modelId || modelNameValue} 
                         modelDisplayName={modelNameValue}
+                        disabled={!brandNameValue || isEditMode}
                         onChange={(mId, mName) => onModelChange(mId, mName)}
                         onBrandResolved={(rbId, rbName) => { 
                             setValue("brandId", rbId, { shouldDirty: true }); 
@@ -58,6 +59,6 @@ export function ModelSection() {
                     />
                 )}
             </Field>
-        </section>
+        </fieldset>
     );
 }

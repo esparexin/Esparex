@@ -208,7 +208,6 @@ export function NotificationBellDropdown({
                 align="end"
                 sideOffset={8}
                 className="w-[min(90vw,17rem)] rounded-2xl border border-slate-200 bg-white p-0 shadow-lg"
-                onCloseAutoFocus={(event) => event.preventDefault()}
             >
                 <div className="border-b border-slate-100 px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
