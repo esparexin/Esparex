@@ -67,13 +67,13 @@ export function ViewAdModal({
             >
                 <div className="flex items-center justify-between shrink-0 border-b border-slate-100 px-6 py-4">
                     <div>
-                        <p className="text-tiny font-semibold uppercase tracking-widest text-slate-400">Moderation</p>
-                        <DialogTitle className="text-lg font-bold text-slate-900 mt-0.5">{presentation.modalTitle}</DialogTitle>
+                        <p className="text-tiny font-semibold uppercase tracking-widest text-foreground-subtle">Moderation</p>
+                        <DialogTitle className="text-lg font-bold text-foreground mt-0.5">{presentation.modalTitle}</DialogTitle>
                     </div>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="h-9 w-9 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"
+                        className="h-9 w-9 flex items-center justify-center rounded-xl text-foreground-subtle hover:bg-slate-100 hover:text-foreground-secondary transition-colors shrink-0"
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -83,7 +83,7 @@ export function ViewAdModal({
 
                 <div className="flex-1 overflow-y-auto px-6 py-5 relative min-h-0">
                     {loading && !ad && (
-                        <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                        <div className="flex flex-col items-center justify-center py-12 text-foreground-subtle">
                             <div className="mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-sky-600" />
                             <p className="text-sm">Fetching listing details...</p>
                         </div>
@@ -124,17 +124,17 @@ export function ViewAdModal({
                                         const badgeClass = MODERATION_STATUS_BADGES[ad.status];
                                         return (
                                             <span
-                                                className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass || "border-slate-200 bg-slate-100 text-slate-600"}`}
+                                                className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${badgeClass || "border-slate-200 bg-slate-100 text-foreground-secondary"}`}
                                             >
                                                 {MODERATION_STATUS_LABELS[ad.status] || ad.status}
                                             </span>
                                         );
                                     })()}
-                                    <div className="text-2xl font-bold text-slate-900">
+                                    <div className="text-2xl font-bold text-foreground">
                                         {getListingPriceSummary(ad)}
                                     </div>
-                                    <div className="text-sm text-slate-600">{new Date(ad.createdAt).toLocaleString()}</div>
-                                    <div className="text-tiny text-slate-400 mt-1">
+                                    <div className="text-sm text-foreground-secondary">{new Date(ad.createdAt).toLocaleString()}</div>
+                                    <div className="text-tiny text-foreground-subtle mt-1">
                                         Modified: {ad.updatedAt ? new Date(ad.updatedAt).toLocaleString() : "N/A"}
                                         {ad.isDeleted && (
                                             <span className="ml-2 inline-flex items-center gap-1 text-red-500 font-bold bg-red-50 px-1 py-0.5 rounded border border-red-100 uppercase text-tiny">
@@ -142,7 +142,7 @@ export function ViewAdModal({
                                             </span>
                                         )}
                                     </div>
-                                    <div className="space-y-1 text-sm text-slate-700">
+                                    <div className="space-y-1 text-sm text-foreground-secondary">
                                         <div>
                                             <span className="font-semibold">Approved at:</span>{" "}
                                             {ad.approvedAt ? new Date(ad.approvedAt).toLocaleString() : "-"}
@@ -205,40 +205,40 @@ export function ViewAdModal({
 
                             <div className="grid grid-cols-1 gap-4 rounded-lg border border-slate-200 p-4 sm:grid-cols-2">
                                 <div className="min-w-0 space-y-2">
-                                    <h3 className="text-sm font-semibold text-slate-900">{presentation.informationHeader}</h3>
-                                    <div className="truncate text-lg font-semibold text-slate-900" title={ad.title}>{ad.title}</div>
-                                    <p className="text-sm text-slate-700 whitespace-pre-wrap">{ad.description || "No description"}</p>
+                                    <h3 className="text-sm font-semibold text-foreground">{presentation.informationHeader}</h3>
+                                    <div className="truncate text-lg font-semibold text-foreground" title={ad.title}>{ad.title}</div>
+                                    <p className="text-sm text-foreground-secondary whitespace-pre-wrap">{ad.description || "No description"}</p>
                                     {effectiveListingType === "service" && (<>
                                         {typeof ad.diagnosticFee === "number" && (
-                                            <div className="text-sm text-slate-600">
+                                            <div className="text-sm text-foreground-secondary">
                                                 <span className="font-semibold">Diagnostic Fee:</span> {ad.currency} {ad.diagnosticFee.toLocaleString()}
                                             </div>
                                         )}
                                         {ad.included && (
-                                            <div className="text-sm text-slate-600">
+                                            <div className="text-sm text-foreground-secondary">
                                                 <span className="font-semibold">Included:</span> {ad.included}
                                             </div>
                                         )}
                                         {ad.excluded && (
-                                            <div className="text-sm text-slate-600">
+                                            <div className="text-sm text-foreground-secondary">
                                                 <span className="font-semibold">Excluded:</span> {ad.excluded}
                                             </div>
                                         )}
                                     </>)}
-                                    <div className="flex items-start gap-2 text-sm text-slate-600">
+                                    <div className="flex items-start gap-2 text-sm text-foreground-secondary">
                                         <MapPin size={15} className="mt-0.5" />
                                         <span>{locationDisplay}</span>
                                     </div>
                                 </div>
 
                                 <div className="min-w-0 space-y-2">
-                                    <h3 className="text-sm font-semibold text-slate-900">Seller Information</h3>
-                                    <div className="flex min-w-0 items-center gap-2 text-sm text-slate-700">
+                                    <h3 className="text-sm font-semibold text-foreground">Seller Information</h3>
+                                    <div className="flex min-w-0 items-center gap-2 text-sm text-foreground-secondary">
                                         <User size={14} className="shrink-0" />
                                         <span className="truncate">{ad.sellerName || "Unknown seller"}</span>
-                                        {ad.sellerId && <span className="text-xs text-slate-500">({ad.sellerId})</span>}
+                                        {ad.sellerId && <span className="text-xs text-foreground-tertiary">({ad.sellerId})</span>}
                                     </div>
-                                    <div className="flex items-center gap-2 text-sm text-slate-700">
+                                    <div className="flex items-center gap-2 text-sm text-foreground-secondary">
                                         <Phone size={14} />
                                         <span>{ad.sellerPhone || "Not available"}</span>
                                     </div>

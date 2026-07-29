@@ -164,7 +164,7 @@ export default function CategoriesTab() {
                         cell: (category) => (
                             <CatalogEntityCell
                                 icon={<CatalogCategoryIcon icon={category.icon} listingType={category.listingType} size={20} />}
-                                iconClassName="bg-slate-100 text-slate-600"
+                                iconClassName="bg-slate-100 text-foreground-secondary"
                                 title={category.name}
                                 subtitle={category.slug}
                             />
@@ -183,7 +183,7 @@ export default function CategoriesTab() {
                                     <Monitor size={11} aria-hidden="true" focusable="false" /> Yes
                                 </span>
                             ) : (
-                                <span className="text-tiny text-slate-400">—</span>
+                                <span className="text-tiny text-foreground-subtle">—</span>
                             ),
                     },
                     {
@@ -204,13 +204,13 @@ export default function CategoriesTab() {
                             <CatalogActionsRow>
                                 <CatalogActionIconButton
                                     onClick={() => openEditModal(category)}
-                                    className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                                    className="p-1.5 text-foreground-subtle hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                                     title="Edit"
                                     icon={<Edit size={18} aria-hidden="true" focusable="false" />}
                                 />
                                 <CatalogActionIconButton
                                     onClick={() => setDeletingCategory(category)}
-                                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                    className="p-1.5 text-foreground-subtle hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                     title="Delete"
                                     icon={<Trash2 size={18} aria-hidden="true" focusable="false" />}
                                 />
@@ -249,8 +249,8 @@ export default function CategoriesTab() {
                             />
 
                             <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
-                                <p className="text-tiny font-medium uppercase tracking-wider text-slate-400">URL Slug</p>
-                                <p className="mt-0.5 font-mono text-sm text-slate-700 break-all">
+                                <p className="text-tiny font-medium uppercase tracking-wider text-foreground-subtle">URL Slug</p>
+                                <p className="mt-0.5 font-mono text-sm text-foreground-secondary break-all">
                                     {isEditing && formData._editingSlug
                                         ? formData._editingSlug
                                         : deriveSlug(formData.name) || "auto-generated from name"}
@@ -311,7 +311,7 @@ export default function CategoriesTab() {
                             </p>
                         </div>
                     </div>
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-foreground-secondary">
                         To hide this category temporarily, <strong>deactivate it</strong> instead of deleting.
                     </p>
                     <div className="flex justify-end gap-3 pt-2">
@@ -319,7 +319,7 @@ export default function CategoriesTab() {
                             type="button"
                             disabled={isDeleting}
                             onClick={() => setDeletingCategory(null)}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
                         >
                             Cancel
                         </button>

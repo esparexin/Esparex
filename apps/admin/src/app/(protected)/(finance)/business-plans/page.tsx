@@ -99,7 +99,7 @@ export default function BusinessPlansPage() {
                         <Award size={20} />
                     </div>
                     <div>
-                        <div className="font-bold text-slate-900 flex items-center gap-2">
+                        <div className="font-bold text-foreground flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
                                 <span className="text-tiny bg-blue-100 text-blue-700 font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider">
@@ -107,7 +107,7 @@ export default function BusinessPlansPage() {
                                 </span>
                             )}
                         </div>
-                        <div className="text-tiny font-mono text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
+                        <div className="text-tiny font-mono text-foreground-tertiary bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
                             {plan.code}
                         </div>
                     </div>
@@ -118,10 +118,10 @@ export default function BusinessPlansPage() {
             header: "Pricing & Duration",
             cell: (plan: Plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-slate-700">
+                    <span className="font-bold text-sm text-foreground-secondary">
                         {plan.price === 0 ? "Free / Included" : `${plan.currency} ${plan.price}`}
                     </span>
-                    <span className="text-tiny text-slate-400 font-medium">
+                    <span className="text-tiny text-foreground-subtle font-medium">
                         {plan.durationDays ? `${plan.durationDays} Days / Year` : "365 Days"}
                     </span>
                 </div>
@@ -131,11 +131,11 @@ export default function BusinessPlansPage() {
             header: "Trust & Priority",
             cell: (plan: Plan) => (
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                    <span className="text-xs font-semibold text-foreground-secondary flex items-center gap-1">
                         <Activity size={12} className="text-sky-500" /> Priority: {plan.features?.priorityWeight ?? 1}/10
                     </span>
-                    <span className="text-tiny text-slate-500 uppercase tracking-widest flex items-center gap-1">
-                        <ShieldCheck size={10} className={plan.features?.businessBadge ? "text-emerald-500" : "text-slate-300"} />
+                    <span className="text-tiny text-foreground-tertiary uppercase tracking-widest flex items-center gap-1">
+                        <ShieldCheck size={10} className={plan.features?.businessBadge ? "text-emerald-500" : "text-foreground-subtle"} />
                         Badge: {plan.features?.businessBadge ? "Enabled" : "Disabled"}
                     </span>
                 </div>
@@ -144,10 +144,10 @@ export default function BusinessPlansPage() {
         {
             header: "Posting Quotas",
             cell: (plan: Plan) => (
-                <div className="text-xs text-slate-600 flex flex-col gap-1">
-                    <div>Ads: <span className="font-medium text-slate-900">{plan.limits?.maxAds ?? "Configurable"}</span></div>
-                    <div>Services: <span className="font-medium text-slate-900">{plan.limits?.maxServices ?? "Configurable"}</span></div>
-                    <div>Spare Parts: <span className="font-medium text-slate-900">{plan.limits?.maxParts ?? "Configurable"}</span></div>
+                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                    <div>Ads: <span className="font-medium text-foreground">{plan.limits?.maxAds ?? "Configurable"}</span></div>
+                    <div>Services: <span className="font-medium text-foreground">{plan.limits?.maxServices ?? "Configurable"}</span></div>
+                    <div>Spare Parts: <span className="font-medium text-foreground">{plan.limits?.maxParts ?? "Configurable"}</span></div>
                 </div>
             )
         },
@@ -161,7 +161,7 @@ export default function BusinessPlansPage() {
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                         plan.active
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
-                            : "bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200"
+                            : "bg-slate-100 text-foreground-secondary border border-slate-200 hover:bg-slate-200"
                     }`}
                 >
                     {plan.active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -179,7 +179,7 @@ export default function BusinessPlansPage() {
                             setEditPlan(plan);
                             setShowModal(true);
                         }}
-                        className="p-1.5 text-slate-400 hover:text-sky-600 rounded-lg hover:bg-sky-50 transition-colors"
+                        className="p-1.5 text-foreground-subtle hover:text-sky-600 rounded-lg hover:bg-sky-50 transition-colors"
                         title="Edit Plan"
                         aria-label={`Edit ${plan.name}`}
                     >
@@ -213,7 +213,7 @@ export default function BusinessPlansPage() {
                 }
                 filters={
                     <div className="relative flex-1 w-full text-black">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
                         <input
                             type="text"
                             placeholder="Search business plans by name or code..."

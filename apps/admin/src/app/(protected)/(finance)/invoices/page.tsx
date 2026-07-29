@@ -128,8 +128,8 @@ export default function InvoicesPage() {
       header: "Invoice",
       cell: (invoice) => (
         <div>
-          <div className="font-semibold text-slate-900">{invoice.invoiceNumber}</div>
-          <div className="text-xs text-slate-500">
+          <div className="font-semibold text-foreground">{invoice.invoiceNumber}</div>
+          <div className="text-xs text-foreground-tertiary">
             {new Date(invoice.issuedAt).toLocaleDateString("en-IN")}
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function InvoicesPage() {
       cell: (invoice) => (
         <div>
           <div className="font-medium">{invoice.userId?.name || "Customer"}</div>
-          <div className="text-xs text-slate-500">{invoice.userId?.email || invoice.userId?.mobile || "-"}</div>
+          <div className="text-xs text-foreground-tertiary">{invoice.userId?.email || invoice.userId?.mobile || "-"}</div>
         </div>
       )
     },
@@ -185,7 +185,7 @@ export default function InvoicesPage() {
               href={`${ADMIN_API_BASE}${ADMIN_ROUTES.INVOICE_PRINT(invoice.id)}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-700"
+              className="inline-flex items-center gap-1 text-xs font-medium text-foreground-secondary hover:text-foreground-secondary"
             >
               <FileText size={14} />
               View
@@ -216,7 +216,7 @@ export default function InvoicesPage() {
       filters={
         <>
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-subtle" />
             <input
               value={search}
               onChange={(e) => replaceQueryState({ q: e.target.value, page: null })}

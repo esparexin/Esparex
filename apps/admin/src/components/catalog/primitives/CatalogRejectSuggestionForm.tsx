@@ -20,13 +20,13 @@ export function CatalogRejectSuggestionForm({
                 </div>
             </div>
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Rejection Reason</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">Rejection Reason</label>
                 <textarea autoFocus value={rejectionReason} onChange={(e) => onRejectionReasonChange(e.target.value)}
-                    placeholder={placeholder} className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
+                    placeholder={placeholder} className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" />
             </div>
             <div className="flex justify-end gap-3 pt-2">
                 <button type="button" disabled={isSubmitting} onClick={onCancel}
-                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors">Cancel</button>
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors">Cancel</button>
                 <button type="button" disabled={isSubmitting || !rejectionReason.trim()} onClick={onConfirm}
                     className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors">
                     {isSubmitting ? <><Loader2 size={14} className="animate-spin" /> Submitting&hellip;</> : "Confirm Rejection"}

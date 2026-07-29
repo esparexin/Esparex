@@ -108,10 +108,10 @@ export function BusinessReasonModal({
                             <Icon size={20} />
                         </div>
                         <div>
-                            <DialogTitle className="text-base font-bold text-slate-900">{title}</DialogTitle>
-                            <DialogDescription className="text-xs text-slate-500 mt-0.5">
+                            <DialogTitle className="text-base font-bold text-foreground">{title}</DialogTitle>
+                            <DialogDescription className="text-xs text-foreground-tertiary mt-0.5">
                                 {description}{" "}
-                                <span className="font-semibold text-slate-700">{businessName}</span>.
+                                <span className="font-semibold text-foreground-secondary">{businessName}</span>.
                             </DialogDescription>
                         </div>
                     </div>
@@ -123,11 +123,11 @@ export function BusinessReasonModal({
                         {notice}
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                        <label className="block text-xs font-bold text-foreground-secondary mb-1.5 uppercase tracking-wider">
                             {label} <span className="text-red-500">*</span>
                         </label>
                         <textarea
-                            className={`w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none resize-none transition-all ${styles.field}`}
+                            className={`w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-foreground focus:outline-none resize-none transition-all ${styles.field}`}
                             rows={rows}
                             placeholder={placeholder}
                             value={reason}
@@ -140,7 +140,7 @@ export function BusinessReasonModal({
                         />
                         {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
                         {minLength ? (
-                            <p className="text-tiny text-slate-400 mt-1">
+                            <p className="text-tiny text-foreground-subtle mt-1">
                                 {reason.trim().length} / min {minLength} characters
                             </p>
                         ) : null}
@@ -151,7 +151,7 @@ export function BusinessReasonModal({
                     <button
                         onClick={onClose}
                         disabled={loading}
-                        className="px-5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-all text-sm"
+                        className="px-5 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-slate-50 transition-all text-sm"
                     >
                         Cancel
                     </button>

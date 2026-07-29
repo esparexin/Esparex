@@ -133,14 +133,14 @@ export default function AuditLogsPage() {
                 const admin = (log.adminId && typeof log.adminId === 'object') ? log.adminId : null;
                 return (
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-foreground-subtle">
                             <User size={14} />
                         </div>
                         <div>
-                            <div className="font-bold text-slate-900 leading-none mb-1">
+                            <div className="font-bold text-foreground leading-none mb-1">
                                 {admin?.firstName ? `${admin.firstName} ${admin.lastName || ''}` : 'System'}
                             </div>
-                            <div className="text-tiny text-slate-400">{admin?.email || 'automated-task'}</div>
+                            <div className="text-tiny text-foreground-subtle">{admin?.email || 'automated-task'}</div>
                         </div>
                     </div>
                 );
@@ -151,7 +151,7 @@ export default function AuditLogsPage() {
             cell: (log) => (
                 <div className="flex flex-col">
                     <span className="font-bold text-xs text-primary uppercase tracking-tight">{log.action.replace(/_/g, ' ')}</span>
-                    <span className="text-tiny text-slate-400 flex items-center gap-1">
+                    <span className="text-tiny text-foreground-subtle flex items-center gap-1">
                         <Database size={10} /> {log.targetType}
                     </span>
                 </div>
@@ -160,7 +160,7 @@ export default function AuditLogsPage() {
         {
             header: "Target ID",
             cell: (log) => (
-                <div className="font-mono text-tiny text-slate-500 truncate max-w-[120px]">
+                <div className="font-mono text-tiny text-foreground-tertiary truncate max-w-[120px]">
                     {log.targetId || 'N/A'}
                 </div>
             )
@@ -168,7 +168,7 @@ export default function AuditLogsPage() {
         {
             header: "Details",
             cell: (log) => (
-                <div className="max-w-[300px] truncate text-tiny text-slate-500 italic bg-slate-50 p-1 rounded border border-slate-100 overflow-hidden">
+                <div className="max-w-[300px] truncate text-tiny text-foreground-tertiary italic bg-slate-50 p-1 rounded border border-slate-100 overflow-hidden">
                     {log.metadata ? JSON.stringify(log.metadata) : 'No extra data'}
                 </div>
             )
@@ -176,7 +176,7 @@ export default function AuditLogsPage() {
         {
             header: "Security",
             cell: (log) => (
-                <div className="text-tiny text-slate-400">
+                <div className="text-tiny text-foreground-subtle">
                     <div className="flex items-center gap-1"><Shield size={10} /> {log.ipAddress || 'unknown'}</div>
                     <div className="flex items-center gap-1 truncate max-w-[150px]"><Terminal size={10} /> {log.userAgent || 'unknown'}</div>
                 </div>
@@ -185,8 +185,8 @@ export default function AuditLogsPage() {
         {
             header: "Timestamp",
             cell: (log) => (
-                <div className="text-xs text-slate-500 font-medium">
-                    <div className="flex items-center gap-1"><Calendar size={12} className="text-slate-300" /> {new Date(log.createdAt).toLocaleDateString()}</div>
+                <div className="text-xs text-foreground-tertiary font-medium">
+                    <div className="flex items-center gap-1"><Calendar size={12} className="text-foreground-subtle" /> {new Date(log.createdAt).toLocaleDateString()}</div>
                     <div className="text-tiny ml-4">{new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
                 </div>
             )
@@ -216,7 +216,7 @@ export default function AuditLogsPage() {
                 statusOptions={statusOptions}
                 extraFilters={
                     <div className="flex items-center gap-1.5 ml-2 border-l border-slate-100 pl-4">
-                        <Database className="shrink-0 text-slate-400" size={14} aria-hidden="true" />
+                        <Database className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                         <select
                             value={targetTypeFilter}
                             onChange={(e) => replaceQueryState({ targetType: e.target.value === "all" ? null : e.target.value, page: null })}
@@ -239,8 +239,8 @@ export default function AuditLogsPage() {
 
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2 text-black">
-                    <Activity size={18} className="text-slate-400" />
-                    <h2 className="text-sm font-bold text-slate-700">Audit Trail</h2>
+                    <Activity size={18} className="text-foreground-subtle" />
+                    <h2 className="text-sm font-bold text-foreground-secondary">Audit Trail</h2>
                 </div>
                 <DataTable
                     data={logs}

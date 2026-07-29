@@ -41,12 +41,12 @@ export function AdminPageShell({
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="flex-1">
                         {isNested ? (
-                            <h2 className="text-h3 font-bold tracking-tight text-slate-900">{title}</h2>
+                            <h2 className="text-h3 font-bold tracking-tight text-foreground">{title}</h2>
                         ) : (
-                            <h1 className="text-h1 font-bold tracking-tight text-slate-900">{title}</h1>
+                            <h1 className="text-h1 font-bold tracking-tight text-foreground">{title}</h1>
                         )}
                         {!isCompact && description && (
-                            <p className={cn("mt-1 text-body text-slate-500", isNested && "text-slate-400")}>{description}</p>
+                            <p className={cn("mt-1 text-body text-foreground-tertiary", isNested && "text-foreground-subtle")}>{description}</p>
                         )}
                     </div>
                     {!isCompact && !isNested && (
@@ -74,11 +74,11 @@ export function AdminPageShell({
                         <div className="relative rounded-2xl bg-white shadow-2xl p-2">
                             <AdminGlobalSearch autoFocus onClose={() => setFloatingSearchOpen(false)} />
                             <div className="flex items-center justify-between px-3 pb-1 pt-2">
-                                <p className="text-caption text-slate-500">Press ESC or click outside to close.</p>
+                                <p className="text-caption text-foreground-tertiary">Press ESC or click outside to close.</p>
                                 <button
                                     type="button"
                                     onClick={() => setFloatingSearchOpen(false)}
-                                    className="text-slate-400 hover:text-slate-700"
+                                    className="text-foreground-subtle hover:text-foreground-secondary"
                                 >
                                     <X size={16} />
                                 </button>

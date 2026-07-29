@@ -48,7 +48,7 @@ export function LocationDeleteModal({
                     <button
                         disabled={isDeleting}
                         onClick={onClose}
-                        className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all disabled:opacity-50"
+                        className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-foreground-secondary hover:bg-slate-50 transition-all disabled:opacity-50"
                     >
                         Cancel
                     </button>

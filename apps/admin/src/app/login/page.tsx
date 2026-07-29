@@ -130,17 +130,17 @@ function LoginForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-xl shadow-primary/20 mb-4 animate-in zoom-in duration-500">
             <Shield className="text-white w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Esparex Admin</h1>
-          <p className="text-slate-500 text-sm">Secure access to the command center</p>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Esparex Admin</h1>
+          <p className="text-foreground-tertiary text-sm">Secure access to the command center</p>
         </div>
 
         {/* Login Card */}
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl shadow-slate-200/50 border border-white isolate animate-in fade-in slide-in-from-bottom-4 duration-700">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1.5">
-              <label htmlFor="admin-login-email" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
+              <label htmlFor="admin-login-email" className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider ml-1">Email Address</label>
               <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle group-focus-within:text-primary transition-colors" size={18} />
                 <input
                   id="admin-login-email"
                   name="email"
@@ -157,9 +157,9 @@ function LoginForm() {
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="admin-login-password" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">Password</label>
+              <label htmlFor="admin-login-password" className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider ml-1">Password</label>
               <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle group-focus-within:text-primary transition-colors" size={18} />
                 <input
                   id="admin-login-password"
                   name="password"
@@ -175,7 +175,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground-subtle hover:text-foreground-secondary transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -186,7 +186,7 @@ function LoginForm() {
             {/* 2FA field — only revealed after backend signals it is required */}
             {requires2FA && (
               <div className="space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-                <label htmlFor="admin-login-2fa" className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1 flex items-center gap-1.5">
+                <label htmlFor="admin-login-2fa" className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider ml-1 flex items-center gap-1.5">
                   <KeyRound size={12} />
                   Two-Factor Authentication Code
                   <span className="text-red-500">*</span>
@@ -233,7 +233,7 @@ function LoginForm() {
           </form>
         </div>
 
-        <p className="text-center text-slate-400 text-xs font-medium">
+        <p className="text-center text-foreground-subtle text-xs font-medium">
           &copy; {new Date().getFullYear()} Esparex Master Admin. All rights reserved.
         </p>
       </div>

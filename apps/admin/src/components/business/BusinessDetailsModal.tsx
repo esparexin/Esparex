@@ -56,7 +56,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
 
     const renderDocumentPreview = (url: string | undefined, alt: string) => {
         if (!url) {
-            return <span className="text-slate-400 text-xs italic">No document uploaded</span>;
+            return <span className="text-foreground-subtle text-xs italic">No document uploaded</span>;
         }
 
         if (isPdf(url)) {
@@ -68,7 +68,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     className="flex h-full w-full flex-col items-center justify-center rounded-md border border-dashed border-slate-300 bg-white p-4 text-center transition-colors hover:border-primary hover:bg-slate-50"
                 >
                     <FileText size={28} className="text-primary" />
-                    <span className="mt-3 text-xs font-semibold text-slate-700">Open PDF document</span>
+                    <span className="mt-3 text-xs font-semibold text-foreground-secondary">Open PDF document</span>
                     <span className="mt-1 inline-flex items-center gap-1 text-tiny font-medium text-primary">
                         <ExternalLink size={12} /> View full file
                     </span>
@@ -121,7 +121,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                                <DialogTitle className="text-xl font-bold text-slate-900 leading-tight">{business.name}</DialogTitle>
+                                <DialogTitle className="text-xl font-bold text-foreground leading-tight">{business.name}</DialogTitle>
                                 {trustScore < 30 && (
                                     <span className="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-tiny font-bold uppercase border border-red-200 shrink-0">Low Trust</span>
                                 )}
@@ -131,7 +131,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                 </span>
                             </div>
                             <DialogDescription className="sr-only">Review business profile and verification documents</DialogDescription>
-                            <p className="text-slate-500 text-xs mt-0.5">
+                            <p className="text-foreground-tertiary text-xs mt-0.5">
                                 <span className="capitalize font-medium">{business.status === 'live' ? 'Approved' : business.status}</span>
                                 {' • '}Submitted {format(new Date(business.createdAt), "PP")}
                                 {business.isDeleted && (
@@ -145,7 +145,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     {/* X button — clear top-right placement */}
                     <button
                         onClick={onClose}
-                        className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-200 transition-colors text-slate-400 hover:text-slate-700 shrink-0 mt-0.5"
+                        className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-slate-200 transition-colors text-foreground-subtle hover:text-foreground-secondary shrink-0 mt-0.5"
                         aria-label="Close"
                     >
                         <X size={20} />
@@ -157,18 +157,18 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     {/* Basic Info Grid — single row, each card full-width on mobile */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-tiny font-bold text-slate-400 uppercase tracking-widest mb-2">Contact</div>
+                            <div className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">Contact</div>
                             <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 text-sm text-slate-700 min-w-0">
+                                <div className="flex items-center gap-2 text-sm text-foreground-secondary min-w-0">
                                     <Mail size={13} className="text-primary shrink-0" />
                                     <span className="truncate text-xs">{business.email}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-700">
+                                <div className="flex items-center gap-2 text-sm text-foreground-secondary">
                                     <Phone size={13} className="text-primary shrink-0" />
                                     <span className="text-xs">{business.mobile}</span>
                                 </div>
                                 {business.website && (
-                                    <div className="flex items-center gap-2 text-sm text-slate-700 min-w-0">
+                                    <div className="flex items-center gap-2 text-sm text-foreground-secondary min-w-0">
                                         <Globe size={13} className="text-primary shrink-0" />
                                         <span className="truncate text-xs">{business.website}</span>
                                     </div>
@@ -177,16 +177,16 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </div>
 
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-tiny font-bold text-slate-400 uppercase tracking-widest mb-2">Identifiers</div>
+                            <div className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">Identifiers</div>
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs text-slate-600">GST</span>
+                                    <span className="text-xs text-foreground-secondary">GST</span>
                                     <span className="font-mono text-tiny bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
                                         {business.gstNumber || 'N/A'}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-2">
-                                    <span className="text-xs text-slate-600">Reg No</span>
+                                    <span className="text-xs text-foreground-secondary">Reg No</span>
                                     <span className="font-mono text-tiny bg-white px-2 py-0.5 rounded border border-slate-200 truncate max-w-[100px]">
                                         {business.registrationNumber || 'N/A'}
                                     </span>
@@ -195,10 +195,10 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         </div>
 
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="text-tiny font-bold text-slate-400 uppercase tracking-widest mb-2">Location</div>
+                            <div className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">Location</div>
                             <div className="flex gap-2">
                                 <MapPin size={13} className="text-primary shrink-0 mt-0.5" />
-                                <span className="text-xs text-slate-700 leading-snug">
+                                <span className="text-xs text-foreground-secondary leading-snug">
                                     {preferredLocationDisplay || "Location not available"}
                                 </span>
                             </div>
@@ -207,17 +207,17 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
 
                     {/* Description */}
                     <div className="space-y-3">
-                        <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                        <h3 className="font-bold text-foreground flex items-center gap-2">
                             <FileText size={18} className="text-primary" /> Description
                         </h3>
-                        <p className="text-slate-600 text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <p className="text-foreground-secondary text-sm leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
                             {business.description || "No description provided."}
                         </p>
                     </div>
 
                     {/* Verification Documents */}
                     <div className="space-y-3">
-                        <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                        <h3 className="font-bold text-foreground flex items-center gap-2">
                             <FileCheck size={18} className="text-primary" /> Verification Documents (Versioned)
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -225,20 +225,20 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
                                 <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
                                     <div className="min-w-0">
-                                        <span className="text-xs font-bold uppercase text-slate-700">ID Proof</span>
+                                        <span className="text-xs font-bold uppercase text-foreground-secondary">ID Proof</span>
                                         {idProofTypeLabel ? (
-                                            <p className="mt-1 text-tiny font-medium text-slate-500">{idProofTypeLabel}</p>
+                                            <p className="mt-1 text-tiny font-medium text-foreground-tertiary">{idProofTypeLabel}</p>
                                         ) : null}
                                     </div>
                                     {groupedDocs.id_proof.length > 0 && (
-                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.id_proof[0]?.version}</span>
+                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-foreground-secondary">v{groupedDocs.id_proof[0]?.version}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
                                     {groupedDocs.id_proof.length > 0 ? (
                                         renderDocumentPreview(groupedDocs.id_proof[0]?.url, "ID Proof")
                                     ) : (
-                                        <span className="text-slate-400 text-xs italic">No ID Proof uploaded</span>
+                                        <span className="text-foreground-subtle text-xs italic">No ID Proof uploaded</span>
                                     )}
                                 </div>
                             </div>
@@ -246,16 +246,16 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             {/* Business Proof */}
                             <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
                                 <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-700 uppercase">Business Proof</span>
+                                    <span className="text-xs font-bold text-foreground-secondary uppercase">Business Proof</span>
                                     {groupedDocs.business_proof.length > 0 && (
-                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">v{groupedDocs.business_proof[0]?.version}</span>
+                                        <span className="text-tiny px-1.5 py-0.5 rounded bg-slate-100 text-foreground-secondary">v{groupedDocs.business_proof[0]?.version}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 flex items-center justify-center p-4">
                                     {groupedDocs.business_proof.length > 0 ? (
                                         renderDocumentPreview(groupedDocs.business_proof[0]?.url, "Business Proof")
                                     ) : (
-                                        <span className="text-slate-400 text-xs italic">No Business Proof uploaded</span>
+                                        <span className="text-foreground-subtle text-xs italic">No Business Proof uploaded</span>
                                     )}
                                 </div>
                             </div>
@@ -263,7 +263,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                             {/* Certificates */}
                             <div className="group relative rounded-xl border border-slate-200 overflow-hidden bg-slate-50 aspect-[4/3] flex flex-col">
                                 <div className="p-3 bg-white border-b border-slate-100 flex items-center justify-between">
-                                    <span className="text-xs font-bold text-slate-700 uppercase">Certificates</span>
+                                    <span className="text-xs font-bold text-foreground-secondary uppercase">Certificates</span>
                                 </div>
                                 <div className="flex-1 overflow-hidden p-4">
                                     <div className="grid grid-cols-2 gap-2 h-full">
@@ -274,7 +274,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="col-span-2 flex items-center justify-center text-slate-400 text-xs italic h-full">
+                                            <div className="col-span-2 flex items-center justify-center text-foreground-subtle text-xs italic h-full">
                                                 No certificates uploaded
                                             </div>
                                         )}
@@ -286,7 +286,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
 
                     {/* Shop Images */}
                     <div className="space-y-3">
-                        <h3 className="font-bold text-slate-900 flex items-center gap-2">
+                        <h3 className="font-bold text-foreground flex items-center gap-2">
                             <Building2 size={18} className="text-primary" /> Shop Images
                         </h3>
                         <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
@@ -295,7 +295,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                                     <img src={url} className="w-full h-full object-cover" alt={`Shop ${i + 1}`} />
                                 </a>
                             ))}
-                            {(!business.images || business.images.length === 0) && <span className="text-slate-400 text-sm italic py-4">No images provided</span>}
+                            {(!business.images || business.images.length === 0) && <span className="text-foreground-subtle text-sm italic py-4">No images provided</span>}
                         </div>
                     </div>
                 </div>
@@ -306,7 +306,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                         {onModify && (
                             <button
                                 onClick={() => onModify(business)}
-                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-slate-100 text-slate-700 font-semibold border border-slate-200 hover:bg-slate-200 transition-colors text-sm"
+                                className="inline-flex h-10 items-center gap-2 px-4 rounded-xl bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 hover:bg-slate-200 transition-colors text-sm"
                             >
                                 <Pencil size={15} /> Modify
                             </button>
@@ -323,7 +323,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                     <div className="flex gap-2 flex-wrap">
                         <button
                             onClick={onClose}
-                            className="inline-flex h-10 items-center px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-white transition-colors text-sm"
+                            className="inline-flex h-10 items-center px-4 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-white transition-colors text-sm"
                         >
                             Close
                         </button>

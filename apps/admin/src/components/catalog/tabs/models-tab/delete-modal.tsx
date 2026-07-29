@@ -19,10 +19,10 @@ export function ModelsDeleteModal({ model, isDeleting, onClose, onConfirm }: {
                         <p className="mt-1 text-sm text-red-600"><strong>&ldquo;{model?.name}&rdquo;</strong> cannot be deleted while it has active listings or spare parts dependencies.</p>
                     </div>
                 </div>
-                <p className="text-sm text-slate-600">To hide this model temporarily, <strong>deactivate it</strong> instead of deleting.</p>
+                <p className="text-sm text-foreground-secondary">To hide this model temporarily, <strong>deactivate it</strong> instead of deleting.</p>
                 <div className="flex justify-end gap-3 pt-2">
                     <button type="button" disabled={isDeleting} onClick={onClose}
-                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors">Cancel</button>
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors">Cancel</button>
                     <button type="button" disabled={isDeleting} onClick={() => void onConfirm()}
                         className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors">
                         {isDeleting ? <><Loader2 size={14} className="animate-spin" /> Deleting&hellip;</> : "Delete If Safe"}

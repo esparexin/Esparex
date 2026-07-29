@@ -231,7 +231,7 @@ export default function ServiceTypesTab() {
                             type="button"
                             disabled={isDeleting}
                             onClick={() => setDeletingServiceType(null)}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
                         >
                             Cancel
                         </button>

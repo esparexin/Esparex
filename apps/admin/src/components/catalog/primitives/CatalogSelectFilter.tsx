@@ -18,7 +18,7 @@ export function CatalogSelectFilter({
 }) {
     return (
         <div className={`flex items-center gap-2 ${className}`.trim()}>
-            {withFilterIcon ? <Filter className="text-slate-400" size={16} /> : null}
+            {withFilterIcon ? <Filter className="text-foreground-subtle" size={16} /> : null}
             <select
                 className="flex-1 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none"
                 value={value}

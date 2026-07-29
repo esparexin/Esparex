@@ -39,7 +39,7 @@ export function CategoryAssignmentField({
 
     return (
         <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">{label}</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">{label}</label>
             {notice}
             <div
                 className={cn(
@@ -84,7 +84,7 @@ export function CategoryAssignmentField({
                                         "text-sm transition-colors",
                                         isDanger
                                             ? "font-bold text-red-700"
-                                            : "text-slate-700 group-hover:text-primary",
+                                            : "text-foreground-secondary group-hover:text-primary",
                                         !isGrid && !isDanger && "font-medium"
                                     )}
                                 >
@@ -95,7 +95,7 @@ export function CategoryAssignmentField({
                         );
                     })
                 ) : (
-                    <div className="text-xs italic text-slate-400">{emptyMessage || "No categories available"}</div>
+                    <div className="text-xs italic text-foreground-subtle">{emptyMessage || "No categories available"}</div>
                 )}
             </div>
             {footer}

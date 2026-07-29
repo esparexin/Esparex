@@ -46,8 +46,8 @@ export function BusinessDeleteModal({
                             <Trash2 size={20} />
                         </div>
                         <div>
-                            <DialogTitle className="text-base font-bold text-slate-900">Delete Business?</DialogTitle>
-                            <DialogDescription className="text-xs text-slate-500 mt-0.5">
+                            <DialogTitle className="text-base font-bold text-foreground">Delete Business?</DialogTitle>
+                            <DialogDescription className="text-xs text-foreground-tertiary mt-0.5">
                                 {business.name}
                             </DialogDescription>
                         </div>
@@ -55,7 +55,7 @@ export function BusinessDeleteModal({
                 </DialogHeader>
 
                 <div className="p-6">
-                    <div className="text-xs text-slate-600 bg-red-50 rounded-lg p-3 border border-red-100">
+                    <div className="text-xs text-foreground-secondary bg-red-50 rounded-lg p-3 border border-red-100">
                         {description}
                     </div>
                 </div>
@@ -64,7 +64,7 @@ export function BusinessDeleteModal({
                     <button
                         onClick={onClose}
                         disabled={loading}
-                        className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-all"
+                        className="px-4 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold text-sm hover:bg-slate-50 transition-all"
                     >
                         Cancel
                     </button>

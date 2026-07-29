@@ -127,7 +127,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                     <button
                         type="button"
                         onClick={refresh}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-95"
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 transition-all active:scale-95"
                     >
                         <RefreshCcw size={14} /> 
                         <span>Refresh</span>
@@ -260,7 +260,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     <button
                                         type="button"
                                         onClick={() => void handleBulkDelete()}
-                                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"
+                                        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-foreground-secondary hover:bg-slate-50 transition-all shadow-sm"
                                     >
                                         Delete Selected
                                     </button>
@@ -307,7 +307,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     type="button"
                                     disabled={isMutating}
                                     onClick={() => setDeleteModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all"
+                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all"
                                 >
                                     Cancel
                                 </button>
@@ -345,7 +345,7 @@ export default function AdsView({ listingType }: AdsViewProps) {
                                     type="button"
                                     disabled={isMutating}
                                     onClick={() => setBanModalOpen(false)}
-                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all"
+                                    className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-foreground-secondary hover:bg-slate-50 transition-all"
                                 >
                                     Cancel
                                 </button>

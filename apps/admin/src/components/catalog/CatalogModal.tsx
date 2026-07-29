@@ -37,12 +37,12 @@ export function CatalogModal({ isOpen, onClose, title, children, maxWidth = "max
         >
             <div className={`bg-white rounded-2xl shadow-2xl w-full ${maxWidth} overflow-hidden animate-in zoom-in-95 duration-200`}>
                 <div className="px-6 py-4 flex items-center justify-between border-b border-slate-100">
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="text-xl font-bold text-foreground">
                         {title}
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                        className="p-2 hover:bg-slate-100 rounded-full text-foreground-subtle hover:text-foreground-secondary transition-colors"
                     >
                         <X size={20} />
                     </button>

@@ -53,7 +53,7 @@ export default function BusinessesView() {
 
     const columns = buildColumns({ onView: businessList.setSelectedBusiness, onEdit: businessList.setModifyTarget, onDelete: businessList.setDeleteTarget, toggleSelect, toggleSelectAll, selectedIds, allCount: businesses.length, setSuspendTarget, handleActivate });
 
-    const overviewCards = [{ label: "All", value: overview.total, color: "text-slate-700" }, { label: "Live", value: overview.live, color: "text-emerald-600" }, { label: "Pending", value: overview.pending, color: "text-amber-600" }, { label: "Expiring (3d)", value: (overview as any).expiringIn3Days ?? 0, color: "text-rose-600" }, { label: "Suspended", value: overview.suspended, color: "text-red-600" }];
+    const overviewCards = [{ label: "All", value: overview.total, color: "text-foreground-secondary" }, { label: "Live", value: overview.live, color: "text-emerald-600" }, { label: "Pending", value: overview.pending, color: "text-amber-600" }, { label: "Expiring (3d)", value: (overview as any).expiringIn3Days ?? 0, color: "text-rose-600" }, { label: "Suspended", value: overview.suspended, color: "text-red-600" }];
 
     const tabs = ["live", "suspended", "pending", "deleted", "all"].map((s) => ({ label: s === "live" ? "Live" : s.charAt(0).toUpperCase() + s.slice(1), href: buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { status: s, page: null })), count: s === "live" ? overview.live : s === "suspended" ? overview.suspended : s === "pending" ? overview.pending : s === "deleted" ? overview.deleted : overview.total }));
 
@@ -79,8 +79,8 @@ export default function BusinessesView() {
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     {overviewCards.map(({ label, value, color }) => (
                         <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 shadow-sm">
-                            <ChartBar size={16} className="text-slate-300" />
-                            <div><div className={`text-lg font-bold ${color}`}>{value}</div><div className="text-tiny text-slate-400 font-semibold uppercase tracking-wider">{label}</div></div>
+                            <ChartBar size={16} className="text-foreground-subtle" />
+                            <div><div className={`text-lg font-bold ${color}`}>{value}</div><div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider">{label}</div></div>
                         </div>
                     ))}
                 </div>
@@ -95,7 +95,7 @@ export default function BusinessesView() {
                                 { key: "warningNotSent", raw: rawWarningNotSent, label: "No Warning", c1: "amber", c2: "amber" },
                             ].map(({ key, raw, label, c1 }) => (
                                 <button key={key} onClick={() => replaceQueryState({ [key]: raw === "true" ? null : "true", page: null, ...(key !== "expiringIn3Days" ? { [key === "warningSent" ? "warningNotSent" : "warningSent"]: null } : {}) })}
-                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${raw === "true" ? `bg-${c1}-50 border-${c1}-200 text-${c1}-700 shadow-sm` : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${raw === "true" ? `bg-${c1}-50 border-${c1}-200 text-${c1}-700 shadow-sm` : "bg-white border-slate-200 text-foreground-secondary hover:bg-slate-50"}`}>
                                     {label}
                                 </button>
                             ))}
@@ -107,10 +107,10 @@ export default function BusinessesView() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
                         <div className="flex items-center gap-3 text-red-600"><XCircle size={24} /><h3 className="text-lg font-bold">Bulk Reject Reason</h3></div>
-                        <p className="text-sm text-slate-500">Please provide a reason for rejecting the {selectedIds.size} selected businesses.</p>
+                        <p className="text-sm text-foreground-tertiary">Please provide a reason for rejecting the {selectedIds.size} selected businesses.</p>
                         <textarea id="brr" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all min-h-[100px]" placeholder="Reason for rejection..." />
                         <div className="flex gap-3 pt-2">
-                            <button onClick={() => setBulkRejectReason(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">Cancel</button>
+                            <button onClick={() => setBulkRejectReason(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-foreground-secondary hover:bg-slate-50 transition-colors">Cancel</button>
                             <button onClick={async () => { const r = (document.getElementById("brr") as HTMLTextAreaElement).value; if (!r.trim()) return; await handleBulkReject(Array.from(selectedIds), r); setBulkRejectReason(false); setSelectedIds(new Set()); }} className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white hover:bg-red-700 transition-colors">Confirm Reject</button>
                         </div>
                     </div>

@@ -34,10 +34,10 @@ export class AdminErrorBoundary extends Component<Props, State> {
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
                         <AlertTriangle size={24} />
                     </div>
-                    <h3 className="mb-2 text-lg font-semibold text-slate-900">
+                    <h3 className="mb-2 text-lg font-semibold text-foreground">
                         {this.props.fallbackLabel || "Component Rendering Failed"}
                     </h3>
-                    <p className="max-w-md text-sm text-slate-600">
+                    <p className="max-w-md text-sm text-foreground-secondary">
                         A runtime error occurred while rendering this module. Our team has been notified.
                     </p>
                     <button

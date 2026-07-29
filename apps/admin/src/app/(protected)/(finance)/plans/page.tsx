@@ -110,13 +110,13 @@ export default function PlansPage() {
                         <Package size={20} />
                     </div>
                     <div>
-                        <div className="font-bold text-slate-900 flex items-center gap-2">
+                        <div className="font-bold text-foreground flex items-center gap-2">
                             {plan.name}
                             {plan.isDefault && (
-                                <span className="text-tiny bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded uppercase tracking-wider">Default</span>
+                                <span className="text-tiny bg-slate-100 text-foreground-secondary px-1.5 py-0.5 rounded uppercase tracking-wider">Default</span>
                             )}
                         </div>
-                        <div className="text-tiny font-mono text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
+                        <div className="text-tiny font-mono text-foreground-tertiary bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100 w-fit mt-1">
                             {plan.code}
                         </div>
                     </div>
@@ -127,10 +127,10 @@ export default function PlansPage() {
             header: "Pricing",
             cell: (plan) => (
                 <div className="flex flex-col">
-                    <span className="font-bold text-sm text-slate-700">
+                    <span className="font-bold text-sm text-foreground-secondary">
                         {plan.price === 0 ? "Free" : `${plan.currency} ${plan.price}`}
                     </span>
-                    <span className="text-tiny text-slate-400 font-medium">
+                    <span className="text-tiny text-foreground-subtle font-medium">
                         {plan.durationDays ? `${plan.durationDays} Days` : "Lifetime"}
                     </span>
                 </div>
@@ -140,10 +140,10 @@ export default function PlansPage() {
             header: "Type & Audience",
             cell: (plan) => (
                 <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                        <Activity size={12} className="text-slate-400" /> {plan.type.replace("_", " ")}
+                    <span className="text-xs font-semibold text-foreground-secondary flex items-center gap-1">
+                        <Activity size={12} className="text-foreground-subtle" /> {plan.type.replace("_", " ")}
                     </span>
-                    <span className="text-tiny text-slate-500 uppercase tracking-widest flex items-center gap-1">
+                    <span className="text-tiny text-foreground-tertiary uppercase tracking-widest flex items-center gap-1">
                         <Users size={10} /> {plan.userType}
                     </span>
                 </div>
@@ -152,10 +152,10 @@ export default function PlansPage() {
         {
             header: "Key Limits",
             cell: (plan) => (
-                <div className="text-xs text-slate-600 flex flex-col gap-1">
-                    {plan.limits?.maxAds ? <div>Ads: <span className="font-medium text-slate-900">{plan.limits.maxAds}</span></div> : null}
+                <div className="text-xs text-foreground-secondary flex flex-col gap-1">
+                    {plan.limits?.maxAds ? <div>Ads: <span className="font-medium text-foreground">{plan.limits.maxAds}</span></div> : null}
                     {plan.type === "SPOTLIGHT" && plan.limits?.spotlightCredits ? <div>Credits: <span className="font-medium text-emerald-600">{plan.limits.spotlightCredits}</span></div> : null}
-                    {plan.type === "AD_PACK" && (!plan.limits?.maxAds && !plan.limits?.spotlightCredits) ? <span className="italic text-slate-400">Standard</span> : null}
+                    {plan.type === "AD_PACK" && (!plan.limits?.maxAds && !plan.limits?.spotlightCredits) ? <span className="italic text-foreground-subtle">Standard</span> : null}
                 </div>
             )
         },
@@ -176,7 +176,7 @@ export default function PlansPage() {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => { setEditPlan(plan); setShowModal(true); }}
-                        className="p-1.5 rounded text-slate-500 hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-medium"
+                        className="p-1.5 rounded text-foreground-tertiary hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-medium"
                     >
                         <Pencil size={13} /> Edit
                     </button>
@@ -217,7 +217,7 @@ export default function PlansPage() {
                 filters={
                     <>
                         <div className="relative flex-1 w-full text-black">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
                             <input
                                 type="text"
                                 placeholder="Search plans by name or code..."
@@ -227,7 +227,7 @@ export default function PlansPage() {
                             />
                         </div>
                         <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                            <Filter className="text-slate-400" size={18} />
+                            <Filter className="text-foreground-subtle" size={18} />
                             <select
                                 className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
                                 value={typeFilter}

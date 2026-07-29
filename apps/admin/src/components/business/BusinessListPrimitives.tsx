@@ -30,7 +30,7 @@ const STATUS_STYLES: Record<
         dot: "bg-red-500",
     },
     deleted: {
-        pill: "bg-slate-100 text-slate-600 border-slate-200",
+        pill: "bg-slate-100 text-foreground-secondary border-slate-200",
         dot: "bg-slate-400",
     },
 };
@@ -43,7 +43,7 @@ export function BusinessStatusBadge({
     glowForLive?: boolean;
 }) {
     const styles = STATUS_STYLES[status] ?? {
-        pill: "bg-slate-100 text-slate-600 border-slate-200",
+        pill: "bg-slate-100 text-foreground-secondary border-slate-200",
         dot: "bg-slate-400",
     };
 
@@ -62,11 +62,11 @@ export function BusinessStatusBadge({
 }
 
 const ACTION_TONES: Record<"default" | "primary" | "success" | "danger" | "warning", string> = {
-    default: "hover:bg-slate-100 text-slate-400 hover:text-primary",
-    primary: "hover:bg-blue-50 text-slate-400 hover:text-blue-600",
-    success: "hover:bg-emerald-50 text-slate-400 hover:text-emerald-600",
-    danger: "hover:bg-red-50 text-slate-400 hover:text-red-500",
-    warning: "hover:bg-orange-50 text-slate-400 hover:text-orange-600",
+    default: "hover:bg-slate-100 text-foreground-subtle hover:text-primary",
+    primary: "hover:bg-blue-50 text-foreground-subtle hover:text-blue-600",
+    success: "hover:bg-emerald-50 text-foreground-subtle hover:text-emerald-600",
+    danger: "hover:bg-red-50 text-foreground-subtle hover:text-red-500",
+    warning: "hover:bg-orange-50 text-foreground-subtle hover:text-orange-600",
 };
 
 export function BusinessActionButton({
@@ -113,7 +113,7 @@ export function BusinessSearchToolbar({
             className={`${wrap ? "flex flex-wrap" : "flex"} items-center gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm`}
         >
             <div className={searchClassName}>
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={16} />
                 <input
                     type="text"
                     placeholder={placeholder}
@@ -123,7 +123,7 @@ export function BusinessSearchToolbar({
                 />
             </div>
             {extraFilters}
-            <div className={`${wrap ? "ml-auto" : ""} text-xs text-slate-400`}>{summary}</div>
+            <div className={`${wrap ? "ml-auto" : ""} text-xs text-foreground-subtle`}>{summary}</div>
         </div>
     );
 }
@@ -136,7 +136,7 @@ export function BusinessTypesCell({
     max?: number;
 }) {
     return (
-        <div className="text-xs text-slate-600 truncate max-w-[120px]">
+        <div className="text-xs text-foreground-secondary truncate max-w-[120px]">
             {(businessTypes ?? []).slice(0, max).join(", ") || "—"}
         </div>
     );

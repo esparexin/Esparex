@@ -128,7 +128,7 @@ export default function AdminUsersPage() {
                                     <Save size={12} /> Save
                                 </button>
                                 <button
-                                    className="rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
+                                    className="rounded-md border border-slate-200 px-2 py-1 text-xs text-foreground-secondary hover:bg-slate-50"
                                     onClick={onCancelEdit}
                                 >
                                     Cancel
@@ -140,9 +140,9 @@ export default function AdminUsersPage() {
                         <div className="flex flex-wrap gap-1 max-w-[380px]">
                             {admin.permissions.length > 0
                                 ? admin.permissions.map((p) => (
-                                    <span key={p} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-tiny text-slate-700">{p}</span>
+                                    <span key={p} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-tiny text-foreground-secondary">{p}</span>
                                 ))
-                                : <span className="text-xs italic text-slate-400">No explicit permissions</span>
+                                : <span className="text-xs italic text-foreground-subtle">No explicit permissions</span>
                             }
                         </div>
                     );
@@ -153,7 +153,7 @@ export default function AdminUsersPage() {
                 cell: (admin) => (
                     editingAdminId === admin.id ? null : (
                         <button
-                            className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                            className="rounded-md border border-slate-200 px-2 py-1 text-xs font-medium text-foreground-secondary hover:bg-slate-50"
                             onClick={() => onStartEdit(admin)}
                         >
                             Edit Permissions
@@ -178,7 +178,7 @@ export default function AdminUsersPage() {
             {
                 header: "Permissions",
                 cell: (admin) => (
-                    <div className="max-w-[280px] text-xs text-slate-600">
+                    <div className="max-w-[280px] text-xs text-foreground-secondary">
                         {admin.permissions.length > 0 ? admin.permissions.join(", ") : "No explicit permissions"}
                     </div>
                 ),
@@ -194,15 +194,15 @@ export default function AdminUsersPage() {
                         <button
                             onClick={() => onToggleStatus(admin)}
                             disabled={isMutating}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-primary transition-all group"
+                            className="p-1.5 hover:bg-slate-100 rounded-lg text-foreground-subtle hover:text-primary transition-all group"
                             title={admin.status === "inactive" ? "Activate" : "Deactivate"}
                         >
-                            <Power size={14} className={admin.status === "inactive" ? "text-slate-300" : "text-emerald-500"} />
+                            <Power size={14} className={admin.status === "inactive" ? "text-foreground-subtle" : "text-emerald-500"} />
                         </button>
                         <button
                             onClick={() => onStartEdit(admin)}
                             disabled={isMutating}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-600 transition-all"
+                            className="p-1.5 hover:bg-slate-100 rounded-lg text-foreground-subtle hover:text-blue-600 transition-all"
                             title="Edit Account"
                         >
                             <Save size={14} />
@@ -210,7 +210,7 @@ export default function AdminUsersPage() {
                         <button
                             onClick={() => confirmDelete(admin.id)}
                             disabled={isMutating}
-                            className="p-1.5 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-600 transition-all"
+                            className="p-1.5 hover:bg-red-50 rounded-lg text-foreground-subtle hover:text-red-600 transition-all"
                             title="Delete Account"
                         >
                             <Trash2 size={14} />
@@ -319,14 +319,14 @@ export default function AdminUsersPage() {
                 title="Confirm Account Deletion"
             >
                 <div className="p-6">
-                    <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-                        Are you sure you want to delete the administrator account for <span className="font-bold text-slate-900">{deletingAdmin ? getAdminDisplayName(deletingAdmin) : "this user"}</span>? This action is permanent and will immediately revoke all access.
+                    <p className="text-sm text-foreground-secondary mb-6 leading-relaxed">
+                        Are you sure you want to delete the administrator account for <span className="font-bold text-foreground">{deletingAdmin ? getAdminDisplayName(deletingAdmin) : "this user"}</span>? This action is permanent and will immediately revoke all access.
                     </p>
                     <div className="flex justify-end gap-3">
                         <button
                             onClick={() => setDeletingAdminId(null)}
                             disabled={isMutating}
-                            className="px-5 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition-all text-sm"
+                            className="px-5 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-slate-50 transition-all text-sm"
                         >
                             Cancel
                         </button>

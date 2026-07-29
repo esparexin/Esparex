@@ -52,7 +52,7 @@ export function AdminFilterToolbar({
             {/* Search */}
             <div className="relative flex min-w-[180px] flex-1">
                 <Search
-                    className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-foreground-subtle"
                     size={15}
                     aria-hidden="true"
                 />
@@ -68,7 +68,7 @@ export function AdminFilterToolbar({
             {/* Status filter */}
             {status !== undefined && statusOptions && onStatusChange && (
                 <div className="flex items-center gap-1.5">
-                    <Filter className="shrink-0 text-slate-400" size={14} aria-hidden="true" />
+                    <Filter className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
                     <select
                         value={status}
                         onChange={(e) => onStatusChange(e.target.value)}

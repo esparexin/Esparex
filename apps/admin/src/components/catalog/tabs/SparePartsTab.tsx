@@ -257,7 +257,7 @@ export default function SparePartsTab() {
                             />
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                <label className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider">
                                     Visible In
                                 </label>
                                 <div className="flex gap-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
@@ -279,7 +279,7 @@ export default function SparePartsTab() {
                                                     }));
                                                 }}
                                             />
-                                            <span className="text-sm font-medium text-slate-700 group-hover:text-primary transition-colors">
+                                            <span className="text-sm font-medium text-foreground-secondary group-hover:text-primary transition-colors">
                                                 {listingType.label}
                                             </span>
                                         </label>
@@ -293,14 +293,14 @@ export default function SparePartsTab() {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</label>
+                                <label className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider">Status</label>
                                 <CatalogActiveCheckboxField
                                     checked={formData.isActive}
                                     onChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
                                     label={
                                         <div className="flex flex-col">
                                             <span className="text-sm font-semibold">Active Status</span>
-                                            <span className="text-tiny text-slate-500 font-medium">Inactive parts are hidden from the public catalog and ad creation steps.</span>
+                                            <span className="text-tiny text-foreground-tertiary font-medium">Inactive parts are hidden from the public catalog and ad creation steps.</span>
                                         </div>
                                     }
                                 />
@@ -342,7 +342,7 @@ export default function SparePartsTab() {
                         <button
                             disabled={isDeleting}
                             onClick={() => setDeletingItem(null)}
-                            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-50"
+                            className="rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-foreground-secondary hover:bg-slate-50 hover:text-foreground transition-all disabled:opacity-50"
                         >
                             Cancel
                         </button>

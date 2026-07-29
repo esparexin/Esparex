@@ -79,7 +79,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
 
     return (
         <div className="relative max-w-xl flex-1" ref={containerRef}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
             <input
                 type="text"
                 autoFocus={autoFocus}
@@ -93,18 +93,18 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                 }}
                 onFocus={() => setIsOpen(true)}
                 placeholder="Search users, listings, businesses, reports, and transactions"
-                className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm text-slate-700 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-200"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50/80 py-2.5 pl-10 pr-4 text-sm text-foreground-secondary shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-sky-200"
             />
 
             {isOpen && query.trim().length >= 2 && (
                 <div className="absolute inset-x-0 top-full z-50 mt-2 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl">
                     {loading && sections.length === 0 ? (
-                        <div className="px-3 py-6 text-sm text-slate-500">Searching…</div>
+                        <div className="px-3 py-6 text-sm text-foreground-tertiary">Searching…</div>
                     ) : sections.length > 0 ? (
                         <div className="space-y-4">
                             {sections.map(([bucket, items]) => (
                                 <div key={bucket} className="space-y-2">
-                                    <p className="px-2 text-tiny font-bold uppercase tracking-[0.14em] text-slate-400">
+                                    <p className="px-2 text-tiny font-bold uppercase tracking-[0.14em] text-foreground-subtle">
                                         {SECTION_LABELS[bucket]}
                                     </p>
                                     <div className="space-y-1">
@@ -115,8 +115,8 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                                                 onClick={() => setIsOpen(false)}
                                                 className="block rounded-xl px-3 py-2 hover:bg-slate-50"
                                             >
-                                                <p className="text-sm font-medium text-slate-900">{item.label}</p>
-                                                <p className="text-xs text-slate-500">{item.meta}</p>
+                                                <p className="text-sm font-medium text-foreground">{item.label}</p>
+                                                <p className="text-xs text-foreground-tertiary">{item.meta}</p>
                                             </Link>
                                         ))}
                                     </div>
@@ -124,7 +124,7 @@ export function AdminGlobalSearch({ autoFocus, onClose }: { autoFocus?: boolean;
                             ))}
                         </div>
                     ) : (
-                        <div className="px-3 py-6 text-sm text-slate-500">No matching admin records found.</div>
+                        <div className="px-3 py-6 text-sm text-foreground-tertiary">No matching admin records found.</div>
                     )}
                 </div>
             )}

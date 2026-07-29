@@ -128,12 +128,12 @@ export default function ScreenSizesTab() {
                         header: "Category",
                         cell: (screenSize) => {
                             const category = categories.find((cat) => cat.id === screenSize.categoryId);
-                            return <span className="text-sm font-medium text-slate-700">{category?.name || "Unknown"}</span>;
+                            return <span className="text-sm font-medium text-foreground-secondary">{category?.name || "Unknown"}</span>;
                         },
                     },
                     {
                         header: "Sort Order",
-                        cell: (screenSize) => <span className="text-sm font-semibold text-slate-700">{screenSize.value}</span>,
+                        cell: (screenSize) => <span className="text-sm font-semibold text-foreground-secondary">{screenSize.value}</span>,
                     },
                     {
                         header: "Status",
@@ -198,7 +198,7 @@ export default function ScreenSizesTab() {
                                 onChange={(size) => setFormData((prev) => ({ ...prev, size }))}
                             />
                             <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sort Order</label>
+                                <label className="text-xs font-bold text-foreground-tertiary uppercase tracking-wider">Sort Order</label>
                                 <input
                                     required
                                     type="number"
@@ -257,7 +257,7 @@ export default function ScreenSizesTab() {
                             type="button"
                             disabled={isDeleting}
                             onClick={() => setDeletingScreenSize(null)}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
                         >
                             Cancel
                         </button>

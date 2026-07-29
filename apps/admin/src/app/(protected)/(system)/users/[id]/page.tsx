@@ -88,24 +88,24 @@ export default function UserDetailsPage({ params }: Props) {
         <div className="space-y-6">
             <Link
                 href={ADMIN_UI_ROUTES.users()}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50"
             >
                 <ArrowLeft size={14} /> Back to Users
             </Link>
 
             <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-                {loading && <p className="text-sm text-slate-500">Loading user details...</p>}
+                {loading && <p className="text-sm text-foreground-tertiary">Loading user details...</p>}
                 {error && !loading && <p className="text-sm text-red-600">{error}</p>}
 
                 {!loading && !error && user && (
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-foreground-tertiary">
                                 <UserIcon size={20} />
                             </div>
                             <div>
-                                <h1 className="text-xl font-semibold text-slate-900">{user.name}</h1>
-                                <p className="text-sm text-slate-500">User ID: {user.id}</p>
+                                <h1 className="text-xl font-semibold text-foreground">{user.name}</h1>
+                                <p className="text-sm text-foreground-tertiary">User ID: {user.id}</p>
                                 {statusPresentation ? (
                                     <StatusChip
                                         status={statusPresentation.status}
@@ -118,30 +118,30 @@ export default function UserDetailsPage({ params }: Props) {
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="rounded-lg border border-slate-200 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Contact</p>
-                                <p className="mt-2 flex items-center gap-2 text-sm text-slate-700"><Mail size={14} /> {user.email}</p>
-                                <p className="mt-1 flex items-center gap-2 text-sm text-slate-700"><Phone size={14} /> {user.mobile || "N/A"}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Contact</p>
+                                <p className="mt-2 flex items-center gap-2 text-sm text-foreground-secondary"><Mail size={14} /> {user.email}</p>
+                                <p className="mt-1 flex items-center gap-2 text-sm text-foreground-secondary"><Phone size={14} /> {user.mobile || "N/A"}</p>
                             </div>
 
                             <div className="rounded-lg border border-slate-200 p-4">
-                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Account</p>
-                                <p className="mt-2 flex items-center gap-2 text-sm text-slate-700"><Shield size={14} /> Role: {user.role}</p>
-                                <p className="mt-1 text-sm text-slate-700">Status: {statusPresentation?.label || "Active"}</p>
-                                <p className="mt-1 text-sm text-slate-700">Verified: {user.isVerified ? "Yes" : "No"}</p>
-                                <p className="mt-1 text-sm text-slate-700">Created: {new Date(user.createdAt as string).toLocaleString()}</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Account</p>
+                                <p className="mt-2 flex items-center gap-2 text-sm text-foreground-secondary"><Shield size={14} /> Role: {user.role}</p>
+                                <p className="mt-1 text-sm text-foreground-secondary">Status: {statusPresentation?.label || "Active"}</p>
+                                <p className="mt-1 text-sm text-foreground-secondary">Verified: {user.isVerified ? "Yes" : "No"}</p>
+                                <p className="mt-1 text-sm text-foreground-secondary">Created: {new Date(user.createdAt as string).toLocaleString()}</p>
                             </div>
                         </div>
 
                         <div className="rounded-lg border border-slate-200 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Quick Access</p>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Quick Access</p>
                             <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-                                <Link href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.ads({ status: "all", sellerId: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50">
                                     View User Ads
                                 </Link>
-                                <Link href={ADMIN_UI_ROUTES.reports({ status: "open" })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.reports({ status: "open" })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50">
                                     View Reports Queue
                                 </Link>
-                                <Link href={ADMIN_UI_ROUTES.finance({ q: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                                <Link href={ADMIN_UI_ROUTES.finance({ q: user.id })} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50">
                                     View User Payments
                                 </Link>
                             </div>

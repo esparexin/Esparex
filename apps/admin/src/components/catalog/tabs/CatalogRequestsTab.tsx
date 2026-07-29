@@ -292,7 +292,7 @@ export default function CatalogRequestsTab() {
                                         ? "bg-rose-100 text-rose-700"
                                         : count >= 2
                                         ? "bg-amber-100 text-amber-700"
-                                        : "bg-slate-100 text-slate-500"
+                                        : "bg-slate-100 text-foreground-tertiary"
                                 }`}>
                                     ×{count}
                                 </span>
@@ -389,12 +389,12 @@ export default function CatalogRequestsTab() {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Rejection Reason</label>
+                        <label className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">Rejection Reason</label>
                         <textarea
                             value={bulkRejectionReason}
                             onChange={(e) => setBulkRejectionReason(e.target.value)}
                             placeholder="Explain why these requests are being rejected"
-                            className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                            className="w-full min-h-[100px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                         />
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
@@ -402,7 +402,7 @@ export default function CatalogRequestsTab() {
                             type="button"
                             disabled={isBulkRejecting}
                             onClick={() => setBulkRejectOpen(false)}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 transition-colors"
                         >
                             Cancel
                         </button>
@@ -435,7 +435,7 @@ export default function CatalogRequestsTab() {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <label className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                             Search Canonical {requestType === 'brand' ? 'Brand' : 'Model'}
                         </label>
                         <input
@@ -443,7 +443,7 @@ export default function CatalogRequestsTab() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder={`Type at least 2 characters to search ${requestType === 'brand' ? 'brands' : 'models'}`}
-                            className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                         />
                     </div>
                     {searching && (
@@ -460,14 +460,14 @@ export default function CatalogRequestsTab() {
                                 className={`w-full text-left px-4 py-2 text-sm rounded-lg border transition-all ${
                                     selectedTargetId === item.id 
                                         ? "bg-primary/10 border-primary text-primary font-bold animate-pulse" 
-                                        : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                                        : "bg-slate-50 border-slate-200 text-foreground-secondary hover:bg-slate-100"
                                 }`}
                             >
                                 {item.name}
                             </button>
                         ))}
                         {!searching && searchQuery.length >= 2 && searchResults.length === 0 && (
-                            <p className="text-center text-xs text-slate-400">No results found</p>
+                            <p className="text-center text-xs text-foreground-subtle">No results found</p>
                         )}
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
@@ -475,7 +475,7 @@ export default function CatalogRequestsTab() {
                             type="button"
                             disabled={isBulkDuplicating}
                             onClick={() => setBulkDuplicateOpen(false)}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 transition-colors"
                         >
                             Cancel
                         </button>

@@ -56,13 +56,13 @@ export function BroadcastComposer({
 }: BroadcastComposerProps) {
     return (
         <div className="h-fit rounded-xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-1">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-slate-900">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground">
                 <Send size={20} className="text-primary" />
                 Compose Broadcast
             </h2>
             <form onSubmit={handleSend} className="space-y-4">
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                         Audience
                     </label>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -72,7 +72,7 @@ export function BroadcastComposer({
                             className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${
                                 targetType === "all"
                                     ? "border-primary bg-primary text-white"
-                                    : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100"
+                                    : "border-slate-200 bg-slate-50 text-foreground-tertiary hover:bg-slate-100"
                             }`}
                         >
                             All Users
@@ -86,7 +86,7 @@ export function BroadcastComposer({
                             className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${
                                 targetType === "topic"
                                     ? "border-primary bg-primary text-white"
-                                    : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100"
+                                    : "border-slate-200 bg-slate-50 text-foreground-tertiary hover:bg-slate-100"
                             }`}
                         >
                             Device Platform
@@ -97,7 +97,7 @@ export function BroadcastComposer({
                             className={`rounded-lg border px-3 py-2 text-xs font-bold transition-all ${
                                 targetType === "users"
                                     ? "border-primary bg-primary text-white"
-                                    : "border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100"
+                                    : "border-slate-200 bg-slate-50 text-foreground-tertiary hover:bg-slate-100"
                             }`}
                         >
                             Specific Users
@@ -107,7 +107,7 @@ export function BroadcastComposer({
 
                 {targetType === "topic" ? (
                     <div>
-                        <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                             Platform Audience
                         </label>
                         <select
@@ -122,7 +122,7 @@ export function BroadcastComposer({
                                 </option>
                             ))}
                         </select>
-                        <p className="mt-1 text-tiny text-slate-400">
+                        <p className="mt-1 text-tiny text-foreground-subtle">
                             Platform audiences are device-platform segments with registered push tokens, not location or seller segments.
                         </p>
                     </div>
@@ -131,7 +131,7 @@ export function BroadcastComposer({
                 {targetType === "users" ? (
                     <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                         <div>
-                            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                                 Search Recipients
                             </label>
                             <input
@@ -141,7 +141,7 @@ export function BroadcastComposer({
                                 value={recipientQuery}
                                 onChange={(event) => setRecipientQuery(event.target.value)}
                             />
-                            <p className="mt-1 text-tiny text-slate-400">
+                            <p className="mt-1 text-tiny text-foreground-subtle">
                                 Select one or more active users. Search starts after 2 characters.
                             </p>
                         </div>
@@ -168,7 +168,7 @@ export function BroadcastComposer({
                         ) : null}
 
                         {recipientSearchLoading ? (
-                            <div className="flex items-center gap-2 text-xs text-slate-500">
+                            <div className="flex items-center gap-2 text-xs text-foreground-tertiary">
                                 <Loader2 size={14} className="animate-spin" />
                                 Searching users...
                             </div>
@@ -184,12 +184,12 @@ export function BroadcastComposer({
                                         className="flex w-full items-start justify-between gap-3 border-b border-slate-100 px-3 py-2 text-left last:border-b-0 hover:bg-slate-50"
                                     >
                                         <div className="min-w-0">
-                                            <div className="truncate text-sm font-medium text-slate-900">{user.label}</div>
-                                            <div className="truncate text-xs text-slate-500">
+                                            <div className="truncate text-sm font-medium text-foreground">{user.label}</div>
+                                            <div className="truncate text-xs text-foreground-tertiary">
                                                 {user.email || user.mobile || user.id}
                                             </div>
                                         </div>
-                                        <span className="shrink-0 rounded-full border border-slate-200 px-2 py-0.5 text-tiny font-semibold uppercase tracking-wide text-slate-500">
+                                        <span className="shrink-0 rounded-full border border-slate-200 px-2 py-0.5 text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">
                                             Add
                                         </span>
                                     </button>
@@ -200,7 +200,7 @@ export function BroadcastComposer({
                 ) : null}
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                         Notification Title
                     </label>
                     <input
@@ -214,7 +214,7 @@ export function BroadcastComposer({
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                         Message Body
                     </label>
                     <textarea
@@ -228,7 +228,7 @@ export function BroadcastComposer({
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                         Action Link
                     </label>
                     <input
@@ -238,13 +238,13 @@ export function BroadcastComposer({
                         value={actionUrl}
                         onChange={(event) => setActionUrl(event.target.value)}
                     />
-                    <p className="mt-1 text-tiny text-slate-400">
+                    <p className="mt-1 text-tiny text-foreground-subtle">
                         Optional deep link shown as an Open button in the user notification inbox.
                     </p>
                 </div>
 
                 <div>
-                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground-tertiary">
                         Schedule For
                     </label>
                     <input
@@ -253,7 +253,7 @@ export function BroadcastComposer({
                         value={sendAt}
                         onChange={(event) => setSendAt(event.target.value)}
                     />
-                    <p className="mt-1 text-tiny text-slate-400">Leave empty to send immediately.</p>
+                    <p className="mt-1 text-tiny text-foreground-subtle">Leave empty to send immediately.</p>
                 </div>
 
                 {error ? (
