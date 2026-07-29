@@ -38,10 +38,10 @@ export const Z_INDEX = {
   userHeaderDropdown: 110,      // Location selector, account dropdown
 
   // ── Sheet/Drawer System ─────────────────────────────────────────────────
-  sheetOverlay: 200,            // Sheet/drawer backdrop
-  sheetContent: 201,            // Sheet/drawer content
-  drawerOverlay: 1010,          // Drawer backdrop (above listing/auth modals)
-  drawerContent: 1011,          // Drawer content (above listing/auth modals)
+  sheetOverlay: 1050,           // Sheet/drawer backdrop (must be above userHeader: 999)
+  sheetContent: 1051,           // Sheet/drawer content (must be above userHeader: 999)
+  drawerOverlay: 1060,          // Drawer backdrop (above sheet and listing/auth modals)
+  drawerContent: 1061,          // Drawer content (above sheet and listing/auth modals)
 
   // ── Dialog System ────────────────────────────────────────────────────────
   // Aligned with Radix UI dialog primitives
