@@ -20,7 +20,7 @@ export default function NotFound() {
 
                 <div className="max-w-3xl w-full relative z-10 transition-all duration-700 py-12">
                     {/* Premium Card */}
-                    <div className="bg-white/80 backdrop-blur-2xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-[40px] p-8 md:p-16 text-center mt-6 mb-6">
+                    <div className="bg-white/80 backdrop-blur-2xl border border-white/50 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] rounded-3xl md:rounded-[2.5rem] p-8 md:p-16 text-center mt-6 mb-6">
 
                         {/* Illustration Area */}
                         <div className="flex justify-center mb-10">
