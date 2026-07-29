@@ -6,22 +6,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Heart } from "@/icons/IconRegistry";
 import { haptics } from "@/lib/haptics";
-import {
-  resolveListingCategoryLabel,
-  resolveListingLocationLabel,
-} from "@/lib/listings/listingPresentation";
+import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
+import { AdCardMeta } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {
   AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
   getPlanBadge,
-  AdCardPriceDisplay,
 } from "./shared";
 
 export interface AdCardListProps {
   ad: AdCardData;
   isSaved?: boolean;
+  /**
+   * IMPORTANT: Stabilize with useCallback at the call site.
+   */
   onToggleSave?: (adId: string | number, e: React.MouseEvent) => void;
   onClick?: () => void;
   href?: string;
@@ -29,11 +29,18 @@ export interface AdCardListProps {
   className?: string;
 }
 
-function areAdCardListPropsEqual(prevProps: AdCardListProps, nextProps: AdCardListProps): boolean {
+function areAdCardListPropsEqual(
+  prevProps: AdCardListProps,
+  nextProps: AdCardListProps
+): boolean {
   return (
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.ad.price === nextProps.ad.price &&
     prevProps.ad.title === nextProps.ad.title &&
+    prevProps.ad.isSpotlight === nextProps.ad.isSpotlight &&
+    (prevProps.ad as Record<string, unknown>).isFeatured === (nextProps.ad as Record<string, unknown>).isFeatured &&
+    (prevProps.ad as Record<string, unknown>).isPremium === (nextProps.ad as Record<string, unknown>).isPremium &&
+    (prevProps.ad as Record<string, unknown>).isBoosted === (nextProps.ad as Record<string, unknown>).isBoosted &&
     prevProps.isSaved === nextProps.isSaved &&
     prevProps.priority === nextProps.priority &&
     prevProps.href === nextProps.href &&
@@ -50,113 +57,114 @@ export const AdCardList = memo(function AdCardList({
   priority = false,
   className,
 }: AdCardListProps) {
-  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } = useAdCardBase({
-    ad,
-    href,
-    onClick,
-    disableDeclarativeLink: Boolean(onToggleSave),
-  });
+  const { imageUrl, adId, useDeclarativeLink, handleCardClick } =
+    useAdCardBase({
+      ad,
+      href,
+      onClick,
+      disableDeclarativeLink: Boolean(onToggleSave),
+    });
 
-  const deviceCondition = adRecord.deviceCondition as string | undefined;
-  const isBusiness = Boolean(adRecord.isBusiness);
   const categoryLabel = resolveListingCategoryLabel(ad, "General");
-  const locationLabel = resolveListingLocationLabel(ad.location, "brief");
+  const planBadge = getPlanBadge(ad);
 
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
-      <Card
-        className={cn(
-          "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border border-black rounded-xl group",
-          ad.isSpotlight ? 'ring-2 ring-yellow-500 ring-offset-2' : '',
-          className
-        )}
-        onClick={useDeclarativeLink ? undefined : handleCardClick}
-      >
-        <CardContent className="p-3">
-          <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-            {/* List View Image */}
-            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-50 sm:h-32 sm:w-32">
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt={ad.title}
-                  fill
-                  priority={priority}
-                  unoptimized
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100px, 150px"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-foreground-subtle">
-                  <span className="text-2xs">No Image</span>
-                </div>
-              )}
-              {getPlanBadge(ad) && (
-                <div className="absolute top-1 left-1 z-10 scale-75 origin-top-left">
-                  {getPlanBadge(ad)}
-                </div>
-              )}
-            </div>
+      <article aria-label={ad.title}>
+        <Card
+          tabIndex={useDeclarativeLink ? undefined : 0}
+          role={useDeclarativeLink ? undefined : "button"}
+          className={cn(
+            "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border border-border rounded-xl group bg-white",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+            ad.isSpotlight ? "ring-2 ring-yellow-500 ring-offset-2" : "",
+            className
+          )}
+          onClick={useDeclarativeLink ? undefined : handleCardClick}
+          onKeyDown={
+            useDeclarativeLink
+              ? undefined
+              : (e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleCardClick();
+                  }
+                }
+          }
+        >
+          <CardContent className="p-3">
+            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+              {/* List View Image */}
+              <div className="relative h-22 w-22 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-muted/20">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={ad.title}
+                    fill
+                    priority={priority}
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 88px, 112px"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center bg-muted/20 text-foreground-subtle"
+                    aria-hidden="true"
+                  >
+                    <span className="text-tiny text-foreground-tertiary">No Image</span>
+                  </div>
+                )}
+                {planBadge && (
+                  <div className="absolute top-1 left-1 z-10">
+                    {planBadge}
+                  </div>
+                )}
+              </div>
 
-            {/* List View Content */}
-            <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-              <div className="min-w-0">
+              {/* List View Content */}
+              <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
                 <div className="flex min-w-0 items-start justify-between gap-2">
-                  <AdCardPriceDisplay price={ad.price} className="min-w-0 text-base md:text-lg font-bold tracking-tight" />
+                  <div className="flex-1 min-w-0">
+                    <AdCardMeta ad={ad} variant="list" />
+                  </div>
                   {onToggleSave && (
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-9 w-9 rounded-full hover:bg-slate-100 -mt-1 -mr-1"
+                      className="h-11 w-11 rounded-full hover:bg-muted/40 shrink-0 -mt-1 -mr-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
                         haptics.toggle();
                         onToggleSave(adId, e);
                       }}
-                      aria-label={isSaved ? "Remove from favorites" : "Add to favorites"}
+                      aria-label={
+                        isSaved
+                          ? "Remove from favorites"
+                          : "Add to favorites"
+                      }
                     >
-                      <Heart className={cn("h-4.5 w-4.5", isSaved ? "fill-red-500 text-red-500" : "text-foreground-subtle")} />
+                      <Heart
+                        className={cn(
+                          "h-5 w-5",
+                          isSaved
+                            ? "fill-red-500 text-red-500"
+                            : "text-foreground-subtle"
+                        )}
+                      />
                     </Button>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 mt-0.5 mb-1.5 flex-wrap">
-                  {deviceCondition && (
-                    <span className={cn(
-                      "font-bold px-2 h-4 text-tiny rounded-full uppercase tracking-tighter leading-none flex items-center",
-                      deviceCondition === 'power_on' ? "bg-green-100/60 text-green-700" : "bg-red-100/60 text-red-700"
-                    )}>
-                      {deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}
-                    </span>
-                  )}
-                  {isBusiness && (
-                    <span className="bg-blue-50 text-blue-600 border border-blue-100/50 text-tiny h-4 px-1.5 rounded-full font-bold uppercase tracking-tighter leading-none flex items-center gap-1">
-                      Verified
-                    </span>
-                  )}
-                </div>
-                <h3 className="line-clamp-2 break-words font-medium leading-[1.3] text-small text-foreground-secondary tracking-tight">
-                  {ad.title}
-                </h3>
-              </div>
-              
-              <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-tiny text-foreground-subtle font-medium">
-                <span className="max-w-full rounded-full bg-slate-100/80 px-2 py-0.5 text-tiny font-bold text-muted-foreground/80 uppercase tracking-wide">
-                  {categoryLabel}
-                </span>
-                {locationLabel && (
-                  <span className="min-w-0 max-w-full truncate sm:max-w-[150px]">
-                    {locationLabel}
+
+                <div className="mt-2 flex min-w-0 items-center gap-2">
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
+                    {categoryLabel}
                   </span>
-                )}
-                <span className="whitespace-nowrap sm:ml-auto text-foreground-subtle/70">
-                  {'time' in ad ? ad.time : "Today"}
-                </span>
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </article>
     </AdCardLinkWrapper>
   );
 }, areAdCardListPropsEqual);

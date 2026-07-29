@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "@/icons/IconRegistry";
+import { Sparkles, Crown, Star, Zap } from "@/icons/IconRegistry";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
 import { formatPrice } from "@/lib/formatters";
@@ -11,6 +11,10 @@ import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
+
+/* -------------------------------------------------------------------------- */
+/* Core types                                                                  */
+/* -------------------------------------------------------------------------- */
 
 export type AdCardData = AdData | UiAd | Ad;
 
@@ -29,6 +33,10 @@ interface AdCardLinkWrapperProps {
   enabled: boolean;
   children: ReactNode;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Navigation helpers                                                          */
+/* -------------------------------------------------------------------------- */
 
 export function useAdCardNavigation({
   href,
@@ -51,7 +59,11 @@ export function useAdCardNavigation({
   return { useDeclarativeLink, handleCardClick };
 }
 
-export function AdCardLinkWrapper({ href, enabled, children }: AdCardLinkWrapperProps) {
+export function AdCardLinkWrapper({
+  href,
+  enabled,
+  children,
+}: AdCardLinkWrapperProps) {
   if (!enabled || !href) {
     return <>{children}</>;
   }
@@ -102,24 +114,157 @@ export function useAdCardBase({
   };
 }
 
-export function getPlanBadge(ad: AdCardData, className?: string) {
+/* -------------------------------------------------------------------------- */
+/* Condition resolution (robust multi-source resolution)                     */
+/* -------------------------------------------------------------------------- */
+
+export function resolveDeviceCondition(
+  ad: AdCardData
+): "power_on" | "power_off" | undefined {
+  const adRecord = toAdRecord(ad);
+
+  // 1. Direct fields check
+  const raw =
+    (typeof adRecord.deviceCondition === "string"
+      ? adRecord.deviceCondition
+      : undefined) ||
+    (typeof adRecord.condition === "string"
+      ? adRecord.condition
+      : undefined) ||
+    (adRecord.specs && typeof adRecord.specs === "object"
+      ? (adRecord.specs as Record<string, unknown>).deviceCondition ||
+        (adRecord.specs as Record<string, unknown>).condition
+      : undefined);
+
+  if (typeof raw === "string" && raw.trim()) {
+    const norm = raw.toLowerCase().trim().replace(/[\s_-]+/g, "_");
+    if (
+      norm.includes("power_on") ||
+      norm.includes("powers_on") ||
+      norm === "working"
+    ) {
+      return "power_on";
+    }
+    if (
+      norm.includes("power_off") ||
+      norm.includes("powers_off") ||
+      norm === "dead"
+    ) {
+      return "power_off";
+    }
+  }
+
+  // 2. Fallback title parsing for explicit condition indicators
+  const title = typeof ad.title === "string" ? ad.title.toLowerCase() : "";
+  if (
+    title.includes("powers on") ||
+    title.includes("power on") ||
+    title.includes("(power on)") ||
+    title.includes("- power on")
+  ) {
+    return "power_on";
+  }
+  if (
+    title.includes("powers off") ||
+    title.includes("power off") ||
+    title.includes("(power off)") ||
+    title.includes("- power off")
+  ) {
+    return "power_off";
+  }
+
+  return undefined;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Date formatting helper for mobile cards (compact current year dates)       */
+/* -------------------------------------------------------------------------- */
+
+export function formatCompactCardDate(dateStr: string | undefined): string {
+  if (!dateStr) return "Just now";
+  const currentYear = new Date().getFullYear().toString();
+  const yearRegex = new RegExp(`\\s*${currentYear}\\s*`, "g");
+  return dateStr.replace(yearRegex, "").trim() || dateStr;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Badge design tokens                                                         */
+/* -------------------------------------------------------------------------- */
+
+const BADGE_BASE =
+  "border-0 text-[10px] font-bold uppercase tracking-wide leading-none h-5 px-2 rounded-full shadow-sm flex items-center gap-1";
+
+/* -------------------------------------------------------------------------- */
+/* Promotion badge (image overlay — top-left)                                 */
+/* -------------------------------------------------------------------------- */
+
+export function getPlanBadge(
+  ad: AdCardData,
+  className?: string
+): ReactNode | null {
   const adRecord = toAdRecord(ad);
   const isBoosted = adRecord.isBoosted === true;
+  const isFeatured = adRecord.isFeatured === true;
+  const isPremium = adRecord.isPremium === true;
 
-  const badgeClasses = cn("border-0 text-2xs shadow-lg flex items-center", className);
-  
+  const merged = cn(BADGE_BASE, className);
+
   if (ad.isSpotlight) {
     return (
-      <Badge className={cn("bg-gradient-to-r from-yellow-500 to-orange-500 text-white", badgeClasses)}>
-        <Sparkles className="h-2 w-2 mr-0.5" /> ⭐ Spotlight
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
+          merged
+        )}
+        aria-label="Spotlight listing"
+      >
+        <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
+        Spotlight
+      </Badge>
+    );
+  }
+
+  if (isFeatured) {
+    return (
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-purple-600 to-indigo-600 text-white",
+          merged
+        )}
+        aria-label="Featured listing"
+      >
+        <Crown className="h-2.5 w-2.5" aria-hidden="true" />
+        Featured
+      </Badge>
+    );
+  }
+
+  if (isPremium) {
+    return (
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-amber-400 to-yellow-600 text-white",
+          merged
+        )}
+        aria-label="Premium listing"
+      >
+        <Star className="h-2.5 w-2.5" aria-hidden="true" />
+        Premium
       </Badge>
     );
   }
 
   if (isBoosted) {
     return (
-      <Badge className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", badgeClasses)}>
-        🚀 Boosted
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-sky-600 to-blue-700 text-white",
+          merged
+        )}
+        aria-label="Boosted listing"
+      >
+        <Zap className="h-2.5 w-2.5" aria-hidden="true" />
+        Boosted
       </Badge>
     );
   }
@@ -127,10 +272,129 @@ export function getPlanBadge(ad: AdCardData, className?: string) {
   return null;
 }
 
-export function AdCardPriceDisplay({ price, className }: { price: number; className?: string }) {
+/* -------------------------------------------------------------------------- */
+/* Status badge (image overlay — top-right)                                   */
+/* -------------------------------------------------------------------------- */
+
+export function getStatusBadge(
+  ad: AdCardData,
+  className?: string
+): ReactNode | null {
+  const adRecord = toAdRecord(ad);
+  const status =
+    typeof adRecord.status === "string" ? adRecord.status.toLowerCase() : "";
+  const isReserved = adRecord.isReserved === true;
+  const isNew = adRecord.isNew === true;
+
+  const merged = cn(BADGE_BASE, className);
+
+  if (status === "sold") {
+    return (
+      <Badge
+        className={cn("bg-slate-700/90 text-white border-0", merged)}
+        aria-label="Listing sold"
+      >
+        Sold
+      </Badge>
+    );
+  }
+
+  if (isReserved) {
+    return (
+      <Badge
+        className={cn(
+          "bg-amber-50 text-amber-700 border border-amber-200",
+          merged
+        )}
+        aria-label="Listing reserved"
+      >
+        Reserved
+      </Badge>
+    );
+  }
+
+  if (isNew) {
+    return (
+      <Badge
+        className={cn(
+          "bg-blue-50 text-blue-700 border border-blue-200",
+          merged
+        )}
+        aria-label="New listing"
+      >
+        New
+      </Badge>
+    );
+  }
+
+  return null;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Compact Status Chip for Condition (Power On / Power Off)                   */
+/*                                                                             */
+/* Uses a lightweight CSS dot + label indicator to save ~30px horizontal      */
+/* width over a bulky pill badge, leaving room for price & location.           */
+/* -------------------------------------------------------------------------- */
+
+export function getConditionBadge(
+  input: string | AdCardData | undefined,
+  className?: string
+): ReactNode | null {
+  let condition: "power_on" | "power_off" | undefined;
+
+  if (typeof input === "string") {
+    const norm = input.toLowerCase().trim().replace(/[\s_-]+/g, "_");
+    if (norm.includes("power_on") || norm.includes("powers_on") || norm === "working") {
+      condition = "power_on";
+    } else if (norm.includes("power_off") || norm.includes("powers_off") || norm === "dead") {
+      condition = "power_off";
+    }
+  } else if (input && typeof input === "object") {
+    condition = resolveDeviceCondition(input);
+  }
+
+  if (!condition) return null;
+
+  const isPowerOn = condition === "power_on";
+
   return (
-    <div className={cn("font-bold text-green-600", className)}>
-      {price === 0 ? "Free" : formatPrice(price)}
+    <span
+      className={cn(
+        "inline-flex items-center text-[9px] font-bold uppercase tracking-wider leading-none px-1.5 py-0.5 rounded border select-none shadow-2xs",
+        isPowerOn
+          ? "bg-emerald-600 text-white border-emerald-600"
+          : "bg-red-600 text-white border-red-600",
+        className
+      )}
+      aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
+    >
+      {isPowerOn ? "Power On" : "Power Off"}
+    </span>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Price display (ALWAYS text-green-600 for numeric prices and "Free")        */
+/* -------------------------------------------------------------------------- */
+
+export function AdCardPriceDisplay({
+  price,
+  className,
+}: {
+  price: number;
+  className?: string;
+}) {
+  const isFree = price === 0;
+  return (
+    <div
+      className={cn(
+        "font-bold text-green-600 tracking-tight",
+        className
+      )}
+      aria-label={`Price: ${isFree ? "Free" : formatPrice(price)}`}
+    >
+      {isFree ? "Free" : formatPrice(price)}
     </div>
   );
 }
