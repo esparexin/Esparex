@@ -36,10 +36,22 @@ export function SafeImage({
   };
 
   // Direct S3 & external CDN URLs skip local Next.js image proxying to prevent 400 errors and lower server overhead
-  const isExternalS3 = typeof currentSrc === "string" && (
-    currentSrc.includes("amazonaws.com") ||
-    currentSrc.includes("cloudfront.net")
-  );
+  const isExternalS3 = (() => {
+    if (typeof currentSrc !== "string") return false;
+    try {
+      const base = typeof window !== "undefined" ? window.location.origin : "http://localhost";
+      const url = new URL(currentSrc, base);
+      const host = url.hostname.toLowerCase();
+      return (
+        host === "amazonaws.com" ||
+        host.endsWith(".amazonaws.com") ||
+        host === "cloudfront.net" ||
+        host.endsWith(".cloudfront.net")
+      );
+    } catch {
+      return false;
+    }
+  })();
 
   return (
     <Image
