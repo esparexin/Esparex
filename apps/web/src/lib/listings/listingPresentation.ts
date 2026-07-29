@@ -118,35 +118,100 @@ export function resolveListingCategoryBrowseValue(
     );
 }
 
+const INVALID_TITLE_PATTERNS = [
+    /websocket\.js:/i,
+    /websocket\s+connection/i,
+    /webpack/i,
+    /http:\/\//i,
+    /https:\/\//i,
+    /^error:/i,
+    /^uncaught/i,
+    /^failed to/i,
+    /^syntaxerror/i,
+    /^undefined$/i,
+    /^null$/i,
+    /\[object\s+object\]/i,
+];
+
+/** Generic presentation title sanitizer preventing runtime error string leakage */
+export function sanitizeListingTitle(
+    rawTitle: unknown,
+    listing?: ListingCategoryLike | null
+): string {
+    if (!rawTitle || typeof rawTitle !== "string") {
+        return resolveListingCategoryLabel(listing, "Listing");
+    }
+
+    const trimmed = rawTitle.replace(/\*\*/g, "").trim();
+    if (!trimmed) {
+        return resolveListingCategoryLabel(listing, "Listing");
+    }
+
+    if (INVALID_TITLE_PATTERNS.some((pattern) => pattern.test(trimmed))) {
+        return resolveListingCategoryLabel(listing, "Listing");
+    }
+
+    return trimmed;
+}
+
 export function resolveListingLocationLabel(
     location: unknown,
     mode: "brief" | "full" = "brief"
 ): string {
+    if (!location) {
+        return "Location unavailable";
+    }
+
+    if (typeof location === "string") {
+        const sanitized = sanitizeLocationLabel(location);
+        return sanitized || "Location unavailable";
+    }
+
+    const record = location as Record<string, unknown>;
+
+    const city = sanitizeLocationLabel(typeof record.city === "string" ? record.city : undefined);
+    const district = sanitizeLocationLabel(typeof record.district === "string" ? record.district : undefined);
+    const state = sanitizeLocationLabel(typeof record.state === "string" ? record.state : undefined);
+    const country = sanitizeLocationLabel(typeof record.country === "string" ? record.country : undefined);
+    const name = sanitizeLocationLabel(typeof record.name === "string" ? record.name : undefined);
+    const display = sanitizeLocationLabel(typeof record.display === "string" ? record.display : undefined);
+    const formattedAddress = sanitizeLocationLabel(typeof record.formattedAddress === "string" ? record.formattedAddress : undefined);
+
     if (mode === "full") {
         const fullLabel = sanitizeLocationLabel(LocationFacade.format(location));
         if (fullLabel) {
             return fullLabel;
         }
+        if (city && state) {
+            return `${city}, ${state}`;
+        }
+        if (country) {
+            return country;
+        }
     }
 
-    if (!location) {
-        return "";
+    // Geographic fallback chain for brief mode (Ad Card metadata):
+    // city -> district -> state -> name/display/address -> "Location unavailable"
+    if (city && city.toLowerCase() !== "india") {
+        return city;
+    }
+    if (district && district.toLowerCase() !== "india") {
+        return district;
+    }
+    if (state && state.toLowerCase() !== "india") {
+        return state;
+    }
+    if (name && name !== country && name.toLowerCase() !== "india" && name.toLowerCase() !== "all india") {
+        return name;
+    }
+    if (display && display !== country && display.toLowerCase() !== "india" && display.toLowerCase() !== "all india") {
+        return display;
+    }
+    if (formattedAddress && formattedAddress.toLowerCase() !== "india" && formattedAddress.toLowerCase() !== "all india") {
+        return formattedAddress;
     }
 
-    if (typeof location === "string") {
-        return sanitizeLocationLabel(location) || "";
-    }
-
-    const record = location as Record<string, unknown>;
-    return (
-        sanitizeLocationLabel(typeof record.city === "string" ? record.city : undefined) ||
-        sanitizeLocationLabel(typeof record.name === "string" ? record.name : undefined) ||
-        sanitizeLocationLabel(typeof record.display === "string" ? record.display : undefined) ||
-        sanitizeLocationLabel(typeof record.formattedAddress === "string" ? record.formattedAddress : undefined) ||
-        sanitizeLocationLabel(typeof record.state === "string" ? record.state : undefined) ||
-        sanitizeLocationLabel(typeof record.country === "string" ? record.country : undefined) ||
-        ""
-    );
+    return "Location unavailable";
 }
 
 export function resolveBusinessLocationLabel(

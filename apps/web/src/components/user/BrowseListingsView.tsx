@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  BrowseFiltersBar,
-  BrowseFiltersHeaderTrigger,
-} from "@/components/user/BrowseFiltersBar";
+import { BrowseFiltersHeaderTrigger } from "@/components/user/BrowseFiltersBar";
 import {
   BrowseResultsPanel,
   type BrowseResultsContentProps,
@@ -68,7 +65,7 @@ export function BrowseListingsView<TItem, TFilters>({
   searchPlaceholder,
   inputId,
   getCategoryValue,
-  respectMobileChromePolicy,
+  respectMobileChromePolicy: _respectMobileChromePolicy,
   inputClassName,
   selectTriggerClassName,
   emptyTitle,
@@ -128,11 +125,6 @@ export function BrowseListingsView<TItem, TFilters>({
 
   return (
     <div className="bg-slate-50/40">
-      <BrowseFiltersBar
-        {...sharedFilterProps}
-        respectMobileChromePolicy={respectMobileChromePolicy}
-      />
-
       <BrowseResultsPanel
         items={items}
         total={total}

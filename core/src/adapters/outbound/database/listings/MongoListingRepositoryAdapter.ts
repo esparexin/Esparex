@@ -41,6 +41,10 @@ type DbListing = {
     sellerTrustSnapshot?: number;
     sellerPriorityScore?: number;
     isSpotlight?: boolean;
+    // IAd fields: present in Mongoose schema, added for DTO parity with browse pipeline
+    sellerType?: 'user' | 'business';
+    businessId?: unknown;
+    deviceCondition?: 'power_on' | 'power_off';
 
     spotlightExpiresAt?: Date;
     expiresAt?: Date;
@@ -102,6 +106,12 @@ function toDomain(doc: DbListing): Listing {
             favorites: doc.views.favorites,
             lastViewedAt: doc.views.lastViewedAt,
         } : undefined,
+        // DTO parity: map IAd fields present in Mongoose schema but previously
+        // omitted here. Enables normalizeListing() to derive isBusiness correctly
+        // and surfaces deviceCondition for the condition badge on all repository paths.
+        sellerType: doc.sellerType,
+        businessId: doc.businessId ? String(doc.businessId) : undefined,
+        deviceCondition: doc.deviceCondition,
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
     };

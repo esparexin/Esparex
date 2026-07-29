@@ -47,13 +47,13 @@ export interface AppLocation extends Partial<Pick<SharedLocation, "locationId" |
 }
 
 export const DEFAULT_APP_LOCATION: AppLocation = {
-    formattedAddress: "India",
-    city: "India",
-    state: "India",
+    formattedAddress: "All India",
+    city: "",
+    state: "",
     country: "India",
     source: "default",
-    name: "India",
-    display: "India",
+    name: "All India",
+    display: "All India",
     coordinates: {
         type: "Point",
         coordinates: [78.96, 20.59], // [lng, lat] — approximate center of India

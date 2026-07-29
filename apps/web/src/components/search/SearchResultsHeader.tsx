@@ -144,51 +144,27 @@ export function SearchResultsHeader({
 
     return (
         <div className="sticky top-14 md:top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-100 py-2 px-3 md:px-0 md:py-3 mb-2 md:mb-0">
-            {/* Mobile Compact Single-Row Toolbar */}
-            <div className="flex md:hidden items-center justify-between gap-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-3">
+                {/* Left side: Filter Trigger & Results Counter */}
+                <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
                     {filterNode && <div className="shrink-0">{filterNode}</div>}
-                    <SortDropdown
-                        open={sortOpen}
-                        onOpenChange={setSortOpen}
-                        sort={sort}
-                        onSelect={onSortChange}
-                    />
-                </div>
-                <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
-                    aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
-                    className="h-10 w-10 flex-shrink-0 rounded-lg border-slate-200 bg-white shadow-sm"
-                >
-                    {view === "grid" ? (
-                        <List className="size-4 text-foreground-tertiary" />
-                    ) : (
-                        <LayoutGrid className="size-4 text-foreground-tertiary" />
-                    )}
-                </Button>
-            </div>
-
-            {/* Desktop Expanded Layout */}
-            <div className="hidden md:flex md:items-center justify-between gap-3">
-                <div className="flex items-center justify-between min-w-0 flex-1">
                     <div className="flex items-baseline gap-3 min-w-0">
                         {categoryName && (
-                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight leading-none">
+                            <h2 className="hidden sm:block text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-none truncate">
                                 {categoryName}
                             </h2>
                         )}
                         <div className="flex items-center gap-2 min-w-0">
                             <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                            <p className="text-sm text-slate-700 font-medium truncate">
+                            <p className="text-xs md:text-sm text-slate-700 font-medium truncate">
                                 <span className="text-slate-950 font-bold">{total}</span> {total === 1 ? "listing" : "listings"} available
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* Right side: Single SortDropdown instance & View Toggle */}
+                <div className="flex items-center gap-2 md:gap-3 shrink-0">
                     <SortDropdown
                         open={sortOpen}
                         onOpenChange={setSortOpen}
@@ -196,7 +172,8 @@ export function SearchResultsHeader({
                         onSelect={onSortChange}
                     />
 
-                    <div className="flex items-center rounded-[10px] border border-slate-200 bg-slate-50/50 p-1">
+                    {/* Desktop View Toggle */}
+                    <div className="hidden md:flex items-center rounded-[10px] border border-slate-200 bg-slate-50/50 p-1">
                         <Button
                             size="icon"
                             variant="ghost"
@@ -222,6 +199,21 @@ export function SearchResultsHeader({
                             <List className="size-4" />
                         </Button>
                     </div>
+
+                    {/* Mobile View Toggle */}
+                    <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => onViewChange(view === "grid" ? "list" : "grid")}
+                        aria-label={view === "grid" ? "Switch to list view" : "Switch to grid view"}
+                        className="flex md:hidden h-10 w-10 shrink-0 rounded-lg border-slate-200 bg-white shadow-sm"
+                    >
+                        {view === "grid" ? (
+                            <List className="size-4 text-foreground-tertiary" />
+                        ) : (
+                            <LayoutGrid className="size-4 text-foreground-tertiary" />
+                        )}
+                    </Button>
                 </div>
             </div>
         </div>

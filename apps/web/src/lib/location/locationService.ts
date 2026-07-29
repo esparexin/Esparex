@@ -46,8 +46,8 @@ function buildAppLocation(params: {
     const formattedAddress =
         params.formattedAddress ||
         params.name ||
-        city ||
-        DEFAULT_APP_LOCATION.formattedAddress;
+        (city && state ? `${city}, ${state}` : city) ||
+        (state ? `${state}, ${country}` : (country !== "India" ? country : ""));
 
     const locationId = params.locationId;
     const now = Date.now();
