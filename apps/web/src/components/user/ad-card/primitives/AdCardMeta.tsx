@@ -46,18 +46,6 @@ interface AdCardMetaProps {
   variant?: "default" | "dashboard" | "list";
 }
 
-/** Decode common HTML entities so titles like "&amp;" render as "&". */
-function decodeHtmlEntities(str: string): string {
-  if (!str) return "";
-  return str
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, "&");
-}
-
 export const AdCardMeta = memo(function AdCardMeta({
   ad,
   className,
@@ -101,7 +89,18 @@ export const AdCardMeta = memo(function AdCardMeta({
   })();
 
   return (
-    
+    <div className={cn("flex flex-col justify-between gap-1.5", className)}>
+      {/* Price Row — Standalone bold green price display */}
+      <div className="flex items-center justify-between min-h-[1.25rem]">
+        <span
+          className={cn(
+            "font-bold tracking-tight text-emerald-600 dark:text-emerald-400",
+            isDashboard ? "text-base" : "text-sm"
+          )}
+          aria-label={`Price: ${priceDisplay}`}
+        >
+          {priceDisplay}
+        </span>
       </div>
 
       {/* Title — De-congested with leading-relaxed and equalized 2-line height container */}
