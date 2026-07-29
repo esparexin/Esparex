@@ -1,6 +1,6 @@
 "use client";
 
-import { RefObject } from "react";
+import { RefObject, useState, useEffect, type CSSProperties } from "react";
 import { useIsMobile } from "@/components/ui/useMobile";
 import LocationSelector from "@/components/location/LocationSelector";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, Z_INDEX } from "@esparex/ui";
@@ -17,7 +17,11 @@ interface LocationOverlayHostProps {
  * Single presentation owner for the Location Selector overlay.
  * Dynamically switches presentation based on viewport:
  * - Mobile (isMobile = true): Radix Sheet bottom drawer portalled to document.body
- * - Desktop (isMobile = false): Absolute dropdown panel with click-outside dismissal
+ * - Desktop (isMobile = false): position:fixed dropdown anchored to containerRef bounds
+ *
+ * IMPORTANT: This component must be rendered OUTSIDE any CSS display:none container
+ * so that Radix UI's DismissableLayer event system works correctly on mobile.
+ * It is rendered at the <header> root level in Header.tsx.
  */
 export function LocationOverlayHost({
     isOpen,
@@ -25,6 +29,23 @@ export function LocationOverlayHost({
     containerRef,
 }: LocationOverlayHostProps) {
     const isMobile = useIsMobile();
+
+    // Anchor position for the desktop dropdown — computed from the trigger ref.
+    // Using position:fixed so the component can live outside the trigger's
+    // relative ancestor (required because we moved it to the <header> root).
+    const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
+    useEffect(() => {
+        if (!isOpen || isMobile) return;
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+            setDropdownStyle({
+                position: "fixed",
+                top: rect.bottom + 4,
+                left: rect.left,
+                width: 288, // w-72
+            });
+        }
+    }, [isOpen, isMobile, containerRef]);
 
     useDismissableLayer({
         isOpen: isOpen && !isMobile,
@@ -51,8 +72,8 @@ export function LocationOverlayHost({
 
     return (
         <div
-            style={{ zIndex: Z_INDEX.userHeaderDropdown }}
-            className="absolute top-full left-0 mt-1 w-72 max-h-[52vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0"
+            style={{ zIndex: Z_INDEX.userHeaderDropdown, ...dropdownStyle }}
+            className="max-h-[52vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0"
             onClick={(e) => e.stopPropagation()}
         >
             <div className="flex-1 overflow-hidden">
