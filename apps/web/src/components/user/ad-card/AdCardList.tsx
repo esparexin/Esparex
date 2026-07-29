@@ -95,7 +95,7 @@ export const AdCardList = memo(function AdCardList({
           <CardContent className="p-3">
             <div className="flex min-w-0 items-start gap-3 sm:gap-4">
               {/* List View Image */}
-              <div className="relative h-22 w-22 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-muted/20">
+              <div className="relative h-24 w-24 sm:h-28 sm:w-28 shrink-0 overflow-hidden rounded-xl bg-muted/20">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
