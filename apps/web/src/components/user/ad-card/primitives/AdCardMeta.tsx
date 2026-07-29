@@ -8,6 +8,7 @@ import { cn } from "@/components/ui/utils";
 import {
   type AdCardData,
   getConditionBadge,
+  formatCompactCardDate,
 } from "../shared";
 
 /* -------------------------------------------------------------------------- */
@@ -81,19 +82,21 @@ export const AdCardMeta = memo(function AdCardMeta({
       : formatPrice(ad.price);
   })();
 
+  const rawDate = "time" in ad ? (ad as { time: string }).time : undefined;
+  const compactDate = formatCompactCardDate(rawDate);
+
   return (
     <div className={cn("flex flex-col gap-1", className)}>
-      {/* Title — 2-line clamp, clean line-height, proper text size */}
-      <h3 className="font-semibold line-clamp-2 text-xs sm:text-sm leading-[1.35] min-h-[2.4rem] text-foreground-secondary tracking-tight">
+      {/* Title — Global Token "small" (13px / leading-normal = 1.5). Zero clipping! */}
+      <h3 className="font-semibold line-clamp-2 text-small leading-normal text-slate-800 tracking-tight mb-0.5">
         {cleanTitle(ad.title)}
       </h3>
 
-      {/* Price + Condition Row */}
-      <div className="flex items-center justify-between gap-1.5 mt-0.5 min-h-[1.5rem]">
-        {/* Price text — ALWAYS text-green-600 for both numeric price and "Free" */}
+      {/* Price + Condition Row — ALWAYS text-green-600 for both numeric price and "Free" */}
+      <div className="flex items-center justify-between gap-1.5 min-h-[1.5rem]">
         <span
           className={cn(
-            "font-bold tracking-tight text-green-600 text-sm sm:text-base",
+            "font-bold tracking-tight text-green-600 text-body sm:text-h4",
             isDashboard && "text-primary text-base"
           )}
           aria-label={`Price: ${priceDisplay}`}
@@ -101,16 +104,16 @@ export const AdCardMeta = memo(function AdCardMeta({
           {priceDisplay}
         </span>
 
-        {/* Condition Badge (Power On / Power Off) — rendered right next to price */}
+        {/* Compact Condition Status Chip — dot indicator, lightweight */}
         {!isDashboard && conditionBadge && (
-          <div className="shrink-0">{conditionBadge}</div>
+          <div className="shrink-0 ml-auto">{conditionBadge}</div>
         )}
       </div>
 
-      {/* Location + Date Metadata Row — clean layout, no overlap */}
+      {/* Location + Date Metadata Row — clean layout, no overlap, compact date */}
       <div
         className={cn(
-          "flex items-center justify-between text-caption text-foreground-tertiary pt-1.5 mt-1 border-t border-slate-100 gap-2 min-w-0",
+          "flex items-center justify-between text-tiny text-slate-500 pt-1.5 mt-1 border-t border-slate-100 gap-2 min-w-0",
           isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}
@@ -118,15 +121,15 @@ export const AdCardMeta = memo(function AdCardMeta({
         {isDashboard ? (
           <>
             <div className="flex items-center gap-1 shrink-0">
-              <Clock className="h-3 w-3 text-foreground-subtle shrink-0" aria-hidden="true" />
-              <span className="truncate text-caption">
+              <Clock className="h-3 w-3 text-slate-400 shrink-0" aria-hidden="true" />
+              <span className="truncate text-tiny">
                 {"createdAt" in ad
                   ? formatStableDate(ad.createdAt as string)
                   : "Just now"}
               </span>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-foreground-subtle text-caption">
+              <span className="text-slate-500 text-tiny">
                 {dashboardViews} views
               </span>
             </div>
@@ -138,26 +141,26 @@ export const AdCardMeta = memo(function AdCardMeta({
               {locationLabel && (
                 <>
                   <MapPin
-                    className="h-3 w-3 shrink-0 text-foreground-subtle/80"
+                    className="h-3 w-3 shrink-0 text-slate-400"
                     aria-hidden="true"
                   />
-                  <span className="truncate font-medium text-caption block shrink min-w-0">
+                  <span className="truncate font-medium text-tiny block shrink min-w-0">
                     {locationLabel}
                   </span>
                 </>
               )}
             </div>
 
-            {/* Date — shrink-0 ml-auto, clear spacing, WCAG AA contrast */}
+            {/* Date — compact date without redundant year, shrink-0 ml-auto */}
             <div className="flex items-center gap-1 shrink-0 ml-auto">
               {!isList && (
                 <Clock
-                  className="h-3 w-3 shrink-0 text-foreground-subtle/80"
+                  className="h-3 w-3 shrink-0 text-slate-400"
                   aria-hidden="true"
                 />
               )}
-              <span className="whitespace-nowrap font-medium text-caption text-foreground-subtle">
-                {"time" in ad ? (ad as { time: string }).time : "Just now"}
+              <span className="whitespace-nowrap font-medium text-tiny text-slate-500">
+                {compactDate}
               </span>
             </div>
           </>

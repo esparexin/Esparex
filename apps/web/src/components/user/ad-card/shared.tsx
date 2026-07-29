@@ -177,6 +177,16 @@ export function resolveDeviceCondition(
 }
 
 /* -------------------------------------------------------------------------- */
+/* Date formatting helper for mobile cards (compact current year dates)       */
+/* -------------------------------------------------------------------------- */
+
+export function formatCompactCardDate(dateStr: string | undefined): string {
+  if (!dateStr) return "Just now";
+  // Remove current year (2026) to save 35px on narrow mobile cards
+  return dateStr.replace(/\s*2026\s*/g, "").trim() || dateStr;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Badge design tokens                                                         */
 /* -------------------------------------------------------------------------- */
 
@@ -320,7 +330,10 @@ export function getStatusBadge(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Condition badge (accepts string or full AdCardData)                         */
+/* Compact Status Chip for Condition (Power On / Power Off)                   */
+/*                                                                             */
+/* Uses a lightweight CSS dot + label indicator to save ~30px horizontal      */
+/* width over a bulky pill badge, leaving room for price & location.           */
 /* -------------------------------------------------------------------------- */
 
 export function getConditionBadge(
@@ -347,21 +360,28 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center font-bold px-2 h-5 text-[10px] rounded-full uppercase tracking-wider leading-none shadow-2xs border",
+        "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider leading-none px-1.5 py-0.5 rounded-full border",
         isPowerOn
-          ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
-          : "bg-red-50 text-red-700 border-red-200/80",
+          ? "bg-emerald-50/90 text-emerald-700 border-emerald-200/80"
+          : "bg-red-50/90 text-red-700 border-red-200/80",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
     >
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full shrink-0",
+          isPowerOn ? "bg-emerald-500" : "bg-red-500"
+        )}
+        aria-hidden="true"
+      />
       {isPowerOn ? "Power On" : "Power Off"}
     </span>
   );
 }
 
 /* -------------------------------------------------------------------------- */
-/* Price display (ALWAYS text-green-600 as requested by user)                 */
+/* Price display (ALWAYS text-green-600 for numeric prices and "Free")        */
 /* -------------------------------------------------------------------------- */
 
 export function AdCardPriceDisplay({
