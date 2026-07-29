@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { AlertCircle, MapPin, RefreshCw } from "@/icons/IconRegistry";
 import type { Location } from "@/lib/api/user/locations";
 import { Button } from "@esparex/ui";
@@ -41,6 +42,15 @@ export function LocationResultsList({
     getLocationPrimaryLabel: (loc: Location) => string;
     getLocationSecondaryLabel: (loc: Location) => string;
 }) {
+    useEffect(() => {
+        if (selectedIndex < 0) return;
+        const optionId = query ? `location-option-${selectedIndex}` : `popular-option-${selectedIndex}`;
+        const el = document.getElementById(optionId) || document.getElementById(`location-fallback-option-${selectedIndex}`);
+        if (el) {
+            el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+    }, [selectedIndex, query]);
+
     return (
         <div className="py-0.5" role="listbox" id="location-results-listbox" aria-label="Location search results">
             {query ? (

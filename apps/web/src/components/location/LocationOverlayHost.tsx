@@ -48,6 +48,16 @@ export function LocationOverlayHost({
         }
     }, [isOpen, isMobile, containerRef]);
 
+    // Restore focus to trigger element when overlay closes
+    const prevOpenRef = useRef(isOpen);
+    useEffect(() => {
+        if (prevOpenRef.current && !isOpen) {
+            const triggerEl = containerRef.current?.querySelector<HTMLElement>("button, input, [tabindex]") || containerRef.current;
+            triggerEl?.focus();
+        }
+        prevOpenRef.current = isOpen;
+    }, [isOpen, containerRef]);
+
     useDismissableLayer({
         isOpen: isOpen && !isMobile,
         containerRef: [containerRef, dropdownRef],

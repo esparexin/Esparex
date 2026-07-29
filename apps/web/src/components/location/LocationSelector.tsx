@@ -174,7 +174,15 @@ export default function LocationSelector({
                 break;
             case "ArrowUp":
                 e.preventDefault();
-                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+                break;
+            case "Home":
+                e.preventDefault();
+                setSelectedIndex(0);
+                break;
+            case "End":
+                e.preventDefault();
+                setSelectedIndex(activeList.length - 1);
                 break;
             case "Enter":
                 if (selectedIndex >= 0 && activeList[selectedIndex]) {
