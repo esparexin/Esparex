@@ -72,5 +72,6 @@
   "backend/api/src/__tests__/controllers/requireOwnedService.spec.ts": 1,
   "backend/api/src/__tests__/controllers/stats.controller.analytics.spec.ts": 1,
   "shared/src/location/location.normalize.ts": 2,
+  "shared/src/utils/roleNormalization.ts": 3,
   "backend/api/src/__tests__/listingContractCompatibility.spec.ts": 1
 }
