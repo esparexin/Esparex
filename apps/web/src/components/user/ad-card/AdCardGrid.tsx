@@ -2,20 +2,24 @@
 
 import { memo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Shield } from "@/icons/IconRegistry";
 import { AdCardCover, AdCardMeta, AdCardActions } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {
   AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
-  getPlanBadge,
+  getConditionBadge,
 } from "./shared";
 
 interface AdCardGridProps {
   ad: AdCardData;
   isSaved?: boolean;
+  /**
+   * IMPORTANT: Stabilize with useCallback at the call site.
+   * This prop is not included in the memo equality check because function
+   * references change on every render if not memoized — callers are
+   * responsible for ensuring referential stability.
+   */
   onToggleSave?: (adId: string | number, e: React.MouseEvent) => void;
   onClick?: () => void;
   showBusinessBadge?: boolean;
@@ -24,7 +28,10 @@ interface AdCardGridProps {
   className?: string;
 }
 
-function areAdCardGridPropsEqual(prevProps: AdCardGridProps, nextProps: AdCardGridProps): boolean {
+function areAdCardGridPropsEqual(
+  prevProps: AdCardGridProps,
+  nextProps: AdCardGridProps
+): boolean {
   return (
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.ad.price === nextProps.ad.price &&
@@ -47,69 +54,68 @@ export const AdCardGrid = memo(function AdCardGrid({
   href,
   className,
 }: AdCardGridProps) {
-  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } = useAdCardBase({
-    ad,
-    href,
-    onClick,
-    disableDeclarativeLink: Boolean(onToggleSave),
-  });
+  const { adRecord, imageUrl, adId, useDeclarativeLink, handleCardClick } =
+    useAdCardBase({
+      ad,
+      href,
+      onClick,
+      disableDeclarativeLink: Boolean(onToggleSave),
+    });
 
   const deviceCondition = adRecord.deviceCondition as string | undefined;
   const isBusiness = Boolean(adRecord.isBusiness);
 
+  const conditionBadge = getConditionBadge(deviceCondition);
+
   return (
     <AdCardLinkWrapper href={href} enabled={useDeclarativeLink}>
-      <Card
-        className={`overflow-hidden transition-all duration-500 group cursor-pointer border-slate-100 bg-white shadow-premium hover:shadow-premium-hover hover:-translate-y-1.5 rounded-[20px] ${
-          ad.isSpotlight
-            ? 'ring-2 ring-amber-400/30 shadow-[0_8px_30px_rgba(245,158,11,0.15)]'
-            : ''
-        } ${className || ''}`}
-        onClick={useDeclarativeLink ? undefined : handleCardClick}
-      >
-        <AdCardCover
-          ad={ad}
-          imageUrl={imageUrl}
-          priority={priority}
-          showBusinessBadge={showBusinessBadge}
-          className="aspect-[4/3] w-full"
-        >
-          {getPlanBadge(ad, "absolute top-2 left-2 z-10")}
-          {onToggleSave && (
-            <AdCardActions
-              adId={adId}
-              isSaved={isSaved}
-              onToggleSave={onToggleSave}
-              isBusiness={isBusiness}
-              showBusinessBadge={showBusinessBadge}
-              className="absolute"
-            />
+      {/* article gives screen readers proper document structure for list items */}
+      <article aria-label={ad.title}>
+        <Card
+          className={cn(
+            "overflow-hidden transition-all duration-300 group cursor-pointer",
+            "border-border bg-white shadow-premium rounded-2xl",
+            "hover:shadow-premium-hover hover:-translate-y-1.5",
+            ad.isSpotlight &&
+              "ring-2 ring-amber-400/30 shadow-[0_8px_30px_rgba(245,158,11,0.15)]",
+            className
           )}
-        </AdCardCover>
+          onClick={useDeclarativeLink ? undefined : handleCardClick}
+        >
+          {/* Image section — AdCardCover handles promotion + verified badges internally */}
+          <AdCardCover
+            ad={ad}
+            imageUrl={imageUrl}
+            priority={priority}
+            showBusinessBadge={showBusinessBadge && isBusiness}
+            className="aspect-[4/3] w-full"
+          >
+            {/* Favorite button — bottom-right overlay */}
+            {onToggleSave && (
+              <AdCardActions
+                adId={adId}
+                isSaved={isSaved}
+                onToggleSave={onToggleSave}
+                isBusiness={isBusiness}
+                showBusinessBadge={showBusinessBadge}
+                className="absolute bottom-1.5 right-1.5 md:bottom-2 md:right-2"
+              />
+            )}
+          </AdCardCover>
 
-        {/* Content Section */}
-        <CardContent className="p-3 space-y-1.5 min-h-[110px] flex flex-col justify-between">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {deviceCondition && (
-                <Badge className={cn(
-                  "border-none font-bold px-2 h-4 text-tiny rounded-full uppercase tracking-tighter leading-none flex items-center",
-                  deviceCondition === 'power_on' ? "bg-green-100/60 text-green-700" : "bg-red-100/60 text-red-700"
-                )}>
-                  {deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}
-                </Badge>
-              )}
-              {isBusiness && (
-                <Badge className="bg-blue-50 text-blue-600 border-blue-100/50 text-tiny h-4 px-1.5 rounded-full font-bold uppercase tracking-tighter leading-none flex items-center gap-1">
-                  <Shield className="h-2 w-2" />
-                  Verified
-                </Badge>
-              )}
-            </div>
+          {/* Content section — no hard-coded min-height; content determines height */}
+          <CardContent className="p-2.5 sm:p-3 space-y-1">
+            {/* Condition badge — device-specific, positioned above title */}
+            {conditionBadge && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {conditionBadge}
+              </div>
+            )}
+
             <AdCardMeta ad={ad} variant="default" />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </article>
     </AdCardLinkWrapper>
   );
 }, areAdCardGridPropsEqual);

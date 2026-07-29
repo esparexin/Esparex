@@ -3,13 +3,9 @@
 import { memo } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Building2 } from "@/icons/IconRegistry";
+import { ShieldCheck } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
-import type { AdData } from "@/types/home";
-import type { UiAd } from "@/lib/mappers";
-import type { Ad } from "@/schemas/ad.schema";
-
-type AdCardData = AdData | UiAd | Ad;
+import { getPlanBadge, type AdCardData } from "../shared";
 
 interface AdCardCoverProps {
   ad: AdCardData;
@@ -31,31 +27,22 @@ export const AdCardCover = memo(function AdCardCover({
   children,
 }: AdCardCoverProps) {
   const adRecord = ad as Record<string, unknown>;
+  const isSold =
+    typeof customStatus === "string" &&
+    customStatus.toLowerCase().includes("sold");
 
-  const getPlanBadge = () => {
-    const isBoosted = adRecord.isBoosted === true;
-    const badgeClasses = "border-0 text-2xs md:text-xs shadow-lg flex items-center";
-    if (ad.isSpotlight) {
-      return (
-        <Badge className={cn("bg-gradient-to-r from-yellow-500 to-orange-500 text-white", badgeClasses)}>
-          <Sparkles className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" /> ⭐ Spotlight
-        </Badge>
-      );
-    }
-    if (isBoosted) {
-      return (
-        <Badge className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", badgeClasses)}>
-          🚀 Boosted
-        </Badge>
-      );
-    }
-    return null;
-  };
+  // Resolve promotion badge once — never call twice
+  const planBadge = getPlanBadge(ad);
 
-  const isSold = typeof customStatus === 'string' && customStatus.toLowerCase().includes('sold');
+  // Business verification badge
+  const showVerifiedBadge =
+    Boolean(adRecord?.isBusiness) &&
+    Boolean(adRecord?.verified) &&
+    showBusinessBadge;
 
   return (
     <div className={cn("relative overflow-hidden bg-muted/20", className)}>
+      {/* Image */}
       {imageUrl ? (
         <SafeImage
           src={imageUrl}
@@ -69,29 +56,54 @@ export const AdCardCover = memo(function AdCardCover({
           )}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-foreground-subtle">
-          <span className="text-xs md:text-sm">No Image</span>
+        /* Empty / error state */
+        <div
+          className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200"
+          aria-hidden="true"
+        >
+          <div className="flex flex-col items-center gap-1.5 text-foreground-subtle/40">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+          </div>
         </div>
       )}
 
-      {/* Dashboard Custom Status Badge */}
+      {/* Dashboard custom status badge — top-left (highest priority) */}
       {customStatus && (
-        <div className="absolute top-2 left-2 z-20">
-          {customStatus}
-        </div>
+        <div className="absolute top-2 left-2 z-20">{customStatus}</div>
       )}
 
-      {/* Plan Badge (Spotlight/Boosted Only) */}
-      {getPlanBadge() && (
+      {/* Promotion badge — top-left (Spotlight / Featured / Boosted) */}
+      {planBadge && !customStatus && (
         <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-10">
-          {getPlanBadge()}
+          {planBadge}
         </div>
       )}
 
-      {/* Business Badge */}
-      {Boolean(adRecord?.isBusiness) && Boolean(adRecord?.verified) && showBusinessBadge && (
-        <div className="absolute top-0 right-0 h-full w-5 md:w-7 bg-gradient-to-b from-green-600 to-emerald-600 flex items-center justify-center shadow-lg z-10">
-          <Building2 className="h-3 w-3 md:h-4 md:w-4 text-white transform -rotate-90" />
+      {/* Verified Business badge — top-right */}
+      {showVerifiedBadge && (
+        <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2 z-10">
+          <Badge
+            className="border border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 h-5 rounded-full uppercase tracking-wide flex items-center gap-1 shadow-sm"
+            aria-label="Verified Business"
+          >
+            <ShieldCheck className="h-2.5 w-2.5" aria-hidden="true" />
+            Verified
+          </Badge>
         </div>
       )}
 

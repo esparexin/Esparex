@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles } from "@/icons/IconRegistry";
+import { Sparkles, Crown, Star, Zap } from "@/icons/IconRegistry";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
 import { formatPrice } from "@/lib/formatters";
@@ -11,6 +11,10 @@ import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
+
+/* -------------------------------------------------------------------------- */
+/* Core types                                                                  */
+/* -------------------------------------------------------------------------- */
 
 export type AdCardData = AdData | UiAd | Ad;
 
@@ -29,6 +33,10 @@ interface AdCardLinkWrapperProps {
   enabled: boolean;
   children: ReactNode;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Navigation helpers                                                          */
+/* -------------------------------------------------------------------------- */
 
 export function useAdCardNavigation({
   href,
@@ -51,7 +59,11 @@ export function useAdCardNavigation({
   return { useDeclarativeLink, handleCardClick };
 }
 
-export function AdCardLinkWrapper({ href, enabled, children }: AdCardLinkWrapperProps) {
+export function AdCardLinkWrapper({
+  href,
+  enabled,
+  children,
+}: AdCardLinkWrapperProps) {
   if (!enabled || !href) {
     return <>{children}</>;
   }
@@ -102,24 +114,91 @@ export function useAdCardBase({
   };
 }
 
-export function getPlanBadge(ad: AdCardData, className?: string) {
+/* -------------------------------------------------------------------------- */
+/* Badge design tokens                                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Shared badge pill base classes.
+ * All image-overlay badges use these — pill shape, bold, uppercase, small.
+ */
+const BADGE_BASE =
+  "border-0 text-[10px] font-bold uppercase tracking-wide leading-none h-5 px-2 rounded-full shadow-sm flex items-center gap-1";
+
+/* -------------------------------------------------------------------------- */
+/* Promotion badge (image overlay — top-left)                                 */
+/*                                                                             */
+/* Precedence: Spotlight > Featured > Premium > Boosted                       */
+/* Only the highest-priority badge is shown — never stacked.                  */
+/* -------------------------------------------------------------------------- */
+
+export function getPlanBadge(
+  ad: AdCardData,
+  className?: string
+): ReactNode | null {
   const adRecord = toAdRecord(ad);
   const isBoosted = adRecord.isBoosted === true;
+  const isFeatured = adRecord.isFeatured === true;
+  const isPremium = adRecord.isPremium === true;
 
-  const badgeClasses = cn("border-0 text-2xs shadow-lg flex items-center", className);
-  
+  const merged = cn(BADGE_BASE, className);
+
   if (ad.isSpotlight) {
     return (
-      <Badge className={cn("bg-gradient-to-r from-yellow-500 to-orange-500 text-white", badgeClasses)}>
-        <Sparkles className="h-2 w-2 mr-0.5" /> ⭐ Spotlight
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
+          merged
+        )}
+        aria-label="Spotlight listing"
+      >
+        <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
+        Spotlight
+      </Badge>
+    );
+  }
+
+  if (isFeatured) {
+    return (
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-purple-600 to-indigo-600 text-white",
+          merged
+        )}
+        aria-label="Featured listing"
+      >
+        <Crown className="h-2.5 w-2.5" aria-hidden="true" />
+        Featured
+      </Badge>
+    );
+  }
+
+  if (isPremium) {
+    return (
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-amber-400 to-yellow-600 text-white",
+          merged
+        )}
+        aria-label="Premium listing"
+      >
+        <Star className="h-2.5 w-2.5" aria-hidden="true" />
+        Premium
       </Badge>
     );
   }
 
   if (isBoosted) {
     return (
-      <Badge className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", badgeClasses)}>
-        🚀 Boosted
+      <Badge
+        className={cn(
+          "bg-gradient-to-r from-sky-600 to-blue-700 text-white",
+          merged
+        )}
+        aria-label="Boosted listing"
+      >
+        <Zap className="h-2.5 w-2.5" aria-hidden="true" />
+        Boosted
       </Badge>
     );
   }
@@ -127,10 +206,119 @@ export function getPlanBadge(ad: AdCardData, className?: string) {
   return null;
 }
 
-export function AdCardPriceDisplay({ price, className }: { price: number; className?: string }) {
+/* -------------------------------------------------------------------------- */
+/* Status badge (image overlay — top-right)                                   */
+/*                                                                             */
+/* Precedence: Sold > Reserved > New                                          */
+/* -------------------------------------------------------------------------- */
+
+export function getStatusBadge(
+  ad: AdCardData,
+  className?: string
+): ReactNode | null {
+  const adRecord = toAdRecord(ad);
+  const status =
+    typeof adRecord.status === "string" ? adRecord.status.toLowerCase() : "";
+  const isReserved = adRecord.isReserved === true;
+  const isNew = adRecord.isNew === true;
+
+  const merged = cn(BADGE_BASE, className);
+
+  if (status === "sold") {
+    return (
+      <Badge
+        className={cn(
+          "bg-slate-700/90 text-white border-0",
+          merged
+        )}
+        aria-label="Listing sold"
+      >
+        Sold
+      </Badge>
+    );
+  }
+
+  if (isReserved) {
+    return (
+      <Badge
+        className={cn(
+          "bg-amber-50 text-amber-700 border border-amber-200",
+          merged
+        )}
+        aria-label="Listing reserved"
+      >
+        Reserved
+      </Badge>
+    );
+  }
+
+  if (isNew) {
+    return (
+      <Badge
+        className={cn(
+          "bg-blue-50 text-blue-700 border border-blue-200",
+          merged
+        )}
+        aria-label="New listing"
+      >
+        New
+      </Badge>
+    );
+  }
+
+  return null;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Condition badge (content section — below title, devices only)              */
+/* -------------------------------------------------------------------------- */
+
+export function getConditionBadge(
+  deviceCondition: string | undefined,
+  className?: string
+): ReactNode | null {
+  if (!deviceCondition) return null;
+
+  const isPowerOn = deviceCondition === "power_on";
+
   return (
-    <div className={cn("font-bold text-green-600", className)}>
-      {price === 0 ? "Free" : formatPrice(price)}
+    <span
+      className={cn(
+        "inline-flex items-center font-bold px-2 h-5 text-[10px] rounded-full uppercase tracking-wide leading-none",
+        isPowerOn
+          ? "bg-green-50 text-green-700"
+          : "bg-red-50 text-red-700",
+        className
+      )}
+      aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
+    >
+      {isPowerOn ? "Power On" : "Power Off"}
+    </span>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Price display                                                               */
+/* -------------------------------------------------------------------------- */
+
+export function AdCardPriceDisplay({
+  price,
+  className,
+}: {
+  price: number;
+  className?: string;
+}) {
+  const isFree = price === 0;
+  return (
+    <div
+      className={cn(
+        "font-bold",
+        isFree ? "text-foreground-subtle" : "text-green-600",
+        className
+      )}
+      aria-label={`Price: ${isFree ? "Free" : formatPrice(price)}`}
+    >
+      {isFree ? "Free" : formatPrice(price)}
     </div>
   );
 }
