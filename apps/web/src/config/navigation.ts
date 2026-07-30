@@ -19,7 +19,7 @@ import {
 } from "@/lib/routeUtils";
 import { isProtectedPath, isProtectedUserPage } from "@/config/protectedRoutes";
 import type { User as AppUser } from "@/types/User";
-import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { normalizeBusinessStatus, isBusinessActiveStatus } from "@/lib/status/statusNormalization";
 import { canRegisterBusiness } from "@/guards/businessGuards";
 
 export type NavigationRole = "guest" | "user" | "business";
@@ -209,8 +209,7 @@ const BASE_NAVIGATION: NavigationItem[] = [
 
 export function getNavigationRole(user: AppUser | null): NavigationRole {
   if (!user) return "guest";
-  const businessStatus = normalizeBusinessStatus(user.businessStatus, "pending");
-  const isBusiness = businessStatus === "live";
+  const isBusiness = isBusinessActiveStatus(user.businessStatus);
   return isBusiness ? "business" : "user";
 }
 
@@ -220,8 +219,7 @@ export function getNavigationRole(user: AppUser | null): NavigationRole {
  */
 export function isBusinessVerified(user: AppUser | null): boolean {
   if (!user) return false;
-  const status = normalizeBusinessStatus(user.businessStatus, "pending");
-  return status === "live";
+  return isBusinessActiveStatus(user.businessStatus);
 }
 
 function resolveBusinessItem(
@@ -229,9 +227,10 @@ function resolveBusinessItem(
   user: AppUser | null
 ): ResolvedNavigationItem {
   const status = normalizeBusinessStatus(user?.businessStatus, "pending");
+  const isLive = isBusinessActiveStatus(user?.businessStatus);
   const hasPendingBusinessApplication =
     status === "pending" && Boolean(user?.businessId);
-  if (status === "live") {
+  if (isLive) {
     return { ...item, label: "Business Hub", page: "business-entry" };
   }
   if (hasPendingBusinessApplication) {

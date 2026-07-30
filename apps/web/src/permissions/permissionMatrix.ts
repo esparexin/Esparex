@@ -1,30 +1,34 @@
-export type Role = "user" | "business";
+export type PermissionAction =
+    | "postAd"
+    | "postService"
+    | "postParts"
+    | "accessBusinessDashboard"
+    | "viewBusinessPlans";
 
-import { BusinessStatusValue as BusinessStatus } from "@esparex/contracts";
-import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+export interface PermissionDefinition {
+    requiresAuth: boolean;
+    requiresBusinessApproved: boolean;
+}
 
-export const PERMISSIONS = {
+export const PERMISSIONS: Record<PermissionAction, PermissionDefinition> = {
     postAd: {
-        user: true,
-        business: true,
+        requiresAuth: true,
+        requiresBusinessApproved: false,
     },
     postService: {
-        business: (status: BusinessStatus) =>
-            normalizeBusinessStatus(status, "pending") === "live",
-        user: false,
+        requiresAuth: true,
+        requiresBusinessApproved: true,
     },
     postParts: {
-        business: (status: BusinessStatus) =>
-            normalizeBusinessStatus(status, "pending") === "live",
-        user: false,
+        requiresAuth: true,
+        requiresBusinessApproved: true,
     },
     accessBusinessDashboard: {
-        business: (status: BusinessStatus) =>
-            normalizeBusinessStatus(status, "pending") === "live",
-        user: false,
+        requiresAuth: true,
+        requiresBusinessApproved: true,
     },
     viewBusinessPlans: {
-        business: true,
-        user: false,
+        requiresAuth: true,
+        requiresBusinessApproved: false,
     },
 } as const;
