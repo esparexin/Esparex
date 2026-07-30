@@ -29,28 +29,22 @@ export function LoginFlow({
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleLoginSuccess = useCallback(
-    (options?: { requiresProfileSetup?: boolean }) => {
-      const requiresProfileSetup =
-        options?.requiresProfileSetup === true;
-
-      const target = requiresProfileSetup
-        ? "/account/profile"
-        : safeCallbackUrl;
-
+    () => {
       setIsRedirecting(true);
       onClose?.();
-      void router.push(target);
+      void router.push(safeCallbackUrl);
     },
     [safeCallbackUrl, onClose, router]
   );
 
   useEffect(() => {
     if (isRedirecting) return;
-    // Do not redirect while auth is still resolving (SSR hydration guard).
-    if (status === "loading" || status !== "authenticated") return;
-    onClose?.();
-    void router.push(safeCallbackUrl);
-  }, [isRedirecting, status, safeCallbackUrl, onClose, router]);
+    // Page mode auto-redirect guard if already authenticated when visiting /login page directly
+    if (mode === "page" && status === "authenticated") {
+      setIsRedirecting(true);
+      void router.push(safeCallbackUrl);
+    }
+  }, [isRedirecting, mode, status, safeCallbackUrl, router]);
 
   return (
     <div className="relative">
