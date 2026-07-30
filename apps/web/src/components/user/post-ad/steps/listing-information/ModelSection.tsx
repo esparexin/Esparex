@@ -62,6 +62,8 @@ export function ModelSection() {
                         disabled={!brandNameValue || isEditMode}
                         onChange={(mId, mName) => onModelChange(mId, mName)}
                         onProposeCustom={onProposeCustomModel}
+                        onClear={() => onModelChange("", "")}
+                        isCustom={Boolean(customModelName)}
                         onBrandResolved={(rbId, rbName) => { 
                             setValue("brandId", rbId, { shouldDirty: true }); 
                             setValue("brand", rbName, { shouldDirty: true }); 
@@ -69,12 +71,6 @@ export function ModelSection() {
                     />
                 )}
             </Field>
-            {customModelName && (
-                <div className="flex items-center gap-2 text-xs font-medium text-blue-700 pt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                    <span>✓ Proposed &ldquo;{customModelName}&rdquo; &bull; Pending Review</span>
-                </div>
-            )}
         </fieldset>
     );
 }

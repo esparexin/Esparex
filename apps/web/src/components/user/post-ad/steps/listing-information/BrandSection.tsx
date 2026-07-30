@@ -48,17 +48,13 @@ export function BrandSection() {
                     value={brandNameValue} 
                     onChange={(_id, name) => onBrandChange(name, _id)}
                     onProposeCustom={onProposeCustomBrand}
+                    onClear={() => onBrandChange("", "")}
+                    isCustom={Boolean(customBrandName)}
                     disabled={isEditMode} 
                     loading={isLoadingBrands}
                     placeholder={isLoadingBrands ? "Loading brands…" : "Search or select brand"} 
                 />
             </Field>
-            {customBrandName && (
-                <div className="flex items-center gap-2 text-xs font-medium text-blue-700 pt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                    <span>✓ Proposed &ldquo;{customBrandName}&rdquo; &bull; Pending Review</span>
-                </div>
-            )}
             {brandsError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-xs text-red-700 text-center mb-2">{brandsError}</p>
