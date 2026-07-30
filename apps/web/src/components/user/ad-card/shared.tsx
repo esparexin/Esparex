@@ -4,10 +4,12 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sparkles, Crown, Star, Zap } from "@/icons/IconRegistry";
+import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
 import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
+import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { AdData } from "@/types/home";
 import type { UiAd } from "@/lib/mappers";
 import type { Ad } from "@/schemas/ad.schema";
@@ -94,21 +96,36 @@ export function resolveAdId(adRecord: Record<string, unknown>): string {
 
 export function useAdCardBase({
   ad,
-  href,
+  href: explicitHref,
   onClick,
   disableDeclarativeLink = false,
 }: UseAdCardBaseOptions) {
+  const adRecord = toAdRecord(ad);
+  const adId = resolveAdId(adRecord);
+
+  // Compute canonical listing detail route if explicit href is not passed
+  const resolvedHref =
+    explicitHref ||
+    (adId
+      ? buildPublicListingDetailRoute({
+          id: adId,
+          listingType: typeof adRecord.listingType === "string" ? adRecord.listingType : undefined,
+          seoSlug: typeof adRecord.seoSlug === "string" ? adRecord.seoSlug : undefined,
+          title: typeof adRecord.title === "string" ? adRecord.title : undefined,
+        })
+      : undefined);
+
   const { useDeclarativeLink, handleCardClick } = useAdCardNavigation({
-    href,
+    href: resolvedHref,
     onClick,
     disableDeclarativeLink,
   });
-  const adRecord = toAdRecord(ad);
 
   return {
     adRecord,
+    href: resolvedHref,
     imageUrl: resolveAdImageUrl(adRecord),
-    adId: resolveAdId(adRecord),
+    adId,
     useDeclarativeLink,
     handleCardClick,
   };
@@ -192,7 +209,7 @@ export function formatCompactCardDate(dateStr: string | undefined): string {
 /* -------------------------------------------------------------------------- */
 
 const BADGE_BASE =
-  "border-0 text-[10px] font-bold uppercase tracking-wide leading-none h-5 px-2 rounded-full shadow-sm flex items-center gap-1";
+  "border-0 text-tiny font-bold uppercase tracking-wide h-5 px-2 rounded-full shadow-sm flex items-center gap-1";
 
 /* -------------------------------------------------------------------------- */
 /* Promotion badge (image overlay — top-left)                                 */
@@ -361,15 +378,25 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center text-[9px] font-bold uppercase tracking-wider leading-none px-1.5 py-0.5 rounded border select-none shadow-2xs",
+        "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
-          ? "bg-emerald-600 text-white border-emerald-600"
-          : "bg-red-600 text-white border-red-600",
+          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+          : "bg-red-50 text-red-700 border-red-200",
         className
       )}
       aria-label={`Condition: ${isPowerOn ? "Power On" : "Power Off"}`}
     >
-      {isPowerOn ? "Power On" : "Power Off"}
+      {isPowerOn ? (
+        <>
+          <Zap className="size-3 text-emerald-600 fill-emerald-600 shrink-0" aria-hidden="true" />
+          <span>ON</span>
+        </>
+      ) : (
+        <>
+          <Power className="size-3 text-red-600 shrink-0" aria-hidden="true" />
+          <span>OFF</span>
+        </>
+      )}
     </span>
   );
 }

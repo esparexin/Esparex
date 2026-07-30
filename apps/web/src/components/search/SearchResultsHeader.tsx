@@ -59,7 +59,7 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             {...props}
         >
             <SortAsc className="size-3.5 text-foreground-subtle" />
-            <span className="font-medium text-slate-700 text-xs md:text-sm">{SORT_LABELS[sort]}</span>
+            <span className="font-medium text-slate-700 text-small">{SORT_LABELS[sort]}</span>
             <ChevronDown className={cn("size-3.5 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
@@ -132,7 +132,7 @@ function SortDropdown({
 }
 
 export function SearchResultsHeader({
-    total,
+    total: _total,
     sort,
     onSortChange,
     filterNode,
@@ -141,24 +141,16 @@ export function SearchResultsHeader({
     const [sortOpen, setSortOpen] = React.useState(false);
 
     return (
-        <div className="sticky top-14 md:top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-100 py-2 px-3 md:px-0 md:py-3 mb-2 md:mb-0">
+        <div className="py-1 mb-2 border-none bg-transparent shadow-none">
             <div className="flex items-center justify-between gap-3">
-                {/* Left side: Filter Trigger & Results Counter */}
+                {/* Left side: Filter Trigger (Mobile only) & Category Title */}
                 <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
-                    {filterNode && <div className="shrink-0">{filterNode}</div>}
-                    <div className="flex items-baseline gap-3 min-w-0">
-                        {categoryName && (
-                            <h2 className="hidden sm:block text-xl md:text-2xl font-bold text-slate-900 tracking-tight leading-none truncate">
-                                {categoryName}
-                            </h2>
-                        )}
-                        <div className="flex items-center gap-2 min-w-0">
-                            <span className={cn("size-2 rounded-full flex-shrink-0", total > 0 ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                            <p className="text-xs md:text-sm text-slate-700 font-medium truncate">
-                                <span className="text-slate-950 font-bold">{total}</span> {total === 1 ? "listing" : "listings"} available
-                            </p>
-                        </div>
-                    </div>
+                    {filterNode && <div className="shrink-0 lg:hidden">{filterNode}</div>}
+                    {categoryName && (
+                        <h2 className="hidden sm:block text-h4 font-bold text-slate-900 tracking-tight leading-none truncate">
+                            {categoryName}
+                        </h2>
+                    )}
                 </div>
 
                 {/* Right side: SortDropdown instance */}

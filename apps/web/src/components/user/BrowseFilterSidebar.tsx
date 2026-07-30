@@ -70,9 +70,9 @@ export function BrowseFilterSidebar({
       <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
         <div className="flex items-center gap-2">
           <SlidersHorizontal className="size-4 text-slate-700" />
-          <h2 className="text-base font-bold text-slate-900 tracking-tight">Filters</h2>
+          <h2 className="text-h4 font-bold text-slate-900 tracking-tight">Filters</h2>
           {activeFilterCount > 0 && (
-            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 text-xs font-bold text-white">
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 text-caption font-bold text-white">
               {activeFilterCount}
             </span>
           )}
@@ -83,7 +83,7 @@ export function BrowseFilterSidebar({
             variant="ghost"
             size="sm"
             onClick={onReset}
-            className="h-8 text-xs font-semibold text-slate-500 hover:text-red-600 px-2 gap-1"
+            className="h-8 text-caption font-semibold text-slate-500 hover:text-red-600 px-2 gap-1"
           >
             <RotateCcw className="size-3" />
             Clear
@@ -96,7 +96,7 @@ export function BrowseFilterSidebar({
         <button
           type="button"
           onClick={() => setCategoryExpanded(!categoryExpanded)}
-          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Categories</span>
           <ChevronDown
@@ -110,7 +110,7 @@ export function BrowseFilterSidebar({
               type="button"
               onClick={() => onCategoryChange("all")}
               className={cn(
-                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors",
+                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-small font-medium transition-colors",
                 !selectedCategory || selectedCategory === "all"
                   ? "bg-slate-900 text-white font-semibold"
                   : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
@@ -127,7 +127,7 @@ export function BrowseFilterSidebar({
                   type="button"
                   onClick={() => onCategoryChange(cat.slug || cat.id)}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors pl-4",
+                    "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-small font-medium transition-colors pl-4",
                     isSelected
                       ? "bg-slate-900 text-white font-semibold"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -147,7 +147,7 @@ export function BrowseFilterSidebar({
         <button
           type="button"
           onClick={() => setPriceExpanded(!priceExpanded)}
-          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Price Range (₹)</span>
           <ChevronDown
@@ -159,26 +159,26 @@ export function BrowseFilterSidebar({
           <div className="space-y-3 pt-1">
             <div className="flex items-center gap-2">
               <div className="space-y-1 flex-1">
-                <Label htmlFor="sidebar-min-price" className="text-[11px] text-slate-500 font-medium">Min</Label>
+                <Label htmlFor="sidebar-min-price" className="text-tiny text-slate-500 font-medium">Min</Label>
                 <Input
                   id="sidebar-min-price"
                   type="number"
                   placeholder="₹ Min"
                   value={minInput}
                   onChange={(e) => setMinInput(e.target.value)}
-                  className="h-9 text-xs rounded-lg border-slate-200"
+                  className="h-9 text-small rounded-lg border-slate-200"
                 />
               </div>
               <span className="text-slate-300 pt-4">-</span>
               <div className="space-y-1 flex-1">
-                <Label htmlFor="sidebar-max-price" className="text-[11px] text-slate-500 font-medium">Max</Label>
+                <Label htmlFor="sidebar-max-price" className="text-tiny text-slate-500 font-medium">Max</Label>
                 <Input
                   id="sidebar-max-price"
                   type="number"
                   placeholder="₹ Max"
                   value={maxInput}
                   onChange={(e) => setMaxInput(e.target.value)}
-                  className="h-9 text-xs rounded-lg border-slate-200"
+                  className="h-9 text-small rounded-lg border-slate-200"
                 />
               </div>
             </div>
@@ -187,7 +187,7 @@ export function BrowseFilterSidebar({
               size="sm"
               variant="outline"
               onClick={handleApplyPrice}
-              className="w-full h-8 text-xs font-semibold rounded-lg border-slate-200 bg-slate-50 hover:bg-slate-100"
+              className="w-full h-9 text-small font-semibold rounded-lg border-slate-200 bg-slate-50 hover:bg-slate-100 min-h-[36px]"
             >
               Apply Price
             </Button>
@@ -200,7 +200,7 @@ export function BrowseFilterSidebar({
         <button
           type="button"
           onClick={() => setSellerTypeExpanded(!sellerTypeExpanded)}
-          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Seller Type</span>
           <ChevronDown
@@ -217,7 +217,7 @@ export function BrowseFilterSidebar({
             ].map((option) => (
               <label
                 key={option.id}
-                className="flex items-center gap-2.5 text-xs text-slate-700 font-medium cursor-pointer hover:text-slate-900"
+                className="flex items-center gap-2.5 text-small text-slate-700 font-medium cursor-pointer hover:text-slate-900 min-h-[36px]"
               >
                 <input
                   type="radio"
@@ -225,7 +225,7 @@ export function BrowseFilterSidebar({
                   value={option.id}
                   checked={sellerType === option.id}
                   onChange={() => onSellerTypeChange?.(option.id as "all" | "user" | "business")}
-                  className="size-3.5 text-slate-900 border-slate-300 focus:ring-slate-400"
+                  className="size-4 text-slate-900 border-slate-300 focus:ring-slate-400"
                 />
                 <span>{option.label}</span>
               </label>
@@ -239,7 +239,7 @@ export function BrowseFilterSidebar({
         <button
           type="button"
           onClick={() => setConditionExpanded(!conditionExpanded)}
-          className="flex w-full items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+          className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Condition</span>
           <ChevronDown
@@ -255,7 +255,7 @@ export function BrowseFilterSidebar({
             ].map((cond) => {
               const isChecked = deviceCondition === cond.id;
               return (
-                <div key={cond.id} className="flex items-center gap-2.5">
+                <div key={cond.id} className="flex items-center gap-2.5 min-h-[36px]">
                   <Checkbox
                     id={`sidebar-cond-${cond.id}`}
                     checked={isChecked}
@@ -265,7 +265,7 @@ export function BrowseFilterSidebar({
                   />
                   <Label
                     htmlFor={`sidebar-cond-${cond.id}`}
-                    className="text-xs font-medium text-slate-700 cursor-pointer hover:text-slate-900"
+                    className="text-small font-medium text-slate-700 cursor-pointer hover:text-slate-900"
                   >
                     {cond.label}
                   </Label>

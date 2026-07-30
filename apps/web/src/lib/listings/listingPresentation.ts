@@ -133,6 +133,14 @@ const INVALID_TITLE_PATTERNS = [
     /\[object\s+object\]/i,
 ];
 
+const HTML_ENTITY_MAP: Record<string, string> = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+};
+
 /** Generic presentation title sanitizer preventing runtime error string leakage */
 export function sanitizeListingTitle(
     rawTitle: unknown,
@@ -142,7 +150,10 @@ export function sanitizeListingTitle(
         return resolveListingCategoryLabel(listing, "Listing");
     }
 
-    const trimmed = rawTitle.replace(/\*\*/g, "").trim();
+    const trimmed = String(rawTitle)
+        .replace(/&(amp|lt|gt|quot|#39);/g, (match) => HTML_ENTITY_MAP[match] || match)
+        .replace(/\*\*/g, "")
+        .trim();
     if (!trimmed) {
         return resolveListingCategoryLabel(listing, "Listing");
     }

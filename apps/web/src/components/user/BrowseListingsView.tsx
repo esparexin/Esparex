@@ -136,7 +136,7 @@ export function BrowseListingsView<TItem, TFilters>({
   };
 
   return (
-    <div className="bg-slate-50/40 min-h-screen">
+    <div className="bg-slate-50/40 pb-6">
       <BrowseResultsPanel
         items={items}
         total={total}
