@@ -24,9 +24,9 @@ export function isBusinessPending(user: User) {
     return normalizeBusinessStatus(user.businessStatus, 'pending') === "pending";
 }
 
-export function isApprovedBusiness(user: User) {
-    return canPublishBusiness(user.businessStatus) &&
-        Boolean(user.businessId);
+export function isApprovedBusiness(user: User | null | undefined) {
+    if (!user) return false;
+    return canPublishBusiness(user.businessStatus);
 }
 
 export function isRejectedBusiness(user: User) {

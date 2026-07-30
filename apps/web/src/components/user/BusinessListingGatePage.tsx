@@ -7,7 +7,8 @@ import { Building2 } from "@/icons/IconRegistry";
 import { useAuth } from "@/context/AuthContext";
 import { useBusiness } from "@/hooks/useBusiness";
 import { Button } from "@esparex/ui";
-import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
+import { isBusinessActiveStatus } from "@/lib/status/statusNormalization";
+import { canPublishBusiness } from "@/guards/businessGuards";
 
 interface BusinessListingGatePageProps {
     listingTypeLabel: string;
@@ -34,7 +35,7 @@ export function BusinessListingGatePage({
         );
     }
 
-    const isLive = normalizeBusinessStatus(businessData?.status, "pending") === "live";
+    const isLive = isBusinessActiveStatus(businessData?.status) || canPublishBusiness(businessData?.status) || isBusinessActiveStatus(user?.businessStatus);
     if (!isLive) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
