@@ -15,7 +15,7 @@ export function usePostingEntitlement(moduleType?: ModuleType) {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await apiClient.get<PostingEntitlementMatrixDTO>("/api/v1/entitlements/posting");
+      const res = await apiClient.get<PostingEntitlementMatrixDTO>("entitlements/posting");
       if (res) {
         setMatrix(res);
       } else {
