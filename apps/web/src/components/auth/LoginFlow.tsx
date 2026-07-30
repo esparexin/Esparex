@@ -29,17 +29,10 @@ export function LoginFlow({
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleLoginSuccess = useCallback(
-    (options?: { requiresProfileSetup?: boolean }) => {
-      const requiresProfileSetup =
-        options?.requiresProfileSetup === true;
-
-      const target = requiresProfileSetup
-        ? "/account/profile"
-        : safeCallbackUrl;
-
+    () => {
       setIsRedirecting(true);
       onClose?.();
-      void router.push(target);
+      void router.push(safeCallbackUrl);
     },
     [safeCallbackUrl, onClose, router]
   );
