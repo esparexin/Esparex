@@ -8,7 +8,8 @@ export const invalidateAdFeedCaches = async (): Promise<void> => {
         clearCachePattern('spotlight:*'),
         clearCachePattern('feed:*:home:*'),
         clearCachePattern(`${CACHE_NAMESPACES.ADS_HOME}:*`),
-        clearCachePattern(`${CACHE_NAMESPACES.SEARCH}:*`)
+        clearCachePattern(`${CACHE_NAMESPACES.SEARCH}:*`),
+        clearCachePattern(`${CACHE_NAMESPACES.SEARCH_ADS}:*`)
     ]);
 };
 
