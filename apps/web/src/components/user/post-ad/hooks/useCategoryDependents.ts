@@ -34,7 +34,9 @@ export function useCategoryDependents(
      * Screen sizes, spare parts, and device condition are independent of brand and are not cleared.
      */
     const clearBrandDependents = useCallback(() => {
-      
+        form.setValue("model", "", { shouldDirty: true });
+        form.setValue("modelId", "", { shouldDirty: true });
+        form.setValue("customModelName", "", { shouldDirty: true });
     }, [form]);
 
     /**
@@ -43,6 +45,7 @@ export function useCategoryDependents(
     const clearCategoryDependents = useCallback(() => {
         form.setValue("brand", "", { shouldDirty: true });
         form.setValue("brandId", "", { shouldDirty: true });
+        form.setValue("customBrandName", "", { shouldDirty: true });
         clearBrandDependents();
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });

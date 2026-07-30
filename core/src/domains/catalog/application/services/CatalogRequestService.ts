@@ -102,3 +102,61 @@ export const getCatalogRequestStats = async (match: Record<string, unknown>) => 
 
     return { groupedCounts, totalCount };
 };
+
+export const resolveCatalogRequestsForSubmission = async (params: {
+    categoryId: string;
+    brandId?: string;
+    customBrandName?: string;
+    modelId?: string;
+    customModelName?: string;
+    userId: string;
+}): Promise<{
+    brandId?: string;
+    pendingBrandRequestId?: string;
+    modelId?: string;
+    pendingModelRequestId?: string;
+}> => {
+    let resolvedBrandId = params.brandId;
+    let pendingBrandRequestId: string | undefined;
+    let resolvedModelId = params.modelId;
+    let pendingModelRequestId: string | undefined;
+
+    // Handle proposed custom brand
+    if (!resolvedBrandId && params.customBrandName && params.customBrandName.trim().length > 0) {
+        const trimmedBrand = params.customBrandName.trim();
+        const canonicalBrand = trimmedBrand.toLowerCase().replace(/\s+/g, ' ');
+        const brandRequest = await findOrCreateCatalogRequest({
+            requestType: 'brand',
+            categoryId: params.categoryId,
+            requestedName: trimmedBrand,
+            canonicalName: canonicalBrand,
+            slug: `brand-request-${Date.now()}`,
+            requestedBy: params.userId,
+        });
+        pendingBrandRequestId = String(brandRequest.request._id);
+    }
+
+    // Handle proposed custom model
+    if (!resolvedModelId && params.customModelName && params.customModelName.trim().length > 0) {
+        const trimmedModel = params.customModelName.trim();
+        const canonicalModel = trimmedModel.toLowerCase().replace(/\s+/g, ' ');
+        const modelRequest = await findOrCreateCatalogRequest({
+            requestType: 'model',
+            categoryId: params.categoryId,
+            parentBrandId: resolvedBrandId,
+            requestedName: trimmedModel,
+            canonicalName: canonicalModel,
+            slug: `model-request-${Date.now()}`,
+            requestedBy: params.userId,
+        });
+        pendingModelRequestId = String(modelRequest.request._id);
+    }
+
+    return {
+        brandId: resolvedBrandId,
+        pendingBrandRequestId,
+        modelId: resolvedModelId,
+        pendingModelRequestId,
+    };
+};
+
