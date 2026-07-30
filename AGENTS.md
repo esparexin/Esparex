@@ -574,5 +574,79 @@ Any new reusable primitive, layout container, design token, or cross-feature com
 - **One** owner for every layout responsibility.
 - **Zero** architectural drift.
 
+---
+
+# 🚨 ENTERPRISE PLATFORM STATE MATRIX GOVERNANCE RULE (MANDATORY)
+
+## Applies To
+
+This rule applies to **every feature, page, view, form, modal, drawer, search, wizard, or workflow** implemented across the Esparex platform.
+
+---
+
+## Pre-Implementation Requirement
+
+Before implementing or modifying any user-facing feature, developers and AI agents MUST complete and document an **Enterprise State Coverage Matrix**.
+
+For each state, the developer/agent must declare:
+1. Whether the state applies to the feature.
+2. The Single Source of Truth (SSOT) component used.
+3. Confirmation that no duplicate state primitive or local fallback is introduced.
+
+---
+
+## Enterprise Platform State Matrix Standard
+
+| Category | System State | Required | Mandatory SSOT Implementation |
+| :--- | :--- | :---: | :--- |
+| **Data** | Loading | ✅ | `Skeleton` (`@/components/ui/skeleton`) |
+| **Data** | Empty | ✅ | `EmptyStateShell` (`@/components/ui/EmptyStateShell`) |
+| **Data** | Error | ✅ | `ErrorBoundary` & `app/error.tsx` |
+| **Network** | Offline | ✅ | `app/offline/page.tsx` & `ConnectivityBanner` |
+| **Network** | Slow Network / Timeout | ✅ | `apiClient` Exponential Backoff Retry |
+| **Network** | Rate Limited (429) | ✅ | `popupBus` / `notify.error()` |
+| **Network** | Maintenance (503) | ✅ | `ClientChromeLoader` (`apiUnavailable={true}`) |
+| **Search** | No Search Results | ✅ | `BrowseEmptyState` |
+| **Search** | End of Results | ✅ | Standardized Pagination / Infinite Scroll Sentinel |
+| **Auth** | Login Required | ✅ | `AuthContext` Drawer / Modal Trigger |
+| **Auth** | Session Expired (401) | ✅ | `apiClient` 401 Interceptor + Auth Context Cleanup |
+| **Auth** | Permission Denied (403)| ✅ | `app/(public)/unauthorized/page.tsx` or `notFound()` Anti-Enumeration |
+| **Forms** | Input Validation | ✅ | Form Controls (`packages/ui`) + Zod Schemas |
+| **Forms** | Unsaved Changes | ✅ | Browser `beforeunload` Guard |
+| **Forms** | Upload Progress | ✅ | `ImageUploader` Progress Bar |
+| **Forms** | Upload Failure | ✅ | `ImageUploader` Inline Failure Retry |
+| **Forms** | Duplicate Submission | ✅ | Submit Control Disable + `X-Idempotency-Key` |
+| **Marketplace**| Pending Approval | ✅ | `ListingStatusBadge` (`pending`) |
+| **Marketplace**| Sold Listing | ✅ | `SoldOutDialog` & Read-Only Chat Guard |
+| **Marketplace**| Expired Listing | ✅ | `UserListingsTemplate` Repost CTA |
+| **Marketplace**| Rejected Listing | ✅ | Rejection Reason Banner + Edit Action |
+| **Marketplace**| Listing 404 / Missing | ✅ | `listingUnavailable.ts` & `app/not-found.tsx` |
+| **Permissions**| GPS / Location | ✅ | `useLocationSearch` Dropdown Fallback |
+| **Permissions**| Camera / Gallery | ✅ | `ImageUploader` Browser Input Fallback |
+| **Notifications**| Success Action | ✅ | `popupBus` / `notify.success()` |
+| **Notifications**| Error Action | ✅ | `popupBus` / `notify.error()` |
+
+---
+
+## 🚫 Pull Request Quality Gate Checklist
+
+No pull request containing UI or workflow changes may be merged unless all applicable items are confirmed:
+
+- [ ] **Loading State**: Implemented via SSOT `Skeleton` / `loading.tsx`.
+- [ ] **Empty State**: Implemented via SSOT `EmptyStateShell`.
+- [ ] **Error State**: Handled via `ErrorBoundary` / `app/error.tsx`.
+- [ ] **Success State**: Dispatched via `popupBus` / `notify.success()`.
+- [ ] **Offline Behavior**: Verified with Service Worker & Connectivity Banner.
+- [ ] **Permission Denied**: Verified (403 redirect or zero-leakage 404).
+- [ ] **Session Expired**: Verified (401 interceptor + auth drawer trigger).
+- [ ] **Form Validation**: Accessible inline validation errors (`aria-invalid`).
+- [ ] **Marketplace Lifecycles**: Verified status badges & action guards.
+- [ ] **Network Failure**: Timeout retries and rate limit alerts verified.
+- [ ] **Anti-Duplication**: Zero local duplicate state components introduced.
+- [ ] **SSOT Reuse**: Reuses existing `@esparex/ui` primitives.
+- [ ] **Accessibility**: WCAG 2.2 AA compliant (keyboard, focus ring, screen reader).
+- [ ] **Responsiveness**: Single-instance responsive component pattern verified across Mobile, Tablet, and Desktop.
+
+
 
 
