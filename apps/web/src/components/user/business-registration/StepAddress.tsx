@@ -93,16 +93,16 @@ function CompactReadonlyField({
                 {badge}
             </div>
             {helperText ? <p className="text-xs leading-5 text-muted-foreground">{helperText}</p> : null}
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
                 <Input
                     id={id}
                     value={value}
                     readOnly
                     placeholder={placeholder}
-                    className="bg-slate-50 font-medium sm:flex-1"
+                    className="bg-slate-50 font-medium flex-1 h-11"
                     aria-invalid={Boolean(error)}
                 />
-                {fieldAction ? <div className="sm:shrink-0">{fieldAction}</div> : null}
+                {fieldAction ? <div className="shrink-0">{fieldAction}</div> : null}
             </div>
             {children}
             <FormError message={error} className="text-xs font-medium text-destructive" />
@@ -246,15 +246,14 @@ export function StepAddress({
 
     return (
         <div className="space-y-6">
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
                 <CompactReadonlyField
                     id="reg-contact-number"
                     label="Business contact"
                     value={formData.mobile}
-                    helperText="Uses your verified account mobile number."
                     error={formData.errors?.mobile}
                     badge={(
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
                             Verified
                         </span>
                     )}
@@ -265,33 +264,18 @@ export function StepAddress({
                     label="Detected location"
                     value={asOptionalString(formData.currentLocationDisplay)}
                     placeholder="No location detected yet"
-                    helperText={
-                        hasCurrentLocation
-                            ? formData.isSnapped
-                                ? "Approximate city center recorded. You must provide your precise street address below."
-                                : isGenericCapturedLocation(normalizedDetectedDisplay)
-                                    ? "Current coordinates recorded. Our location database could not name this spot yet, but you can continue with the full address."
-                                    : "GPS location recorded. This proof is required for business registration."
-                            : "Required. Tap the location button to record your current GPS position."
-                    }
                     error={currentLocationError}
-                    badge={(
-                        <>
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-foreground-secondary">
+                    badge={
+                        hasCurrentLocation ? (
+                            <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                {sourceLabel || "GPS"} Recorded
+                            </span>
+                        ) : (
+                            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                                 Required
                             </span>
-                            {formData.isSnapped ? (
-                                <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
-                                    Approximate
-                                </span>
-                            ) : null}
-                            {sourceLabel ? (
-                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-link-dark">
-                                    {sourceLabel}
-                                </span>
-                            ) : null}
-                        </>
-                    )}
+                        )
+                    }
                     fieldAction={(
                         <Button
                             type="button"
@@ -301,7 +285,7 @@ export function StepAddress({
                             size="icon"
                             aria-label={isDetectingLocation ? "Detecting current location" : "Use current location"}
                             title={isDetectingLocation ? "Detecting current location" : "Use current location"}
-                            className="h-9 w-9 rounded-xl border-slate-300 bg-white text-foreground hover:bg-slate-100"
+                            className="h-11 w-11 rounded-xl border-slate-300 bg-white text-foreground hover:bg-slate-100"
                         >
                             {isDetectingLocation ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -322,13 +306,7 @@ export function StepAddress({
                       label="Detected pincode"
                       value={asOptionalString(formData.currentLocationPincode)}
                       placeholder="—"
-                      helperText="Auto-resolved from your GPS position."
                       error={formData.errors?.currentLocationPincode}
-                      badge={(
-                          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-link-dark">
-                              Auto-filled
-                          </span>
-                      )}
                   />
                 ) : null}
             </div>
@@ -338,16 +316,13 @@ export function StepAddress({
                     label="Full address"
                     required
                     error={formData.errors?.address}
-                    className="space-y-1.5"
-                >
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs leading-5 text-muted-foreground">
-                            Include shop/building name, street/area, pincode, and landmark.
-                        </span>
-                        <span className={`shrink-0 ml-3 text-xs font-medium ${formData.address.length >= 300 ? "text-amber-600" : "text-muted-foreground"}`}>
+                    headerExtra={
+                        <span className={`shrink-0 text-xs font-medium ${formData.address.length >= 300 ? "text-amber-600" : "text-muted-foreground"}`}>
                             {formData.address.length}/300
                         </span>
-                    </div>
+                    }
+                    className="space-y-1"
+                >
                     <Textarea
                         id="reg-full-address"
                         value={formData.address}
@@ -359,7 +334,8 @@ export function StepAddress({
                         }
                         placeholder="e.g. Shop 4, MG Road, Near Old Bus Stand, Guntur, Andhra Pradesh 522413"
                         maxLength={300}
-                        rows={4}
+                        rows={2}
+                        className="min-h-[64px] text-sm"
                         aria-invalid={Boolean(formData.errors?.address)}
                     />
                 </Field>

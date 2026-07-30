@@ -1,17 +1,17 @@
 "use client";
 
 import { useRef, useEffect, type ReactNode } from "react";
-import { ArrowLeft, Loader2 } from "@/icons/IconRegistry";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "@/icons/IconRegistry";
 import type { User } from "@/types/User";
 import { Button } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { scrollToFirstError } from "@/lib/formHelpers";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { StepBasicDetails } from "./StepBasicDetails";
 import { StepAddress } from "./StepAddress";
-import { StepDocuments } from "./StepDocuments";
+import { FileUploadCard } from "./FileUploadCard";
 import { ShopPhotosField } from "./ShopPhotosField";
-import { StepReview } from "./StepReview";
+import { BUSINESS_DOCUMENT_ACCEPT } from "@/schemas/business.schema.shared";
 import type { StepData } from "./types";
 
 interface BusinessProfileWizardProps {
@@ -32,6 +32,7 @@ interface BusinessProfileWizardProps {
     onHeaderBack: () => void;
     onStepChange: (step: number) => void;
     onSubmit: React.FormEventHandler<HTMLFormElement>;
+    onCancel?: () => void;
     children?: ReactNode;
 }
 
@@ -47,11 +48,12 @@ export function BusinessProfileWizard({
     isSubmitting,
     submitLabel,
     onNext,
-    onHeaderBack,
     onStepChange,
     onSubmit,
+    onCancel,
     children,
 }: BusinessProfileWizardProps) {
+    const router = useRouter();
     const showDocumentsStep = wizardVariant !== "live-edit";
 
     const steps = [
@@ -83,40 +85,33 @@ export function BusinessProfileWizard({
                     ? "Refresh shop photos and review the business profile before saving."
                     : "Upload verification documents, add shop photos, and confirm everything before you submit.",
             content: (
-                <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
                     <ShopPhotosField
                         formData={formData}
                         setFormData={setFormData}
-                        helperText="Upload the workspace photos reviewers expect to see before they approve the business."
                     />
+
                     {showDocumentsStep ? (
-                        <div className="border-t border-slate-100 pt-6">
-                            <StepDocuments
-                                formData={formData}
-                                setFormData={setFormData}
-                                variant={wizardVariant === "registration" ? "registration" : "application-edit"}
+                        <>
+                            <FileUploadCard
+                                title="Owner ID proof"
+                                file={formData.idProof}
+                                onUpload={(file) => setFormData({ ...formData, idProof: file })}
+                                onRemove={() => setFormData({ ...formData, idProof: null })}
+                                accept={BUSINESS_DOCUMENT_ACCEPT}
+                                error={formData.errors?.idProof}
                             />
-                        </div>
+
+                            <FileUploadCard
+                                title="Business proof"
+                                file={formData.businessProof}
+                                onUpload={(file) => setFormData({ ...formData, businessProof: file })}
+                                onRemove={() => setFormData({ ...formData, businessProof: null })}
+                                accept={BUSINESS_DOCUMENT_ACCEPT}
+                                error={formData.errors?.businessProof}
+                            />
+                        </>
                     ) : null}
-                    <div className="border-t border-slate-100 pt-6">
-                        <Accordion type="single" collapsible className="rounded-2xl border border-slate-200 bg-slate-50 px-4">
-                            <AccordionItem value="review" className="border-b-0">
-                                <AccordionTrigger className="py-4 text-sm font-semibold text-foreground hover:no-underline">
-                                    Review everything before you submit
-                                </AccordionTrigger>
-                                <AccordionContent className="pb-1">
-                                    <StepReview
-                                        formData={formData}
-                                        onEditStep={onStepChange}
-                                        variant={wizardVariant}
-                                        showDocumentsSummary={showDocumentsStep}
-                                        detailsStepIndex={0}
-                                        documentsStepIndex={1}
-                                    />
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                    </div>
                 </div>
             ),
         },
@@ -144,9 +139,9 @@ export function BusinessProfileWizard({
     }, [safeCurrentStep]);
 
     return (
-        <div className="bg-slate-50 py-6 md:py-8">
+        <div className="mx-auto max-w-3xl py-2 md:py-4 px-4">
             <form
-                className="mx-auto flex max-w-4xl flex-col gap-6 px-4 pb-6 md:pb-0"
+                className="flex flex-col gap-4 pb-20 sm:pb-0"
                 onSubmit={(e) => {
                     onSubmit(e);
                     if (formError) {
@@ -155,101 +150,93 @@ export function BusinessProfileWizard({
                 }}
                 noValidate
             >
-                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm md:px-5">
-                    <div className="flex items-center gap-3">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={onHeaderBack}
-                            className="h-11 rounded-full px-3 text-foreground-tertiary hover:bg-slate-100"
-                        >
-                            <ArrowLeft className="mr-1.5 h-4 w-4" />
-                            {wizardVariant === "registration" ? "Exit setup" : "Close"}
-                        </Button>
-
-                        <h1 className="truncate text-base font-semibold text-foreground md:text-lg">
-                            {title}
-                        </h1>
-                    </div>
-                </div>
-
-                {/* Step indicator accessibility */}
-                <nav aria-label="Wizard Steps" className="flex items-center gap-2">
-                    {steps.map((step, idx) => (
-                        <div
-                            key={step.label}
-                            aria-current={idx === safeCurrentStep ? "step" : undefined}
-                            className={`flex items-center gap-1.5 text-xs font-semibold ${
-                                idx === safeCurrentStep ? "text-blue-600 font-bold" : "text-slate-400"
-                            }`}
-                        >
-                            <span className={`flex h-5 w-5 items-center justify-center rounded-full text-tiny ${
-                                idx === safeCurrentStep ? "bg-blue-600 text-white" : "bg-slate-200 text-slate-600"
-                            }`}>
-                                {idx + 1}
-                            </span>
-                            <span>{step.label}</span>
-                            {idx < steps.length - 1 ? <span className="mx-1 text-slate-300">/</span> : null}
+                {/* Header & Step progress */}
+                <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                            Step {safeCurrentStep + 1} of {steps.length} • {activeStep.label}
+                        </span>
+                        <div className="flex gap-1.5" aria-hidden="true">
+                            {steps.map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`h-1.5 rounded-full transition-all ${
+                                        idx === safeCurrentStep
+                                            ? "w-8 bg-blue-600"
+                                            : idx < safeCurrentStep
+                                                ? "w-4 bg-emerald-500"
+                                                : "w-4 bg-slate-200"
+                                    }`}
+                                />
+                            ))}
                         </div>
-                    ))}
-                </nav>
+                    </div>
+                    <h1
+                        ref={headingRef}
+                        tabIndex={-1}
+                        className="text-xl font-bold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
+                    >
+                        {title}
+                    </h1>
+                </div>
 
                 <div role="alert" aria-live="polite">
-                    <FormError message={formError} className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" />
+                    <FormError message={formError} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700" />
                 </div>
                 {submissionStatus ? (
-                    <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-900" role="status" aria-live="polite">
+                    <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-900" role="status" aria-live="polite">
                         <div className="flex items-start gap-3">
                             <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin" />
-                            <div className="space-y-1">
-                                <p className="font-semibold">{submissionStatus.title}</p>
-                                <p className="leading-6 text-blue-800">{submissionStatus.detail}</p>
+                            <div className="space-y-0.5">
+                                <p className="font-semibold text-sm">{submissionStatus.title}</p>
+                                <p className="text-xs leading-5 text-blue-800">{submissionStatus.detail}</p>
                             </div>
                         </div>
                     </div>
                 ) : null}
 
-                <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-                    <div className="border-b border-slate-100 px-5 py-5 md:px-8 md:py-6">
-                        <h2
-                            ref={headingRef}
-                            tabIndex={-1}
-                            className="text-xl font-semibold tracking-tight text-foreground md:text-2xl outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-md"
-                        >
-                            {activeStep.title}
-                        </h2>
-                        <p className="mt-2 max-w-2xl text-sm leading-6 text-foreground-tertiary">
-                            {activeStep.description}
-                        </p>
-                    </div>
-                    <div className="px-5 py-5 md:px-8 md:py-8">{activeStep.content}</div>
-                </section>
+                <div className="rounded-2xl border-0 bg-transparent p-0 shadow-none sm:border sm:border-slate-200 sm:bg-white sm:p-5 md:p-6 sm:shadow-sm">
+                    {activeStep.content}
+                </div>
 
-                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur md:static md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
-                    <div className="mx-auto flex max-w-4xl flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            {safeCurrentStep > 0 ? (
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => onStepChange(safeCurrentStep - 1)}
-                                    disabled={isSubmitting}
-                                    className="h-11 w-full rounded-xl border-slate-200 px-6 sm:w-auto"
-                                >
-                                    Back
-                                </Button>
-                            ) : null}
-                        </div>
+                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+                    <div className="mx-auto flex max-w-3xl flex-row items-center justify-between gap-3">
+                        {safeCurrentStep > 0 ? (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => onStepChange(safeCurrentStep - 1)}
+                                disabled={isSubmitting}
+                                className="h-11 flex-1 sm:flex-initial rounded-xl border-slate-200 px-5 font-semibold text-foreground-secondary hover:bg-slate-50 sm:w-auto"
+                            >
+                                Back
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    if (onCancel) {
+                                        onCancel();
+                                    } else {
+                                        router.back();
+                                    }
+                                }}
+                                disabled={isSubmitting}
+                                className="h-11 flex-1 sm:flex-initial rounded-xl border-slate-200 px-5 font-semibold text-foreground-secondary hover:bg-slate-50 sm:w-auto"
+                            >
+                                Cancel
+                            </Button>
+                        )}
 
                         <Button
                             type={isFinalStep ? "submit" : "button"}
                             onClick={isFinalStep ? undefined : onNext}
                             disabled={isSubmitting}
-                            className="h-11 w-full rounded-xl bg-blue-600 px-6 font-semibold text-white hover:bg-blue-700 sm:w-auto"
+                            className="h-11 flex-1 sm:flex-initial rounded-xl bg-blue-600 px-5 font-semibold text-white hover:bg-blue-700 sm:w-auto"
                         >
                             {isSubmitting && isFinalStep
-                                ? (wizardVariant === "registration" ? "Submitting application..." : "Saving business profile...")
+                                ? (wizardVariant === "registration" ? "Submitting..." : "Saving...")
                                 : primaryLabel}
                         </Button>
                     </div>
