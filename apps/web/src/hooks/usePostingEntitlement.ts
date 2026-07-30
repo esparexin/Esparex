@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import type { PostingEntitlementMatrixDTO, SingleEntitlementState } from "@esparex/contracts";
 import { apiClient } from "@/lib/api/client";
+import { unwrapApiPayload } from "@/lib/api/result";
 
 type ModuleType = "ads" | "services" | "spareParts" | "smartAlerts";
 
@@ -15,9 +16,10 @@ export function usePostingEntitlement(moduleType?: ModuleType) {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await apiClient.get<PostingEntitlementMatrixDTO>("entitlements/posting");
-      if (res) {
-        setMatrix(res);
+      const res = await apiClient.get<unknown>("entitlements/posting");
+      const unwrapped = unwrapApiPayload<PostingEntitlementMatrixDTO>(res);
+      if (unwrapped) {
+        setMatrix(unwrapped);
       } else {
         setError("Failed to load posting entitlements");
       }
