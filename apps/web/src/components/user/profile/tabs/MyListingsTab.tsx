@@ -31,7 +31,7 @@ import {
 
 import { formatPrice, formatStableNumber } from "@/lib/formatters";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
-import { isApprovedBusiness } from "@/guards/businessGuards";
+import type { BusinessStatusValue } from "@esparex/contracts";
 
 // ── Types & Constants ────────────────────────────────────────────────────────
 type ListingSubTab = "ads" | "services" | "spare-parts";
@@ -61,7 +61,9 @@ interface MyListingsTabProps {
     navigateTo: (page: string, adId?: string | number, category?: string, businessId?: string, serviceId?: string) => void;
     getStatusBadge: (status: string, adId?: string | number) => React.ReactNode;
     formatDate: (date: string | Date) => string;
-    isBusinessApproved?: boolean;
+    /** Normalized business status — drives tab visibility and pending banner. */
+    businessStatus: BusinessStatusValue | "none";
+    /** Retained for compatibility — no longer used inside configMap. */
     onRegisterBusiness?: () => void;
     initialSubTab?: ListingSubTab;
 }
@@ -70,13 +72,23 @@ interface MyListingsTabProps {
 export function MyListingsTab({
     adCounts,
     user, navigateTo, getStatusBadge,
-    isBusinessApproved: isBusinessApprovedProp, onRegisterBusiness,
+    businessStatus, onRegisterBusiness: _onRegisterBusiness,
     initialSubTab = "ads",
 }: MyListingsTabProps) {
-    const isBusinessApproved = isBusinessApprovedProp ?? Boolean(user && isApprovedBusiness(user));
     const router = useRouter();
     const searchParams = useSearchParams();
-    const subTab = initialSubTab;
+
+    // ── Tab visibility ────────────────────────────────────────────────────────
+    // Services and Spare Parts are only accessible to approved (live) businesses.
+    const visibleSubTabs = businessStatus === "live" ? SUB_TABS : SUB_TABS.filter(t => t.value === "ads");
+    const showPendingBanner = businessStatus === "pending";
+
+    // Guard against a deep-linked subTab that is no longer visible (e.g. ?subTab=services
+    // opened by a non-approved user). Fall back to "ads".
+    const subTab: ListingSubTab = visibleSubTabs.some(t => t.value === initialSubTab)
+        ? initialSubTab
+        : "ads";
+
     const selectedStatus = normalizeAccountListingStatus(
         subTab as AccountListingSection,
         searchParams.get("status")
@@ -275,8 +287,9 @@ export function MyListingsTab({
             loading: loadingServices,
             error: servicesError,
             onRetry: fetchMyServices,
-            onPost: isBusinessApproved ? () => navigateTo("post-service") : onRegisterBusiness,
-            postLabel: isBusinessApproved ? "Post Service" : "Register Business",
+            // Services tab is only rendered for live businesses — no fallback needed.
+            onPost: () => navigateTo("post-service"),
+            postLabel: "Post Service",
             emptyTitle: `No ${servicesStatus} services`,
             emptyDesc: "List your repair or maintenance services to attract customers.",
             render: (service: Listing) => (
@@ -333,8 +346,9 @@ export function MyListingsTab({
             loading: loadingSpare,
             error: spareError,
             onRetry: fetchMySpare,
-            onPost: isBusinessApproved ? () => navigateTo("post-spare-part-listing") : onRegisterBusiness,
-            postLabel: isBusinessApproved ? "Post Spare Part" : "Register Business",
+            // Spare Parts tab is only rendered for live businesses — no fallback needed.
+            onPost: () => navigateTo("post-spare-part-listing"),
+            postLabel: "Post Spare Part",
             emptyTitle: `No ${spareStatus} listings`,
             emptyDesc: "List spare parts to sell to repair shops and customers.",
             render: (listing: Listing) => (
@@ -375,7 +389,7 @@ export function MyListingsTab({
             <UserListingsTemplate
                 title={currentConfig.title}
                 icon={currentConfig.icon}
-                subTabs={SUB_TABS}
+                subTabs={visibleSubTabs}
                 activeSubTab={subTab}
                 onSubTabChange={(v) => handleSubTabChange(v as ListingSubTab)}
                 statusTabs={currentConfig.statusTabs}
@@ -396,6 +410,23 @@ export function MyListingsTab({
                     description: currentConfig.emptyDesc,
                 }}
             />
+
+            {/* Pending-review banner — shown only while business application is under review */}
+            {showPendingBanner && (
+                <div
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3 text-sm"
+                >
+                    <span className="mt-0.5 text-amber-500 shrink-0" aria-hidden="true">⏳</span>
+                    <div>
+                        <p className="font-semibold text-amber-800">Business verification is under review.</p>
+                        <p className="text-amber-700 mt-0.5">
+                            You&apos;ll be able to post Services and Spare Parts after your application is approved.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             {/* Modals */}
             <AlertDialog open={isDeleteAdOpen} onOpenChange={setIsDeleteAdOpen}>
