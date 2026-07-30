@@ -15,7 +15,7 @@ import { Label } from "../ui/label";
 import { OtpInputGroup } from "./otp/OtpInputGroup";
 
 interface LoginProps {
-  onLoginSuccess: (options?: { requiresProfileSetup?: boolean }) => void;
+  onLoginSuccess: () => void;
   onBack?: () => void;
   mode?: "page" | "modal";
 }
@@ -164,7 +164,13 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       <div className="transition-transform active:scale-[0.985]">
         <Button
           type="submit"
-          disabled={isSendingOTP || !isValidMobile || isSendRateLimited || !backendReady}
+          disabled={
+            isSendingOTP ||
+            !isValidMobile ||
+            isSendRateLimited ||
+            Boolean(flow.getMobileLockInfo(mobile)?.remainingSeconds) ||
+            !backendReady
+          }
           className="w-full h-11 sm:h-12 rounded-xl bg-[#8ba4f9] hover:bg-[#7895f8] active:bg-[#6686f7] text-white font-bold text-sm shadow-md shadow-blue-400/20 transition-all disabled:opacity-50"
         >
           {isSendingOTP && (
@@ -224,11 +230,14 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
       )}
 
       {step === "locked" && (
-        <div className="text-center py-2.5 px-3 bg-amber-50 rounded-xl border border-amber-300">
-          <p className="text-xs text-amber-900 font-semibold">
-            {authError?.type === "locked" ? authError.message : "Too many failed attempts."}
+        <div className="text-center p-3 bg-amber-50 rounded-xl border border-amber-300 space-y-1">
+          <p className="text-xs font-bold text-amber-900">
+            Too many incorrect OTP attempts.
           </p>
-          <p className="text-tiny text-amber-700 mt-0.5">
+          <p className="text-xs text-amber-800">
+            Your account is temporarily locked for security. When the timer expires, request a new OTP to continue.
+          </p>
+          <p className="text-xs font-bold text-amber-900 pt-0.5">
             Try again in {formatSeconds(lockRemainingSeconds)}
           </p>
         </div>
