@@ -163,6 +163,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
       trigger={
         <Button
           variant="outline"
+          onClick={(e) => e.currentTarget.blur()}
           className="h-11 px-4 gap-2 text-foreground-secondary border-slate-200 hover:bg-slate-50 font-semibold text-sm rounded-full shadow-none"
         >
           <SlidersHorizontal className="size-4 text-muted-foreground" />

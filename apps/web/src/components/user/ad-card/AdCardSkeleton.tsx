@@ -22,7 +22,7 @@ export function AdCardSkeleton({ className }: AdCardSkeletonProps) {
 export function AdCardListSkeleton({ className }: AdCardSkeletonProps) {
   return (
     <div className={cn("flex items-start gap-3 p-3 rounded-xl border border-border bg-white shadow-sm", className)}>
-      <Skeleton className="h-22 w-22 sm:h-28 sm:w-28 shrink-0 rounded-xl" />
+      <Skeleton className="h-24 w-24 sm:h-28 sm:w-28 shrink-0 rounded-xl" />
       <div className="flex flex-1 flex-col justify-between space-y-2 py-0.5">
         <div className="space-y-2">
           <Skeleton className="h-5 w-1/3" />
