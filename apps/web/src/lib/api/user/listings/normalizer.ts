@@ -3,7 +3,7 @@ import { type PaginationEnvelope } from '@/lib/api/result';
 import { normalizeAdStatus } from '@/lib/status/statusNormalization';
 import { toSafeImageArray, toSafeImageSrc } from '@/lib/image/imageUrl';
 import { normalizeToAppLocation as normalizeLocation } from '@/lib/location/locationService';
-import { formatAppDate } from '@/lib/formatters';
+import { formatAppDate, decodeHtmlEntities } from '@/lib/formatters';
 import type { LocationLevel } from '@/types/location';
 import { stripEmptyObjectIdFields as stripSharedObjectIdFields } from '../listingsShared';
 
@@ -287,8 +287,22 @@ export function normalizeListing(data: unknown): Listing {
     const createdAtStr: string =
         typeof rawCreatedAt === 'string' ? rawCreatedAt : new Date(0).toISOString();
 
+    const decodedTitle = decodeHtmlEntities(validated.title || "");
+    const decodedDescription = decodeHtmlEntities(validated.description || "");
+    const decodedSellerName = decodeHtmlEntities(sellerName);
+    const decodedBusinessName = validated.businessName ? decodeHtmlEntities(validated.businessName) : undefined;
+    const decodedCategoryName = validated.categoryName ? decodeHtmlEntities(validated.categoryName) : undefined;
+    const decodedBrandName = validated.brandName ? decodeHtmlEntities(validated.brandName) : undefined;
+    const decodedModelName = validated.modelName ? decodeHtmlEntities(validated.modelName) : undefined;
+
     return {
         ...validated,
+        title: decodedTitle,
+        description: decodedDescription,
+        categoryName: decodedCategoryName,
+        brandName: decodedBrandName,
+        modelName: decodedModelName,
+        businessName: decodedBusinessName,
         status: normalizeAdStatus(validated.status),
         id: String(validated.id || ''),
         images: toSafeImageArray(Array.isArray(validated.images) ? validated.images.map((image) => normalizeImageUrl(String(image))) : validated.images),
@@ -297,7 +311,7 @@ export function normalizeListing(data: unknown): Listing {
         createdAt: createdAtStr,
         isBusiness,
         verified,
-        sellerName,
+        sellerName: decodedSellerName,
         sellerId: extractId(validated.sellerId) || '',
         views,
         location: (location || { city: "" }) as Listing['location'],

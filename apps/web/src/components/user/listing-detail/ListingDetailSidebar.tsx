@@ -6,8 +6,6 @@ import type { Ad } from "@/schemas/ad.schema";
 
 import type { UserPage } from "@/lib/routeUtils";
 
-import { Button } from "@esparex/ui";
-import { Card, CardContent } from "@/components/ui/card";
 import { AdTitlePriceCard } from "./AdTitlePriceCard";
 import { AdSellerCard } from "./AdSellerCard";
 import { AdBusinessCard } from "./AdBusinessCard";
@@ -113,18 +111,17 @@ export function ListingDetailSidebar({
                 />
             )}
             {!isOwner && (
-                <Card className="bg-red-50 border-red-200">
-                    <CardContent className="p-3 md:p-4">
-                        <Button
-                            variant="outline"
-                            className="w-full gap-2 border-red-300 text-red-600 hover:bg-red-100 text-sm h-11"
-                            onClick={onReport}
-                        >
-                            <AlertTriangle className="h-4 w-4" />
-                            Report This Ad
-                        </Button>
-                    </CardContent>
-                </Card>
+                <div className="pt-2 flex justify-center">
+                    <button
+                        type="button"
+                        onClick={onReport}
+                        aria-label="Report this listing"
+                        className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/20 rounded-lg px-2 py-1"
+                    >
+                        <AlertTriangle className="h-3.5 w-3.5 text-slate-400 group-hover:text-red-600" />
+                        <span>Report this listing</span>
+                    </button>
+                </div>
             )}
         </div>
     );

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@esparex/ui";
+import { Button, Z_INDEX } from "@esparex/ui";
 import { Share2, Heart, ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";
 import { MARKETPLACE_CARD_FILL_SIZES } from "@/lib/imageSizes";
@@ -23,14 +23,88 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const touchStartX = useRef<number | null>(null);
+    const triggerElementRef = useRef<HTMLElement | null>(null);
+    const lightboxRef = useRef<HTMLDivElement>(null);
 
-    const nextImage = () => {
+    const normalizedImages = toSafeImageArray(images);
+    const safeImages = normalizedImages.length > 0 ? normalizedImages : [DEFAULT_IMAGE_PLACEHOLDER];
+
+    const nextImage = useCallback(() => {
         setCurrentImageIndex((prev: number) => (prev + 1) % safeImages.length);
+    }, [safeImages.length]);
+
+    const prevImage = useCallback(() => {
+        setCurrentImageIndex((prev: number) => (prev - 1 + safeImages.length) % safeImages.length);
+    }, [safeImages.length]);
+
+    const openLightbox = (e?: React.SyntheticEvent) => {
+        if (e) {
+            triggerElementRef.current = e.currentTarget as HTMLElement;
+        } else {
+            triggerElementRef.current = document.activeElement as HTMLElement;
+        }
+        setIsLightboxOpen(true);
     };
 
-    const prevImage = () => {
-        setCurrentImageIndex((prev: number) => (prev - 1 + safeImages.length) % safeImages.length);
-    };
+    const closeLightbox = useCallback(() => {
+        setIsLightboxOpen(false);
+        if (triggerElementRef.current) {
+            triggerElementRef.current.focus();
+            triggerElementRef.current = null;
+        }
+    }, []);
+
+    // Handle Keyboard navigation, Body & Document Scroll Lock, Focus Restoration
+    useEffect(() => {
+        if (!isLightboxOpen) return;
+
+        // Complete Body & HTML Scroll Lock
+        const originalBodyOverflow = document.body.style.overflow;
+        const originalDocOverflow = document.documentElement.style.overflow;
+
+        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
+        document.body.classList.add("overflow-hidden");
+        document.documentElement.classList.add("overflow-hidden");
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                e.preventDefault();
+                closeLightbox();
+            } else if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                prevImage();
+            } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                nextImage();
+            } else if (e.key === "Tab" && lightboxRef.current) {
+                // Focus Trap
+                const focusables = lightboxRef.current.querySelectorAll<HTMLElement>(
+                    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                );
+                if (focusables.length === 0) return;
+                const firstElement = focusables[0]!;
+                const lastElement = focusables[focusables.length - 1]!;
+
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.body.style.overflow = originalBodyOverflow;
+            document.documentElement.style.overflow = originalDocOverflow;
+            document.body.classList.remove("overflow-hidden");
+            document.documentElement.classList.remove("overflow-hidden");
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isLightboxOpen, closeLightbox, nextImage, prevImage]);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStartX.current = e.touches[0]?.clientX ?? null;
@@ -49,9 +123,6 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
         touchStartX.current = null;
     };
 
-    const normalizedImages = toSafeImageArray(images);
-    const safeImages = normalizedImages.length > 0 ? normalizedImages : [DEFAULT_IMAGE_PLACEHOLDER];
-
     return (
         <>
         <Card className="rounded-none md:rounded-[2.5rem] overflow-hidden border-none shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white md:p-2">
@@ -60,15 +131,15 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                     className="relative aspect-[4/3] md:aspect-[16/10] bg-slate-100 rounded-none md:rounded-[2rem] overflow-hidden group/main cursor-pointer"
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
-                    onClick={() => setIsLightboxOpen(true)}
+                    onClick={openLightbox}
                     role="button"
-                    aria-label="View full-size image"
+                    aria-label={`View full-size image gallery for ${title}`}
                     tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setIsLightboxOpen(true); }}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openLightbox(e); }}
                 >
                     <Image
                         src={safeImages[currentImageIndex]!}
-                        alt={title}
+                        alt={`Listing image ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
                         fill
                         sizes={MARKETPLACE_CARD_FILL_SIZES}
                         priority
@@ -141,6 +212,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 <button
                                     key={index}
                                     onClick={() => setCurrentImageIndex(index)}
+                                    aria-label={`View photo ${index + 1} of ${safeImages.length}`}
                                     className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl overflow-hidden border-2 transition-all duration-200 relative ${
                                         index === currentImageIndex
                                             ? "border-green-500 ring-2 ring-green-100 scale-95"
@@ -149,9 +221,9 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                 >
                                     <Image
                                         src={image}
-                                        alt={`Thumbnail ${index + 1}`}
+                                        alt={`Thumbnail ${index + 1} of ${safeImages.length} for ${title}`}
                                         fill
-                                        sizes={MARKETPLACE_CARD_FILL_SIZES}
+                                        sizes="80px"
                                         unoptimized
                                         className="object-cover"
                                     />
@@ -169,19 +241,27 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
         {/* Lightbox / Fullscreen overlay */}
         {isLightboxOpen && (
             <div
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-                onClick={() => setIsLightboxOpen(false)}
+                ref={lightboxRef}
+                style={{ zIndex: Z_INDEX.drawerOverlay }}
+                className="fixed inset-0 flex items-center justify-center bg-black/90 backdrop-blur-sm overscroll-contain touch-none select-none"
+                onClick={closeLightbox}
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
                 role="dialog"
                 aria-modal="true"
-                aria-label="Image viewer"
+                aria-label={`Fullscreen image gallery: ${title}`}
             >
+                {/* Screen reader live announcement */}
+                <div className="sr-only" aria-live="polite">
+                    Image {currentImageIndex + 1} of {safeImages.length}
+                </div>
+
                 {/* Close button */}
                 <button
                     className="absolute top-4 right-4 h-11 w-11 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
-                    onClick={() => setIsLightboxOpen(false)}
+                    onClick={closeLightbox}
                     aria-label="Close image viewer"
+                    autoFocus
                 >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -197,13 +277,13 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
                 {/* Main image */}
                 <div
-                    className="relative w-full max-w-4xl max-h-[90vh] mx-4"
+                    className="relative flex items-center justify-center w-full max-w-5xl max-h-[85vh] mx-4"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <img
                         src={safeImages[currentImageIndex]!}
-                        alt={title}
-                        className="w-full h-full object-contain max-h-[85vh] rounded-2xl"
+                        alt={`Fullscreen photo ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
+                        className="max-h-[85vh] max-w-[90vw] object-contain rounded-2xl mx-auto shadow-2xl"
                     />
                 </div>
 
@@ -231,3 +311,4 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
     </>
     );
 }
+
