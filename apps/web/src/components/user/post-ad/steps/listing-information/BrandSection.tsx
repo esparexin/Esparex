@@ -54,12 +54,9 @@ export function BrandSection() {
                 />
             </Field>
             {customBrandName && (
-                <div className="p-2.5 bg-blue-50/80 border border-blue-200/80 rounded-xl flex items-center justify-between text-xs text-blue-900 font-medium">
-                    <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        Custom Brand proposal: <strong className="font-semibold">{customBrandName}</strong>
-                    </span>
-                    <span className="text-[10px] font-semibold text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-md">Pending Admin Approval</span>
+                <div className="flex items-center gap-2 text-xs font-medium text-blue-700 pt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    <span>✓ Proposed &ldquo;{customBrandName}&rdquo; &bull; Pending Review</span>
                 </div>
             )}
             {brandsError && (
