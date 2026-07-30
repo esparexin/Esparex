@@ -34,6 +34,7 @@ import { usePurchases } from "@/hooks/usePurchases";
 import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
 import { isApprovedBusiness } from "@/guards/businessGuards";
+import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 
@@ -87,6 +88,7 @@ export function ProfileSettingsSidebar({
   const [activeTab, setActiveTab] = useState<ProfileTabValue>((initialTab as ProfileTabValue) || "personal");
 
   const isBusinessLive = Boolean(user && isApprovedBusiness(user));
+  const normalizedBusinessStatus = normalizeBusinessStatus(user?.businessStatus);
 
   const { data: adCounts = {} } = useMyListingsStatsQuery({ 
     enabled: activeTab === "mylistings" && !!user,
@@ -249,7 +251,7 @@ export function ProfileSettingsSidebar({
           navigateTo={(page, adId, category, businessId, serviceId) => navigateTo(page as UserPage, adId, category, businessId as string, serviceId as string)}
           getStatusBadge={getStatusBadge}
           formatDate={formatDate}
-          isBusinessApproved={isBusinessLive}
+          businessStatus={normalizedBusinessStatus}
           onRegisterBusiness={() => navigateTo("business-register")}
           initialSubTab={initialListingSubTab}
         />
