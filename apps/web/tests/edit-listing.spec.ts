@@ -333,8 +333,8 @@ test.describe("📝 EDIT AD - End-to-End Regression Suite", () => {
         await expect(removeButton).toBeVisible();
         await removeButton.click();
 
-        // Upload a replacement image
-        const fileInput = page.locator('input[type="file"]');
+        // Upload a replacement image (target gallery input specifically to avoid strict mode violation with camera input)
+        const fileInput = page.locator('input[type="file"][multiple]').or(page.locator('input[type="file"]').last()).first();
         await fileInput.setInputFiles({
             name:     "new-image.jpg",
             mimeType: "image/jpeg",

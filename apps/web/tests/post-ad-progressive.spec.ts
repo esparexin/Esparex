@@ -284,7 +284,7 @@ test.describe("Post Ad authenticated smoke", () => {
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
         "base64"
       );
-      await page.locator('input[type="file"]').setInputFiles({
+      await page.locator('input[type="file"][multiple]').or(page.locator('input[type="file"]').last()).first().setInputFiles({
         name: "post-ad-smoke.png",
         mimeType: "image/png",
         buffer: imageBytes,

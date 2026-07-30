@@ -20,3 +20,23 @@ export function useIsMobile() {
 
   return !!isMobile;
 }
+
+export function useIsMobileDevice() {
+  const [isMobileDevice, setIsMobileDevice] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      if (typeof window === "undefined") return;
+      const isTouch = window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches;
+      const isSmallScreen = window.innerWidth < MOBILE_BREAKPOINT;
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobileDevice(isTouch || isSmallScreen || isMobileUA);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  return isMobileDevice;
+}

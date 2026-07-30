@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { FileText, Upload, X } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 import { cn } from "@/lib/utils";
 import { validateBusinessDocumentSelection } from "@/schemas/business.schema.shared";
+import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
 import {
     getBusinessFileMeta,
     getBusinessFileName,
@@ -33,9 +34,43 @@ export function FileUploadCard({
     error,
 }: FileUploadCardProps) {
     const [localError, setLocalError] = useState<string | null>(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const previewUrl = useFilePreviewUrl(file);
     const showImagePreview = isImageAsset(file) && Boolean(previewUrl);
     const effectiveError = error || localError || undefined;
+
+    const handleOpenPicker = () => {
+        if (pickerOpen) return;
+        setPickerOpen(true);
+    };
+
+    const handleCamera = () => {
+        if (cameraInputRef.current) {
+            cameraInputRef.current.value = "";
+            cameraInputRef.current.click();
+        }
+    };
+
+    const handleGallery = () => {
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+            fileInputRef.current.click();
+        }
+    };
+
+    const handleFileSelection = (selectedFile: File | undefined) => {
+        if (!selectedFile) return;
+        const validationError = validateBusinessDocumentSelection(selectedFile);
+        if (validationError) {
+            setLocalError(validationError);
+            return;
+        }
+        setLocalError(null);
+        onUpload(selectedFile);
+    };
 
     return (
         <div className="space-y-1">
@@ -85,48 +120,60 @@ export function FileUploadCard({
                     </div>
                 </div>
             ) : (
-                <label
-                    tabIndex={0}
-                    role="button"
+                <button
+                    type="button"
+                    onClick={handleOpenPicker}
                     aria-label={`Upload ${title}`}
-                    onKeyDown={(e) => {
-                        if (e.key === " " || e.key === "Enter") {
-                            e.preventDefault();
-                            e.currentTarget.querySelector("input")?.click();
-                        }
-                    }}
                     className={cn(
-                        "flex h-24 sm:h-28 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 text-center transition-all hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        "flex h-24 sm:h-28 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 text-center transition-all hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation",
                         effectiveError && "border-red-300 bg-red-50/30"
                     )}
                 >
                     <Upload className="mb-1.5 h-5 w-5 text-foreground-subtle" />
                     <span className="text-xs font-semibold text-foreground-secondary">Choose file</span>
                     <span className="mt-0.5 text-[11px] text-muted-foreground">PDF, JPG up to 10MB</span>
-                    <input
-                        id={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
-                        name={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
-                        type="file"
-                        accept={accept}
-                        className="hidden"
-                        tabIndex={-1}
-                        aria-label={`Upload ${title}`}
-                        onChange={(e) => {
-                            const selectedFile = e.target.files?.[0];
-                            if (!selectedFile) return;
-                            const validationError = validateBusinessDocumentSelection(selectedFile);
-                            if (validationError) {
-                                setLocalError(validationError);
-                                e.currentTarget.value = "";
-                                return;
-                            }
-                            setLocalError(null);
-                            onUpload(selectedFile);
-                            e.currentTarget.value = "";
-                        }}
-                    />
-                </label>
+                </button>
             )}
+
+            <input
+                ref={cameraInputRef}
+                id={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}-camera`}
+                name={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}-camera`}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                tabIndex={-1}
+                aria-label={`Take photo of ${title}`}
+                onChange={(e) => {
+                    handleFileSelection(e.target.files?.[0]);
+                    e.target.value = "";
+                }}
+            />
+
+            <input
+                ref={fileInputRef}
+                id={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+                name={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+                type="file"
+                accept={accept}
+                className="hidden"
+                tabIndex={-1}
+                aria-label={`Upload ${title}`}
+                onChange={(e) => {
+                    handleFileSelection(e.target.files?.[0]);
+                    e.target.value = "";
+                }}
+            />
+
+            <UploadSourcePicker
+                open={pickerOpen}
+                onOpenChange={setPickerOpen}
+                onCamera={handleCamera}
+                onGallery={handleGallery}
+                variant="document"
+                title={`Upload ${title}`}
+            />
 
             <FormError message={effectiveError} />
         </div>

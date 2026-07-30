@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { Upload, X } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
@@ -10,6 +10,7 @@ import {
 } from "@/schemas/business.schema.shared";
 import { getRemovePhotoAriaLabel } from "@/components/user/shared/uploadHelpers";
 import { useImageDropzone } from "@/components/user/shared/useImageDropzone";
+import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
 import { useFilePreviewUrl } from "./useFilePreviewUrl";
 import type { StepBaseProps } from "./types";
 
@@ -68,6 +69,9 @@ export function ShopPhotosField({
     setFormData,
 }: ShopPhotosFieldProps) {
     const [localError, setLocalError] = useState<string | null>(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const galleryInputRef = useRef<HTMLInputElement>(null);
 
     const removeShopImage = (index: number) => {
         const nextImages = [...formData.images];
@@ -113,6 +117,25 @@ export function ShopPhotosField({
         onUpload: handleShopImageUpload,
     });
 
+    const handleOpenPicker = () => {
+        if (pickerOpen) return;
+        setPickerOpen(true);
+    };
+
+    const handleCamera = () => {
+        if (cameraInputRef.current) {
+            cameraInputRef.current.value = "";
+            cameraInputRef.current.click();
+        }
+    };
+
+    const handleGallery = () => {
+        if (galleryInputRef.current) {
+            galleryInputRef.current.value = "";
+            galleryInputRef.current.click();
+        }
+    };
+
     return (
         <div className="space-y-1">
             <p className="text-sm font-medium text-foreground-secondary truncate">
@@ -131,37 +154,74 @@ export function ShopPhotosField({
                 ))}
 
                 {formData.images.length < 5 && (
-                    <label
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`Add shop photo, ${formData.images.length} of 5 uploaded`}
+                    <div
                         {...dropzoneProps}
                         className={cn(
-                            "flex h-24 sm:h-28 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-3 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                            "flex min-h-[96px] sm:min-h-[104px] w-full flex-col items-center justify-center rounded-2xl border border-dashed p-3 text-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                             isDraggingOver
                                 ? "border-primary bg-primary/10 scale-[1.02] shadow-md"
                                 : "border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50"
                         )}
                     >
-                        <Upload className="mb-1.5 h-5 w-5 text-foreground-subtle" />
-                        <span className="text-xs font-semibold text-foreground-secondary">Add photo</span>
-                        <span className="mt-0.5 text-[11px] text-muted-foreground">{formData.images.length}/5 uploaded</span>
-                        <input
-                            id="reg-shop-images"
-                            name="reg-shop-images"
-                            type="file"
-                            accept={BUSINESS_IMAGE_ACCEPT}
-                            multiple
-                            className="hidden"
-                            tabIndex={-1}
-                            aria-label="Add shop photos"
-                            onChange={(e) => e.target.files && handleShopImageUpload(e.target.files)}
-                        />
-                    </label>
+                        <span className="text-[11px] font-medium text-muted-foreground mb-1.5">
+                            {formData.images.length}/5 uploaded
+                        </span>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleOpenPicker}
+                            aria-label="Add shop photo"
+                            className="flex h-9 items-center justify-center gap-1.5 rounded-xl border-slate-200 bg-white px-4 text-xs font-semibold text-foreground-secondary shadow-2xs hover:bg-slate-50 hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-primary touch-manipulation"
+                        >
+                            <Upload className="h-3.5 w-3.5 text-primary" />
+                            <span>+ Add Photo</span>
+                        </Button>
+                    </div>
                 )}
             </div>
+
+            <input
+                ref={cameraInputRef}
+                id="reg-shop-camera"
+                name="reg-shop-camera"
+                type="file"
+                accept={BUSINESS_IMAGE_ACCEPT}
+                capture="environment"
+                className="hidden"
+                tabIndex={-1}
+                aria-label="Take shop photo with camera"
+                onChange={(e) => {
+                    if (e.target.files) handleShopImageUpload(e.target.files);
+                    e.target.value = "";
+                }}
+            />
+
+            <input
+                ref={galleryInputRef}
+                id="reg-shop-images"
+                name="reg-shop-images"
+                type="file"
+                accept={BUSINESS_IMAGE_ACCEPT}
+                multiple
+                className="hidden"
+                tabIndex={-1}
+                aria-label="Add shop photos"
+                onChange={(e) => {
+                    if (e.target.files) handleShopImageUpload(e.target.files);
+                    e.target.value = "";
+                }}
+            />
+
+            <UploadSourcePicker
+                open={pickerOpen}
+                onOpenChange={setPickerOpen}
+                onCamera={handleCamera}
+                onGallery={handleGallery}
+                variant="listing"
+            />
 
             <FormError message={formData.errors?.images || localError || undefined} />
         </div>
     );
 }
+

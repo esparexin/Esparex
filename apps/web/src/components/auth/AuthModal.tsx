@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { X } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
-import { Z_INDEX } from "@esparex/ui";
 import { LoginFlow } from "@/components/auth/LoginFlow";
 
 interface AuthModalProps {
@@ -23,9 +22,6 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideClose
-        overlayZIndex={Z_INDEX.authModalOverlay}
-        overlayClassName="fixed inset-0 bg-black/40 backdrop-blur-md"
-        style={{ zIndex: Z_INDEX.authModalContent }}
         className={cn(
           // Responsive Centered Dialog Card (Mobile & Desktop):
           // Fits within viewport bounds with backdrop blur, rounded corners, and shadow
