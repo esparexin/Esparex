@@ -15,3 +15,11 @@ export type RateLimitState = {
     message: string;
     untilMs: number;
 };
+
+export type LockedMobileInfo = {
+    lockUntilMs: number;
+    message: string;
+};
+
+export type LockedMobilesState = Record<string, LockedMobileInfo>;
+
