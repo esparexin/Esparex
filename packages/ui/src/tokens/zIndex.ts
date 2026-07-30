@@ -44,18 +44,20 @@ export const Z_INDEX = {
   drawerContent: 1061,          // Drawer content (above sheet and listing/auth modals)
 
   // ── Dialog System ────────────────────────────────────────────────────────
-  // Aligned with Radix UI dialog primitives
-  dialogOverlay: 300,           // Background overlay for modals
-  dialogContent: 301,           // Modal content (always above overlay)
-  wizardModal: 301,             // Wizard modal uses same as dialog
+  // Architectural Stacking Invariant:
+  // alertDialogContent (1110) > alertDialogOverlay (1100) > dialogContent (1010) > dialogOverlay (1000) > userHeader (999)
+  dialogOverlay: 1000,          // Background overlay for modals (covers sticky header: 999)
+  dialogContent: 1010,          // Modal content card (always above overlay)
+  wizardModal: 1010,            // Wizard modal content
+  listingModal: 1010,           // Listing modal content
+
+  // ── AlertDialog System ───────────────────────────────────────────────────
+  alertDialogOverlay: 1100,     // AlertDialog backdrop (above standard dialogs)
+  alertDialogContent: 1110,     // AlertDialog content card (above alert backdrop)
 
   // ── Auth Modal System ────────────────────────────────────────────────────
-  // Auth overlay sits ABOVE the header (999) so the entire viewport is covered
-  authModalOverlay: 1000,       // Auth modal backdrop (covers header + page)
-  authModalContent: 1010,       // Auth modal dialog card (above overlay)
-
-  // ── Listing Modal ────────────────────────────────────────────────────────
-  listingModal: 1001,           // Full-screen listing modal
+  authModalOverlay: 1000,       // Auth modal backdrop (aligned with dialogOverlay)
+  authModalContent: 1010,       // Auth modal dialog card (aligned with dialogContent)
 
   // ── Popovers & Selection Overlays ────────────────────────────────────────
   locationSelectorBackdrop: 9998,

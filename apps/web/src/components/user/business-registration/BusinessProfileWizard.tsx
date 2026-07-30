@@ -139,9 +139,9 @@ export function BusinessProfileWizard({
     }, [safeCurrentStep]);
 
     return (
-        <div className="mx-auto max-w-3xl py-2 md:py-4 px-4">
+        <div className="mx-auto max-w-3xl py-1 md:py-3 px-4">
             <form
-                className="flex flex-col gap-4 pb-20 sm:pb-0"
+                className="flex flex-col gap-3 sm:gap-4 pb-16 sm:pb-0"
                 onSubmit={(e) => {
                     onSubmit(e);
                     if (formError) {
@@ -199,7 +199,7 @@ export function BusinessProfileWizard({
                     {activeStep.content}
                 </div>
 
-                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+                <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md shadow-lg sm:static sm:z-auto sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
                     <div className="mx-auto flex max-w-3xl flex-row items-center justify-between gap-3">
                         {safeCurrentStep > 0 ? (
                             <Button

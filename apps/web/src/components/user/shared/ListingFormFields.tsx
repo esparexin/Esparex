@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { Field } from "@/components/ui/field";
 import { MapPin, Upload, X } from "@/icons/IconRegistry";
@@ -12,6 +13,7 @@ import { cn } from "@/components/ui/utils";
 
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 import { useImageDropzone } from "./useImageDropzone";
+import { UploadSourcePicker } from "./UploadSourcePicker";
 
 interface ListingImagesFieldProps {
     images: ListingImage[];
@@ -34,18 +36,38 @@ export function ListingImagesField({
     helperText,
     disabled = false,
 }: ListingImagesFieldProps) {
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const galleryInputRef = useRef<HTMLInputElement>(null);
+
     const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload, disabled });
+
+    const handleOpenPicker = () => {
+        if (disabled || pickerOpen) return;
+        setPickerOpen(true);
+    };
+
+    const handleCamera = () => {
+        if (cameraInputRef.current) {
+            cameraInputRef.current.value = "";
+            cameraInputRef.current.click();
+        }
+    };
+
+    const handleGallery = () => {
+        if (galleryInputRef.current) {
+            galleryInputRef.current.value = "";
+            galleryInputRef.current.click();
+        }
+    };
 
     return (
         <Field label="Photos (up to 10)" error={error}>
             <div className="space-y-3">
-                <label
-                    tabIndex={disabled ? -1 : 0}
-                    role="button"
-                    aria-label="Add photos"
+                <div
                     {...dropzoneProps}
                     className={cn(
-                        "flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden",
+                        "flex min-h-[112px] w-full flex-col items-center justify-center rounded-xl border border-dashed p-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden",
                         disabled
                             ? "opacity-60 cursor-not-allowed border-slate-200 bg-slate-50"
                             : isDraggingOver
@@ -54,33 +76,68 @@ export function ListingImagesField({
                     )}
                 >
                     {disabled ? (
-                        <div className="flex flex-col items-center justify-center text-primary animate-pulse">
+                        <div className="flex flex-col items-center justify-center text-primary animate-pulse py-2">
                             <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-1.5" />
                             <span className="text-xs font-semibold">Processing & Compressing Photos...</span>
                         </div>
+                    ) : isDraggingOver ? (
+                        <div className="flex flex-col items-center justify-center text-primary py-2">
+                            <Upload className="w-6 h-6 mb-1 text-primary animate-bounce" />
+                            <span className="text-sm font-semibold">Drop photos here to upload</span>
+                        </div>
                     ) : (
-                        <>
-                            <Upload className={cn("w-6 h-6 mb-1 transition-colors", isDraggingOver ? "text-primary" : "text-foreground-subtle")} />
-                            <span className="text-sm font-medium text-foreground-tertiary">
-                                {isDraggingOver ? "Drop photos to upload" : "Tap or drop photos here"}
-                            </span>
-                        </>
+                        <button
+                            type="button"
+                            disabled={disabled}
+                            onClick={handleOpenPicker}
+                            aria-label="Add product photos"
+                            className="flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:bg-slate-50 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation cursor-pointer"
+                        >
+                            <Upload className="w-4 h-4 text-primary" />
+                            <span>+ Add Photos</span>
+                        </button>
                     )}
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        tabIndex={-1}
-                        aria-label="Upload photos"
-                        disabled={disabled}
-                        onChange={(e) => {
-                            if (!e.target.files) return;
-                            onUpload(Array.from(e.target.files));
-                            e.target.value = "";
-                        }}
-                    />
-                </label>
+                </div>
+
+                <input
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    tabIndex={-1}
+                    aria-label="Take photo with camera"
+                    disabled={disabled}
+                    onChange={(e) => {
+                        if (!e.target.files) return;
+                        onUpload(Array.from(e.target.files));
+                        e.target.value = "";
+                    }}
+                />
+
+                <input
+                    ref={galleryInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    tabIndex={-1}
+                    aria-label="Choose photos from gallery"
+                    disabled={disabled}
+                    onChange={(e) => {
+                        if (!e.target.files) return;
+                        onUpload(Array.from(e.target.files));
+                        e.target.value = "";
+                    }}
+                />
+
+                <UploadSourcePicker
+                    open={pickerOpen}
+                    onOpenChange={setPickerOpen}
+                    onCamera={handleCamera}
+                    onGallery={handleGallery}
+                    variant="listing"
+                />
 
                 {images.length > 0 && (
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5">

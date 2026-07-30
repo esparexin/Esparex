@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { User, Camera, Upload, Trash2, Save } from "@/icons/IconRegistry";
 import { PhoneInput } from "../PhoneInput";
-import { PhotoOptionsDialog } from "../dialogs/PhotoOptionsDialog";
+import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
 
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
@@ -40,6 +40,23 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
     const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
     const [previewPhoto, setPreviewPhoto] = useState<string | null>(safeProfilePhoto);
     const [photoError, setPhotoError] = useState<string | undefined>(undefined);
+
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+    const galleryInputRef = useRef<HTMLInputElement>(null);
+
+    const handleCamera = () => {
+        if (cameraInputRef.current) {
+            cameraInputRef.current.value = "";
+            cameraInputRef.current.click();
+        }
+    };
+
+    const handleGallery = () => {
+        if (galleryInputRef.current) {
+            galleryInputRef.current.value = "";
+            galleryInputRef.current.click();
+        }
+    };
 
     const form = useForm<PersonalProfileValues>({
         resolver: zodResolver(personalProfileSchema),
@@ -293,17 +310,36 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
             </Card>
 
             <input 
+                ref={cameraInputRef}
                 type="file" 
-                id="photo-upload" 
+                id="photo-upload-camera" 
                 className="hidden" 
                 accept={PROFILE_PHOTO_ACCEPT} 
-                onChange={handlePhotoSelect} 
+                capture="user"
+                onChange={(e) => {
+                    handlePhotoSelect(e);
+                    e.target.value = "";
+                }} 
             />
-            <PhotoOptionsDialog 
+            <input 
+                ref={galleryInputRef}
+                type="file" 
+                id="photo-upload-gallery" 
+                className="hidden" 
+                accept={PROFILE_PHOTO_ACCEPT} 
+                onChange={(e) => {
+                    handlePhotoSelect(e);
+                    e.target.value = "";
+                }} 
+            />
+            <UploadSourcePicker 
                 open={showPhotoDialog} 
                 onOpenChange={setShowPhotoDialog} 
-                onPhotoSelect={() => document.getElementById('photo-upload')?.click()} 
-                onPhotoDelete={handlePhotoDelete} 
+                onCamera={handleCamera}
+                onGallery={handleGallery}
+                onRemovePhoto={handlePhotoDelete}
+                variant="profile"
+                showRemoveOption={Boolean(user?.profilePhoto)}
             />
         </form>
     );

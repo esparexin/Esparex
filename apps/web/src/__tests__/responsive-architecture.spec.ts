@@ -18,4 +18,10 @@ describe("SSOT Responsive Architecture Governance", () => {
         expect(mod.SearchResultsHeader).toBeDefined();
         expect(typeof mod.SearchResultsHeader).toBe("function");
     });
+
+    it("verifies single responsive component architecture for BusinessProfileWizard", async () => {
+        const mod = await import("../components/user/business-registration/BusinessProfileWizard");
+        expect(mod.BusinessProfileWizard).toBeDefined();
+        expect(typeof mod.BusinessProfileWizard).toBe("function");
+    });
 });

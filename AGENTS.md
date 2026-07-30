@@ -647,6 +647,25 @@ No pull request containing UI or workflow changes may be merged unless all appli
 - [ ] **Accessibility**: WCAG 2.2 AA compliant (keyboard, focus ring, screen reader).
 - [ ] **Responsiveness**: Single-instance responsive component pattern verified across Mobile, Tablet, and Desktop.
 
+---
+
+## 🚨 LAYOUT GOVERNANCE STANDARD (MANDATORY)
+
+1. **Layout Ownership Principle**:
+   Every spacing concern (top, bottom, horizontal gutters, sticky footer offsets, safe-area compensation) MUST have a single owner. Parent and child containers MUST NOT compensate for the same viewport constraint independently.
+2. **Single Owner for Bottom Spacing**:
+   Sticky footer spacing and bottom action bar offsets MUST be owned by a single layout layer.
+3. **No Duplicate Offset Compensation**:
+   Content containers (`<form>`, `<main>`, `<section>`) MUST NOT independently apply arbitrary bottom padding (`pb-20`, `pb-32`) to compensate for fixed action bars if the action bar container already provides its own spacing/padding.
+4. **Single Layout Responsibility**:
+   Only one component or layout wrapper is responsible for managing vertical spacing between the form content and fixed/sticky bottom bars.
+5. **Viewport Compensation Audit**:
+   Before introducing any new fixed or sticky element (headers, footers, floating actions, bottom bars, drawers):
+   - Audit existing viewport compensation.
+   - Verify a single owner already exists.
+   - Do not introduce additional spacing until ownership has been verified.
+
+
 
 
 
