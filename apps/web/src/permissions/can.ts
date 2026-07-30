@@ -1,20 +1,25 @@
-import { PERMISSIONS } from "./permissionMatrix";
+import { PERMISSIONS, type PermissionAction } from "./permissionMatrix";
 import type { User } from "@/types/User";
+import { isApprovedBusiness } from "@/guards/businessGuards";
 
 export function can(
-    action: keyof typeof PERMISSIONS,
-    user: User
+    action: PermissionAction,
+    user: User | null | undefined
 ): boolean {
-    const rule = PERMISSIONS[action];
-    type PermissionRule = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+    if (!user) return false;
 
-    if (!rule) return false;
-
-    const check = rule[user.role as keyof PermissionRule];
-    if (typeof check === "function") {
-        // If it's a function, pass businessStatus
-        return check(user.businessStatus || "pending");
+    // Platform system roles (admin, super_admin, moderator) bypass user business restrictions
+    const roleLower = String(user.role || "").toLowerCase();
+    if (roleLower === "admin" || roleLower === "super_admin" || roleLower === "superadmin" || roleLower === "moderator") {
+        return true;
     }
 
-    return Boolean(check);
+    const definition = PERMISSIONS[action];
+    if (!definition) return false;
+
+    if (definition.requiresBusinessApproved) {
+        return isApprovedBusiness(user);
+    }
+
+    return true;
 }
