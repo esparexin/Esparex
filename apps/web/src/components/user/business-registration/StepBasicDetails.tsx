@@ -12,29 +12,28 @@ interface StepBasicDetailsProps extends StepBaseProps {
 export function StepBasicDetails({
     formData,
     setFormData,
-    user,
 }: StepBasicDetailsProps) {
     return (
-        <div className="space-y-6">
-            <div className="grid gap-3 md:grid-cols-2">
+        <div className="space-y-4">
+            <div className="grid gap-3.5 md:grid-cols-2">
                 <Field
                     label="Business name"
                     required
                     error={formData.errors?.name}
-                    className="space-y-1.5"
-                >
-                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <span className="text-xs text-muted-foreground">Use the public-facing business name customers will recognize.</span>
+                    headerExtra={
                         <span className={cn("text-xs font-medium", formData.name.length > 100 ? "text-destructive" : "text-muted-foreground")}>
                             {formData.name.length}/100
                         </span>
-                    </div>
+                    }
+                    className="space-y-1"
+                >
                     <Input
                         id="reg-business-name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value.slice(0, 100) })}
                         placeholder="e.g. Tech Repair Solutions"
                         maxLength={100}
+                        className="h-10 text-sm"
                         aria-invalid={Boolean(formData.errors?.name)}
                     />
                 </Field>
@@ -43,17 +42,15 @@ export function StepBasicDetails({
                     label="Business email"
                     required
                     error={formData.errors?.email}
-                    className="space-y-1.5"
+                    className="space-y-1"
                 >
-                    <div className="text-xs text-muted-foreground">
-                        {user?.email ? "Pre-filled from your profile, but you can change it for business inquiries." : "Customers and reviewers will use this for business communication."}
-                    </div>
                     <Input
                         id="reg-email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="contact@yourbusiness.com"
+                        className="h-10 text-sm"
                         aria-invalid={Boolean(formData.errors?.email)}
                     />
                 </Field>
@@ -63,21 +60,21 @@ export function StepBasicDetails({
                 label="About your business"
                 required
                 error={formData.errors?.description}
-                className="space-y-1.5"
-            >
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-xs text-muted-foreground">Explain your expertise, specialties, and what customers can expect.</span>
+                headerExtra={
                     <span className={cn("text-xs font-medium", formData.description.length > 2000 ? "text-destructive" : "text-muted-foreground")}>
                         {formData.description.length}/2000
                     </span>
-                </div>
+                }
+                className="space-y-1"
+            >
                 <Textarea
                     id="reg-business-desc"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, 2000) })}
                     placeholder="Describe your business, specialties, and services..."
                     maxLength={2000}
-                    rows={4}
+                    rows={2}
+                    className="min-h-[64px] text-sm"
                     aria-invalid={Boolean(formData.errors?.description)}
                 />
             </Field>

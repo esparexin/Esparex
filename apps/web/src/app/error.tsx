@@ -15,126 +15,84 @@ export default function Error({
 }) {
     const safeMessage = mapErrorToMessage(
         error,
-        "We encountered an unexpected error. Please try again."
+        "We encountered an unexpected issue. Please try again."
     );
 
     useEffect(() => {
-        // Log the error to an error reporting service
         logger.error('Error:', error);
     }, [error]);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-            <div className="max-w-2xl w-full text-center">
-                {/* Error Illustration */}
-                <div className="mb-8">
-                    <div className="relative">
-                        <h1 className="text-9xl font-bold text-red-500 opacity-10">500</h1>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="bg-white rounded-full p-8 shadow-xl">
-                                <AlertTriangle className="text-red-500" size={80} />
+        <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 min-h-[calc(100vh-12rem)] w-full">
+            <div className="w-full max-w-md transition-all">
+                <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 text-center shadow-xl backdrop-blur-xl sm:p-8">
+                    {/* Compact Icon */}
+                    <div className="mb-5 flex justify-center">
+                        <div className="relative">
+                            <div className="absolute inset-0 rounded-2xl bg-rose-100 blur-lg opacity-60" />
+                            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-600 shadow-sm">
+                                <AlertTriangle className="h-8 w-8" strokeWidth={2} />
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Error Message */}
-                <h2 className="text-4xl font-bold text-foreground mb-4">
-                    Oops! Something Went Wrong
-                </h2>
-                <p className="text-xl text-foreground-tertiary mb-8">
-                    We encountered an unexpected error. Don&apos;t worry, our team has been notified and we&apos;re working on it.
-                </p>
-
-                {/* Error Details (in development) */}
-                {process.env.NODE_ENV === 'development' && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 text-left">
-                        <h3 className="font-semibold text-red-900 mb-2">Error Details:</h3>
-                        <p className="text-sm text-red-700 font-mono break-all">
-                            {safeMessage}
+                    {/* Badge & Title */}
+                    <div className="space-y-2">
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                            500 · Server Error
+                        </div>
+                        <h1 className="text-xl font-extrabold text-foreground sm:text-2xl">
+                            Something Went Wrong
+                        </h1>
+                        <p className="mx-auto max-w-xs text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                            We hit a temporary bump while loading this page. Don&apos;t worry, your account and data are safe.
                         </p>
-                        {error.digest && (
-                            <p className="text-sm text-red-600 mt-2">
-                                Error ID: {error.digest}
+                    </div>
+
+                    {/* Developer Error Details (Collapsible) */}
+                    {process.env.NODE_ENV === 'development' && (
+                        <details className="mt-4 text-left rounded-xl border border-rose-200/60 bg-rose-50/50 p-3 text-xs">
+                            <summary className="cursor-pointer font-bold text-rose-900 select-none">
+                                View Error Details
+                            </summary>
+                            <p className="mt-2 font-mono text-[11px] text-rose-700 break-all">
+                                {safeMessage}
                             </p>
-                        )}
+                            {error.digest && (
+                                <p className="mt-1 text-[10px] text-rose-600">
+                                    Digest: {error.digest}
+                                </p>
+                            )}
+                        </details>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="mt-6 flex flex-row items-center justify-center gap-2.5">
+                        <button
+                            type="button"
+                            onClick={reset}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95 sm:text-sm"
+                        >
+                            <RefreshCcw className="h-4 w-4" />
+                            <span>Try Again</span>
+                        </button>
+                        <Link
+                            href="/"
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-foreground-secondary shadow-sm transition-all hover:bg-slate-50 active:scale-95 sm:text-sm"
+                        >
+                            <Home className="h-4 w-4 text-slate-500" />
+                            <span>Homepage</span>
+                        </Link>
                     </div>
-                )}
 
-                {/* What Happened */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                    <h3 className="text-lg font-semibold mb-4">What Happened?</h3>
-                    <p className="text-foreground-secondary mb-4">
-                        The application encountered an unexpected error while processing your request.
-                        This could be due to a temporary issue or a bug in our system.
-                    </p>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <p className="text-sm text-blue-900">
-                            <strong>Don&apos;t worry!</strong> Your data is safe, and this error has been automatically
-                            reported to our technical team. We&apos;ll investigate and fix it as soon as possible.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                    <button
-                        onClick={reset}
-                        className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg transition-colors font-semibold"
-                    >
-                        <RefreshCcw size={20} />
-                        <span>Try Again</span>
-                    </button>
-                    <Link
-                        href="/"
-                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-foreground-secondary px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
-                    >
-                        <Home size={20} />
-                        <span>Go to Homepage</span>
-                    </Link>
-                    <Link
-                        href="/contact"
-                        className="inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-foreground-secondary px-8 py-3 rounded-lg transition-colors font-semibold"
-                    >
-                        <Mail size={20} />
-                        <span>Contact Support</span>
-                    </Link>
-                </div>
-
-                {/* Help Section */}
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                    <h3 className="font-semibold text-yellow-900 mb-3">
-                        Still Having Issues?
-                    </h3>
-                    <p className="text-sm text-yellow-800 mb-4">
-                        If this problem persists, please contact our support team with the following information:
-                    </p>
-                    <ul className="text-left text-sm text-yellow-800 space-y-2 max-w-md mx-auto">
-                        <li className="flex items-start gap-2">
-                            <span>•</span>
-                            <span>What you were trying to do when the error occurred</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span>•</span>
-                            <span>The page URL where you encountered the error</span>
-                        </li>
-                        {error.digest && (
-                            <li className="flex items-start gap-2">
-                                <span>•</span>
-                                <span>Error ID: <code className="bg-yellow-100 px-1 rounded">{error.digest}</code></span>
-                            </li>
-                        )}
-                        <li className="flex items-start gap-2">
-                            <span>•</span>
-                            <span>Your browser and device information</span>
-                        </li>
-                    </ul>
-                    <div className="mt-4">
+                    {/* Secondary Help Link */}
+                    <div className="mt-5 border-t border-slate-100 pt-4">
                         <Link
                             href="/contact"
-                            className="text-sm text-primary hover:text-primary-dark font-semibold hover:underline"
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-blue-600"
                         >
-                            Contact Support →
+                            <Mail className="h-3.5 w-3.5" />
+                            <span>Contact Support</span>
                         </Link>
                     </div>
                 </div>

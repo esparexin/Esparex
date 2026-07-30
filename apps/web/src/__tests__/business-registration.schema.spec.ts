@@ -48,6 +48,18 @@ describe("businessRegistrationSchema", () => {
         );
     });
 
+    it("rejects dummy pincodes starting with 0 like 000000", () => {
+        const result = businessRegistrationSchema.safeParse({
+            ...validRegistrationPayload,
+            address: "Main road macherla-000000",
+        });
+
+        expect(result.success).toBe(false);
+        expect(result.error?.flatten().fieldErrors.address).toContain(
+            "Please verify the pincode entered",
+        );
+    });
+
     it("accepts the payload without a canonical locationId", () => {
         const result = businessRegistrationSchema.safeParse(validRegistrationPayload);
 

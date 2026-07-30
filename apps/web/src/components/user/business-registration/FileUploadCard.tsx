@@ -11,9 +11,11 @@ import {
     useFilePreviewUrl,
 } from "./useFilePreviewUrl";
 
+import { FormError } from "@/components/ui/FormError";
+
 interface FileUploadCardProps {
     title: string;
-    description: string;
+    description?: string;
     file: File | string | null;
     onUpload: (file: File) => void;
     onRemove: () => void;
@@ -24,12 +26,10 @@ interface FileUploadCardProps {
 
 export function FileUploadCard({
     title,
-    description,
     file,
     onUpload,
     onRemove,
     accept,
-    helperText,
     error,
 }: FileUploadCardProps) {
     const [localError, setLocalError] = useState<string | null>(null);
@@ -38,102 +38,79 @@ export function FileUploadCard({
     const effectiveError = error || localError || undefined;
 
     return (
-        <div
-            className={cn(
-                "rounded-2xl border p-5 transition-colors",
-                effectiveError ? "border-red-200 bg-red-50/30" : "border-slate-200 bg-white",
-            )}
-        >
-            <div className="space-y-1">
-                <div className="flex items-start justify-between gap-3">
-                    <div>
-                        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
-                    </div>
-                    {file && (
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">
-                            {file instanceof File ? "Ready" : "Attached"}
-                        </span>
-                    )}
-                </div>
-                {helperText && <p className="text-xs text-muted-foreground">{helperText}</p>}
-            </div>
+        <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground-secondary truncate">
+                {title} <span className="text-destructive">*</span>
+            </p>
 
             {file ? (
-                <div className="mt-4 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="group relative h-24 sm:h-28 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
                     {showImagePreview && previewUrl ? (
-                        <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-white">
-                            <Image
-                                src={previewUrl}
-                                alt={title}
-                                fill
-                                unoptimized
-                                sizes="64px"
-                                className="object-cover"
-                            />
-                        </div>
+                        <Image
+                            src={previewUrl}
+                            alt={title}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 50vw, 25vw"
+                            className="object-cover"
+                        />
                     ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-slate-200 bg-white">
-                            <FileText className="h-7 w-7 text-muted-foreground" />
+                        <div className="flex h-full w-full flex-col items-center justify-center p-2 text-center">
+                            <FileText className="h-6 w-6 text-slate-400 mb-0.5" />
+                            <span className="truncate text-xs font-semibold text-foreground max-w-full px-2">
+                                {getBusinessFileName(file)}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground mt-0.5">
+                                {getBusinessFileMeta(file)}
+                            </span>
                         </div>
                     )}
-
-                    <div className="min-w-0 flex-1 space-y-1">
-                        <p className="truncate text-sm font-semibold text-foreground">
-                            {getBusinessFileName(file)}
-                        </p>
-                        <p className="text-xs font-medium text-muted-foreground">
-                            {getBusinessFileMeta(file)}
-                        </p>
-                        <p className="text-xs leading-5 text-muted-foreground">
-                            {file instanceof File
-                                ? "This file is staged locally and will upload securely when you submit the form."
-                                : "This file is already attached to your business profile until you replace it."}
-                        </p>
+                    <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-slate-900/60 via-slate-900/0 to-slate-900/0 p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                            Attached
+                        </span>
+                        <Button
+                            type="button"
+                            size="icon"
+                            variant="secondary"
+                            onClick={() => {
+                                setLocalError(null);
+                                onRemove();
+                            }}
+                            aria-label={`Remove ${title}`}
+                            className="h-7 w-7 rounded-full bg-white/90 text-foreground-secondary shadow-sm hover:bg-white focus-visible:ring-2 focus-visible:ring-primary"
+                        >
+                            <X className="h-3.5 w-3.5 text-rose-500" />
+                        </Button>
                     </div>
-
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={`Remove ${title}`}
-                        onClick={() => {
-                            setLocalError(null);
-                            onRemove();
-                        }}
-                        className="h-11 w-11 shrink-0 rounded-full text-rose-500 hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-500"
-                    >
-                        <X className="h-4 w-4" />
-                    </Button>
                 </div>
             ) : (
                 <label
                     tabIndex={0}
                     role="button"
-                    aria-label={`Choose file for ${title}`}
+                    aria-label={`Upload ${title}`}
                     onKeyDown={(e) => {
                         if (e.key === " " || e.key === "Enter") {
                             e.preventDefault();
                             e.currentTarget.querySelector("input")?.click();
                         }
                     }}
-                    className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition-colors hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    className={cn(
+                        "flex h-24 sm:h-28 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-3 text-center transition-all hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        effectiveError && "border-red-300 bg-red-50/30"
+                    )}
                 >
-                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-sm">
-                        <Upload className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <span className="text-sm font-semibold text-foreground">Choose file</span>
-                    <span className="mt-1 text-xs leading-5 text-muted-foreground">
-                        Pick a clear scan or photo. It will upload when you submit this form.
-                    </span>
+                    <Upload className="mb-1.5 h-5 w-5 text-foreground-subtle" />
+                    <span className="text-xs font-semibold text-foreground-secondary">Choose file</span>
+                    <span className="mt-0.5 text-[11px] text-muted-foreground">PDF, JPG up to 10MB</span>
                     <input
-                        id={`reg-${title.toLowerCase().replace(/\s+/g, "-")}`}
-                        name={`reg-${title.toLowerCase().replace(/\s+/g, "-")}`}
+                        id={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
+                        name={`reg-${title.toLowerCase().replace(/[^a-z0-9]/g, "-")}`}
                         type="file"
                         accept={accept}
                         className="hidden"
                         tabIndex={-1}
-                        aria-label={`Choose file for ${title}`}
+                        aria-label={`Upload ${title}`}
                         onChange={(e) => {
                             const selectedFile = e.target.files?.[0];
                             if (!selectedFile) return;
@@ -151,7 +128,7 @@ export function FileUploadCard({
                 </label>
             )}
 
-            {effectiveError && <p className="mt-3 text-xs font-medium text-red-600">{effectiveError}</p>}
+            <FormError message={effectiveError} />
         </div>
     );
 }

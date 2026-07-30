@@ -33,8 +33,7 @@ export function HeaderWrapper() {
     const isAdminRoute = segments[0] === 'admin';
     const isWizardRoute =
         segments[0] === "edit-ad" ||
-        segments[0] === "post-service" ||
-        (segments[0] === "account" && segments[1] === "business" && segments[2] === "apply");
+        segments[0] === "post-service";
 
     const loginCallbackUrl = useMemo(() => {
         return buildAuthCallbackUrl(pathname || "/", searchParams);

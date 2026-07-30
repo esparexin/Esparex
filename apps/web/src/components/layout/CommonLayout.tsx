@@ -36,8 +36,7 @@ export function CommonLayout({
     const segments = pathname?.split("/").filter(Boolean) ?? [];
     const isWizardRoute =
         segments[0] === "edit-ad" ||
-        segments[0] === "post-service" ||
-        (segments[0] === "account" && segments[1] === "business" && segments[2] === "apply");
+        segments[0] === "post-service";
     const hideShellExtras = chatRoute || isWizardRoute;
     const hasMobileBottomNav = !hideShellExtras && getMobileChromePolicy(pathname).showMobileBottomNav;
     const header = suspenseHeader ? (

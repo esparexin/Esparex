@@ -21,47 +21,57 @@ export default function GlobalError({
     return (
         <html lang="en">
             <body>
-                <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-                    <div className="max-w-2xl w-full text-center">
-                        {/* Error Illustration */}
-                        <div className="mb-8">
-                            <div className="bg-white rounded-full p-8 shadow-xl inline-block">
-                                <AlertTriangle className="text-red-500" size={80} />
+                <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-8">
+                    <div className="w-full max-w-md transition-all">
+                        <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl sm:p-8">
+                            {/* Icon */}
+                            <div className="mb-5 flex justify-center">
+                                <div className="relative">
+                                    <div className="absolute inset-0 rounded-2xl bg-rose-100 blur-lg opacity-60" />
+                                    <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl border border-rose-100 bg-rose-50 text-rose-600 shadow-sm">
+                                        <AlertTriangle className="h-8 w-8" strokeWidth={2} />
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Title & Message */}
+                            <div className="space-y-2">
+                                <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                                    500 · System Error
+                                </div>
+                                <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
+                                    Critical System Error
+                                </h1>
+                                <p className="mx-auto max-w-xs text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                    An unexpected system error occurred. Please refresh or try returning to homepage.
+                                </p>
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="mt-6 flex flex-row items-center justify-center gap-2.5">
+                                <button
+                                    type="button"
+                                    onClick={reset}
+                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95 sm:text-sm"
+                                >
+                                    <RefreshCcw className="h-4 w-4" />
+                                    <span>Try Again</span>
+                                </button>
+                                <Link
+                                    href="/"
+                                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 sm:text-sm"
+                                >
+                                    <Home className="h-4 w-4 text-slate-500" />
+                                    <span>Homepage</span>
+                                </Link>
+                            </div>
+
+                            {error.digest ? (
+                                <p className="mt-5 text-[10px] text-slate-400">
+                                    Error ID: {error.digest}
+                                </p>
+                            ) : null}
                         </div>
-
-                        {/* Error Message */}
-                        <h1 className="text-4xl font-bold text-foreground mb-4">
-                            Critical Error
-                        </h1>
-                        <p className="text-xl text-foreground-tertiary mb-8">
-                            A critical error occurred. Please try refreshing the page.
-                        </p>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button
-                                onClick={reset}
-                                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-lg transition-colors font-semibold"
-                            >
-                                <RefreshCcw size={20} />
-                                <span>Try Again</span>
-                            </button>
-                            <Link
-                                href="/"
-                                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-foreground-secondary px-8 py-3 rounded-lg transition-colors font-semibold border-2 border-gray-300"
-                            >
-                                <Home size={20} />
-                                <span>Go to Homepage</span>
-                            </Link>
-                        </div>
-
-                        {/* Error ID */}
-                        {error.digest && (
-                            <p className="text-sm text-muted-foreground mt-8">
-                                Error ID: {error.digest}
-                            </p>
-                        )}
                     </div>
                 </div>
             </body>

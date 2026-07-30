@@ -23,6 +23,7 @@ export function Field({
     label,
     error,
     required,
+    headerExtra,
     children,
     className,
 }: {
@@ -30,6 +31,7 @@ export function Field({
     label?: string;
     error?: string;
     required?: boolean;
+    headerExtra?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
 }) {
@@ -49,13 +51,16 @@ export function Field({
         >
             <div className={cn("space-y-1.5", className)}>
                 {label && (
-                    <label
-                        htmlFor={resolvedId}
-                        className="text-base font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                        {label}
-                        {required && <span className="text-destructive ml-1">*</span>}
-                    </label>
+                    <div className="flex items-center justify-between gap-2">
+                        <label
+                            htmlFor={resolvedId}
+                            className="text-base font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            {label}
+                            {required && <span className="text-destructive ml-1">*</span>}
+                        </label>
+                        {headerExtra}
+                    </div>
                 )}
                 {children}
                 <FormError id={errorId} message={error} className="text-sm font-normal text-destructive" />

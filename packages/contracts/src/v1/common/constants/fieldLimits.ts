@@ -139,7 +139,7 @@ export const BUSINESS_LIMITS = {
     // Pincode
     PINCODE: {
         LENGTH: 6,
-        PATTERN: /^\d{6}$/,
+        PATTERN: /^[1-9]\d{5}$/,
         ERROR_FORMAT: 'Please enter a valid 6-digit pincode',
     },
 
