@@ -71,7 +71,7 @@ export default async function Home() {
     const [categories, initialHomeAds] = await Promise.all([
         withTimeout(getHomeCategories(), 5000, []),
         withTimeout(
-            getHomeAds({ limit: 12 }, { fetchOptions: { next: { revalidate: 60 } } }),
+            getHomeAds({ limit: 12 }, { fetchOptions: { next: { revalidate: 60, tags: ['home-ads'] } } }),
             5000,
             undefined
         ),

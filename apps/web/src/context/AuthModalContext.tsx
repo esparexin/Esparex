@@ -23,15 +23,13 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     if (searchParams?.get("login") === "true") {
       const raw = searchParams?.get("callbackUrl");
       const normalized = normalizeAuthCallbackUrl(raw);
-      if (normalized && normalized !== "/") {
-        setCallbackUrl(normalized);
-      }
+      setCallbackUrl(normalized);
       setIsOpen(true);
     }
   }, [searchParams]);
 
   const showLogin = useCallback((url?: string) => {
-    if (url) setCallbackUrl(url);
+    setCallbackUrl(url ? normalizeAuthCallbackUrl(url) : "/");
     setIsOpen(true);
   }, []);
 

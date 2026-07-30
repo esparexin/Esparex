@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/hooks/queries/queryKeys";
 import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
@@ -72,6 +74,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
     onSuccess,
     onError,
 }: UseListingSubmissionProps<T, R>) {
+    const queryClient = useQueryClient();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [idempotencyKey, setIdempotencyKey] = useState(generateIdempotencyKey);
     const { setIsDirty } = useNavigation();
@@ -193,6 +196,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
             if (!result) throw new Error("Submission failed. No result returned.");
 
             setIsDirty(false);
+            void queryClient.invalidateQueries({ queryKey: queryKeys.listings.all });
             onSuccess?.(result);
             return result;
 
