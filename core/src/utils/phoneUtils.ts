@@ -14,11 +14,34 @@ export const INDIA_COUNTRY_PREFIX = '+91';
  * e.g., "09876543210" -> "9876543210"
  */
 export const normalizeTo10Digits = (phone: string): string => {
-    const digits = phone.replace(/\D/g, '');
-    if (digits.length === 10) return digits;
-    if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
-    // Fallback: take last 10 digits if longer than 10
-    return digits.slice(-10);
+    if (!phone) return '';
+    const trimmed = phone.trim();
+    const hasPlusCountryCode = trimmed.startsWith('+');
+    const digits = trimmed.replace(/\D/g, '');
+
+    if (hasPlusCountryCode) {
+        if (digits.startsWith('91')) {
+            return digits.slice(2);
+        }
+        return digits;
+    }
+
+    if (digits.length === 12 && digits.startsWith('91')) {
+        return digits.slice(2);
+    }
+
+    if (digits.length === 11 && digits.startsWith('0')) {
+        return digits.slice(1);
+    }
+
+    if (digits.length <= 10 && digits.startsWith('91')) {
+        const stripped = digits.slice(2);
+        if (stripped.length > 0 && /^[6-9]/.test(stripped)) {
+            return stripped;
+        }
+    }
+
+    return digits.length > 10 ? digits.slice(-10) : digits;
 };
 
 /**
