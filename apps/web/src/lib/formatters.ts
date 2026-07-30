@@ -89,3 +89,19 @@ export const formatShortRelativeTime = (
 
     return `${Math.floor(diffHours / 24)}d ago`;
 };
+
+/**
+ * Decodes standard HTML entities in strings for SSOT normalization.
+ */
+export function decodeHtmlEntities(str: string): string {
+    if (!str || typeof str !== "string") return "";
+    return str
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&");
+}
+
