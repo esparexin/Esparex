@@ -152,14 +152,45 @@ export const ValidationRules = {
   },
 };
 
+export const normalizeTo10Digits = (mobile: string): string => {
+  if (!mobile) return "";
+  const trimmed = mobile.trim();
+  const hasPlusCountryCode = trimmed.startsWith("+");
+  const digits = trimmed.replace(/\D/g, "");
+
+  if (hasPlusCountryCode) {
+    if (digits.startsWith("91")) {
+      return digits.slice(2);
+    }
+    return digits;
+  }
+
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return digits.slice(2);
+  }
+
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return digits.slice(1);
+  }
+
+  if (digits.length <= 10 && digits.startsWith("91")) {
+    const stripped = digits.slice(2);
+    if (stripped.length > 0 && /^[6-9]/.test(stripped)) {
+      return stripped;
+    }
+  }
+
+  return digits.length > 10 ? digits.slice(-10) : digits;
+};
+
 /**
  * Formats a 10-digit mobile number for the API (Twilio compatible).
  * @param mobile - 10 digit mobile string.
  * @returns Formatted mobile string with +91 prefix.
  */
 export const formatMobileForApi = (mobile: string): string => {
-  const clean = mobile.replace(/\D/g, "");
-  return `+91${clean.slice(-10)}`;
+  const clean = normalizeTo10Digits(mobile);
+  return `+91${clean}`;
 };
 
 /**
@@ -168,7 +199,7 @@ export const formatMobileForApi = (mobile: string): string => {
  * @returns boolean
  */
 export const validateIndianMobile = (mobile: string): boolean => {
-  return CONTACT_LIMITS.PHONE.PATTERN.test(mobile.replace(/\D/g, ""));
+  return CONTACT_LIMITS.PHONE.PATTERN.test(normalizeTo10Digits(mobile));
 };
 
 // ============================================================================
