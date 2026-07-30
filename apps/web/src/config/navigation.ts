@@ -2,7 +2,6 @@ import type { LucideIcon } from "@/icons/IconRegistry";
 import {
   Bell,
   Building2,
-  ClipboardList,
   MessageSquare,
   User as UserIcon,
   Heart,
@@ -58,7 +57,6 @@ export type ProfileTabValue =
   | "settings"
   | "smartalerts"
   | "purchases"
-  | "suggestions"
   | "more";
 
 export const PROFILE_TAB_ITEMS: Array<{
@@ -75,7 +73,6 @@ export const PROFILE_TAB_ITEMS: Array<{
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
     { value: "purchases", label: "My Purchases", icon: Package },
-    { value: "suggestions", label: "My Suggestions", icon: ClipboardList },
     { value: "plans", label: "Plans", icon: CreditCard },
     { value: "settings", label: "Settings", icon: Settings },
   ];
