@@ -81,8 +81,8 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     )}
                 </div>
 
-                {/* Sub-tabs */}
-                {subTabs && onSubTabChange && (
+                {/* Sub-tabs — rendered only if there are 2 or more available sub-tabs */}
+                {subTabs && subTabs.length > 1 && onSubTabChange && (
                     <div className="flex gap-0 border-b border-slate-100 overflow-x-auto no-scrollbar touch-pan-x py-1">
                         {subTabs.map(t => (
                             <button
