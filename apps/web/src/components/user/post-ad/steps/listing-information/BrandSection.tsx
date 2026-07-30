@@ -14,6 +14,7 @@ export function BrandSection() {
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
+    const customBrandName = String(watch("customBrandName") ?? "");
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;
@@ -24,8 +25,17 @@ export function BrandSection() {
 
     const onBrandChange = useCallback((name: string, rId?: string) => {
         if (isEditMode) return;
+        form.setValue("customBrandName", "", { shouldDirty: true });
         handleBrandChange(name, rId);
-    }, [isEditMode, handleBrandChange]);
+    }, [isEditMode, handleBrandChange, form]);
+
+    const onProposeCustomBrand = useCallback((customName: string) => {
+        if (isEditMode) return;
+        form.setValue("customBrandName", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("brand", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        handleBrandChange(customName, "");
+    }, [isEditMode, form, handleBrandChange]);
 
     return (
         <section className="space-y-2" aria-labelledby="brand-heading">
@@ -36,12 +46,22 @@ export function BrandSection() {
                     brandMap={brandMap as any} 
                     categoryId={categoryId} 
                     value={brandNameValue} 
-                    onChange={(_id, name) => onBrandChange(name, _id)} 
+                    onChange={(_id, name) => onBrandChange(name, _id)}
+                    onProposeCustom={onProposeCustomBrand}
                     disabled={isEditMode} 
                     loading={isLoadingBrands}
                     placeholder={isLoadingBrands ? "Loading brands…" : "Search or select brand"} 
                 />
             </Field>
+            {customBrandName && (
+                <div className="p-2.5 bg-blue-50/80 border border-blue-200/80 rounded-xl flex items-center justify-between text-xs text-blue-900 font-medium">
+                    <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                        Custom Brand proposal: <strong className="font-semibold">{customBrandName}</strong>
+                    </span>
+                    <span className="text-[10px] font-semibold text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-md">Pending Admin Approval</span>
+                </div>
+            )}
             {brandsError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
                     <p className="text-xs text-red-700 text-center mb-2">{brandsError}</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
-import { Search, Loader2, Minus } from "@/icons/IconRegistry";
+import { Search, Loader2, Minus, Plus } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Drawer } from "@esparex/ui";
@@ -21,6 +21,8 @@ export interface CatalogSearchSelectProps<T> {
     onSelect: (item: T) => void;
     onClear?: () => void;
     onSearchChange?: (search: string) => void;
+    onProposeCustom?: (customName: string) => void;
+    proposeType?: 'brand' | 'model';
     getLabel: (item: T) => string;
     getId: (item: T) => string;
     renderItem?: (item: T, isSelected: boolean) => ReactNode;
@@ -39,6 +41,8 @@ export function CatalogSearchSelect<T>({
     onSelect,
     onClear,
     onSearchChange,
+    onProposeCustom,
+    proposeType = 'brand',
     getLabel,
     getId,
     renderItem,
@@ -155,37 +159,75 @@ export function CatalogSearchSelect<T>({
                     <span>Loading...</span>
                 </div>
             ) : filteredItems.length === 0 ? (
-                <div className="p-4 text-center text-sm font-medium text-slate-500">
-                    {emptyMessage}
+                <div className="p-4 text-center space-y-2">
+                    <p className="text-xs text-slate-500 font-medium">{emptyMessage}</p>
+                    {onProposeCustom && search.trim() && (
+                        <button
+                            type="button"
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                                onProposeCustom(search.trim());
+                                setSearch("");
+                                setIsEditing(false);
+                            }}
+                            className="w-full px-3.5 py-2.5 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200/80 rounded-xl hover:bg-blue-100/80 transition-colors flex items-center justify-between cursor-pointer"
+                        >
+                            <span className="flex items-center gap-2">
+                                <Plus className="w-4 h-4 text-blue-600" />
+                                <span>Propose <strong>&ldquo;{search.trim()}&rdquo;</strong> as custom {proposeType}</span>
+                            </span>
+                            <span className="text-[10px] font-medium text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">Pending Review</span>
+                        </button>
+                    )}
                 </div>
             ) : (
-                filteredItems.map((item, idx) => {
-                    const label = getLabel(item);
-                    const id = getId(item);
-                    const isSelected = activeIndex === idx;
-                    return (
-                        /* Keep focus on search input during mouse click so blur handler does not close dropdown prematurely */
+                <>
+                    {filteredItems.map((item, idx) => {
+                        const label = getLabel(item);
+                        const id = getId(item);
+                        const isSelected = activeIndex === idx;
+                        return (
+                            /* Keep focus on search input during mouse click so blur handler does not close dropdown prematurely */
+                            <button
+                                key={id || label}
+                                id={`select-option-${idx}`}
+                                type="button"
+                                role="option"
+                                aria-selected={isSelected}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                }}
+                                onClick={() => {
+                                    handleItemSelect(item);
+                                }}
+                                className={cn(
+                                    "w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 cursor-pointer select-none",
+                                    isSelected && "bg-blue-50 text-link-dark font-bold"
+                                )}
+                            >
+                                {renderItem ? renderItem(item, isSelected) : label}
+                            </button>
+                        );
+                    })}
+                    {onProposeCustom && search.trim() && (
                         <button
-                            key={id || label}
-                            id={`select-option-${idx}`}
                             type="button"
-                            role="option"
-                            aria-selected={isSelected}
-                            onMouseDown={(e) => {
-                                e.preventDefault();
-                            }}
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={() => {
-                                handleItemSelect(item);
+                                onProposeCustom(search.trim());
+                                setSearch("");
+                                setIsEditing(false);
                             }}
-                            className={cn(
-                                "w-full px-4 py-2.5 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 cursor-pointer select-none",
-                                isSelected && "bg-blue-50 text-link-dark font-bold"
-                            )}
+                            className="w-full px-4 py-2.5 text-left text-xs font-semibold text-blue-700 bg-blue-50/60 border-t border-slate-100 hover:bg-blue-100/80 transition-colors flex items-center justify-between cursor-pointer"
                         >
-                            {renderItem ? renderItem(item, isSelected) : label}
+                            <span className="flex items-center gap-2">
+                                <Plus className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Propose <strong>&ldquo;{search.trim()}&rdquo;</strong> as custom {proposeType}</span>
+                            </span>
+                            <span className="text-[10px] font-medium text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">Pending</span>
                         </button>
-                    );
-                })
+                    )}
+                </>
             )}
         </div>
     );
@@ -259,33 +301,69 @@ export function CatalogSearchSelect<T>({
                                         <span>Loading...</span>
                                     </div>
                                 ) : filteredItems.length === 0 ? (
-                                    <div className="p-4 text-center text-sm font-medium text-slate-500">
-                                        {emptyMessage}
+                                    <div className="p-4 text-center space-y-3">
+                                        <p className="text-xs text-slate-500 font-medium">{emptyMessage}</p>
+                                        {onProposeCustom && search.trim() && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    onProposeCustom(search.trim());
+                                                    setSearch("");
+                                                    setIsEditing(false);
+                                                }}
+                                                className="w-full px-4 py-3 text-sm font-semibold text-blue-700 bg-blue-50 border border-blue-200/80 rounded-xl hover:bg-blue-100 transition-colors flex items-center justify-between cursor-pointer"
+                                            >
+                                                <span className="flex items-center gap-2">
+                                                    <Plus className="w-4 h-4 text-blue-600" />
+                                                    <span>Propose <strong>&ldquo;{search.trim()}&rdquo;</strong> as custom {proposeType}</span>
+                                                </span>
+                                                <span className="text-xs font-medium text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">Pending Review</span>
+                                            </button>
+                                        )}
                                     </div>
                                 ) : (
-                                    filteredItems.map((item, idx) => {
-                                        const label = getLabel(item);
-                                        const id = getId(item);
-                                        const isSelected = activeIndex === idx;
-                                        return (
+                                    <>
+                                        {filteredItems.map((item, idx) => {
+                                            const label = getLabel(item);
+                                            const id = getId(item);
+                                            const isSelected = activeIndex === idx;
+                                            return (
+                                                <button
+                                                    key={id || label}
+                                                    id={`select-option-${idx}`}
+                                                    type="button"
+                                                    role="option"
+                                                    aria-selected={isSelected}
+                                                    onClick={() => {
+                                                        handleItemSelect(item);
+                                                    }}
+                                                    className={cn(
+                                                        "w-full px-4 py-3 min-h-[48px] text-left text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl cursor-pointer select-none flex items-center",
+                                                        isSelected && "bg-blue-50 text-blue-900 font-bold"
+                                                    )}
+                                                >
+                                                    {renderItem ? renderItem(item, isSelected) : label}
+                                                </button>
+                                            );
+                                        })}
+                                        {onProposeCustom && search.trim() && (
                                             <button
-                                                key={id || label}
-                                                id={`select-option-${idx}`}
                                                 type="button"
-                                                role="option"
-                                                aria-selected={isSelected}
                                                 onClick={() => {
-                                                    handleItemSelect(item);
+                                                    onProposeCustom(search.trim());
+                                                    setSearch("");
+                                                    setIsEditing(false);
                                                 }}
-                                                className={cn(
-                                                    "w-full px-4 py-3 min-h-[48px] text-left text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl cursor-pointer select-none flex items-center",
-                                                    isSelected && "bg-blue-50 text-blue-900 font-bold"
-                                                )}
+                                                className="w-full px-4 py-3 text-sm font-semibold text-blue-700 bg-blue-50/60 border-t border-slate-100 hover:bg-blue-100/80 transition-colors flex items-center justify-between cursor-pointer mt-1 rounded-xl"
                                             >
-                                                {renderItem ? renderItem(item, isSelected) : label}
+                                                <span className="flex items-center gap-2">
+                                                    <Plus className="w-4 h-4 text-blue-600" />
+                                                    <span>Propose <strong>&ldquo;{search.trim()}&rdquo;</strong> as custom {proposeType}</span>
+                                                </span>
+                                                <span className="text-xs font-medium text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">Pending</span>
                                             </button>
-                                        );
-                                    })
+                                        )}
+                                    </>
                                 )}
                             </div>
                         </div>

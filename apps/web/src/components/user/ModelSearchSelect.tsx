@@ -12,6 +12,7 @@ interface ModelSearchSelectProps {
     value: string;
     modelDisplayName?: string;
     onChange: (modelId: string, modelName: string, requestId?: string) => void;
+    onProposeCustom?: (customModelName: string) => void;
     onBrandResolved?: (brandId: string, brandName: string) => void;
     disabled?: boolean;
     placeholder?: string;
@@ -24,6 +25,7 @@ export function ModelSearchSelect({
     value,
     modelDisplayName = "",
     onChange,
+    onProposeCustom,
     disabled = false,
     placeholder = "Search model (e.g. iPhone 14 Pro)...",
     className,
@@ -66,6 +68,8 @@ export function ModelSearchSelect({
                 const id = String(m.id || m._id);
                 onChange(id, m.name);
             }}
+            onProposeCustom={onProposeCustom}
+            proposeType="model"
             onClear={() => onChange("", "")}
         />
     );

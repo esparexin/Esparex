@@ -17,6 +17,7 @@ export function ModelSection() {
     const brandIdValue = String(watch("brandId") ?? "");
     const modelId = String(watch("modelId") ?? "");
     const modelNameValue = String(watch("model") ?? "");
+    const customModelName = String(watch("customModelName") ?? "");
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;
@@ -27,11 +28,19 @@ export function ModelSection() {
 
     const onModelChange = useCallback((mId: string | null, mName: string) => {
         const aid = mId || ""; 
+        setValue("customModelName", "", { shouldDirty: true });
         setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
         setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
         setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true }); 
         setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
     }, [setValue]);
+
+    const onProposeCustomModel = useCallback((customName: string) => {
+        if (isEditMode) return;
+        setValue("customModelName", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("model", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("modelId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    }, [isEditMode, setValue]);
 
     if (requiresScreenSize) return null;
 
@@ -52,6 +61,7 @@ export function ModelSection() {
                         modelDisplayName={modelNameValue}
                         disabled={!brandNameValue || isEditMode}
                         onChange={(mId, mName) => onModelChange(mId, mName)}
+                        onProposeCustom={onProposeCustomModel}
                         onBrandResolved={(rbId, rbName) => { 
                             setValue("brandId", rbId, { shouldDirty: true }); 
                             setValue("brand", rbName, { shouldDirty: true }); 
@@ -59,6 +69,15 @@ export function ModelSection() {
                     />
                 )}
             </Field>
+            {customModelName && (
+                <div className="p-2.5 bg-blue-50/80 border border-blue-200/80 rounded-xl flex items-center justify-between text-xs text-blue-900 font-medium">
+                    <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                        Custom Model proposal: <strong className="font-semibold">{customModelName}</strong>
+                    </span>
+                    <span className="text-[10px] font-semibold text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-md">Pending Admin Approval</span>
+                </div>
+            )}
         </fieldset>
     );
 }
