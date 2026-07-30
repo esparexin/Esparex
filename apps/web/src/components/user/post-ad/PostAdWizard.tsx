@@ -12,6 +12,8 @@ import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
 import { ValidationSummary } from "./steps/common/ValidationSummary";
 import { useNavigation } from "@/context/NavigationContext";
+import { usePostingEntitlement } from "@/hooks/usePostingEntitlement";
+import { EntitlementExhaustedShell } from "@/components/user/shared/EntitlementExhaustedShell";
 import type { PostAdWizardProps } from "./types";
 
 const STEP_LABELS = ["Listing Information", "Listing Details"];
@@ -21,14 +23,33 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
   const { confirmNavigation } = useNavigation();
+  const { entitlement, isAllowed, isLoading: isLoadingEntitlement } = usePostingEntitlement("ads");
 
   const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
   const handleGoMyAds = useCallback(() => navigateTo("my-ads"), [navigateTo]);
+  const handleGoPlans = useCallback(() => {
+    window.location.href = "/plans";
+  }, []);
   const handleClose = useCallback(() => {
     confirmNavigation(handleGoHome);
   }, [confirmNavigation, handleGoHome]);
 
   const isButtonDisabled = isSubmitting || isUploadingImages;
+
+  if (!isEditMode && !isLoadingEntitlement && !isAllowed && entitlement) {
+    return (
+      <PostAdShell>
+        <ListingModalLayout title="Ad Posting Limit" onClose={handleClose}>
+          <EntitlementExhaustedShell
+            moduleTitle="Ad Posting"
+            entitlement={entitlement}
+            onPrimaryAction={handleGoPlans}
+            onClose={handleClose}
+          />
+        </ListingModalLayout>
+      </PostAdShell>
+    );
+  }
 
   if (submittedAd) {
     return (
