@@ -83,7 +83,7 @@ export function BusinessRegistrationFlow({ user, onRefreshUser, onComplete, onCl
         <BusinessProfileWizard wizardVariant="registration" title="Register Business" user={user}
             currentStep={wizard.currentStep} formData={wizard.legacyFormData} setFormData={wizard.setLegacyFormData}
             formError={wizard.formError} submissionStatus={submissionStatus} isSubmitting={wizard.isSubmitting}
-            submitLabel="Submit Application" onNext={wizard.handleNext} onHeaderBack={handleClose}
+            submitLabel="Submit Application" onNext={wizard.handleNext} onHeaderBack={handleClose} onCancel={handleClose}
             onStepChange={wizard.setCurrentStep} onSubmit={form.handleSubmit(onValidSubmit)}>
             <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
                 <AlertDialogContent className="max-w-md rounded-2xl border-0 p-8 shadow-2xl">

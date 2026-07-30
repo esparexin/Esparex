@@ -98,7 +98,22 @@ const requiredBusinessFields = {
         .trim()
         .min(15, "Enter the complete business address")
         .max(300, "Business address must be less than 300 characters")
-        .refine((value) => /\b\d{6}\b/.test(value), "Enter full address including 6-digit pincode"),
+        .superRefine((val, ctx) => {
+            const hasSixDigitNumber = /\b\d{6}\b/.test(val);
+            const hasValidIndianPincode = /\b[1-9]\d{5}\b/.test(val);
+
+            if (!hasSixDigitNumber) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Enter full address including 6-digit pincode",
+                });
+            } else if (!hasValidIndianPincode) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Please verify the pincode entered",
+                });
+            }
+        }),
 
     currentLocationDisplay: z
         .string()
@@ -127,8 +142,9 @@ const requiredBusinessFields = {
 
 const requiredIdProofType = z
     .string()
-    .min(1, "ID Proof Type is required")
-    .refine((val) => ALLOWED_ID_PROOF_TYPES.includes(val as (typeof ALLOWED_ID_PROOF_TYPES)[number]), "Invalid ID proof type");
+    .refine((val) => !val || ALLOWED_ID_PROOF_TYPES.includes(val as (typeof ALLOWED_ID_PROOF_TYPES)[number]), "Invalid ID proof type")
+    .optional()
+    .default("aadhaar");
 
 const optionalIdProofType = z
     .string()

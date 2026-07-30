@@ -91,5 +91,7 @@ export function BusinessEditProfileFlow({ user, initialBusiness, onRefreshUser, 
 
     if (isLoading) return <div className="flex items-center justify-center py-20"><div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" /></div>;
 
-    return <BusinessProfileWizard wizardVariant={variant} title={editTitle} user={user} currentStep={wizard.currentStep} formData={wizard.legacyFormData} setFormData={wizard.setLegacyFormData} formError={wizard.formError} submissionStatus={submissionStatus} isSubmitting={wizard.isSubmitting} submitLabel={submitLabel} onNext={wizard.handleNext} onHeaderBack={() => { if (onClose) { onClose(); return; } void router.push("/account/business"); }} onStepChange={wizard.setCurrentStep} onSubmit={form.handleSubmit(onValidSubmit)} />;
+    const handleCancel = () => { if (onClose) { onClose(); return; } void router.push("/account/business"); };
+
+    return <BusinessProfileWizard wizardVariant={variant} title={editTitle} user={user} currentStep={wizard.currentStep} formData={wizard.legacyFormData} setFormData={wizard.setLegacyFormData} formError={wizard.formError} submissionStatus={submissionStatus} isSubmitting={wizard.isSubmitting} submitLabel={submitLabel} onNext={wizard.handleNext} onHeaderBack={handleCancel} onCancel={handleCancel} onStepChange={wizard.setCurrentStep} onSubmit={form.handleSubmit(onValidSubmit)} />;
 }
