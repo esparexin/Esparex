@@ -96,6 +96,39 @@ describe("normalizeListing", () => {
         expect((listing as { brand?: unknown }).brand).toBeUndefined();
         expect((listing as { model?: unknown }).model).toBeUndefined();
     });
+
+    it("decodes raw HTML entities in title, description, and seller names at SSOT boundary", () => {
+        const listing = normalizeListing({
+            id: "507f1f77bcf86cd799439011",
+            title: "Apple iPhone 13 - Working Display &amp; Parts",
+            price: 12000,
+            description: "Genuine &lt;Display&gt; &amp; &quot;Battery&quot;",
+            images: ["https://example.com/a.jpg"],
+            sellerId: { _id: "507f1f77bcf86cd799439016", name: "Esparex &amp; Co" },
+            sellerName: "Esparex &amp; Co",
+            location: { city: "Macherla", state: "Andhra Pradesh" },
+            status: "live",
+            createdAt: new Date().toISOString(),
+        });
+
+        expect(listing.title).toBe("Apple iPhone 13 - Working Display & Parts");
+        expect(listing.description).toBe("Genuine <Display> & \"Battery\"");
+        expect(listing.sellerName).toBe("Esparex & Co");
+    });
+
+    it("prevents double-unescaping vulnerability when decoding entities", () => {
+        const listing = normalizeListing({
+            id: "507f1f77bcf86cd799439011",
+            title: "Safe &amp;lt;script&amp;gt; Title",
+            description: "Literal &amp;quot; quote",
+            images: ["https://example.com/a.jpg"],
+            createdAt: new Date().toISOString(),
+        });
+
+        // &amp;lt; must unescape ONCE to &lt;, NOT twice to <
+        expect(listing.title).toBe("Safe &lt;script&gt; Title");
+        expect(listing.description).toBe('Literal &quot; quote');
+    });
 });
 
 describe("normalizeListingContactNumberResponse", () => {

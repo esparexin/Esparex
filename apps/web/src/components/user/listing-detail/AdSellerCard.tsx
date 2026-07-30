@@ -79,7 +79,7 @@ export function AdSellerCard({
                     name={sellerDisplayName}
                     subtitle={
                         <p className="text-xs text-foreground-subtle font-medium">
-                            {ad.isBusiness ? "Verified Business Account" : "Registered Member"}
+                            {ad.isBusiness ? "Verified Business Account" : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
                         </p>
                     }
                     badge={ad.isBusiness && ad.verified ? (
