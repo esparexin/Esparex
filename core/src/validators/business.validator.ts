@@ -7,7 +7,7 @@ import { ID_PROOF_TYPE_VALUES } from '@esparex/contracts';
 import { BUSINESS_STATUS } from '@esparex/contracts';
 
 const DEFAULT_BUSINESS_TYPES = ['Repair services', 'Spare parts'] as const;
-const FULL_ADDRESS_PINCODE_PATTERN = /\b\d{6}\b/;
+const FULL_ADDRESS_PINCODE_PATTERN = /\b[1-9]\d{5}\b/;
 const LEGACY_BUSINESS_CITY_ALIAS_MESSAGE = '`city` is no longer accepted in business query filters. Use `locationId` or coordinates instead.';
 const LEGACY_BUSINESS_CATEGORY_ALIAS_MESSAGE = '`category` is no longer accepted in business query filters. Use `listingCategoryId` instead.';
 const LEGACY_BUSINESS_SEARCH_ALIAS_MESSAGE = '`search` is no longer accepted in admin business filters. Use `q` instead.';
@@ -102,7 +102,22 @@ const locationSchema = z.object({
         .trim()
         .min(15, 'Complete business address is required')
         .max(300, 'Business address must be 300 characters or fewer')
-        .refine((value) => FULL_ADDRESS_PINCODE_PATTERN.test(value), 'Address must include a valid 6-digit pincode'),
+        .superRefine((val, ctx) => {
+            const hasSixDigitNumber = /\b\d{6}\b/.test(val);
+            const hasValidIndianPincode = FULL_ADDRESS_PINCODE_PATTERN.test(val);
+
+            if (!hasSixDigitNumber) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Address must include a valid 6-digit pincode',
+                });
+            } else if (!hasValidIndianPincode) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Please verify the pincode entered',
+                });
+            }
+        }),
     display: optionalTrimmedString(150).optional(),
     city: optionalTrimmedString(50).optional(),
     state: optionalTrimmedString(50).optional(),
@@ -115,10 +130,7 @@ const locationSchema = z.object({
 });
 
 const documentsSchema = z.object({
-    idProofType: z.enum(ID_PROOF_TYPE_VALUES, {
-        required_error: 'ID proof type is required',
-        invalid_type_error: 'Invalid ID proof type'
-    }),
+    idProofType: z.enum(ID_PROOF_TYPE_VALUES).optional().default('aadhaar'),
     idProof: z.array(z.string()).min(1, 'ID proof is required'),
     businessProof: z.array(z.string()).min(1, 'Business proof is required'),
     certificates: z.array(z.string()).optional()
