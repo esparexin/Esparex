@@ -28,7 +28,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
   const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
   const handleGoMyAds = useCallback(() => navigateTo("my-ads"), [navigateTo]);
   const handleGoPlans = useCallback(() => {
-    window.location.href = "/plans";
+    window.location.href = "/account/plans";
   }, []);
   const handleClose = useCallback(() => {
     confirmNavigation(handleGoHome);
