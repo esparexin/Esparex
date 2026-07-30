@@ -115,6 +115,20 @@ describe("normalizeListing", () => {
         expect(listing.description).toBe("Genuine <Display> & \"Battery\"");
         expect(listing.sellerName).toBe("Esparex & Co");
     });
+
+    it("prevents double-unescaping vulnerability when decoding entities", () => {
+        const listing = normalizeListing({
+            id: "507f1f77bcf86cd799439011",
+            title: "Safe &amp;lt;script&amp;gt; Title",
+            description: "Literal &amp;quot; quote",
+            images: ["https://example.com/a.jpg"],
+            createdAt: new Date().toISOString(),
+        });
+
+        // &amp;lt; must unescape ONCE to &lt;, NOT twice to <
+        expect(listing.title).toBe("Safe &lt;script&gt; Title");
+        expect(listing.description).toBe('Literal &quot; quote');
+    });
 });
 
 describe("normalizeListingContactNumberResponse", () => {
