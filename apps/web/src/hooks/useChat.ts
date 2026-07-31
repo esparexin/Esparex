@@ -169,13 +169,39 @@ export function useChat({
 
   /* Send a new message */
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, attachmentFile?: File) => {
       const trimmed = text.trim();
-      if (!trimmed) return false;
+      if (!trimmed && !attachmentFile) return false;
       setIsSending(true);
       setError(null);
       try {
-        const res = await chatApi.send({ conversationId, text: trimmed });
+        let attachments;
+        if (attachmentFile) {
+          try {
+            const presigned = await chatApi.uploadUrl(conversationId, attachmentFile.type, attachmentFile.name);
+            if (presigned?.data?.uploadUrl) {
+              await fetch(presigned.data.uploadUrl, {
+                method: 'PUT',
+                body: attachmentFile,
+                headers: { 'Content-Type': attachmentFile.type },
+              });
+              attachments = [
+                {
+                  url: presigned.data.publicUrl,
+                  displayUrl: presigned.data.publicUrl,
+                  mimeType: attachmentFile.type,
+                  size: attachmentFile.size,
+                  name: attachmentFile.name,
+                  status: 'available' as const,
+                },
+              ];
+            }
+          } catch {
+            throw new Error('Failed to upload image attachment');
+          }
+        }
+
+        const res = await chatApi.send({ conversationId, text: trimmed, attachments });
         const confirmed = res.message;
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === confirmed.id);

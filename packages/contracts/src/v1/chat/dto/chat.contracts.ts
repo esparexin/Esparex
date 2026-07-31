@@ -24,12 +24,19 @@ export interface ChatAdRef {
   seoSlug?: string;
 }
 
+export type ChatAttachmentStatus = 'pending' | 'uploaded' | 'scanning' | 'available' | 'rejected';
+
 export interface ChatAttachment {
+  id?: string;
   url: string;
+  displayUrl?: string;
+  thumbnailUrl?: string;
+  status?: ChatAttachmentStatus;
   mimeType: string;
   size: number; // bytes
   name?: string;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Conversation                                                                */

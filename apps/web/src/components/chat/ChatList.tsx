@@ -9,7 +9,6 @@ import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
 import { formatStableNumber } from '@/lib/formatters';
 import { Skeleton } from '@/components/ui/skeleton';
-import { EmptyStateShell } from '@/components/ui/EmptyStateShell';
 
 import type { IConversationDTO } from "@esparex/contracts";
 
@@ -177,6 +176,17 @@ export function ChatList({
     <div className="chat-list-shell">
       {/* Search Input */}
       <div className="chat-list__search-wrap">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="chat-list__search-icon"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+          aria-hidden
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
         <input
           type="text"
           className="chat-list__search-input"
@@ -263,8 +273,17 @@ export function ChatList({
           </button>
         </div>
       ) : filteredConversations.length === 0 ? (
-        <EmptyStateShell>
-          <p className="text-base font-semibold text-slate-800">
+        <div className="flex flex-col items-center justify-center p-8 text-center bg-white min-h-[360px]">
+          {/* Sparkle Chat Bubble Graphic */}
+          <div className="relative mb-3 flex items-center justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50/80 text-3xl">
+              💬
+            </div>
+            <span className="absolute -top-1 -right-1 text-sky-400 text-sm">✨</span>
+            <span className="absolute -bottom-1 -left-1 text-sky-300 text-xs">✨</span>
+          </div>
+
+          <h3 className="text-lg font-bold text-slate-900">
             {searchQuery
               ? `No conversations match "${searchQuery}"`
               : activeTab === 'unread'
@@ -272,13 +291,23 @@ export function ChatList({
                 : activeTab === 'archived'
                   ? 'No archived conversations'
                   : 'No conversations yet'}
-          </p>
-          <p className="mt-1 text-sm text-slate-500">
+          </h3>
+          <p className="mt-1 text-xs text-slate-500 max-w-xs leading-relaxed">
             {searchQuery
               ? 'Try searching with another keyword'
               : 'Messages with buyers and sellers will appear here'}
           </p>
-        </EmptyStateShell>
+
+          {!searchQuery && activeTab === 'active' && (
+            <Link
+              href="/browse"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-white px-4 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+            >
+              <span>💬</span>
+              <span>Browse Listings</span>
+            </Link>
+          )}
+        </div>
       ) : (
         <div className="chat-list">
           {filteredConversations.map((conv) => (
