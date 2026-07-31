@@ -30,6 +30,12 @@ const SUB_TABS: SubTabConfig[] = [
         icon: <Package className="h-3.5 w-3.5 text-blue-600" />,
     },
     {
+        id: "Boost Ad",
+        label: "Boost Ad",
+        description: "Elevate your listing search ranking priority score",
+        icon: <Star className="h-3.5 w-3.5 text-amber-600" />,
+    },
+    {
         id: "Alert Slots",
         label: "Smart Alerts",
         description: "Increase active automated search & instant stock alert capacity",
@@ -177,11 +183,12 @@ export function PlansTab({
     const tabRefs = useRef<Record<ProfilePlanType, HTMLButtonElement | null>>({
         Spotlight: null,
         "More Ads": null,
+        "Boost Ad": null,
         "Alert Slots": null,
     });
 
     const isProfilePlanType = (value: string): value is ProfilePlanType => {
-        return value === "Spotlight" || value === "More Ads" || value === "Alert Slots";
+        return value === "Spotlight" || value === "More Ads" || value === "Boost Ad" || value === "Alert Slots";
     };
 
     const countPlansForType = useCallback((type: ProfilePlanType) => {
