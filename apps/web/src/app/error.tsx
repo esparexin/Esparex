@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Home, RefreshCcw, Mail } from 'lucide-react';
-import { CommonLayout } from '@/components/layout/CommonLayout';
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 
