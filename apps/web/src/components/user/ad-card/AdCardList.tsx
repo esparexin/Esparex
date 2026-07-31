@@ -157,7 +157,7 @@ export const AdCardList = memo(function AdCardList({
                 </div>
 
                 <div className="mt-2.5 flex min-w-0 items-center justify-between gap-2">
-                  <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-tiny font-bold text-foreground-tertiary uppercase tracking-wide">
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-normal text-foreground-tertiary uppercase tracking-wide">
                     {categoryLabel}
                   </span>
                   {conditionBadge}

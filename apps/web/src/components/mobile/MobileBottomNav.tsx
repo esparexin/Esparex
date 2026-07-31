@@ -76,12 +76,12 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                             className={cn(
                                 "flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-center transition-colors",
                                 isActive
-                                    ? "bg-blue-50 text-link-dark font-bold"
-                                    : "text-muted-foreground hover:bg-slate-50 hover:text-foreground"
+                                    ? "bg-blue-50 text-link-dark font-medium"
+                                    : "text-muted-foreground hover:bg-slate-50 hover:text-foreground font-normal"
                             )}
                         >
                             <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: '18px', height: '18px' }} />
-                            <span className="max-w-full truncate text-[11px] font-semibold leading-tight">
+                            <span className="max-w-full truncate text-[10px] font-normal leading-tight">
                                 {item.label}
                             </span>
                         </Link>
@@ -120,7 +120,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     </div>
                     <span
                         className={cn(
-                            "text-[11px] font-semibold leading-tight",
+                            "text-[10px] font-normal leading-tight",
                             isBackendUp ? "text-link" : "text-muted-foreground"
                         )}
                     >

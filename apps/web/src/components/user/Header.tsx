@@ -385,7 +385,7 @@ export function Header({
             }
           >
             <MapPin className="h-4 w-4 text-blue-600 mr-1.5 flex-shrink-0" />
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800">
+            <span className="min-w-0 flex-1 truncate text-xs sm:text-sm font-normal text-slate-700">
               <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                 {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
               </span>
