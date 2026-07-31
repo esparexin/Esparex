@@ -126,8 +126,20 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             )}
           </div>
         )}
-        <span className="chat-bubble__time">{formatTime(message.createdAt)}</span>
+        <div className="chat-bubble__footer">
+          <span className="chat-bubble__time">{formatTime(message.createdAt)}</span>
+          {isOwn && (
+            <span
+              className={`chat-bubble__receipt ${message.readAt ? 'chat-bubble__receipt--read' : 'chat-bubble__receipt--sent'}`}
+              title={message.readAt ? `Read ${formatTime(message.readAt)}` : 'Sent'}
+              aria-label={message.readAt ? 'Read' : 'Sent'}
+            >
+              {message.readAt ? '✓✓' : '✓'}
+            </span>
+          )}
+        </div>
       </div>
+
 
       {imageAttachments.length > 0 && (
         <ChatImageLightbox

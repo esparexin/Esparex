@@ -113,6 +113,29 @@ export function initIO(httpServer: HttpServer): Server {
             // Join a private room named after the user's ID
             void socket.join(userId);
             logger.debug(`[Socket] Authenticated user connected`, { userId, socketId: socket.id });
+
+            // ── Typing Indicator relay ─────────────────────────────────────────
+            socket.on('chat:typing', (data: { conversationId?: string; receiverId?: string; isTyping?: boolean }) => {
+                if (!data?.receiverId || !data?.conversationId) return;
+                try {
+                    io?.to(data.receiverId).emit('chat:typing', {
+                        conversationId: data.conversationId,
+                        senderId: userId,
+                        isTyping: Boolean(data.isTyping),
+                    });
+                } catch (err) {
+                    logger.debug('[Socket] Typing relay failed', { userId, error: err });
+                }
+            });
+
+            // ── Real-Time Presence query ───────────────────────────────────────
+            socket.on('presence:get', (data: { targetUserId?: string }, callback?: (res: { userId: string; isOnline: boolean }) => void) => {
+                if (!data?.targetUserId) return;
+                const isOnline = Boolean(io?.sockets.adapter.rooms.get(data.targetUserId)?.size);
+                if (typeof callback === 'function') {
+                    callback({ userId: data.targetUserId, isOnline });
+                }
+            });
         } else {
             logger.debug(`[Socket] Anonymous guest connected`, { socketId: socket.id });
         }
@@ -121,6 +144,7 @@ export function initIO(httpServer: HttpServer): Server {
             logger.debug(`[Socket] Client disconnected`, { userId: userId || 'anonymous', reason });
         });
     });
+
 
     logger.info('[Socket] Socket.io server initialised');
     return io;
