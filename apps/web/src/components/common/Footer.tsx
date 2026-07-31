@@ -63,8 +63,8 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
     const renderLink = (label: string, href: string, pageKey: string, compact = false) => {
         const baseClassName = cn(
             compact
-                ? "inline-flex items-center text-sm transition-colors"
-                : "inline-flex min-h-10 items-center text-left text-sm transition-colors md:min-h-0",
+                ? "inline-flex items-center text-xs md:text-sm transition-colors"
+                : "inline-flex min-h-10 items-center text-left text-xs md:text-sm transition-colors md:min-h-0",
             isDark ? "hover:text-primary text-foreground-subtle" : "hover:text-green-600 text-foreground-tertiary"
         );
 
@@ -111,9 +111,9 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Main Single Responsive Footer Content Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 md:mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6 mb-3 md:mb-6">
                     {/* Brand Block */}
-                    <div className="col-span-2 md:col-span-1 space-y-4 text-left mb-2 md:mb-0">
+                    <div className="col-span-2 md:col-span-1 space-y-4 text-left mb-1 md:mb-0">
                         {renderBrandBlock()}
                     </div>
 
@@ -122,16 +122,15 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                         <div
                             key={section.title}
                             className={cn(
-                                "col-span-1 rounded-2xl border md:border-0 p-3 sm:p-4 md:p-0 text-left",
+                                "col-span-1 rounded-xl border md:border-0 p-2.5 sm:p-3.5 md:p-0 text-left",
                                 isDark ? "border-slate-800 bg-slate-900/60 md:bg-transparent" : "border-slate-200 bg-white md:bg-transparent",
-                                // Make the last section span 2 columns if it's the 3rd item to center it or take full width
                                 index === 2 ? "col-span-2 md:col-span-1" : ""
                             )}
                         >
-                            <h3 className={cn("mb-2 md:mb-4 font-semibold uppercase tracking-wider text-tiny sm:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
+                            <h3 className={cn("mb-1.5 md:mb-4 font-bold uppercase tracking-wider text-[11px] md:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
                             </h3>
-                            <ul className="space-y-1 md:space-y-2">
+                            <ul className="space-y-0.5 md:space-y-2">
                                 {section.links.map((link) => (
                                     <li key={link.label} className="leading-5">
                                         {renderLink(link.label, link.href, link.pageKey, true)}
@@ -143,16 +142,16 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                 </div>
 
                 {/* Bottom Bar */}
-                <div className={cn("flex flex-col items-start justify-between gap-3 pt-4 md:flex-row md:items-center md:gap-4 md:pt-4 border-t", isDark ? "border-slate-900" : "border-slate-200")}>
-                    <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
+                <div className={cn("flex flex-col items-start justify-between gap-2.5 pt-3 md:flex-row md:items-center md:gap-4 md:pt-4 border-t", isDark ? "border-slate-900" : "border-slate-200")}>
+                    <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4">
                         <Badge className={cn(
-                            "border px-3 py-1",
+                            "border px-2.5 py-0.5 text-[11px] md:text-xs",
                             isDark ? "bg-slate-900 text-primary border-slate-800" : "bg-green-50 text-green-700 border-green-100"
                         )}>
                             <CheckCircle className="h-3 w-3 mr-1.5" />
                             Verified Safe Marketplace
                         </Badge>
-                        <span className="text-xs font-medium">
+                        <span className="text-[11px] md:text-xs font-normal text-muted-foreground">
                             © {currentYear} Esparex Platform. Built for the future of tech repair.
                         </span>
                     </div>
