@@ -295,7 +295,8 @@ describe('AuthService', () => {
             expect(mockPlanModel.findOne).toHaveBeenCalledWith(
                 expect.objectContaining({
                     isDefault: true,
-                    userType: { $in: ['both', 'normal'] }
+                    active: true,
+                    isSystemPlan: true
                 })
             );
             expect(mockUserPlanModel.findOneAndUpdate).toHaveBeenCalledWith(

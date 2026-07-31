@@ -6,6 +6,7 @@ export * from './application/InvoicePdfService';
 export * from './application/PlanService';
 export * from './application/WalletService';
 export * from './application/WalletQueryService';
+export * from './application/PromotionService';
 export * from './application/RevenueAnalytics';
 
 // Domain Policies

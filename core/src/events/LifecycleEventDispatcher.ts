@@ -49,6 +49,17 @@ export interface ListingRejectedEvent {
     actorId?: string;
 }
 
+export interface PaymentCompletedEvent {
+    transactionId: string;
+    userId: string;
+    planId: string;
+    planType: string;
+    amount: number;
+    currency: string;
+    gatewayOrderId: string;
+    gatewayPaymentId: string;
+}
+
 export interface LifecycleEventMap {
     'ad.lifecycle.changed': AdStatusChangedEvent;
     'ad.expired.bulk': AdExpiredBulkEvent;
@@ -56,6 +67,7 @@ export interface LifecycleEventMap {
     'listing.approved': ListingApprovedEvent;
     'listing.rejected': ListingRejectedEvent;
     'listing.expired.bulk': ListingExpiredBulkEvent;
+    'payment.completed': PaymentCompletedEvent;
 }
 
 type EventKey = keyof LifecycleEventMap;
@@ -91,7 +103,7 @@ const validateEventSource = <K extends EventKey>(eventName: K): { allowedMarkers
  * Guarantees that secondary system actions (like cache invalidation) do not block or 
  * break the primary DB mutation transactions.
  */
-class LifecycleEventDispatcher {
+export class LifecycleEventDispatcher {
     private emitter: EventEmitter;
 
     constructor() {

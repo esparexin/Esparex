@@ -20,6 +20,7 @@ import {
 import { resolveCategoryName } from './TransactionService';
 import logger, { logBusiness, logSecurity } from '../../../utils/logger';
 import AdminLog from '../../../models/AdminLog';
+import { lifecycleEvents } from '../../../events/LifecycleEventDispatcher';
 
 export type PaymentProcessingSource = 'webhook' | 'recovery';
 
@@ -239,6 +240,21 @@ export async function processSuccessfulPayment(
         committedInvoiceId = invoice?._id?.toString();
 
         await session.commitTransaction();
+
+        try {
+            void lifecycleEvents.dispatch('payment.completed', {
+                transactionId: committedTransactionId,
+                userId: tx.userId.toString(),
+                planId: tx.planId?.toString() || '',
+                planType: tx.planSnapshot?.type || '',
+                amount: tx.amount,
+                currency: tx.currency,
+                gatewayOrderId: gatewayOrderId || '',
+                gatewayPaymentId: gatewayPaymentId || ''
+            });
+        } catch (eventErr) {
+            logger.error('[PAYMENT_PROCESSING] Failed to dispatch payment.completed event', eventErr);
+        }
 
         logBusiness('payment_verified', {
             phase: 'committed',

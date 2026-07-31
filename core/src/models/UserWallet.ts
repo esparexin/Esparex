@@ -6,6 +6,7 @@ import { applyToJSONTransform } from '../utils/schemaOptions';
 export interface IUserWallet {
     userId: Types.ObjectId;
     adCredits: number;
+    boostCredits: number;
     monthlyFreeAdsUsed: number;
     spotlightCredits: number;
     smartAlertSlots: number;
@@ -20,6 +21,7 @@ const UserWalletSchema = new Schema<IUserWallet>(
         userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
 
         adCredits: { type: Number, default: 0 }, // never expires
+        boostCredits: { type: Number, default: 0 },
         monthlyFreeAdsUsed: { type: Number, default: 0 },
         spotlightCredits: { type: Number, default: 0 },
         smartAlertSlots: { type: Number, default: 2 }, // base free

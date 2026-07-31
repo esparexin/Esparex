@@ -8,6 +8,7 @@ import { getPrimaryPlanCreditCount } from "@esparex/shared";
 
 export interface WalletAmount {
     adCredits?: number;
+    boostCredits?: number;
     spotlightCredits?: number;
     smartAlertSlots?: number;
 }
@@ -20,6 +21,7 @@ export const buildWalletIncrement = (tx: ITransaction): WalletAmount => {
     const amount: WalletAmount = {};
 
     if (kind === 'AD_PACK') amount.adCredits = credits;
+    if (kind === 'BOOST_AD') amount.boostCredits = credits;
     if (kind === 'SPOTLIGHT') amount.spotlightCredits = credits;
     if (kind === 'SMART_ALERT') amount.smartAlertSlots = credits;
 
