@@ -63,10 +63,18 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
     return (
         <div className="w-full overflow-hidden">
-            {/* Header */}
-            <div className="px-3 md:px-6 pt-3.5 pb-2.5">
-                <div className="flex items-center justify-between mb-2.5">
-                    <h1 className="text-[17px] md:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            {/* ── Header (sticky on mobile, static on desktop) ── */}
+            <div className={[
+                "px-3 md:px-6 pt-3 pb-2.5",
+                // Mobile sticky — sits directly below AccountHeader (h-14 / top-0)
+                "sticky top-14 z-10 bg-gray-50/95 backdrop-blur-sm",
+                // Desktop — plain, no sticky
+                "md:static md:bg-transparent md:backdrop-blur-none",
+            ].join(" ")}>
+                {/* Title row */}
+                <div className="flex items-center justify-end md:justify-between mb-2.5">
+                    {/* h1 — hidden on mobile, visible on desktop */}
+                    <h1 className="hidden md:flex items-center gap-2 text-[17px] md:text-lg font-bold text-slate-900 tracking-tight">
                         {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
                     </h1>
@@ -82,7 +90,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     )}
                 </div>
 
-                {/* Sub-tabs — rendered only if there are 2 or more available sub-tabs */}
+                {/* Sub-tabs */}
                 {subTabs && subTabs.length > 1 && onSubTabChange && (
                     <div className="flex gap-0 border-b border-slate-100 overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3">
                         {subTabs.map(t => (
