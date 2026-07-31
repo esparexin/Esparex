@@ -72,15 +72,6 @@ export function BrowseBreadcrumb({
             )}
           </h1>
         </div>
-
-        {typeof total === "number" && (
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-normal shrink-0">
-            <span className={cn("size-2 rounded-full", total > 0 ? "bg-emerald-500 animate-pulse" : "bg-slate-300")} />
-            <span>
-              <span className="text-slate-700 font-normal">{total}</span> {total === 1 ? "listing" : "listings"} found
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );

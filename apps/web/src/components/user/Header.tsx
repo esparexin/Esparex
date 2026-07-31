@@ -395,7 +395,7 @@ export function Header({
         </div>
 
         {/* Main Header Row */}
-        <div className={`flex items-center px-3 bg-white ${chromePolicy.showStickySearch ? "h-12 gap-2 border-b border-slate-100" : "h-14 gap-2"}`}>
+        <div className={`flex items-center px-3 py-1 bg-white ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-slate-100" : "min-h-[58px] h-14 gap-2.5"}`}>
           <Button
             variant="ghost"
             size="icon"
