@@ -1,7 +1,7 @@
 import { PageSection } from "@/components/layout";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
-import { Wrench, Info, CheckCircle2, XCircle, ShieldCheck, CircuitBoard, Briefcase } from "@/icons/IconRegistry";
+import { Wrench, CheckCircle2, XCircle, ShieldCheck, CircuitBoard, Briefcase } from "@/icons/IconRegistry";
 
 interface ListingDescriptionCardProps {
     ad: Ad;
