@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import PostAdPageClient from "@/components/user/post-ad/PostAdPageClient";
-import { PromotionalBanner } from "@/components/common/PromotionalBanner";
 
 import {
     API_ROUTES,
@@ -73,34 +72,33 @@ export default async function PostAdPage() {
 
     if (!balance || totalRemaining <= 0) {
         return (
-            <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 gap-6">
-                <div className="max-w-lg w-full">
-                    <PromotionalBanner
-                        title="Unlock More Ad Posting Slots"
-                        description="Upgrade your account or purchase an Ad Pack to continue posting ads on Esparex marketplace."
-                        badgeText="SPECIAL OFFER"
-                        actionText="View Plans"
-                        actionHref="/account/plans"
-                    />
-                </div>
-                <div className="max-w-lg w-full rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-4">
+            <div className="min-h-screen bg-slate-50/50 flex flex-col items-center justify-center px-4 py-12">
+                <div className="max-w-md w-full bg-white rounded-2xl border border-amber-200/80 shadow-sm p-6 sm:p-8 space-y-6 text-center">
+                    <div className="w-16 h-16 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
 
-                    <div>
-                        <h1 className="text-xl font-semibold text-amber-900">Unable to post a new ad</h1>
-                        <p className="mt-2 text-sm text-amber-800">
-                            You have no ad posting slots remaining. Buy an Ad Pack to post more ads, or wait for your monthly free slots to reset.
+                    <div className="space-y-2">
+                        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+                            No Ad Posting Slots Remaining
+                        </h1>
+                        <p className="text-sm text-slate-600 leading-relaxed">
+                            You have used all your available free ad posting slots for this month. Buy an Ad Pack to post more ads, or wait for your monthly free slots to reset.
                         </p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-3">
+
+                    <div className="flex flex-col gap-3 pt-2">
                         <a
                             href="/account/plans"
-                            className="flex-1 inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm h-11 px-4 transition-colors"
+                            className="w-full inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold text-sm h-11 px-4 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                         >
                             Buy Ad Pack
                         </a>
                         <a
                             href="/"
-                            className="flex-1 inline-flex items-center justify-center rounded-xl bg-white border border-amber-300 text-amber-800 font-semibold text-sm h-11 px-4 hover:bg-amber-50 transition-colors"
+                            className="w-full inline-flex items-center justify-center rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 active:bg-slate-100 font-semibold text-sm h-11 px-4 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
                         >
                             Back to Home
                         </a>
@@ -112,3 +110,4 @@ export default async function PostAdPage() {
 
     return <PostAdPageClient />;
 }
+
