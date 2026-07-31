@@ -6,7 +6,6 @@ import {
     Clock, Edit2, Trash2, RefreshCw, CheckSquare,
     PowerOff, Power, MoreVertical, Share2,
 } from "@/icons/IconRegistry";
-import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
@@ -364,27 +363,24 @@ export function ListingItem({
                     )}
                 </div>
 
-                {/* ── Row B: Edit button (full column width) ── */}
+                {/* ── Row B: Pencil icon — direct edit shortcut ── */}
                 {showEdit ? (
-                    <Link href={editHref} className="w-full">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className={cn(
-                                "w-full h-7 px-0 gap-1",
-                                "text-[12px] font-medium",
-                                "border-slate-200 text-slate-700",
-                                "hover:bg-slate-50 hover:border-slate-300",
-                                "rounded-md",
-                            )}
-                        >
-                            <Edit2 className="h-3 w-3 shrink-0" />
-                            <span>Edit</span>
-                        </Button>
+                    <Link
+                        href={editHref}
+                        aria-label="Edit listing"
+                        className={cn(
+                            "h-7 w-7 flex items-center justify-center",
+                            "rounded-md border border-slate-200 text-slate-500",
+                            "hover:text-slate-800 hover:bg-slate-100 hover:border-slate-300",
+                            "transition-colors",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1",
+                        )}
+                    >
+                        <Edit2 className="h-3.5 w-3.5" />
                     </Link>
                 ) : (
-                    /* Invisible placeholder — preserves row height parity */
-                    <div className="h-7 w-full" aria-hidden="true" />
+                    /* Invisible placeholder — preserves vertical rhythm */
+                    <div className="h-7 w-7" aria-hidden="true" />
                 )}
             </div>
         </div>
