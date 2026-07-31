@@ -59,12 +59,14 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
         teal: "bg-teal-600 hover:bg-teal-700",
     }[activeSubTabColor as "blue" | "violet" | "teal"] || "bg-blue-600 hover:bg-blue-700";
 
+    const colCount = statusTabs.length > 0 ? statusTabs.length : 3;
+
     return (
         <div className="w-full md:rounded-xl md:border md:border-slate-200/90 md:bg-white md:shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="px-3 md:px-6 pt-4 pb-3">
-                <div className="flex items-center justify-between mb-3">
-                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <div className="px-3 md:px-6 pt-3.5 pb-2.5">
+                <div className="flex items-center justify-between mb-2.5">
+                    <h1 className="text-[17px] md:text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
                         {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
                     </h1>
@@ -100,20 +102,23 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                     </div>
                 )}
 
-                {/* 36px Segmented Control Status Tabs */}
-                <div className="grid grid-cols-3 gap-1 bg-slate-100/90 p-1 rounded-xl h-9 max-w-sm">
+                {/* Segmented Control Status Tabs */}
+                <div
+                    className="grid gap-0.5 bg-slate-100/90 p-0.5 rounded-lg h-8 max-w-xs"
+                    style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
+                >
                     {statusTabs.map((status) => (
                         <button
                             key={status}
                             onClick={() => onStatusChange(status)}
-                            className={`h-7 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${selectedStatus === status
-                                ? "bg-white text-slate-900 shadow-sm font-bold"
-                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+                            className={`h-7 flex items-center justify-center rounded-md text-[11px] font-semibold whitespace-nowrap transition-all px-1 ${selectedStatus === status
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/40"
                                 }`}
                         >
                             {status.charAt(0).toUpperCase() + status.slice(1)}
                             {getStatusCount ? (
-                                <span className="ml-1 text-2xs opacity-75">
+                                <span className="ml-0.5 opacity-60">
                                     ({getStatusCount(status)})
                                 </span>
                             ) : null}
@@ -122,7 +127,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                 </div>
             </div>
 
-            <div className="px-3 md:px-6 pb-4">
+            <div className="px-3 md:px-6 pb-3">
                 {/* Content */}
                 {loading ? (
                     <LoadingSkeleton />
@@ -152,22 +157,16 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
 
 function LoadingSkeleton() {
     return (
-        <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-                <div key={i} className="flex gap-3 p-3 rounded-xl border border-slate-100 bg-white">
-                    <Skeleton className="h-20 w-20 rounded-lg shrink-0" />
-                    <div className="flex-1 space-y-2 py-1">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/4" />
-                        <div className="flex gap-2 pt-2">
-                            <Skeleton className="h-3 w-12" />
-                            <Skeleton className="h-3 w-12" />
-                        </div>
-                        <div className="flex justify-end gap-2 mt-2">
-                            <Skeleton className="h-7 w-16" />
-                            <Skeleton className="h-7 w-16" />
-                        </div>
+        <div className="divide-y divide-slate-100 border-t border-slate-100">
+            {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-start gap-3 py-3 md:gap-4 md:py-3.5">
+                    <Skeleton className="h-16 w-16 md:h-[72px] md:w-[72px] rounded-lg shrink-0" />
+                    <div className="flex-1 space-y-1.5 pt-0.5">
+                        <Skeleton className="h-[15px] w-4/5" />
+                        <Skeleton className="h-[15px] w-1/4" />
+                        <Skeleton className="h-3 w-2/5" />
                     </div>
+                    <Skeleton className="h-8 w-16 rounded-md shrink-0" />
                 </div>
             ))}
         </div>
