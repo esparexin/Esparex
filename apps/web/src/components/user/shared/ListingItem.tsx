@@ -172,7 +172,7 @@ export function ListingItem({
 
                 {/* Price */}
                 <p className={cn(
-                    "text-[17px] md:text-[18px] font-bold leading-tight",
+                    "text-[13px] font-semibold md:text-[18px] md:font-bold leading-tight",
                     priceClassName || "text-emerald-600",
                 )}>
                     {priceLabel}
