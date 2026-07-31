@@ -62,14 +62,16 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     const colCount = statusTabs.length > 0 ? statusTabs.length : 3;
 
     return (
-        <div className="w-full overflow-hidden">
+        <div className="w-full">
             {/* ── Header (sticky on mobile, static on desktop) ── */}
             <div className={[
-                "px-3 md:px-6 pt-3 pb-2.5",
+                // Mobile: no top padding (title is hidden — pt-3 was showing as blank gap)
+                "px-3 md:px-6 pb-2 md:pt-3 md:pb-2.5",
                 // Mobile sticky — sits directly below AccountHeader (h-14 / top-0)
-                "sticky top-14 z-10 bg-gray-50/95 backdrop-blur-sm",
-                // Desktop — plain, no sticky
-                "md:static md:bg-transparent md:backdrop-blur-none",
+                // border-b provides visual separation between sticky bar and scrolling content
+                "sticky top-14 z-10 bg-gray-50/95 backdrop-blur-sm border-b border-slate-200/60",
+                // Desktop — plain, no sticky, no border
+                "md:static md:bg-transparent md:backdrop-blur-none md:border-b-0",
             ].join(" ")}>
                 {/* Title row — desktop only (mobile: Post Ad lives in AccountHeader) */}
                 <div className="hidden md:flex items-center justify-between mb-2.5">
