@@ -17,9 +17,9 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
             variant="bordered"
             className="rounded-none md:rounded-2xl border-x-0 md:border border-slate-100 p-3.5 md:p-5"
             title={
-                <h2 className="font-bold text-slate-900 text-sm md:text-base">
+                <span className="font-bold text-slate-900 text-sm md:text-base">
                     Description
-                </h2>
+                </span>
             }
         >
             <div className="space-y-3.5 md:space-y-5 pt-1">

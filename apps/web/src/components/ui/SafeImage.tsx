@@ -59,6 +59,7 @@ export function SafeImage({
       {...props}
       src={currentSrc}
       alt={alt}
+      loading={props.priority ? "eager" : props.loading}
       unoptimized={unoptimized ?? isExternalS3}
       onError={handleError}
       className={cn(

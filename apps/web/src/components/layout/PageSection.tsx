@@ -38,7 +38,13 @@ export function PageSection({
       {(title || action) && (
         <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
           <div>
-            {title && <h3 className="text-lg font-semibold leading-7 text-slate-900">{title}</h3>}
+            {title && (
+              typeof title === 'string' || typeof title === 'number' ? (
+                <h3 className="text-lg font-semibold leading-7 text-slate-900">{title}</h3>
+              ) : (
+                <div className="text-lg font-semibold leading-7 text-slate-900">{title}</div>
+              )
+            )}
             {subtitle && <p className="text-xs md:text-sm text-slate-500 mt-0.5">{subtitle}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
