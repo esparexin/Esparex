@@ -4,6 +4,7 @@ import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 import { Plan } from "@esparex/contracts";
+import { archivePlan, restorePlan } from "@/lib/api/plans";
 
 export function useSubscriptionPlans() {
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -42,13 +43,43 @@ export function useSubscriptionPlans() {
                 method: "PATCH"
             });
             showAdminPopup({ type: "success", title: "Success", message: "Plan status updated successfully" });
-            // Optimistic update would be hard without knowing previous state easily, 
-            // so we refresh. More robust for finance.
             await fetchPlans();
             return { success: true };
         } catch (err) {
             const msg = err instanceof Error ? err.message : "Failed to toggle plan status";
             showAdminPopup({ type: "error", title: "Error", message: msg });
+            return { success: false, error: msg };
+        } finally {
+            setIsMutating(false);
+        }
+    };
+
+    const handleArchive = async (planId: string, reason?: string) => {
+        setIsMutating(true);
+        try {
+            await archivePlan(planId, reason);
+            showAdminPopup({ type: "success", title: "Plan Archived", message: "Plan has been archived successfully." });
+            await fetchPlans();
+            return { success: true };
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to archive plan";
+            showAdminPopup({ type: "error", title: "Archive Failed", message: msg });
+            return { success: false, error: msg };
+        } finally {
+            setIsMutating(false);
+        }
+    };
+
+    const handleRestore = async (planId: string) => {
+        setIsMutating(true);
+        try {
+            await restorePlan(planId);
+            showAdminPopup({ type: "success", title: "Plan Restored", message: "Plan has been restored to Inactive status." });
+            await fetchPlans();
+            return { success: true };
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to restore plan";
+            showAdminPopup({ type: "error", title: "Restore Failed", message: msg });
             return { success: false, error: msg };
         } finally {
             setIsMutating(false);
@@ -61,6 +92,8 @@ export function useSubscriptionPlans() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus
+        handleToggleStatus,
+        handleArchive,
+        handleRestore,
     };
 }

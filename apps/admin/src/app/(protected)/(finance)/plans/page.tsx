@@ -14,8 +14,12 @@ import {
     Users,
     Activity,
     Pencil,
+    Archive,
+    RotateCcw,
+    ShieldCheck,
 } from "@esparex/ui";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
+import { ArchivePlanModal } from "@/components/plans/ArchivePlanModal";
 import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
 import { ConfirmDeactivateDialog } from "@/components/finance/ConfirmDeactivateDialog";
 import {
@@ -25,7 +29,7 @@ import {
 } from "@/lib/urlSearchParams";
 import { useSubscriptionPlans } from "@/hooks/useSubscriptionPlans";
 
-const PLAN_TYPES = new Set(["all", "AD_PACK", "SPOTLIGHT", "SMART_ALERT"]);
+const PLAN_TYPES = new Set(["all", "FREE_DEFAULT", "AD_PACK", "BOOST_AD", "SPOTLIGHT", "SMART_ALERT"]);
 
 export default function PlansPage() {
     const router = useRouter();
@@ -38,12 +42,15 @@ export default function PlansPage() {
         error,
         isMutating,
         fetchPlans,
-        handleToggleStatus
+        handleToggleStatus,
+        handleArchive,
+        handleRestore,
     } = useSubscriptionPlans();
 
     const [showModal, setShowModal] = useState(false);
     const [editPlan, setEditPlan] = useState<Plan | null>(null);
     const [togglingPlanId, setTogglingPlanId] = useState<string | null>(null);
+    const [archivingPlan, setArchivingPlan] = useState<Plan | null>(null);
 
     const rawSearch = searchParams.get("q") ?? searchParams.get("search");
     const rawType = searchParams.get("type");
@@ -153,45 +160,125 @@ export default function PlansPage() {
             header: "Key Limits",
             cell: (plan) => (
                 <div className="text-xs text-foreground-secondary flex flex-col gap-1">
-                    {plan.limits?.maxAds ? <div>Ads: <span className="font-medium text-foreground">{plan.limits.maxAds}</span></div> : null}
-                    {plan.type === "SPOTLIGHT" && plan.limits?.spotlightCredits ? <div>Credits: <span className="font-medium text-emerald-600">{plan.limits.spotlightCredits}</span></div> : null}
-                    {plan.type === "AD_PACK" && (!plan.limits?.maxAds && !plan.limits?.spotlightCredits) ? <span className="italic text-foreground-subtle">Standard</span> : null}
+                    {plan.type === "FREE_DEFAULT" && (
+                        <div>Free Slots: <strong className="font-semibold text-emerald-700">{plan.limits?.maxAds ?? 2}/month</strong></div>
+                    )}
+                    {plan.type === "AD_PACK" && (
+                        <div>
+                            {plan.limits?.maxAds ? (
+                                <span>Ad Slots: <strong className="font-semibold text-amber-700">{plan.limits.maxAds} Slots</strong></span>
+                            ) : (
+                                <span className="italic text-foreground-subtle">Standard</span>
+                            )}
+                        </div>
+                    )}
+                    {plan.type === "BOOST_AD" && (
+                        <div>Boost Priority: <strong className="font-semibold text-amber-600">{plan.features?.priorityWeight ?? 2}x Weight</strong></div>
+                    )}
+                    {plan.type === "SPOTLIGHT" && (
+                        <div>Spotlight: <strong className="font-semibold text-purple-600">{plan.limits?.spotlightCredits ?? 1} Credits</strong></div>
+                    )}
+                    {plan.type === "SMART_ALERT" && (
+                        <div>Alert Slots: <strong className="font-semibold text-blue-600">{plan.limits?.smartAlerts ?? plan.smartAlertConfig?.maxAlerts ?? 1} Slots</strong></div>
+                    )}
                 </div>
             )
         },
         {
             header: "Status",
-            cell: (plan) => (
-                <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${plan.active ? "bg-emerald-500" : "bg-red-500"}`} />
-                    <span className={`capitalize text-xs font-medium ${plan.active ? "text-emerald-700" : "text-red-700"}`}>
-                        {plan.active ? "Active" : "Inactive"}
-                    </span>
-                </div>
-            )
+            cell: (plan) => {
+                const status = plan.status ?? (plan.active ? "ACTIVE" : "INACTIVE");
+                type CfgEntry = { dot: string; label: string; text: string };
+                const fallback: CfgEntry = { dot: "bg-slate-400", label: "Inactive", text: "text-slate-600" };
+                const statusConfig: Partial<Record<string, CfgEntry>> = {
+                    ACTIVE: { dot: "bg-emerald-500", label: "Active", text: "text-emerald-700" },
+                    INACTIVE: fallback,
+                    DRAFT: { dot: "bg-sky-400", label: "Draft", text: "text-sky-700" },
+                    ARCHIVED: { dot: "bg-amber-500", label: "Archived", text: "text-amber-700" },
+                };
+                const cfg: CfgEntry = statusConfig[status] ?? fallback;
+                return (
+                    <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+                        <span className={`capitalize text-xs font-medium ${cfg.text}`}>
+                            {cfg.label}
+                        </span>
+                        {plan.isSystemPlan && (
+                            <ShieldCheck size={12} className="text-sky-500" aria-label="System protected plan" />
+                        )}
+                    </div>
+                );
+            }
         },
         {
             header: "Actions",
-            cell: (plan) => (
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => { setEditPlan(plan); setShowModal(true); }}
-                        className="p-1.5 rounded text-foreground-tertiary hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-medium"
-                    >
-                        <Pencil size={13} /> Edit
-                    </button>
-                    <button
-                        onClick={() => void onToggleClick(plan)}
-                        disabled={isMutating}
-                        className={`p-1.5 rounded transition-colors flex items-center gap-1 text-xs font-medium ${plan.active
-                            ? "text-red-600 hover:bg-red-50"
-                            : "text-emerald-600 hover:bg-emerald-50"
-                            }`}
-                    >
-                        {plan.active ? <><XCircle size={14} /> Disable</> : <><CheckCircle2 size={14} /> Enable</>}
-                    </button>
-                </div>
-            )
+            cell: (plan) => {
+                const status = plan.status ?? (plan.active ? "ACTIVE" : "INACTIVE");
+                const isActive = status === "ACTIVE";
+                const isArchived = status === "ARCHIVED";
+                const isProtectedPlan = Boolean((plan.isDefault && isActive) || plan.isSystemPlan);
+                return (
+                    <div className="flex items-center gap-1 flex-wrap">
+                        {/* Edit — always available unless archived */}
+                        {!isArchived && (
+                            <button
+                                onClick={() => { setEditPlan(plan); setShowModal(true); }}
+                                className="p-1.5 rounded text-foreground-tertiary hover:bg-slate-100 transition-colors flex items-center gap-1 text-xs font-medium"
+                                aria-label={`Edit plan ${plan.name}`}
+                            >
+                                <Pencil size={13} aria-hidden="true" /> Edit
+                            </button>
+                        )}
+                        {/* Toggle active/inactive — only for non-protected, non-archived plans */}
+                        {!isArchived && !isProtectedPlan && (
+                            <button
+                                onClick={() => void onToggleClick(plan)}
+                                disabled={isMutating}
+                                aria-label={isActive ? `Disable plan ${plan.name}` : `Enable plan ${plan.name}`}
+                                className={`p-1.5 rounded transition-colors flex items-center gap-1 text-xs font-medium ${
+                                    isActive
+                                        ? "text-red-600 hover:bg-red-50"
+                                        : "text-emerald-600 hover:bg-emerald-50"
+                                }`}
+                            >
+                                {isActive ? <><XCircle size={14} aria-hidden="true" /> Disable</> : <><CheckCircle2 size={14} aria-hidden="true" /> Enable</>}
+                            </button>
+                        )}
+                        {/* Archive — only INACTIVE non-protected plans */}
+                        {!isArchived && !isProtectedPlan && !isActive && (
+                            <button
+                                onClick={() => setArchivingPlan(plan)}
+                                disabled={isMutating}
+                                aria-label={`Archive plan ${plan.name}`}
+                                className="p-1.5 rounded text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Archive size={13} aria-hidden="true" /> Archive
+                            </button>
+                        )}
+                        {/* Restore — only ARCHIVED plans */}
+                        {isArchived && (
+                            <button
+                                onClick={() => void handleRestore(plan.id)}
+                                disabled={isMutating}
+                                aria-label={`Restore plan ${plan.name}`}
+                                className="p-1.5 rounded text-sky-600 hover:bg-sky-50 transition-colors flex items-center gap-1 text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <RotateCcw size={13} aria-hidden="true" /> Restore
+                            </button>
+                        )}
+                        {/* Protected Default Plan lock badge */}
+                        {isProtectedPlan && !isArchived && (
+                            <span
+                                className="text-xs text-sky-700 bg-sky-50 border border-sky-200 font-semibold flex items-center gap-1 px-2 py-1 rounded-md"
+                                title="Active Default Free Plan is mandatory and protected — cannot be disabled or archived."
+                                aria-label="Active Default Free Plan protected"
+                            >
+                                <ShieldCheck size={13} className="text-sky-600" aria-hidden="true" /> Protected
+                            </span>
+                        )}
+                    </div>
+                );
+            }
         }
     ];
 
@@ -234,7 +321,9 @@ export default function PlansPage() {
                                 onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
                             >
                                 <option value="all">Every Type</option>
+                                <option value="FREE_DEFAULT">Free Plan (Default)</option>
                                 <option value="AD_PACK">Ad Packs</option>
+                                <option value="BOOST_AD">Boost Ad</option>
                                 <option value="SPOTLIGHT">Spotlight</option>
                                 <option value="SMART_ALERT">Smart Alerts</option>
                             </select>
@@ -257,6 +346,14 @@ export default function PlansPage() {
                 isMutating={isMutating}
                 title="Deactivate Plan"
                 description="Disabling this plan will prevent new users from purchasing or subscribing to it."
+            />
+
+            <ArchivePlanModal
+                plan={archivingPlan}
+                isOpen={!!archivingPlan}
+                onClose={() => setArchivingPlan(null)}
+                onConfirm={handleArchive}
+                isMutating={isMutating}
             />
         </>
     );
