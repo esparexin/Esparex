@@ -10,6 +10,8 @@ import {
     adminUpdatePlan,
     adminGetPlans,
     adminGetPlanById,
+    adminArchivePlan,
+    adminRestorePlan,
 } from '@esparex/core/domains/payments/application/PlanService';
 
 export const createPlan = async (req: Request, res: Response) => {
@@ -73,12 +75,49 @@ export const getPlans = async (req: Request, res: Response) => {
 export const togglePlan = async (req: Request, res: Response) => {
     try {
         const planId = getRequiredPlanId(req);
-        const plan = await adminGetPlanById(planId);
-        if (!plan) throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
-        plan.active = !plan.active;
-        await plan.save();
-        await logAdminAction(req, 'TOGGLE_PLAN_STATUS', 'Plan', planId, { isActive: plan.active });
-        res.json(respond({ success: true, data: plan }));
+        const existing = await adminGetPlanById(planId);
+        if (!existing) throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
+        const nextActive = !existing.active;
+        const nextStatus = nextActive ? 'ACTIVE' : 'INACTIVE';
+        const updated = await adminUpdatePlan(planId, { active: nextActive, status: nextStatus });
+        await logAdminAction(req, 'TOGGLE_PLAN_STATUS', 'Plan', planId, { isActive: nextActive, status: nextStatus });
+        res.json(respond({ success: true, data: updated }));
+    } catch (error: unknown) {
+        const appError = error instanceof AppError ? error : null;
+        sendErrorResponse(req, res, appError?.statusCode ?? 400, getErrorMessage(error));
+    }
+};
+
+export const archivePlan = async (req: Request, res: Response) => {
+    try {
+        const planId = getRequiredPlanId(req);
+        const adminId = req.user?._id ? String(req.user._id) : 'system';
+        const reason = typeof req.body?.reason === 'string' ? req.body.reason : undefined;
+
+        const plan = await adminArchivePlan(planId, adminId, reason);
+        await logAdminAction(req, 'PLAN_ARCHIVED', 'Plan', planId, {
+            archivedBy: adminId,
+            archivedAt: (plan as unknown as Record<string, unknown>).archivedAt,
+            reason,
+        });
+        res.json(respond({ success: true, data: plan, message: 'Plan archived successfully' }));
+    } catch (error: unknown) {
+        const appError = error instanceof AppError ? error : null;
+        sendErrorResponse(req, res, appError?.statusCode ?? 400, getErrorMessage(error));
+    }
+};
+
+export const restorePlan = async (req: Request, res: Response) => {
+    try {
+        const planId = getRequiredPlanId(req);
+        const adminId = req.user?._id ? String(req.user._id) : 'system';
+
+        const plan = await adminRestorePlan(planId, adminId);
+        await logAdminAction(req, 'PLAN_RESTORED', 'Plan', planId, {
+            restoredBy: adminId,
+            restoredAt: (plan as unknown as Record<string, unknown>).restoredAt,
+        });
+        res.json(respond({ success: true, data: plan, message: 'Plan restored successfully' }));
     } catch (error: unknown) {
         const appError = error instanceof AppError ? error : null;
         sendErrorResponse(req, res, appError?.statusCode ?? 400, getErrorMessage(error));

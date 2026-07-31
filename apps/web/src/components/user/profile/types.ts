@@ -95,7 +95,7 @@ export type DeleteAccountPayload = {
   feedback?: string;
 };
 
-export type ProfilePlanType = "Spotlight" | "More Ads" | "Alert Slots";
+export type ProfilePlanType = "Spotlight" | "More Ads" | "Boost Ad" | "Alert Slots";
 
 export type ProfilePlan = {
   id: string;

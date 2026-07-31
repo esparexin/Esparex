@@ -65,6 +65,14 @@ export function usePlanCheckout() {
     try {
       const baselineWallet = waitForCredit ? await getWalletSummary() : null;
       const order = await createPurchaseOrder(planId);
+
+      // If order is zero-cost (amount === 0) or mock order, complete checkout immediately
+      if (amount === 0 || (typeof order.orderId === "string" && order.orderId.startsWith("order_mock_"))) {
+        await onPaymentVerified();
+        setIsProcessing(false);
+        return;
+      }
+
       const loaded = await loadRazorpay();
 
       if (!loaded || !window.Razorpay) {

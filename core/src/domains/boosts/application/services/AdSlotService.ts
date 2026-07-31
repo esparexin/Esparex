@@ -10,7 +10,37 @@ import redisClient from "../../../../config/redis";
 import { AppError } from "../../../../utils/AppError";
 import { BusinessErrorCode } from "@esparex/contracts";
 
-export const MONTHLY_FREE_AD_SLOTS = 5;
+import Plan from "../../../../models/Plan";
+import logger from "../../../../utils/logger";
+
+export const DEFAULT_FREE_AD_SLOTS_FALLBACK = 5;
+export const MONTHLY_FREE_AD_SLOTS = DEFAULT_FREE_AD_SLOTS_FALLBACK;
+
+/**
+ * Resolves the monthly free ad slot limit dynamically from the active Default Free Plan.
+ * Uses DEFAULT_FREE_AD_SLOTS_FALLBACK (5) as emergency safeguard if default plan lookup fails.
+ */
+export async function getMonthlyFreeAdSlotLimit(): Promise<number> {
+    try {
+        const defaultPlan = await Plan.findOne({ isDefault: true, active: true });
+        if (defaultPlan) {
+            const limit = defaultPlan.limits?.maxAds ?? defaultPlan.credits;
+            if (typeof limit === 'number' && limit >= 0) {
+                return limit;
+            }
+        }
+        logger.error('[CRITICAL] Active Default Free Plan missing or invalid maxAds limit. Using fallback.', {
+            fallback: DEFAULT_FREE_AD_SLOTS_FALLBACK,
+        });
+        return DEFAULT_FREE_AD_SLOTS_FALLBACK;
+    } catch (err) {
+        logger.error('[CRITICAL] Failed to resolve active Default Free Plan for slot limit. Using fallback.', {
+            error: err instanceof Error ? err.message : String(err),
+            fallback: DEFAULT_FREE_AD_SLOTS_FALLBACK,
+        });
+        return DEFAULT_FREE_AD_SLOTS_FALLBACK;
+    }
+}
 
 export type AdPostingSlotSource =
     | 'free_slot'
@@ -89,12 +119,13 @@ export async function getAdPostingBalance(
         wallet = await refreshedQuery.lean();
     }
 
+    const freeSlotLimit = await getMonthlyFreeAdSlotLimit();
     const freeUsed = Math.max(0, Number(wallet?.monthlyFreeAdsUsed ?? 0));
-    const freeRemaining = Math.max(0, MONTHLY_FREE_AD_SLOTS - freeUsed);
+    const freeRemaining = Math.max(0, freeSlotLimit - freeUsed);
     const paidCredits = Math.max(0, Number(wallet?.adCredits ?? 0));
 
     return {
-        freeLimit: MONTHLY_FREE_AD_SLOTS,
+        freeLimit: freeSlotLimit,
         freeUsed,
         freeRemaining,
         paidCredits,

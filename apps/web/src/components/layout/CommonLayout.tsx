@@ -18,7 +18,7 @@ interface CommonLayoutProps {
     children: ReactNode;
     initialHasAuthCookie?: boolean;
     suspenseHeader?: boolean;
-    currentYear: number;
+    currentYear?: number;
 }
 
 /**
@@ -31,6 +31,7 @@ export function CommonLayout({
     suspenseHeader = false,
     currentYear,
 }: CommonLayoutProps) {
+    const activeYear = currentYear ?? new Date().getUTCFullYear();
     const pathname = usePathname();
     const chatRoute = isChatRoute(pathname);
     const segments = pathname?.split("/").filter(Boolean) ?? [];
@@ -61,7 +62,7 @@ export function CommonLayout({
                         </PageContainer>
                     </main>
                     {!hideShellExtras && <BusinessPostFAB />}
-                    {!hideShellExtras && <Footer currentYear={currentYear} />}
+                    {!hideShellExtras && <Footer currentYear={activeYear} />}
                 </div>
             </BottomBarProvider>
         </UserAppProviders>

@@ -99,6 +99,16 @@ export class AdminApiError<T = unknown> extends Error {
     this.payload = payload;
   }
 
+  /** True if this error is an expected 4xx business rule violation rather than a 5xx system fault. */
+  get isBusinessError(): boolean {
+    return this.status >= 400 && this.status < 500;
+  }
+
+  /** True if this error is a 5xx infrastructure failure. */
+  get isSystemError(): boolean {
+    return this.status >= 500;
+  }
+
   /**
    * Resolves a human-readable message from a standardized Admin error payload.
    * Handles nested { error: { message } } schema (SSOT) and simple { message } or { error } strings.

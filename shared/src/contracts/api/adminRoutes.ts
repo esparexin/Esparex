@@ -42,6 +42,8 @@ export const ADMIN_ROUTES = {
   PLANS: "/plans",
   PLAN_BY_ID: (id: string) => `/plans/${id}`,
   PLAN_TOGGLE: (id: string) => `/plans/${id}/toggle`,
+  PLAN_ARCHIVE: (id: string) => `/plans/${id}/archive`,
+  PLAN_RESTORE: (id: string) => `/plans/${id}/restore`,
 
   // Business
   BUSINESS_ACCOUNTS: "/businesses/accounts",

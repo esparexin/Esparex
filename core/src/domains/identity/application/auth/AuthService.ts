@@ -1,6 +1,8 @@
 import axios from 'axios';
 import Plan from '../../../../models/Plan';
+import { getActiveFreeDefaultPlan } from '../../../payments/application/PlanService';
 import UserPlan from '../../../../models/UserPlan';
+import UserWallet from '../../../../models/UserWallet';
 import Otp from '../../../../models/Otp';
 import User from '../../../../models/User';
 import Business from '../../../../models/Business';
@@ -421,21 +423,29 @@ export class AuthService {
             });
 
 
-            // Assign Default Plan
+            // Assign Default Plan & Initialize Wallet
             try {
-                const freePlan = await Plan.findOne({ isDefault: true, userType: { $in: ['both', 'normal'] } });
-
+                const freePlan = await getActiveFreeDefaultPlan();
 
                 if (freePlan) {
+                    const validityDays = freePlan.durationDays && freePlan.durationDays >= 30 ? freePlan.durationDays : 30;
+                    const expiryDate = new Date(now.getTime() + validityDays * 86400000);
                     await UserPlan.findOneAndUpdate(
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any -- User/Plan are Mongoose Documents; _id is accessible at runtime
                         { userId: (user as any)._id, planId: (freePlan as any)._id },
-                        { $set: { startDate: now, endDate: null, status: 'active' } },
+                        { $set: { startDate: now, endDate: expiryDate, status: 'active' } },
                         { upsert: true, new: true, setDefaultsOnInsert: true }
                     );
                 }
+
+                await UserWallet.findOneAndUpdate(
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- User is Mongoose Document
+                    { userId: (user as any)._id },
+                    { $setOnInsert: { adCredits: 0, boostCredits: 0, monthlyFreeAdsUsed: 0, spotlightCredits: 0, smartAlertSlots: 2, lastMonthlyReset: now } },
+                    { upsert: true, new: true, setDefaultsOnInsert: true }
+                );
             } catch (err) {
-                logger.error('Default plan assignment failed', {
+                logger.error('Default plan assignment & wallet initialization failed', {
                     error: err instanceof Error ? err.message : String(err)
                 });
             }

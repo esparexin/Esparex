@@ -20,8 +20,10 @@ export interface SmartAlertConfig {
     notificationChannels?: string[];
 }
 
-export type PlanType = "AD_PACK" | "SPOTLIGHT" | "SMART_ALERT";
+export type PlanCategory = "FREE" | "AD_PACK" | "BOOST" | "SPOTLIGHT" | "SMART_ALERT";
+export type PlanType = "FREE_DEFAULT" | "AD_PACK" | "BOOST_AD" | "SPOTLIGHT" | "SMART_ALERT";
 export type PlanUserType = "normal" | "business" | "both";
+export type PlanStatus = "DRAFT" | "ACTIVE" | "INACTIVE" | "ARCHIVED";
 
 export interface Plan {
     id: string;
@@ -29,6 +31,7 @@ export interface Plan {
     name: string;
     description?: string;
     type: PlanType;
+    category?: PlanCategory;
     userType: PlanUserType;
     durationDays?: number;
     duration?: string;
@@ -40,9 +43,19 @@ export interface Plan {
     credits: number;
     price: number;
     currency: string;
+    /** @deprecated Legacy field. Use `status` as SSOT. Kept for backward compatibility. */
     active: boolean;
     isDefault?: boolean;
-    
+    /** Canonical lifecycle status — Single Source of Truth for plan state. */
+    status?: PlanStatus;
+    /** True for system-protected plans (e.g. FREE_DEFAULT fallback). Cannot be archived. */
+    isSystemPlan?: boolean;
+    archivedAt?: string | Date | null;
+    archivedByAdmin?: string | null;
+    archiveReason?: string | null;
+    restoredAt?: string | Date | null;
+    restoredByAdmin?: string | null;
+
     createdAt?: string | Date;
     updatedAt?: string | Date;
 }

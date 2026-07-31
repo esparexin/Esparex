@@ -18,8 +18,14 @@ const PlanSchema = new Schema<IPlan>(
 
         type: {
             type: String,
-            enum: ["AD_PACK", "SPOTLIGHT", "SMART_ALERT"],
+            enum: ["FREE_DEFAULT", "AD_PACK", "BOOST_AD", "SPOTLIGHT", "SMART_ALERT"],
             required: true
+        },
+
+        category: {
+            type: String,
+            enum: ["FREE", "AD_PACK", "BOOST", "SPOTLIGHT", "SMART_ALERT"],
+            default: "FREE"
         },
 
         userType: {
@@ -65,6 +71,23 @@ const PlanSchema = new Schema<IPlan>(
         active: { type: Boolean, default: true },
         isDefault: { type: Boolean, default: false },
 
+        /** Canonical lifecycle status — Single Source of Truth for plan state. */
+        status: {
+            type: String,
+            enum: ["DRAFT", "ACTIVE", "INACTIVE", "ARCHIVED"],
+            default: "ACTIVE",
+            index: true,
+        },
+        /** System-protected plans cannot be archived. Checked as single SSOT guard. */
+        isSystemPlan: { type: Boolean, default: false, index: true },
+
+        // Archival audit trail
+        archivedAt: { type: Date, default: null },
+        archivedByAdmin: { type: Schema.Types.ObjectId, ref: "User", default: null },
+        archiveReason: { type: String, default: null },
+        restoredAt: { type: Date, default: null },
+        restoredByAdmin: { type: Schema.Types.ObjectId, ref: "User", default: null },
+
         createdByAdmin: { type: Schema.Types.ObjectId, ref: "User" }, // Refers back to an admin user
     },
     { timestamps: true }
@@ -77,6 +100,21 @@ const PlanSchema = new Schema<IPlan>(
 PlanSchema.index({ code: 1 }, { name: 'idx_plan_code_unique_idx', unique: true });
 PlanSchema.index({ type: 1 }, { name: 'idx_plan_type_idx' });
 PlanSchema.index({ createdByAdmin: 1 }, { name: 'idx_plan_createdByAdmin_idx' });
+
+/**
+ * Singleton invariant: exactly one plan may have isDefault=true AND active=true.
+ * This partial unique index enforces the constraint at the database level,
+ * independent of service-layer logic.
+ */
+PlanSchema.index(
+    { isDefault: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { isDefault: true, active: true },
+        name: 'unique_active_default_plan',
+    }
+);
+
 
 const connection = getUserConnection();
 export const Plan: Model<IPlan> =

@@ -10,7 +10,20 @@ export async function createPlan(payload: Record<string, unknown>) {
 
 export async function updatePlan(planId: string, payload: Record<string, unknown>) {
     return adminFetch(ADMIN_ROUTES.PLAN_BY_ID(planId), {
-        method: "PUT",
+        method: "PATCH",
         body: payload,
+    });
+}
+
+export async function archivePlan(planId: string, reason?: string) {
+    return adminFetch(ADMIN_ROUTES.PLAN_ARCHIVE(planId), {
+        method: "POST",
+        body: { reason },
+    });
+}
+
+export async function restorePlan(planId: string) {
+    return adminFetch(ADMIN_ROUTES.PLAN_RESTORE(planId), {
+        method: "POST",
     });
 }

@@ -3,20 +3,6 @@ import { BasePlanPayloadSchema } from "@esparex/contracts";
 
 const planShape = BasePlanPayloadSchema.shape;
 
-// limits, features, smartAlertConfig are optional schemas in shared. Unwrap them safely.
-const limitsSchema = planShape.limits instanceof z.ZodOptional ? planShape.limits.unwrap() : planShape.limits;
-const limitsShape = limitsSchema.shape;
-
-const featuresSchema = planShape.features instanceof z.ZodOptional ? planShape.features.unwrap() : planShape.features;
-const featuresShape = featuresSchema.shape;
-
-const smartAlertConfigSchema = planShape.smartAlertConfig instanceof z.ZodOptional ? planShape.smartAlertConfig.unwrap() : planShape.smartAlertConfig;
-const smartAlertConfigShape = smartAlertConfigSchema.shape;
-
-const unwrapOptional = <T extends z.ZodTypeAny>(schema: z.ZodOptional<T> | T): T => {
-    return schema instanceof z.ZodOptional ? (schema.unwrap() as T) : (schema as T);
-};
-
 export const planFormSchema = z.object({
     code: planShape.code,
     name: planShape.name,
@@ -25,29 +11,110 @@ export const planFormSchema = z.object({
     userType: planShape.userType,
     price: planShape.price,
     currency: z.string().min(1, "Currency is required"),
-    durationDays: unwrapOptional(planShape.durationDays).finite("Enter a valid number").int().min(0),
+    durationDays: z.number({ invalid_type_error: "Validity must be a number" }).int("Validity must be an integer").min(0, "Validity cannot be negative"),
     isDefault: z.boolean(),
     active: z.boolean(),
-    maxAds: unwrapOptional(limitsShape.maxAds).int().min(0),
-    maxServices: unwrapOptional(limitsShape.maxServices).int().min(0),
-    maxParts: unwrapOptional(limitsShape.maxParts).int().min(0),
-    spotlightCredits: unwrapOptional(limitsShape.spotlightCredits).int().min(0),
-    smartAlerts: unwrapOptional(limitsShape.smartAlerts).int().min(0),
-    matchFrequency: smartAlertConfigShape.matchFrequency,
-    radiusLimitKm: unwrapOptional(smartAlertConfigShape.radiusLimitKm).int().min(1, "Radius must be at least 1 km"),
-    notificationChannels: smartAlertConfigShape.notificationChannels,
-    priorityWeight: unwrapOptional(featuresShape.priorityWeight).int().min(1, "Min 1").max(10, "Max 10"),
+    maxAds: z.number({ invalid_type_error: "Ad Slots must be a number" }).int().min(0),
+    maxServices: z.number({ invalid_type_error: "Max Services must be a number" }).int().min(0),
+    maxParts: z.number({ invalid_type_error: "Max Parts must be a number" }).int().min(0),
+    spotlightCredits: z.number({ invalid_type_error: "Spotlight Credits must be a number" }).int().min(0),
+    smartAlerts: z.number({ invalid_type_error: "Alert Slots must be a number" }).int().min(0),
+    matchFrequency: z.enum(['realtime', 'hourly', 'daily']),
+    radiusLimitKm: z.number({ invalid_type_error: "Radius must be a number" }).int().min(0),
+    notificationChannels: z.array(z.string()),
+    priorityWeight: z.number({ invalid_type_error: "Priority Weight must be a number" }).int().min(1).max(10),
     businessBadge: z.boolean(),
     canEditAd: z.boolean(),
     showOnHomePage: z.boolean(),
 }).superRefine((data, ctx) => {
-    // Non-default plans must have a positive duration
-    if (!data.isDefault && data.durationDays < 1) {
+    // 1. Non-Free plans must have a positive duration (at least 1 day)
+    if (data.type !== "FREE_DEFAULT" && data.durationDays < 1) {
         ctx.addIssue({
             path: ["durationDays"],
             code: z.ZodIssueCode.custom,
             message: "Validity must be at least 1 day for non-default plans",
         });
+    }
+
+    // 2. FREE_DEFAULT plan must have price = 0
+    if (data.type === "FREE_DEFAULT" && data.price > 0) {
+        ctx.addIssue({
+            path: ["price"],
+            code: z.ZodIssueCode.custom,
+            message: "Free Plan price must be ₹0",
+        });
+    }
+
+    // 3. Paid non-Free plans should have a non-negative price
+    if (data.type !== "FREE_DEFAULT" && data.price < 0) {
+        ctx.addIssue({
+            path: ["price"],
+            code: z.ZodIssueCode.custom,
+            message: "Price cannot be negative",
+        });
+    }
+
+    // 4. FREE_DEFAULT and AD_PACK require maxAds >= 1
+    if ((data.type === "FREE_DEFAULT" || data.type === "AD_PACK") && (data.maxAds === undefined || data.maxAds < 1)) {
+        ctx.addIssue({
+            path: ["maxAds"],
+            code: z.ZodIssueCode.custom,
+            message: data.type === "FREE_DEFAULT" ? "Monthly free ad slots must be at least 1" : "Ad posting credits must be at least 1",
+        });
+    }
+
+    // 5. SPOTLIGHT requires spotlightCredits >= 1 and priorityWeight 1..10
+    if (data.type === "SPOTLIGHT") {
+        if (data.spotlightCredits === undefined || data.spotlightCredits < 1) {
+            ctx.addIssue({
+                path: ["spotlightCredits"],
+                code: z.ZodIssueCode.custom,
+                message: "Spotlight Credits must be at least 1",
+            });
+        }
+        if (data.priorityWeight === undefined || data.priorityWeight < 1 || data.priorityWeight > 10) {
+            ctx.addIssue({
+                path: ["priorityWeight"],
+                code: z.ZodIssueCode.custom,
+                message: "Priority Weight must be between 1 and 10",
+            });
+        }
+    }
+
+    // 6. BOOST_AD requires priorityWeight 1..10
+    if (data.type === "BOOST_AD") {
+        if (data.priorityWeight === undefined || data.priorityWeight < 1 || data.priorityWeight > 10) {
+            ctx.addIssue({
+                path: ["priorityWeight"],
+                code: z.ZodIssueCode.custom,
+                message: "Priority Weight must be between 1 and 10",
+            });
+        }
+    }
+
+    // 7. SMART_ALERT conditional validations
+    if (data.type === "SMART_ALERT") {
+        if (data.smartAlerts === undefined || data.smartAlerts < 1) {
+            ctx.addIssue({
+                path: ["smartAlerts"],
+                code: z.ZodIssueCode.custom,
+                message: "Alert Slots must be at least 1",
+            });
+        }
+        if (data.radiusLimitKm === undefined || data.radiusLimitKm < 1) {
+            ctx.addIssue({
+                path: ["radiusLimitKm"],
+                code: z.ZodIssueCode.custom,
+                message: "Radius Limit must be at least 1 km",
+            });
+        }
+        if (!data.notificationChannels || data.notificationChannels.length === 0) {
+            ctx.addIssue({
+                path: ["notificationChannels"],
+                code: z.ZodIssueCode.custom,
+                message: "Select at least one notification channel",
+            });
+        }
     }
 });
 
