@@ -12,3 +12,4 @@ export * from './payments';
 export * from './reports';
 export * from './search';
 export * from './smart-alerts';
+export * from './entitlement';

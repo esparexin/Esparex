@@ -267,6 +267,11 @@ const nextConfig = {
                 permanent: true,
             },
             {
+                source: '/plans',
+                destination: '/account/plans',
+                permanent: true,
+            },
+            {
                 source: '/business/my-business',
                 destination: '/account/business',
                 permanent: true,

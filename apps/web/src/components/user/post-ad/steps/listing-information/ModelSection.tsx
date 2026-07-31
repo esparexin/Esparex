@@ -17,6 +17,7 @@ export function ModelSection() {
     const brandIdValue = String(watch("brandId") ?? "");
     const modelId = String(watch("modelId") ?? "");
     const modelNameValue = String(watch("model") ?? "");
+    const customModelName = String(watch("customModelName") ?? "");
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;
@@ -27,11 +28,19 @@ export function ModelSection() {
 
     const onModelChange = useCallback((mId: string | null, mName: string) => {
         const aid = mId || ""; 
+        setValue("customModelName", "", { shouldDirty: true });
         setValue("modelId", aid, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
         setValue("model", mName, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
         setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true }); 
         setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
     }, [setValue]);
+
+    const onProposeCustomModel = useCallback((customName: string) => {
+        if (isEditMode) return;
+        setValue("customModelName", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("model", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("modelId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    }, [isEditMode, setValue]);
 
     if (requiresScreenSize) return null;
 
@@ -52,6 +61,9 @@ export function ModelSection() {
                         modelDisplayName={modelNameValue}
                         disabled={!brandNameValue || isEditMode}
                         onChange={(mId, mName) => onModelChange(mId, mName)}
+                        onProposeCustom={onProposeCustomModel}
+                        onClear={() => onModelChange("", "")}
+                        isCustom={Boolean(customModelName)}
                         onBrandResolved={(rbId, rbName) => { 
                             setValue("brandId", rbId, { shouldDirty: true }); 
                             setValue("brand", rbName, { shouldDirty: true }); 

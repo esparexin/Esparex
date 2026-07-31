@@ -28,6 +28,10 @@ export const BaseAdPayloadSchema = z.object({
     serviceTypeIds: z.array(optionalObjectId).optional(), // Unified support for service types
     brandId: optionalObjectId, // Canonical
     modelId: optionalObjectId, // Canonical
+    pendingBrandRequestId: optionalObjectId,
+    pendingModelRequestId: optionalObjectId,
+    customBrandName: z.string().trim().max(120).optional(),
+    customModelName: z.string().trim().max(120).optional(),
 
     screenSize: z.string(),
     listingType: z.enum(LISTING_TYPE_VALUES).optional(),

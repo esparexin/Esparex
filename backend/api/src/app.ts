@@ -51,6 +51,7 @@ import notificationRoutes from './routes/notificationRoutes';
 import businessRoutes from './routes/businessRoutes';
 import invoiceRoutes from './routes/invoiceRoutes';
 import paymentRoutes from './routes/paymentRoutes';
+import entitlementRoutes from './routes/entitlementRoutes';
 import reportRoutes from './routes/reportRoutes';
 import chatRoutes from './routes/chatRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
@@ -417,6 +418,7 @@ app.use('/api/v1/smart-alerts', smartAlertRoutes);
 app.use('/api/v1/businesses', businessRoutes);
 app.use('/api/v1/invoices', invoiceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1', entitlementRoutes);
 
 // Communication & Feedback
 app.use('/api/v1/contacts', contactRoutes);

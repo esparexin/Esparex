@@ -258,7 +258,7 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
         },
         payment: {
             razorpay: {
-                enabled: { type: Boolean, default: false },
+                enabled: { type: Boolean, default: true },
                 keyId: { type: String },
                 keySecret: { type: String }
             },

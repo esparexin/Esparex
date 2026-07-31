@@ -42,6 +42,23 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
 
         body.location = normalizedLocation;
 
+        // Controller Orchestration: Resolve custom brand/model proposal requests prior to Ad creation
+        if (body.customBrandName || body.customModelName) {
+            const { resolveCatalogRequestsForSubmission } = await import('@esparex/core/services/catalog/CatalogRequestService');
+            const resolved = await resolveCatalogRequestsForSubmission({
+                categoryId: String(body.categoryId || ''),
+                brandId: body.brandId ? String(body.brandId) : undefined,
+                customBrandName: typeof body.customBrandName === 'string' ? body.customBrandName : undefined,
+                modelId: body.modelId ? String(body.modelId) : undefined,
+                customModelName: typeof body.customModelName === 'string' ? body.customModelName : undefined,
+                userId: user._id.toString(),
+            });
+            if (resolved.pendingBrandRequestId) body.pendingBrandRequestId = resolved.pendingBrandRequestId;
+            if (resolved.pendingModelRequestId) body.pendingModelRequestId = resolved.pendingModelRequestId;
+            delete body.customBrandName;
+            delete body.customModelName;
+        }
+
         const ad = await AdOrchestrator.createAd(body, {
             actor: 'USER',
             authUserId: user._id.toString(),
