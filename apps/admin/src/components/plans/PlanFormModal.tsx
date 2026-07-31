@@ -421,7 +421,33 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         {/* Limits — conditional by type */}
                         <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-foreground-tertiary">Limits & Credits</p>
-                
+                            {formType === "FREE_DEFAULT" && (
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <label className={labelCls}>Monthly Free Ad Slots (maxAds)</label>
+                                        <input type="number" min={1} {...register("maxAds", { valueAsNumber: true })} className={inputCls} aria-invalid={Boolean(errors.maxAds)} />
+                                        <FieldError message={errors.maxAds?.message} />
+                                        <p className="mt-1 text-tiny text-foreground-subtle">Number of free ad slots reset automatically every month for registered users.</p>
+                                    </div>
+                                </div>
+                            )}
+                            {formType === "AD_PACK" && (
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
+                                        <label className={labelCls}>Ad Posting Credits (Slots)</label>
+                                        <input type="number" min={1} {...register("maxAds", { valueAsNumber: true })} className={inputCls} aria-invalid={Boolean(errors.maxAds)} />
+                                        <FieldError message={errors.maxAds?.message} />
+                                        <p className="mt-1 text-tiny text-foreground-subtle">Number of ad posting slots granted to the user upon purchasing this pack.</p>
+                                    </div>
+                                </div>
+                            )}
+                            {formType === "BOOST_AD" && (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className={labelCls}>Search Priority Weight (1..10)</label>
+                                        <input type="number" min={1} max={10} {...register("priorityWeight", { valueAsNumber: true })} className={inputCls} aria-invalid={Boolean(errors.priorityWeight)} />
+                                        <FieldError message={errors.priorityWeight?.message} />
+                                        <p className="mt-1 text-tiny text-foreground-subtle">Boost multiplier used by SearchRankingService.</p>
                                     </div>
                                 </div>
                             )}

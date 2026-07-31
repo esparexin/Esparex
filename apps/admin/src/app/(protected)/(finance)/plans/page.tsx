@@ -160,13 +160,20 @@ export default function PlansPage() {
             header: "Key Limits",
             cell: (plan) => (
                 <div className="text-xs text-foreground-secondary flex flex-col gap-1">
-                
-                            ) : (
-                                <span className="italic text-foreground-subtle">Standard</span>
-                            )}
-                        </div>
+                    {plan.type === "FREE_DEFAULT" && (
+                        <div>Free Slots: <strong className="font-semibold text-emerald-700">{plan.limits?.maxAds ?? 2}/month</strong></div>
                     )}
-
+                    {plan.type === "AD_PACK" && (
+                        <div>Ad Slots: <strong className="font-semibold text-amber-700">{plan.limits?.maxAds ?? 1} Slots</strong></div>
+                    )}
+                    {plan.type === "BOOST_AD" && (
+                        <div>Boost Priority: <strong className="font-semibold text-amber-600">{plan.features?.priorityWeight ?? 2}x Weight</strong></div>
+                    )}
+                    {plan.type === "SPOTLIGHT" && (
+                        <div>Spotlight: <strong className="font-semibold text-purple-600">{plan.limits?.spotlightCredits ?? 1} Credits</strong></div>
+                    )}
+                    {plan.type === "SMART_ALERT" && (
+                        <div>Alert Slots: <strong className="font-semibold text-sky-600">{plan.limits?.smartAlerts ?? 1} Slots</strong></div>
                     )}
                 </div>
             )
