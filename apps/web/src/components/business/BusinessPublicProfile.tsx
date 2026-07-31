@@ -15,6 +15,7 @@ import {
   Star,
   CheckCircle,
   Store,
+  MessageCircle,
 } from "@/icons/IconRegistry";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -92,7 +93,8 @@ export function BusinessPublicProfile({
     return ads;
   }, [effectiveActiveTab, ads, services, spareParts]);
 
-  const rawCover = business.coverImage || business.images?.[0] || null;
+  // Only use coverImage if explicitly set on business doc (do NOT duplicate logo into cover)
+  const rawCover = business.coverImage || null;
   const rawLogo = business.logo || business.images?.[0] || null;
 
   const hasValidCover = isRenderableUserPhoto(rawCover);
@@ -150,7 +152,7 @@ export function BusinessPublicProfile({
 
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url);
-        setShareLabel("Link copied");
+        setShareLabel("Copied!");
         window.setTimeout(() => setShareLabel("Share"), 1800);
       }
     } catch {
@@ -159,11 +161,11 @@ export function BusinessPublicProfile({
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6 p-3 md:p-6">
-      {/* Hero Profile Banner Card */}
-      <Card className="overflow-hidden rounded-2xl md:rounded-3xl border border-slate-200/80 shadow-xs bg-white">
+    <div className="max-w-5xl mx-auto space-y-3 sm:space-y-4 p-2.5 sm:p-6">
+      {/* Business Header Card */}
+      <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs bg-white">
         {/* Cover Banner */}
-        <div className="relative h-32 md:h-44 w-full bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 overflow-hidden">
+        <div className="relative h-24 sm:h-36 w-full bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 overflow-hidden">
           {hasValidCover ? (
             <SafeImage
               src={rawCover as string}
@@ -174,95 +176,146 @@ export function BusinessPublicProfile({
               sizes="100vw"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-between px-6 md:px-12 opacity-15 pointer-events-none">
-              <Building2 className="size-48 text-white -mr-10" />
+            <div className="absolute inset-0 flex items-center justify-between px-6 opacity-10 pointer-events-none">
+              <Building2 className="size-36 text-white" />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
         </div>
 
         {/* Profile Info Header */}
-        <CardContent className="pt-0 px-4 md:px-8 pb-6">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10 md:-mt-14 mb-4">
+        <CardContent className="pt-0 px-3.5 sm:px-6 pb-4 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3 -mt-8 sm:-mt-12 mb-3">
             {/* Business Logo Avatar */}
-            <div className="relative size-20 md:size-28 shrink-0 rounded-2xl bg-white p-1 shadow-md border-2 border-white overflow-hidden flex items-center justify-center">
+            <div className="relative size-16 sm:size-24 shrink-0 rounded-2xl bg-white p-1 shadow-md border-2 border-white overflow-hidden flex items-center justify-center">
               {hasValidLogo ? (
                 <SafeImage
                   src={rawLogo as string}
                   alt={`${business.name} logo`}
                   fill
                   className="object-cover rounded-xl"
-                  sizes="112px"
+                  sizes="96px"
                 />
               ) : (
                 <div className="size-full rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                  <Building2 className="size-10 md:size-12" />
+                  <Building2 className="size-8 sm:size-10" />
                 </div>
               )}
             </div>
 
             {/* Title & Metadata */}
-            <div className="flex-1 min-w-0 pt-1 sm:pt-0">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="flex-1 min-w-0 pt-0.5 sm:pt-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{business.name}</h1>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">{business.name}</h1>
                     {business.status === "live" && (
-                      <Badge className="bg-blue-600 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
-                        <CheckCircle className="size-3" />
-                        Verified Business
+                      <Badge className="bg-blue-600 text-white text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
+                        <CheckCircle className="size-2.5 sm:size-3" />
+                        Verified
                       </Badge>
                     )}
                   </div>
-                  {business.tagline && <p className="text-xs md:text-sm text-slate-500 mt-0.5 font-normal">{business.tagline}</p>}
+                  {business.tagline && <p className="text-xs text-slate-500 mt-0.5 font-normal">{business.tagline}</p>}
 
-                  <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
-                    <span className="inline-flex items-center gap-1 text-slate-700 font-medium bg-slate-100 px-2.5 py-0.5 rounded-md">
-                      <Store className="size-3.5 text-blue-600" />
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500 font-normal">
+                    <span className="inline-flex items-center gap-1 text-slate-700 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">
+                      <Store className="size-3 text-blue-600" />
                       {primaryBusinessType}
                     </span>
                     {mapData.locationLabel && (
-                      <span className="inline-flex items-center gap-1 text-slate-500">
-                        <MapPin className="size-3.5 text-slate-400" />
+                      <span className="inline-flex items-center gap-1 text-slate-500 text-[11px]">
+                        <MapPin className="size-3 text-slate-400" />
                         {mapData.locationLabel}
                       </span>
                     )}
                     {business.rating ? (
-                      <span className="inline-flex items-center gap-1 text-slate-700 font-semibold ml-1">
-                        <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                      <span className="inline-flex items-center gap-1 text-slate-700 font-semibold text-[11px]">
+                        <Star className="size-3 fill-amber-400 text-amber-400" />
                         {business.rating.toFixed(1)}
-                        <span className="text-slate-400 font-normal">({business.totalReviews || 0})</span>
                       </span>
                     ) : null}
                   </div>
                 </div>
-
-                <div className="flex items-center gap-2 shrink-0 pt-1 md:pt-0">
-                  <Button variant="outline" size="sm" onClick={handleShare} className="h-9 px-3.5 rounded-xl border-slate-200 text-slate-700 text-xs font-semibold gap-1.5 hover:bg-slate-50">
-                    <Share2 className="size-3.5" />
-                    {shareLabel}
-                  </Button>
-                </div>
               </div>
             </div>
+          </div>
+
+          {/* Quick Action Contact Buttons Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100">
+            {business.mobile && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-xl border-blue-200 bg-blue-50/50 hover:bg-blue-100 text-blue-700 text-xs font-semibold gap-1.5 w-full"
+              >
+                <a href={`tel:${business.mobile}`}>
+                  <Phone className="size-3.5" />
+                  Call
+                </a>
+              </Button>
+            )}
+
+            {(business.whatsappNumber || business.mobile) && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-xl border-green-200 bg-green-50/50 hover:bg-green-100 text-green-700 text-xs font-semibold gap-1.5 w-full"
+              >
+                <a
+                  href={buildWhatsappHref(business.whatsappNumber || business.mobile!)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="size-3.5" />
+                  WhatsApp
+                </a>
+              </Button>
+            )}
+
+            {business.email && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-xl border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold gap-1.5 w-full"
+              >
+                <a href={`mailto:${business.email}`}>
+                  <Mail className="size-3.5" />
+                  Email
+                </a>
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              className="h-9 rounded-xl border-slate-200 text-slate-700 text-xs font-semibold gap-1.5 w-full hover:bg-slate-50"
+            >
+              <Share2 className="size-3.5" />
+              {shareLabel}
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Main Content Grid: Left Details + Right Contact Sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      {/* Main Content Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Left Column: About + Listings */}
-        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+        <div className="lg:col-span-2 space-y-3 sm:space-y-4">
           {/* About Card */}
           {business.description ? (
-            <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
-              <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">About Business</CardTitle>
+            <Card className="rounded-2xl border-slate-200/80 shadow-2xs bg-white">
+              <CardHeader className="pb-1.5 pt-3.5 px-3.5 sm:px-5">
+                <CardTitle className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">About Business</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3 px-4 md:px-6 pb-4">
-                <p className="leading-relaxed text-sm text-slate-700 font-normal whitespace-pre-wrap">{business.description}</p>
+              <CardContent className="space-y-2.5 px-3.5 sm:px-5 pb-3.5">
+                <p className="leading-relaxed text-xs sm:text-sm text-slate-700 font-normal whitespace-pre-wrap">{business.description}</p>
                 {business.website ? (
-                  <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5 pt-1.5 border-t border-slate-100">
                     <Globe className="size-3.5 text-slate-400 shrink-0" />
                     <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate font-medium">
                       {business.website}
@@ -273,15 +326,15 @@ export function BusinessPublicProfile({
             </Card>
           ) : null}
 
-          {/* Listings Tabs */}
+          {/* Listings Tabs Section */}
           {tabs.length > 0 ? (
-            <div className="space-y-4">
-              <div className="flex gap-2 border-b border-slate-200 pb-1 overflow-x-auto scrollbar-hide">
+            <div className="space-y-3">
+              <div className="flex gap-1.5 border-b border-slate-200 pb-1 overflow-x-auto scrollbar-hide">
                 {tabs.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`-mb-px flex items-center gap-1.5 border-b-2 px-3.5 py-2.5 text-xs md:text-sm font-semibold transition-colors whitespace-nowrap ${
+                    className={`-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-xs font-semibold transition-colors whitespace-nowrap ${
                       activeTab === tab.key
                         ? "border-blue-600 text-blue-600 font-bold"
                         : "border-transparent text-slate-500 hover:text-slate-800 font-normal"
@@ -290,7 +343,7 @@ export function BusinessPublicProfile({
                   >
                     {tab.icon}
                     {tab.label}
-                    <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                    <span className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
                       activeTab === tab.key ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-600"
                     }`}>
                       {tab.count}
@@ -300,7 +353,7 @@ export function BusinessPublicProfile({
               </div>
 
               {activeItems.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3">
                   {activeItems.map((item, index) => {
                     const record = item as Record<string, unknown>;
                     const id = String(record.id || record._id || "");
@@ -310,79 +363,30 @@ export function BusinessPublicProfile({
                   })}
                 </div>
               ) : (
-                <p className="py-10 text-center text-sm text-slate-500 font-normal bg-white rounded-2xl border border-slate-200/80">
+                <p className="py-8 text-center text-xs text-slate-500 font-normal bg-white rounded-2xl border border-slate-200/80">
                   No {activeTab === "ads" ? "listings" : activeTab === "services" ? "services" : "spare parts"} available.
                 </p>
               )}
             </div>
           ) : (
-            <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
-              <CardContent className="py-10 text-center text-sm text-slate-500 font-normal">
+            <Card className="rounded-2xl border-slate-200/80 shadow-2xs bg-white">
+              <CardContent className="py-8 text-center text-xs text-slate-500 font-normal">
                 This business does not have any live public listings yet.
               </CardContent>
             </Card>
           )}
         </div>
 
-        {/* Right Sidebar: Contact Info & Location */}
-        <div className="space-y-4 md:space-y-6">
-          {/* Contact Card */}
-          <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
-            <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-              <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">Contact Details</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 md:px-6 pb-4 space-y-2.5">
-              {business.mobile ? (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="size-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                    <Phone className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Mobile</p>
-                    <a href={`tel:${business.mobile}`} className="text-xs font-semibold text-slate-800 hover:text-blue-600 block truncate">
-                      {business.mobile}
-                    </a>
-                  </div>
-                </div>
-              ) : null}
-              {business.whatsappNumber ? (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="size-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center shrink-0">
-                    <Phone className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">WhatsApp</p>
-                    <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-slate-800 hover:text-green-600 block truncate">
-                      {business.whatsappNumber}
-                    </a>
-                  </div>
-                </div>
-              ) : null}
-              {business.email ? (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="size-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                    <Mail className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email</p>
-                    <a href={`mailto:${business.email}`} className="text-xs font-semibold text-slate-800 hover:text-red-600 truncate block">
-                      {business.email}
-                    </a>
-                  </div>
-                </div>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          {/* Location Card */}
-          <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
-            <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-              <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+        {/* Right Sidebar: Location & Address */}
+        <div className="space-y-3 sm:space-y-4">
+          <Card className="rounded-2xl border-slate-200/80 shadow-2xs bg-white">
+            <CardHeader className="pb-1.5 pt-3.5 px-3.5 sm:px-5">
+              <CardTitle className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="size-3.5 text-slate-400" />
-                Store Location
+                Store Location & Address
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 px-4 md:px-6 pb-4">
+            <CardContent className="space-y-2.5 px-3.5 sm:px-5 pb-3.5">
               {mapData.addressQuery ? (
                 <address className="not-italic text-xs text-slate-600 leading-relaxed font-normal">
                   {business.location?.address ? <>{business.location.address}<br /></> : null}
@@ -391,8 +395,8 @@ export function BusinessPublicProfile({
               ) : null}
 
               <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
-                <div className="flex h-28 flex-col items-center justify-center gap-2 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] p-4 text-center">
-                  <div className="size-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                <div className="flex h-24 flex-col items-center justify-center gap-1.5 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] p-3 text-center">
+                  <div className="size-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
                     <MapPin className="size-4" />
                   </div>
                   <p className="text-xs font-medium text-slate-700 line-clamp-2">
@@ -400,8 +404,8 @@ export function BusinessPublicProfile({
                   </p>
                 </div>
                 {mapData.externalUrl ? (
-                  <div className="flex items-center justify-between border-t border-slate-100 bg-white px-3.5 py-2.5">
-                    <span className="text-[11px] text-slate-500">Google Maps</span>
+                  <div className="flex items-center justify-between border-t border-slate-100 bg-white px-3 py-2">
+                    <span className="text-[10px] text-slate-500">Google Maps</span>
                     <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline">
                       Open in Maps <ExternalLink className="size-3" />
                     </a>
