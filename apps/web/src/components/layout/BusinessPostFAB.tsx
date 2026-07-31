@@ -52,14 +52,15 @@ export function BusinessPostFAB() {
     // Only for authenticated live-business users
     if (status !== "authenticated" || !user || !isApprovedBusiness(user)) return null;
 
-    // Hide while the user is already on a posting page
+    // Hide while the user is on posting pages or account workspace
     if (
         pathname?.startsWith("/post-service") ||
         pathname?.startsWith("/post-spare-part") ||
         pathname?.startsWith("/post-ad") ||
         pathname?.startsWith("/edit-service") ||
         pathname?.startsWith("/edit-spare-part") ||
-        pathname?.startsWith("/edit-ad")
+        pathname?.startsWith("/edit-ad") ||
+        pathname?.startsWith("/account")
     ) {
         return null;
     }

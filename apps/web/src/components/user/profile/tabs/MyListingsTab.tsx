@@ -228,7 +228,7 @@ export function MyListingsTab({
     // Shared Configuration
     const configMap: Record<ListingSubTab, SectionConfig> = {
         ads: {
-            title: "My Classified Ads",
+            title: "My Listings",
             icon: <Package className="h-5 w-5 text-link" />,
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
             selectedStatus: adsStatus,

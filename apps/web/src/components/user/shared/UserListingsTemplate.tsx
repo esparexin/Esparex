@@ -1,5 +1,4 @@
 import { PlusCircle, LayoutGrid } from "@/icons/IconRegistry";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -61,34 +60,34 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     }[activeSubTabColor as "blue" | "violet" | "teal"] || "bg-blue-600 hover:bg-blue-700";
 
     return (
-        <Card className="border-0 shadow-sm md:border md:shadow-sm overflow-hidden">
+        <div className="w-full md:rounded-xl md:border md:border-slate-200/90 md:bg-white md:shadow-sm overflow-hidden">
             {/* Header */}
-            <div className="px-4 md:px-6 pt-5 pb-0">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+            <div className="px-3 md:px-6 pt-4 pb-3">
+                <div className="flex items-center justify-between mb-3">
+                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                         {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
-                    </h2>
+                    </h1>
                     {onPost && (
                         <Button
                             onClick={onPost}
                             size="sm"
-                            className={`${postBtnClass} text-white text-xs h-11 px-3`}
+                            className={`${postBtnClass} text-white text-xs h-9 px-3 font-semibold rounded-lg shadow-sm`}
                         >
-                            <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
-                            {postLabel || "Post New"}
+                            <PlusCircle className="h-3.5 w-3.5 mr-1" />
+                            {postLabel || "Post Ad"}
                         </Button>
                     )}
                 </div>
 
                 {/* Sub-tabs — rendered only if there are 2 or more available sub-tabs */}
                 {subTabs && subTabs.length > 1 && onSubTabChange && (
-                    <div className="flex gap-0 border-b border-slate-100 overflow-x-auto no-scrollbar touch-pan-x py-1">
+                    <div className="flex gap-0 border-b border-slate-100 overflow-x-auto no-scrollbar touch-pan-x py-1 mb-3">
                         {subTabs.map(t => (
                             <button
                                 key={t.value}
                                 onClick={() => onSubTabChange(t.value)}
-                                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[44px]
+                                className={`flex items-center gap-1.5 px-4 py-2 text-xs font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap min-h-[36px]
                                     ${activeSubTab === t.value
                                         ? activeTabClass
                                         : "border-transparent text-muted-foreground hover:text-foreground-secondary"
@@ -100,30 +99,30 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         ))}
                     </div>
                 )}
-            </div>
 
-            <CardContent className="px-3 md:px-6 pt-3 pb-5">
-                {/* Status Pills */}
-                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar touch-pan-x mb-3">
+                {/* 36px Segmented Control Status Tabs */}
+                <div className="grid grid-cols-3 gap-1 bg-slate-100/90 p-1 rounded-xl h-9 max-w-sm">
                     {statusTabs.map((status) => (
                         <button
                             key={status}
                             onClick={() => onStatusChange(status)}
-                            className={`px-4 h-11 flex items-center justify-center rounded-full text-xs font-semibold whitespace-nowrap transition-colors min-h-[44px] ${selectedStatus === status
-                                ? "bg-slate-900 text-white shadow"
-                                : "bg-slate-100 text-foreground-tertiary hover:bg-slate-200"
+                            className={`h-7 flex items-center justify-center rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${selectedStatus === status
+                                ? "bg-white text-slate-900 shadow-sm font-bold"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                                 }`}
                         >
                             {status.charAt(0).toUpperCase() + status.slice(1)}
                             {getStatusCount ? (
-                                <span className="ml-1.5 text-2xs opacity-60">
-                                    {getStatusCount(status)}
+                                <span className="ml-1 text-2xs opacity-75">
+                                    ({getStatusCount(status)})
                                 </span>
                             ) : null}
                         </button>
                     ))}
                 </div>
+            </div>
 
+            <div className="px-3 md:px-6 pb-4">
                 {/* Content */}
                 {loading ? (
                     <LoadingSkeleton />
@@ -140,14 +139,14 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         {emptyState.cta}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="divide-y divide-slate-100 border-t border-slate-100">
                         {items.map((item) => (
                             <div key={getItemKey(item)}>{renderItem(item)}</div>
                         ))}
                     </div>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
 

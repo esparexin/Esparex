@@ -1,6 +1,6 @@
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
-import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff, Power } from "@/icons/IconRegistry";
+import { Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff, Power } from "@/icons/IconRegistry";
 import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
@@ -52,7 +52,7 @@ type ListingViews = {
 };
 
 export function ListingItem({
-    title, status, listingType = "ad", thumbnail, priceLabel, priceClassName, badgeColor = "blue",
+    title, status, listingType = "ad", thumbnail, priceLabel, priceClassName, badgeColor: _badgeColor = "blue",
     rejectionReason, createdAt, expiresAt, views, likes,
     getStatusBadge, editHref, detailHref,
     onDelete, onRenew, onDeactivate, onActivate, onMarkSold,
@@ -70,8 +70,8 @@ export function ListingItem({
     const showEdit = isActive || isDeactivated || isPending;
     const showDeactivate = isActive;
     const showActivate = isDeactivated;
-    // Delete is allowed everywhere EXCEPT on LIVE Ads (must be deactivated first)
-    const showDelete = !(isActive && isAd); 
+    // Delete rule: STRICTLY HIDDEN on LIVE listings, allowed only on inactive/terminal states
+    const showDelete = !isActive; 
     
     const showMarkSold = isAd && (isActive || isExpired);
     const showRenew = !isAd && (isExpired || isSold);
@@ -80,36 +80,15 @@ export function ListingItem({
     const totalViews = typeof views === "number" ? views : viewMetrics?.total ?? 0;
     const totalLikes = viewMetrics?.favorites ?? likes ?? 0;
 
-    const colorVariants = {
-        blue: {
-            bg: "bg-blue-50 text-blue-300",
-            border: "hover:border-blue-200",
-            price: "text-link-dark"
-        },
-        violet: {
-            bg: "bg-violet-50 text-violet-300",
-            border: "hover:border-violet-200",
-            price: "text-violet-700"
-        },
-        teal: {
-            bg: "bg-teal-50 text-teal-300",
-            border: "hover:border-teal-200",
-            price: "text-teal-700"
-        }
-    };
-
-    const colors = colorVariants[badgeColor];
-
     return (
         <div 
             className={cn(
-                "flex gap-3 p-3 rounded-xl border bg-white hover:shadow-sm transition-all group",
-                colors.border,
+                "py-3.5 flex gap-3.5 items-start border-b border-slate-100 last:border-b-0 bg-transparent transition-all group",
                 className
             )}
         >
             {/* Thumbnail */}
-            <div className={cn("relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center", colors.bg)}>
+            <div className="relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-100">
                 <SafeImage
                     src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
                     alt={title}
@@ -126,51 +105,56 @@ export function ListingItem({
                 <div>
                     <div className="flex items-start justify-between gap-2">
                         {detailHref ? (
-                            <Link href={detailHref} className="hover:text-link transition-colors">
-                                <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
+                            <Link href={detailHref} className="hover:text-link transition-colors min-w-0 flex-1">
+                                <h2 className="font-semibold text-base text-slate-900 line-clamp-1">{title}</h2>
                             </Link>
                         ) : (
-                            <h3 className="font-medium text-sm line-clamp-1 text-foreground">{title}</h3>
+                            <h2 className="font-semibold text-base text-slate-900 line-clamp-1 min-w-0 flex-1">{title}</h2>
                         )}
-                        {getStatusBadge(status)}
+                        <div className="shrink-0">{getStatusBadge(status)}</div>
                     </div>
                     
-                    <p className={cn("text-xs font-bold mt-0.5", priceClassName || colors.price)}>{priceLabel}</p>
+                    <p className={cn("text-lg font-bold text-emerald-600 mt-0.5", priceClassName)}>{priceLabel}</p>
 
                     {status === "rejected" && rejectionReason && (
-                        <p className="text-2xs text-red-500 mt-0.5 line-clamp-2">Reason: {rejectionReason}</p>
+                        <p className="text-xs text-red-500 mt-0.5 line-clamp-2 font-medium">Reason: {rejectionReason}</p>
                     )}
 
-                    {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-2xs text-muted-foreground">
-                        {totalViews > 0 && (
-                            <span className="flex items-center gap-1">
-                                <Eye className="h-3 w-3" /> {totalViews}
-                            </span>
-                        )}
+                    {/* Single-Line Meta Info */}
+                    <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-slate-500 font-normal">
+                        <span>👁 {totalViews}</span>
                         {totalLikes > 0 && (
-                            <span className="flex items-center gap-1">
-                                <Heart className="h-3 w-3" /> {totalLikes}
-                            </span>
+                            <>
+                                <span>•</span>
+                                <span className="flex items-center gap-1 text-rose-600 font-medium">
+                                    <Heart className="h-3 w-3 fill-rose-500" /> {totalLikes}
+                                </span>
+                            </>
                         )}
                         {isActive && expiresAt && (
-                            <span className="flex items-center gap-1 text-amber-600 font-medium">
-                                <Clock className="h-3 w-3" /> Expires <RelativeTimeText value={expiresAt} />
-                            </span>
+                            <>
+                                <span>•</span>
+                                <span className="text-amber-700 font-medium">
+                                    <Clock className="h-3 w-3 inline mr-0.5" /> <RelativeTimeText value={expiresAt} /> left
+                                </span>
+                            </>
+                        )}
+                        {!isActive && createdAt && (
+                            <>
+                                <span>•</span>
+                                <span className="text-slate-400">
+                                    <RelativeTimeText value={createdAt} />
+                                </span>
+                            </>
                         )}
                         {metaBadges.map((badge, idx) => {
                             if (!badge) return null;
                             return (
                                 <span key={idx} className={cn("flex items-center gap-1", badge.className)}>
-                                    {badge.icon} {badge.label}
+                                    • {badge.icon} {badge.label}
                                 </span>
                             );
                         })}
-                        {!isActive && createdAt && (
-                            <span className="flex items-center gap-1 text-foreground-subtle">
-                                <Clock className="h-3 w-3" /> <RelativeTimeText value={createdAt} />
-                            </span>
-                        )}
                     </div>
 
                     {/* Tags */}
@@ -179,7 +163,7 @@ export function ListingItem({
                             {tags.map((tag, idx) => {
                                 if (!tag) return null;
                                 return (
-                                    <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-foreground-tertiary border-slate-100")}>
+                                    <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-slate-600 border-slate-100")}>
                                         {tag.label}
                                     </span>
                                 );
@@ -188,60 +172,60 @@ export function ListingItem({
                     )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-wrap items-center justify-end gap-2 mt-2">
+                {/* Compact Action Buttons */}
+                <div className="flex flex-wrap items-center justify-end gap-2 mt-2.5">
+                    {showEdit && (
+                        <Link href={editHref}>
+                            <Button variant="outline" size="sm" className="h-9 px-3 text-xs font-semibold border-slate-200 text-slate-800 hover:bg-slate-50 rounded-lg">
+                                <Edit2 className="h-3.5 w-3.5 mr-1" /> Edit
+                            </Button>
+                        </Link>
+                    )}
                     {onMarkSold && showMarkSold && (
                         <Button 
                             size="sm" variant="outline"
-                            className="h-11 text-xs text-green-700 border-green-200 hover:bg-green-50"
+                            className="h-9 px-3 text-xs font-semibold text-emerald-700 border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/60 rounded-lg"
                             onClick={onMarkSold}
                         >
-                            <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
+                            <CheckSquare className="h-3.5 w-3.5 mr-1" /> Mark Sold
                         </Button>
                     )}
                     {onDeactivate && showDeactivate && (
                         <Button
                             size="sm" variant="outline"
-                            className="h-11 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
+                            className="h-9 px-3 text-xs font-semibold text-amber-700 border-amber-200 bg-amber-50/60 hover:bg-amber-100/60 rounded-lg"
                             onClick={onDeactivate}
                         >
-                            <PowerOff className="h-3 w-3 mr-1" /> Deactivate
+                            <PowerOff className="h-3.5 w-3.5 mr-1" /> Deactivate
                         </Button>
                     )}
                     {onActivate && showActivate && (
                         <Button
                             size="sm" variant="outline"
-                            className="h-11 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                            className="h-9 px-3 text-xs font-semibold text-blue-700 border-blue-200 bg-blue-50/60 hover:bg-blue-100/60 rounded-lg"
                             onClick={onActivate}
                         >
-                            <Power className="h-3 w-3 mr-1" /> Activate
+                            <Power className="h-3.5 w-3.5 mr-1" /> Activate
                         </Button>
                     )}
                     {onRenew && showRenew && (
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-11 text-xs text-link border-blue-200 hover:bg-blue-50"
+                            className="h-9 px-3 text-xs font-semibold text-blue-600 border-blue-200 hover:bg-blue-50 rounded-lg"
                             onClick={onRenew}
                         >
-                            <RefreshCw className="h-3 w-3 mr-1" /> Renew
+                            <RefreshCw className="h-3.5 w-3.5 mr-1" /> Renew
                         </Button>
-                    )}
-                    {showEdit && (
-                        <Link href={editHref}>
-                            <Button variant="outline" size="sm" className="h-11 text-xs">
-                                <Edit2 className="h-3 w-3 mr-1" /> Edit
-                            </Button>
-                        </Link>
                     )}
                     {showDelete && (
                         <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            className="h-11 w-11 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="h-9 px-3 text-xs font-semibold text-red-600 border-red-200 bg-red-50/40 hover:bg-red-50 rounded-lg"
                             onClick={onDelete}
                         >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
                         </Button>
                     )}
                 </div>
