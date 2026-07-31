@@ -176,7 +176,7 @@ export function RelatedBusinessesSection({
   };
 
   return (
-    <section className="mt-8 md:mt-12 px-4 md:px-0">
+    <section id="nearby-repair-services" className="mt-4 md:mt-6 px-3.5 md:px-0">
       <div className="mb-4 md:mb-6 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold md:text-xl text-foreground">{sectionCopy.title}</h2>
