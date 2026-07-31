@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ChevronLeft, ChevronRight, CheckCircle, MapPin, RefreshCcw, Wrench } from "@/icons/IconRegistry";
+import { AlertCircle, ChevronLeft, ChevronRight, MapPin, RefreshCcw, Wrench } from "@/icons/IconRegistry";
 
 import { getBusinesses, type Business } from "@/lib/api/user/businesses";
 import type { UserPage } from "@/lib/routeUtils";
@@ -16,7 +16,7 @@ import {
   normalizeRelatedBusinessesDiscoveryContext,
 } from "@/lib/listings/listingDiscoveryContext";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries/queryKeys";
