@@ -60,7 +60,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
 
         return (
             <div
-                className="grid min-w-0 flex-1 gap-1.5"
+                className="grid min-w-0 flex-1 gap-1"
                 style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
             >
                 {items.map((item) => {
@@ -74,14 +74,14 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                             href={href}
                             aria-current={isActive ? "page" : undefined}
                             className={cn(
-                                "flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 text-center transition-colors",
+                                "flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-center transition-colors",
                                 isActive
-                                    ? "bg-blue-50 text-link-dark"
+                                    ? "bg-blue-50 text-link-dark font-bold"
                                     : "text-muted-foreground hover:bg-slate-50 hover:text-foreground"
                             )}
                         >
-                            <Icon className="h-5 w-5 shrink-0" />
-                            <span className="max-w-full truncate text-2xs font-semibold leading-tight">
+                            <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: '18px', height: '18px' }} />
+                            <span className="max-w-full truncate text-[11px] font-semibold leading-tight">
                                 {item.label}
                             </span>
                         </Link>
@@ -94,9 +94,9 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
     return (
         <nav
             aria-label="Mobile footer navigation"
-            className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_28px_rgba(15,23,42,0.08)] backdrop-blur-xl md:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/95 shadow-[0_-4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl md:hidden"
         >
-            <div className="mx-auto flex max-w-screen-sm items-end gap-1.5 px-2 pt-2 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            <div className="mx-auto flex max-w-screen-sm items-end gap-1 px-2 pt-1 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.35rem,env(safe-area-inset-bottom))]">
                 {renderNavItems(leftItems)}
 
                 <button
@@ -104,23 +104,23 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     disabled={!isBackendUp}
                     aria-label="Create a new listing"
                     className={cn(
-                        "flex h-[72px] w-[76px] shrink-0 flex-col items-center justify-start gap-1 rounded-[24px] px-2 pt-0.5 text-center transition-transform active:scale-95",
+                        "flex h-[54px] w-[58px] shrink-0 flex-col items-center justify-start gap-0.5 rounded-xl px-1 pt-0.5 text-center transition-transform active:scale-95",
                         !isBackendUp && "cursor-not-allowed opacity-50"
                     )}
                 >
                     <div
                         className={cn(
-                            "flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-transform",
+                            "flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-transform",
                             isBackendUp
                                 ? "bg-blue-600 text-white shadow-blue-200"
                                 : "bg-muted text-muted-foreground"
                         )}
                     >
-                        <PlusCircle className="h-6 w-6" />
+                        <PlusCircle className="h-5 w-5" />
                     </div>
                     <span
                         className={cn(
-                            "text-2xs font-semibold leading-tight",
+                            "text-[11px] font-semibold leading-tight",
                             isBackendUp ? "text-link" : "text-muted-foreground"
                         )}
                     >

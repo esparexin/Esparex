@@ -110,27 +110,33 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
             )}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Main Single Responsive Footer Content Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6 mb-3 md:mb-6">
+                {/* Mobile Single-Line Footer Links */}
+                <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs text-foreground-tertiary md:hidden mb-3">
+                    {FOOTER_LINK_SECTIONS.flatMap((section) => section.links).map((link, idx, arr) => (
+                        <div key={link.label} className="inline-flex items-center gap-2.5">
+                            {renderLink(link.label, link.href, link.pageKey, true)}
+                            {idx < arr.length - 1 && <span className="text-slate-300 select-none">•</span>}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Main Desktop Footer Content Grid */}
+                <div className="hidden md:grid md:grid-cols-4 gap-6 mb-6">
                     {/* Brand Block */}
-                    <div className="col-span-2 md:col-span-1 space-y-4 text-left mb-1 md:mb-0">
+                    <div className="col-span-1 space-y-4 text-left">
                         {renderBrandBlock()}
                     </div>
 
                     {/* Link Sections */}
-                    {FOOTER_LINK_SECTIONS.map((section, index) => (
+                    {FOOTER_LINK_SECTIONS.map((section) => (
                         <div
                             key={section.title}
-                            className={cn(
-                                "col-span-1 rounded-xl border md:border-0 p-2.5 sm:p-3.5 md:p-0 text-left",
-                                isDark ? "border-slate-800 bg-slate-900/60 md:bg-transparent" : "border-slate-200 bg-white md:bg-transparent",
-                                index === 2 ? "col-span-2 md:col-span-1" : ""
-                            )}
+                            className="col-span-1 text-left"
                         >
-                            <h3 className={cn("mb-1.5 md:mb-4 font-bold uppercase tracking-wider text-[11px] md:text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
+                            <h3 className={cn("mb-4 font-bold uppercase tracking-wider text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
                             </h3>
-                            <ul className="space-y-0.5 md:space-y-2">
+                            <ul className="space-y-2">
                                 {section.links.map((link) => (
                                     <li key={link.label} className="leading-5">
                                         {renderLink(link.label, link.href, link.pageKey, true)}

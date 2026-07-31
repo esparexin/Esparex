@@ -356,10 +356,10 @@ export function Header({
       {/* ── MOBILE HEADER INNER (< MD) ───────────────────────────────────────────────────────────── */}
       <div className="md:hidden">
         {/* Top Location Bar */}
-        <div className="h-9 bg-slate-50/80 border-b border-slate-100 flex items-center px-4">
+        <div className="h-11 bg-slate-50/90 border-b border-slate-100 flex items-center px-4">
           <button
             type="button"
-            className="flex items-center gap-2 mr-3 h-9"
+            className="flex items-center gap-2 mr-3 h-10"
             onClick={() => navigateTo("home")}
             aria-label="Go to homepage"
           >
@@ -368,15 +368,15 @@ export function Header({
               alt="Esparex"
               width={512}
               height={206}
-              style={{ height: "24px", width: "auto" }}
+              style={{ height: "26px", width: "auto" }}
             />
           </button>
 
-          <div className="h-3.5 w-[1px] bg-slate-200 mx-2" />
+          <div className="h-4 w-[1px] bg-slate-200 mx-2" />
 
           <button
             type="button"
-            className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left h-9"
+            className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left h-10"
             onClick={() => isMounted && setShowLocationSelector(true)}
             aria-label={
               headerLocationDetails.headerText
@@ -384,13 +384,13 @@ export function Header({
                 : "Open location selector"
             }
           >
-            <MapPin className="h-3.5 w-3.5 text-blue-500 mr-1.5 flex-shrink-0" />
-            <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground-tertiary">
+            <MapPin className="h-4 w-4 text-blue-600 mr-1.5 flex-shrink-0" />
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-800">
               <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                 {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
               </span>
             </span>
-            <ChevronDown className="h-3.5 w-3.5 text-foreground-subtle ml-1.5 flex-shrink-0" />
+            <ChevronDown className="h-4 w-4 text-slate-500 ml-1.5 flex-shrink-0" />
           </button>
         </div>
 
