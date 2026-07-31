@@ -23,6 +23,7 @@ export const PLAN_SCALAR_FIELDS = [
     'currency',
     'durationDays',
     'type',
+    'category',
     'userType',
     'credits',
     'active',
@@ -63,8 +64,10 @@ export const buildPlanPayload = (body: Record<string, unknown>, adminId?: string
     // Nested: smartAlertConfig (only relevant for SMART_ALERT type)
     if (body.smartAlertConfig && typeof body.smartAlertConfig === 'object' && !Array.isArray(body.smartAlertConfig)) {
         const s = body.smartAlertConfig as Record<string, unknown>;
+        const limits = safeBody.limits as Record<string, unknown> | undefined;
+        const fallbackMaxAlerts = limits?.smartAlerts ?? 0;
         safeBody.smartAlertConfig = {
-            maxAlerts: Number(s.maxAlerts ?? 0),
+            maxAlerts: Number(s.maxAlerts ?? fallbackMaxAlerts),
             matchFrequency: s.matchFrequency ?? 'daily',
             radiusLimitKm: Number(s.radiusLimitKm ?? 50),
             notificationChannels: Array.isArray(s.notificationChannels) ? s.notificationChannels : ['push'],

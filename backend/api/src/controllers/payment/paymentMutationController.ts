@@ -10,6 +10,7 @@ import {
     getUserForPayment,
 } from '@esparex/core/domains/payments/application/TransactionService';
 import { getPlanById } from '@esparex/core/domains/payments/application/PlanService';
+import { processSuccessfulPayment } from '@esparex/core/domains/payments/application/PaymentProcessingService';
 import { respond } from "../../utils/respond";
 import { ApiResponse } from "@esparex/contracts";
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
@@ -47,8 +48,12 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
 
         const plan = await getPlanById(normalizedPlanId);
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
+        const isZeroCost = plan.price === 0;
         const razorpayConfig = await getRazorpayRuntimeConfig();
-        if (!razorpayConfig.enabled) {
+        const isMock = isZeroCost || (env.NODE_ENV === 'development'
+            && (razorpayConfig.keyId === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true'));
+
+        if (!isMock && !razorpayConfig.enabled) {
             return sendErrorResponse(req, res, 503, 'Payments are currently unavailable');
         }
 
@@ -86,9 +91,6 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             }));
         }
 
-        const isMock = env.NODE_ENV === 'development'
-            && (razorpayConfig.keyId === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true');
-
         let rzpOrder;
         if (isMock) {
             rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
@@ -123,7 +125,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         });
 
         logBusiness('order_created', {
-            phase: 'created',
+            phase: isZeroCost ? 'zero_cost_auto_fulfilled' : 'created',
             userId: user._id.toString(),
             transactionId: transaction._id.toString(),
             gatewayOrderId: rzpOrder.id,
@@ -131,12 +133,23 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             amount: plan.price
         });
 
+        if (isZeroCost) {
+            await processSuccessfulPayment({
+                source: 'webhook',
+                event: 'order.paid',
+                gatewayOrderId: rzpOrder.id,
+                gatewayAmountPaise: 0,
+                gatewayCurrency: plan.currency || 'INR'
+            });
+        }
+
         res.json(respond<ApiResponse<unknown>>({
             success: true,
             data: {
                 orderId: rzpOrder.id,
                 transactionId: transaction._id,
                 amount: plan.price,
+                status: isZeroCost ? 'SUCCESS' : 'INITIATED',
                 currency: plan.currency || 'INR',
                 keyId: razorpayConfig.keyId,
                 userName: user.name || 'User',

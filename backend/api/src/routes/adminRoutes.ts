@@ -67,7 +67,10 @@ router.get('/plans', adminPlans.getPlans);
 router.post('/plans', requirePermission('system:config'), adminPlans.createPlan);
 router.get('/plans/:id', adminPlans.getPlans);
 router.patch('/plans/:id', requirePermission('system:config'), adminPlans.updatePlan);
+router.put('/plans/:id', requirePermission('system:config'), adminPlans.updatePlan);
 router.patch('/plans/:id/toggle', requirePermission('system:config'), adminPlans.togglePlan);
+router.post('/plans/:id/archive', requirePermission('system:config'), adminPlans.archivePlan);
+router.post('/plans/:id/restore', requirePermission('system:config'), adminPlans.restorePlan);
 
 // Businesses
 router.get('/businesses/accounts', adminBusiness.getBusinessAccounts);
