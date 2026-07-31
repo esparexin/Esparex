@@ -14,7 +14,7 @@ interface BrowseBreadcrumbProps {
 export function BrowseBreadcrumb({
   categoryName,
   locationLabel,
-  total,
+  total: _total,
   className,
 }: BrowseBreadcrumbProps) {
   const displayTitle = categoryName ? categoryName : "All Categories";
