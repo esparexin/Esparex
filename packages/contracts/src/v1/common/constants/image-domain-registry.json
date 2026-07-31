@@ -6,7 +6,6 @@
     {
       "protocol": "https",
       "hostname": "images.unsplash.com",
-      "port": "",
       "pathname": "/**"
     },
     {
@@ -18,43 +17,41 @@
     {
       "protocol": "https",
       "hostname": "placehold.co",
-      "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
       "hostname": "esparexdev.s3.ap-south-1.amazonaws.com",
-      "port": "",
+      "pathname": "/**"
+    },
+    {
+      "protocol": "https",
+      "hostname": "esparexdev.s3.amazonaws.com",
       "pathname": "/**"
     },
     {
       "protocol": "https",
       "hostname": "*.s3.ap-south-1.amazonaws.com",
-      "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
       "hostname": "*.s3.amazonaws.com",
-      "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
       "hostname": "*.amazonaws.com",
-      "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
       "hostname": "*.cloudfront.net",
-      "port": "",
       "pathname": "/**"
     },
     {
       "protocol": "https",
       "hostname": "*.esparex.com",
-      "port": "",
       "pathname": "/**"
     }
   ]

@@ -39,15 +39,16 @@ export function SafeImage({
   const isExternalS3 = (() => {
     if (typeof currentSrc !== "string") return false;
     try {
-      const base = typeof window !== "undefined" ? window.location.origin : "http://localhost";
-      const url = new URL(currentSrc, base);
-      const host = url.hostname.toLowerCase();
-      return (
-        host === "amazonaws.com" ||
-        host.endsWith(".amazonaws.com") ||
-        host === "cloudfront.net" ||
-        host.endsWith(".cloudfront.net")
-      );
+      if (currentSrc.startsWith("http://") || currentSrc.startsWith("https://")) {
+        const base = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const url = new URL(currentSrc, base);
+        // Local relative assets or same-origin paths do not need unoptimized flag
+        if (typeof window !== "undefined" && url.origin === window.location.origin) {
+          return false;
+        }
+        return true;
+      }
+      return false;
     } catch {
       return false;
     }

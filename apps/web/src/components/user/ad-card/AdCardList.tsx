@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Heart } from "@/icons/IconRegistry";
@@ -98,7 +98,7 @@ export const AdCardList = memo(function AdCardList({
               {/* List View Image */}
               <div className="relative h-28 w-28 sm:h-32 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-muted/20">
                 {imageUrl ? (
-                  <Image
+                  <SafeImage
                     src={imageUrl}
                     alt={ad.title}
                     fill
