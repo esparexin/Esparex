@@ -71,10 +71,9 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                 // Desktop — plain, no sticky
                 "md:static md:bg-transparent md:backdrop-blur-none",
             ].join(" ")}>
-                {/* Title row */}
-                <div className="flex items-center justify-end md:justify-between mb-2.5">
-                    {/* h1 — hidden on mobile, visible on desktop */}
-                    <h1 className="hidden md:flex items-center gap-2 text-[17px] md:text-lg font-bold text-slate-900 tracking-tight">
+                {/* Title row — desktop only (mobile: Post Ad lives in AccountHeader) */}
+                <div className="hidden md:flex items-center justify-between mb-2.5">
+                    <h1 className="flex items-center gap-2 text-[17px] md:text-lg font-bold text-slate-900 tracking-tight">
                         {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
                     </h1>
