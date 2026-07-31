@@ -302,15 +302,16 @@
 }
 
 .conv-card__restore {
-  min-height: 44px;
-  padding: 0.45rem 0.85rem;
+  min-height: 28px;
+  padding: 0.25rem 0.65rem;
   border: 1px solid #bbf7d0;
   border-radius: 999px;
   background: #f0fdf4;
   color: #166534;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.6875rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 /* Skeleton loader */
