@@ -17,7 +17,7 @@ import {
 import { LISTING_TYPE, type PostingEntitlementMatrixDTO, type SingleEntitlementState } from '@esparex/contracts';
 import { getListingRepository } from '../../../composition/listings';
 import UserPlan from '../../../models/UserPlan';
-import { calculateUserPlan } from '../../payments/domain/policies/PlanEngine';
+import { calculateUserPlan } from '../../payments';
 import logger from '../../../utils/logger';
 
 export class EntitlementOrchestrator {
