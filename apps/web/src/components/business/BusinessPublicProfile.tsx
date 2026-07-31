@@ -13,6 +13,8 @@ import {
   Phone,
   Share2,
   Star,
+  CheckCircle,
+  Store,
 } from "@/icons/IconRegistry";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,11 +22,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import { AdCardGrid } from "@/components/user/ad-card";
-import { PlaceholderImage } from "@/components/common/PlaceholderImage";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { Business, Service } from "@/lib/api/user/businesses";
 import type { Ad } from "@/schemas/ad.schema";
 import { LISTING_TYPE } from "@esparex/contracts";
+
 type ListingTab = "ads" | "services" | "spare-parts";
 
 interface BusinessPublicProfileProps {
@@ -34,6 +37,13 @@ interface BusinessPublicProfileProps {
   spareParts: Ad[];
   shareUrl?: string;
 }
+
+const isRenderableUserPhoto = (src: unknown): boolean => {
+  if (typeof src !== "string" || !src.trim()) return false;
+  const lower = src.toLowerCase();
+  if (lower.includes("placehold.co") || lower.includes("placeholder") || lower.includes("no+image")) return false;
+  return true;
+};
 
 const buildListingHref = (item: Ad | Service): string => {
   const record = item as Record<string, unknown>;
@@ -59,16 +69,16 @@ export function BusinessPublicProfile({
 }: BusinessPublicProfileProps) {
   const [activeTab, setActiveTab] = useState<ListingTab>("ads");
   const [shareLabel, setShareLabel] = useState("Share");
-  const primaryBusinessType = business.businessTypes[0] || "Professional seller";
+  const primaryBusinessType = business.businessTypes?.[0] || "Professional seller";
 
   const tabs = useMemo(() => {
     const allTabs: { key: ListingTab; label: string; count: number; icon: React.ReactNode }[] = [
-      { key: "ads", label: "Listings", icon: <LayoutGrid size={15} />, count: ads.length },
-      { key: "services", label: "Services", icon: <Briefcase size={15} />, count: services.length },
+      { key: "ads", label: "Listings", icon: <LayoutGrid size={14} />, count: ads.length },
+      { key: "services", label: "Services", icon: <Briefcase size={14} />, count: services.length },
       {
         key: "spare-parts",
         label: "Spare Parts",
-        icon: <CircuitBoard size={15} />,
+        icon: <CircuitBoard size={14} />,
         count: spareParts.length,
       },
     ];
@@ -83,8 +93,11 @@ export function BusinessPublicProfile({
     return ads;
   }, [effectiveActiveTab, ads, services, spareParts]);
 
-  const heroImage = business.coverImage || business.images?.[0] || business.logo || null;
-  const logoImage = business.logo || business.images?.[0] || business.coverImage || null;
+  const rawCover = business.coverImage || business.images?.[0] || null;
+  const rawLogo = business.logo || business.images?.[0] || null;
+
+  const hasValidCover = isRenderableUserPhoto(rawCover);
+  const hasValidLogo = isRenderableUserPhoto(rawLogo);
 
   const mapData = useMemo(() => {
     const locationRecord =
@@ -111,6 +124,9 @@ export function BusinessPublicProfile({
 
     return {
       addressQuery,
+      locationLabel: business.location?.city
+        ? `${business.location.city}${business.location.state ? `, ${business.location.state}` : ""}`
+        : "Nearby",
       externalUrl: hasCoordinates
         ? `https://www.google.com/maps/search/?api=1&query=${lat.toFixed(6)},${lng.toFixed(6)}`
         : addressQuery
@@ -144,226 +160,259 @@ export function BusinessPublicProfile({
   };
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
-      {/* Hero Card */}
-      <Card className="overflow-hidden rounded-2xl border-none shadow-sm">
-        <div className="relative h-28 md:h-36">
-          <PlaceholderImage
-            src={heroImage}
-            alt={business.name}
-            containerClassName="h-28 md:h-36 w-full rounded-none"
-            className="object-cover"
-            text="Business cover"
-            fallbackIcon={<Building2 className="h-10 w-10 opacity-50" />}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 via-blue-950/40 to-blue-800/20" />
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6 p-3 md:p-6">
+      {/* Hero Profile Banner Card */}
+      <Card className="overflow-hidden rounded-2xl md:rounded-3xl border border-slate-200/80 shadow-xs bg-white">
+        {/* Cover Banner */}
+        <div className="relative h-32 md:h-44 w-full bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 overflow-hidden">
+          {hasValidCover ? (
+            <SafeImage
+              src={rawCover as string}
+              alt={business.name}
+              fill
+              priority
+              className="object-cover opacity-80"
+              sizes="100vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-between px-6 md:px-12 opacity-15 pointer-events-none">
+              <Building2 className="size-48 text-white -mr-10" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
         </div>
-        <CardContent className="pt-0 px-4 md:px-6 pb-5">
-          <div className="relative mt-[-48px] md:mt-[-60px] grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="md:col-span-1">
-              <div className="w-fit rounded-2xl bg-white p-2 shadow-md mx-0">
-                <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-xl">
-                  <PlaceholderImage
-                    src={logoImage}
-                    alt={`${business.name} logo`}
-                    containerClassName="h-20 w-20 md:h-24 md:w-24 rounded-xl"
-                    className="object-cover"
-                    text="Logo"
-                    fallbackIcon={<Building2 className="h-10 w-10 text-link" />}
-                  />
+
+        {/* Profile Info Header */}
+        <CardContent className="pt-0 px-4 md:px-8 pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-10 md:-mt-14 mb-4">
+            {/* Business Logo Avatar */}
+            <div className="relative size-20 md:size-28 shrink-0 rounded-2xl bg-white p-1 shadow-md border-2 border-white overflow-hidden flex items-center justify-center">
+              {hasValidLogo ? (
+                <SafeImage
+                  src={rawLogo as string}
+                  alt={`${business.name} logo`}
+                  fill
+                  className="object-cover rounded-xl"
+                  sizes="112px"
+                />
+              ) : (
+                <div className="size-full rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                  <Building2 className="size-10 md:size-12" />
+                </div>
+              )}
+            </div>
+
+            {/* Title & Metadata */}
+            <div className="flex-1 min-w-0 pt-1 sm:pt-0">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">{business.name}</h1>
+                    {business.status === "live" && (
+                      <Badge className="bg-blue-600 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
+                        <CheckCircle className="size-3" />
+                        Verified Business
+                      </Badge>
+                    )}
+                  </div>
+                  {business.tagline && <p className="text-xs md:text-sm text-slate-500 mt-0.5 font-normal">{business.tagline}</p>}
+
+                  <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-slate-500 font-normal">
+                    <span className="inline-flex items-center gap-1 text-slate-700 font-medium bg-slate-100 px-2.5 py-0.5 rounded-md">
+                      <Store className="size-3.5 text-blue-600" />
+                      {primaryBusinessType}
+                    </span>
+                    {mapData.locationLabel && (
+                      <span className="inline-flex items-center gap-1 text-slate-500">
+                        <MapPin className="size-3.5 text-slate-400" />
+                        {mapData.locationLabel}
+                      </span>
+                    )}
+                    {business.rating ? (
+                      <span className="inline-flex items-center gap-1 text-slate-700 font-semibold ml-1">
+                        <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                        {business.rating.toFixed(1)}
+                        <span className="text-slate-400 font-normal">({business.totalReviews || 0})</span>
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0 pt-1 md:pt-0">
+                  <Button variant="outline" size="sm" onClick={handleShare} className="h-9 px-3.5 rounded-xl border-slate-200 text-slate-700 text-xs font-semibold gap-1.5 hover:bg-slate-50">
+                    <Share2 className="size-3.5" />
+                    {shareLabel}
+                  </Button>
                 </div>
               </div>
             </div>
+          </div>
+        </CardContent>
+      </Card>
 
-            <div className="space-y-2.5 pt-2 md:pt-6 md:col-span-2">
-              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground">{business.name}</h1>
-                  {business.tagline && <p className="text-sm text-foreground-subtle mt-0.5">{business.tagline}</p>}
-                </div>
-                <Button variant="outline" size="sm" onClick={handleShare} className="h-11 rounded-xl border-slate-200 text-foreground-tertiary text-xs w-fit">
-                  <Share2 className="mr-1.5 h-3.5 w-3.5" />
-                  {shareLabel}
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                <Badge variant="secondary" className="rounded-lg bg-slate-100 text-foreground-tertiary border-none text-xs">{primaryBusinessType}</Badge>
-                {business.status === 'live' ? (
-                  <Badge className="bg-blue-50 text-link-dark border-none rounded-lg text-xs">Verified Business</Badge>
+      {/* Main Content Grid: Left Details + Right Contact Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+        {/* Left Column: About + Listings */}
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+          {/* About Card */}
+          {business.description ? (
+            <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
+              <CardHeader className="pb-2 pt-4 px-4 md:px-6">
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">About Business</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 px-4 md:px-6 pb-4">
+                <p className="leading-relaxed text-sm text-slate-700 font-normal whitespace-pre-wrap">{business.description}</p>
+                {business.website ? (
+                  <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
+                    <Globe className="size-3.5 text-slate-400 shrink-0" />
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline truncate font-medium">
+                      {business.website}
+                    </a>
+                  </div>
                 ) : null}
-              </div>
-
-              {business.rating ? (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-foreground-secondary">{business.rating.toFixed(1)}</span>
-                  <span className="text-foreground-subtle">({business.totalReviews || 0} reviews)</span>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* About */}
-      {business.description ? (
-        <Card className="rounded-2xl border-slate-100 shadow-none">
-          <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-            <CardTitle className="text-sm font-bold text-foreground-secondary uppercase tracking-wide">About</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 px-4 md:px-6 pb-4">
-            <p className="leading-relaxed text-sm text-muted-foreground">{business.description}</p>
-            {business.website ? (
-              <div className="flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
-                <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-sm text-link hover:underline truncate">
-                  {business.website}
-                </a>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <Separator className="bg-slate-100" />
-
-      {/* Contact */}
-      <Card className="rounded-2xl border-slate-100 shadow-none">
-        <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-          <CardTitle className="text-sm font-bold text-foreground-secondary uppercase tracking-wide">Contact</CardTitle>
-        </CardHeader>
-        <CardContent className="px-4 md:px-6 pb-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {business.mobile ? (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-4 w-4 text-link" />
-                </div>
-                <div>
-                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">Mobile</p>
-                  <a href={`tel:${business.mobile}`} className="text-sm font-semibold text-foreground-secondary hover:text-link">
-                    {business.mobile}
-                  </a>
-                </div>
-              </div>
-            ) : null}
-            {business.whatsappNumber ? (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="h-8 w-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
-                  <Phone className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">WhatsApp</p>
-                  <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-foreground-secondary hover:text-green-600">
-                    {business.whatsappNumber}
-                  </a>
-                </div>
-              </div>
-            ) : null}
-            {business.email ? (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="h-8 w-8 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
-                  <Mail className="h-4 w-4 text-red-500" />
-                </div>
-                <div>
-                  <p className="text-2xs text-foreground-subtle font-bold uppercase tracking-wide">Email</p>
-                  <a href={`mailto:${business.email}`} className="text-sm font-semibold text-foreground-secondary hover:text-red-600 truncate block">
-                    {business.email}
-                  </a>
-                </div>
-              </div>
-            ) : null}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Location */}
-      <Card className="rounded-2xl border-slate-100 shadow-none">
-        <CardHeader className="pb-2 pt-4 px-4 md:px-6">
-          <CardTitle className="text-sm font-bold text-foreground-secondary uppercase tracking-wide flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-foreground-subtle" />
-            Location
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 px-4 md:px-6 pb-4">
-          {mapData.addressQuery ? (
-            <address className="not-italic text-sm text-muted-foreground">
-              {business.location?.address ? <>{business.location.address}<br /></> : null}
-              {[business.location?.city, business.location?.state, business.location?.pincode].filter(Boolean).join(", ")}
-            </address>
+              </CardContent>
+            </Card>
           ) : null}
 
-          <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
-            <div className="flex h-48 flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] px-6 text-center">
-              <div className="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center">
-                <MapPin className="h-6 w-6 text-link" />
+          {/* Listings Tabs */}
+          {tabs.length > 0 ? (
+            <div className="space-y-4">
+              <div className="flex gap-2 border-b border-slate-200 pb-1 overflow-x-auto scrollbar-hide">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`-mb-px flex items-center gap-1.5 border-b-2 px-3.5 py-2.5 text-xs md:text-sm font-semibold transition-colors whitespace-nowrap ${
+                      activeTab === tab.key
+                        ? "border-blue-600 text-blue-600 font-bold"
+                        : "border-transparent text-slate-500 hover:text-slate-800 font-normal"
+                    }`}
+                    type="button"
+                  >
+                    {tab.icon}
+                    {tab.label}
+                    <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                      activeTab === tab.key ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-600"
+                    }`}>
+                      {tab.count}
+                    </span>
+                  </button>
+                ))}
               </div>
-              <p className="text-sm font-semibold text-foreground-secondary">
-                {mapData.addressQuery || "Address details are available above."}
-              </p>
-            </div>
-            {mapData.externalUrl ? (
-              <div className="flex items-center justify-between border-t border-slate-100 bg-white px-4 py-3">
-                <p className="text-xs text-foreground-subtle">View on Google Maps</p>
-                <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-link hover:underline">
-                  Open in Maps <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
-            ) : null}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Listings Tabs */}
-      {tabs.length > 0 ? (
-        <div className="space-y-3">
-          <div className="flex gap-1 border-b border-slate-200 overflow-x-auto scrollbar-hide">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`-mb-px flex min-h-[44px] items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? "border-blue-600 text-link"
-                    : "border-transparent text-foreground-subtle hover:text-foreground-tertiary"
-                }`}
-                type="button"
-              >
-                {tab.icon}
-                {tab.label}
-                <span className={`ml-1 rounded-full px-1.5 py-0.5 text-2xs font-bold ${
-                  activeTab === tab.key ? "bg-blue-100 text-link-dark" : "bg-slate-100 text-muted-foreground"
-                }`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {activeItems.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 md:gap-4">
-              {activeItems.map((item, index) => {
-                const record = item as Record<string, unknown>;
-                const id = String(record.id || record._id || "");
-                return (
-                  <AdCardGrid key={id} ad={item as Ad} href={buildListingHref(item)} priority={index < 4} />
-                );
-              })}
+              {activeItems.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4">
+                  {activeItems.map((item, index) => {
+                    const record = item as Record<string, unknown>;
+                    const id = String(record.id || record._id || "");
+                    return (
+                      <AdCardGrid key={id} ad={item as Ad} href={buildListingHref(item)} priority={index < 4} />
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="py-10 text-center text-sm text-slate-500 font-normal bg-white rounded-2xl border border-slate-200/80">
+                  No {activeTab === "ads" ? "listings" : activeTab === "services" ? "services" : "spare parts"} available.
+                </p>
+              )}
             </div>
           ) : (
-            <p className="py-10 text-center text-sm text-foreground-subtle">
-              No {activeTab === "ads" ? "listings" : activeTab === "services" ? "services" : "spare parts"} available.
-            </p>
+            <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
+              <CardContent className="py-10 text-center text-sm text-slate-500 font-normal">
+                This business does not have any live public listings yet.
+              </CardContent>
+            </Card>
           )}
         </div>
-      ) : (
-        <Card className="rounded-2xl border-slate-100 shadow-none">
-          <CardContent className="py-12 text-center text-sm text-foreground-subtle">
-            This business does not have any live public listings yet.
-          </CardContent>
-        </Card>
-      )}
+
+        {/* Right Sidebar: Contact Info & Location */}
+        <div className="space-y-4 md:space-y-6">
+          {/* Contact Card */}
+          <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
+            <CardHeader className="pb-2 pt-4 px-4 md:px-6">
+              <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">Contact Details</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 md:px-6 pb-4 space-y-2.5">
+              {business.mobile ? (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="size-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                    <Phone className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Mobile</p>
+                    <a href={`tel:${business.mobile}`} className="text-xs font-semibold text-slate-800 hover:text-blue-600 block truncate">
+                      {business.mobile}
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+              {business.whatsappNumber ? (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="size-8 rounded-lg bg-green-100 text-green-700 flex items-center justify-center shrink-0">
+                    <Phone className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">WhatsApp</p>
+                    <a href={buildWhatsappHref(business.whatsappNumber)} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-slate-800 hover:text-green-600 block truncate">
+                      {business.whatsappNumber}
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+              {business.email ? (
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="size-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                    <Mail className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Email</p>
+                    <a href={`mailto:${business.email}`} className="text-xs font-semibold text-slate-800 hover:text-red-600 truncate block">
+                      {business.email}
+                    </a>
+                  </div>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          {/* Location Card */}
+          <Card className="rounded-2xl border-slate-200/80 shadow-xs bg-white">
+            <CardHeader className="pb-2 pt-4 px-4 md:px-6">
+              <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                <MapPin className="size-3.5 text-slate-400" />
+                Store Location
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 px-4 md:px-6 pb-4">
+              {mapData.addressQuery ? (
+                <address className="not-italic text-xs text-slate-600 leading-relaxed font-normal">
+                  {business.location?.address ? <>{business.location.address}<br /></> : null}
+                  {[business.location?.city, business.location?.state, business.location?.pincode].filter(Boolean).join(", ")}
+                </address>
+              ) : null}
+
+              <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+                <div className="flex h-28 flex-col items-center justify-center gap-2 bg-[linear-gradient(135deg,#eff6ff,#f8fafc)] p-4 text-center">
+                  <div className="size-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                    <MapPin className="size-4" />
+                  </div>
+                  <p className="text-xs font-medium text-slate-700 line-clamp-2">
+                    {mapData.addressQuery || "Address details available above."}
+                  </p>
+                </div>
+                {mapData.externalUrl ? (
+                  <div className="flex items-center justify-between border-t border-slate-100 bg-white px-3.5 py-2.5">
+                    <span className="text-[11px] text-slate-500">Google Maps</span>
+                    <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline">
+                      Open in Maps <ExternalLink className="size-3" />
+                    </a>
+                  </div>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
