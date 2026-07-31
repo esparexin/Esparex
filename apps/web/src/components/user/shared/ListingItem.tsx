@@ -155,24 +155,24 @@ export function ListingItem({
                 ZONE 2 — Content  (flex-1, owns: title / price / meta)
                 NOTHING action-related lives here.
             ══════════════════════════════════════════════════════ */}
-            <div className="flex-1 min-w-0 self-center flex flex-col gap-[3px]">
+            <div className="flex-1 min-w-0 self-center flex flex-col gap-1.5">
 
                 {/* Title */}
                 {detailHref ? (
                     <Link href={detailHref} className="min-w-0 hover:text-blue-600 transition-colors">
-                        <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-snug line-clamp-1">
+                        <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
                             {title}
                         </h3>
                     </Link>
                 ) : (
-                    <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-snug line-clamp-1">
+                    <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
                         {title}
                     </h3>
                 )}
 
                 {/* Price */}
                 <p className={cn(
-                    "text-[13px] font-semibold md:text-[18px] md:font-bold leading-tight",
+                    "text-[13px] font-semibold md:text-[18px] md:font-bold leading-normal",
                     priceClassName || "text-emerald-600",
                 )}>
                     {priceLabel}
@@ -180,12 +180,12 @@ export function ListingItem({
 
                 {/* Rejection reason (replaces meta on rejected state) */}
                 {status === "rejected" && rejectionReason ? (
-                    <p className="text-[11px] text-red-500 line-clamp-1 leading-none">
+                    <p className="text-[11px] text-red-500 line-clamp-1 leading-normal">
                         {rejectionReason}
                     </p>
                 ) : (
                     /* ── Single-line meta ── */
-                    <div className="flex items-center flex-nowrap gap-1 text-[11px] text-slate-500 leading-none min-w-0 overflow-hidden">
+                    <div className="flex items-center flex-nowrap gap-1 text-[11px] text-slate-500 leading-normal min-w-0 overflow-hidden">
                         <span className="shrink-0">👁 {totalViews}</span>
 
                         {showExpiry && (
