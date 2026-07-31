@@ -85,8 +85,9 @@ export function normalizeRelatedBusinessesDiscoveryContext(
         latitude,
         longitude,
         hasGeoPoint,
-        canSearch: Boolean(locationId || hasGeoPoint),
+        canSearch: Boolean(locationId || hasGeoPoint || city),
         queryParams: {
+            city,
             locationId,
             listingCategoryId,
             brandId,
