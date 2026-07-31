@@ -72,6 +72,29 @@ export async function sendMessage(
         msg.createdAt
     );
 
+    // 📡 REALTIME SOCKET BROADCAST (Receiver + Sender rooms + Inbox invalidation)
+    try {
+        const { getIO } = await import('../../../../../config/socket');
+        const io = getIO();
+        const msgDto = {
+            id: String(msg._id ?? msg.id),
+            conversationId: String(msg.conversationId),
+            senderId: String(msg.senderId),
+            text: msg.text,
+            attachments: msg.attachments ?? [],
+            readAt: msg.readAt ? new Date(msg.readAt).toISOString() : undefined,
+            isSystemMessage: Boolean(msg.isSystemMessage),
+            createdAt: msg.createdAt ? new Date(msg.createdAt).toISOString() : new Date().toISOString(),
+        };
+
+        io.to(receiverId).emit('chat:message', { conversationId, message: msgDto });
+        io.to(senderId).emit('chat:message', { conversationId, message: msgDto });
+        io.to(receiverId).emit('chat:inbox_updated', { conversationId });
+        io.to(senderId).emit('chat:inbox_updated', { conversationId });
+    } catch {
+        // Safe fallback if Socket.io server is uninitialized (e.g. unit test runner)
+    }
+
     // 📣 NOTIFY RECEIVER (Push + In-App)
     void (async () => {
         try {
@@ -120,4 +143,20 @@ export async function markRead(conversationId: string, userId: string) {
 
     const unreadField = userId === buyerStr ? 'unreadBuyer' : 'unreadSeller';
     await chatRepository.resetUnreadCount(conversationId, unreadField);
+
+    // 📡 REALTIME READ RECEIPT BROADCAST
+    try {
+        const { getIO } = await import('../../../../../config/socket');
+        const io = getIO();
+        const otherUserId = userId === buyerStr ? sellerStr : buyerStr;
+        const readAt = new Date().toISOString();
+
+        io.to(otherUserId).emit('chat:read', { conversationId, readerId: userId, readAt });
+        io.to(userId).emit('chat:read', { conversationId, readerId: userId, readAt });
+        io.to(otherUserId).emit('chat:inbox_updated', { conversationId });
+        io.to(userId).emit('chat:inbox_updated', { conversationId });
+    } catch {
+        // Safe fallback if Socket.io server is uninitialized
+    }
 }
+

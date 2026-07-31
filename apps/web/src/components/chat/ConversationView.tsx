@@ -104,26 +104,43 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     }
   }, [localHidden, router]);
 
-  const { messages, isLoading, isSending, isLoadingMore, error, sendMessage, loadMore, hasMore, retry } = useChat({
+  const counterpartyUserId = isBuyer ? conversation.seller.id : conversation.buyer.id;
+
+  const {
+    messages,
+    isLoading,
+    isSending,
+    isLoadingMore,
+    error,
+    sendMessage,
+    loadMore,
+    hasMore,
+    retry,
+    isOtherTyping,
+    isCounterpartyOnline,
+    sendTyping,
+  } = useChat({
     conversationId: conversation.id,
     currentUserId,
+    counterpartyUserId,
     onConversationStateChange: (state) => {
       if (state.isAdClosed) setLocalAdClosed(true);
       if (state.isBlocked) setLocalBlocked(true);
     },
   });
 
-  // Phase 8: Auto-scroll to bottom on NEW messages only (not when loading older)
+  // Auto-scroll to bottom on NEW messages or typing updates
   useEffect(() => {
     if (!isLoadingMore) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages.length, isLoadingMore]);
+  }, [messages.length, isLoadingMore, isOtherTyping]);
 
   const handleSend = async (text: string) => {
     const didSend = await sendMessage(text);
     if (didSend) {
       setQuickReplyText('');
+      sendTyping(counterpartyUserId, false);
     }
     return didSend;
   };
@@ -132,7 +149,9 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     setQuickReplyText(text);
   };
 
-  // Render date separator between messages on different days
+  const handleTypingChange = (isTyping: boolean) => {
+    sendTyping(counterpartyUserId, isTyping);
+  };
 
   return (
     <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''}`}>
@@ -154,7 +173,6 @@ export function ConversationView({ conversation, currentUserId, embedded = false
             {conversation.ad.thumbnail && (
               listingHref ? (
                 <Link href={listingHref} className="conv-header__thumb-link" aria-label={`Open ${conversation.ad.title}`}>
-                  { }
                   <img
                     src={conversation.ad.thumbnail}
                     alt={conversation.ad.title}
@@ -162,7 +180,6 @@ export function ConversationView({ conversation, currentUserId, embedded = false
                   />
                 </Link>
               ) : (
-                 
                 <img
                   src={conversation.ad.thumbnail}
                   alt={conversation.ad.title}
@@ -171,7 +188,19 @@ export function ConversationView({ conversation, currentUserId, embedded = false
               )
             )}
             <div className="conv-header__ad-info">
-              <p className="conv-header__eyebrow">{otherPartyName}</p>
+              <div className="conv-header__eyebrow-row">
+                <span className="conv-header__eyebrow">{otherPartyName}</span>
+                {isCounterpartyOnline && (
+                  <span className="conv-header__online-pill" title="Online now">
+                    <span className="conv-header__online-dot" /> Online
+                  </span>
+                )}
+                {isOtherTyping && (
+                  <span className="conv-header__typing-pill">
+                    typing…
+                  </span>
+                )}
+              </div>
               {listingHref ? (
                 <Link href={listingHref} className="conv-header__listing-link">
                   {conversation.ad.title}
@@ -257,6 +286,13 @@ export function ConversationView({ conversation, currentUserId, embedded = false
             </div>
           );
         })}
+
+        {isOtherTyping && (
+          <div className="chat-typing-bubble" role="status" aria-label={`${otherPartyName} is typing`}>
+            <span>{otherPartyName} is typing…</span>
+          </div>
+        )}
+
         <div ref={bottomRef} aria-hidden />
       </div>
 
@@ -274,6 +310,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
               value={quickReplyText}
               onValueChange={setQuickReplyText}
               onSend={handleSend}
+              onTypingChange={handleTypingChange}
               isSending={isSending}
               disabled={isReadOnly}
             />
@@ -283,3 +320,4 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     </div>
   );
 }
+

@@ -12,19 +12,23 @@ interface ChatInputProps {
   value?: string;
   /** Called when internal textarea changes (for controlled mode) */
   onValueChange?: (text: string) => void;
+  /** Triggered when user starts/stops typing */
+  onTypingChange?: (isTyping: boolean) => void;
 }
 
 const MAX_LENGTH = 2000;
 
-export function ChatInput({ onSend, disabled, disabledReason, isSending, value, onValueChange }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, disabledReason, isSending, value, onValueChange, onTypingChange }: ChatInputProps) {
   const [internalText, setInternalText] = useState('');
   const text = value !== undefined ? value : internalText;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const resetComposer = () => {
     if (onValueChange) onValueChange('');
     else setInternalText('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
+    if (onTypingChange) onTypingChange(false);
   };
 
   const handleSend = async () => {
@@ -50,6 +54,15 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     } else {
       setInternalText(newVal);
     }
+
+    if (onTypingChange) {
+      onTypingChange(true);
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+      typingTimerRef.current = setTimeout(() => {
+        onTypingChange(false);
+      }, 2500);
+    }
+
     const el = textareaRef.current;
     if (el) {
       el.style.height = 'auto';
