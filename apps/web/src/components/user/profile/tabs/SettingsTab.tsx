@@ -5,14 +5,12 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, BellRing, Mail, Megaphone, Save, Settings as SettingsIcon, Smartphone, Tag, Trash2 } from "@/icons/IconRegistry";
 
-import { FeatureCard } from "@/components/user/FeatureCard";
 import { ACCOUNT_COPY } from "@/config/copy/account";
 import { Button } from "@esparex/ui";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageSection } from "@/components/layout";
 import { FormError } from "@/components/ui/FormError";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
 import {
@@ -127,14 +125,18 @@ export function SettingsTab({
     };
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-            <Card className="account-card-surface">
-                <FeatureCard
-                    title="Notification Settings"
-                    description={ACCOUNT_COPY.notificationsDescription}
-                    Icon={SettingsIcon}
-                />
-                <CardContent className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6">
+            <PageSection
+                variant="bordered"
+                title={
+                    <span className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                        <SettingsIcon className="h-5 w-5 text-blue-600" />
+                        Notification Settings
+                    </span>
+                }
+                subtitle={ACCOUNT_COPY.notificationsDescription}
+            >
+                <div className="space-y-4 pt-1">
                     <div className="rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-3 text-xs text-link-dark leading-relaxed">
                         These toggles control the notifications you actually receive. Smart alert delivery also respects
                         the email, push, and instant-alert settings below.
@@ -208,42 +210,43 @@ export function SettingsTab({
                         />
                     </div>
                     
-                    <Separator />
+                    <Separator className="my-3" />
                     <FormError message={globalError} />
                     <Button
                         type="submit"
-                        className="w-full h-10 gap-2 text-xs font-medium"
+                        className="w-full md:w-auto h-10 gap-2 text-xs font-semibold px-6"
                         variant="outline"
                         disabled={isSaving}
                     >
                         <Save className="h-4 w-4" />
                         {isSaving ? "Saving..." : "Save Notification Settings"}
                     </Button>
-                </CardContent>
-            </Card>
+                </div>
+            </PageSection>
 
-            <Card className="border-red-200 bg-red-50/50 mt-6">
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-red-600">
+            <PageSection
+                variant="bordered"
+                className="border-red-200 bg-red-50/30"
+                title={
+                    <span className="text-base font-semibold flex items-center gap-2 text-red-600">
                         <Trash2 className="h-4 w-4" />
                         Delete Account
-                    </CardTitle>
-                    <CardDescription className="text-xs text-slate-500">
-                        Permanently delete your account. Secure confirmation required.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+                    </span>
+                }
+                subtitle="Permanently delete your account. Secure confirmation required."
+            >
+                <div className="pt-2">
                     <Button
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-10 gap-2 text-xs font-medium"
+                        className="h-10 gap-2 text-xs font-semibold px-5"
                     >
                         <AlertTriangle className="h-4 w-4" />
                         Delete My Account
                     </Button>
-                </CardContent>
-            </Card>
+                </div>
+            </PageSection>
         </form>
     );
 }

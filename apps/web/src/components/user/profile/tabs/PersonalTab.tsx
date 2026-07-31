@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { personalProfileSchema, type PersonalProfileValues } from "@esparex/contracts";
 import { MOBILE_VISIBILITY } from "@esparex/contracts";
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PageSection } from "@/components/layout";
 import { Button, Switch } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
@@ -147,15 +147,16 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-            <Card className="account-card-surface border-0 shadow-sm md:border md:shadow-sm">
-                <CardHeader className="pb-2">
-                    <CardTitle className="account-section-title flex items-center gap-2">
-                        <User className="h-5 w-5 text-link" />
+            <PageSection
+                variant="bordered"
+                title={
+                    <span className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                        <User className="h-5 w-5 text-blue-600" />
                         Personal Information
-                    </CardTitle>
-                    <CardDescription className="account-body-text">Update your personal details</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-5">
+                    </span>
+                }
+                subtitle="Update your personal details"
+            >
                     {/* Profile Photo Section */}
                     <div className="space-y-2">
                         <Label className="account-field-label">Profile Photo</Label>
@@ -306,8 +307,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                             </Button>
                         </div>
                     </div>
-                </CardContent>
-            </Card>
+                </PageSection>
 
             <input 
                 ref={cameraInputRef}
