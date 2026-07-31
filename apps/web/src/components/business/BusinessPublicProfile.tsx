@@ -20,7 +20,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@esparex/ui";
-import { Separator } from "@/components/ui/separator";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
