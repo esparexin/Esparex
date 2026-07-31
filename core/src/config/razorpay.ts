@@ -34,10 +34,12 @@ export const getRazorpayRuntimeConfig = async (): Promise<RazorpayRuntimeConfig>
             : DEFAULT_RAZORPAY_KEY_SECRET
     );
 
-    // Payments are enabled by default (supports mock payments in dev & real payments when keys present)
-    const enabled = env.NODE_ENV !== 'production'
-        || razorpayConfig?.enabled !== false
-        || Boolean(env.RAZORPAY_KEY_ID || razorpayConfig?.keyId);
+    // Payments are enabled by default.
+    // Payments are disabled ONLY if an admin explicitly configured and disabled Razorpay in SystemConfig.
+    const isExplicitlyDisabledInAdmin = razorpayConfig?.enabled === false && (
+        typeof razorpayConfig?.keyId === 'string' && razorpayConfig.keyId.trim().length > 0
+    );
+    const enabled = !isExplicitlyDisabledInAdmin;
 
     return {
         enabled,
