@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/card';
+import Link from 'next/link';
 import type { ConversationListView } from '@/lib/api/chatApi';
 import { buildChatConversationRoute, buildChatInboxRoute } from '@/lib/chatUiRoutes';
 import { ChatList } from './ChatList';
@@ -33,28 +33,40 @@ export function AccountMessagesWorkspace({
   const renderConversationPanel = () => {
     if (!conversationId) {
       return (
-        <div className="hidden md:flex h-full min-h-[580px] items-center justify-center bg-slate-50/60 p-10">
-          <div className="max-w-sm text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-2xl">
+        <div className="hidden md:flex h-full min-h-[580px] flex-col items-center justify-center bg-slate-50/50 p-8 text-center">
+          {/* Sparkle Chat Bubble Illustration */}
+          <div className="relative mb-4 flex items-center justify-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50/80 text-4xl">
               💬
             </div>
-            <h3 className="text-lg font-bold text-foreground">Select a conversation</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Pick a buyer or seller conversation from your inbox to start chatting without leaving your workspace.
-            </p>
+            <span className="absolute -top-1 -right-1 text-sky-400 text-lg">✨</span>
+            <span className="absolute -bottom-1 -left-1 text-sky-300 text-base">✨</span>
           </div>
+
+          <h3 className="text-xl font-bold text-slate-900">No conversations yet</h3>
+          <p className="mt-2 text-sm text-slate-500 max-w-sm leading-relaxed">
+            Messages with buyers and sellers will appear here
+          </p>
+
+          <Link
+            href="/browse"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-white px-5 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+          >
+            <span>💬</span>
+            <span>Browse Listings</span>
+          </Link>
         </div>
       );
     }
 
     if (!initialConversation) {
       return (
-        <div className="flex h-full min-h-[580px] items-center justify-center bg-slate-50/60 p-10">
+        <div className="flex h-full min-h-[580px] items-center justify-center bg-slate-50/50 p-8">
           <div className="max-w-sm text-center">
             <p className="text-sm font-semibold text-red-600">Unable to load this conversation right now.</p>
             <button
               type="button"
-              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-foreground"
+              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
               onClick={() => {
                 router.refresh();
               }}
@@ -76,18 +88,19 @@ export function AccountMessagesWorkspace({
   };
 
   return (
-    <Card className="overflow-hidden border border-slate-200/80 bg-white shadow-sm rounded-2xl">
-      <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+    <div className="flex flex-col h-[calc(100vh-140px)] min-h-[560px] bg-white md:rounded-xl md:border md:border-slate-200/90 md:shadow-sm overflow-hidden">
+      {/* Workspace Header (Hidden on Mobile to eliminate duplicate header) */}
+      <div className="hidden md:flex border-b border-slate-200/80 px-5 py-3.5 items-center justify-between bg-white shrink-0">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Messages</h2>
-          <p className="text-xs text-slate-500">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">Messages</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
             Real-time chat workspace for buyer & seller inquiries
           </p>
         </div>
       </div>
 
-      <div className="md:grid md:h-[calc(100vh-220px)] md:min-h-[580px] md:grid-cols-[340px_1fr]">
-        <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-100 overflow-y-auto`}>
+      <div className="md:grid md:flex-1 md:grid-cols-[340px_1fr] overflow-hidden min-h-0">
+        <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-200/80 overflow-y-auto bg-white`}>
           <ChatList
             currentUserId={currentUserId}
             view={initialView}
@@ -97,11 +110,11 @@ export function AccountMessagesWorkspace({
           />
         </div>
 
-        <div className={`${conversationId ? 'block' : 'hidden md:block'} h-full min-h-[580px] bg-white overflow-hidden`}>
+        <div className={`${conversationId ? 'block' : 'hidden md:block'} h-full bg-white overflow-hidden`}>
           {renderConversationPanel()}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 

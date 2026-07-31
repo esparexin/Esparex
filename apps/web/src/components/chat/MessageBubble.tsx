@@ -75,22 +75,38 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
               <div
                 className={`chat-bubble__image-grid chat-bubble__image-grid--${Math.min(imageAttachments.length, 4)}`}
               >
-                {imageAttachments.map((attachment, index) => (
-                  <button
-                    key={`${attachment.url}-${index}`}
-                    type="button"
-                    className="chat-bubble__image-button"
-                    onClick={() => openLightbox(index)}
-                    aria-label={`Open image attachment ${index + 1}`}
-                  >
-                    { }
-                    <img
-                      src={attachment.url}
-                      alt={attachment.name ?? `Attachment ${index + 1}`}
-                      className="chat-bubble__image"
-                    />
-                  </button>
-                ))}
+                {imageAttachments.map((attachment, index) => {
+                  if (attachment.status === 'rejected') {
+                    return (
+                      <div
+                        key={`${attachment.url}-${index}`}
+                        className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium flex items-center gap-2"
+                        role="alert"
+                      >
+                        <span>🔒</span>
+                        <span>Attachment removed for security reasons</span>
+                      </div>
+                    );
+                  }
+
+                  const imgSrc = attachment.displayUrl || attachment.thumbnailUrl || attachment.url;
+                  return (
+                    <button
+                      key={`${attachment.url}-${index}`}
+                      type="button"
+                      className="chat-bubble__image-button"
+                      onClick={() => openLightbox(index)}
+                      aria-label={`Open image attachment ${index + 1}`}
+                    >
+                      <img
+                        src={imgSrc}
+                        alt={attachment.name ?? `Attachment ${index + 1}`}
+                        className="chat-bubble__image"
+                        loading="lazy"
+                      />
+                    </button>
+                  );
+                })}
               </div>
             )}
 

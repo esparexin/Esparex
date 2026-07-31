@@ -10,6 +10,8 @@ import type {
   IConversationListResponse,
   IMessageListResponse,
   IChatSendResponse,
+  IChatUploadUrlResponse,
+  ChatAttachment,
 } from "@esparex/contracts";
 
 /* -------------------------------------------------------------------------- */
@@ -19,6 +21,7 @@ import type {
 export interface SendMessagePayload {
   conversationId: string;
   text: string;
+  attachments?: ChatAttachment[];
 }
 
 export type ConversationListView = 'active' | 'archived';
@@ -112,4 +115,18 @@ export const chatApi = {
     messageId?: string;
   }): Promise<{ success: boolean }> =>
     apiClient.post<{ success: boolean }>(USER_ROUTES.CHAT_REPORT, payload),
+
+  /**
+   * Fetch presigned upload URL for chat attachments.
+   */
+  uploadUrl: (
+    conversationId: string,
+    contentType: string,
+    filename?: string
+  ): Promise<IChatUploadUrlResponse> =>
+    apiClient.post<IChatUploadUrlResponse>(USER_ROUTES.CHAT_UPLOAD_URL, {
+      conversationId,
+      contentType,
+      filename,
+    }),
 };
