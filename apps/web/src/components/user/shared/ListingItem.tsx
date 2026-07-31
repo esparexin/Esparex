@@ -57,6 +57,8 @@ interface ListingItemProps {
     metaBadges?: MetaBadge[];
     tags?: Tag[];
     priority?: boolean;
+    /** When false the status badge is hidden (use on tabs where every item shares the same status). */
+    showStatusBadge?: boolean;
     className?: string;
 }
 
@@ -76,7 +78,7 @@ export function ListingItem({
     rejectionReason, createdAt, expiresAt, views, likes: _likes,
     getStatusBadge, editHref, detailHref,
     onDelete, onRenew, onDeactivate, onActivate, onMarkSold,
-    metaBadges = [], tags = [], priority = false, className,
+    metaBadges = [], tags = [], priority = false, showStatusBadge = true, className,
 }: ListingItemProps) {
     const isAd = listingType.toLowerCase() === "ad";
 
@@ -121,9 +123,9 @@ export function ListingItem({
          */
         <div
             className={cn(
-                // Row shell — no items-start so each zone can use self-* independently
-                "flex gap-2.5 py-2.5",
-                "md:gap-3 md:py-3",
+                // Row shell
+                "flex gap-3 py-3.5",
+                "md:gap-4 md:py-4",
                 "border-b border-slate-100 last:border-b-0 bg-transparent",
                 className,
             )}
@@ -159,12 +161,12 @@ export function ListingItem({
                 {/* Title */}
                 {detailHref ? (
                     <Link href={detailHref} className="min-w-0 hover:text-blue-600 transition-colors">
-                        <h3 className="text-[14px] md:text-[15px] font-semibold text-slate-900 leading-snug line-clamp-1">
+                        <h3 className="text-[13px] md:text-[13px] font-semibold text-slate-800 leading-snug line-clamp-1">
                             {title}
                         </h3>
                     </Link>
                 ) : (
-                    <h3 className="text-[14px] md:text-[15px] font-semibold text-slate-900 leading-snug line-clamp-1">
+                    <h3 className="text-[13px] md:text-[13px] font-semibold text-slate-800 leading-snug line-clamp-1">
                         {title}
                     </h3>
                 )}
@@ -254,16 +256,23 @@ export function ListingItem({
             ══════════════════════════════════════════════════════ */}
             <div className="shrink-0 w-[72px] self-center flex flex-col items-center gap-1.5">
 
-                {/* ── Row A: Badge (left) + Overflow (right) ── */}
-                {/* On mobile: they share the row.
-                    No CSS difference needed — both fit in 72px side by side. */}
-                <div className="w-full flex items-center justify-between gap-1">
-                    {/* Status badge — compact, fixed-size text */}
-                    <div className="[&>*]:!text-[10px] [&>*]:!font-semibold [&>*]:!px-1.5 [&>*]:!py-[3px] [&>*]:!rounded [&>*]:!leading-none shrink-0">
-                        {getStatusBadge(status)}
-                    </div>
+                {/*
+                 * ── Row A: Badge + ⋮ ──
+                 * showStatusBadge=true  → [Badge][⋮]  (justify-between)
+                 * showStatusBadge=false → [    ][⋮]  (⋮ right-aligned, badge absent)
+                 */}
+                <div className={cn(
+                    "w-full flex items-center gap-1",
+                    showStatusBadge ? "justify-between" : "justify-end",
+                )}>
+                    {/* Status badge — hidden when caller says showStatusBadge=false */}
+                    {showStatusBadge && (
+                        <div className="[&>*]:!text-[10px] [&>*]:!font-semibold [&>*]:!px-1.5 [&>*]:!py-[3px] [&>*]:!rounded [&>*]:!leading-none shrink-0">
+                            {getStatusBadge(status)}
+                        </div>
+                    )}
 
-                    {/* ⋮ Overflow menu — always right of badge */}
+                    {/* ⋮ Overflow menu */}
                     {hasOverflowItems ? (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -348,8 +357,10 @@ export function ListingItem({
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        /* Spacer keeps badge left-aligned when there is no ⋮ */
-                        <span className="h-6 w-6 shrink-0" aria-hidden="true" />
+                        /* Spacer — only needed when badge is visible and ⋮ is absent */
+                        showStatusBadge
+                            ? <span className="h-6 w-6 shrink-0" aria-hidden="true" />
+                            : null
                     )}
                 </div>
 

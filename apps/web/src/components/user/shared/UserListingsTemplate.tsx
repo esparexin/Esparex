@@ -62,7 +62,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
     const colCount = statusTabs.length > 0 ? statusTabs.length : 3;
 
     return (
-        <div className="w-full md:rounded-xl md:border md:border-slate-200/90 md:bg-white md:shadow-sm overflow-hidden">
+        <div className="w-full overflow-hidden">
             {/* Header */}
             <div className="px-3 md:px-6 pt-3.5 pb-2.5">
                 <div className="flex items-center justify-between mb-2.5">

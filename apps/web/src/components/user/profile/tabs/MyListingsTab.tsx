@@ -258,6 +258,7 @@ export function MyListingsTab({
                     views={listing.views}
                     likes={listing.likes}
                     getStatusBadge={getStatusBadge}
+                    showStatusBadge={adsStatus !== listing.status}
                     editHref={`/edit-ad/${listing.id}`}
                     detailHref={buildPublicListingDetailRoute({
                         id: listing.id,
@@ -302,6 +303,7 @@ export function MyListingsTab({
                     badgeColor="violet"
                     createdAt={service.createdAt}
                     getStatusBadge={getStatusBadge}
+                    showStatusBadge={servicesStatus !== service.status}
                     editHref={`/edit-service/${service.id}`}
                     detailHref={buildPublicListingDetailRoute({
                         id: service.id,
@@ -361,6 +363,7 @@ export function MyListingsTab({
                     badgeColor="teal"
                     createdAt={listing.createdAt}
                     getStatusBadge={getStatusBadge}
+                    showStatusBadge={spareStatus !== listing.status}
                     editHref={`/edit-spare-part/${listing.id}`}
                     detailHref={buildPublicListingDetailRoute({
                         id: listing.id,
