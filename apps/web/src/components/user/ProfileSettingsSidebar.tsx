@@ -372,7 +372,7 @@ export function ProfileSettingsSidebar({
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <section className="min-h-0">
+          <section className="min-h-0 bg-transparent">
             {businessStatusBanner}
             {renderContent()}
           </section>
