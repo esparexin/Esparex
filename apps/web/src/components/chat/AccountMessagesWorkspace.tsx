@@ -33,11 +33,14 @@ export function AccountMessagesWorkspace({
   const renderConversationPanel = () => {
     if (!conversationId) {
       return (
-        <div className="hidden md:flex min-h-[680px] items-center justify-center bg-slate-50/70 p-10">
+        <div className="hidden md:flex h-full min-h-[580px] items-center justify-center bg-slate-50/60 p-10">
           <div className="max-w-sm text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-50 text-2xl">
+              💬
+            </div>
             <h3 className="text-lg font-bold text-foreground">Select a conversation</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Pick a buyer or seller conversation from the inbox to keep chatting without leaving your account area.
+              Pick a buyer or seller conversation from your inbox to start chatting without leaving your workspace.
             </p>
           </div>
         </div>
@@ -46,12 +49,12 @@ export function AccountMessagesWorkspace({
 
     if (!initialConversation) {
       return (
-        <div className="flex min-h-[680px] items-center justify-center bg-slate-50/70 p-10">
+        <div className="flex h-full min-h-[580px] items-center justify-center bg-slate-50/60 p-10">
           <div className="max-w-sm text-center">
             <p className="text-sm font-semibold text-red-600">Unable to load this conversation right now.</p>
             <button
               type="button"
-              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-foreground-secondary"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-foreground"
               onClick={() => {
                 router.refresh();
               }}
@@ -73,16 +76,18 @@ export function AccountMessagesWorkspace({
   };
 
   return (
-    <Card className="overflow-hidden border-0 bg-white/80 shadow-sm backdrop-blur">
-      <div className="border-b border-slate-100 px-5 py-4">
-        <h2 className="text-base font-bold text-foreground">Messages</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Continue conversations with buyers and sellers without leaving your account area.
-        </p>
+    <Card className="overflow-hidden border border-slate-200/80 bg-white shadow-sm rounded-2xl">
+      <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">Messages</h2>
+          <p className="text-xs text-slate-500">
+            Real-time chat workspace for buyer & seller inquiries
+          </p>
+        </div>
       </div>
 
-      <div className="md:grid md:min-h-[680px] md:grid-cols-[minmax(320px,380px)_1fr]">
-        <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-100`}>
+      <div className="md:grid md:h-[calc(100vh-220px)] md:min-h-[580px] md:grid-cols-[340px_1fr]">
+        <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-100 overflow-y-auto`}>
           <ChatList
             currentUserId={currentUserId}
             view={initialView}
@@ -92,10 +97,11 @@ export function AccountMessagesWorkspace({
           />
         </div>
 
-        <div className={`${conversationId ? 'block' : 'hidden md:block'} min-h-[680px] bg-white`}>
+        <div className={`${conversationId ? 'block' : 'hidden md:block'} h-full min-h-[580px] bg-white overflow-hidden`}>
           {renderConversationPanel()}
         </div>
       </div>
     </Card>
   );
 }
+

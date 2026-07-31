@@ -1,14 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useChatList } from '@/hooks/useChatList';
 import { buildChatConversationRoute } from '@/lib/chatUiRoutes';
 import { chatApi, type ConversationListView } from '@/lib/api/chatApi';
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { RelativeTimeText } from '@/components/common/RelativeTimeText';
-import { EmptyChat } from './EmptyChat';
+import { formatStableNumber } from '@/lib/formatters';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyStateShell } from '@/components/ui/EmptyStateShell';
+
 import type { IConversationDTO } from "@esparex/contracts";
+
+type FilterTab = 'active' | 'unread' | 'archived';
 
 function buildConversationState(conv: IConversationDTO): { label: string; tone: 'warn' | 'muted' } | null {
   if (conv.isBlocked) return { label: 'Blocked conversation', tone: 'warn' };
@@ -43,7 +48,6 @@ function ConversationCard({
       <Link href={href} className="conv-card" aria-current={isActive ? 'page' : undefined}>
         <div className="conv-card__thumb">
           {conv.ad.thumbnail ? (
-             
             <img src={conv.ad.thumbnail} alt={conv.ad.title} />
           ) : (
             <div className="conv-card__thumb-placeholder">🛍️</div>
@@ -60,7 +64,12 @@ function ConversationCard({
             )}
           </div>
 
-          <p className="conv-card__ad-title">{conv.ad.title}</p>
+          <div className="conv-card__ad-row">
+            <p className="conv-card__ad-title">{conv.ad.title}</p>
+            {typeof conv.ad.price === 'number' && (
+              <span className="conv-card__ad-price">₹{formatStableNumber(conv.ad.price)}</span>
+            )}
+          </div>
 
           {state && (
             <p className={`conv-card__state conv-card__state--${state.tone}`}>
@@ -73,7 +82,7 @@ function ConversationCard({
               {conv.lastMessage ?? 'No messages yet'}
             </p>
             {unread > 0 && (
-              <span className="conv-card__badge" aria-label={`${unread} unread`}>
+              <span className="conv-card__badge" aria-label={`${unread} unread messages`}>
                 {unread > 99 ? '99+' : unread}
               </span>
             )}
@@ -116,7 +125,39 @@ export function ChatList({
 }: ChatListProps) {
   const [isRestoringId, setIsRestoringId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, retry, refresh } = useChatList(view);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<FilterTab>(view === 'archived' ? 'archived' : 'active');
+
+  const fetchView: ConversationListView = activeTab === 'archived' ? 'archived' : 'active';
+  const { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, retry, refresh } = useChatList(fetchView);
+
+  const handleTabChange = (tab: FilterTab) => {
+    setActiveTab(tab);
+    if (tab === 'archived') onViewChange?.('archived');
+    else onViewChange?.('active');
+  };
+
+  const filteredConversations = useMemo(() => {
+    let list = conversations;
+
+    if (activeTab === 'unread') {
+      list = list.filter((conv) => {
+        const unreadCount = conv.buyer.id === currentUserId ? conv.unreadBuyer : conv.unreadSeller;
+        return unreadCount > 0;
+      });
+    }
+
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return list;
+
+    return list.filter((conv) => {
+      const other = conv.buyer.id === currentUserId ? conv.seller : conv.buyer;
+      const titleMatch = conv.ad.title?.toLowerCase().includes(q);
+      const nameMatch = other.name?.toLowerCase().includes(q);
+      const priceMatch = String(conv.ad.price ?? '').includes(q);
+      return titleMatch || nameMatch || priceMatch;
+    });
+  }, [conversations, activeTab, searchQuery, currentUserId]);
 
   const handleRestore = async (conversationId: string) => {
     try {
@@ -134,22 +175,54 @@ export function ChatList({
 
   return (
     <div className="chat-list-shell">
+      {/* Search Input */}
+      <div className="chat-list__search-wrap">
+        <input
+          type="text"
+          className="chat-list__search-input"
+          placeholder="Search buyers, sellers, or items…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search conversations"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            className="chat-list__search-clear"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Filter Tabs */}
       <div className="chat-list__toolbar" role="tablist" aria-label="Conversation views">
         <button
           type="button"
           role="tab"
-          aria-selected={view === 'active'}
-          className={`chat-list__view-toggle ${view === 'active' ? 'is-active' : ''}`}
-          onClick={() => onViewChange?.('active')}
+          aria-selected={activeTab === 'active'}
+          className={`chat-list__view-toggle ${activeTab === 'active' ? 'is-active' : ''}`}
+          onClick={() => handleTabChange('active')}
         >
           Inbox
         </button>
         <button
           type="button"
           role="tab"
-          aria-selected={view === 'archived'}
-          className={`chat-list__view-toggle ${view === 'archived' ? 'is-active' : ''}`}
-          onClick={() => onViewChange?.('archived')}
+          aria-selected={activeTab === 'unread'}
+          className={`chat-list__view-toggle ${activeTab === 'unread' ? 'is-active' : ''}`}
+          onClick={() => handleTabChange('unread')}
+        >
+          Unread
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'archived'}
+          className={`chat-list__view-toggle ${activeTab === 'archived' ? 'is-active' : ''}`}
+          onClick={() => handleTabChange('archived')}
         >
           Archived
         </button>
@@ -165,9 +238,15 @@ export function ChatList({
       )}
 
       {isLoading ? (
-        <div className="chat-list chat-list--loading">
+        <div className="chat-list chat-list--loading p-4 space-y-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="conv-card-skeleton" aria-hidden />
+            <div key={i} className="flex items-center gap-3">
+              <Skeleton className="h-12 w-12 rounded-xl" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            </div>
           ))}
         </div>
       ) : error ? (
@@ -183,19 +262,34 @@ export function ChatList({
             Retry
           </button>
         </div>
-      ) : conversations.length === 0 ? (
-        <EmptyChat view={view} />
+      ) : filteredConversations.length === 0 ? (
+        <EmptyStateShell>
+          <p className="text-base font-semibold text-slate-800">
+            {searchQuery
+              ? `No conversations match "${searchQuery}"`
+              : activeTab === 'unread'
+                ? 'No unread messages'
+                : activeTab === 'archived'
+                  ? 'No archived conversations'
+                  : 'No conversations yet'}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">
+            {searchQuery
+              ? 'Try searching with another keyword'
+              : 'Messages with buyers and sellers will appear here'}
+          </p>
+        </EmptyStateShell>
       ) : (
         <div className="chat-list">
-          {conversations.map((conv) => (
+          {filteredConversations.map((conv) => (
             <ConversationCard
               key={conv.id}
               conv={conv}
               currentUserId={currentUserId}
-              view={view}
+              view={fetchView}
               onRestore={handleRestore}
               isRestoring={isRestoringId === conv.id}
-              href={conversationHrefBuilder ? conversationHrefBuilder(conv.id, view) : buildChatConversationRoute(conv.id)}
+              href={conversationHrefBuilder ? conversationHrefBuilder(conv.id, fetchView) : buildChatConversationRoute(conv.id)}
               isActive={activeConversationId === conv.id}
             />
           ))}
@@ -215,3 +309,4 @@ export function ChatList({
     </div>
   );
 }
+
