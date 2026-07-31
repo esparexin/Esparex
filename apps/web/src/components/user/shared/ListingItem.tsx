@@ -160,12 +160,12 @@ export function ListingItem({
                 {/* Title */}
                 {detailHref ? (
                     <Link href={detailHref} className="min-w-0 hover:text-blue-600 transition-colors">
-                        <h3 className="text-[13px] md:text-[13px] font-semibold text-slate-800 leading-snug line-clamp-1">
+                        <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-snug line-clamp-1">
                             {title}
                         </h3>
                     </Link>
                 ) : (
-                    <h3 className="text-[13px] md:text-[13px] font-semibold text-slate-800 leading-snug line-clamp-1">
+                    <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-snug line-clamp-1">
                         {title}
                     </h3>
                 )}
