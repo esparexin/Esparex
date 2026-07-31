@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ChevronLeft, ChevronRight, CheckCircle, MapPin, RefreshCcw, Wrench } from "@/icons/IconRegistry";
 
@@ -21,6 +20,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries/queryKeys";
+
+import { SafeImage } from "@/components/ui/SafeImage";
 
 interface RelatedBusinessesSectionProps {
   context: RelatedBusinessesDiscoveryContext;
@@ -107,54 +108,57 @@ export function RelatedBusinessesSection({
     const matchingServicesCount = business.matchingServicesCount || 0;
     const activeServicesCount = business.activeServicesCount || 0;
     const locationLabel = resolveListingLocationLabel(business.location, "full") || "Nearby";
+    const imageSrc = toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER);
 
     return (
       <Card
         key={business.id}
-        className="w-64 flex-shrink-0 overflow-hidden border-0 shadow-sm rounded-2xl bg-white"
+        className="w-72 flex-shrink-0 border border-slate-200/70 shadow-2xs rounded-2xl bg-white p-3 space-y-2.5"
       >
-        <div className="relative aspect-[16/9] overflow-hidden bg-slate-100 rounded-t-2xl">
-          <Image
-            src={toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER)}
-            alt={business.name}
-            fill
-            unoptimized
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 300px"
-          />
-          {business.status === 'live' ? (
-            <Badge className="absolute left-2.5 top-2.5 rounded-full bg-blue-600 px-2 py-0.5 text-2xs font-semibold text-white border-none">
-              <CheckCircle className="mr-1 h-2.5 w-2.5" />
-              Verified
-            </Badge>
-          ) : null}
-        </div>
-
-        <CardContent className="space-y-3 p-3.5">
-          <div className="space-y-1">
-            <h3 className="line-clamp-1 text-sm font-bold text-foreground">
-              {business.name}
-            </h3>
-            <div className="flex items-center gap-1 text-xs text-foreground-subtle">
-              <MapPin className="h-3 w-3 flex-shrink-0 text-foreground-subtle" />
-              <span className="truncate">{locationLabel}</span>
-              {distanceLabel ? <span className="flex-shrink-0">· {distanceLabel}</span> : null}
-            </div>
+        <div className="flex items-start gap-3">
+          <div className="relative size-14 shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+            <SafeImage
+              src={imageSrc}
+              alt={business.name}
+              fill
+              unoptimized
+              className="object-cover"
+              sizes="56px"
+            />
           </div>
 
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <h3 className="line-clamp-1 text-xs font-bold text-slate-900 flex-1">
+                {business.name}
+              </h3>
+              {business.status === "live" && (
+                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-[9px] font-semibold border-none">
+                  Verified
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+              <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+              <span className="truncate">{locationLabel}</span>
+              {distanceLabel ? <span className="shrink-0">· {distanceLabel}</span> : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pt-0.5">
+          <div className="flex flex-wrap gap-1">
             {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-full bg-blue-50 px-2 py-0.5 text-2xs font-semibold text-link-dark border-none">
+              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 border-none">
                 {matchingServicesCount} matching
               </Badge>
-            ) : null}
-            {activeServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-semibold text-foreground-tertiary border-none">
+            ) : activeServicesCount > 0 ? (
+              <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 border-none">
                 {activeServicesCount} live
               </Badge>
             ) : null}
             {typeof business.trustScore === "number" ? (
-              <Badge variant="secondary" className="rounded-full bg-emerald-50 px-2 py-0.5 text-2xs font-semibold text-emerald-700 border-none">
+              <Badge variant="secondary" className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 border-none">
                 Trust {business.trustScore}
               </Badge>
             ) : null}
@@ -162,15 +166,15 @@ export function RelatedBusinessesSection({
 
           <Button
             size="sm"
-            className="h-11 w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-sm transition-all active:scale-95"
+            className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-none shrink-0"
             onClick={() => {
               navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, business.slug || business.id);
             }}
           >
-            <Wrench className="mr-1.5 h-3.5 w-3.5" />
-            View Service Center
+            <Wrench className="mr-1.5 h-3 w-3" />
+            View
           </Button>
-        </CardContent>
+        </div>
       </Card>
     );
   };
