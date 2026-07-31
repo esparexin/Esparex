@@ -153,9 +153,25 @@ export default function PlansPage() {
             header: "Key Limits",
             cell: (plan) => (
                 <div className="text-xs text-foreground-secondary flex flex-col gap-1">
-                    {plan.limits?.maxAds ? <div>Ads: <span className="font-medium text-foreground">{plan.limits.maxAds}</span></div> : null}
-                    {plan.type === "SPOTLIGHT" && plan.limits?.spotlightCredits ? <div>Credits: <span className="font-medium text-emerald-600">{plan.limits.spotlightCredits}</span></div> : null}
-                    {plan.type === "AD_PACK" && (!plan.limits?.maxAds && !plan.limits?.spotlightCredits) ? <span className="italic text-foreground-subtle">Standard</span> : null}
+                    {plan.type === "AD_PACK" && (
+                        <div>
+                            {plan.limits?.maxAds ? (
+                                <span>Ads: <strong className="font-semibold text-amber-700">{plan.limits.maxAds} Slots</strong></span>
+                            ) : (
+                                <span className="italic text-foreground-subtle">Standard</span>
+                            )}
+                        </div>
+                    )}
+                    {plan.type === "SPOTLIGHT" && (
+                        <div>
+                            Spotlight: <strong className="font-semibold text-emerald-600">{plan.limits?.spotlightCredits ?? 1} Credits</strong>
+                        </div>
+                    )}
+                    {plan.type === "SMART_ALERT" && (
+                        <div>
+                            Alert Slots: <strong className="font-semibold text-blue-600">{plan.limits?.smartAlerts ?? plan.smartAlertConfig?.maxAlerts ?? 1} Slots</strong>
+                        </div>
+                    )}
                 </div>
             )
         },

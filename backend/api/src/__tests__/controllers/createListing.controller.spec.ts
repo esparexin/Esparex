@@ -18,8 +18,14 @@ const mockCreateAd = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
 
+const mockResolveCatalogRequestsForSubmission = jest.fn();
+
 jest.mock('@esparex/core/services/AdOrchestrator', () => ({
     createAd: (...args: unknown[]) => mockCreateAd(...args),
+}));
+
+jest.mock('@esparex/core/services/catalog/CatalogRequestService', () => ({
+    resolveCatalogRequestsForSubmission: (...args: unknown[]) => mockResolveCatalogRequestsForSubmission(...args),
 }));
 
 jest.mock('@esparex/core/services/AdImageService', () => ({
@@ -205,5 +211,43 @@ describe('createListing.controller', () => {
         const [, context] = mockCreateAd.mock.calls[0] as [unknown, { ip: string; deviceFingerprint: string }];
         expect(context.ip).toBe('203.0.113.42');
         expect(context.deviceFingerprint).toBe(userAgent);
+    });
+
+    // ── 8. Catalog proposal resolution for customBrandName ───────────────────
+
+    it('resolves customBrandName into pendingBrandRequestId prior to Ad creation', async () => {
+        mockCreateAd.mockResolvedValue({ _id: 'ad-custom-1' });
+        mockResolveCatalogRequestsForSubmission.mockResolvedValue({
+            pendingBrandRequestId: '65f0a1b2c3d4e5f6a7b8c9d1',
+        });
+
+        const req = makeReq({
+            body: {
+                title: 'Custom Brand Phone',
+                price: 15000,
+                categoryId: '65f0a1b2c3d4e5f6a7b8c000',
+                customBrandName: 'TechnoBrand',
+                location: {
+                    city: 'Hyderabad',
+                    state: 'Telangana',
+                    coordinates: [78.4867, 17.3850],
+                },
+            },
+        });
+        const res = makeRes();
+        const next = makeNext();
+
+        await createListing(req, res, next);
+
+        expect(mockResolveCatalogRequestsForSubmission).toHaveBeenCalledWith(expect.objectContaining({
+            categoryId: '65f0a1b2c3d4e5f6a7b8c000',
+            customBrandName: 'TechnoBrand',
+            userId: USER_ID,
+        }));
+
+        const [createdBody] = mockCreateAd.mock.calls[0] as [{ pendingBrandRequestId?: string; customBrandName?: string }];
+        expect(createdBody.pendingBrandRequestId).toBe('65f0a1b2c3d4e5f6a7b8c9d1');
+        expect(createdBody.customBrandName).toBeUndefined();
+        expect(mockSendSuccessResponse).toHaveBeenCalled();
     });
 });

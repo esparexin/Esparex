@@ -10,6 +10,9 @@ interface BrandSearchSelectProps {
     value: string;
     /** Called with (brandId, brandName, requestId) on selection */
     onChange: (brandId: string, brandName: string, requestId?: string) => void;
+    onProposeCustom?: (customBrandName: string) => void;
+    onClear?: () => void;
+    isCustom?: boolean;
     categoryId: string;
     disabled?: boolean;
     loading?: boolean;
@@ -22,6 +25,9 @@ export function BrandSearchSelect({
     brandMap,
     value,
     onChange,
+    onProposeCustom,
+    onClear,
+    isCustom = false,
     disabled = false,
     loading = false,
     placeholder = "Search brand...",
@@ -45,6 +51,7 @@ export function BrandSearchSelect({
             title="Select a Brand"
             emptyMessage="No matching brands found"
             disabled={disabled}
+            isCustom={isCustom}
             className={className}
             getLabel={(brand) => brand}
             getId={(brand) => brandMap[brand]?.id ?? brandMap[brand]?._id ?? brand}
@@ -52,7 +59,9 @@ export function BrandSearchSelect({
                 const id = brandMap[brandName]?.id ?? brandMap[brandName]?._id ?? brandName;
                 onChange(id, brandName);
             }}
-            onClear={() => onChange("", "")}
+            onProposeCustom={onProposeCustom}
+            proposeType="brand"
+            onClear={onClear || (() => onChange("", ""))}
         />
     );
 }

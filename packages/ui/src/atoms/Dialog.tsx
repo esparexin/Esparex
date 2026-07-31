@@ -138,6 +138,7 @@ const DialogContent = React.forwardRef<
       <DialogOverlay style={{ zIndex: overlayZIndex ?? Z_INDEX.dialogOverlay }} className={overlayClassName} />
       <RadixDialog.Content
         ref={ref}
+        aria-describedby={props["aria-describedby"] ?? undefined}
         style={{ zIndex: Z_INDEX.dialogContent }}
         className={cn(getVariantStyles(), className)}
         {...props}

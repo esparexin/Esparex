@@ -203,13 +203,20 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
         } catch (e: unknown) {
             logger.error("[Submission] Failed:", e);
             
-            // 🛡️ Policy Guard: Intercept Business Required Threshold
-            if (getBackendErrorCode(e) === 'BUSINESS_REQUIRED_THRESHOLD') {
+            // 🛡️ Policy Guard: Intercept Business Required Threshold & Quota Exhaustion
+            const backendErrorCode = getBackendErrorCode(e);
+            if (backendErrorCode === 'BUSINESS_REQUIRED_THRESHOLD') {
                 const limitMsg = mapErrorToMessage(e, "Business account required.");
                 notify.error(limitMsg, {
                     duration: 6000,
-                    // In a real app, we might trigger an 'Upgrade to Business' modal here via a global event or context
                     description: "Please upgrade to a Business account or purchase a premium slot to post more spare parts."
+                });
+                return null;
+            } else if (backendErrorCode === 'QUOTA_EXHAUSTED') {
+                const quotaMsg = mapErrorToMessage(e, "Monthly posting limit reached.");
+                notify.error(quotaMsg, {
+                    duration: 6000,
+                    description: "Buy an Ad Pack credit to continue posting or wait until your monthly limit resets."
                 });
                 return null;
             }

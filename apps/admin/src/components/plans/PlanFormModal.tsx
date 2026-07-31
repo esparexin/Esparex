@@ -101,11 +101,9 @@ function formToPayload(f: PlanFormValues) {
         isDefault: f.isDefault,
         active: f.active,
         limits: {
-            maxAds: Number(f.maxAds),
-            maxServices: Number(f.maxServices),
-            maxParts: Number(f.maxParts),
-            spotlightCredits: Number(f.spotlightCredits),
-            smartAlerts: Number(f.smartAlerts),
+            maxAds: Number(f.maxAds) || 0,
+            ...(f.type === "SPOTLIGHT" ? { spotlightCredits: Number(f.spotlightCredits) || 0 } : {}),
+            ...(f.type === "SMART_ALERT" ? { smartAlerts: Number(f.smartAlerts) || 0 } : {}),
         },
         features: {
             priorityWeight: Number(f.priorityWeight),
@@ -312,18 +310,11 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-foreground-tertiary">Limits & Credits</p>
                             {formType === "AD_PACK" && (
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 gap-4">
                                     <div>
-                                        <label className={labelCls}>Max Ads</label>
-                                        <input type="number" min={0} {...register("maxAds", { valueAsNumber: true })} className={inputCls} />
-                                    </div>
-                                    <div>
-                                        <label className={labelCls}>Max Services</label>
-                                        <input type="number" min={0} {...register("maxServices", { valueAsNumber: true })} className={inputCls} />
-                                    </div>
-                                    <div>
-                                        <label className={labelCls}>Max Spare Parts</label>
-                                        <input type="number" min={0} {...register("maxParts", { valueAsNumber: true })} className={inputCls} />
+                                        <label className={labelCls}>Ad Posting Credits (Slots)</label>
+                                        <input type="number" min={1} {...register("maxAds", { valueAsNumber: true })} className={inputCls} />
+                                        <p className="mt-1 text-tiny text-foreground-subtle">Number of ad posting slots granted to the user upon purchasing this pack.</p>
                                     </div>
                                 </div>
                             )}

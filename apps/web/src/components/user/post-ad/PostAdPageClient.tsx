@@ -9,7 +9,7 @@ import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 
 function PostAdPageBackdrop() {
     return (
-        <div className="fixed inset-0 overflow-hidden bg-slate-100/90 pointer-events-none select-none" aria-hidden="true">
+        <div className="fixed inset-0 overflow-hidden bg-slate-100/90 pointer-events-none select-none" inert>
             {/* Header Shell */}
             <header className="w-full bg-white border-b border-slate-200/80 px-4 py-3 sm:px-6 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">

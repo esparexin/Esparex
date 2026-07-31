@@ -14,6 +14,7 @@ export function BrandSection() {
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
+    const customBrandName = String(watch("customBrandName") ?? "");
 
     const { touchedFields } = form.formState;
     const { errors } = form.formState;
@@ -24,8 +25,17 @@ export function BrandSection() {
 
     const onBrandChange = useCallback((name: string, rId?: string) => {
         if (isEditMode) return;
+        form.setValue("customBrandName", "", { shouldDirty: true });
         handleBrandChange(name, rId);
-    }, [isEditMode, handleBrandChange]);
+    }, [isEditMode, handleBrandChange, form]);
+
+    const onProposeCustomBrand = useCallback((customName: string) => {
+        if (isEditMode) return;
+        form.setValue("customBrandName", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("brand", customName, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        form.setValue("brandId", "", { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        handleBrandChange(customName, "");
+    }, [isEditMode, form, handleBrandChange]);
 
     return (
         <section className="space-y-2" aria-labelledby="brand-heading">
@@ -36,7 +46,10 @@ export function BrandSection() {
                     brandMap={brandMap as any} 
                     categoryId={categoryId} 
                     value={brandNameValue} 
-                    onChange={(_id, name) => onBrandChange(name, _id)} 
+                    onChange={(_id, name) => onBrandChange(name, _id)}
+                    onProposeCustom={onProposeCustomBrand}
+                    onClear={() => onBrandChange("", "")}
+                    isCustom={Boolean(customBrandName)}
                     disabled={isEditMode} 
                     loading={isLoadingBrands}
                     placeholder={isLoadingBrands ? "Loading brands…" : "Search or select brand"} 
