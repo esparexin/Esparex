@@ -7,7 +7,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { chatApi, type ConversationListView } from "@/lib/api/chatApi";
 import { CHAT_INBOX_UPDATED_EVENT } from '@/lib/chatEvents';
+import { getChatSocket } from '@/lib/chatSocket';
 import type { IConversationDTO } from "@esparex/contracts";
+
 
 const POLL_INTERVAL_MS = 10_000;
 
@@ -117,10 +119,20 @@ export function useChatList(view: ConversationListView = 'active'): UseChatListR
       void refresh();
     };
     window.addEventListener(CHAT_INBOX_UPDATED_EVENT, handleInboxUpdate);
+
+    const socket = getChatSocket();
+    if (socket) {
+      socket.on('chat:inbox_updated', handleInboxUpdate);
+    }
+
     return () => {
       window.removeEventListener(CHAT_INBOX_UPDATED_EVENT, handleInboxUpdate);
+      if (socket) {
+        socket.off('chat:inbox_updated', handleInboxUpdate);
+      }
     };
   }, [refresh]);
 
   return { conversations, isLoading, isLoadingMore, error, hasMore, loadMore, refresh, retry: load };
 }
+
