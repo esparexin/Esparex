@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { sendSuccessResponse } from "../../utils/respond";
 import { getSingleParam } from '../../utils/requestParams';
-import { buildPublicAdFilter, isPublicAdVisible } from '@esparex/core/utils/FeedVisibilityGuard';
+import { isPublicAdVisible } from '@esparex/core/utils/FeedVisibilityGuard';
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
 import * as AdDetailService from '@esparex/core/services/ad/AdDetailService';
 import * as feedService from '@esparex/core/services/FeedService';

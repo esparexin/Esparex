@@ -124,7 +124,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
     }
 };
 
-import { isSuperAdminRole, normalizeRole } from '@esparex/core/utils/roleNormalization';
+import { isSuperAdminRole } from '@esparex/core/utils/roleNormalization';
 
 export const requirePermission = (permission: string) => {
     return (req: Request, res: Response, next: NextFunction) => {

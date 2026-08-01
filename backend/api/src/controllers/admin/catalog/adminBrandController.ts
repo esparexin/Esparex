@@ -7,7 +7,7 @@ import { CATALOG_APPROVAL_STATUS } from "@esparex/contracts";
 import { BrandModel, findBrandByFilter, findCategoryBySlugForCatalog } from '@esparex/core/services/catalog/CatalogBrandModelService';
 import CatalogOrchestrator from '@esparex/core/services/catalog/CatalogOrchestrator';
 import { invalidateItemCatalogCache } from './shared';
-import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, hasAdminAccess, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
+import { sendCatalogError, QueryRecord, ACTIVE_CATEGORY_QUERY, validateActiveCategories, handleCatalogCreate, handleCatalogUpdate, handleCatalogToggleStatus, handleCatalogReview, sendEmptyPublicList, applyCatalogStatusFilter, CATALOG_PUBLIC_VISIBILITY_QUERY, deriveApprovalStatus } from './shared';
 import { logAdminAction } from '../../../utils/adminLogger';
 import { brandCreateSchema, brandUpdateSchema, rejectionSchema } from '@esparex/core/validators/catalog.validator';
 import CategoryQueryBuilder from '@esparex/core/utils/CategoryQueryBuilder';
