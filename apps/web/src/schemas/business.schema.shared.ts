@@ -40,7 +40,6 @@ const createBusinessFileValidator = (allowedMimeTypes: readonly string[], typeLa
 
 export const businessImageFileValidator = createBusinessFileValidator(BUSINESS_IMAGE_MIME_TYPES, "image");
 export const businessDocumentFileValidator = createBusinessFileValidator(BUSINESS_DOCUMENT_MIME_TYPES, "document");
-export const businessFileValidator = businessDocumentFileValidator;
 
 const validateBusinessUploadSelection = (
     file: File,

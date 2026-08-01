@@ -359,7 +359,3 @@ export const getMe = async (req: Request, res: Response) => {
         return sendAdminError(req, res, "Unauthorized: Session lookup failed", 401);
     }
 };
-
-// Aliases for compatibility if needed, but routes should update to use these new names
-export const login = adminLogin;
-export const logout = adminLogout;
