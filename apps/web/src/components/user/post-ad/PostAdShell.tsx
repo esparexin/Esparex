@@ -55,10 +55,14 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
     // 0. 📶 OFFLINE State
     if (!isBackendUp) {
         return (
-            <div className="flex items-center justify-center w-full min-h-[60vh] p-4">
+            <div
+                role="alert"
+                aria-live="assertive"
+                className="flex items-center justify-center w-full min-h-[60vh] p-4"
+            >
                 <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-amber-100">
                     <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <WifiOff className="w-8 h-8 text-amber-600" />
+                        <WifiOff className="w-8 h-8 text-amber-600" aria-hidden="true" />
                     </div>
 
                     <h2 className="text-xl font-bold text-foreground mb-2">
@@ -73,9 +77,10 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     <button
                         type="button"
                         onClick={handleOfflineRetry}
+                        aria-label="Check connection again"
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white font-medium rounded-full hover:bg-amber-700 transition-colors w-full sm:w-auto"
                     >
-                        <RefreshCcw className="w-4 h-4" />
+                        <RefreshCcw className="w-4 h-4" aria-hidden="true" />
                         Check Again
                     </button>
                 </div>
@@ -91,10 +96,14 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
     // 2. ⚠️ ERROR State
     if (loadError) {
         return (
-            <div className="flex items-center justify-center w-full min-h-[60vh] p-4">
+            <div
+                role="alert"
+                aria-live="assertive"
+                className="flex items-center justify-center w-full min-h-[60vh] p-4"
+            >
                 <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-red-100">
                     <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <AlertCircle className="w-8 h-8 text-red-600" />
+                        <AlertCircle className="w-8 h-8 text-red-600" aria-hidden="true" />
                     </div>
 
                     <h2 className="text-xl font-bold text-foreground mb-2">
@@ -111,9 +120,10 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     <button
                         type="button"
                         onClick={handleErrorRetry}
+                        aria-label="Retry loading the post ad form"
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white font-medium rounded-full hover:bg-slate-800 transition-colors w-full sm:w-auto"
                     >
-                        <RefreshCcw className="w-4 h-4" />
+                        <RefreshCcw className="w-4 h-4" aria-hidden="true" />
                         Try Again
                     </button>
                 </div>
