@@ -16,6 +16,26 @@ If similarity is below the threshold, keep components separate even if they appe
 
 ---
 
+## Mapper Ownership Rule
+
+Mappers own boundary transformations between DTOs and Domain entities across all applications and packages.
+
+```text
+Application Mapper
+Domain ──► Request DTO
+
+Infrastructure Mapper
+Response DTO ──► Domain
+```
+
+### Governance Constraints:
+- Repositories never perform mapping logic.
+- Services never perform mapping logic.
+- Mapper-to-Mapper dependencies are strictly prohibited.
+- All API DTO models MUST be defined in `@esparex/contracts`.
+
+---
+
 # 🚨 GLOBAL ACCESSIBILITY & KEYBOARD NAVIGATION GOVERNANCE RULE (MANDATORY)
 
 ## Applies To
