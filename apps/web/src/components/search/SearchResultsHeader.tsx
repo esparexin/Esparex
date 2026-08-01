@@ -53,13 +53,13 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             aria-label={`Sort listings, current ${SORT_LABELS[sort]}`}
             className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "h-10 shrink-0 gap-2 rounded-lg border-slate-200 bg-white px-3 shadow-sm hover:bg-slate-50",
+                "h-10 shrink-0 gap-1.5 rounded-full border-slate-200 bg-white px-3 shadow-none hover:bg-slate-50",
                 className
             )}
             {...props}
         >
-            <SortAsc className="size-3.5 text-foreground-subtle" />
-            <span className="font-medium text-slate-700 text-small">{SORT_LABELS[sort]}</span>
+            <SortAsc className="size-4 text-foreground-subtle" />
+            <span className="hidden sm:inline font-normal text-slate-700 text-xs sm:text-sm">{SORT_LABELS[sort]}</span>
             <ChevronDown className={cn("size-3.5 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );

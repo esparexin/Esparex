@@ -211,6 +211,11 @@ export function ListingDetail({
                     {isPendingOwner && <AdPendingStatusCard />}
 
                     <ListingDescriptionCard ad={ad} />
+
+                    <ListingRelatedBusinessesSection
+                      ad={ad}
+                      navigateTo={navigateTo}
+                    />
                   </div>
 
                   <ListingDetailSidebar
@@ -234,11 +239,6 @@ export function ListingDetail({
                     onReport={handleReport}
                   />
                 </div>
-
-                <ListingRelatedBusinessesSection
-                  ad={ad}
-                  navigateTo={navigateTo}
-                />
               </div>
             </div>
 

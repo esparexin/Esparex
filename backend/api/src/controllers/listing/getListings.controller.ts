@@ -90,8 +90,7 @@ export const getListingDetail = async (req: Request, res: Response, next: NextFu
         }
 
         if (!adId) {
-            const visibilityFilter = isAdmin ? { isDeleted: { $ne: true } } : buildPublicAdFilter();
-            adId = await AdDetailService.getAdIdBySlug(idOrSlug, visibilityFilter);
+            adId = await AdDetailService.getAdIdBySlug(idOrSlug, { isDeleted: { $ne: true } });
         }
 
         if (!adId) {

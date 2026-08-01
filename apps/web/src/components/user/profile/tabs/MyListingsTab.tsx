@@ -228,7 +228,7 @@ export function MyListingsTab({
     // Shared Configuration
     const configMap: Record<ListingSubTab, SectionConfig> = {
         ads: {
-            title: "My Classified Ads",
+            title: "My Listings",
             icon: <Package className="h-5 w-5 text-link" />,
             statusTabs: ACCOUNT_LISTING_STATUS_TABS.ads,
             selectedStatus: adsStatus,
@@ -258,6 +258,7 @@ export function MyListingsTab({
                     views={listing.views}
                     likes={listing.likes}
                     getStatusBadge={getStatusBadge}
+                    showStatusBadge={adsStatus !== listing.status}
                     editHref={`/edit-ad/${listing.id}`}
                     detailHref={buildPublicListingDetailRoute({
                         id: listing.id,
@@ -302,6 +303,7 @@ export function MyListingsTab({
                     badgeColor="violet"
                     createdAt={service.createdAt}
                     getStatusBadge={getStatusBadge}
+                    showStatusBadge={servicesStatus !== service.status}
                     editHref={`/edit-service/${service.id}`}
                     detailHref={buildPublicListingDetailRoute({
                         id: service.id,
@@ -361,6 +363,7 @@ export function MyListingsTab({
                     badgeColor="teal"
                     createdAt={listing.createdAt}
                     getStatusBadge={getStatusBadge}
+                    showStatusBadge={spareStatus !== listing.status}
                     editHref={`/edit-spare-part/${listing.id}`}
                     detailHref={buildPublicListingDetailRoute({
                         id: listing.id,

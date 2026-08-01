@@ -1,7 +1,7 @@
 import { PageSection } from "@/components/layout";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
-import { Wrench, Info } from "@/icons/IconRegistry";
+import { Wrench, CheckCircle2, XCircle, ShieldCheck, CircuitBoard, Briefcase } from "@/icons/IconRegistry";
 
 interface ListingDescriptionCardProps {
     ad: Ad;
@@ -10,73 +10,102 @@ interface ListingDescriptionCardProps {
 
 export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
     const description = cleanupListingDescription(String(ad.description || ""));
-    const hasAttributes = ad.listingType === 'service' || ad.listingType === 'spare_part';
+    const isService = ad.listingType === 'service';
+    const isSparePart = ad.listingType === 'spare_part';
+    const hasAttributes = isService || isSparePart || !!ad.warranty;
+
+    const titleText = isService
+        ? "Service Overview & Specifications"
+        : isSparePart
+        ? "Spare Part Specifications & Details"
+        : "Description & Details";
 
     return (
         <PageSection
             variant="bordered"
             className="rounded-none md:rounded-2xl border-x-0 md:border border-slate-100 p-3.5 md:p-5"
             title={
-                <h2 className="font-bold text-slate-900 text-sm md:text-base">
-                    Description
-                </h2>
+                <span className="font-bold text-slate-900 text-sm md:text-base flex items-center gap-2">
+                    {isService ? (
+                        <Briefcase className="size-4 text-emerald-600" />
+                    ) : isSparePart ? (
+                        <CircuitBoard className="size-4 text-indigo-600" />
+                    ) : null}
+                    {titleText}
+                </span>
             }
         >
-            <div className="space-y-3.5 md:space-y-5 pt-1">
+            <div className="space-y-4 pt-1">
+                {/* Specifications & Highlights Grid */}
                 {hasAttributes && (
-                    <div className="grid grid-cols-2 gap-2 pb-3.5 border-b border-slate-100/60">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pb-4 border-b border-slate-100">
                         {!!ad.warranty && (
-                            <div className="flex items-start gap-2 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
-                                <Wrench className="h-3.5 w-3.5 text-foreground-subtle mt-0.5 flex-shrink-0" />
+                            <div className="flex items-start gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                                <ShieldCheck className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-tiny uppercase font-black text-foreground-subtle tracking-tight leading-none">Warranty</p>
-                                    <p className="text-xs font-bold text-foreground-secondary mt-1">{String(ad.warranty)}</p>
+                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
+                                    <p className="text-xs font-bold text-slate-800 mt-0.5">{String(ad.warranty)}</p>
                                 </div>
                             </div>
                         )}
-                        {ad.listingType === 'service' && ad.onsiteService !== undefined && (
-                            <div className="flex items-start gap-2 bg-slate-50/80 rounded-xl p-2.5 border border-slate-100/50">
-                                <Wrench className="h-3.5 w-3.5 text-foreground-subtle mt-0.5 flex-shrink-0" />
+
+                        {isService && ad.onsiteService !== undefined && (
+                            <div className="flex items-start gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                                <Wrench className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-tiny uppercase font-black text-foreground-subtle tracking-tight leading-none">On-site</p>
-                                    <p className="text-xs font-bold text-foreground-secondary mt-1">{ad.onsiteService ? 'Yes' : 'No'}</p>
+                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Service Type</p>
+                                    <p className="text-xs font-bold text-slate-800 mt-0.5">{ad.onsiteService ? 'Doorstep Service' : 'In-Shop Only'}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {isSparePart && ad.deviceCondition && (
+                            <div className="flex items-start gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
+                                <CircuitBoard className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Condition</p>
+                                    <p className="text-xs font-bold text-slate-800 mt-0.5">{ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}</p>
                                 </div>
                             </div>
                         )}
                     </div>
                 )}
 
+                {/* What's Included Card for Services */}
                 {!!ad.included && (
                     <div className="space-y-2">
-                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                            <Info className="h-3.5 w-3.5 text-blue-500" />
-                            What&apos;s Included
+                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-emerald-700 uppercase tracking-wider">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                            What&apos;s Included in Service
                         </h3>
-                        <div className="text-sm text-foreground-tertiary leading-relaxed bg-blue-50 p-3.5 rounded-xl border border-blue-100">
+                        <div className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100 whitespace-pre-wrap">
                             {String(ad.included)}
                         </div>
                     </div>
                 )}
 
+                {/* What's Excluded Card for Services */}
                 {!!ad.excluded && (
                     <div className="space-y-2">
-                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
-                            <Info className="h-3.5 w-3.5 text-foreground-subtle" />
+                        <h3 className="text-xs font-bold flex items-center gap-1.5 text-slate-500 uppercase tracking-wider">
+                            <XCircle className="h-4 w-4 text-slate-400" />
                             What&apos;s Excluded
                         </h3>
-                        <div className="text-sm text-foreground-tertiary leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <div className="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100 whitespace-pre-wrap">
                             {String(ad.excluded)}
                         </div>
                     </div>
                 )}
 
+                {/* Main Description */}
                 <div>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Full Details</h3>
                     {description ? (
-                        <div className="text-slate-600 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+                        <div className="text-slate-700 whitespace-pre-wrap leading-relaxed text-xs sm:text-sm font-normal">
                             {description}
                         </div>
                     ) : (
-                        <p className="text-slate-400 italic text-sm md:text-base">
+                        <p className="text-slate-400 italic text-xs sm:text-sm">
                             No description provided.
                         </p>
                     )}

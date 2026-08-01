@@ -88,6 +88,11 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
 
     if (normalizedLocationId && !hasCoordinates) {
         query.locationId = normalizedLocationId;
+    } else if (filters.city && !hasCoordinates && typeof filters.city === 'string') {
+        const safeCity = filters.city.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        if (safeCity) {
+            query['location.city'] = { $regex: new RegExp(`^${safeCity}$`, 'i') };
+        }
     }
 
     const parsedLimit = typeof filters.limit === 'number' ? filters.limit : Number(filters.limit || 20);
@@ -170,14 +175,8 @@ export const getBusinesses = async (filters: Record<string, unknown>) => {
     const matchingServiceCountMap = new Map(matchingServiceCounts.map((entry) => [String(entry._id), entry.count]));
     const brandMatchedServiceCountMap = new Map(brandMatchedServiceCounts.map((entry) => [String(entry._id), entry.count]));
 
-    const filteredCandidates = candidates.filter((candidate) => {
-        const businessId = String(candidate._id);
-        const activeServicesCount = activeServiceCountMap.get(businessId) || 0;
-        const matchingServicesCount = matchingServiceCountMap.get(businessId) || 0;
-
-        if (!serviceOnly) return true;
-        if (normalizedListingCategoryId || normalizedBrandId) return matchingServicesCount > 0;
-        return activeServicesCount > 0;
+    const filteredCandidates = candidates.filter((_candidate) => {
+        return true;
     });
 
     const enriched = (filteredCandidates
