@@ -57,12 +57,12 @@ export const ListingDetailsScreen = () => {
   const actions: ActionDef[] = [
     {
       label: 'Message',
-      onPress: () => console.log('Message seller'),
+      onPress: () => {},
       isPrimary: true,
     },
     {
       label: 'Make Offer',
-      onPress: () => console.log('Make offer'),
+      onPress: () => {},
       isPrimary: false,
     },
   ];
