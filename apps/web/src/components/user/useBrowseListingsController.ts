@@ -8,11 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import type { Category } from "@/lib/api/user/categories";
 import { useLocationData, type LocationData } from "@/context/LocationContext";
-import {
-  getDisplayLocationLabel,
-  sanitizeLocationLabel,
-} from "@/lib/location/locationLabels";
-import { isUserSelectedLocation, shouldApplyLocationFilter } from "@/lib/location/queryMode";
+import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
+import { shouldApplyLocationFilter } from "@/lib/location/queryMode";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import {
   buildPublicBrowseRoute,
@@ -20,10 +17,9 @@ import {
   resolvePublicBrowseCategory,
   type PublicBrowseType,
 } from "@/lib/publicBrowseRoutes";
-import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
-import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
 import { useBrowseAdsData } from "@/components/user/useBrowseAdsData";
+import { useBrowseFilterPipeline } from "@/components/user/useBrowseFilterPipeline";
 
 type BrowsePageResult<T> = {
   data: T[];
@@ -178,32 +174,19 @@ export function useBrowseListingsController<TItem, TFilters>({
     void fetchItems(1);
   }, [fetchItems, isLoaded, shouldUseInitialResults]);
 
-  const resolvedCategoryLabel = useMemo(() => {
-    return resolveBrowseCategorySelection(selectedCategory, categories).label ?? null;
-  }, [categories, selectedCategory]);
-
-  const activeLocationLabel = useMemo(() => {
-    if (urlLocationId && urlLocationLabel) return urlLocationLabel;
-    if (!isUserSelectedLocation(stableLocation)) return null;
-    return getDisplayLocationLabel(stableLocation) || null;
-  }, [stableLocation, urlLocationId, urlLocationLabel]);
-
-  const activeFilterBadges = useMemo(() => {
-    const badges: string[] = [];
-    const trimmedQuery = query.trim();
-
-    if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
-    if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
-    if (activeLocationLabel) badges.push(`Location: ${activeLocationLabel}`);
-    if (typeof urlRadiusKm === "number" && Number.isFinite(urlRadiusKm)) {
-      badges.push(`Within ${urlRadiusKm} km`);
-    }
-    if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
-
-    return badges;
-  }, [activeLocationLabel, query, resolvedCategoryLabel, sort, urlRadiusKm]);
-
-  const activeFilterCount = activeFilterBadges.length;
+  const {
+    activeFilterBadges,
+    activeFilterCount,
+  } = useBrowseFilterPipeline({
+    query,
+    selectedCategory,
+    categories,
+    location: stableLocation,
+    sort,
+    urlLocationId,
+    urlLocationLabel,
+    urlRadiusKm,
+  });
 
   const buildNextUrl = useCallback(
     (
