@@ -1,0 +1,67 @@
+import React, { useState } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { AppInput, AppButton, AppText } from '@esparex/mobile-ui';
+import { AuthLayout } from '../layouts/AuthLayout';
+import { useAuth } from '../../../providers/AuthProvider';
+import { navigate } from '../../../navigation/navigationRef';
+import { ROUTES } from '../../../navigation/routes';
+
+export const LoginScreen = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+
+  const handleLogin = async () => {
+    setLoading(true);
+    try {
+      // In a real app, you would pass credentials to authService.login
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate successful login which will trigger navigation state change
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <AuthLayout
+      title="Welcome Back"
+      description="Enter your credentials to continue"
+      footer={
+        <TouchableOpacity onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.SIGNUP })}>
+          <AppText variant="body" className="text-slate-500">
+            Don't have an account? <AppText className="text-sky-500 font-semibold">Sign up</AppText>
+          </AppText>
+        </TouchableOpacity>
+      }
+    >
+      <AppInput
+        label="Email"
+        placeholder="Enter your email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
+      <AppInput
+        label="Password"
+        placeholder="Enter your password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TouchableOpacity onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.FORGOT_PASSWORD })} className="self-end mb-2">
+        <AppText variant="caption" className="text-sky-500">Forgot Password?</AppText>
+      </TouchableOpacity>
+      
+      <AppButton
+        label="Login"
+        onPress={handleLogin}
+        loading={loading}
+        className="mt-2"
+      />
+    </AuthLayout>
+  );
+};
