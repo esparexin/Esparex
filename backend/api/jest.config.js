@@ -8,11 +8,14 @@ module.exports = {
     verbose: true,
     roots: ['<rootDir>'],
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', {
+        '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
             diagnostics: false,
             tsconfig: '<rootDir>/tsconfig.test.json'
         }]
     },
+    transformIgnorePatterns: [
+        '/node_modules/(?!(sanitize-html|htmlparser2|domhandler|domelementtype|domutils|dom-serializer|entities|escape-string-regexp|parse5)/)'
+    ],
     moduleNameMapper: {
         '^uuid$': '<rootDir>/__mocks__/uuid.js',
         '^@sentry/profiling-node$': '<rootDir>/src/tests/mocks/sentry-profiling-node.ts',
