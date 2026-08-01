@@ -6,9 +6,8 @@ import { RefreshCw } from "@/icons/IconRegistry";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
 import { Button } from "@esparex/ui";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BrowseGridSkeleton } from "./BrowseGridSkeleton";
 import { BrowseEmptyState } from "./BrowseEmptyState";
-
 import { BrowseBreadcrumb } from "./BrowseBreadcrumb";
 
 export type BrowseVirtualizedListProps<TItem> = {
@@ -46,20 +45,6 @@ export interface BrowseResultsPanelProps<TItem>
   onRetry: () => void;
   onReset: () => void;
   onLoadMore: () => void;
-}
-
-function GridSkeleton() {
-  return (
-    <div className="grid grid-cols-1 min-[375px]:grid-cols-2 gap-3 md:gap-5 md:grid-cols-3 lg:grid-cols-3">
-      {Array.from({ length: 9 }).map((_, index) => (
-        <div key={index} className="space-y-3">
-          <Skeleton className="aspect-square w-full rounded-xl" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
-        </div>
-      ))}
-    </div>
-  );
 }
 
 export function BrowseResultsPanel<TItem>({
@@ -128,7 +113,7 @@ export function BrowseResultsPanel<TItem>({
             </div>
           ) : null}
 
-          {loading && items.length === 0 && !error ? <GridSkeleton /> : null}
+          {loading && items.length === 0 && !error ? <BrowseGridSkeleton /> : null}
 
           {!loading && !error && items.length === 0 ? (
             <BrowseEmptyState
