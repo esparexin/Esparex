@@ -1,0 +1,8 @@
+{
+  "id": "phase-1",
+  "title": "Phase 1 — RN Foundation Setup",
+  "status": "IN_PROGRESS",
+  "targetRepository": "Esparex-RN",
+  "governingAdrs": ["ADR-001", "ADR-002", "ADR-003", "ADR-004", "ADR-005", "ADR-018", "ADR-019"],
+  "commits": ["commit-1", "commit-2", "commit-3", "commit-4", "commit-5", "commit-6", "commit-7"]
+}

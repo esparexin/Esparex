@@ -1,0 +1,24 @@
+{
+  "id": "IOS-001",
+  "category": "iOS",
+  "targetVerification": "iOS Native Boot",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Mobile Arch (Illustrative)",
+  "lifecycleStatus": "WAIVED",
+  "gitSha": "ec2644b1",
+  "logDigest": "WAIVER-001",
+  "hashVerification": "WAIVED",
+  "sizeFormat": "0.0 KB",
+  "storageBackendUri": "ImmutableObjectStore / ios-001-waiver.md",
+  "timestamps": {
+    "completed": "2026-08-01T13:25:00Z",
+    "approved": "2026-08-01T13:25:05Z"
+  },
+  "toolVersion": "Xcode 16.x / iOS 18.x",
+  "runnerOs": "iOS Simulator",
+  "result": "WAIVED",
+  "logReference": "ios-001-waiver.md",
+  "dependsOn": [
+    "PB-001"
+  ]
+}

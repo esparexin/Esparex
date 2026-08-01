@@ -1,0 +1,25 @@
+{
+  "id": "CL-001",
+  "category": "Static",
+  "targetVerification": "Clean Checkout Build",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "ec2644b1",
+  "logDigest": "ecd40649044a1a2a18cc39a76ba9b6cd34a128bba45067f7f6c23bed5d371e86",
+  "hashVerification": "PASS",
+  "sizeFormat": "12.0 KB / log",
+  "storageBackendUri": "ImmutableObjectStore / cl-001.log",
+  "timestamps": {
+    "completed": "2026-08-01T13:23:25Z",
+    "approved": "2026-08-01T13:23:30Z"
+  },
+  "toolVersion": "git / npm 10.x",
+  "runnerOs": "macOS 15 / Local",
+  "result": "PASS",
+  "logReference": "cl-001.log",
+  "dependsOn": [
+    "EX-001",
+    "PB-001"
+  ]
+}

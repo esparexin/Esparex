@@ -1,0 +1,25 @@
+{
+  "id": "UT-003",
+  "category": "Static",
+  "targetVerification": "Provider Render Test",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "829a28c",
+  "logDigest": "6d6ab24769d3133d9077aa28f3e1286afd12a94fb28757326dc17af840f01fd4",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.3 KB / log",
+  "storageBackendUri": "ImmutableObjectStore / ut-003.log",
+  "timestamps": {
+    "completed": "2026-08-01T13:55:00Z",
+    "approved": "2026-08-01T13:55:05Z"
+  },
+  "toolVersion": "Jest RTL",
+  "runnerOs": "Local / macOS 15",
+  "result": "PASS",
+  "logReference": "ut-003.log",
+  "contains": [
+    "RQ-001",
+    "RQ-002"
+  ]
+}

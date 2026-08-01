@@ -1,0 +1,12 @@
+{
+  "id": "commit-2",
+  "title": "build(packages): configure shared package consumption",
+  "governingAdrs": ["ADR-018"],
+  "deliverables": ".npmrc GitHub Packages auth, @esparex/contracts & @esparex/shared dependency resolution, Metro workspace resolver",
+  "verificationCommands": ["npm install", "metro-config", "runtime-imports", "npx tsc --noEmit"],
+  "branch": "feat/issue-302-shared-pkg",
+  "pr": "#302",
+  "sha": "f34d12c",
+  "rollbackSha": "ec2644b1",
+  "status": "VERIFIED"
+}

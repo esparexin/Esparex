@@ -1,0 +1,17 @@
+{
+  "id": "commit-8.5",
+  "title": "Icon System",
+  "description": "Establish the AppIcon system utilizing lucide-react-native to prevent hardcoded icon library dependencies in screens.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-004"
+  ],
+  "deliverables": "packages/mobile-ui/src/atoms/AppIcon.tsx",
+  "verificationCommands": [
+    "npm run type-check -w @esparex/mobile-ui"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "commit-9",
+  "title": "Primitive Components",
+  "description": "Establish the foundational UI primitives replacing raw react-native components to enforce the design system.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-004"
+  ],
+  "deliverables": "packages/mobile-ui/src/atoms/*",
+  "verificationCommands": [
+    "npm run type-check -w @esparex/mobile-ui"
+  ]
+}

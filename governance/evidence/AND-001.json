@@ -1,0 +1,24 @@
+{
+  "id": "AND-001",
+  "category": "Android",
+  "targetVerification": "Android Native Boot",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Mobile Arch (Illustrative)",
+  "lifecycleStatus": "WAIVED",
+  "gitSha": "ec2644b1",
+  "logDigest": "WAIVER-002",
+  "hashVerification": "WAIVED",
+  "sizeFormat": "0.0 KB",
+  "storageBackendUri": "ImmutableObjectStore / and-001-waiver.md",
+  "timestamps": {
+    "completed": "2026-08-01T13:25:00Z",
+    "approved": "2026-08-01T13:25:05Z"
+  },
+  "toolVersion": "Android SDK 35 / Gradle 8.7",
+  "runnerOs": "Android Emulator",
+  "result": "WAIVED",
+  "logReference": "and-001-waiver.md",
+  "dependsOn": [
+    "PB-001"
+  ]
+}

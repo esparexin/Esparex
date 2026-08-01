@@ -1,0 +1,12 @@
+{
+  "id": "commit-5",
+  "title": "feat(api): configure mobile API client",
+  "governingAdrs": ["ADR-018"],
+  "deliverables": "Axios client, auth token injection, x-correlation-id header, exponential backoff retry, typed contracts",
+  "verificationCommands": ["npm test -- api.spec.ts"],
+  "branch": "feat/issue-305-api-client",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "status": "SELF_VERIFIED"
+}

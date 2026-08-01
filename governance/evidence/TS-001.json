@@ -1,0 +1,24 @@
+{
+  "id": "TS-001",
+  "category": "Static",
+  "targetVerification": "Typecheck (tsc --noEmit)",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "8b9d5a3",
+  "logDigest": "a18765e94b2190847091a9f0298e4c7d612e584a32e10984fb65910283c74901",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.4 KB / log",
+  "storageBackendUri": "ImmutableObjectStore / .system_generated/tasks/ts-001.log",
+  "timestamps": {
+    "completed": "2026-08-01T12:39:10Z",
+    "approved": "2026-08-01T12:39:15Z"
+  },
+  "toolVersion": "TS Compiler 5.3.3",
+  "runnerOs": "macOS 15 / Local",
+  "result": "PASS",
+  "logReference": "tsc --noEmit 0 errors",
+  "dependsOn": [
+    "EX-002"
+  ]
+}

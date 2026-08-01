@@ -1,0 +1,17 @@
+{
+  "id": "commit-12",
+  "title": "Authentication UI",
+  "description": "Establish the AuthLayout pattern to eliminate layout duplication and implement the core authentication screens.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-004"
+  ],
+  "deliverables": "apps/mobile/src/features/auth/*",
+  "verificationCommands": [
+    "npm run type-check -w apps/mobile"
+  ]
+}

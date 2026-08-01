@@ -1,0 +1,28 @@
+{
+  "id": "CI-001",
+  "category": "CI",
+  "targetVerification": "GitHub Actions CI Gate",
+  "producedBy": "GitHub Actions",
+  "approvedBy": "DevOps Lead (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "ec2644b1",
+  "logDigest": "78a14323dbc076e3217e74dcf303cab9b5192224491ede79170c403db2118869",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.2 KB / log",
+  "storageBackendUri": "ImmutableObjectStore / ci-001.log",
+  "timestamps": {
+    "completed": "2026-08-01T13:26:30Z",
+    "approved": "2026-08-01T13:26:35Z"
+  },
+  "toolVersion": "GitHub Runner ubuntu-latest",
+  "runnerOs": "GitHub Actions",
+  "result": "PASS",
+  "logReference": "ci-001.log",
+  "dependsOn": [
+    "TS-001",
+    "ES-001",
+    "CL-001",
+    "AND-001",
+    "IOS-001"
+  ]
+}

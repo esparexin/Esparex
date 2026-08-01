@@ -1,0 +1,18 @@
+{
+  "id": "commit-8",
+  "title": "Design Tokens & UI Governance",
+  "description": "Establish the UI SSOT via design tokens, configure NativeWind, and enforce UI governance via ESLint.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-004"
+  ],
+  "deliverables": "packages/mobile-ui/src/tokens/*, governance/UI_GOVERNANCE.md, apps/mobile/.eslintrc.js",
+  "verificationCommands": [
+    "npm run type-check -w @esparex/apps-mobile",
+    "npm run type-check -w @esparex/mobile-ui"
+  ]
+}

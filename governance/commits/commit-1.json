@@ -1,0 +1,12 @@
+{
+  "id": "commit-1",
+  "title": "chore(rn): initialize Expo SDK 52 workspace",
+  "governingAdrs": ["ADR-001", "ADR-004"],
+  "deliverables": "Expo SDK 52, tsconfig.json (strict: true), ESLint, Prettier, Husky, eas.json, NativeWind v4 config",
+  "verificationCommands": ["npx expo prebuild", "npm run type-check", "npm run lint"],
+  "branch": "feat/issue-301-rn-init",
+  "pr": "#301",
+  "sha": "ec2644b1",
+  "rollbackSha": "backend/v1.0.0-frozen",
+  "status": "VERIFIED"
+}

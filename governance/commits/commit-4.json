@@ -1,0 +1,12 @@
+{
+  "id": "commit-4",
+  "title": "feat(auth): implement SecureStore adapter",
+  "governingAdrs": ["ADR-002"],
+  "deliverables": "Expo SecureStore encrypted persistence adapter, token refresh queue, cold-launch session restoration",
+  "verificationCommands": ["npm test -- auth.spec.ts"],
+  "branch": "feat/issue-304-secure-store",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "829a28c",
+  "status": "SELF_VERIFIED"
+}
