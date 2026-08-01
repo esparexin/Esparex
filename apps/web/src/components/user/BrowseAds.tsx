@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import {
   BrowseListingsView,
   type BrowseBuildFiltersArgs,
@@ -76,6 +77,42 @@ export function BrowseAds({
   initialResults,
   initialCategories,
 }: BrowseAdsProps) {
+  const handleFetchPage = useCallback(
+    (filters: ListingFilters) =>
+      getAdsPage(
+        { ...filters, type: "ad" },
+        { endpoint: API_ROUTES.USER.LISTINGS }
+      ),
+    []
+  );
+
+  const handleGetEmptyDescription = useCallback(
+    (searchQuery: string) =>
+      searchQuery
+        ? `No ads matching "${searchQuery}".`
+        : "No ads available in this area yet.",
+    []
+  );
+
+  const handleRenderCard = useCallback(
+    (listing: Listing, view: "grid" | "list", index: number) => {
+      const href = buildPublicListingDetailRoute({
+        id: listing.id,
+        listingType: listing.listingType,
+        seoSlug: listing.seoSlug,
+        title: listing.title,
+      });
+      return view === "list" ? (
+        <AdCardList key={listing.id} ad={listing} href={href} priority={index < 4} />
+      ) : (
+        <AdCardGrid key={listing.id} ad={listing} href={href} priority={index < 4} />
+      );
+    },
+    []
+  );
+
+  const handleGetItemKey = useCallback((listing: Listing) => listing.id, []);
+
   return (
     <BrowseListingsView<Listing, ListingFilters>
       browseType="ad"
@@ -86,36 +123,15 @@ export function BrowseAds({
       logScope="BrowseAds"
       loadErrorMessage="Failed to load ads. Please try again."
       buildFilters={buildAdFilters}
-      fetchPage={(filters) =>
-        getAdsPage(
-          { ...filters, type: "ad" },
-          { endpoint: API_ROUTES.USER.LISTINGS }
-        )
-      }
+      fetchPage={handleFetchPage}
       searchAriaLabel="Search marketplace ads"
       searchPlaceholder="Search for mobiles, parts, services..."
       inputClassName="pl-9 h-11 rounded-xl"
       selectTriggerClassName="flex-1 sm:flex-none sm:w-[160px] h-11 rounded-xl"
       emptyTitle="No ads found"
-      getEmptyDescription={(searchQuery) =>
-        searchQuery
-          ? `No ads matching "${searchQuery}".`
-          : "No ads available in this area yet."
-      }
-      renderCard={(listing, view, index) => {
-        const href = buildPublicListingDetailRoute({
-          id: listing.id,
-          listingType: listing.listingType,
-          seoSlug: listing.seoSlug,
-          title: listing.title,
-        });
-        return view === "list" ? (
-          <AdCardList key={listing.id} ad={listing} href={href} priority={index < 4} />
-        ) : (
-          <AdCardGrid key={listing.id} ad={listing} href={href} priority={index < 4} />
-        );
-      }}
-      getItemKey={(listing) => listing.id}
+      getEmptyDescription={handleGetEmptyDescription}
+      renderCard={handleRenderCard}
+      getItemKey={handleGetItemKey}
     />
   );
 }
