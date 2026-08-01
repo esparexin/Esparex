@@ -112,7 +112,7 @@ export function BrowseListingsView<TItem, TFilters>({
     fetchPage,
   });
 
-  const selectedCategoryObj = categories.find((c) =>
+  const selectedCategoryObj = categories.find((c: Category) =>
     getCategoryValue
       ? getCategoryValue(c) === selectedCategory
       : c.id === selectedCategory || c.name === selectedCategory
