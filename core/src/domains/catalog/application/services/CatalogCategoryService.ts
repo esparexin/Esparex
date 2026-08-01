@@ -177,7 +177,7 @@ const CATALOG_COUNT_MAX_TIME_MS = 1500;
 const CATALOG_COUNT_ESTIMATE_MAX_TIME_MS = 1000;
 
 async function countCatalogCollectionSafely(
-    model: MongooseModel<unknown>,
+    model: MongooseModel<any>,
     filter: Record<string, unknown>,
     hint?: Record<string, 1 | -1>
 ): Promise<number> {
