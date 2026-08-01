@@ -1,6 +1,6 @@
 import { CreateListingRequestMapper } from '../CreateListingRequestMapper';
 import { PostAdDraft } from '../../../domain/PostAdDraft';
-import { UploadedImage } from '../../../../shared/domain/UploadedImage';
+import { UploadedImage } from '../../../domain/UploadedImage';
 
 describe('CreateListingRequestMapper', () => {
   const sampleDraft: PostAdDraft = {
@@ -15,15 +15,8 @@ describe('CreateListingRequestMapper', () => {
 
   const sampleImages: UploadedImage[] = [
     {
-      id: 'img-1',
-      url: 'https://storage.esparex.in/ads/img1.jpg',
       key: 'ads/img1.jpg',
-      mimeType: 'image/jpeg',
-      size: 102450,
-      width: 1200,
-      height: 900,
-      isPrimary: true,
-      uploadedAt: new Date().toISOString(),
+      url: 'https://storage.esparex.in/ads/img1.jpg',
     },
   ];
 
