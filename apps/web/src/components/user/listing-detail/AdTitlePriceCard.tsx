@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { formatPrice, formatStableNumber } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
-import { Shield, CheckCircle, MapPin, Clock, Eye } from "@/icons/IconRegistry";
+import { Shield, CheckCircle, MapPin, Clock, Eye, Briefcase, CircuitBoard, Wrench } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 interface AdTitlePriceCardProps {
@@ -19,15 +19,41 @@ export function AdTitlePriceCard({
     viewCount,
 }: AdTitlePriceCardProps) {
     const locationLabel = resolveListingLocationLabel(ad.location, "full");
+    const isService = ad.listingType === "service";
+    const isSparePart = ad.listingType === "spare_part";
 
     return (
         <Card className="bg-white rounded-none md:rounded-[2rem] border-x-0 md:border border-t-0 md:border-t border-b border-slate-100/50 shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
             <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                 <div className="flex items-start justify-between gap-2 md:gap-3">
                     <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+                        {/* Listing Type Badge */}
+                        {isService ? (
+                            <Badge className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-lg inline-flex items-center gap-1">
+                                <Briefcase className="size-3 text-emerald-600" />
+                                Service
+                            </Badge>
+                        ) : isSparePart ? (
+                            <Badge className="flex-shrink-0 text-xs font-semibold px-2.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-lg inline-flex items-center gap-1">
+                                <CircuitBoard className="size-3 text-indigo-600" />
+                                Spare Part
+                            </Badge>
+                        ) : null}
+
+                        {/* Category Badge */}
                         <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-slate-200 text-muted-foreground rounded-lg md:bg-slate-100 md:border-none md:px-2.5 md:py-0.5 md:text-2xs">
                             {categoryLabel}
                         </Badge>
+
+                        {/* On-Site Service Badge */}
+                        {isService && ad.onsiteService !== undefined && (
+                            <Badge className="flex-shrink-0 text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg inline-flex items-center gap-1">
+                                <Wrench className="size-3 text-blue-600" />
+                                {ad.onsiteService ? "Doorstep Service" : "In-Shop Repair"}
+                            </Badge>
+                        )}
+
+                        {/* Device Power Condition Badge */}
                         {ad.deviceCondition && (
                             <Badge className={cn(
                                 "flex-shrink-0 text-tiny h-5 px-2 border-0 rounded-full font-bold uppercase tracking-tight",
@@ -36,6 +62,7 @@ export function AdTitlePriceCard({
                                 {ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}
                             </Badge>
                         )}
+
                         {ad.isSpotlight && (
                             <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-blue-600 text-white rounded-lg md:rounded-full border-none shadow-sm">
                                 Spotlight
@@ -58,7 +85,7 @@ export function AdTitlePriceCard({
                             <span className="font-bold block truncate">{ad.businessName}</span>
                             <span className="text-2xs text-blue-500 font-medium flex items-center gap-1">
                                 <CheckCircle className="h-2.5 w-2.5" />
-                                Verified Business
+                                {isService ? "Verified Service Center" : isSparePart ? "Verified Parts Supplier" : "Verified Business"}
                             </span>
                         </div>
                     </div>
@@ -71,7 +98,7 @@ export function AdTitlePriceCard({
                 <div className="flex items-baseline gap-1">
                     {ad.price === 0 ? (
                         <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold uppercase tracking-wide">
-                            Free
+                            {isService ? "Contact for Quote" : "Free"}
                         </span>
                     ) : (
                         <span className="text-3xl font-black text-foreground tracking-tight">
@@ -105,7 +132,7 @@ export function AdTitlePriceCard({
                         </div>
                     )}
                     <div className="flex flex-col md:gap-1">
-                        <span className="hidden md:block text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Ad ID</span>
+                        <span className="hidden md:block text-2xs uppercase font-bold text-foreground-subtle tracking-wider">ID</span>
                         <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
                             <span className="truncate font-bold">#{ad.id}</span>
                         </div>

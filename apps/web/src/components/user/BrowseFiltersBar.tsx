@@ -84,10 +84,11 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
         <Button
           variant="outline"
           onClick={(e) => e.currentTarget.blur()}
-          className="lg:hidden h-10 px-3.5 gap-2 text-slate-800 border-slate-200 hover:bg-slate-50 font-semibold text-xs sm:text-sm rounded-full shadow-none"
+          aria-label="Open search filters"
+          className="lg:hidden h-10 px-3.5 gap-1.5 text-slate-800 border-slate-200 hover:bg-slate-50 font-normal text-xs rounded-full shadow-none"
         >
           <SlidersHorizontal className="size-4 text-slate-600" />
-          <span>Filters</span>
+          <span className="hidden sm:inline font-normal">Filters</span>
           {activeFilterCount > 0 ? (
             <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-slate-900 px-1.5 py-0.5 text-xs font-bold leading-none text-white">
               {activeFilterCount}

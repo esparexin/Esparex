@@ -22,6 +22,11 @@ describe('LifecycleGuard', () => {
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.DEACTIVATED, LISTING_STATUS.LIVE)).toBe(true);
     });
 
+    // Regression: sold ads must be deletable from user history (bug: INVALID_LIFECYCLE_TRANSITION sold → deleted)
+    it('allows SOLD → DELETED for ad domain (user deletes sold listing from history)', () => {
+        expect(isValidLifecycleTransition('ad', LISTING_STATUS.SOLD, LISTING_STATUS.DELETED)).toBe(true);
+    });
+
     it('rejects illegal transitions', () => {
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.PENDING, LISTING_STATUS.SOLD)).toBe(false);
         expect(isValidLifecycleTransition('ad', LISTING_STATUS.PENDING, 'banned')).toBe(false);
@@ -55,6 +60,11 @@ describe('LifecycleGuard', () => {
             expect(isValidLifecycleTransition('service', 'sold', 'live')).toBe(false);
             expect(isValidLifecycleTransition('service', 'sold', 'pending')).toBe(false);
         });
+
+        // Regression: sold services must be deletable from user history
+        it('allows SOLD → DELETED for service domain', () => {
+            expect(isValidLifecycleTransition('service', 'sold', 'deleted')).toBe(true);
+        });
     });
 
     describe('spare_part_listing domain', () => {
@@ -70,9 +80,15 @@ describe('LifecycleGuard', () => {
             expect(isValidLifecycleTransition('spare_part_listing', 'expired', 'pending')).toBe(true);
         });
 
-        it('disallows transitions from SOLD', () => {
+        // Only non-terminal transitions from SOLD remain blocked
+        it('disallows transitions from SOLD to non-terminal states', () => {
             expect(isValidLifecycleTransition('spare_part_listing', 'sold', 'live')).toBe(false);
             expect(isValidLifecycleTransition('spare_part_listing', 'sold', 'pending')).toBe(false);
+        });
+
+        // Regression: sold spare parts must be deletable from user history
+        it('allows SOLD → DELETED for spare_part_listing domain', () => {
+            expect(isValidLifecycleTransition('spare_part_listing', 'sold', 'deleted')).toBe(true);
         });
     });
 });

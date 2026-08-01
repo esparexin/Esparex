@@ -1,10 +1,25 @@
+"use client";
+
 import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
-import { Eye, Heart, Clock, Edit2, Trash2, RefreshCw, CheckSquare, PowerOff, Power } from "@/icons/IconRegistry";
-import { Button } from "@esparex/ui";
+import {
+    Clock, Edit2, Trash2, RefreshCw, CheckSquare,
+    PowerOff, Power, MoreVertical, Share2,
+} from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
 import { RelativeTimeText } from "@/components/common/RelativeTimeText";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// ─────────────────────────────────────────────────────────────────
+// Public types
+// ─────────────────────────────────────────────────────────────────
 
 export interface MetaBadge {
     label: string;
@@ -41,6 +56,8 @@ interface ListingItemProps {
     metaBadges?: MetaBadge[];
     tags?: Tag[];
     priority?: boolean;
+    /** When false the status badge is hidden (use on tabs where every item shares the same status). */
+    showStatusBadge?: boolean;
     className?: string;
 }
 
@@ -51,200 +68,320 @@ type ListingViews = {
     lastViewedAt?: string;
 };
 
+// ─────────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────────
+
 export function ListingItem({
-    title, status, listingType = "ad", thumbnail, priceLabel, priceClassName, badgeColor = "blue",
-    rejectionReason, createdAt, expiresAt, views, likes,
+    title, status, listingType = "ad", thumbnail, priceLabel, priceClassName,
+    rejectionReason, createdAt, expiresAt, views, likes: _likes,
     getStatusBadge, editHref, detailHref,
     onDelete, onRenew, onDeactivate, onActivate, onMarkSold,
-    metaBadges = [], tags = [], priority = false, className
+    metaBadges = [], tags = [], priority = false, showStatusBadge = true, className,
 }: ListingItemProps) {
     const isAd = listingType.toLowerCase() === "ad";
-    
-    // Rule mapping based on the Final Action Matrix
-    const isActive = status === "live" || status === "active";
+
+    // ── Status flags ──────────────────────────────────────────────
+    const isActive     = status === "live" || status === "active";
     const isDeactivated = status === "deactivated";
-    const isPending = status === "pending" || status === "held_for_review";
-    const isExpired = status === "expired" || status === "rejected"; // Assuming rejected falls here or pending
-    const isSold = status === "sold";
+    const isPending    = status === "pending" || status === "held_for_review";
+    const isExpired    = status === "expired" || status === "rejected";
+    const isSold       = status === "sold";
 
-    const showEdit = isActive || isDeactivated || isPending;
-    const showDeactivate = isActive;
-    const showActivate = isDeactivated;
-    // Delete is allowed everywhere EXCEPT on LIVE Ads (must be deactivated first)
-    const showDelete = !(isActive && isAd); 
-    
-    const showMarkSold = isAd && (isActive || isExpired);
-    const showRenew = !isAd && (isExpired || isSold);
+    // ── Action visibility ─────────────────────────────────────────
+    const showEdit      = isActive || isDeactivated || isPending;
+    const showDeactivate = isActive && !!onDeactivate;
+    const showActivate   = isDeactivated && !!onActivate;
+    const showMarkSold   = isAd && (isActive || isExpired) && !!onMarkSold;
+    const showRenew      = !isAd && (isExpired || isSold) && !!onRenew;
+    // Delete is NEVER shown on live / active listings
+    const showDelete     = !isActive;
 
-    const viewMetrics: ListingViews | null = views && typeof views === "object" ? views : null;
-    const totalViews = typeof views === "number" ? views : viewMetrics?.total ?? 0;
-    const totalLikes = viewMetrics?.favorites ?? likes ?? 0;
+    const hasOverflowItems =
+        showMarkSold || showDeactivate || showActivate || showRenew || showDelete;
 
-    const colorVariants = {
-        blue: {
-            bg: "bg-blue-50 text-blue-300",
-            border: "hover:border-blue-200",
-            price: "text-link-dark"
-        },
-        violet: {
-            bg: "bg-violet-50 text-violet-300",
-            border: "hover:border-violet-200",
-            price: "text-violet-700"
-        },
-        teal: {
-            bg: "bg-teal-50 text-teal-300",
-            border: "hover:border-teal-200",
-            price: "text-teal-700"
-        }
-    };
+    // ── View count ────────────────────────────────────────────────
+    const viewMetrics: ListingViews | null =
+        views && typeof views === "object" ? (views as ListingViews) : null;
+    const totalViews = typeof views === "number" ? views : (viewMetrics?.total ?? 0);
 
-    const colors = colorVariants[badgeColor];
+    // ── Meta segments (built once, rendered inline) ───────────────
+    const showExpiry = isActive && !!expiresAt;
+    const showCreated = !isActive && !!createdAt;
 
     return (
-        <div 
+        /**
+         * THREE-ZONE GRID
+         * ┌─────────────────────────────────────────────────────────┐
+         * │  [Image 62px]  [Content flex-1]  [Actions 76px fixed]  │
+         * └─────────────────────────────────────────────────────────┘
+         *
+         * Actions column internal layout:
+         *   Mobile  → [Badge][⋮] on one row, [Edit] below
+         *   Desktop → Badge / ⋮ / Edit stacked vertically
+         */
+        <div
             className={cn(
-                "flex gap-3 p-3 rounded-xl border bg-white hover:shadow-sm transition-all group",
-                colors.border,
-                className
+                // Row shell
+                "flex gap-3 py-3.5",
+                "md:gap-4 md:py-4",
+                "border-b border-slate-100 last:border-b-0 bg-transparent",
+                className,
             )}
         >
-            {/* Thumbnail */}
-            <div className={cn("relative w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center", colors.bg)}>
+            {/* ══════════════════════════════════════════════════════
+                ZONE 1 — Thumbnail  (fixed 62 × 62 / 68 × 68)
+            ══════════════════════════════════════════════════════ */}
+            <div
+                className={cn(
+                    "shrink-0 self-center",
+                    "relative w-[62px] h-[62px]",
+                    "md:w-[68px] md:h-[68px]",
+                    "rounded-lg overflow-hidden bg-slate-100 border border-slate-100/80",
+                )}
+            >
                 <SafeImage
                     src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
                     alt={title}
                     fill
                     priority={priority}
                     unoptimized
-                    className="object-cover group-hover:scale-105 transition-transform"
-                    sizes="80px"
+                    className="object-cover"
+                    sizes="(max-width: 768px) 62px, 68px"
                 />
             </div>
 
-            {/* Content */}
-            <div className="flex flex-1 flex-col justify-between min-w-0">
-                <div>
-                    <div className="flex items-start justify-between gap-2">
-                        {detailHref ? (
-                            <Link href={detailHref} className="hover:text-link transition-colors">
-                                <h3 className="font-medium text-sm line-clamp-1">{title}</h3>
-                            </Link>
-                        ) : (
-                            <h3 className="font-medium text-sm line-clamp-1 text-foreground">{title}</h3>
-                        )}
-                        {getStatusBadge(status)}
-                    </div>
-                    
-                    <p className={cn("text-xs font-bold mt-0.5", priceClassName || colors.price)}>{priceLabel}</p>
+            {/* ══════════════════════════════════════════════════════
+                ZONE 2 — Content  (flex-1, owns: title / price / meta)
+                NOTHING action-related lives here.
+            ══════════════════════════════════════════════════════ */}
+            <div className="flex-1 min-w-0 self-center flex flex-col gap-1.5">
 
-                    {status === "rejected" && rejectionReason && (
-                        <p className="text-2xs text-red-500 mt-0.5 line-clamp-2">Reason: {rejectionReason}</p>
-                    )}
+                {/* Title */}
+                {detailHref ? (
+                    <Link href={detailHref} className="min-w-0 hover:text-blue-600 transition-colors">
+                        <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
+                            {title}
+                        </h3>
+                    </Link>
+                ) : (
+                    <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
+                        {title}
+                    </h3>
+                )}
 
-                    {/* Meta Info */}
-                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-2xs text-muted-foreground">
-                        {totalViews > 0 && (
-                            <span className="flex items-center gap-1">
-                                <Eye className="h-3 w-3" /> {totalViews}
-                            </span>
-                        )}
-                        {totalLikes > 0 && (
-                            <span className="flex items-center gap-1">
-                                <Heart className="h-3 w-3" /> {totalLikes}
-                            </span>
-                        )}
-                        {isActive && expiresAt && (
-                            <span className="flex items-center gap-1 text-amber-600 font-medium">
-                                <Clock className="h-3 w-3" /> Expires <RelativeTimeText value={expiresAt} />
-                            </span>
-                        )}
-                        {metaBadges.map((badge, idx) => {
-                            if (!badge) return null;
-                            return (
-                                <span key={idx} className={cn("flex items-center gap-1", badge.className)}>
-                                    {badge.icon} {badge.label}
-                                </span>
-                            );
-                        })}
-                        {!isActive && createdAt && (
-                            <span className="flex items-center gap-1 text-foreground-subtle">
-                                <Clock className="h-3 w-3" /> <RelativeTimeText value={createdAt} />
-                            </span>
-                        )}
-                    </div>
+                {/* Price */}
+                <p className={cn(
+                    "text-[13px] font-semibold md:text-[18px] md:font-bold leading-normal",
+                    priceClassName || "text-emerald-600",
+                )}>
+                    {priceLabel}
+                </p>
 
-                    {/* Tags */}
-                    {tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                            {tags.map((tag, idx) => {
-                                if (!tag) return null;
-                                return (
-                                    <span key={idx} className={cn("px-2 py-0.5 rounded-full text-2xs font-medium border", tag.className || "bg-slate-50 text-foreground-tertiary border-slate-100")}>
-                                        {tag.label}
+                {/* Rejection reason (replaces meta on rejected state) */}
+                {status === "rejected" && rejectionReason ? (
+                    <p className="text-[11px] text-red-500 line-clamp-1 leading-normal">
+                        {rejectionReason}
+                    </p>
+                ) : (
+                    /* ── Single-line meta ── */
+                    <div className="flex items-center flex-nowrap gap-1 text-[11px] text-slate-500 leading-normal min-w-0 overflow-hidden">
+                        <span className="shrink-0">👁 {totalViews}</span>
+
+                        {showExpiry && (
+                            <>
+                                <span className="opacity-30 shrink-0">•</span>
+                                <span className="text-amber-700 font-medium shrink-0 flex items-center gap-0.5">
+                                    <Clock className="h-2.5 w-2.5 shrink-0" />
+                                    <span className="truncate">
+                                        <RelativeTimeText value={expiresAt!} /> left
                                     </span>
-                                );
-                            })}
+                                </span>
+                            </>
+                        )}
+
+                        {showCreated && (
+                            <>
+                                <span className="opacity-30 shrink-0">•</span>
+                                <span className="truncate">
+                                    <RelativeTimeText value={createdAt!} />
+                                </span>
+                            </>
+                        )}
+
+                        {metaBadges.map((badge, i) =>
+                            badge ? (
+                                <span key={i} className="shrink-0 flex items-center gap-0.5">
+                                    <span className="opacity-30">•</span>
+                                    <span className={cn("flex items-center gap-0.5", badge.className)}>
+                                        {badge.icon}
+                                        {badge.label}
+                                    </span>
+                                </span>
+                            ) : null,
+                        )}
+                    </div>
+                )}
+
+                {/* Tags (optional) */}
+                {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                        {tags.map((tag, i) =>
+                            tag ? (
+                                <span
+                                    key={i}
+                                    className={cn(
+                                        "px-1.5 py-px rounded text-[10px] font-medium border",
+                                        tag.className || "bg-slate-50 text-slate-400 border-slate-100",
+                                    )}
+                                >
+                                    {tag.label}
+                                </span>
+                            ) : null,
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* ══════════════════════════════════════════════════════
+                ZONE 3 — Fixed Action Column
+                Width: 72px (all breakpoints — fixed, never grows)
+                Internal layout:
+                  Mobile:  [Badge + ⋮] in one row  →  [Edit] below
+                  Desktop: Badge / ⋮ / Edit stacked vertically
+
+                Every row renders this column at the same width,
+                so badges, menus, and edit buttons ALWAYS align.
+            ══════════════════════════════════════════════════════ */}
+            <div className="shrink-0 w-[72px] self-center flex flex-col items-center gap-1.5">
+
+                {/*
+                 * ── Row A: Badge + ⋮ ──
+                 * showStatusBadge=true  → [Badge][⋮]  (justify-between)
+                 * showStatusBadge=false → [    ][⋮]  (⋮ right-aligned, badge absent)
+                 */}
+                <div className={cn(
+                    "w-full flex items-center gap-1",
+                    showStatusBadge ? "justify-between" : "justify-end",
+                )}>
+                    {/* Status badge — hidden when caller says showStatusBadge=false */}
+                    {showStatusBadge && (
+                        <div className="[&>*]:!text-[10px] [&>*]:!font-semibold [&>*]:!px-1.5 [&>*]:!py-[3px] [&>*]:!rounded [&>*]:!leading-none shrink-0">
+                            {getStatusBadge(status)}
                         </div>
                     )}
+
+                    {/* ⋮ Overflow menu */}
+                    {hasOverflowItems ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    aria-label="More actions"
+                                    className={cn(
+                                        "h-6 w-6 flex items-center justify-center",
+                                        "rounded text-slate-400",
+                                        "hover:text-slate-700 hover:bg-slate-100",
+                                        "transition-colors",
+                                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1",
+                                    )}
+                                >
+                                    <MoreVertical className="h-3.5 w-3.5" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" sideOffset={4} className="min-w-[170px] text-[13px]">
+                                {showMarkSold && (
+                                    <DropdownMenuItem
+                                        onClick={onMarkSold}
+                                        className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+                                    >
+                                        <CheckSquare className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        Mark as Sold
+                                    </DropdownMenuItem>
+                                )}
+                                {showDeactivate && (
+                                    <DropdownMenuItem
+                                        onClick={onDeactivate}
+                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer"
+                                    >
+                                        <PowerOff className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        Deactivate
+                                    </DropdownMenuItem>
+                                )}
+                                {showActivate && (
+                                    <DropdownMenuItem
+                                        onClick={onActivate}
+                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                                    >
+                                        <Power className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        Activate
+                                    </DropdownMenuItem>
+                                )}
+                                {showRenew && (
+                                    <DropdownMenuItem
+                                        onClick={onRenew}
+                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                                    >
+                                        <RefreshCw className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        Renew
+                                    </DropdownMenuItem>
+                                )}
+                                {(showMarkSold || showDeactivate || showActivate || showRenew) &&
+                                    showDelete && <DropdownMenuSeparator />}
+                                {detailHref && (
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                            if (typeof window !== "undefined" && navigator.share) {
+                                                void navigator.share({ title, url: detailHref });
+                                            } else {
+                                                void navigator.clipboard.writeText(
+                                                    window.location.origin + detailHref,
+                                                );
+                                            }
+                                        }}
+                                        className="cursor-pointer"
+                                    >
+                                        <Share2 className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        Share
+                                    </DropdownMenuItem>
+                                )}
+                                {showDelete && (
+                                    <DropdownMenuItem
+                                        onClick={onDelete}
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        /* Spacer — only needed when badge is visible and ⋮ is absent */
+                        showStatusBadge
+                            ? <span className="h-6 w-6 shrink-0" aria-hidden="true" />
+                            : null
+                    )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-wrap items-center justify-end gap-2 mt-2">
-                    {onMarkSold && showMarkSold && (
-                        <Button 
-                            size="sm" variant="outline"
-                            className="h-11 text-xs text-green-700 border-green-200 hover:bg-green-50"
-                            onClick={onMarkSold}
-                        >
-                            <CheckSquare className="h-3 w-3 mr-1" /> Mark Sold
-                        </Button>
-                    )}
-                    {onDeactivate && showDeactivate && (
-                        <Button
-                            size="sm" variant="outline"
-                            className="h-11 text-xs text-orange-600 border-orange-200 hover:bg-orange-50"
-                            onClick={onDeactivate}
-                        >
-                            <PowerOff className="h-3 w-3 mr-1" /> Deactivate
-                        </Button>
-                    )}
-                    {onActivate && showActivate && (
-                        <Button
-                            size="sm" variant="outline"
-                            className="h-11 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
-                            onClick={onActivate}
-                        >
-                            <Power className="h-3 w-3 mr-1" /> Activate
-                        </Button>
-                    )}
-                    {onRenew && showRenew && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-11 text-xs text-link border-blue-200 hover:bg-blue-50"
-                            onClick={onRenew}
-                        >
-                            <RefreshCw className="h-3 w-3 mr-1" /> Renew
-                        </Button>
-                    )}
-                    {showEdit && (
-                        <Link href={editHref}>
-                            <Button variant="outline" size="sm" className="h-11 text-xs">
-                                <Edit2 className="h-3 w-3 mr-1" /> Edit
-                            </Button>
-                        </Link>
-                    )}
-                    {showDelete && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-11 w-11 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                            onClick={onDelete}
-                        >
-                            <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                    )}
-                </div>
+                {/* ── Row B: Pencil icon — direct edit shortcut ── */}
+                {showEdit ? (
+                    <Link
+                        href={editHref}
+                        aria-label="Edit listing"
+                        className={cn(
+                            "h-7 w-7 flex items-center justify-center",
+                            "rounded-md border border-slate-200 text-slate-500",
+                            "hover:text-slate-800 hover:bg-slate-100 hover:border-slate-300",
+                            "transition-colors",
+                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1",
+                        )}
+                    >
+                        <Edit2 className="h-3.5 w-3.5" />
+                    </Link>
+                ) : (
+                    /* Invisible placeholder — preserves vertical rhythm */
+                    <div className="h-7 w-7" aria-hidden="true" />
+                )}
             </div>
         </div>
     );

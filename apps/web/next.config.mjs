@@ -32,31 +32,41 @@ const regionalS3RemotePatterns = [
     {
         protocol: 'https',
         hostname: 'esparexdev.s3.ap-south-1.amazonaws.com',
-        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: 'esparexdev.s3.amazonaws.com',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: '*.s3.ap-south-1.amazonaws.com',
         pathname: '/**',
     },
     {
         protocol: 'https',
         hostname: `*.s3.${s3Region}.amazonaws.com`,
-        port: '',
         pathname: '/**',
     },
     {
         protocol: 'https',
         hostname: `s3.${s3Region}.amazonaws.com`,
-        port: '',
         pathname: '/**',
     },
     {
         protocol: 'https',
         hostname: '*.s3.amazonaws.com',
-        port: '',
         pathname: '/**',
     },
     {
         protocol: 'https',
         hostname: 's3.amazonaws.com',
-        port: '',
+        pathname: '/**',
+    },
+    {
+        protocol: 'https',
+        hostname: '*.amazonaws.com',
         pathname: '/**',
     },
 ];
@@ -69,7 +79,6 @@ const dynamicApiRemotePattern = (() => {
             {
                 protocol: parsed.protocol.replace(':', ''),
                 hostname: parsed.hostname,
-                port: parsed.port || '',
                 pathname: '/**',
             },
         ];
@@ -153,6 +162,14 @@ const nextConfig = {
         ],
     },
     images: {
+        domains: [
+            'esparexdev.s3.ap-south-1.amazonaws.com',
+            'esparexdev.s3.amazonaws.com',
+            's3.ap-south-1.amazonaws.com',
+            's3.amazonaws.com',
+            'images.unsplash.com',
+            'placehold.co',
+        ],
         remotePatterns: [
             ...regionalS3RemotePatterns,
             ...dynamicS3BucketPattern,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button, Z_INDEX } from "@esparex/ui";
 import { Share2, Heart, ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
@@ -137,7 +137,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openLightbox(e); }}
                 >
-                    <Image
+                    <SafeImage
                         src={safeImages[currentImageIndex]!}
                         alt={`Listing image ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
                         fill
@@ -219,12 +219,11 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                             : "border-transparent hover:border-slate-300 opacity-50 hover:opacity-100"
                                     }`}
                                 >
-                                    <Image
+                                    <SafeImage
                                         src={image}
                                         alt={`Thumbnail ${index + 1} of ${safeImages.length} for ${title}`}
                                         fill
                                         sizes="80px"
-                                        unoptimized
                                         className="object-cover"
                                     />
                                     {index === currentImageIndex && (

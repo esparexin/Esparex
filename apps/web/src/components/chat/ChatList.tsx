@@ -147,14 +147,28 @@ export function ChatList({
     }
 
     const q = searchQuery.trim().toLowerCase();
-    if (!q) return list;
+    if (q) {
+      list = list.filter((conv) => {
+        const other = conv.buyer.id === currentUserId ? conv.seller : conv.buyer;
+        const titleMatch = conv.ad.title?.toLowerCase().includes(q);
+        const nameMatch = other.name?.toLowerCase().includes(q);
+        const priceMatch = String(conv.ad.price ?? '').includes(q);
+        return titleMatch || nameMatch || priceMatch;
+      });
+    }
 
-    return list.filter((conv) => {
-      const other = conv.buyer.id === currentUserId ? conv.seller : conv.buyer;
-      const titleMatch = conv.ad.title?.toLowerCase().includes(q);
-      const nameMatch = other.name?.toLowerCase().includes(q);
-      const priceMatch = String(conv.ad.price ?? '').includes(q);
-      return titleMatch || nameMatch || priceMatch;
+    // ── Sorting Governance ──────────────────────────────────────────────────────
+    // 1. Open ads (isAdClosed = false) come FIRST; Closed ads (isAdClosed = true) come LAST.
+    // 2. Within each group, sort by most recent chat activity (lastMessageAt / createdAt) descending.
+    return [...list].sort((a, b) => {
+      const aClosed = a.isAdClosed ? 1 : 0;
+      const bClosed = b.isAdClosed ? 1 : 0;
+      if (aClosed !== bClosed) {
+        return aClosed - bClosed;
+      }
+      const aTime = new Date(a.lastMessageAt || a.updatedAt || a.createdAt || 0).getTime();
+      const bTime = new Date(b.lastMessageAt || b.updatedAt || b.createdAt || 0).getTime();
+      return bTime - aTime;
     });
   }, [conversations, activeTab, searchQuery, currentUserId]);
 
