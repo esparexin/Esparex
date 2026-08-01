@@ -6,17 +6,17 @@
 export const TOAST_MESSAGES = {
     // Generic Actions
     ACTION_SUCCESS: "Action completed successfully",
-    ACTION_FAILED: "Action failed. Please try again",
+    ACTION_FAILED: "The requested operation could not be completed. Please review and try again.",
 
     // Data Loading
     LOAD_SUCCESS: "Data loaded successfully",
-    LOAD_FAILED: "Failed to load data",
+    LOAD_FAILED: "Unable to load required information. Please refresh or check your internet connection.",
 
     // Form Submission
     SUBMIT_SUCCESS: "Submitted successfully",
-    SUBMIT_FAILED: "Submission failed",
-    VALIDATION_ERROR: "Please check your input and try again",
-    VALIDATION_REQUIRED: "Please fill in all required fields",
+    SUBMIT_FAILED: "Submission could not be processed. Please check the form errors and try again.",
+    VALIDATION_ERROR: "Please correct the highlighted fields before submitting.",
+    VALIDATION_REQUIRED: "Required fields are missing. Please complete all highlighted steps.",
 
     // Authentication
     LOGIN_SUCCESS: "Logged in successfully",
