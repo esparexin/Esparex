@@ -15,7 +15,6 @@ import { useListingImages } from "@/hooks/listings/useListingImages";
 import { useListingLocation } from "@/hooks/listings/useListingLocation";
 import { useSparePartCatalog } from "@/hooks/listings/useSparePartCatalog";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
-import { usePostAdValidation } from "@/hooks/usePostAdValidation";
 import { usePostAdAiGeneration } from "../hooks/usePostAdAiGeneration";
 import { useCategoryDependents } from "../hooks/useCategoryDependents";
 import { usePostAdStepNavigation } from "../hooks/usePostAdStepNavigation";
@@ -29,14 +28,15 @@ export function PostAdProvider({
 }: {
     children: ReactNode; editAdId?: string; formHook: ReturnType<typeof usePostAdForm>;
 }) {
-    const validationHook = usePostAdValidation();
     const { form, register, control, errors, watch, setValue, trigger } = formHook;
+    const [loadError, setLoadError] = useState<string | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
     const [userHasInteracted, setUserHasInteracted] = useState(false);
     const [stepValidationAttempts, setStepValidationAttempts] = useState<Record<number, boolean>>({});
 
-    const categoryCatalog = useListingCategories({ listingType: LISTING_TYPE.AD, onError: validationHook.setFormError });
-    const brandCatalog = useBrandCatalog({ categoryMap: categoryCatalog.categoryMap, onError: validationHook.setFormError });
-    const sparePartCatalog = useSparePartCatalog({ listingType: LISTING_TYPE.AD, onError: validationHook.setFormError });
+    const categoryCatalog = useListingCategories({ listingType: LISTING_TYPE.AD, onError: setFormError });
+    const brandCatalog = useBrandCatalog({ categoryMap: categoryCatalog.categoryMap, onError: setFormError });
+    const sparePartCatalog = useSparePartCatalog({ listingType: LISTING_TYPE.AD, onError: setFormError });
     const categorySchemaCatalog = useCategorySchemaCatalog();
     const { dynamicCategories, categoryMap } = categoryCatalog;
     const { brandMap, availableBrands, availableModels, availableSizes, loadBrandsForCategory, loadModelsForBrand, refreshBrands, brandsError, isLoadingBrands, isLoadingModels } = brandCatalog;
@@ -69,7 +69,6 @@ export function PostAdProvider({
     const [submittedAd, setSubmittedAd] = useState<Listing | null>(null);
     const { listingImages, setListingImages } = imagesHook;
     const { listingLocation, setLocation, coordinates, locationDisplay } = locationHook;
-    const { loadError, setLoadError, formError, setFormError } = validationHook;
     const { requiresScreenSize, handleCategoryChange, handleBrandChange, handleModelChange, clearCategoryDependents } = useCategoryDependents(
         form as any, categoryMap, brandMap as any, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema, loadModelsForBrand
     );
