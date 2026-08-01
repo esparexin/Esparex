@@ -6,6 +6,7 @@ export * from "./hooks/usePopupQueue";
 // Tokens
 export * from "./tokens/zIndex";
 export * from "./tokens/typography";
+export * from "./tokens/spacing";
 
 // Icons SSOT
 export * from "./atoms/icons";

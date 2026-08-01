@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { PageSection } from "@/components/layout";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
 import { Wrench, Info } from "@/icons/IconRegistry";
@@ -10,13 +10,19 @@ interface ListingDescriptionCardProps {
 
 export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
     const description = cleanupListingDescription(String(ad.description || ""));
-
-    // Service/Part specific data
     const hasAttributes = ad.listingType === 'service' || ad.listingType === 'spare_part';
 
     return (
-        <Card className="rounded-none md:rounded-2xl border-x-0 md:border border-slate-100">
-            <CardContent className="p-3.5 md:p-5 space-y-3.5 md:space-y-5">
+        <PageSection
+            variant="bordered"
+            className="rounded-none md:rounded-2xl border-x-0 md:border border-slate-100 p-3.5 md:p-5"
+            title={
+                <h2 className="font-bold text-slate-900 text-sm md:text-base">
+                    Description
+                </h2>
+            }
+        >
+            <div className="space-y-3.5 md:space-y-5 pt-1">
                 {hasAttributes && (
                     <div className="grid grid-cols-2 gap-2 pb-3.5 border-b border-slate-100/60">
                         {!!ad.warranty && (
@@ -64,21 +70,18 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                     </div>
                 )}
 
-                <div className="space-y-2">
-                    <h2 className="font-bold text-foreground-secondary text-sm md:text-base">
-                        Description
-                    </h2>
+                <div>
                     {description ? (
-                        <div className="text-muted-foreground whitespace-pre-wrap leading-7 text-sm md:text-base">
+                        <div className="text-slate-600 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
                             {description}
                         </div>
                     ) : (
-                        <p className="text-foreground-subtle italic text-sm md:text-base">
+                        <p className="text-slate-400 italic text-sm md:text-base">
                             No description provided.
                         </p>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </PageSection>
     );
 }
