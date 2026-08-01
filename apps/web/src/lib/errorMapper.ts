@@ -29,17 +29,17 @@ const ERROR_MESSAGES: Record<string, string> = {
     'USER_NOT_FOUND': 'User account not found',
 
     // Validation
-    'VALIDATION_ERROR': 'Please check your input and try again',
-    'VALIDATION_REQUIRED_FIELD': 'Please fill in all required fields',
-    'VALIDATION_INVALID_FORMAT': 'Invalid format. Please check your input',
+    'VALIDATION_ERROR': 'Please review the highlighted fields and correct any errors.',
+    'VALIDATION_REQUIRED_FIELD': 'Please complete all required fields before continuing.',
+    'VALIDATION_INVALID_FORMAT': 'Please check the format of the highlighted input field.',
 
     // Network
-    'NETWORK_ERROR': 'Network error. Please check your connection',
-    'NETWORK_TIMEOUT': 'Request timed out. Please try again',
+    'NETWORK_ERROR': 'Connection lost. Please check your network and retry.',
+    'NETWORK_TIMEOUT': 'The server took too long to respond. Please try again.',
 
     // Server
-    'SERVER_ERROR': 'Something went wrong. Please try again later',
-    'SERVER_MAINTENANCE': 'System is under maintenance. Please try again later',
+    'SERVER_ERROR': 'Our service is experiencing temporary delays. Please try again in a moment.',
+    'SERVER_MAINTENANCE': 'System is under scheduled maintenance. Please try again shortly.',
 
     // Business Logic & Listings
     'BUSINESS_DUPLICATE': 'This item already exists',

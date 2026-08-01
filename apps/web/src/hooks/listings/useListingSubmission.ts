@@ -225,8 +225,10 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
             const injected = form ? injectApiErrors(form, e) : false;
             const msg = mapErrorToMessage(e, "Submission failed. Please try again.");
 
-            if (onError) onError(msg);
-            else if (!injected) notify.error(msg);
+            if (!injected) {
+                if (onError) onError(msg);
+                else notify.error(msg);
+            }
             resetIdempotency();
         } finally {
             setIsSubmitting(false);
