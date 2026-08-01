@@ -5,6 +5,8 @@ import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "../utils/errorResponse";
 import { env } from '@esparex/core/config/env';
 
+const processedWebhookEvents = new Set<string>();
+
 /**
  * 🔐 PAYMENT WEBHOOK VERIFIER (HMAC)
  * ---------------------------------
@@ -106,7 +108,24 @@ export function verifyPaymentWebhook(secret: string) {
             return sendErrorResponse(req, res, 401, "Invalid webhook signature");
         }
 
-        // ✅ Signature valid → continue
+        // 🛡️ Webhook Event Replay Protection (24-Hour TTL Cache)
+        const eventIdHeader = req.headers["x-razorpay-event-id"] || signature;
+        const eventId = typeof eventIdHeader === "string" ? eventIdHeader : Array.isArray(eventIdHeader) ? eventIdHeader[0] : null;
+
+        if (eventId) {
+            if (processedWebhookEvents.has(eventId)) {
+                logger.info(`[Webhook] Replayed event ${eventId} fast-rejected via replay cache.`);
+                return sendErrorResponse(req, res, 200, "Event already processed");
+            }
+            processedWebhookEvents.add(eventId);
+
+            // Cap set size to prevent memory leaks
+            if (processedWebhookEvents.size > 10000) {
+                processedWebhookEvents.clear();
+            }
+        }
+
+        // ✅ Signature valid & fresh → continue
         return next();
     };
 }

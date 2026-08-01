@@ -5,6 +5,7 @@ import { registerWebsocketNotifierListener } from './listeners/WebsocketNotifier
 import { registerNotificationTriggerListener } from './listeners/NotificationTriggerListener';
 import { registerSellerListingNotificationListener } from './listeners/SellerListingNotificationListener';
 import { installCatalogPromotionListener } from './listeners/CatalogPromotionListener';
+import { registerPaymentEventListener } from './listeners/PaymentEventListener';
 
 /**
  * Initializes the Central Lifecycle Event System
@@ -18,6 +19,7 @@ export const initializeEventDispatcher = () => {
         registerNotificationTriggerListener();
         registerSellerListingNotificationListener();
         installCatalogPromotionListener();
+        registerPaymentEventListener();
         
         logger.info('🎯 [LifecycleEventSystem] Successfully initialized all dispatch listeners.');
 
