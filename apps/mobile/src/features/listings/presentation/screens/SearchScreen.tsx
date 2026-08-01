@@ -14,7 +14,7 @@ import { Listing } from '../../domain/Listing';
 export const SearchScreen = () => {
   const {
     query,
-    committedQuery,
+    debouncedQuery,
     handleQueryChange,
     handleSubmit,
     handleClear,
@@ -51,10 +51,9 @@ export const SearchScreen = () => {
   );
 
   const listings = data?.pages.flat() ?? [];
-  const hasSearched = committedQuery.trim().length > 0;
+  const hasSearched = debouncedQuery.length > 0;
 
   const renderContent = () => {
-    // No query yet — show prompt
     if (!hasSearched) {
       return (
         <Center className="flex-1 px-8">
@@ -63,7 +62,7 @@ export const SearchScreen = () => {
             Search for listings
           </AppText>
           <AppText variant="body" className="text-slate-400 dark:text-slate-500 mt-2 text-center">
-            Type in the search bar above and press return.
+            Type a keyword in the search bar above to start searching.
           </AppText>
         </Center>
       );
@@ -101,9 +100,9 @@ export const SearchScreen = () => {
         onEndReachedThreshold={0.5}
         ListEmptyComponent={
           <EmptyState
-            title="No results found"
-            description={`Nothing matched "${committedQuery}". Try a different search term.`}
-            icon="SearchX"
+            title="No Listings Found"
+            description={`No items match your search for "${debouncedQuery}".`}
+            icon="Search"
           />
         }
         ListFooterComponent={
@@ -119,13 +118,16 @@ export const SearchScreen = () => {
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <SearchBar
-        value={query}
-        onChangeText={handleQueryChange}
-        onSubmit={handleSubmit}
-        onClear={handleClear}
-      />
-      <Container className="flex-1">{renderContent()}</Container>
+      <Container className="flex-1">
+        <SearchBar
+          value={query}
+          onChangeText={handleQueryChange}
+          onSubmit={handleSubmit}
+          onClear={handleClear}
+          placeholder="Search for parts, models, or brands…"
+        />
+        {renderContent()}
+      </Container>
     </Screen>
   );
 };
