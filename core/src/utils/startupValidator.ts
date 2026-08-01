@@ -10,7 +10,7 @@ import { env } from '../config/env';
 
 const STARTUP_COUNT_MAX_TIME_MS = 1200;
 
-const getFastCollectionCount = async (model: MongooseModel<unknown>): Promise<number> => {
+const getFastCollectionCount = async (model: any): Promise<number> => {
     try {
         return await model.collection.estimatedDocumentCount({
             maxTimeMS: STARTUP_COUNT_MAX_TIME_MS
