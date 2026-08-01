@@ -96,9 +96,9 @@ export function usePostAdSubmissionFlow({
         onError: handleError,
     });
 
-    const submitAd = useCallback(() => {
+    const submitAd = useCallback(async (): Promise<void> => {
         normalizeIdentityFieldsBeforeSubmit();
-        return form.handleSubmit((data) => onValidSubmit(data))();
+        await form.handleSubmit((data) => onValidSubmit(data))();
     }, [normalizeIdentityFieldsBeforeSubmit, form, onValidSubmit]);
 
     return {

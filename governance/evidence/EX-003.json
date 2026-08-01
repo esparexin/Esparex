@@ -1,0 +1,22 @@
+{
+  "id": "EX-003",
+  "category": "Build",
+  "targetVerification": "NativeWind v4 Preset",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "approvalSignature": "IdP-SSO / Sig-5e4f...",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "1334067",
+  "logDigest": "9b238a898ac94e07f160513bfb6edbc470c43007577a9069c6e7a77bd147642f",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.2 KB / js",
+  "storageBackendUri": "ImmutableObjectStore / Esparex-RN/tailwind.config.js",
+  "timestamps": {
+    "completed": "2026-08-01T12:31:10Z",
+    "approved": "2026-08-01T12:31:15Z"
+  },
+  "toolVersion": "NativeWind 4.0.1 / Tailwind 3.4",
+  "runnerOs": "Local / macOS 15",
+  "result": "PASS",
+  "logReference": "Esparex-RN/tailwind.config.js"
+}

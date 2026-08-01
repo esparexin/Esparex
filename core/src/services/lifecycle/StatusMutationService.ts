@@ -124,7 +124,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             
             // 1. Resolve Model
             const Model = getModelForDomain(domain);
-            const doc = await (Model as mongoose.Model<mongoose.Document>).findById(entityId).setOptions({ withDeleted: true }).session(activeSession) as (mongoose.Document & IStatusable) | null;
+            const doc = await (Model as unknown as mongoose.Model<mongoose.Document>).findById(entityId).setOptions({ withDeleted: true }).session(activeSession) as (mongoose.Document & IStatusable) | null;
             if (!doc) {
                 throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
             }
@@ -405,7 +405,7 @@ export const mutateStatusesBulk = async (
     
     const Model = getModelForDomain(domain);
     type BulkMutationDoc = { _id: mongoose.Types.ObjectId; listingType?: string };
-    const docs = await (Model as mongoose.Model<mongoose.Document>).find({ _id: { $in: entityIds } })
+    const docs = await (Model as unknown as mongoose.Model<mongoose.Document>).find({ _id: { $in: entityIds } })
         .select('_id status listingType')
         .lean<BulkMutationDoc[]>();
     if (!docs.length) return 0;

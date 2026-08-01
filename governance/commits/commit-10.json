@@ -1,0 +1,17 @@
+{
+  "id": "commit-10",
+  "title": "Layout System",
+  "description": "Establish the foundational UI layout system leveraging design tokens to enforce consistent spacing, safe area handling, and structural integrity.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-004"
+  ],
+  "deliverables": "packages/mobile-ui/src/layout/*",
+  "verificationCommands": [
+    "npm run type-check -w @esparex/mobile-ui"
+  ]
+}

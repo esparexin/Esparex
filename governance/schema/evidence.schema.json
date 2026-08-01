@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Governance Evidence Schema",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "category": { "type": "string" },
+    "targetVerification": { "type": "string" },
+    "producedBy": { "type": "string" },
+    "approvedBy": { "type": "string" },
+    "approvalSignature": { "type": "string" },
+    "lifecycleStatus": {
+      "type": "string",
+      "enum": ["PLANNED", "EXECUTED", "PASSED", "FAILED", "APPROVED", "RE-EXECUTED", "BLOCKED", "ARCHIVED", "WAIVED"]
+    },
+    "gitSha": { "type": "string" },
+    "logDigest": { "type": "string" },
+    "hashVerification": { "type": "string" },
+    "sizeFormat": { "type": "string" },
+    "storageBackendUri": { "type": "string" },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "completed": { "type": "string", "format": "date-time" },
+        "approved": { "type": "string", "format": "date-time" }
+      },
+      "required": ["completed", "approved"]
+    },
+    "toolVersion": { "type": "string" },
+    "runnerOs": { "type": "string" },
+    "result": { "type": "string" },
+    "logReference": { "type": "string" },
+    "contains": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "supersedes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "dependsOn": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "id", "category", "targetVerification", "producedBy", "approvedBy",
+    "lifecycleStatus", "gitSha", "logDigest", "hashVerification", "sizeFormat",
+    "storageBackendUri", "timestamps", "toolVersion", "runnerOs", "result", "logReference"
+  ]
+}

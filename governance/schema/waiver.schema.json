@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Governance Waiver Schema",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["ACTIVE", "EXPIRED", "REVOKED"]
+    },
+    "expires": { "type": "string", "format": "date-time" },
+    "owner": { "type": "string" },
+    "reason": { "type": "string" },
+    "affects": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "approvedBy": { "type": "string" },
+    "reviewDate": { "type": "string", "format": "date-time" },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH"]
+    }
+  },
+  "required": [
+    "id", "status", "expires", "owner", "reason", "affects", "approvedBy", "reviewDate", "severity"
+  ]
+}

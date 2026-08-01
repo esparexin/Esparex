@@ -1,0 +1,12 @@
+{
+  "id": "commit-3",
+  "title": "feat(core): configure TanStack Query v5 & Providers",
+  "governingAdrs": ["ADR-005"],
+  "deliverables": "QueryClientProvider, AuthContext, ThemeProvider, SafeAreaProvider, root app wrapper",
+  "verificationCommands": ["npm test", "npm run type-check"],
+  "branch": "feat/issue-303-query-providers",
+  "pr": "#303",
+  "sha": "829a28c",
+  "rollbackSha": "f34d12c",
+  "status": "VERIFIED"
+}

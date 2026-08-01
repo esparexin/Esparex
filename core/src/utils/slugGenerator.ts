@@ -2,7 +2,7 @@ import slugify from 'slugify';
 import { nanoid } from 'nanoid';
 import { Model } from 'mongoose';
 
-type SlugModel = Model<unknown>;
+type SlugModel = Model<any>;
 
 /**
  * Generates a unique SEO-friendly slug with DB-checked retries to avoid

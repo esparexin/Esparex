@@ -1,0 +1,17 @@
+{
+  "id": "commit-13",
+  "title": "Navigation Shell Expansion",
+  "description": "Establish the tab-based navigation shell within the MainNavigator stack, enabling correct detail screen overlay behavior. Includes deep linking expansion.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-003"
+  ],
+  "deliverables": "apps/mobile/src/navigation/*",
+  "verificationCommands": [
+    "npm run type-check -w apps/mobile"
+  ]
+}

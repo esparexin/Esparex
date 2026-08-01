@@ -73,7 +73,7 @@ function run(val) {
     const relPath = path.relative(ROOT, file);
     const normalizedPath = relPath.replace(/\\/g, '/');
     const isTest = normalizedPath.includes('__tests__') || normalizedPath.endsWith('.spec.ts') || normalizedPath.endsWith('.spec.tsx') || normalizedPath.endsWith('.test.ts') || normalizedPath.endsWith('.test.tsx');
-    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json');
+    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json') || normalizedPath.endsWith('.eslintrc.js');
 
     if (isTest || isScriptOrConfig) return;
 

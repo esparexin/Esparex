@@ -1,0 +1,26 @@
+{
+  "name": "@esparex/mobile-ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lucide-react-native": "^1.28.0",
+    "nativewind": "^4.0.0",
+    "react-native-safe-area-context": "^5.8.0",
+    "react-native-svg": "^15.15.5"
+  },
+  "devDependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.76.0",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-native": "^0.76.0"
+  }
+}

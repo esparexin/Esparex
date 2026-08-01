@@ -11,7 +11,9 @@
       "@esparex/contracts": ["packages/contracts/src"],
       "@esparex/contracts/*": ["packages/contracts/src/v1/*"],
       "@esparex/ui": ["packages/ui/src"],
-      "@esparex/ui/*": ["packages/ui/src/*"]
+      "@esparex/ui/*": ["packages/ui/src/*"],
+      "@esparex/mobile-ui": ["packages/mobile-ui/src"],
+      "@esparex/mobile-ui/*": ["packages/mobile-ui/src/*"]
     },
     "strict": true,
     "noImplicitAny": true,
@@ -25,10 +27,12 @@
   "references": [
     { "path": "./packages/contracts" },
     { "path": "./packages/ui" },
+    { "path": "./packages/mobile-ui" },
     { "path": "./core" },
     { "path": "./shared" },
     { "path": "./backend/api" },
     { "path": "./apps/web" },
-    { "path": "./apps/admin" }
+    { "path": "./apps/admin" },
+    { "path": "./apps/mobile" }
   ]
 }

@@ -1,0 +1,20 @@
+{
+  "id": "commit-7",
+  "title": "Authentication Networking",
+  "description": "AuthServiceImpl, Login API, Logout API, Refresh API, DTO mapping, ITokenStorage, RefreshExecutor",
+  "author": "Mobile Eng",
+  "date": "2026-08-01",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-002"
+  ],
+  "deliverables": "AuthServiceImpl.ts, ITokenStorage.ts",
+  "verificationCommands": [
+    "npm test -- --testPathPattern=auth",
+    "npm run type-check"
+  ]
+}

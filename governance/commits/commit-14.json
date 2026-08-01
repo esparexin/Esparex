@@ -1,0 +1,17 @@
+{
+  "id": "commit-14",
+  "title": "Listing Domain Layer",
+  "description": "Establish the Listing domain models, IListingRepository, pure ListingMapper, and ListingService, keeping UI decoupled from DTOs.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-005"
+  ],
+  "deliverables": "apps/mobile/src/features/listings/domain/*, apps/mobile/src/features/listings/application/*",
+  "verificationCommands": [
+    "npm run type-check -w apps/mobile"
+  ]
+}

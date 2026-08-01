@@ -1,0 +1,12 @@
+{
+  "id": "commit-6",
+  "title": "feat(nav): configure React Navigation v7 Native Stack",
+  "governingAdrs": ["ADR-003"],
+  "deliverables": "Native Stack navigator, RootStackParamList, AuthStack, MainTabNavigator, modal presentation stack",
+  "verificationCommands": ["npm run type-check", "npx expo run:android"],
+  "branch": "feat/issue-306-navigation",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "status": "SELF_VERIFIED"
+}

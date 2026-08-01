@@ -17,8 +17,11 @@ module.exports = {
     '^@esparex/contracts/(.*)$': '<rootDir>/../packages/contracts/src/$1'
   },
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
+    '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
       tsconfig: 'tsconfig.test.json'
     }]
-  }
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(sanitize-html|htmlparser2|domhandler|domelementtype|domutils|dom-serializer|entities|escape-string-regexp|parse5)/)'
+  ]
 };

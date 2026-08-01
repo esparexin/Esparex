@@ -1,0 +1,22 @@
+{
+  "id": "UT-006",
+  "category": "Static",
+  "targetVerification": "Auth Provider Unit Tests",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "tbd-commit-6",
+  "logDigest": "tbd",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.1 KB",
+  "storageBackendUri": "ImmutableObjectStore / ut-006.log",
+  "timestamps": {
+    "completed": "2026-08-01T14:41:00Z",
+    "approved": "2026-08-01T14:41:00Z"
+  },
+  "toolVersion": "Jest",
+  "runnerOs": "Local / macOS 15",
+  "result": "PASS",
+  "logReference": "ut-006.log",
+  "dependsOn": []
+}

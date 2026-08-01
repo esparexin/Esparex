@@ -1,3 +1,4 @@
+import type React from "react";
 import { useRouter } from "next/navigation";
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import { ListingImage } from "@/types/listing";
@@ -36,9 +37,15 @@ export function useListingFormProps<TFormValues extends GenericListingFormValues
     const router = useRouter();
     const { handleSubmit } = form;
 
+    const handleSubmitWrapped = async (e?: React.BaseSyntheticEvent): Promise<void> => {
+        await handleSubmit(async (data: TFormValues) => {
+            await onValidSubmit(data);
+        })(e);
+    };
+
     return {
         form,
-        onSubmit: handleSubmit(onValidSubmit),
+        onSubmit: handleSubmitWrapped,
         onClose: () => router.back(),
         isSubmitting,
         isEditMode,

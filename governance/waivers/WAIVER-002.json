@@ -1,0 +1,11 @@
+{
+  "id": "WAIVER-002",
+  "status": "ACTIVE",
+  "expires": "2026-08-15T00:00:00Z",
+  "owner": "Mobile Arch",
+  "reason": "Android CI runner requires external configuration",
+  "affects": ["AND-001"],
+  "approvedBy": "Auth-TBD",
+  "reviewDate": "2026-08-01T13:25:00Z",
+  "severity": "LOW"
+}

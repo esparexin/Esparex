@@ -1,0 +1,22 @@
+{
+  "id": "EX-001",
+  "category": "Build",
+  "targetVerification": "Workspace Initialization",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative Signature: IdP-SSO / Sig-9a8b...)",
+  "approvalSignature": "IdP-SSO / Sig-9a8b...",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "1334067",
+  "logDigest": "67f778f630d232b9cd3c9841933d805eeca78014219a6af157e06df9f865755f",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.9 KB / json",
+  "storageBackendUri": "ImmutableObjectStore / Esparex-RN/package.json",
+  "timestamps": {
+    "completed": "2026-08-01T12:31:00Z",
+    "approved": "2026-08-01T12:31:05Z"
+  },
+  "toolVersion": "Expo 52.0.0 / Node 20.15.0",
+  "runnerOs": "Local / macOS 15",
+  "result": "PASS",
+  "logReference": "Esparex-RN/package.json"
+}

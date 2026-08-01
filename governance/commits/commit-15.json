@@ -1,0 +1,17 @@
+{
+  "id": "commit-15",
+  "title": "Marketplace Feed Presentation",
+  "description": "Establish the Marketplace feed UI layer utilizing useInfiniteQuery, ListingCard, and FlatList optimizations, strictly decoupling from DTOs.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-005"
+  ],
+  "deliverables": "apps/mobile/src/features/listings/presentation/*, apps/mobile/src/features/common/components/*",
+  "verificationCommands": [
+    "npm run type-check -w apps/mobile"
+  ]
+}

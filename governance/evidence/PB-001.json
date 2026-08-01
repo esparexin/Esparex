@@ -1,0 +1,26 @@
+{
+  "id": "PB-001",
+  "category": "Build",
+  "targetVerification": "Expo Prebuild Compile",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "8b9d5a3",
+  "logDigest": "51b7bda493e48e2a03239e89001e4f0f712d9186e9508e7f3f0861bc0e5cd692",
+  "hashVerification": "PASS",
+  "sizeFormat": "12.6 KB / log",
+  "storageBackendUri": "ImmutableObjectStore / .system_generated/tasks/task-765.log",
+  "timestamps": {
+    "completed": "2026-08-01T12:48:12Z",
+    "approved": "2026-08-01T12:48:20Z"
+  },
+  "toolVersion": "Expo CLI 52.0.0",
+  "runnerOs": "macOS 15 / Local",
+  "result": "PASS",
+  "logReference": "task-765.log",
+  "dependsOn": [
+    "EX-001",
+    "EX-002",
+    "EX-003"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "commit-11",
+  "title": "Navigation System",
+  "description": "Establish the foundational navigation architecture by splitting responsibilities into distinct modules: Root, Auth, Main, and deep linking.",
+  "status": "SELF_VERIFIED",
+  "pr": "TBD",
+  "sha": "TBD",
+  "rollbackSha": "TBD",
+  "branch": "develop",
+  "governingAdrs": [
+    "ADR-003"
+  ],
+  "deliverables": "apps/mobile/src/navigation/*",
+  "verificationCommands": [
+    "npm run type-check -w apps/mobile"
+  ]
+}

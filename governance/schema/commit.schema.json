@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Governance Commit Schema",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "governingAdrs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "deliverables": { "type": "string" },
+    "verificationCommands": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "branch": { "type": "string" },
+    "pr": { "type": "string" },
+    "sha": { "type": "string" },
+    "rollbackSha": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["PLANNED", "IMPLEMENTED", "SELF_VERIFIED", "REVIEWED", "VERIFIED"]
+    }
+  },
+  "required": [
+    "id", "title", "governingAdrs", "deliverables", "verificationCommands",
+    "branch", "pr", "sha", "rollbackSha", "status"
+  ]
+}

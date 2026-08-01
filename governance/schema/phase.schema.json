@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Governance Phase Schema",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["PLANNED", "IN_PROGRESS", "COMPLETE"]
+    },
+    "targetRepository": { "type": "string" },
+    "governingAdrs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "commits": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["id", "title", "status", "targetRepository", "governingAdrs", "commits"]
+}

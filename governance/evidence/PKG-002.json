@@ -1,0 +1,21 @@
+{
+  "id": "PKG-002",
+  "category": "Build",
+  "targetVerification": "Metro Workspace Resolver",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "f34d12c",
+  "logDigest": "3c8970a173c4e0178a6d639d136b51fd1ced1c323959cf6dd2e645534a361969",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.1 KB / log",
+  "storageBackendUri": "ImmutableObjectStore / pkg-002.log",
+  "timestamps": {
+    "completed": "2026-08-01T13:42:00Z",
+    "approved": "2026-08-01T13:42:05Z"
+  },
+  "toolVersion": "expo/metro-config",
+  "runnerOs": "Local / macOS 15",
+  "result": "PASS",
+  "logReference": "pkg-002.log"
+}

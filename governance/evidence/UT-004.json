@@ -1,0 +1,22 @@
+{
+  "id": "UT-004",
+  "category": "Static",
+  "targetVerification": "Auth Infrastructure Unit Tests",
+  "producedBy": "Mobile Eng",
+  "approvedBy": "Reviewer (Illustrative)",
+  "lifecycleStatus": "PASSED",
+  "gitSha": "tbd-commit-4",
+  "logDigest": "tbd",
+  "hashVerification": "PASS",
+  "sizeFormat": "0.1 KB",
+  "storageBackendUri": "ImmutableObjectStore / ut-004.log",
+  "timestamps": {
+    "completed": "2026-08-01T14:25:00Z",
+    "approved": "2026-08-01T14:25:00Z"
+  },
+  "toolVersion": "Jest RTL",
+  "runnerOs": "Local / macOS 15",
+  "result": "PASS",
+  "logReference": "ut-004.log",
+  "dependsOn": []
+}
