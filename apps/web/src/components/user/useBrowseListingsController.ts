@@ -6,14 +6,10 @@ const SEARCH_DEBOUNCE_MS = 350;
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { getCategories, type Category } from "@/lib/api/user/categories";
+import type { Category } from "@/lib/api/user/categories";
 import { useLocationData, type LocationData } from "@/context/LocationContext";
-import {
-  getDisplayLocationLabel,
-  sanitizeLocationLabel,
-} from "@/lib/location/locationLabels";
-import { isUserSelectedLocation, shouldApplyLocationFilter } from "@/lib/location/queryMode";
-import logger from "@/lib/logger";
+import { sanitizeLocationLabel } from "@/lib/location/locationLabels";
+import { shouldApplyLocationFilter } from "@/lib/location/queryMode";
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import {
   buildPublicBrowseRoute,
@@ -21,10 +17,9 @@ import {
   resolvePublicBrowseCategory,
   type PublicBrowseType,
 } from "@/lib/publicBrowseRoutes";
-import { resolveBrowseCategorySelection } from "@/lib/browse/browseFilterNormalization";
-import { PUBLIC_BROWSE_SORT_LABELS } from "@/lib/publicBrowseSort";
 import { usePersistedBrowseView } from "@/components/user/browseViewPreference";
-import { appendUniqueBrowseItems } from "@/lib/browse/appendUniqueBrowseItems";
+import { useBrowseAdsData } from "@/components/user/useBrowseAdsData";
+import { useBrowseFilterPipeline } from "@/components/user/useBrowseFilterPipeline";
 
 type BrowsePageResult<T> = {
   data: T[];
@@ -87,13 +82,6 @@ export function useBrowseListingsController<TItem, TFilters>({
   const [view, setView] = usePersistedBrowseView("grid");
   const [page, setPage] = useState(initialPage);
 
-  const [items, setItems] = useState<TItem[]>(initialResults?.data ?? []);
-  const [total, setTotal] = useState(initialResults?.pagination.total ?? 0);
-  const [hasMore, setHasMore] = useState(initialResults?.pagination.hasMore ?? false);
-  const [loading, setLoading] = useState(!initialResults);
-  const [error, setError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>(initialCategories ?? []);
-
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const skippedInitialFetchRef = useRef(false);
   const urlLocationId = routeParams.locationId ?? "";
@@ -101,17 +89,40 @@ export function useBrowseListingsController<TItem, TFilters>({
   const urlRadiusKm = routeParams.radiusKm;
   const stableLocation = location;
 
-  useEffect(() => {
-    if (initialCategories && initialCategories.length > 0) {
-      return;
-    }
+  const constructFilters = useCallback(
+    (requestedPage: number) =>
+      buildFilters({
+        page: requestedPage,
+        pageSize,
+        query,
+        selectedCategory,
+        categories: [],
+        location: stableLocation,
+        sort,
+        urlLocationId: urlLocationId || undefined,
+        urlLocationLabel: urlLocationLabel || undefined,
+        radiusKm: urlRadiusKm,
+      }),
+    [buildFilters, pageSize, query, selectedCategory, sort, stableLocation, urlLocationId, urlLocationLabel, urlRadiusKm]
+  );
 
-    getCategories()
-      .then(setCategories)
-      .catch(() => {
-        /* non-critical */
-      });
-  }, [initialCategories]);
+  const {
+    items,
+    total,
+    hasMore,
+    loading,
+    setLoading,
+    error,
+    categories,
+    loadPageData,
+  } = useBrowseAdsData<TItem, TFilters>({
+    initialResults,
+    initialCategories,
+    logScope,
+    loadErrorMessage,
+    buildFilters: constructFilters,
+    fetchPage,
+  });
 
   useEffect(() => {
     return () => {
@@ -120,9 +131,6 @@ export function useBrowseListingsController<TItem, TFilters>({
       }
     };
   }, []);
-
-
-
 
   const hasLocationFilter = useMemo(() => {
     return shouldApplyLocationFilter(stableLocation, urlLocationId);
@@ -148,53 +156,11 @@ export function useBrowseListingsController<TItem, TFilters>({
     ]
   );
 
-   
   const fetchItems = useCallback(
     async (requestedPage: number) => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const result = await fetchPage(
-          buildFilters({
-            page: requestedPage,
-            pageSize,
-            query,
-            selectedCategory,
-            categories,
-            location: stableLocation,
-            sort,
-            urlLocationId: urlLocationId || undefined,
-            urlLocationLabel: urlLocationLabel || undefined,
-            radiusKm: urlRadiusKm,
-          })
-        );
-
-        setItems((prev) => (requestedPage === 1 ? result.data : appendUniqueBrowseItems(prev, result.data)));
-        setTotal(result.pagination.total ?? result.data.length);
-        setHasMore(result.pagination.hasMore ?? false);
-      } catch (fetchError) {
-        logger.error(`[${logScope}] fetch failed:`, fetchError);
-        setError(loadErrorMessage);
-      } finally {
-        setLoading(false);
-      }
+      await loadPageData(requestedPage);
     },
-    [
-      buildFilters,
-      fetchPage,
-      pageSize,
-      query,
-      selectedCategory,
-      categories,
-      sort,
-      stableLocation,
-      loadErrorMessage,
-      logScope,
-      urlLocationId,
-      urlLocationLabel,
-      urlRadiusKm,
-    ]
+    [loadPageData]
   );
 
   useEffect(() => {
@@ -208,32 +174,19 @@ export function useBrowseListingsController<TItem, TFilters>({
     void fetchItems(1);
   }, [fetchItems, isLoaded, shouldUseInitialResults]);
 
-  const resolvedCategoryLabel = useMemo(() => {
-    return resolveBrowseCategorySelection(selectedCategory, categories).label ?? null;
-  }, [categories, selectedCategory]);
-
-  const activeLocationLabel = useMemo(() => {
-    if (urlLocationId && urlLocationLabel) return urlLocationLabel;
-    if (!isUserSelectedLocation(stableLocation)) return null;
-    return getDisplayLocationLabel(stableLocation) || null;
-  }, [stableLocation, urlLocationId, urlLocationLabel]);
-
-  const activeFilterBadges = useMemo(() => {
-    const badges: string[] = [];
-    const trimmedQuery = query.trim();
-
-    if (trimmedQuery) badges.push(`Search: "${trimmedQuery}"`);
-    if (resolvedCategoryLabel) badges.push(`Category: ${resolvedCategoryLabel}`);
-    if (activeLocationLabel) badges.push(`Location: ${activeLocationLabel}`);
-    if (typeof urlRadiusKm === "number" && Number.isFinite(urlRadiusKm)) {
-      badges.push(`Within ${urlRadiusKm} km`);
-    }
-    if (sort !== "newest") badges.push(`Sort: ${PUBLIC_BROWSE_SORT_LABELS[sort]}`);
-
-    return badges;
-  }, [activeLocationLabel, query, resolvedCategoryLabel, sort, urlRadiusKm]);
-
-  const activeFilterCount = activeFilterBadges.length;
+  const {
+    activeFilterBadges,
+    activeFilterCount,
+  } = useBrowseFilterPipeline({
+    query,
+    selectedCategory,
+    categories,
+    location: stableLocation,
+    sort,
+    urlLocationId,
+    urlLocationLabel,
+    urlRadiusKm,
+  });
 
   const buildNextUrl = useCallback(
     (
