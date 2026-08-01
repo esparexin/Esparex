@@ -54,6 +54,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
   const [showSafetyTips, setShowSafetyTips] = useState(true);
   const [quickReplyText, setQuickReplyText] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const otherPartyName = isBuyer ? conversation.seller.name : conversation.buyer.name;
   const inboxView = resolveChatInboxView(searchParams.get('view'));
   const defaultReturnTo = buildChatInboxRoute(inboxView);
@@ -129,10 +130,11 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     },
   });
 
-  // Auto-scroll to bottom on NEW messages or typing updates
+  // Auto-scroll message container to bottom on NEW messages or typing updates
+  // (Uses internal container scrollTop to avoid triggering outer window/page scrolling)
   useEffect(() => {
-    if (!isLoadingMore) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!isLoadingMore && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
   }, [messages.length, isLoadingMore, isOtherTyping]);
 
@@ -239,7 +241,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
       )}
 
       {/* ── Message List ────────────────────────────────────────── */}
-      <div className="conv-messages" role="log" aria-live="polite">
+      <div className="conv-messages" ref={messagesContainerRef} role="log" aria-live="polite">
         {hasMore && (
           <div className="conv-messages__load-more">
             <button

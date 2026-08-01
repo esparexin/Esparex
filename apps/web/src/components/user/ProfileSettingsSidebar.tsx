@@ -329,7 +329,15 @@ export function ProfileSettingsSidebar({
         activeTab={activeTab}
         onBackToMenu={() => handleTabChange("more")}
         rightElement={
-          activeTab === "plans" ? (
+          activeTab === "mylistings" ? (
+            <Button
+              size="sm"
+              onClick={() => navigateTo("post-ad")}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-8 px-3 font-semibold rounded-lg shadow-sm"
+            >
+              + Post Ad
+            </Button>
+          ) : activeTab === "plans" ? (
             <div className="text-tiny font-medium text-slate-500 bg-slate-100/90 border border-slate-200/80 px-2.5 py-1 rounded-full shrink-0">
               Current: <span className="font-bold text-slate-800">{user?.plan || "Free"}</span>
             </div>
@@ -372,7 +380,7 @@ export function ProfileSettingsSidebar({
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <section className="min-h-0">
+          <section className="min-h-0 bg-transparent">
             {businessStatusBanner}
             {renderContent()}
           </section>
