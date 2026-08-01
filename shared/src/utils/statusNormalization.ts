@@ -73,9 +73,6 @@ export function normalizeAdStatus(value: unknown, fallback: ListingStatusDomain 
     return fallback;
 }
 
-/** Alias for normalizeAdStatus */
-export const normalizeListingStatus = normalizeAdStatus;
-
 /**
  * Specific normalizer for Service status.
  */

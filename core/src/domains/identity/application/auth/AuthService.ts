@@ -1,5 +1,4 @@
 import axios from 'axios';
-import Plan from '../../../../models/Plan';
 import { getActiveFreeDefaultPlan } from '../../../payments/application/PlanService';
 import UserPlan from '../../../../models/UserPlan';
 import UserWallet from '../../../../models/UserWallet';

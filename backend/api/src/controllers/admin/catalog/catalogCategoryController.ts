@@ -11,7 +11,6 @@ import {
     CategoryModel,
     getCatalogEntityCounts,
     findCategoryById,
-    categoryParentExists,
     validateCategoryParentHierarchy,
     updateCategorySchemaById,
 } from '@esparex/core/services/catalog/CatalogCategoryService';
@@ -28,7 +27,6 @@ import {
     categorySchemaUpdateBodySchema
 } from '@esparex/core/validators/catalog.validator';
 import {
-    hasAdminAccess,
     sendCatalogError,
     QueryRecord,
     ACTIVE_CATEGORY_QUERY,

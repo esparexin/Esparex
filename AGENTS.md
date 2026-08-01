@@ -432,22 +432,46 @@ This standard applies to all domain modules (Location, Listings, Payments, Auth,
 
 ## 🚨 ARCHITECTURAL OWNERSHIP & ANTI-DUPLICATION GOVERNANCE STANDARD (MANDATORY)
 
-### 1. Ownership Matrix
-
-Every architectural responsibility across the Esparex platform must have exactly one designated owner:
-
-| Responsibility | Architectural Owner | Allowed Consumers | Prohibited In |
-| --- | --- | --- | --- |
-| **Layout Shell & Bounds** | `PageContainer` / `PageShell` | Feature Pages | Feature sub-tabs, internal components |
-| **Design Tokens** | `packages/ui/src/tokens` | All Packages & Apps | Local inline magic values |
-| **UI Primitives** | `@esparex/ui` (`packages/ui`) | `apps/web`, `apps/admin` | App-level local implementations |
-| **Business Components** | Feature Modules (`components/user/*`) | Feature Pages | Shared `@esparex/ui` package |
-| **Business Logic & Rules** | `@esparex/core` | Controllers, Hooks, UI | UI presentation components |
-| **API Contracts & DTOs** | `@esparex/contracts` | All Packages & Apps | App-level duplicate DTO types |
+> **THE CORE REPOSITORY PRINCIPLE**  
+> **The repository is the product. New code is the last resort. Before creating anything, discover what already exists, determine the canonical owner, and extend the Single Source of Truth whenever possible. Only create a new file when repository discovery proves that no suitable implementation exists.**
 
 ---
 
-### 2. "Do Not Duplicate" Component Rule
+### 1. Mandatory Development Lifecycle (Phase 0 to Phase 5)
+
+Development MUST follow these 6 sequential phases. Implementation (`Phase 2`) is prohibited until `Phase 0` and `Phase 1` are complete.
+
+```text
+Phase 0 — Repository Discovery (Mandatory: search existing SSOT, packages, & contracts)
+Phase 1 — Architecture Audit & Ownership Check (Determine canonical owner)
+Phase 2 — Implementation (Reuse/extend existing; create new ONLY with justification)
+Phase 3 — Verification (Run type-check, tests, and repo:gate)
+Phase 4 — Cleanup (Zero dead wrappers, zero orphans)
+Phase 5 — Merge & PR Approval
+```
+
+---
+
+### 2. Ownership Matrix (Canonical Owners vs. Prohibited Locations)
+
+Every artifact across the Esparex platform must have exactly one canonical owner:
+
+| Artifact | Canonical Owner | Prohibited In |
+| --- | --- | --- |
+| **UI Primitives** | `@esparex/ui` (`packages/ui`) | `apps/*/src/components/ui` |
+| **DTOs & Contracts** | `@esparex/contracts` (`packages/contracts`) | `apps/*/types`, `apps/*/schemas` |
+| **Shared Utilities & Formatters**| `packages/shared`, `core/src/services` | Feature sub-folders, inline helpers |
+| **Business Logic & Services** | `@esparex/core` | React components, hooks |
+| **API Client Methods** | Shared API layer (`listingMutationAPI`, `client`) | Individual pages or components |
+| **Validation Schemas** | `@esparex/contracts` | Duplicate feature schemas |
+| **Layout Shell & Bounds** | `PageContainer` / `PageShell` | Feature sub-tabs, internal components |
+| **Design Tokens** | `packages/ui/src/tokens` | Local inline magic values |
+
+**Rule:** Every file must have exactly one canonical owner. If ownership is unclear, stop implementation until ownership is resolved.
+
+---
+
+### 3. "Do Not Duplicate" Component Rule
 
 The following foundational primitives must **NEVER** have multiple implementations across any package or app:
 
@@ -461,65 +485,141 @@ PROHIBITED FROM DUPLICATION:
 
 ---
 
-### 3. Duplication Boundary Criteria (Allowed vs. Prohibited)
+### 4. Mandatory Repository Impact Statement (Before Coding)
+
+Every non-trivial task or PR MUST document a **Repository Impact Statement** before writing code:
 
 ```text
-✅ ALLOWED
-✓ Feature business logic & workflows
-✓ Feature-specific forms & step wizards
-✓ Page composition & layout slot wiring
-✓ Feature-scoped custom hooks
-✓ Domain validation rules
-
-❌ STRICTLY PROHIBITED
-✗ Duplicate UI primitives (e.g. apps/web/src/components/ui/Input.tsx)
-✗ Nested layout containers (e.g. <PageContainer> inside <PageContainer>)
-✗ Local token overrides or inline color/font/spacing duplicates
-✗ Viewport-duplicated top-level headers/footers (e.g. DesktopHeader vs MobileHeader)
-✗ Duplicate utility functions or string formatters
+Repository Impact Statement
+---------------------------
+Problem: <What problem is being solved?>
+Existing SSOT: <Component / service / hook / DTO being reused>
+New Files: 0 (or N with justification)
+Existing Files Modified: <Count>
+Duplicate Risk: None
+Reason: Extending existing implementation.
 ```
+
+If `New Files > 0`, the **New File Justification Gate** is required.
 
 ---
 
-### 4. Component Creation Decision Tree
+### 5. Mandatory Workflow: Repository Discovery First
+
+Every implementation task MUST begin with Phase 0 discovery before any code is written.
+
+```text
+PROHIBITED WORKFLOW:
+  Task Assigned ──► Open Target Directory ──► Write Code ──► Discover Duplicate Later ❌
+
+REQUIRED WORKFLOW:
+  Phase 0 Discovery ──► Architecture Audit ──► Find Existing SSOT ──► Reuse / Extend ──► Create New (Only if zero SSOT matches) ✅
+```
+
+Before creating any new `.ts` or `.tsx` file, complete the **Repository Discovery Checklist**:
+- [ ] What existing component already solves part of this problem?
+- [ ] Which package owns this responsibility?
+- [ ] Is there already an API client method?
+- [ ] Is there already a custom hook?
+- [ ] Is there already a domain service?
+- [ ] Is there already a DTO model in `@esparex/contracts`?
+- [ ] Is there already a validation schema?
+- [ ] Is there already a design-system component in `@esparex/ui`?
+- [ ] Is there already a feature flag or utility?
+- [ ] Is there already an existing test fixture?
+
+If ANY answer is **YES**, you MUST reuse or extend that implementation.
+Only create a new file if the answer is **NO** across all applicable layers.
+
+---
+
+### 6. Mandatory "New File Justification" Gate
+
+Creating a new file requires documented evidence of repository discovery. Any PR introducing a new `.ts` or `.tsx` file must include a **New File Justification** block in the PR description:
+
+```text
+NEW FILE JUSTIFICATION
+----------------------
+Repository Search Completed:
+  ✓ packages/ui
+  ✓ apps/web/src/components/user/shared
+  ✓ hooks / services / core
+  ✓ packages/contracts
+
+Reason: No existing component, primitive, or service supports the required behavior after audit.
+Decision: New file approved.
+```
+
+PRs or automated changes adding new files without this justification are automatically rejected.
+
+---
+
+### 7. Component Creation Decision Tree
 
 Before creating or adding any UI component, follow this exact decision tree:
 
 ```text
 Need a UI component?
  │
- ├── Already exists in @esparex/ui?
- │    ├── YES ──► CONSUME IT (Do NOT create a local duplicate).
+ ├── Already exists in @esparex/ui or components/user/shared?
+ │    ├── YES ──► CONSUME OR EXTEND IT (Do NOT create a local duplicate).
  │    └── NO
  │         │
  │         ├── Reusable across multiple apps or features?
  │         │    ├── YES ──► CREATE INSIDE @esparex/ui (with ADR approval).
- │         │    └── NO  ──► CREATE INSIDE FEATURE MODULE (as a business component).
+ │         │    └── NO  ──► CREATE INSIDE FEATURE MODULE (with New File Justification).
 ```
 
 ---
 
-### 5. Ownership Before Creation Rule
+### 8. Repository Health KPI Matrix
 
-> Before creating any component, hook, utility, or schema, developer/agent must determine its authoritative architectural owner. If an owner already exists, extend or consume that implementation instead of creating a new one.
+Continuous quality enforcement requires maintaining zero duplication across all architectural dimensions:
+
+| Metric | Target | Verification Command |
+| --- | :---: | --- |
+| **Duplicate Components** | `0` | `npm run guard:duplicate-code` |
+| **Duplicate APIs** | `0` | `npm run guard:api-surface` |
+| **Duplicate DTOs** | `0` | `npm run repo:contracts` |
+| **Duplicate Hooks** | `0` | `npm run repo:ssot` |
+| **Duplicate Services** | `0` | `npm run repo:architecture` |
+| **Duplicate Routes** | `0` | `npm run repo:routes` |
+| **Duplicate Validation Schemas** | `0` | `npm run repo:contracts` |
+| **Pass-through Wrappers** | `0` | `npm run guard:dead-code` |
+| **Orphan Files** | `0` | `npm run guard:dead-code` |
+| **Local UI Primitives** | `0` | `npm run guard:shared-ssot` |
+| **Dead Code** | `0` | `npm run guard:dead-code` |
+| **SSOT Violations** | `0` | `npm run repo:gate` |
 
 ---
 
-### 6. PR Anti-Duplication Audit Checklist
+### 9. Cultural Engineering Mindset Shift
+
+All developers and AI agents must operate under the core governance mindset:
+
+> ❌ **Prohibited Approach:** "How do I build this feature?"
+> 
+> ✅ **Mandatory Approach:** "What already exists in the repository that I can reuse or extend?"
+
+---
+
+### 9. PR Anti-Duplication Audit Checklist
 
 Every UI-related Pull Request must verify:
 
-- [ ] **Primitive Check**: Is this component already available in `@esparex/ui`?
-- [ ] **Single Implementation**: Does this introduce a second/parallel implementation of an existing control?
-- [ ] **Package Location**: Does a reusable primitive belong inside `packages/ui`?
-- [ ] **Single Container**: Does this introduce a duplicate/nested layout container (`PageContainer`)?
-- [ ] **Responsive Unity**: Does this duplicate DOM structures for mobile vs desktop?
-- [ ] **Design Tokens**: Does this use canonical design tokens (`--color-surface`, `--size-*`)?
-- [ ] **SSOT Governance**: Does this preserve single-instance architectural ownership?
+- [ ] **Repository Discovery**: Completed repository search across `@esparex/ui`, `shared/`, `core`, and `contracts`.
+- [ ] **New File Justification**: Included mandatory justification block for any newly created `.ts`/`.tsx` files.
+- [ ] **Primitive Check**: Confirmed component is not available in `@esparex/ui` or local UI primitives folder.
+- [ ] **Single Implementation**: Verified no parallel implementations or pass-through wrappers are introduced.
+- [ ] **Package Location**: Reusable primitives placed inside `packages/ui`.
+- [ ] **Single Container**: Verified no duplicate or nested layout containers (`PageContainer`).
+- [ ] **Responsive Unity**: Single-instance responsive pattern enforced (no `Desktop*` vs `Mobile*` duplication).
+- [ ] **Design Tokens**: Canonical design tokens used (`--color-surface`, `--size-*`).
+- [ ] **SSOT Governance**: Single-instance architectural ownership preserved.
 
 ---
 
-### 7. Architecture Decision Record (ADR) Requirement
+### 10. Architecture Decision Record (ADR) Requirement
 
 Any new reusable primitive, layout container, design token, or cross-feature component requires a documented **Architecture Decision Record (ADR)** evaluating:
 1. Rationale and intended consumers.

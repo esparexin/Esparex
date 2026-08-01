@@ -10,9 +10,7 @@ export {
     resetPassword,
     adminLogin,
     adminLogout,
-    getMe,
-    login,
-    logout
+    getMe
 } from './adminAuthController';
 
 // Export all system health functions
