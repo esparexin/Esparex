@@ -67,7 +67,7 @@ function run(val) {
 
   // 2. GOV-006: API Layer Validation
   const appApiFiles = allSourceFiles.filter(f => f.includes('apps/') && (f.includes('/api/') || f.includes('/lib/api/')));
-  const AUTHORIZED_CLIENT_FILES = ['adminClient.ts', 'client.ts', 'server.ts', 'route.ts'];
+  const AUTHORIZED_CLIENT_FILES = ['adminClient.ts', 'client.ts', 'server.ts', 'route.ts', 'apiClient.ts'];
 
   for (const file of appApiFiles) {
     const filename = path.basename(file);
