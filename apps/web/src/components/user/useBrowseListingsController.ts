@@ -1,8 +1,10 @@
 /* eslint-disable react-hooks/preserve-manual-memoization */
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+const SEARCH_DEBOUNCE_MS = 350;
+
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import type { Category } from "@/lib/api/user/categories";
 import { useLocationData, type LocationData } from "@/context/LocationContext";
@@ -63,6 +65,7 @@ export function useBrowseListingsController<TItem, TFilters>({
   buildFilters,
   fetchPage,
 }: BrowseListingsControllerConfig<TItem, TFilters>) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { location, isLoaded } = useLocationData();
   const routeParams = parsePublicBrowseParams(searchParams);
