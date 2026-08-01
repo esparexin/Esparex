@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": "^22.0.0"
+    "node": ">=22.0.0"
   },
   "packageManager": "npm@10.9.7",
   "workspaces": [
@@ -27,6 +27,7 @@
     "guard:compatibility-markers": "node scripts/enforce-compatibility-markers-baseline.js",
     "guard:route-collision": "node scripts/enforce-route-collision-guard.js",
     "guard:route-hierarchy": "node scripts/guard-route-shadowing.js",
+    "guard:mobile-architecture": "node scripts/enforce-mobile-architecture-guard.js",
     "guard:shared-ssot": "node scripts/enforce-shared-ssot.js",
     "guard:typography-ssot": "node scripts/enforce-typography-ssot.js",
     "guard:auth-ssot": "node scripts/enforce-authorization-ssot.js",
@@ -40,7 +41,11 @@
     "lint:user-api-result:ssot": "node scripts/enforce-user-api-result-ssot.js",
     "contract:user-api": "node scripts/verify-api-contract.js --scope=user",
     "contract:admin-api": "node scripts/verify-api-contract.js --scope=admin",
-    "contract:api": "node scripts/verify-api-contract.js --scope=both",
+    "contract:api": "node scripts/contract-parity-check.js",
+    "governance:validate": "node scripts/governance/cli.js validate",
+    "governance:generate": "node scripts/governance/cli.js generate",
+    "governance:check": "node scripts/governance/cli.js check",
+    "governance:graph": "node scripts/governance/cli.js graph",
     "guard:api-ssot": "npm run lint:no-api-string-literals",
     "guard:runtime-parity": "node scripts/guard-runtime-parity.js",
     "guard:core-export-parity": "node scripts/guard-core-export-parity.js",
@@ -126,6 +131,8 @@
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
     "@next/eslint-plugin-next": "^16.2.4",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "dependency-cruiser": "^18.0.0",
@@ -149,3 +156,4 @@
     ]
   }
 }
+

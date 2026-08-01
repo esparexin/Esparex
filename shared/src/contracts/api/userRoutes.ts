@@ -23,8 +23,6 @@ export const USER_ROUTES = {
   SPARE_PARTS: (categoryId: string) => `catalog/spare-parts?categoryId=${categoryId}`,
   SERVICE_TYPES: "catalog/service-types",
   SCREEN_SIZES: "catalog/screen-sizes",
-  CATALOG_REQUESTS: "catalog-requests",
-  CATALOG_REQUESTS_MY: "catalog-requests/my",
 
   // Ads (Legacy - Redirected to Listings)
   ADS: "listings",

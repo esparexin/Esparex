@@ -12,4 +12,10 @@ declare module "react-native" {
   interface SafeAreaViewProps {
     className?: string;
   }
+  interface TouchableOpacityProps {
+    className?: string;
+  }
+  interface ImageProps {
+    className?: string;
+  }
 }

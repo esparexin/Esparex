@@ -1312,3 +1312,139 @@ The following are prohibited without a filed, evidence-backed justification:
 > **Code changes require demonstrable value — not preference, aesthetic judgment, or speculative future benefit.**
 
 A change that makes code look different without making it measurably more correct, more performant, more accessible, or more secure is net-negative: it adds review cost, regression risk, and diff noise with no verified return.
+
+---
+
+## 🚨 Mobile Presentation Layer Dependency Rule (Mandatory)
+
+### Applies To
+
+All mobile application code in `apps/mobile`.
+
+### Layering Rule
+
+```text
+Presentation (screens, components)
+        ↓
+Hooks (useSubmitAd, useListingDetails, useSearch, …)
+        ↓
+Application Services (PostAdService, ListingService, …)
+        ↓
+Repository Interfaces (IListingRepository, IImageUploadService, …)
+        ↓
+Infrastructure (ApiListingRepository, ApiImageUploadService, apiClient, …)
+```
+
+### Explicit Constraint
+
+> A **presentation hook** may depend on application services, but **must never** import or instantiate a repository, infrastructure class, or `apiClient` directly.
+
+Presentation hooks are defined as any hook living in `features/*/presentation/hooks/`.
+
+### Prohibited Patterns
+
+```ts
+// ❌ PROHIBITED — hook reaching into infrastructure directly
+import { apiClient } from '../../../infrastructure/api/apiClient';
+const useSubmitAd = () => {
+  const result = await apiClient.post('/v1/listings', ...);
+};
+
+// ❌ PROHIBITED — hook instantiating a repository
+import { ApiListingRepository } from '../../application/ApiListingRepository';
+const useSearch = () => {
+  const repo = new ApiListingRepository();
+};
+```
+
+### Required Pattern
+
+```ts
+// ✅ CORRECT — hook delegates to a service from the composition root
+import { services } from '../../../../bootstrap';
+const useSubmitAd = () => {
+  const result = await services.postAdService.submit(draft, onPhaseChange);
+};
+```
+
+### Control Flow Rule
+
+> Application services must **not throw exceptions for expected failure conditions** (validation errors, upload failures, API errors). They must return a typed discriminated union (`SubmitResult`, etc.) instead.
+
+Exceptions are reserved for truly unexpected conditions (programmer errors, missing required constructor arguments).
+
+### State Machine Rule
+
+> Hooks that orchestrate multi-stage async operations must expose a typed **status** string union rather than a single `isLoading` boolean.
+
+This enables richer UI labels, retry logic, and analytics without architectural changes:
+
+```ts
+// ❌ Limited — binary state
+isLoading: boolean
+
+// ✅ Required — typed lifecycle
+status: 'idle' | 'uploading' | 'creating' | 'success' | 'error'
+```
+
+### Navigation Ownership
+
+> Navigation decisions (which screen to go to after a mutation) belong in **screen components**, not in hooks.
+
+Hooks return typed results. Screens pattern-match on those results and call `navigationRef` or `useNavigation`.
+
+```ts
+// ❌ PROHIBITED — hook navigates
+const submit = async () => {
+  await service.submit(draft);
+  navigationRef.current?.navigate(...); // belongs in PostAdScreen
+};
+
+// ✅ CORRECT — screen navigates based on typed result
+const result = await submit();
+if (result.success) {
+  navigationRef.current?.reset({ ... });
+}
+```
+
+### Validation Result Rule
+
+> Validators must return **structured `ValidationResult` discriminated unions**, not raw booleans or thrown errors.
+
+This enables field-level error highlighting without changing validators or services.
+
+```ts
+// ❌ Limited — boolean only
+static canAdvanceFrom(step, draft): boolean
+
+// ✅ Required — structured result
+static validate(step, draft): ValidationResult
+// Convenience wrapper (allowed)
+static canAdvanceFrom(step, draft): boolean = validate(step, draft).valid
+```
+
+---
+### Layer-by-Layer Dependency Direction Rule (Mandatory)
+
+A layer may depend ONLY on the layer directly beneath it. Skipping layers is strictly prohibited.
+
+```text
+Presentation (Screens, Views, Presentation Components)
+        ↓
+Presentation Hooks
+        ↓
+Application Services
+        ↓
+Repository Interfaces
+        ↓
+Infrastructure (API clients, Database adapters, Storage drivers)
+```
+
+**Prohibited Layer Bypasses:**
+- Screens/Views importing Repositories or Infrastructure directly.
+- Presentation Hooks importing `apiClient`, Axios, or Infrastructure classes directly.
+- Application Services importing React or UI components.
+- Domain models importing Infrastructure/Network dependencies.
+- Contracts importing Application or Infrastructure code.
+
+---
