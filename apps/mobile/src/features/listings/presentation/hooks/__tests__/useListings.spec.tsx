@@ -46,6 +46,7 @@ describe('useListings hook', () => {
     status: 'live',
     createdAt: new Date(),
     isFeatured: false,
+    isPremium: false,
   };
 
   it('fetches initial page of listings successfully', async () => {

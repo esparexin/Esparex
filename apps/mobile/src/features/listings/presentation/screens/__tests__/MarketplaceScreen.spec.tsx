@@ -38,6 +38,7 @@ describe('MarketplaceScreen', () => {
     status: 'live',
     createdAt: new Date(),
     isFeatured: true,
+    isPremium: false,
   };
 
   beforeEach(() => {
