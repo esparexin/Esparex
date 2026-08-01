@@ -59,9 +59,9 @@ export function ValidationSummary() {
     return (
         <div
             role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-xl border border-red-200/80 bg-red-50/50 p-4 text-sm text-red-700 space-y-1.5"
         >
-            <p className="font-semibold text-red-800">Please fix the following errors:</p>
+            <p className="font-semibold text-red-900 text-sm">Please fix the following issues before continuing:</p>
             {formError && (
                 <p className="mt-1 font-medium">{formError}</p>
             )}

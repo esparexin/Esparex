@@ -24,12 +24,19 @@ export interface ChatAdRef {
   seoSlug?: string;
 }
 
+export type ChatAttachmentStatus = 'pending' | 'uploaded' | 'scanning' | 'available' | 'rejected';
+
 export interface ChatAttachment {
+  id?: string;
   url: string;
+  displayUrl?: string;
+  thumbnailUrl?: string;
+  status?: ChatAttachmentStatus;
   mimeType: string;
   size: number; // bytes
   name?: string;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Conversation                                                                */
@@ -161,3 +168,35 @@ export interface IAdminMutePayload {
 export interface IAdminDeleteMessagePayload {
   reason?: string;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Socket.IO Real-Time Event Contracts                                        */
+/* -------------------------------------------------------------------------- */
+
+export interface IChatMessageEvent {
+  conversationId: string;
+  message: IMessageDTO;
+}
+
+export interface IChatReadEvent {
+  conversationId: string;
+  readerId: string;
+  readAt: string;
+}
+
+export interface IChatTypingEvent {
+  conversationId: string;
+  senderId: string;
+  isTyping: boolean;
+}
+
+export interface IPresenceStatusEvent {
+  userId: string;
+  isOnline: boolean;
+  lastSeenAt?: string;
+}
+
+export interface IChatInboxUpdatedEvent {
+  conversationId?: string;
+}
+

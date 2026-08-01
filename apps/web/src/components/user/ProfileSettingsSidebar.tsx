@@ -12,7 +12,6 @@ import { useProfileSettings } from "@/hooks/useProfileSettings";
 import type { ProfileUser } from "@/components/user/profile/types";
 
 // UI Components
-import { Card } from "@/components/ui/card";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
@@ -343,7 +342,7 @@ export function ProfileSettingsSidebar({
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6">
           {/* LEFT SIDEBAR (Desktop Only) */}
           <aside className="hidden md:block space-y-1" aria-label="Account navigation">
-            <Card className="p-2 border-0 shadow-sm bg-white/80 backdrop-blur">
+            <div className="rounded-xl border border-slate-200/80 bg-white p-2 shadow-xs">
               <AccountNavItemList
                 items={visibleProfileTabItems}
                 activeTab={activeTab}
@@ -358,9 +357,9 @@ export function ProfileSettingsSidebar({
                 className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors hover:bg-red-50 text-red-600 font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
               >
                 <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
-                <span>Logout</span>
+                <span>Log out</span>
               </button>
-            </Card>
+            </div>
 
             <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg relative overflow-hidden">
               <div className="absolute top-0 right-0 p-2 opacity-10"><Crown className="w-16 h-16" /></div>
