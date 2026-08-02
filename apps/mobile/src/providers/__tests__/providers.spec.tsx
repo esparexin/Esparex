@@ -97,6 +97,10 @@ describe('AppProvider', () => {
       getExpoPushToken: jest.fn(),
       registerForPushNotifications: jest.fn(),
     } as unknown as any,
+    pushTokenRegistrationService: {
+      registerPushToken: jest.fn().mockResolvedValue(true),
+      unregisterPushToken: jest.fn().mockResolvedValue(true),
+    } as unknown as any,
     imagePicker: { pick: jest.fn() },
   };
 
