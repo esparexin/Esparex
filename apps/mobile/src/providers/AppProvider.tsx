@@ -16,7 +16,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, services }) 
   return (
     <SafeAreaProvider>
       <QueryProvider>
-        <AuthProvider authService={services.authService}>
+        <AuthProvider
+          authService={services.authService}
+          pushTokenRegistrationService={services.pushTokenRegistrationService}
+        >
           <ThemeProvider>
             {children}
           </ThemeProvider>
