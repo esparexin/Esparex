@@ -10,7 +10,7 @@ export class ListingService {
       return await this.repository.getListings(params);
     } catch (error) {
       console.error('ListingService.getMarketplaceFeed failed:', error);
-      throw error; // Let UI boundary handle specific user feedback
+      throw error;
     }
   }
 
@@ -19,6 +19,15 @@ export class ListingService {
       return await this.repository.getListingById(id);
     } catch (error) {
       console.error(`ListingService.getListingDetails failed for ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  public async getMyListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
+    try {
+      return await this.repository.getMyListings(params);
+    } catch (error) {
+      console.error('ListingService.getMyListings failed:', error);
       throw error;
     }
   }
