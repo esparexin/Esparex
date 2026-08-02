@@ -19,6 +19,8 @@ import { ApiNotificationRepository } from '../features/notifications/application
 import { NotificationService } from '../features/notifications/application/NotificationService';
 import { IPushNotificationService } from '../features/notifications/application/IPushNotificationService';
 import { ExpoPushNotificationService } from '../features/notifications/infrastructure/ExpoPushNotificationService';
+import { IPushNotificationEventService } from '../features/notifications/application/IPushNotificationEventService';
+import { ExpoPushNotificationEventService } from '../features/notifications/infrastructure/ExpoPushNotificationEventService';
 import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
 import { ApiPushTokenRegistrationService } from '../features/notifications/infrastructure/ApiPushTokenRegistrationService';
 
@@ -31,6 +33,7 @@ export interface IServices {
   chatService: ChatService;
   notificationService: NotificationService;
   pushNotificationService: IPushNotificationService;
+  pushNotificationEventService: IPushNotificationEventService;
   pushTokenRegistrationService: IPushTokenRegistrationService;
   imagePicker: IImagePicker;
 }
@@ -38,6 +41,7 @@ export interface IServices {
 export const bootstrapServices = (): IServices => {
   // 1. Push Notification & Registration Services
   const pushNotificationService: IPushNotificationService = new ExpoPushNotificationService();
+  const pushNotificationEventService: IPushNotificationEventService = new ExpoPushNotificationEventService();
   const pushTokenRegistrationService: IPushTokenRegistrationService = new ApiPushTokenRegistrationService(
     pushNotificationService,
     apiClient
@@ -83,6 +87,7 @@ export const bootstrapServices = (): IServices => {
     chatService,
     notificationService,
     pushNotificationService,
+    pushNotificationEventService,
     pushTokenRegistrationService,
     imagePicker,
   };

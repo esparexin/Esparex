@@ -12,6 +12,32 @@ import { ApiListingRepository } from '../../features/listings/application/ApiLis
 import { PostAdService } from '../../features/postAd/application/PostAdService';
 import { UserService } from '../../features/user/application/UserService';
 
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(),
+  MediaTypeOptions: { Images: 'Images' },
+}));
+
+jest.mock('expo-device', () => ({
+  isDevice: true,
+}));
+
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(),
+  getExpoPushTokenAsync: jest.fn(),
+  setNotificationChannelAsync: jest.fn(),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn().mockReturnValue({ remove: jest.fn() }),
+  addNotificationResponseReceivedListener: jest.fn().mockReturnValue({ remove: jest.fn() }),
+  setBadgeCountAsync: jest.fn().mockResolvedValue(true),
+  getBadgeCountAsync: jest.fn().mockResolvedValue(0),
+  AndroidImportance: { MAX: 5 },
+}));
+
+jest.mock('expo-constants', () => ({
+  expoConfig: { extra: { eas: { projectId: 'test-project-id' } } },
+}));
+
 jest.mock('react-native-safe-area-context', () => {
   const inset = { top: 0, right: 0, bottom: 0, left: 0 };
   return {
@@ -96,6 +122,13 @@ describe('AppProvider', () => {
       requestPermission: jest.fn(),
       getExpoPushToken: jest.fn(),
       registerForPushNotifications: jest.fn(),
+    } as unknown as any,
+    pushNotificationEventService: {
+      configureNotificationHandler: jest.fn(),
+      addNotificationReceivedListener: jest.fn().mockReturnValue(() => {}),
+      addNotificationResponseReceivedListener: jest.fn().mockReturnValue(() => {}),
+      setBadgeCount: jest.fn().mockResolvedValue(true),
+      getBadgeCount: jest.fn().mockResolvedValue(0),
     } as unknown as any,
     pushTokenRegistrationService: {
       registerPushToken: jest.fn().mockResolvedValue(true),
