@@ -6,10 +6,13 @@ jest.mock('@esparex/core/domains/identity/application/users/UserService', () => 
   removeUserFcmToken: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock('../../utils/logger', () => ({
-  error: jest.fn(),
-  info: jest.fn(),
-  warn: jest.fn(),
+jest.mock('@esparex/core/utils/logger', () => ({
+  __esModule: true,
+  default: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
 }));
 
 import { registerToken } from '../../controllers/notification/notificationMutationController';
