@@ -11,7 +11,7 @@ interface EditProfileModalProps {
   onSave: (payload: { name?: string; email?: string }) => void;
 }
 
-export const EditProfileModal: React.FC<EditProfileModalProps> = ({
+export const EditProfileModal = React.memo<EditProfileModalProps>(({
   visible,
   user,
   isSaving,
@@ -85,4 +85,6 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
       </View>
     </Modal>
   );
-};
+});
+
+EditProfileModal.displayName = 'EditProfileModal';
