@@ -4,20 +4,32 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@esparex/contracts": ["../../packages/contracts/src"],
-      "@esparex/contracts/*": ["../../packages/contracts/src/v1/*"],
-      "@esparex/mobile-ui": ["../../packages/mobile-ui/src"],
-      "@esparex/mobile-ui/*": ["../../packages/mobile-ui/src/*"],
-      "@esparex/shared": ["../../shared/src"],
-      "@esparex/shared/*": ["../../shared/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@esparex/contracts": [
+        "../../packages/contracts/src"
+      ],
+      "@esparex/contracts/*": [
+        "../../packages/contracts/src/v1/*"
+      ],
+      "@esparex/mobile-ui": [
+        "../../packages/mobile-ui/src"
+      ],
+      "@esparex/mobile-ui/*": [
+        "../../packages/mobile-ui/src/*"
+      ],
+      "@esparex/shared": [
+        "../../shared/src"
+      ],
+      "@esparex/shared/*": [
+        "../../shared/src/*"
+      ]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
     "nativewind-env.d.ts"
   ]
 }
