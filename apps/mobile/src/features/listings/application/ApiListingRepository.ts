@@ -26,9 +26,13 @@ export class ApiListingRepository implements IListingRepository {
     return ListingMapper.mapAdToListing(response.data.data);
   }
 
+  public async getMyListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
+    const response = await apiClient.get<PaginatedResponse<Ad>>('/v1/listings/mine', { params });
+    return response.data.data.map(ListingMapper.mapAdToListing);
+  }
+
   public async create(request: CreateListingRequest): Promise<CreatedListing> {
     const response = await apiClient.post<{ data: Ad }>('/v1/listings', request);
     return CreatedListingMapper.fromDto(response.data.data);
   }
 }
-
