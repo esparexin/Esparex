@@ -1,0 +1,115 @@
+import React, { useCallback } from 'react';
+import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { Screen, Container, AppText, Avatar, Card, AppIcon, Badge } from '@esparex/mobile-ui';
+import { useProfile } from '../hooks/useProfile';
+import { ErrorState } from '../../../common/components/ErrorState';
+
+export const ProfileScreen = () => {
+  const { data: profile, isLoading, isError, refetch, isRefetching } = useProfile();
+
+  const memberSince = profile?.createdAt
+    ? new Date(profile.createdAt).toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric',
+      })
+    : undefined;
+
+  if (isError) {
+    return (
+      <Screen>
+        <ErrorState onRetry={refetch} />
+      </Screen>
+    );
+  }
+
+  if (isLoading && !profile) {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <Container className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#0ea5e9" />
+        </Container>
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen edges={['top', 'left', 'right']}>
+      <Container className="flex-1 bg-slate-50 dark:bg-slate-950">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#0ea5e9" />
+          }
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        >
+          {/* Main User Card */}
+          <Card className="p-5 mb-4 items-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <Avatar
+              src={profile?.profilePhoto}
+              fallback={profile?.name ? profile.name.substring(0, 2).toUpperCase() : 'US'}
+              size="lg"
+              className="mb-3"
+            />
+            <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center">
+              {profile?.name || 'Esparex User'}
+            </AppText>
+            <AppText variant="body" className="text-slate-500 dark:text-slate-400 mt-0.5 text-center">
+              {profile?.mobile || profile?.email || 'No contact provided'}
+            </AppText>
+
+            {/* Verification Status Badges */}
+            <View className="flex-row gap-2 mt-3 flex-wrap justify-center">
+              {profile?.isPhoneVerified && (
+                <View className="flex-row items-center bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
+                  <AppIcon name="CheckCircle2" size={12} color="#10b981" />
+                  <AppText variant="caption" className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1">
+                    Phone Verified
+                  </AppText>
+                </View>
+              )}
+              {profile?.userType && (
+                <Badge
+                  label={profile.userType.toUpperCase()}
+                  variant={profile.userType === 'business' ? 'warning' : 'default'}
+                />
+              )}
+            </View>
+          </Card>
+
+          {/* User Details & Location */}
+          <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <AppText variant="h4" className="font-semibold text-slate-900 dark:text-white mb-3">
+              Account Details
+            </AppText>
+
+            {memberSince && (
+              <View className="flex-row items-center py-2 border-b border-slate-100 dark:border-slate-800">
+                <AppIcon name="Calendar" size={16} color="#64748b" />
+                <AppText variant="body" className="text-slate-600 dark:text-slate-400 ml-2.5">
+                  Member since {memberSince}
+                </AppText>
+              </View>
+            )}
+
+            {profile?.location?.city && (
+              <View className="flex-row items-center py-2 border-b border-slate-100 dark:border-slate-800">
+                <AppIcon name="MapPin" size={16} color="#64748b" />
+                <AppText variant="body" className="text-slate-600 dark:text-slate-400 ml-2.5">
+                  {profile.location.city}
+                  {profile.location.state ? `, ${profile.location.state}` : ''}
+                </AppText>
+              </View>
+            )}
+
+            <View className="flex-row items-center py-2">
+              <AppIcon name="Shield" size={16} color="#64748b" />
+              <AppText variant="body" className="text-slate-600 dark:text-slate-400 ml-2.5">
+                Account Status: {profile?.status || 'Active'}
+              </AppText>
+            </View>
+          </Card>
+        </ScrollView>
+      </Container>
+    </Screen>
+  );
+};

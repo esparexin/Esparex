@@ -11,12 +11,15 @@ import { ApiCategoryRepository } from '../features/postAd/application/ApiCategor
 import { CategoryService } from '../features/postAd/application/CategoryService';
 import { ExpoImagePicker } from '../features/postAd/infrastructure/ExpoImagePicker';
 import { IImagePicker } from '../features/postAd/application/IImagePicker';
+import { ApiUserRepository } from '../features/user/application/ApiUserRepository';
+import { UserService } from '../features/user/application/UserService';
 
 export interface IServices {
   authService: IAuthService;
   listingService: ListingService;
   postAdService: PostAdService;
   categoryService: CategoryService;
+  userService: UserService;
   imagePicker: IImagePicker;
 }
 
@@ -25,27 +28,31 @@ export const bootstrapServices = (): IServices => {
   const authService = new AuthServiceImpl(apiClient, SecureStoreAdapter);
   setRefreshExecutor(authService.executeTokenRefresh);
 
-  // 2. Listings
+  // 2. User
+  const userRepository = new ApiUserRepository();
+  const userService = new UserService(userRepository);
+
+  // 3. Listings
   const listingRepository = new ApiListingRepository();
   const listingService = new ListingService(listingRepository);
 
-  // 3. Post Ad (shares listingRepository — no duplicate instantiation)
+  // 4. Post Ad (shares listingRepository)
   const imageUploadService = new ApiImageUploadService();
   const postAdService = new PostAdService(imageUploadService, listingRepository);
 
-  // 4. Categories
+  // 5. Categories
   const categoryRepository = new ApiCategoryRepository();
   const categoryService = new CategoryService(categoryRepository);
 
-  // 5. Image Picker (native Expo adapter)
+  // 6. Image Picker (native Expo adapter)
   const imagePicker = new ExpoImagePicker();
 
   return {
     authService,
+    userService,
     listingService,
     postAdService,
     categoryService,
     imagePicker,
   };
 };
-
