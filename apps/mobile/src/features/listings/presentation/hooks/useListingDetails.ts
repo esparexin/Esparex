@@ -3,7 +3,7 @@ import { services } from '../../../../bootstrap';
 
 export const useListingDetails = (listingId: string) => {
   return useQuery({
-    queryKey: ['listing', listingId],
+    queryKey: ['listings', 'detail', listingId],
     queryFn: async () => {
       return await services.listingService.getListingDetails(listingId);
     },
