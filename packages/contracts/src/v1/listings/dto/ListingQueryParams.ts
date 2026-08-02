@@ -3,8 +3,11 @@ export interface ListingQueryParams {
   limit?: number;
   categoryId?: string;
   search?: string;
-  condition?: string; // Replace with proper enum if ListingCondition exists
+  condition?: string;
   brandId?: string;
   modelId?: string;
   locationId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: 'newest' | 'price-low' | 'price-high' | 'distance' | 'trending';
 }
