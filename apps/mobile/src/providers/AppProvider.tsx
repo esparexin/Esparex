@@ -1,9 +1,9 @@
 import React from 'react';
-import { IAuthService } from '../infrastructure/auth/AuthService';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './AuthProvider';
 import { QueryProvider } from './QueryProvider';
 import { ThemeProvider } from './ThemeProvider';
+import { PushNotificationListener } from './PushNotificationListener';
 
 import { IServices } from '../bootstrap/services';
 
@@ -20,9 +20,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, services }) 
           authService={services.authService}
           pushTokenRegistrationService={services.pushTokenRegistrationService}
         >
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
+          <PushNotificationListener
+            pushNotificationEventService={services.pushNotificationEventService}
+          >
+            <ThemeProvider>
+              {children}
+            </ThemeProvider>
+          </PushNotificationListener>
         </AuthProvider>
       </QueryProvider>
     </SafeAreaProvider>
