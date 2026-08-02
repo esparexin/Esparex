@@ -1,4 +1,4 @@
-import { getUsersQuerySchema, updateUserProfileSchema } from "@esparex/core/validators/user.validator";
+import { getUsersQuerySchema, updateUserProfileSchema, registerFcmTokenSchema } from "@esparex/core/validators/user.validator";
 
 describe("getUsersQuerySchema", () => {
     it("accepts canonical admin user filters", () => {
@@ -49,3 +49,41 @@ describe("updateUserProfileSchema", () => {
         })).toThrow(/mobile/i);
     });
 });
+
+describe("registerFcmTokenSchema", () => {
+    it("accepts valid push token and platform", () => {
+        const parsed = registerFcmTokenSchema.parse({
+            token: "ExponentPushToken[1234567890]",
+            platform: "ios",
+        });
+
+        expect(parsed.token).toBe("ExponentPushToken[1234567890]");
+        expect(parsed.platform).toBe("ios");
+    });
+
+    it("defaults platform to web if not provided", () => {
+        const parsed = registerFcmTokenSchema.parse({
+            token: "ExponentPushToken[1234567890]",
+        });
+
+        expect(parsed.token).toBe("ExponentPushToken[1234567890]");
+        expect(parsed.platform).toBe("web");
+    });
+
+    it("accepts android platform", () => {
+        const parsed = registerFcmTokenSchema.parse({
+            token: "ExponentPushToken[1234567890]",
+            platform: "android",
+        });
+
+        expect(parsed.platform).toBe("android");
+    });
+
+    it("rejects token under 10 characters", () => {
+        expect(() => registerFcmTokenSchema.parse({
+            token: "short",
+            platform: "ios",
+        })).toThrow();
+    });
+});
+
