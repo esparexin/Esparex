@@ -78,12 +78,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
           {/* Actions */}
           <View className="flex-row gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <AppButton variant="outline" onPress={onClose} style={{ flex: 1 }}>
-              Cancel
-            </AppButton>
-            <AppButton variant="primary" onPress={handleSave} loading={isSaving} style={{ flex: 2 }}>
-              Save Changes
-            </AppButton>
+            <AppButton variant="outline" onPress={onClose} label="Cancel" style={{ flex: 1 }} />
+            <AppButton variant="primary" onPress={handleSave} label="Save Changes" loading={isSaving} style={{ flex: 2 }} />
           </View>
         </View>
       </View>
