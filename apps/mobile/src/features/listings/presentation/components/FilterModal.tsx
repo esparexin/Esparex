@@ -82,7 +82,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
           <ScrollView showsVerticalScrollIndicator={false} className="my-4">
             {/* Sort Section */}
             <View className="mb-6">
-              <AppText variant="subtitle" className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
+              <AppText variant="h4" className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
                 Sort By
               </AppText>
               <View className="flex-row flex-wrap gap-2">
@@ -111,7 +111,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
             {/* Condition Section */}
             <View className="mb-6">
-              <AppText variant="subtitle" className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
+              <AppText variant="h4" className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
                 Condition
               </AppText>
               <View className="flex-row flex-wrap gap-2">
@@ -140,7 +140,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
             {/* Price Range Section */}
             <View className="mb-6">
-              <AppText variant="subtitle" className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
+              <AppText variant="h4" className="font-semibold text-slate-800 dark:text-slate-200 mb-3">
                 Price Range (₹)
               </AppText>
               <View className="flex-row items-center gap-3">
