@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Image, FlatList, Dimensions } from 'react-native';
-import { Center, AppIcon } from '@esparex/mobile-ui';
+import React, { useState, useCallback } from 'react';
+import { View, Image, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { Center, AppIcon, AppText } from '@esparex/mobile-ui';
 
 const { width } = Dimensions.get('window');
 
@@ -9,6 +9,15 @@ interface ImageCarouselProps {
 }
 
 export const ImageCarousel = ({ images }: ImageCarouselProps) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const slide = Math.round(event.nativeEvent.contentOffset.x / width);
+    if (slide !== activeIndex) {
+      setActiveIndex(slide);
+    }
+  }, [activeIndex]);
+
   if (!images || images.length === 0) {
     return (
       <Center className="w-full h-72 bg-slate-100 dark:bg-slate-800">
@@ -18,13 +27,15 @@ export const ImageCarousel = ({ images }: ImageCarouselProps) => {
   }
 
   return (
-    <View className="w-full h-72 bg-slate-100 dark:bg-slate-900">
+    <View className="w-full h-72 bg-slate-100 dark:bg-slate-900 relative">
       <FlatList
         data={images}
         keyExtractor={(item, index) => `${item}-${index}`}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         renderItem={({ item }) => (
           <Image
             source={{ uri: item }}
@@ -33,6 +44,13 @@ export const ImageCarousel = ({ images }: ImageCarouselProps) => {
           />
         )}
       />
+      {images.length > 1 && (
+        <View className="absolute bottom-3 right-4 bg-black/60 px-2.5 py-1 rounded-full">
+          <AppText variant="caption" className="text-white text-xs font-semibold">
+            {activeIndex + 1} / {images.length}
+          </AppText>
+        </View>
+      )}
     </View>
   );
 };
