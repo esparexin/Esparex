@@ -92,8 +92,14 @@ describe('AppProvider', () => {
     categoryService: { getCategories: jest.fn() } as unknown as any,
     chatService: { getConversations: jest.fn() } as unknown as any,
     notificationService: { getNotifications: jest.fn() } as unknown as any,
+    pushNotificationService: {
+      requestPermission: jest.fn(),
+      getExpoPushToken: jest.fn(),
+      registerForPushNotifications: jest.fn(),
+    } as unknown as any,
     imagePicker: { pick: jest.fn() },
   };
+
 
   it('mounts children successfully and provides all contexts', async () => {
     const { getByTestId } = render(
