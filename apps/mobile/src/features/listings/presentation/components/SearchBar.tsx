@@ -10,13 +10,13 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export const SearchBar = ({
+export const SearchBar = React.memo<SearchBarProps>(({
   value,
   onChangeText,
   onSubmit,
   onClear,
   placeholder = 'Search listings…',
-}: SearchBarProps) => {
+}) => {
   const inputRef = useRef<TextInput>(null);
 
   const handleClear = () => {
@@ -56,4 +56,6 @@ export const SearchBar = ({
       </View>
     </View>
   );
-};
+});
+
+SearchBar.displayName = 'SearchBar';

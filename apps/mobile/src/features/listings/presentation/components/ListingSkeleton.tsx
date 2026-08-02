@@ -2,9 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Card } from '@esparex/mobile-ui';
 
-
-// As per user instructions, we use a simple view placeholder if Skeleton isn't available in mobile-ui yet.
-export const ListingSkeleton = () => {
+export const ListingSkeleton = React.memo(() => {
   return (
     <View className="mb-4">
       <Card className="overflow-hidden bg-slate-900 border-slate-800">
@@ -28,4 +26,6 @@ export const ListingSkeleton = () => {
       </Card>
     </View>
   );
-};
+});
+
+ListingSkeleton.displayName = 'ListingSkeleton';

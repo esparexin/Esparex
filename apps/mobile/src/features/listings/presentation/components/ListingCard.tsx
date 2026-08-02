@@ -8,15 +8,15 @@ interface ListingCardProps {
   onPress: (id: string) => void;
 }
 
-export const ListingCard: React.FC<ListingCardProps> = ({ listing, onPress }) => {
-  const primaryImage = listing.images.find(img => img.isPrimary)?.url || listing.images[0]?.url;
+export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress }) => {
+  const primaryImage = listing.images.find((img) => img.isPrimary)?.url || listing.images[0]?.url;
 
   return (
     <TouchableOpacity onPress={() => onPress(listing.id)} activeOpacity={0.7} className="mb-4">
       <Card className="overflow-hidden">
         {primaryImage ? (
-          <Image 
-            source={{ uri: primaryImage }} 
+          <Image
+            source={{ uri: primaryImage }}
             resizeMode="cover"
             className="w-full h-48 bg-slate-800"
           />
@@ -25,7 +25,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, onPress }) =>
             <AppIcon name="Image" size={48} color="#475569" />
           </View>
         )}
-        
+
         <View className="p-4">
           <View className="flex-row justify-between items-start mb-2">
             <View className="flex-1 mr-4">
@@ -50,7 +50,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, onPress }) =>
           <View className="flex-row justify-between items-center mt-2 border-t border-slate-800 pt-3">
             <View className="flex-row items-center">
               <View className="w-6 h-6 rounded-full bg-slate-700 mr-2 items-center justify-center">
-                <AppIcon name={listing.seller.type === 'business' ? 'Briefcase' : 'User'} size={12} color="#94a3b8" />
+                <AppIcon
+                  name={listing.seller.type === 'business' ? 'Briefcase' : 'User'}
+                  size={12}
+                  color="#94a3b8"
+                />
               </View>
               <AppText variant="caption" className="text-slate-300">
                 {listing.seller.name}
@@ -61,7 +65,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, onPress }) =>
                 </View>
               )}
             </View>
-            
+
             <View className="flex-row gap-2">
               {listing.isFeatured && <Badge label="Featured" variant="warning" />}
               {listing.status !== 'active' && <Badge label={listing.status} variant="error" />}
@@ -71,4 +75,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, onPress }) =>
       </Card>
     </TouchableOpacity>
   );
-};
+});
+
+ListingCard.displayName = 'ListingCard';

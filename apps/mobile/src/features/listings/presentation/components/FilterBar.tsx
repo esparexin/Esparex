@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { AppText, AppIcon, Badge } from '@esparex/mobile-ui';
+import { AppText, AppIcon } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 
 interface FilterBarProps {
@@ -14,7 +14,7 @@ interface FilterBarProps {
   onRemoveSort?: () => void;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = ({
+export const FilterBar = React.memo<FilterBarProps>(({
   filters,
   activeFilterCount,
   onOpenFilterModal,
@@ -104,4 +104,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       </ScrollView>
     </View>
   );
-};
+});
+
+FilterBar.displayName = 'FilterBar';
