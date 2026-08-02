@@ -1,11 +1,13 @@
 import { AxiosInstance } from 'axios';
 import { IAuthService, AuthResult } from './AuthService';
 import { ITokenStorage } from './ITokenStorage';
+import { IPushTokenRegistrationService } from '../../features/notifications/application/IPushTokenRegistrationService';
 
 export class AuthServiceImpl implements IAuthService {
   constructor(
     private readonly apiClient: AxiosInstance,
-    private readonly tokenStorage: ITokenStorage
+    private readonly tokenStorage: ITokenStorage,
+    private readonly pushTokenRegistrationService?: IPushTokenRegistrationService
   ) {
     // Bind the executeTokenRefresh context so it can be passed freely
     this.executeTokenRefresh = this.executeTokenRefresh.bind(this);
@@ -24,6 +26,10 @@ export class AuthServiceImpl implements IAuthService {
       await this.tokenStorage.setTokens(accessToken, refreshToken);
     }
 
+    if (this.pushTokenRegistrationService) {
+      await this.pushTokenRegistrationService.registerPushToken();
+    }
+
     // Map backend DTO to Domain AuthResult
     return {
       userId,
@@ -32,7 +38,11 @@ export class AuthServiceImpl implements IAuthService {
 
   async logout(): Promise<void> {
     try {
-      await this.apiClient.post('/auth/logout');
+      if (this.pushTokenRegistrationService) {
+        await this.pushTokenRegistrationService.unregisterPushToken();
+      } else {
+        await this.apiClient.post('/auth/logout');
+      }
     } catch (e) {
       // Ignore network errors on logout, we still want to clear the local session
     } finally {

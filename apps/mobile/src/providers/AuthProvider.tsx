@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 import { useQueryClient } from '@tanstack/react-query';
 import { IAuthService } from '../infrastructure/auth/AuthService';
 import { SessionRestoration } from '../infrastructure/auth/SessionRestoration';
+import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
 
@@ -15,10 +16,15 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export interface AuthProviderProps {
   authService: IAuthService;
+  pushTokenRegistrationService?: IPushTokenRegistrationService;
   children: React.ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ authService, children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({
+  authService,
+  pushTokenRegistrationService,
+  children,
+}) => {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const queryClient = useQueryClient();
 
@@ -30,6 +36,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ authService, childre
         const session = await SessionRestoration.restoreSession();
         if (mounted) {
           setStatus(session.status);
+          if (session.status === 'authenticated' && pushTokenRegistrationService) {
+            pushTokenRegistrationService.registerPushToken().catch(() => {});
+          }
         }
       } catch (error) {
         if (mounted) {
@@ -43,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ authService, childre
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [pushTokenRegistrationService]);
 
   const login = async (payload: unknown) => {
     await authService.login(payload);

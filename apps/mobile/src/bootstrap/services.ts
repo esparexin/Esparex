@@ -19,6 +19,8 @@ import { ApiNotificationRepository } from '../features/notifications/application
 import { NotificationService } from '../features/notifications/application/NotificationService';
 import { IPushNotificationService } from '../features/notifications/application/IPushNotificationService';
 import { ExpoPushNotificationService } from '../features/notifications/infrastructure/ExpoPushNotificationService';
+import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
+import { ApiPushTokenRegistrationService } from '../features/notifications/infrastructure/ApiPushTokenRegistrationService';
 
 export interface IServices {
   authService: IAuthService;
@@ -29,40 +31,45 @@ export interface IServices {
   chatService: ChatService;
   notificationService: NotificationService;
   pushNotificationService: IPushNotificationService;
+  pushTokenRegistrationService: IPushTokenRegistrationService;
   imagePicker: IImagePicker;
 }
 
 export const bootstrapServices = (): IServices => {
-  // 1. Auth
-  const authService = new AuthServiceImpl(apiClient, SecureStoreAdapter);
+  // 1. Push Notification & Registration Services
+  const pushNotificationService: IPushNotificationService = new ExpoPushNotificationService();
+  const pushTokenRegistrationService: IPushTokenRegistrationService = new ApiPushTokenRegistrationService(
+    pushNotificationService,
+    apiClient
+  );
+
+  // 2. Auth (injected with pushTokenRegistrationService)
+  const authService = new AuthServiceImpl(apiClient, SecureStoreAdapter, pushTokenRegistrationService);
   setRefreshExecutor(authService.executeTokenRefresh);
 
-  // 2. User
+  // 3. User
   const userRepository = new ApiUserRepository();
   const userService = new UserService(userRepository);
 
-  // 3. Listings
+  // 4. Listings
   const listingRepository = new ApiListingRepository();
   const listingService = new ListingService(listingRepository);
 
-  // 4. Post Ad (shares listingRepository)
+  // 5. Post Ad (shares listingRepository)
   const imageUploadService = new ApiImageUploadService();
   const postAdService = new PostAdService(imageUploadService, listingRepository);
 
-  // 5. Categories
+  // 6. Categories
   const categoryRepository = new ApiCategoryRepository();
   const categoryService = new CategoryService(categoryRepository);
 
-  // 6. Chat
+  // 7. Chat
   const chatRepository = new ApiChatRepository();
   const chatService = new ChatService(chatRepository);
 
-  // 7. Notifications
+  // 8. Notifications
   const notificationRepository = new ApiNotificationRepository();
   const notificationService = new NotificationService(notificationRepository);
-
-  // 8. Push notification service (device token acquisition)
-  const pushNotificationService: IPushNotificationService = new ExpoPushNotificationService();
 
   // 9. Image Picker (native Expo adapter)
   const imagePicker = new ExpoImagePicker();
@@ -76,6 +83,7 @@ export const bootstrapServices = (): IServices => {
     chatService,
     notificationService,
     pushNotificationService,
+    pushTokenRegistrationService,
     imagePicker,
   };
 };
