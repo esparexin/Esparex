@@ -1,28 +1,39 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { services } from '../../../../bootstrap';
 
+const DEFAULT_PAGE_SIZE = 20;
+const DEBOUNCE_DELAY_MS = 300;
+
 export const useSearch = () => {
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
-  // Committed query — only updates when user submits, not on every keystroke.
-  // This prevents firing a network request on every character typed.
-  const [committedQuery, setCommittedQuery] = useState('');
+  // Automatically debounce query changes by 300ms
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, DEBOUNCE_DELAY_MS);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [query]);
 
   const result = useInfiniteQuery({
-    queryKey: ['search', committedQuery],
+    queryKey: ['listings', 'search', debouncedQuery],
     queryFn: async ({ pageParam = 1 }) => {
       return services.listingService.getMarketplaceFeed({
-        search: committedQuery,
+        search: debouncedQuery,
+        limit: DEFAULT_PAGE_SIZE,
         page: pageParam,
       });
     },
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length > 0 ? allPages.length + 1 : undefined;
+      return lastPage.length >= DEFAULT_PAGE_SIZE ? allPages.length + 1 : undefined;
     },
     initialPageParam: 1,
-    // Don't run query when there is no search term
-    enabled: committedQuery.trim().length > 0,
+    enabled: debouncedQuery.length > 0,
   });
 
   const handleQueryChange = useCallback((text: string) => {
@@ -30,18 +41,17 @@ export const useSearch = () => {
   }, []);
 
   const handleSubmit = useCallback(() => {
-    const trimmed = query.trim();
-    setCommittedQuery(trimmed);
+    setDebouncedQuery(query.trim());
   }, [query]);
 
   const handleClear = useCallback(() => {
     setQuery('');
-    setCommittedQuery('');
+    setDebouncedQuery('');
   }, []);
 
   return {
     query,
-    committedQuery,
+    debouncedQuery,
     handleQueryChange,
     handleSubmit,
     handleClear,
