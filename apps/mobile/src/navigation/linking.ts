@@ -19,9 +19,21 @@ export const linking: LinkingOptions<RootStackParamList> = {
               [ROUTES.HOME_TAB]: 'home',
               [ROUTES.SEARCH_TAB]: 'search',
               [ROUTES.POST_AD_TAB]: 'post',
-              [ROUTES.CHAT_TAB]: 'chat',
-              [ROUTES.PROFILE_TAB]: 'profile',
-            }
+              // Chat nested screens: esparex://chat, esparex://chat/thread/:conversationId
+              [ROUTES.CHAT_TAB]: {
+                screens: {
+                  [ROUTES.CONVERSATION_LIST]: 'chat',
+                  [ROUTES.CHAT_THREAD]: 'chat/thread/:conversationId',
+                },
+              },
+              // Profile nested screens: esparex://profile, esparex://profile/settings
+              [ROUTES.PROFILE_TAB]: {
+                screens: {
+                  [ROUTES.PROFILE_OVERVIEW]: 'profile',
+                  [ROUTES.PROFILE_SETTINGS]: 'profile/settings',
+                },
+              },
+            },
           },
           [ROUTES.LISTING_DETAILS]: 'listing/:id',
         },

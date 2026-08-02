@@ -39,6 +39,10 @@ jest.mock('../../hooks/useProfile');
 
 const mockUseProfile = useProfile as jest.MockedFunction<typeof useProfile>;
 
+// Minimal mock navigation required by the typed NativeStackScreenProps
+const mockNavigation = { navigate: jest.fn(), goBack: jest.fn() } as any;
+const mockRoute = { key: 'ProfileSettings', name: 'ProfileSettings', params: undefined } as any;
+
 describe('SettingsScreen Component', () => {
   let queryClient: QueryClient;
 
@@ -64,7 +68,7 @@ describe('SettingsScreen Component', () => {
   const renderScreen = () =>
     render(
       <QueryClientProvider client={queryClient}>
-        <SettingsScreen />
+        <SettingsScreen navigation={mockNavigation} route={mockRoute} />
       </QueryClientProvider>
     );
 

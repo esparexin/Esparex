@@ -1,13 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { View, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen, Container, AppText, Card, AppIcon, AppButton } from '@esparex/mobile-ui';
 import { useProfile } from '../hooks/useProfile';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
 import { useAuth } from '../../../../providers/AuthProvider';
 import { EditProfileModal } from '../components/EditProfileModal';
 import { ErrorState } from '../../../common/components/ErrorState';
+import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
 
-export const SettingsScreen = () => {
+type Props = NativeStackScreenProps<ProfileStackParamList, typeof ROUTES.PROFILE_SETTINGS>;
+
+export const SettingsScreen = ({ navigation }: Props) => {
   const { data: profile, isLoading, isError, refetch } = useProfile();
   const updateProfileMutation = useUpdateProfile();
   const { logout } = useAuth();
@@ -47,6 +51,21 @@ export const SettingsScreen = () => {
   return (
     <Screen edges={['top', 'left', 'right']}>
       <Container className="flex-1 bg-slate-50 dark:bg-slate-950">
+        {/* Back navigation header */}
+        <View className="flex-row items-center px-4 pt-2 pb-1">
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            accessibilityLabel="Back to profile"
+            accessibilityRole="button"
+            className="mr-3 p-1"
+          >
+            <AppIcon name="ArrowLeft" size={22} color="#0ea5e9" />
+          </TouchableOpacity>
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+            Settings
+          </AppText>
+        </View>
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
