@@ -7,4 +7,8 @@ export class UserService {
   async getProfile(): Promise<User> {
     return this.userRepository.getCurrentUserProfile();
   }
+
+  async updateProfile(payload: Partial<User>): Promise<User> {
+    return this.userRepository.updateProfile(payload);
+  }
 }
