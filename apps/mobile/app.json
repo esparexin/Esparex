@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0f172a"
+      "backgroundColor": "#0A0C0B"
     },
     "ios": {
       "supportsTablet": true,
@@ -22,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0f172a"
+        "backgroundColor": "#0A0C0B"
       },
       "package": "com.esparex.mobile",
       "permissions": ["android.permission.POST_NOTIFICATIONS"]
@@ -48,7 +48,7 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#0f172a",
+          "color": "#0A0C0B",
           "sounds": []
         }
       ]
