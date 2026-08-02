@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "Esparex Mobile",
-    "slug": "esparex-rn",
+    "name": "Esparex",
+    "slug": "esparex",
+    "scheme": "esparex",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,8 +16,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.esparex.mobile",
+      "buildNumber": "1",
       "infoPlist": {
-        "NSUserNotificationsUsageDescription": "Receive alerts for new messages and listing activity."
+        "NSUserNotificationsUsageDescription": "Receive alerts for new messages and listing activity.",
+        "NSCameraUsageDescription": "Esparex requires camera access to capture listing photos.",
+        "NSPhotoLibraryUsageDescription": "Esparex requires photo library access to upload listing images."
       }
     },
     "android": {
@@ -25,6 +29,7 @@
         "backgroundColor": "#0A0C0B"
       },
       "package": "com.esparex.mobile",
+      "versionCode": 1,
       "permissions": ["android.permission.POST_NOTIFICATIONS"]
     },
     "web": {
