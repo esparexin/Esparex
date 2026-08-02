@@ -10,6 +10,7 @@ import { AuthResult, IAuthService } from '../../infrastructure/auth/AuthService'
 import { ListingService } from '../../features/listings/application/ListingService';
 import { ApiListingRepository } from '../../features/listings/application/ApiListingRepository';
 import { PostAdService } from '../../features/postAd/application/PostAdService';
+import { UserService } from '../../features/user/application/UserService';
 
 jest.mock('react-native-safe-area-context', () => {
   const inset = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -85,6 +86,7 @@ describe('AppProvider', () => {
 
   const mockServices: IServices = {
     authService: mockAuthService,
+    userService: { getProfile: jest.fn() } as unknown as UserService,
     listingService: mockListingService,
     postAdService: { submit: jest.fn() } as unknown as PostAdService,
     categoryService: { getCategories: jest.fn() } as unknown as any,
