@@ -17,6 +17,8 @@ import { ApiChatRepository } from '../features/chat/application/ApiChatRepositor
 import { ChatService } from '../features/chat/application/ChatService';
 import { ApiNotificationRepository } from '../features/notifications/application/ApiNotificationRepository';
 import { NotificationService } from '../features/notifications/application/NotificationService';
+import { IPushNotificationService } from '../features/notifications/application/IPushNotificationService';
+import { ExpoPushNotificationService } from '../features/notifications/infrastructure/ExpoPushNotificationService';
 
 export interface IServices {
   authService: IAuthService;
@@ -26,6 +28,7 @@ export interface IServices {
   userService: UserService;
   chatService: ChatService;
   notificationService: NotificationService;
+  pushNotificationService: IPushNotificationService;
   imagePicker: IImagePicker;
 }
 
@@ -58,7 +61,10 @@ export const bootstrapServices = (): IServices => {
   const notificationRepository = new ApiNotificationRepository();
   const notificationService = new NotificationService(notificationRepository);
 
-  // 8. Image Picker (native Expo adapter)
+  // 8. Push notification service (device token acquisition)
+  const pushNotificationService: IPushNotificationService = new ExpoPushNotificationService();
+
+  // 9. Image Picker (native Expo adapter)
   const imagePicker = new ExpoImagePicker();
 
   return {
@@ -69,6 +75,7 @@ export const bootstrapServices = (): IServices => {
     categoryService,
     chatService,
     notificationService,
+    pushNotificationService,
     imagePicker,
   };
 };
