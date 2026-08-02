@@ -1,10 +1,20 @@
 import React, { useCallback } from 'react';
-import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import {
+  View,
+  ScrollView,
+  RefreshControl,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen, Container, AppText, Avatar, Card, AppIcon, Badge } from '@esparex/mobile-ui';
 import { useProfile } from '../hooks/useProfile';
 import { ErrorState } from '../../../common/components/ErrorState';
+import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
 
-export const ProfileScreen = () => {
+type Props = NativeStackScreenProps<ProfileStackParamList, typeof ROUTES.PROFILE_OVERVIEW>;
+
+export const ProfileScreen = ({ navigation }: Props) => {
   const { data: profile, isLoading, isError, refetch, isRefetching } = useProfile();
 
   const memberSince = profile?.createdAt
@@ -13,6 +23,10 @@ export const ProfileScreen = () => {
         year: 'numeric',
       })
     : undefined;
+
+  const handleSettingsPress = useCallback(() => {
+    navigation.navigate(ROUTES.PROFILE_SETTINGS);
+  }, [navigation]);
 
   if (isError) {
     return (
@@ -35,6 +49,21 @@ export const ProfileScreen = () => {
   return (
     <Screen edges={['top', 'left', 'right']}>
       <Container className="flex-1 bg-slate-50 dark:bg-slate-950">
+        {/* Top-bar with Settings shortcut */}
+        <View className="flex-row items-center justify-between px-4 pt-2 pb-1">
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+            My Profile
+          </AppText>
+          <TouchableOpacity
+            onPress={handleSettingsPress}
+            accessibilityLabel="Open settings"
+            accessibilityRole="button"
+            className="p-2"
+          >
+            <AppIcon name="Settings" size={22} color="#64748b" />
+          </TouchableOpacity>
+        </View>
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -108,6 +137,25 @@ export const ProfileScreen = () => {
               </AppText>
             </View>
           </Card>
+
+          {/* Settings shortcut card */}
+          <TouchableOpacity
+            onPress={handleSettingsPress}
+            accessibilityLabel="Go to account settings"
+            accessibilityRole="button"
+          >
+            <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <AppIcon name="Settings" size={18} color="#64748b" />
+                  <AppText variant="body" className="font-semibold text-slate-800 dark:text-slate-200 ml-2.5">
+                    Account Settings
+                  </AppText>
+                </View>
+                <AppIcon name="ChevronRight" size={18} color="#94a3b8" />
+              </View>
+            </Card>
+          </TouchableOpacity>
         </ScrollView>
       </Container>
     </Screen>

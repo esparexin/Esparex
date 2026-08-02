@@ -27,6 +27,10 @@ jest.mock('../../hooks/useProfile');
 
 const mockUseProfile = useProfile as jest.MockedFunction<typeof useProfile>;
 
+// Minimal mock navigation prop required by the typed NativeStackScreenProps
+const mockNavigation = { navigate: jest.fn(), goBack: jest.fn() } as any;
+const mockRoute = { key: 'ProfileOverview', name: 'ProfileOverview', params: undefined } as any;
+
 describe('ProfileScreen Component', () => {
   const sampleUser: User = {
     id: 'usr-profile-99',
@@ -58,7 +62,7 @@ describe('ProfileScreen Component', () => {
       isRefetching: false,
     } as any);
 
-    const { queryByText } = render(<ProfileScreen />);
+    const { queryByText } = render(<ProfileScreen navigation={mockNavigation} route={mockRoute} />);
     expect(queryByText('Jane Doe')).toBeNull();
   });
 
@@ -71,7 +75,7 @@ describe('ProfileScreen Component', () => {
       isRefetching: false,
     } as any);
 
-    const { getByText } = render(<ProfileScreen />);
+    const { getByText } = render(<ProfileScreen navigation={mockNavigation} route={mockRoute} />);
     expect(getByText('Jane Doe')).toBeTruthy();
     expect(getByText('+919876543210')).toBeTruthy();
     expect(getByText('Phone Verified')).toBeTruthy();
@@ -87,7 +91,7 @@ describe('ProfileScreen Component', () => {
       isRefetching: false,
     } as any);
 
-    const { getByText } = render(<ProfileScreen />);
+    const { getByText } = render(<ProfileScreen navigation={mockNavigation} route={mockRoute} />);
     expect(getByText('Something went wrong')).toBeTruthy();
   });
 });

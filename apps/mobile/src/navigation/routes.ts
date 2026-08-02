@@ -19,6 +19,14 @@ export const ROUTES = {
   POST_AD_TAB: 'PostAdTab',
   CHAT_TAB: 'ChatTab',
   PROFILE_TAB: 'ProfileTab',
+
+  // Chat nested screens
+  CONVERSATION_LIST: 'ConversationList',
+  CHAT_THREAD: 'ChatThread',
+
+  // Profile nested screens
+  PROFILE_OVERVIEW: 'ProfileOverview',
+  PROFILE_SETTINGS: 'ProfileSettings',
 } as const;
 
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -44,8 +52,20 @@ export type MainTabParamList = {
   [ROUTES.HOME_TAB]: undefined;
   [ROUTES.SEARCH_TAB]: undefined;
   [ROUTES.POST_AD_TAB]: undefined;
-  [ROUTES.CHAT_TAB]: undefined;
-  [ROUTES.PROFILE_TAB]: undefined;
+  [ROUTES.CHAT_TAB]: NavigatorScreenParams<ChatStackParamList> | undefined;
+  [ROUTES.PROFILE_TAB]: NavigatorScreenParams<ProfileStackParamList> | undefined;
+};
+
+// Chat stack: list → thread
+export type ChatStackParamList = {
+  [ROUTES.CONVERSATION_LIST]: undefined;
+  [ROUTES.CHAT_THREAD]: { conversationId: string };
+};
+
+// Profile stack: overview → settings
+export type ProfileStackParamList = {
+  [ROUTES.PROFILE_OVERVIEW]: undefined;
+  [ROUTES.PROFILE_SETTINGS]: undefined;
 };
 
 
