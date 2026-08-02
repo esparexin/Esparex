@@ -90,6 +90,7 @@ describe('AppProvider', () => {
     listingService: mockListingService,
     postAdService: { submit: jest.fn() } as unknown as PostAdService,
     categoryService: { getCategories: jest.fn() } as unknown as any,
+    chatService: { getConversations: jest.fn() } as unknown as any,
     imagePicker: { pick: jest.fn() },
   };
 

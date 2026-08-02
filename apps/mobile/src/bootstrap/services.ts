@@ -13,6 +13,8 @@ import { ExpoImagePicker } from '../features/postAd/infrastructure/ExpoImagePick
 import { IImagePicker } from '../features/postAd/application/IImagePicker';
 import { ApiUserRepository } from '../features/user/application/ApiUserRepository';
 import { UserService } from '../features/user/application/UserService';
+import { ApiChatRepository } from '../features/chat/application/ApiChatRepository';
+import { ChatService } from '../features/chat/application/ChatService';
 
 export interface IServices {
   authService: IAuthService;
@@ -20,6 +22,7 @@ export interface IServices {
   postAdService: PostAdService;
   categoryService: CategoryService;
   userService: UserService;
+  chatService: ChatService;
   imagePicker: IImagePicker;
 }
 
@@ -44,7 +47,11 @@ export const bootstrapServices = (): IServices => {
   const categoryRepository = new ApiCategoryRepository();
   const categoryService = new CategoryService(categoryRepository);
 
-  // 6. Image Picker (native Expo adapter)
+  // 6. Chat
+  const chatRepository = new ApiChatRepository();
+  const chatService = new ChatService(chatRepository);
+
+  // 7. Image Picker (native Expo adapter)
   const imagePicker = new ExpoImagePicker();
 
   return {
@@ -53,6 +60,9 @@ export const bootstrapServices = (): IServices => {
     listingService,
     postAdService,
     categoryService,
+    chatService,
     imagePicker,
   };
 };
+
+export const services = bootstrapServices();
