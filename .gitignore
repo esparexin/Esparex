@@ -26,6 +26,7 @@ dist
 **/.DS_Store
 *.pem
 tmp/
+/logo/
 
 # AI IDE tool session data (Antigravity, Cursor, etc.)
 .antigravity-ide/
