@@ -15,6 +15,8 @@ import { ApiUserRepository } from '../features/user/application/ApiUserRepositor
 import { UserService } from '../features/user/application/UserService';
 import { ApiChatRepository } from '../features/chat/application/ApiChatRepository';
 import { ChatService } from '../features/chat/application/ChatService';
+import { ApiNotificationRepository } from '../features/notifications/application/ApiNotificationRepository';
+import { NotificationService } from '../features/notifications/application/NotificationService';
 
 export interface IServices {
   authService: IAuthService;
@@ -23,6 +25,7 @@ export interface IServices {
   categoryService: CategoryService;
   userService: UserService;
   chatService: ChatService;
+  notificationService: NotificationService;
   imagePicker: IImagePicker;
 }
 
@@ -51,7 +54,11 @@ export const bootstrapServices = (): IServices => {
   const chatRepository = new ApiChatRepository();
   const chatService = new ChatService(chatRepository);
 
-  // 7. Image Picker (native Expo adapter)
+  // 7. Notifications
+  const notificationRepository = new ApiNotificationRepository();
+  const notificationService = new NotificationService(notificationRepository);
+
+  // 8. Image Picker (native Expo adapter)
   const imagePicker = new ExpoImagePicker();
 
   return {
@@ -61,6 +68,7 @@ export const bootstrapServices = (): IServices => {
     postAdService,
     categoryService,
     chatService,
+    notificationService,
     imagePicker,
   };
 };
