@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MIN_AD_IMAGES, MAX_AD_IMAGES, MAX_AD_SPARE_PARTS, MIN_AD_TITLE_CHARS, MAX_AD_TITLE_CHARS, MIN_AD_DESCRIPTION_CHARS, MAX_AD_DESCRIPTION_CHARS } from '../../common/constants/adLimits';
+import { MAX_AD_IMAGES, MAX_AD_SPARE_PARTS, MIN_AD_TITLE_CHARS, MAX_AD_TITLE_CHARS, MIN_AD_DESCRIPTION_CHARS, MAX_AD_DESCRIPTION_CHARS } from '../../common/constants/adLimits';
 import { LocationMetaSchema } from '../../common/schema/location.schema';
 import { validatedTextSchema } from '../../common/schema/text.schema';
 import { LISTING_TYPE_VALUES } from '../enums/listingType';
@@ -65,8 +65,11 @@ export const BaseAdPayloadSchema = z.object({
         }).min(1, 'Price must be at least ₹1').max(10_000_000, 'Price cannot exceed ₹1 crore')
     ),
     images: z
-        .array(z.string())
-        .min(1, `At least ${MIN_AD_IMAGES} image is required`)
+        .array(z.string(), {
+            required_error: 'Please add at least one photo to continue.',
+            invalid_type_error: 'Please add at least one photo to continue.',
+        })
+        .min(1, 'Please add at least one photo to continue.')
         .max(MAX_AD_IMAGES, `Maximum ${MAX_AD_IMAGES} images allowed`),
 
     // Retired. Canonical location id must be nested under location.locationId.
