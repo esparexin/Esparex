@@ -111,6 +111,8 @@
     "repo:ssot": "node scripts/git/esparex/ssot-validator.js",
     "repo:architecture": "node scripts/git/esparex/architecture-validator.js",
     "repo:gate": "node scripts/git/repo-gate.js",
+    "repo:governance-dashboard": "node scripts/policy/governance-dashboard.js",
+    "repo:governance-report": "node scripts/policy/governance-dashboard.js",
     "architecture": "npx tsx tooling/architecture/index.ts",
     "architecture:changed": "npx tsx tooling/architecture/index.ts --changed",
     "generate:domain": "npx tsx tooling/architecture/generate-domain.ts",

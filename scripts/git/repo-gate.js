@@ -34,8 +34,17 @@ for (const mod of checks) {
   results.push(val);
 }
 
+const { recordTelemetry } = require('../policy/telemetry-recorder');
+
 const report = formatReport(results);
 console.log(report);
 
 const hasBlockers = results.some(r => r.errors.length > 0);
+
+try {
+  recordTelemetry(results, hasBlockers);
+} catch (_e) {
+  // Telemetry recording must be non-blocking
+}
+
 process.exit(hasBlockers ? 1 : 0);
