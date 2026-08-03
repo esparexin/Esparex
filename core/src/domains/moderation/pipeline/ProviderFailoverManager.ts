@@ -6,7 +6,7 @@
  * Reuses the enterprise CircuitBreaker from core/src/utils/resilience.ts.
  */
 import { CircuitBreaker, CircuitBreakerOptions } from '../../../utils/resilience';
-import { ImageModerationProvider, ImageModerationRequest, ImageModerationResponse } from '../types';
+import { ImageModerationProvider, ImageModerationRequest, ImageModerationResponse } from '../../../services/ai/moderation/types';
 import logger from '../../../utils/logger';
 
 export interface ProviderHealthStatus {
@@ -88,7 +88,7 @@ export class ProviderFailoverManager {
             }
 
             try {
-                const response = await item.breaker.execute(() => item.provider.moderate(request));
+                const response = await item.breaker.execute(() => item.provider.moderateImage(request));
                 logger.info('[ProviderFailoverManager] Request successfully processed by provider', {
                     providerName: item.name,
                 });

@@ -1,5 +1,5 @@
 import { ProviderFailoverManager, AllProvidersFailedError } from '../../../domains/moderation/pipeline/ProviderFailoverManager';
-import { ImageModerationProvider, ImageModerationRequest, ImageModerationResponse } from '../../../domains/moderation/types';
+import { ImageModerationProvider, ImageModerationRequest, ImageModerationResponse } from '../../../services/ai/moderation/types';
 
 describe('ProviderFailoverManager (PR 4 — Multi-Cloud Resilience)', () => {
     let mockPrimaryProvider: jest.Mocked<ImageModerationProvider>;
@@ -7,27 +7,30 @@ describe('ProviderFailoverManager (PR 4 — Multi-Cloud Resilience)', () => {
     let manager: ProviderFailoverManager;
 
     const mockRequest: ImageModerationRequest = {
-        imageId: 'img-123',
-        buffer: Buffer.from('test-image'),
+        imageUrl: 'https://example.com/test.jpg',
+        imageBuffer: Buffer.from('test-image'),
     };
 
     const mockSuccessResponse: ImageModerationResponse = {
-        providerName: 'PrimaryProvider',
-        flagged: false,
-        confidence: 0.99,
-        categories: [],
-        rawResponse: {},
+        provider: 'PrimaryProvider',
+        latencyMs: 42,
+        adultScore: 0.01,
+        violenceScore: 0.02,
+        racyScore: 0.01,
+        goreScore: 0.01,
+        labels: ['safe'],
+        signals: [],
     };
 
     beforeEach(() => {
         mockPrimaryProvider = {
-            name: 'PrimaryProvider',
-            moderate: jest.fn(),
+            providerName: 'PrimaryProvider',
+            moderateImage: jest.fn(),
         };
 
         mockSecondaryProvider = {
-            name: 'SecondaryProvider',
-            moderate: jest.fn(),
+            providerName: 'SecondaryProvider',
+            moderateImage: jest.fn(),
         };
 
         manager = new ProviderFailoverManager([
@@ -37,34 +40,34 @@ describe('ProviderFailoverManager (PR 4 — Multi-Cloud Resilience)', () => {
     });
 
     it('executes primary provider when healthy', async () => {
-        mockPrimaryProvider.moderate.mockResolvedValueOnce(mockSuccessResponse);
+        mockPrimaryProvider.moderateImage.mockResolvedValueOnce(mockSuccessResponse);
 
         const response = await manager.executeWithFailover(mockRequest);
 
         expect(response).toEqual(mockSuccessResponse);
-        expect(mockPrimaryProvider.moderate).toHaveBeenCalledTimes(1);
-        expect(mockSecondaryProvider.moderate).not.toHaveBeenCalled();
+        expect(mockPrimaryProvider.moderateImage).toHaveBeenCalledTimes(1);
+        expect(mockSecondaryProvider.moderateImage).not.toHaveBeenCalled();
     });
 
     it('fails over to secondary provider when primary provider throws an error', async () => {
-        mockPrimaryProvider.moderate.mockRejectedValueOnce(new Error('Primary API Timeout'));
+        mockPrimaryProvider.moderateImage.mockRejectedValueOnce(new Error('Primary API Timeout'));
         const secondaryResponse: ImageModerationResponse = {
             ...mockSuccessResponse,
-            providerName: 'SecondaryProvider',
+            provider: 'SecondaryProvider',
         };
-        mockSecondaryProvider.moderate.mockResolvedValueOnce(secondaryResponse);
+        mockSecondaryProvider.moderateImage.mockResolvedValueOnce(secondaryResponse);
 
         const response = await manager.executeWithFailover(mockRequest);
 
-        expect(response.providerName).toBe('SecondaryProvider');
-        expect(mockPrimaryProvider.moderate).toHaveBeenCalledTimes(1);
-        expect(mockSecondaryProvider.moderate).toHaveBeenCalledTimes(1);
+        expect(response.provider).toBe('SecondaryProvider');
+        expect(mockPrimaryProvider.moderateImage).toHaveBeenCalledTimes(1);
+        expect(mockSecondaryProvider.moderateImage).toHaveBeenCalledTimes(1);
     });
 
     it('bypasses provider when circuit breaker state is OPEN', async () => {
         // Trigger failures to trip primary circuit breaker to OPEN state
-        mockPrimaryProvider.moderate.mockRejectedValue(new Error('Persistent Outage'));
-        mockSecondaryProvider.moderate.mockResolvedValue(mockSuccessResponse);
+        mockPrimaryProvider.moderateImage.mockRejectedValue(new Error('Persistent Outage'));
+        mockSecondaryProvider.moderateImage.mockResolvedValue(mockSuccessResponse);
 
         // 2 failures trip circuit breaker (failureThreshold = 2)
         await manager.executeWithFailover(mockRequest);
@@ -73,20 +76,20 @@ describe('ProviderFailoverManager (PR 4 — Multi-Cloud Resilience)', () => {
         const healthBefore = manager.getProviderHealthStatuses();
         expect(healthBefore.find((h) => h.name === 'PrimaryProvider')?.state).toBe('open');
 
-        // Third call should bypass primary completely without calling its moderate method
+        // Third call should bypass primary completely without calling its moderateImage method
         jest.clearAllMocks();
-        mockSecondaryProvider.moderate.mockResolvedValueOnce(mockSuccessResponse);
+        mockSecondaryProvider.moderateImage.mockResolvedValueOnce(mockSuccessResponse);
 
         const response = await manager.executeWithFailover(mockRequest);
 
         expect(response).toEqual(mockSuccessResponse);
-        expect(mockPrimaryProvider.moderate).not.toHaveBeenCalled();
-        expect(mockSecondaryProvider.moderate).toHaveBeenCalledTimes(1);
+        expect(mockPrimaryProvider.moderateImage).not.toHaveBeenCalled();
+        expect(mockSecondaryProvider.moderateImage).toHaveBeenCalledTimes(1);
     });
 
     it('throws AllProvidersFailedError when all providers fail', async () => {
-        mockPrimaryProvider.moderate.mockRejectedValueOnce(new Error('Primary Down'));
-        mockSecondaryProvider.moderate.mockRejectedValueOnce(new Error('Secondary Down'));
+        mockPrimaryProvider.moderateImage.mockRejectedValueOnce(new Error('Primary Down'));
+        mockSecondaryProvider.moderateImage.mockRejectedValueOnce(new Error('Secondary Down'));
 
         await expect(manager.executeWithFailover(mockRequest)).rejects.toThrow(AllProvidersFailedError);
     });
