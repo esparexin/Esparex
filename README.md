@@ -59,6 +59,25 @@ CI is intentionally consolidated to a single workflow:
 
 This project uses strict automated guardrails to maintain code quality and architectural integrity.
 
+### Repository Health & Governance Status
+
+```text
+Repository Health       100%
+Governance Status       PASS
+Architecture Score      100 / 100
+SSOT Integrity Status   PASS
+Technical Debt (Tracked)
+  Duplicate Clones      15 (deferred to feature refactoring)
+  Orphan Files          1 (deferred to mobile refactoring)
+Ratchet Policy          Active (Zero new debt allowed)
+```
+
+Run governance commands:
+```bash
+npm run repo:gate                   # Execute complete repository integrity gate
+npm run repo:governance-dashboard   # View operational dashboard & ratchet status
+```
+
 ### Pre-commit & Pre-push
 Standard checks run automatically on every commit/push:
 - **Linting**: `npm run lint` (Checks for unused imports, `any` types, and cascading renders).
