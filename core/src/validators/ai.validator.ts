@@ -15,6 +15,7 @@ export const aiGenerateSchema = z
                 brand: nonEmptyString.optional(),
                 model: nonEmptyString.optional(),
                 power: nonEmptyString.optional(),
+                powerStatus: nonEmptyString.optional(),
                 spareParts: z.union([nonEmptyString, z.array(nonEmptyString)]).optional(),
             })
             .passthrough()

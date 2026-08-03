@@ -7,6 +7,7 @@ import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 import { useNavigation } from "@/context/NavigationContext";
 import logger from "@/lib/logger";
 import { notify } from "@/lib/feedback";
+import { popupBus } from "@/lib/popup";
 import type { ListingImage } from "@/types/listing";
 import type { ListingLocation } from "@/types/listing";
 import { sanitizeMongoObjectId } from "@esparex/shared";
@@ -218,6 +219,42 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                     duration: 6000,
                     description: "Buy an Ad Pack credit to continue posting or wait until your monthly limit resets."
                 });
+                return null;
+            } else if (backendErrorCode === 'DUPLICATE_AD') {
+                const record = e as {
+                    details?: { matchedAdId?: string };
+                    context?: { details?: { matchedAdId?: string } };
+                    response?: { data?: { details?: { matchedAdId?: string } } };
+                };
+                const matchedAdId = record.details?.matchedAdId || record.context?.details?.matchedAdId || record.response?.data?.details?.matchedAdId;
+
+                popupBus.show({
+                    type: "warning",
+                    title: "Duplicate Ad",
+                    message: "This ad is already listed.",
+                    code: "DUPLICATE_AD",
+                    actions: [
+                        ...(matchedAdId ? [{
+                            label: "Edit Existing Listing",
+                            action: () => {
+                                if (typeof window !== "undefined") {
+                                    window.location.href = `/post-ad?edit=${matchedAdId}`;
+                                }
+                            }
+                        }] : []),
+                        {
+                            label: "View My Listings",
+                            action: () => {
+                                if (typeof window !== "undefined") {
+                                    window.location.href = "/my-account/listings";
+                                }
+                            }
+                        },
+                        {
+                            label: "Close"
+                        }
+                    ]
+                }, { dedupeKey: "DUPLICATE_AD" });
                 return null;
             }
 

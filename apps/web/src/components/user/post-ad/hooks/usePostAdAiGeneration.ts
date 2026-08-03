@@ -11,9 +11,9 @@ import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import { AiErrorCode } from "@esparex/contracts/v1/common/enums";
 import type { AiCache } from "../context/types";
 
-export function createAiContextSignature(context: { brand: string, model: string, category: string, condition: string, workingParts: string }) {
+export function createAiContextSignature(context: { brand: string, model: string, category: string, condition: string, powerStatus?: string, workingParts: string }) {
     const parts = context.workingParts.split(',').map(p => p.trim()).filter(Boolean).sort();
-    return `brand:${context.brand}|model:${context.model}|cat:${context.category}|cond:${context.condition}|parts:${parts.join(',')}`;
+    return `brand:${context.brand}|model:${context.model}|cat:${context.category}|cond:${context.condition}|power:${context.powerStatus || ''}|parts:${parts.join(',')}`;
 }
 
 export function usePostAdAiGeneration(
@@ -65,11 +65,14 @@ export function usePostAdAiGeneration(
             .map(id => availableSpareParts.find(p => p.id === id || p._id === id)?.name)
             .filter((name): name is string => Boolean(name));
 
+        const resolvedPowerStatus = deviceCondition === 'power_on' ? 'On' : deviceCondition === 'power_off' ? 'Off' : undefined;
+
         const context = {
             brand: resolvedBrand,
             model: resolvedModel,
             category: categoryName,
             condition: deviceCondition || "device",
+            powerStatus: resolvedPowerStatus,
             workingParts: selectedSparePartNames.join(", "),
         };
         const contextSignature = createAiContextSignature(context);

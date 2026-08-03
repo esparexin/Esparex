@@ -127,7 +127,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 }, session as any);
 
                 const { createDuplicateError } = await import('./AdValidationService');
-                throw createDuplicateError(duplicateCheck.reason);
+                throw createDuplicateError(duplicateCheck.reason, duplicateCheck.matchedAdId);
             }
 
             // 4. Fraud Analysis

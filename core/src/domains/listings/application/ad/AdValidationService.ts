@@ -33,10 +33,14 @@ const DUPLICATE_AD_MESSAGE = 'You already have an active listing for this device
 // ─────────────────────────────────────────────────
 
 export const createDuplicateError = (
-    message = DUPLICATE_AD_MESSAGE
+    message = DUPLICATE_AD_MESSAGE,
+    matchedAdId?: string
 ): DuplicateAwareError => {
     const err = new AppError(message, 409, BusinessErrorCode.DUPLICATE_AD) as DuplicateAwareError;
     err.isDuplicate = true;
+    if (matchedAdId) {
+        err.details = { matchedAdId };
+    }
     return err;
 };
 

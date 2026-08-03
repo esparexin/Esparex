@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppInput } from '@esparex/mobile-ui';
 import { AppIcon } from '@esparex/mobile-ui';
+import { MAX_AD_TITLE_CHARS } from '@esparex/contracts';
 
 interface TitleFieldProps {
   value: string | undefined;
@@ -23,7 +24,7 @@ export const TitleField = ({ value, onChange }: TitleFieldProps) => {
       returnKeyType="next"
       autoCapitalize="sentences"
       autoCorrect
-      maxLength={120}
+      maxLength={MAX_AD_TITLE_CHARS}
       leftIcon={<AppIcon name="Tag" size={16} color="#64748b" />}
       accessibilityLabel="Listing title"
       accessibilityHint="Describe what you are selling in a few words"

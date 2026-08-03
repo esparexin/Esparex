@@ -19,9 +19,9 @@ export const TEXT_LIMITS = {
     // Titles (ads, services, businesses)
     TITLE: {
         MIN: 10,
-        MAX: 60,
+        MAX: 80,
         ERROR_MIN: 'Title must be at least 10 characters',
-        ERROR_MAX: 'Title must be 60 characters or fewer',
+        ERROR_MAX: 'Title must be 80 characters or fewer',
     },
 
     // Extended titles (services, businesses with longer names)

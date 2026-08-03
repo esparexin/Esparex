@@ -39,6 +39,7 @@ describe('GOVERNANCE / shared constants sync', () => {
         expect(AD_LIMITS.MIN_IMAGES).toBeGreaterThan(0);
         expect(AD_LIMITS.MAX_IMAGES).toBeGreaterThan(AD_LIMITS.MIN_IMAGES);
         expect(AD_LIMITS.MIN_TITLE_CHARS).toBeGreaterThan(0);
+        expect(AD_LIMITS.MAX_TITLE_CHARS).toBe(80);
         expect(AD_LIMITS.MAX_TITLE_CHARS).toBeGreaterThan(AD_LIMITS.MIN_TITLE_CHARS);
         expect(AD_LIMITS.MIN_DESCRIPTION_CHARS).toBeGreaterThan(0);
         expect(AD_LIMITS.MAX_DESCRIPTION_CHARS).toBeGreaterThan(AD_LIMITS.MIN_DESCRIPTION_CHARS);

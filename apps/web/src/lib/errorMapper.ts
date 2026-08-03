@@ -46,7 +46,7 @@ const ERROR_MESSAGES: Record<string, string> = {
     'BUSINESS_NOT_FOUND': 'Item not found',
     'BUSINESS_QUOTA_EXHAUSTED': 'You have reached your limit',
     'BUSINESS_SUSPENDED': 'Your account is suspended. Please contact support',
-    'DUPLICATE_AD': 'You already posted a similar active listing.',
+    'DUPLICATE_AD': 'This ad is already listed.',
     'LISTING_NOT_FOUND': 'Listing not found or no longer active.',
     'LISTING_LIMIT_EXCEEDED': 'Free listing quota reached. Upgrade your plan to post more ads.',
     'QUOTA_EXHAUSTED': 'Ad posting quota exhausted. Buy an ad pack to continue.',
