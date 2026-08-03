@@ -18,6 +18,9 @@ This matrix serves as the authoritative record of the documentation and governan
 | `docs/Esparex_Core/SELLER_EXPERIENCE_BRD.md` | Relocate | `docs/development/SELLER_EXPERIENCE_BRD.md` | Keep | Product BRD moved to `development/`. |
 | `docs/Esparex_Core/POST_AD_2.0_AUDIT.md` | Relocate | `docs/reports/POST_AD_2.0_AUDIT.md` | Keep | Completed audit moved to `reports/`. |
 | `docs/performance-audit-2026-07.md` | Relocate | `docs/reports/performance-audit-2026-07.md` | Keep | Performance audit moved to `reports/`. |
+| `docs/architecture/P2.1-governance-plan.md` | Archive | `docs/archive/P2.1-governance-plan.md` | Archive | Completed historical sprint P2.1 governance specification. |
+| `docs/architecture/catalog-remediation-report.md` | Archive | `docs/archive/catalog-remediation-report.md` | Archive | Completed catalog remediation sprint report. |
+| `docs/audit/P3-sprint3-audit.md` | Archive | `docs/archive/P3-sprint3-audit.md` | Archive | Completed historical sprint 3 candidate audit log. |
 | `tech-debt-insights.md` (root) | Relocate | `docs/reports/tech-debt-insights-2026-07.md` | Keep | Tech debt snapshot moved to `reports/`. |
 | `docs/architecture/adr/ADR-001-packages-kernel-dormant.md` | Relocate | `.agents/decisions/ADR-010-packages-kernel-dormant.md` | Keep | Moved to decisions folder; re-indexed to `ADR-010`. |
 | `docs/architecture/Enterprise-Architecture-v1.md` | Archive | `docs/archive/Enterprise-Architecture-v1.md` | Keep | Historical architectural blueprint. |
