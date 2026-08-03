@@ -785,6 +785,81 @@ No pull request containing UI or workflow changes may be merged unless all appli
    - Verify a single owner already exists.
    - Do not introduce additional spacing until ownership has been verified.
 
+---
+
+# 🚨 PLATFORM-AWARE ENGINEERING STANDARD (MANDATORY)
+
+## Applies To
+
+This standard applies to **every feature, hook, application, component, capability, and workflow** across the Esparex multi-platform monorepo (`apps/web`, `apps/mobile`, `apps/admin`, `@esparex/ui`, `@esparex/core`).
+
+---
+
+## The 7 Core Governance Principles
+
+1. **Business Logic is Platform Independent:**
+   Shared business rules, domain invariants, validation schemas, and state management MUST remain 100% platform-agnostic in `@esparex/core` and `@esparex/contracts`.
+
+2. **Platform Capabilities via Shared Contracts Only:**
+   Platform capabilities (Camera, Files/Media, Clipboard, GPS/Location, Notifications, Biometrics, Payments, Contacts, Share, Deep Links, Permissions, Storage, Haptics, Voice, Scanning, Authentication) MUST be accessed strictly through shared contract abstractions (`IPlatformCapability`).
+
+3. **UI Components Never Directly Invoke Hardware APIs:**
+   React/UI components MUST NOT directly invoke platform hardware or browser APIs (e.g. `navigator.mediaDevices`, `expo-image-picker`, `window.location`). They MUST delegate capability requests to the platform capability adapter layer.
+
+4. **Platform-Specific UX Follows Native Conventions:**
+   Platform interactions MUST adapt to the host platform environment (Desktop Web, Mobile Web, Tablet, iOS Native, Android Native).
+   - **Desktop Web Rule:** Desktop interfaces MUST NOT render mobile-only hardware dialogs (e.g. showing "Choose from Gallery" or "Take Photo" modals). Desktop media requests MUST trigger the native OS File Dialog directly.
+   - **Native Mobile Rule:** iOS and Android interfaces MUST utilize native hardware pickers (Camera / Photo Library / Face ID) with native permission handling.
+
+5. **Shared Components Render Business Workflows, Not Platform Interactions:**
+   Shared components render business steps, input forms, and data entities. They do not own or dictate platform-specific hardware popups or hardware interactions.
+
+6. **Native Experience Under Identical Business Invariants:**
+   Every platform implementation (Web, Desktop, iOS, Android) MUST satisfy identical business validation rules, contracts, and APIs while delivering a native, platform-appropriate user experience.
+
+7. **Capability Adapter Extension for New Platforms:**
+   Adding support for a new platform (e.g. macOS desktop app, Windows native app, Vision Pro, Android TV) MUST require ONLY adding a new capability adapter implementation, with ZERO modifications to shared business logic or domain code.
+
+---
+
+## Architectural Layering Model
+
+```text
+Business Logic (Platform Independent — @esparex/core)
+        ↓
+Capability Abstraction (Platform Contracts — @esparex/shared / @esparex/contracts)
+        ↓
+Platform Implementation (Web Adapter | iOS Adapter | Android Adapter)
+```
+
+---
+
+## Platform UX Decision Matrix (Required Before Implementation)
+
+Every non-trivial feature MUST answer the Platform UX Decision Matrix before implementation:
+
+| Dimension | Question | Status |
+| :--- | :--- | :---: |
+| **Domain** | Is this business logic shared in `@esparex/core`? | ✅ |
+| **Contracts** | Is the contract defined in `@esparex/contracts`? | ✅ |
+| **Hardware** | Does this require device/browser hardware capability? | ✅ |
+| **Abstraction**| Is the capability behind a platform adapter interface? | ✅ |
+| **Desktop UX** | Does Desktop Web use native OS File/Browser dialogs (no mobile modals)? | ✅ |
+| **Mobile UX**  | Does Native Mobile use native device pickers & permissions? | ✅ |
+
+---
+
+## Multi-Platform Pull Request Quality Gate
+
+No PR containing platform or hardware capabilities may be merged unless all items are confirmed:
+
+- [ ] **Desktop Browser Verified:** Verified on Desktop Chrome/Safari. Clicking media/files opens native OS File Picker directly. Zero mobile hardware modals rendered.
+- [ ] **Mobile Web Verified:** Verified responsive behavior on mobile browsers.
+- [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with permission guards.
+- [ ] **Android Native Verified:** Verified native Android device/emulator behavior with permission guards.
+- [ ] **Capability Inversion:** Components consume platform capability adapters; zero inline hardware API calls inside UI components.
+
+
 
 
 
