@@ -1,0 +1,21 @@
+id: moderation
+name: Moderation Domain
+owner: platform
+business_owner: Platform
+technical_owner: Platform
+maintainer: Moderation Squad
+maturity: stable
+visibility: public
+stability: stable
+criticality: mission-critical
+sla: tier-1
+since: "2.9"
+layer: domain
+depends_on:
+  - shared
+  - contracts
+public_api:
+  facades:
+    - ImageModerationOrchestrator
+    - DuplicateImageService
+    - LocalOcrProvider
