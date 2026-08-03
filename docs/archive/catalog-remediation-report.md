@@ -1,3 +1,11 @@
+---
+status: archived
+archived_date: 2026-08-03
+reason: Completed catalog remediation sprint report
+replacement: docs/architecture/catalog-architecture-ssot-audit.md
+reference: N/A
+---
+
 # ESPAREX CATALOG ARCHITECTURE & REMEDIATION REPORT
 
 **Feature Branch:** `feat/catalog-architecture-ssot-audit`  
