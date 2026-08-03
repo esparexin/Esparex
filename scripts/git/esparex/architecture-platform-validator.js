@@ -12,13 +12,13 @@ function run(val) {
     } else {
       const lines = out.split('\n').filter(l => l.trim().startsWith('→') || l.trim().startsWith('✗'));
       const summary = lines.slice(0, 3).join(' ').replace(/\s+/g, ' ');
-      val.warning(`Architecture Platform Verification Warning: ${summary || 'Architectural violations detected.'}`);
+      val.error(`Architecture Platform Verification Error: ${summary || 'Architectural violations detected.'}`);
     }
   } catch (e) {
     const out = (e.stdout || '') + (e.stderr || '');
     const lines = out.split('\n').filter(l => l.trim().startsWith('→') || l.trim().startsWith('✗') || l.includes('Public Barrel') || l.includes('Manifest Validation'));
     const summary = lines.slice(0, 3).map(l => l.trim()).join('; ');
-    val.warning(`Architecture Platform Verification Warning: ${summary || e.message}`);
+    val.error(`Architecture Platform Verification Error: ${summary || e.message}`);
   }
 }
 
