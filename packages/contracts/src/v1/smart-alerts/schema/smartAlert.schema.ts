@@ -5,23 +5,24 @@ import { coordinatesSchema } from '../../common/schema/coordinates.schema';
 const frequencySchema = z.enum(['daily', 'instant']);
 const notificationChannelSchema = z.enum(['email', 'sms', 'push']);
 
-export const smartAlertCriteriaSchema = z
-    .object({
-        keywords: optionalTrimmedString,
-        category: optionalTrimmedString,
-        brand: optionalTrimmedString,
-        model: optionalTrimmedString,
-        categoryId: objectIdSchema.optional(),
-        brandId: objectIdSchema.optional(),
-        modelId: objectIdSchema.optional(),
-        minPrice: z.coerce.number().min(0).optional(),
-        maxPrice: z.coerce.number().min(0).optional(),
-        condition: optionalTrimmedString,
-        location: optionalTrimmedString,
-        locationId: objectIdSchema.optional(),
-        state: optionalTrimmedString,
-        coordinates: coordinatesSchema.optional(),
-    })
+export const smartAlertCriteriaBaseSchema = z.object({
+    keywords: optionalTrimmedString,
+    category: optionalTrimmedString,
+    brand: optionalTrimmedString,
+    model: optionalTrimmedString,
+    categoryId: objectIdSchema.optional(),
+    brandId: objectIdSchema.optional(),
+    modelId: objectIdSchema.optional(),
+    minPrice: z.coerce.number().min(0).optional(),
+    maxPrice: z.coerce.number().min(0).optional(),
+    condition: optionalTrimmedString,
+    location: optionalTrimmedString,
+    locationId: objectIdSchema.optional(),
+    state: optionalTrimmedString,
+    coordinates: coordinatesSchema.optional(),
+});
+
+export const smartAlertCriteriaSchema = smartAlertCriteriaBaseSchema
     .superRefine((data, ctx) => {
         if (
             typeof data.minPrice === 'number' &&
@@ -36,7 +37,7 @@ export const smartAlertCriteriaSchema = z
         }
     });
 
-export const smartAlertBodySchema = z
+export const smartAlertBodyBaseSchema = z
     .object({
         alertName: optionalTrimmedString,
         name: optionalTrimmedString,
@@ -47,6 +48,8 @@ export const smartAlertBodySchema = z
         notificationChannels: z.array(notificationChannelSchema).min(1).max(3).optional(),
     })
     .strict();
+
+export const smartAlertBodySchema = smartAlertBodyBaseSchema;
 
 const normalizeSmartAlertBody = (
     data: z.infer<typeof smartAlertBodySchema>,
