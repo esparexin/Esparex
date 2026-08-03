@@ -787,67 +787,76 @@ No pull request containing UI or workflow changes may be merged unless all appli
 
 ---
 
-# 🚨 ESPAREX PLATFORM GOVERNANCE FRAMEWORK (MANDATORY)
+# 🚨 ESPAREX PLATFORM ARCHITECTURE GOVERNANCE (v3.0 ENTERPRISE STANDARD)
 
-## Applies To
 
-This standard applies to **every feature, hook, application, component, capability, and workflow** across the Esparex multi-platform monorepo (`apps/web`, `apps/mobile`, `apps/admin`, `@esparex/ui`, `@esparex/core`).
+## Core Architectural Axiom
+
+> **Business rules must never depend on platform. Platform only changes how users interact with the system—not what the system does.**
+
+This standard applies to **every feature, hook, application, component, capability, and workflow** across the Esparex multi-platform monorepo (`apps/web`, `apps/mobile`, `apps/admin`, `@esparex/ui`, `@esparex/core`, `@esparex/contracts`).
 
 ---
 
-## 1. Feature Classification Framework (Pre-Implementation Requirement)
+## 1. Feature Classification Framework (Pre-Implementation Gate)
 
 Before writing any code, every feature MUST be classified into one of five architectural tiers:
 
 1. **Shared Business Logic:** Domain invariants, validation schemas, state machines, and calculations (`@esparex/core`, `@esparex/contracts`).
 2. **Shared UI / Design System:** Universal layout containers, typography, tokens, and presentation components (`@esparex/ui`).
-3. **Platform Capability:** Hardware and browser platform features accessed strictly through contract abstractions (`IPlatformCapability`).
-4. **Platform UX:** Native interaction patterns, gestures, navigation flows, and dialog behavior tailored to the target platform.
-5. **Platform Integration:** Low-level SDK bindings, OS permission guards, and platform-specific runtime handlers.
+3. **Platform Capability:** Device hardware and browser OS capabilities accessed strictly through contract abstractions (`IPlatformCapability`).
+4. **Platform Integration:** Cloud services, push notifications, payment gateways, and third-party SDK bindings.
+5. **Platform UX:** Native interaction patterns, gestures, navigation flows, and dialog behavior tailored to the target platform.
 
 Implementation MUST NOT begin until feature classification is documented.
 
 ---
 
-## 2. Platform Decision Matrix (Mandatory)
+## 2. Platform Architecture Decision Record (PADR)
 
-Every new feature MUST document the completed Platform Decision Matrix in its specification:
+Every non-trivial feature or platform interaction MUST document a Platform Architecture Decision Record (PADR) before implementation:
 
-| Dimension | Question | Status |
-| :--- | :--- | :---: |
-| **Business Logic** | Can this business logic be shared across all platforms in `@esparex/core`? | ✅ |
-| **Hardware Access** | Does this feature require device/browser hardware capability? | ✅ |
-| **User Expectations**| Does each target platform (Desktop Web, Mobile Web, Tablet, iOS, Android) have different native user expectations? | ✅ |
-| **Native OS/Browser**| Does the host browser or OS already provide a native interaction dialog for this action? | ✅ |
-| **UX Divergence** | Should the user interaction pattern differ by platform while keeping business logic 100% identical? | ✅ |
+| Dimension | Specification |
+| :--- | :--- |
+| **Business Workflow** | *e.g., Upload Listing Images / Initiate Chat Call / Authenticate User* |
+| **Shared Business Logic** | Yes (100% shared in `@esparex/core`) |
+| **Platform Capability** | `IPlatformMediaCapability` / `IPlatformBiometricsCapability` |
+| **Shared Contract Interface** | Defined in `@esparex/contracts` / `@esparex/shared` |
+| **Web Adapter (`apps/web`)** | Native OS File Browser Dialog (`<input type="file">`) |
+| **Android Adapter (`apps/mobile`)** | Native Android Media Store & Camera Picker |
+| **iOS Adapter (`apps/mobile`)** | Native iOS Photos & Camera Picker |
+| **Design System Impact** | Zero platform-specific dialog leaks in `@esparex/ui` |
 
 ---
 
-## 3. Canonical Platform Capability Registry
+## 3. Categorized Platform Registries
 
-Platform capabilities MUST NOT be invoked directly inside UI components. All capabilities MUST be registered under canonical contract abstractions:
+Capabilities and integrations MUST NOT be mixed. Every item belongs to exactly one canonical registry:
 
-```text
-Canonical Capability Registry
- ├── Media & File Picker (IPlatformMediaCapability)
- ├── Camera Capture (IPlatformCameraCapability)
- ├── File System Access (IPlatformFileCapability)
- ├── Clipboard Access (IPlatformClipboardCapability)
- ├── Share Sheet (IPlatformShareCapability)
- ├── Push & Local Notifications (IPlatformNotificationCapability)
- ├── Biometric Authentication (IPlatformBiometricsCapability)
- ├── GPS & Location (IPlatformLocationCapability)
- ├── Device Contacts (IPlatformContactsCapability)
- ├── In-App Payments (IPlatformPaymentCapability)
- ├── Deep Links & Routing (IPlatformDeepLinkCapability)
- ├── Storage & Cache (IPlatformStorageCapability)
- ├── Hardware Permissions (IPlatformPermissionCapability)
- ├── Haptic Feedback (IPlatformHapticsCapability)
- ├── Voice & Audio (IPlatformVoiceCapability)
- └── QR & Barcode Scanning (IPlatformScanCapability)
-```
+### A. Platform Capabilities (Hardware & OS Features)
+- Camera (`IPlatformCameraCapability`)
+- Media & File Picker (`IPlatformMediaCapability`)
+- File System (`IPlatformFileCapability`)
+- Clipboard (`IPlatformClipboardCapability`)
+- GPS & Geolocation (`IPlatformLocationCapability`)
+- Device Contacts (`IPlatformContactsCapability`)
+- Biometrics & Passkeys (`IPlatformBiometricsCapability`)
+- Storage & Cache (`IPlatformStorageCapability`)
+- Haptics & Vibration (`IPlatformHapticsCapability`)
+- Voice & Audio Capture (`IPlatformVoiceCapability`)
+- QR & Barcode Scanner (`IPlatformScannerCapability`)
 
-**Rule:** Every registered capability MUST have:
+### B. Platform Integrations (External Services & SDKs)
+- Push & Local Notifications (`IPushNotificationIntegration`)
+- Payment Gateways & In-App Purchases (`IPaymentIntegration`)
+- Auth Providers & OAuth (`IAuthIntegration`)
+- Maps & Geospatial SDKs (`IMapIntegration`)
+- Analytics & Telemetry (`ITelemetryIntegration`)
+- Deep Links & Universal Links (`IDeepLinkIntegration`)
+- Share Sheet & Intent Dispatch (`IShareIntegration`)
+- Background Tasks & Job Schedulers (`IBackgroundTaskIntegration`)
+
+**Rule:** Every registered capability or integration MUST have:
 - Exactly **one shared contract interface** in `@esparex/contracts` or `@esparex/shared`.
 - Exactly **one Web Adapter** (`apps/web`).
 - Exactly **one iOS Adapter** (`apps/mobile`).
@@ -855,48 +864,66 @@ Canonical Capability Registry
 
 ---
 
-## 4. Native Platform UX Principles
+## 4. Single Ownership & Capability Inversion
 
-1. **Browser-Native Rule:** Web platforms MUST use browser-native capabilities and interaction patterns. Mobile-native interaction patterns MUST NOT be introduced on web unless the browser itself natively provides them.
-2. **Never Duplicate Native OS Dialogs:** UI components MUST NOT recreate custom dialogs or modals for interactions that already exist natively at the OS or browser level (e.g. file choosers, web share sheets, print dialogs, or native biometric prompts).
-3. **Native Conventions First:** Shared business workflows MUST adapt their interaction patterns to match native platform conventions (e.g. desktop OS file explorer, iOS bottom sheets & Face ID, Android back button & haptics).
-4. **Responsive Layout ≠ Identical Interaction:** Responsive CSS layouts adapt component dimensions across breakpoints, but interaction modality (mouse hover vs touch gesture vs OS file dialog) MUST be governed by the Platform Capability Layer.
+Capabilities and integrations MUST have exactly **one canonical owner service**.
 
----
-
-## 5. Shared Component Isolation Rules
-
-Shared components render business workflows, input forms, and data entities. They MUST NOT contain platform-specific hardware branching or hardcoded hardware dialogs.
+Feature components (`ListingWizard`, `ChatThread`, `UserProfile`, `BusinessSettings`) are **forbidden** from implementing ad-hoc uploads, camera triggers, or biometric calls independently. They MUST consume the central capability provider.
 
 ```text
-❌ PROHIBITED: Hardcoded platform hardware behavior inside components
-ImageUploadComponent
- └── Hardcoded "Choose from Photo Gallery or Take Photo" Action Sheet (renders on Desktop Web!) ❌
-
-✅ MANDATORY: Capability Inversion Architecture
-ImageUploadComponent
- └── Requests IPlatformMediaCapability
-          ├── WebAdapter      ──► Native OS File Picker Dialog (<input type="file">)
-          ├── iOSAdapter      ──► Native iOS Photo Library / Camera Picker
-          └── AndroidAdapter  ──► Native Android Media Store / Camera Picker
+               Central Capability Owner
+              (PlatformMediaCapability)
+                          │
+         ┌────────────────┼────────────────┐
+         ▼                ▼                ▼
+    WebAdapter       iOSAdapter      AndroidAdapter
+         │                │                │
+         └────────────────┼────────────────┘
+                          ▼
+            Feature Consumers (Listing, Chat, User)
 ```
 
 ---
 
-## 6. Multi-Platform Verification Quality Gate
+## 5. Platform Anti-Patterns (Strictly Forbidden)
 
-No pull request containing platform or hardware capabilities may be merged unless all items pass verification:
+- ❌ **Mobile Dialog Leaks on Desktop:** Rendering mobile action sheets (e.g., "Choose from Gallery" or "Take Photo" modals) on desktop browsers.
+- ❌ **Hover-Only Dependencies on Touch:** Relying on mouse hover events for critical UX actions without touch-friendly fallbacks.
+- ❌ **Direct Hardware API Calls in UI:** Invoking `navigator.mediaDevices`, `window.location`, or `expo-image-picker` inside React UI components.
+- ❌ **Scattershot Platform Branching:** Inlining platform checks (`useIsMobile`, `Platform.OS === 'web'`) across feature components.
+- ❌ **Duplicate Capability Implementations:** Creating multiple feature-specific upload or camera handlers.
+- ❌ **Device-Specific Business Validation:** Applying different business validation rules or price calculation formulas based on the target OS.
 
-- [ ] **Web Desktop Verified:** Verified on Desktop Chrome/Safari. Clicking hardware/media capabilities uses browser-native patterns (e.g., native OS File Picker). Zero mobile hardware modals rendered.
+---
+
+## 6. Capability Lifecycle Protocol
+
+Every new platform capability or integration MUST follow this sequential 8-step lifecycle:
+
+```text
+Step 1: Need Identified ──► Step 2: Feature Classification & PADR ──► Step 3: Shared Contract Definition 
+                                                                               │
+Step 6: iOS Adapter Implementation ◄── Step 5: Android Adapter Implementation ◄── Step 4: Web Adapter Implementation
+          │
+          ▼
+Step 7: Multi-Platform Quality Gate Verification ──► Step 8: Documented Capability Release
+```
+
+---
+
+## 7. AI & Monorepo Code Generation Rule
+
+Before generating platform-specific code, AI agents and human developers **MUST** classify the feature according to the Platform Governance Framework, document a PADR, and reuse existing capability contracts instead of introducing new platform-specific implementations.
+
+---
+
+## 8. Multi-Platform Verification Quality Gate
+
+No pull request containing platform capabilities or integrations may be merged unless all items pass verification:
+
+- [ ] **Web Desktop Verified:** Verified on Desktop Chrome/Safari. Hardware/media capabilities use browser-native patterns (e.g., native OS File Picker). Zero mobile hardware dialogs rendered.
 - [ ] **Web Mobile Verified:** Verified responsive behavior and web capability fallbacks on mobile browsers.
 - [ ] **Tablet Web Verified:** Verified touch & pointer interaction parity on tablet viewports.
 - [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with native permission handling.
 - [ ] **Android Native Verified:** Verified native Android device/emulator behavior with native back button and permission handling.
-- [ ] **Parity Verification:** Business logic, validation rules, and API DTO contracts are 100% identical across all 5 platforms.
-
-
-
-
-
-
 
