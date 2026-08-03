@@ -178,7 +178,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                 </div>
             )}
 
-            <Field label="1. Select Category" error={getFirstFormErrorMessage(errors.categoryId as any)}>
+            <Field label="1. Select Category" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.categoryId as any)}>
                 <CategorySelectorGrid
                     categories={dynamicCategories}
                     selectedCategoryId={categoryId}
@@ -191,6 +191,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             {categoryId && (
                 <Field
                     label={`2. Select ${config.catalogLabel}`}
+                    labelClassName="text-sm font-medium"
                     error={catalogError}
                 >
                     <p className="mb-2 text-xs text-slate-500">
@@ -239,7 +240,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             )}
 
             {categoryId && (
-                <Field label="3. Brand / Manufacturer (Optional)" error={getFirstFormErrorMessage(errors.brandId as any)}>
+                <Field label="3. Brand / Manufacturer (Optional)" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.brandId as any)}>
                     <BrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
