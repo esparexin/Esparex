@@ -54,6 +54,7 @@ describe("listingDiscoveryContext", () => {
         expect(normalized.canSearch).toBe(true);
         expect(normalized.hasGeoPoint).toBe(true);
         expect(normalized.queryParams).toEqual({
+            city: "Bengaluru",
             locationId: LOCATION_ID,
             listingCategoryId: CATEGORY_ID,
             brandId: BRAND_ID,
