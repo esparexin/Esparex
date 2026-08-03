@@ -8,8 +8,8 @@ import { getNestedFieldMeta } from "../common/Utils";
 import { cn } from "@/components/ui/utils";
 
 const DEVICE_CONDITION_OPTIONS = [
-    { value: "power_on", label: "Power On", dot: "bg-emerald-500", active: "bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-600/20 font-bold" },
-    { value: "power_off", label: "Power Off", dot: "bg-rose-500", active: "bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-600/20 font-bold" },
+    { value: "power_on", label: "Power On", dot: "bg-emerald-500", active: "bg-emerald-600 text-white border-emerald-600 shadow-sm shadow-emerald-600/20" },
+    { value: "power_off", label: "Power Off", dot: "bg-rose-500", active: "bg-rose-600 text-white border-rose-600 shadow-sm shadow-rose-600/20" },
 ] as const;
 
 export function DeviceConditionSection() {
@@ -32,7 +32,7 @@ export function DeviceConditionSection() {
         <div className="space-y-4">
             {categoryId && (
                 <section className="space-y-2">
-                    <label className="text-tiny font-bold text-slate-400 uppercase tracking-wider block">Working Spare Parts</label>
+                    <label className="text-xs font-medium text-slate-400 uppercase tracking-wider block">Working Spare Parts</label>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-4 gap-2">
                             {Array.from({ length: 8 }).map((_, i) => (
@@ -63,7 +63,7 @@ export function DeviceConditionSection() {
                                         onClick={() => toggleSparePart(part.id as string)}
                                         aria-pressed={selected}
                                         className={cn(
-                                            "h-9 sm:h-10 px-3.5 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer select-none", 
+                                            "h-8 sm:h-9 px-3 rounded-xl border text-xs font-medium transition-all duration-200 cursor-pointer select-none", 
                                             selected 
                                                 ? "bg-blue-600 border-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20" 
                                                 : "bg-slate-50/80 border-slate-200/90 text-slate-700 hover:bg-slate-100 hover:border-slate-300"
@@ -89,7 +89,7 @@ export function DeviceConditionSection() {
                                 onClick={() => setValue("deviceCondition", value, { shouldValidate: true, shouldTouch: true })}
                                 aria-pressed={deviceCondition === value}
                                 className={cn(
-                                    "flex items-center gap-2.5 h-11 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 cursor-pointer select-none", 
+                                    "flex items-center gap-2.5 h-10 px-4 rounded-xl border-2 text-sm font-medium transition-all duration-200 cursor-pointer select-none", 
                                     deviceCondition === value ? active : "bg-white border-slate-200/90 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                                 )}
                             >
