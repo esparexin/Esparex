@@ -20,6 +20,7 @@ interface ListingImagesFieldProps {
     onUpload: (files: File[]) => void;
     onRemove: (idOrIndex: any) => void;
     onSetMain?: (index: number) => void;
+    onReorder?: (startIndex: number, endIndex: number) => void;
     firstImageBadgeLabel?: string;
     error?: string;
     helperText?: string;
@@ -31,12 +32,14 @@ export function ListingImagesField({
     onUpload,
     onRemove,
     onSetMain,
+    onReorder,
     firstImageBadgeLabel = "MAIN",
     error,
     helperText,
     disabled = false,
 }: ListingImagesFieldProps) {
     const [pickerOpen, setPickerOpen] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
 
@@ -144,7 +147,31 @@ export function ListingImagesField({
                         {images.map((img, index) => (
                             <div
                                 key={img.id || index}
-                                className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
+                                draggable={Boolean(onReorder && !disabled)}
+                                onDragStart={(e) => {
+                                    setDraggedIndex(index);
+                                    e.dataTransfer.effectAllowed = "move";
+                                    e.dataTransfer.setData("text/plain", String(index));
+                                }}
+                                onDragOver={(e) => {
+                                    if (onReorder) {
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = "move";
+                                    }
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    if (onReorder && draggedIndex !== null && draggedIndex !== index) {
+                                        onReorder(draggedIndex, index);
+                                    }
+                                    setDraggedIndex(null);
+                                }}
+                                onDragEnd={() => setDraggedIndex(null)}
+                                className={cn(
+                                    "relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs transition-transform",
+                                    onReorder && !disabled && "cursor-grab active:cursor-grabbing",
+                                    draggedIndex === index && "opacity-40 scale-95 border-primary border-dashed"
+                                )}
                             >
                                 <Image
                                     src={img.preview}
@@ -152,7 +179,7 @@ export function ListingImagesField({
                                     fill
                                     unoptimized
                                     sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
-                                    className="object-cover"
+                                    className="object-cover pointer-events-none"
                                 />
 
                                 {/* Mobile Always-Visible Remove Button / Desktop Hover Overlay */}
@@ -165,7 +192,7 @@ export function ListingImagesField({
                                                 onRemove(img.id ?? index);
                                             }}
                                             aria-label={getRemovePhotoAriaLabel(index, images.length)}
-                                            className="p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[32px] min-w-[32px] flex items-center justify-center"
+                                            className="p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
                                         >
                                             <X className="w-3.5 h-3.5" />
                                         </button>
@@ -177,7 +204,7 @@ export function ListingImagesField({
                                                 e.stopPropagation();
                                                 onSetMain(index);
                                             }}
-                                            className="w-full py-1 text-tiny font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation"
+                                            className="w-full py-1 text-tiny font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation cursor-pointer"
                                         >
                                             Set Main
                                         </button>

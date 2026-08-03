@@ -130,6 +130,19 @@ export function useListingImages({
         });
     }, []);
 
+    const reorderImages = useCallback((startIndex: number, endIndex: number) => {
+        if (startIndex === endIndex) return;
+        setListingImages(prev => {
+            if (startIndex < 0 || startIndex >= prev.length || endIndex < 0 || endIndex >= prev.length) return prev;
+            const copy = [...prev];
+            const [moved] = copy.splice(startIndex, 1);
+            if (moved) {
+                copy.splice(endIndex, 0, moved);
+            }
+            return copy;
+        });
+    }, []);
+
     const clearImages = useCallback(() => {
         setListingImages(prev => {
             prev.forEach(img => {
@@ -159,6 +172,7 @@ export function useListingImages({
         addImages,
         removeImage,
         setMainImage,
+        reorderImages,
         clearImages,
     }), [
         listingImages, 
@@ -168,6 +182,8 @@ export function useListingImages({
         setImageUploadError, 
         addImages, 
         removeImage, 
+        setMainImage,
+        reorderImages,
         clearImages
     ]);
 }

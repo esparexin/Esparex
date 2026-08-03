@@ -8,7 +8,7 @@ import { useCallback } from "react";
 export function ImageUploadSection() {
     const { listingImages, isUploadingImages, imageUploadError } = usePostAdImages();
     const { form, stepValidationAttempts } = usePostAdFlow();
-    const { addImages, removeImage, setMainImage } = usePostAdAction();
+    const { addImages, removeImage, setMainImage, reorderImages } = usePostAdAction();
 
     const { touchedFields, errors, submitCount } = form.formState;
     const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
@@ -30,6 +30,7 @@ export function ImageUploadSection() {
                 onUpload={addImages}
                 onRemove={removeImage}
                 onSetMain={setMainImage}
+                onReorder={reorderImages}
                 disabled={isUploadingImages}
                 firstImageBadgeLabel="MAIN PHOTO"
                 error={combinedError}
