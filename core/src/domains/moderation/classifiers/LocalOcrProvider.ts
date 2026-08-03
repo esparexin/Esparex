@@ -40,16 +40,21 @@ export class LocalOcrProvider implements Stage3Processor {
             phoneMatches.forEach((match) => detectedContacts.push({ type: 'PHONE', match: match.trim() }));
         }
 
-        // External URLs / domains
-        const urlMatches = text.match(this.urlPattern);
-        if (urlMatches) {
-            urlMatches.forEach((match) => detectedContacts.push({ type: 'URL', match: match.trim() }));
-        }
-
         // Email addresses
         const emailMatches = text.match(this.emailPattern);
-        if (emailMatches) {
-            emailMatches.forEach((match) => detectedContacts.push({ type: 'EMAIL', match: match.trim() }));
+        const emails = emailMatches ? emailMatches.map((m) => m.trim()) : [];
+        emails.forEach((match) => detectedContacts.push({ type: 'EMAIL', match }));
+
+        // External URLs / domains (exclude if match is part of an email address)
+        const urlMatches = text.match(this.urlPattern);
+        if (urlMatches) {
+            urlMatches.forEach((match) => {
+                const trimmed = match.trim();
+                const isPartOfEmail = emails.some((email) => email.includes(trimmed));
+                if (!isPartOfEmail) {
+                    detectedContacts.push({ type: 'URL', match: trimmed });
+                }
+            });
         }
 
         // Social / messaging handles
