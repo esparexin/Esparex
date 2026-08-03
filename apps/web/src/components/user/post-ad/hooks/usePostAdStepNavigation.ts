@@ -90,6 +90,8 @@ export function usePostAdStepNavigation({
                 const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
                 if (scrollTarget) {
                     scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+                    const focusable = scrollTarget.querySelector("input, select, textarea, button") as HTMLElement | null;
+                    focusable?.focus();
                 }
             });
             return;
@@ -125,6 +127,8 @@ export function usePostAdStepNavigation({
             const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
             if (scrollTarget) {
                 scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+                const focusable = scrollTarget.querySelector("input, select, textarea, button") as HTMLElement | null;
+                focusable?.focus();
             }
         });
     }, [
