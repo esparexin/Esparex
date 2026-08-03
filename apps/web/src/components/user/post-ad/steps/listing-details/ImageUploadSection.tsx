@@ -1,25 +1,15 @@
 "use client";
 
-import { usePostAdImages, usePostAdFlow, usePostAdAction } from "../../context";
-import { ListingImagesField, getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
-import { getNestedFieldMeta } from "../common/Utils";
-import { useCallback } from "react";
+import { usePostAdImages, usePostAdAction } from "../../context";
+import { ListingImagesField } from "@/components/user/shared/ListingFormFields";
+import { useStepFieldError } from "../common/Utils";
 
 export function ImageUploadSection() {
     const { listingImages, isUploadingImages, imageUploadError } = usePostAdImages();
-    const { form, stepValidationAttempts } = usePostAdFlow();
     const { addImages, removeImage, setMainImage, reorderImages } = usePostAdAction();
 
-    const { touchedFields, errors, submitCount } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
-    const hasAttemptedSubmit = submitCount > 0;
-
-    const shouldShowFieldError = useCallback((path: string) => {
-        if (hasAttemptedSubmit || hasAttemptedStepValidation) return true;
-        return Boolean(getNestedFieldMeta(touchedFields, path));
-    }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields]);
-
-    const imagesError = shouldShowFieldError("images") ? getFirstFormErrorMessage(errors.images) : undefined;
+    const getFieldError = useStepFieldError(2);
+    const imagesError = getFieldError("images");
     const combinedError = imageUploadError || imagesError;
 
     return (

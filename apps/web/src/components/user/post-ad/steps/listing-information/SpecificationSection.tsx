@@ -3,24 +3,20 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
-import { getNestedFieldMeta } from "../common/Utils";
+import { useStepFieldError } from "../common/Utils";
 import { cn } from "@/components/ui/utils";
 import { getVisibleAttributeFilters, renderAttributeField } from "../common/attribute-fields";
 
 export function SpecificationSection() {
     const { categorySchema, requiresScreenSize, availableSizes } = usePostAdCatalog();
-    const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
+    const { isEditMode, form } = usePostAdFlow();
     const { watch, setValue } = usePostAdAction();
 
     const attributes = watch("attributes") as Record<string, unknown> | undefined;
     const screenSize = String(watch("screenSize") || "");
 
-    const { touchedFields } = form.formState;
-    const { errors } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]);
-
-    const shouldShowFieldError = useCallback((path: string) => hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, path)), [hasAttemptedStepValidation, touchedFields]);
-    const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
+    const getFieldError = useStepFieldError(1);
+    const screenSizeError = getFieldError("screenSize");
 
     const onScreenSizeChange = useCallback((val: string) => {
         setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
@@ -48,7 +44,7 @@ export function SpecificationSection() {
                         {dynamicAttributeFilters.map((f) => renderAttributeField(
                             f, 
                             getAttributeValue(attributes, f.id) ?? f.defaultValue, 
-                            shouldShowFieldError(`attributes.${f.id}`) ? (getNestedFieldMeta(errors, `attributes.${f.id}.message`) as string | undefined) : undefined, 
+                            getFieldError(`attributes.${f.id}`), 
                             updateAttribute
                         ))}
                     </div>

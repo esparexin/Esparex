@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { useCallback } from "react";
 import { usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,23 +8,15 @@ import { Button } from "@esparex/ui";
 import { Loader2 } from "@/icons/IconRegistry";
 import { MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta, CharCounter } from "../common/Utils";
+import { useStepFieldError, CharCounter } from "../common/Utils";
 
 export function DescriptionSection() {
     const { register } = useFormContext<PostAdFormData>();
-    const { isGeneratingAI, isAiAvailable, form, stepValidationAttempts } = usePostAdFlow();
+    const { isGeneratingAI, isAiAvailable } = usePostAdFlow();
     const { generateDescription } = usePostAdAction();
 
-    const { touchedFields, errors, submitCount } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
-    const hasAttemptedSubmit = submitCount > 0;
-
-    const shouldShowFieldError = useCallback((path: string) => {
-        if (hasAttemptedSubmit || hasAttemptedStepValidation) return true;
-        return Boolean(getNestedFieldMeta(touchedFields, path));
-    }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields]);
-
-    const descriptionError = shouldShowFieldError("description") ? errors.description?.message : undefined;
+    const getFieldError = useStepFieldError(2);
+    const descriptionError = getFieldError("description");
 
     return (
         <section className="space-y-3" aria-labelledby="description-heading">
