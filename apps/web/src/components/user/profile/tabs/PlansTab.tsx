@@ -3,6 +3,7 @@ import { Button } from "@esparex/ui";
 import { Star, Package, Bell } from "@/icons/IconRegistry";
 import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
+import { getPlanDisplayName } from "./PurchasesTab";
 import type { ProfilePlan, ProfilePlanType } from "../types";
 
 type PlanCard = Omit<ProfilePlan, "type"> & { type: string };
@@ -124,7 +125,7 @@ function PlanCardView({
                     {activeConfig.icon}
                 </div>
                 <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                    {plan.name}
+                    {getPlanDisplayName(plan.name)}
                 </h3>
                 <p className="text-tiny text-slate-500 mt-0.5 leading-relaxed">
                     {activeConfig.description}
@@ -135,7 +136,7 @@ function PlanCardView({
             <div className="text-center my-2">
                 <div className="flex items-baseline justify-center gap-1">
                     <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                        {formatCurrency(plan.price)}
+                        {plan.price === 0 ? "Free" : formatCurrency(plan.price)}
                     </span>
                 </div>
                 <span className="text-tiny font-medium text-slate-400 block mt-0.5">

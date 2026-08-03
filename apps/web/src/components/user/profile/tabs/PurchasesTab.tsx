@@ -13,6 +13,19 @@ interface PurchasesTabProps {
     loading?: boolean;
 }
 
+const PLAN_DISPLAY_NAMES: Record<string, string> = {
+    USER_DEFAULT_PLAN: "Free Plan",
+    USER_PREMIUM_PLAN: "Premium Plan",
+    BUSINESS_BASIC: "Business Basic",
+    BUSINESS_PRO: "Business Pro",
+};
+
+export const getPlanDisplayName = (rawName?: string): string => {
+    if (!rawName) return "Plan";
+    if (PLAN_DISPLAY_NAMES[rawName]) return PLAN_DISPLAY_NAMES[rawName];
+    return rawName.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 export function PurchasesTab({
     purchaseHistory,
     setActiveTab,
@@ -48,24 +61,24 @@ export function PurchasesTab({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex overflow-x-auto gap-3 pb-1 no-scrollbar touch-pan-x md:grid md:grid-cols-3 md:gap-4 text-center">
-                        <div className="min-w-[110px] shrink-0 md:min-w-0 md:shrink">
-                            <p className="text-2xl font-bold text-purple-600">
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="p-2 rounded-xl bg-purple-100/50">
+                            <p className="text-xl sm:text-2xl font-bold text-purple-600">
                                 {activeEntitlements}
                             </p>
-                            <p className="text-xs text-muted-foreground whitespace-nowrap">Active Entitlements</p>
+                            <p className="text-xs text-muted-foreground truncate">Active</p>
                         </div>
-                        <div className="min-w-[110px] shrink-0 md:min-w-0 md:shrink">
-                            <p className="text-2xl font-bold text-link">
+                        <div className="p-2 rounded-xl bg-blue-100/50">
+                            <p className="text-xl sm:text-2xl font-bold text-link">
                                 {pendingOrders}
                             </p>
-                            <p className="text-xs text-muted-foreground whitespace-nowrap">Pending</p>
+                            <p className="text-xs text-muted-foreground truncate">Pending</p>
                         </div>
-                        <div className="min-w-[110px] shrink-0 md:min-w-0 md:shrink">
-                            <p className="text-2xl font-bold text-emerald-600">
+                        <div className="p-2 rounded-xl bg-emerald-100/50">
+                            <p className="text-xl sm:text-2xl font-bold text-emerald-600">
                                 {successfulOrders}
                             </p>
-                            <p className="text-xs text-muted-foreground whitespace-nowrap">Successful</p>
+                            <p className="text-xs text-muted-foreground truncate">Successful</p>
                         </div>
                     </div>
                 </CardContent>
@@ -95,40 +108,43 @@ export function PurchasesTab({
                             </Button>
                         </div>
                     ) : (
-                        purchaseHistory.map((purchase) => (
-                            <div key={purchase.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="font-semibold text-sm">{purchase.planSnapshot?.name || "Premium Plan"}</h4>
-                                            {purchase.status === "SUCCESS" && (
-                                                <StatusChip status="delivered" label="Delivered" />
-                                            )}
-                                            {purchase.status === "INITIATED" && (
-                                                <StatusChip status="initiated" label="Initiated" />
-                                            )}
-                                            {purchase.status === "FAILED" && (
-                                                <StatusChip status="failed" label="Failed" />
-                                            )}
+                        purchaseHistory.map((purchase) => {
+                            const displayAmount = purchase.amount === 0 ? "Free" : formatCurrency(purchase.amount);
+                            const planTitle = getPlanDisplayName(purchase.planSnapshot?.name);
+
+                            return (
+                                <div key={purchase.id} className="border rounded-xl p-3.5 sm:p-4 hover:bg-gray-50/70 transition-colors">
+                                    <div className="flex items-start justify-between gap-3 min-w-0">
+                                        <div className="flex-1 min-w-0 space-y-1">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <h4 className="font-semibold text-sm text-slate-900 truncate">{planTitle}</h4>
+                                                {purchase.status === "SUCCESS" && (
+                                                    <StatusChip status="delivered" label="Delivered" />
+                                                )}
+                                                {purchase.status === "INITIATED" && (
+                                                    <StatusChip status="initiated" label="Initiated" />
+                                                )}
+                                                {purchase.status === "FAILED" && (
+                                                    <StatusChip status="failed" label="Failed" />
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+                                                <span>Purchased: {formatDate(purchase.createdAt)}</span>
+                                                {purchase.validUntil && (
+                                                    <>
+                                                        <span>•</span>
+                                                        <span>Valid Until: {formatDate(purchase.validUntil)}</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <p className="text-xs text-slate-400 truncate font-mono pt-0.5">Order ID: {purchase.gatewayOrderId || purchase.id}</p>
                                         </div>
-                                        <p className="text-xs text-muted-foreground">Order ID: {purchase.gatewayOrderId || purchase.id}</p>
-                                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                            <span>Purchased: {formatDate(purchase.createdAt)}</span>
-                                            {purchase.validUntil && (
-                                                <>
-                                                    <span>•</span>
-                                                    <span>Valid Until: {formatDate(purchase.validUntil)}</span>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-lg text-purple-600">{formatCurrency(purchase.amount)}</p>
-                                        <div className="flex items-center gap-2 mt-2">
+                                        <div className="text-right shrink-0 flex flex-col items-end justify-between">
+                                            <p className="font-bold text-base text-purple-600">{displayAmount}</p>
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                className="h-11 text-xs gap-1"
+                                                className="h-8 text-xs gap-1 px-2.5 mt-2 rounded-lg"
                                                 onClick={async () => {
                                                     try {
                                                         const { downloadInvoice } = await import("@/lib/api/user/payments");
@@ -145,8 +161,8 @@ export function PurchasesTab({
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </CardContent>
             </Card>
