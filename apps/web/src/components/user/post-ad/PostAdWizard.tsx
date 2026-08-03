@@ -12,6 +12,7 @@ import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
 import { ValidationSummary } from "./steps/common/ValidationSummary";
 import { DraftRestoreBanner } from "./steps/common/DraftRestoreBanner";
+import { StepProgressBar } from "./steps/common/StepProgressBar";
 import { useNavigation } from "@/context/NavigationContext";
 import { usePostingEntitlement } from "@/hooks/usePostingEntitlement";
 import { EntitlementExhaustedShell } from "@/components/user/shared/EntitlementExhaustedShell";
@@ -83,6 +84,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         onClose={handleClose}
       >
         <ListingModalBody id="post-ad-content" data-post-ad-scroll className="space-y-4">
+          <StepProgressBar />
           <DraftRestoreBanner />
           <ValidationSummary />
 
