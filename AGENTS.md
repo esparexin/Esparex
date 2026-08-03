@@ -787,7 +787,7 @@ No pull request containing UI or workflow changes may be merged unless all appli
 
 ---
 
-# 🚨 PLATFORM-AWARE ENGINEERING STANDARD (MANDATORY)
+# 🚨 ESPAREX PLATFORM GOVERNANCE FRAMEWORK (MANDATORY)
 
 ## Applies To
 
@@ -795,69 +795,105 @@ This standard applies to **every feature, hook, application, component, capabili
 
 ---
 
-## The 7 Core Governance Principles
+## 1. Feature Classification Framework (Pre-Implementation Requirement)
 
-1. **Business Logic is Platform Independent:**
-   Shared business rules, domain invariants, validation schemas, and state management MUST remain 100% platform-agnostic in `@esparex/core` and `@esparex/contracts`.
+Before writing any code, every feature MUST be classified into one of five architectural tiers:
 
-2. **Platform Capabilities via Shared Contracts Only:**
-   Platform capabilities (Camera, Files/Media, Clipboard, GPS/Location, Notifications, Biometrics, Payments, Contacts, Share, Deep Links, Permissions, Storage, Haptics, Voice, Scanning, Authentication) MUST be accessed strictly through shared contract abstractions (`IPlatformCapability`).
+1. **Shared Business Logic:** Domain invariants, validation schemas, state machines, and calculations (`@esparex/core`, `@esparex/contracts`).
+2. **Shared UI / Design System:** Universal layout containers, typography, tokens, and presentation components (`@esparex/ui`).
+3. **Platform Capability:** Hardware and browser platform features accessed strictly through contract abstractions (`IPlatformCapability`).
+4. **Platform UX:** Native interaction patterns, gestures, navigation flows, and dialog behavior tailored to the target platform.
+5. **Platform Integration:** Low-level SDK bindings, OS permission guards, and platform-specific runtime handlers.
 
-3. **UI Components Never Directly Invoke Hardware APIs:**
-   React/UI components MUST NOT directly invoke platform hardware or browser APIs (e.g. `navigator.mediaDevices`, `expo-image-picker`, `window.location`). They MUST delegate capability requests to the platform capability adapter layer.
-
-4. **Platform-Specific UX Follows Native Conventions:**
-   Platform interactions MUST adapt to the host platform environment (Desktop Web, Mobile Web, Tablet, iOS Native, Android Native).
-   - **Desktop Web Rule:** Desktop interfaces MUST NOT render mobile-only hardware dialogs (e.g. showing "Choose from Gallery" or "Take Photo" modals). Desktop media requests MUST trigger the native OS File Dialog directly.
-   - **Native Mobile Rule:** iOS and Android interfaces MUST utilize native hardware pickers (Camera / Photo Library / Face ID) with native permission handling.
-
-5. **Shared Components Render Business Workflows, Not Platform Interactions:**
-   Shared components render business steps, input forms, and data entities. They do not own or dictate platform-specific hardware popups or hardware interactions.
-
-6. **Native Experience Under Identical Business Invariants:**
-   Every platform implementation (Web, Desktop, iOS, Android) MUST satisfy identical business validation rules, contracts, and APIs while delivering a native, platform-appropriate user experience.
-
-7. **Capability Adapter Extension for New Platforms:**
-   Adding support for a new platform (e.g. macOS desktop app, Windows native app, Vision Pro, Android TV) MUST require ONLY adding a new capability adapter implementation, with ZERO modifications to shared business logic or domain code.
+Implementation MUST NOT begin until feature classification is documented.
 
 ---
 
-## Architectural Layering Model
+## 2. Platform Decision Matrix (Mandatory)
+
+Every new feature MUST document the completed Platform Decision Matrix in its specification:
+
+| Dimension | Question | Status |
+| :--- | :--- | :---: |
+| **Business Logic** | Can this business logic be shared across all platforms in `@esparex/core`? | ✅ |
+| **Hardware Access** | Does this feature require device/browser hardware capability? | ✅ |
+| **User Expectations**| Does each target platform (Desktop Web, Mobile Web, Tablet, iOS, Android) have different native user expectations? | ✅ |
+| **Native OS/Browser**| Does the host browser or OS already provide a native interaction dialog for this action? | ✅ |
+| **UX Divergence** | Should the user interaction pattern differ by platform while keeping business logic 100% identical? | ✅ |
+
+---
+
+## 3. Canonical Platform Capability Registry
+
+Platform capabilities MUST NOT be invoked directly inside UI components. All capabilities MUST be registered under canonical contract abstractions:
 
 ```text
-Business Logic (Platform Independent — @esparex/core)
-        ↓
-Capability Abstraction (Platform Contracts — @esparex/shared / @esparex/contracts)
-        ↓
-Platform Implementation (Web Adapter | iOS Adapter | Android Adapter)
+Canonical Capability Registry
+ ├── Media & File Picker (IPlatformMediaCapability)
+ ├── Camera Capture (IPlatformCameraCapability)
+ ├── File System Access (IPlatformFileCapability)
+ ├── Clipboard Access (IPlatformClipboardCapability)
+ ├── Share Sheet (IPlatformShareCapability)
+ ├── Push & Local Notifications (IPlatformNotificationCapability)
+ ├── Biometric Authentication (IPlatformBiometricsCapability)
+ ├── GPS & Location (IPlatformLocationCapability)
+ ├── Device Contacts (IPlatformContactsCapability)
+ ├── In-App Payments (IPlatformPaymentCapability)
+ ├── Deep Links & Routing (IPlatformDeepLinkCapability)
+ ├── Storage & Cache (IPlatformStorageCapability)
+ ├── Hardware Permissions (IPlatformPermissionCapability)
+ ├── Haptic Feedback (IPlatformHapticsCapability)
+ ├── Voice & Audio (IPlatformVoiceCapability)
+ └── QR & Barcode Scanning (IPlatformScanCapability)
+```
+
+**Rule:** Every registered capability MUST have:
+- Exactly **one shared contract interface** in `@esparex/contracts` or `@esparex/shared`.
+- Exactly **one Web Adapter** (`apps/web`).
+- Exactly **one iOS Adapter** (`apps/mobile`).
+- Exactly **one Android Adapter** (`apps/mobile`).
+
+---
+
+## 4. Native Platform UX Principles
+
+1. **Browser-Native Rule:** Web platforms MUST use browser-native capabilities and interaction patterns. Mobile-native interaction patterns MUST NOT be introduced on web unless the browser itself natively provides them.
+2. **Never Duplicate Native OS Dialogs:** UI components MUST NOT recreate custom dialogs or modals for interactions that already exist natively at the OS or browser level (e.g. file choosers, web share sheets, print dialogs, or native biometric prompts).
+3. **Native Conventions First:** Shared business workflows MUST adapt their interaction patterns to match native platform conventions (e.g. desktop OS file explorer, iOS bottom sheets & Face ID, Android back button & haptics).
+4. **Responsive Layout ≠ Identical Interaction:** Responsive CSS layouts adapt component dimensions across breakpoints, but interaction modality (mouse hover vs touch gesture vs OS file dialog) MUST be governed by the Platform Capability Layer.
+
+---
+
+## 5. Shared Component Isolation Rules
+
+Shared components render business workflows, input forms, and data entities. They MUST NOT contain platform-specific hardware branching or hardcoded hardware dialogs.
+
+```text
+❌ PROHIBITED: Hardcoded platform hardware behavior inside components
+ImageUploadComponent
+ └── Hardcoded "Choose from Photo Gallery or Take Photo" Action Sheet (renders on Desktop Web!) ❌
+
+✅ MANDATORY: Capability Inversion Architecture
+ImageUploadComponent
+ └── Requests IPlatformMediaCapability
+          ├── WebAdapter      ──► Native OS File Picker Dialog (<input type="file">)
+          ├── iOSAdapter      ──► Native iOS Photo Library / Camera Picker
+          └── AndroidAdapter  ──► Native Android Media Store / Camera Picker
 ```
 
 ---
 
-## Platform UX Decision Matrix (Required Before Implementation)
+## 6. Multi-Platform Verification Quality Gate
 
-Every non-trivial feature MUST answer the Platform UX Decision Matrix before implementation:
+No pull request containing platform or hardware capabilities may be merged unless all items pass verification:
 
-| Dimension | Question | Status |
-| :--- | :--- | :---: |
-| **Domain** | Is this business logic shared in `@esparex/core`? | ✅ |
-| **Contracts** | Is the contract defined in `@esparex/contracts`? | ✅ |
-| **Hardware** | Does this require device/browser hardware capability? | ✅ |
-| **Abstraction**| Is the capability behind a platform adapter interface? | ✅ |
-| **Desktop UX** | Does Desktop Web use native OS File/Browser dialogs (no mobile modals)? | ✅ |
-| **Mobile UX**  | Does Native Mobile use native device pickers & permissions? | ✅ |
+- [ ] **Web Desktop Verified:** Verified on Desktop Chrome/Safari. Clicking hardware/media capabilities uses browser-native patterns (e.g., native OS File Picker). Zero mobile hardware modals rendered.
+- [ ] **Web Mobile Verified:** Verified responsive behavior and web capability fallbacks on mobile browsers.
+- [ ] **Tablet Web Verified:** Verified touch & pointer interaction parity on tablet viewports.
+- [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with native permission handling.
+- [ ] **Android Native Verified:** Verified native Android device/emulator behavior with native back button and permission handling.
+- [ ] **Parity Verification:** Business logic, validation rules, and API DTO contracts are 100% identical across all 5 platforms.
 
----
-
-## Multi-Platform Pull Request Quality Gate
-
-No PR containing platform or hardware capabilities may be merged unless all items are confirmed:
-
-- [ ] **Desktop Browser Verified:** Verified on Desktop Chrome/Safari. Clicking media/files opens native OS File Picker directly. Zero mobile hardware modals rendered.
-- [ ] **Mobile Web Verified:** Verified responsive behavior on mobile browsers.
-- [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with permission guards.
-- [ ] **Android Native Verified:** Verified native Android device/emulator behavior with permission guards.
-- [ ] **Capability Inversion:** Components consume platform capability adapters; zero inline hardware API calls inside UI components.
 
 
 
