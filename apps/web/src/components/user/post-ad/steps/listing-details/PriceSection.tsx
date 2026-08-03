@@ -1,28 +1,17 @@
 "use client";
 
 import { useFormContext, useWatch } from "react-hook-form";
-import { usePostAdFlow } from "../../context";
 import { ListingPriceField } from "@/components/user/shared/ListingFormFields";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta } from "../common/Utils";
+import { useStepFieldError } from "../common/Utils";
 import { useCallback } from "react";
 
 export function PriceSection() {
     const { register, setValue, trigger } = useFormContext<PostAdFormData>();
-    const { form, stepValidationAttempts } = usePostAdFlow();
-
     const isFree = useWatch({ name: "isFree" });
 
-    const { touchedFields, errors, submitCount } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
-    const hasAttemptedSubmit = submitCount > 0;
-
-    const shouldShowFieldError = useCallback((path: string) => {
-        if (hasAttemptedSubmit || hasAttemptedStepValidation) return true;
-        return Boolean(getNestedFieldMeta(touchedFields, path));
-    }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields]);
-
-    const priceError = shouldShowFieldError("price") ? errors.price?.message : undefined;
+    const getFieldError = useStepFieldError(2);
+    const priceError = getFieldError("price");
 
     const toggleFree = useCallback(() => {
         const nextVal = !isFree;
@@ -41,7 +30,13 @@ export function PriceSection() {
                 label="Set your price"
                 required
                 error={priceError as string}
-                registerProps={register("price", { valueAsNumber: true })}
+                registerProps={register("price", {
+                    setValueAs: (v: unknown) => {
+                        if (v === "" || v === null || v === undefined) return undefined;
+                        const n = parseFloat(String(v));
+                        return isNaN(n) ? undefined : n;
+                    },
+                })}
                 placeholder="Enter amount"
                 showCurrencySymbol
                 isFree={isFree}

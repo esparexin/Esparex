@@ -14,6 +14,7 @@ import { cn } from "@/components/ui/utils";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 import { useImageDropzone } from "./useImageDropzone";
 import { UploadSourcePicker } from "./UploadSourcePicker";
+import { useIsMobileDevice } from "@/components/ui/useMobile";
 
 interface ListingImagesFieldProps {
     images: ListingImage[];
@@ -42,12 +43,20 @@ export function ListingImagesField({
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
+    const isMobileDevice = useIsMobileDevice();
 
     const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload, disabled });
 
     const handleOpenPicker = () => {
         if (disabled || pickerOpen) return;
-        setPickerOpen(true);
+        if (isMobileDevice) {
+            setPickerOpen(true);
+        } else {
+            if (galleryInputRef.current) {
+                galleryInputRef.current.value = "";
+                galleryInputRef.current.click();
+            }
+        }
     };
 
     const handleCamera = () => {
@@ -65,7 +74,7 @@ export function ListingImagesField({
     };
 
     return (
-        <Field label="Photos (up to 10)" error={error}>
+        <Field label="Photos (up to 10)" labelClassName="text-sm font-medium" error={error}>
             <div className="space-y-3">
                 <div
                     {...dropzoneProps}
@@ -245,7 +254,7 @@ export function ListingLocationField({
     helperText,
 }: ListingLocationFieldProps) {
     return (
-        <Field label="Listing Location" error={error}>
+        <Field label="Listing Location" labelClassName="text-sm font-medium" error={error}>
             <div className="space-y-2">
                 {display ? (
                     <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-foreground-secondary">
@@ -287,7 +296,7 @@ interface ListingTitleFieldProps {
 }
 export function ListingTitleField({ label, error, required = true, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
     return (
-        <Field label={label} error={error} required={required}>
+        <Field label={label} labelClassName="text-sm font-medium" error={error} required={required}>
             <div className="relative">
                 <Input
                     {...registerProps}
@@ -329,15 +338,17 @@ export function ListingPriceField({
     disabled = false,
 }: ListingPriceFieldProps) {
     return (
-        <Field label={label} error={error} required={required}>
+        <Field label={label} labelClassName="text-sm font-medium" error={error} required={required}>
             <div className="flex flex-row gap-3">
                 <div className="relative flex-1 min-w-0">
                     {showCurrencySymbol && (
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
                     )}
                     <Input
-                        type="number"
-                        min={0}
+                        type="text"
+                        inputMode="decimal"
+                        pattern="[0-9]*"
+                        autoComplete="off"
                         disabled={disabled || isFree}
                         {...registerProps}
                         placeholder={placeholder}
@@ -394,7 +405,7 @@ interface ListingDescriptionFieldProps {
 }
 export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
     return (
-        <Field label={label} error={error} required={required}>
+        <Field label={label} labelClassName="text-sm font-medium" error={error} required={required}>
             <div className="relative">
                 <Textarea
                     {...registerProps}

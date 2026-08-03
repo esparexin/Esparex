@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
-import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
+import { usePostAdCatalog, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { Button } from "@esparex/ui";
-import { getNestedFieldMeta } from "../common/Utils";
+import { useStepFieldError } from "../common/Utils";
 import { cn } from "@/components/ui/utils";
 
 const DEVICE_CONDITION_OPTIONS = [
@@ -14,19 +13,14 @@ const DEVICE_CONDITION_OPTIONS = [
 
 export function DeviceConditionSection() {
     const { availableSpareParts, isLoadingSpareParts, sparePartsError } = usePostAdCatalog();
-    const { form, stepValidationAttempts } = usePostAdFlow();
     const { watch, setValue, toggleSparePart, loadSparePartsForCategory } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const deviceCondition = watch("deviceCondition");
     const spareParts = (watch("spareParts") || []) as string[];
 
-    const { touchedFields } = form.formState;
-    const { errors } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]);
-
-    const shouldShowFieldError = useCallback((path: string) => hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, path)), [hasAttemptedStepValidation, touchedFields]);
-    const deviceConditionError = shouldShowFieldError("deviceCondition") ? errors.deviceCondition?.message : undefined;
+    const getFieldError = useStepFieldError(1);
+    const deviceConditionError = getFieldError("deviceCondition");
 
     return (
         <div className="space-y-4">
@@ -80,7 +74,7 @@ export function DeviceConditionSection() {
 
             <section className="space-y-2" data-field="deviceCondition" aria-labelledby="condition-heading">
                 <h2 id="condition-heading" className="sr-only">Device Condition</h2>
-                <Field label="Device Condition" error={deviceConditionError as string}>
+                <Field label="Device Condition" labelClassName="text-sm font-medium" error={deviceConditionError as string}>
                     <div className="flex gap-2 flex-wrap">
                         {DEVICE_CONDITION_OPTIONS.map(({ value, label, dot, active }) => (
                             <button 

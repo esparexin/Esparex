@@ -10,7 +10,6 @@ import { cn } from "@/components/ui/utils";
 import { Button, Spinner } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
-import { ValidationSummary } from "./steps/common/ValidationSummary";
 import { useNavigation } from "@/context/NavigationContext";
 import { usePostingEntitlement } from "@/hooks/usePostingEntitlement";
 import { EntitlementExhaustedShell } from "@/components/user/shared/EntitlementExhaustedShell";
@@ -82,7 +81,6 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
         onClose={handleClose}
       >
         <ListingModalBody id="post-ad-content" data-post-ad-scroll className="space-y-4">
-          <ValidationSummary />
 
           <div className={cn(currentStep !== 1 && "hidden")}>
             <StepOne />
