@@ -41,7 +41,13 @@ export function PriceSection() {
                 label="Set your price"
                 required
                 error={priceError as string}
-                registerProps={register("price", { valueAsNumber: true })}
+                registerProps={register("price", {
+                setValueAs: (v: unknown) => {
+                    if (v === "" || v === null || v === undefined) return undefined;
+                    const n = parseFloat(String(v));
+                    return isNaN(n) ? undefined : n;
+                },
+            })}
                 placeholder="Enter amount"
                 showCurrencySymbol
                 isFree={isFree}

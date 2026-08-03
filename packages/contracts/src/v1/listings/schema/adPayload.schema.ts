@@ -52,8 +52,17 @@ export const BaseAdPayloadSchema = z.object({
         }),
 
     price: z.preprocess(
-        (val) => (typeof val === 'string' ? parseFloat(val) : val),
-        z.number().min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore')
+        (val) => {
+            if (typeof val !== 'string') return val;
+            const trimmed = val.trim();
+            if (trimmed === '') return undefined;
+            const n = parseFloat(trimmed);
+            return isNaN(n) ? undefined : n;
+        },
+        z.number({
+            required_error: 'Price is required',
+            invalid_type_error: 'Enter a valid price',
+        }).min(1, 'Price must be at least ₹1').max(10_000_000, 'Price cannot exceed ₹1 crore')
     ),
     images: z
         .array(z.string())

@@ -14,6 +14,7 @@ import { cn } from "@/components/ui/utils";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 import { useImageDropzone } from "./useImageDropzone";
 import { UploadSourcePicker } from "./UploadSourcePicker";
+import { useIsMobileDevice } from "@/components/ui/useMobile";
 
 interface ListingImagesFieldProps {
     images: ListingImage[];
@@ -42,12 +43,20 @@ export function ListingImagesField({
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
+    const isMobileDevice = useIsMobileDevice();
 
     const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload, disabled });
 
     const handleOpenPicker = () => {
         if (disabled || pickerOpen) return;
-        setPickerOpen(true);
+        if (isMobileDevice) {
+            setPickerOpen(true);
+        } else {
+            if (galleryInputRef.current) {
+                galleryInputRef.current.value = "";
+                galleryInputRef.current.click();
+            }
+        }
     };
 
     const handleCamera = () => {
@@ -336,8 +345,10 @@ export function ListingPriceField({
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
                     )}
                     <Input
-                        type="number"
-                        min={0}
+                        type="text"
+                        inputMode="decimal"
+                        pattern="[0-9]*"
+                        autoComplete="off"
                         disabled={disabled || isFree}
                         {...registerProps}
                         placeholder={placeholder}
