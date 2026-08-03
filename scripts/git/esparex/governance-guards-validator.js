@@ -25,10 +25,14 @@ function run(val) {
     } catch (e) {
       const output = (e.stdout || '') + (e.stderr || '');
       const firstLine = output.trim().split('\n').find(l => l.includes('❌') || l.includes('FAIL') || l.includes('Check Failed')) || `${g.name} check failed`;
-      val.warning(`Governance Guard Warning [${g.name}]: ${firstLine.trim()}`);
+      val.error(`Governance Guard Error [${g.name}]: ${firstLine.trim()}`);
     }
   }
-  val.info(`Platform Governance Guards Suite executed (${passedCount}/${GUARDS.length} passed)`);
+  if (passedCount === GUARDS.length) {
+    val.info(`Platform Governance Guards Suite executed (${passedCount}/${GUARDS.length} passed)`);
+  } else {
+    val.error(`Platform Governance Guards Suite failed (${passedCount}/${GUARDS.length} passed)`);
+  }
 }
 
 if (require.main === module) {
