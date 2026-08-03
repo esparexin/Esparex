@@ -834,7 +834,9 @@ Is this business logic, domain calculation, or validation?
 For full platform governance specifications, decision records (PADR), capability/integration catalogs, and debt definitions, refer to the authoritative architecture documentation:
 
 - 📘 **Operating Model Specification:** [PLATFORM_ARCHITECTURE.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_ARCHITECTURE.md)
+- 📙 **Capability & Integration Catalog:** [PLATFORM_CAPABILITY_CATALOG.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_CAPABILITY_CATALOG.md)
 - 📋 **Architectural Review Checklist:** [ARCHITECTURE_CHECKLIST.md](file:///Users/admin/Desktop/Esparex/docs/architecture/ARCHITECTURE_CHECKLIST.md)
+
 
 ---
 
