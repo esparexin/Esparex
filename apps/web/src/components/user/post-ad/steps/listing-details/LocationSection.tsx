@@ -149,14 +149,14 @@ export function LocationSection() {
     return (
         <section className="space-y-3" aria-labelledby="location-heading">
             <h2 id="location-heading" className="sr-only">Location</h2>
-            <Field label="Where are you located?" required error={locationError as string}>
+            <Field label="Where are you located?" labelClassName="text-sm font-medium" required error={locationError as string}>
                 <div className="space-y-2">
                     <LocationSelector
                         variant="inline"
                         mode="postAd"
                         onLocationSelect={handleSelectLocation}
                         currentDisplay={locationVal?.display}
-                        className="h-12 font-normal rounded-xl border-2"
+                        className="h-11 font-normal rounded-xl border border-slate-200"
                         disabled={isLocationLocked}
                     />
                     {isLocationLocked ? (

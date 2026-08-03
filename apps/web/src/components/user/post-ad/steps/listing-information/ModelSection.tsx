@@ -47,7 +47,7 @@ export function ModelSection() {
     return (
         <fieldset disabled={!brandNameValue || isEditMode} className="w-full border-0 p-0 m-0 space-y-2">
             <h2 id="model-heading" className="sr-only">Model</h2>
-            <Field label="Model" error={modelError as string} className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] cursor-not-allowed")}>
+            <Field label="Model" labelClassName="text-sm font-medium" error={modelError as string} className={cn((!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] cursor-not-allowed")}>
                 {!brandNameValue ? (
                     <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
                         Select brand first...

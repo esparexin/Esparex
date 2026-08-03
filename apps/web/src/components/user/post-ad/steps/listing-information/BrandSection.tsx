@@ -40,7 +40,7 @@ export function BrandSection() {
     return (
         <section className="space-y-2" aria-labelledby="brand-heading">
             <h2 id="brand-heading" className="sr-only">Brand</h2>
-            <Field label="Brand" error={brandError as string} required>
+            <Field label="Brand" labelClassName="text-sm font-medium" error={brandError as string} required>
                 <BrandSearchSelect 
                     brands={availableBrands} 
                     brandMap={brandMap as any} 

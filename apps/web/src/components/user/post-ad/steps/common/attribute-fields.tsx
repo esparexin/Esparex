@@ -34,17 +34,17 @@ export function getVisibleAttributeFilters(schema: { filters: CategoryFilter[] }
 export function renderAttributeField(filter: ExtendedCategoryFilter, value: unknown, error: string | undefined, updateAttribute: (id: string, val: unknown) => void) {
     const fieldType = getFilterType(filter);
     if (fieldType === "textarea") {
-        return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
-            <Textarea value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="min-h-24 rounded-xl border-2 border-slate-100 focus:border-primary text-base" />
+        return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
+            <Textarea value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="min-h-24 rounded-xl border border-slate-200 focus:border-primary text-sm font-medium" />
         </Field>;
     }
     if (fieldType === "number") {
-        return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
-            <Input type="number" min={filter.min} max={filter.max} value={typeof value === "number" || typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value === "" ? "" : Number(e.target.value))} className="h-11 rounded-xl border-2 border-slate-100 focus:border-primary text-base" />
+        return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
+            <Input type="number" min={filter.min} max={filter.max} value={typeof value === "number" || typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value === "" ? "" : Number(e.target.value))} className="h-11 rounded-xl border border-slate-200 focus:border-primary text-sm font-medium" />
         </Field>;
     }
     if (fieldType === "radio" && filter.options?.length) {
-        return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={filter.name}>
                 {filter.options.map((opt) => {
                     const checked = value === opt.value;
@@ -55,25 +55,25 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
         </Field>;
     }
     if (fieldType === "select" && filter.options?.length) {
-        return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
             <Select value={typeof value === "string" ? value : undefined} onValueChange={(nv) => updateAttribute(filter.id, nv)}>
-                <SelectTrigger className="h-11 rounded-xl border-2 border-slate-200 bg-white font-normal text-base"><SelectValue placeholder={`Select ${filter.name.toLowerCase()}`} /></SelectTrigger>
-                <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border-2 border-slate-100 shadow-xl">
+                <SelectTrigger className="h-11 rounded-xl border border-slate-200 bg-white font-medium text-sm"><SelectValue placeholder={`Select ${filter.name.toLowerCase()}`} /></SelectTrigger>
+                <SelectContent style={{ zIndex: Z_INDEX.selectContent }} className="rounded-xl border border-slate-200 shadow-xl">
                     {filter.options.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                 </SelectContent>
             </Select>
         </Field>;
     }
     if (fieldType === "checkbox" && !filter.options?.length) {
-        return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
-            <label className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 text-base font-normal text-foreground-secondary">
+        return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
+            <label className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-foreground-secondary">
                 <Checkbox checked={value === true} onCheckedChange={(nc) => updateAttribute(filter.id, nc === true)} />{filter.name}
             </label>
         </Field>;
     }
     if ((fieldType === "checkbox" || fieldType === "multi-select" || fieldType === "multiselect") && filter.options?.length) {
         const selectedValues = Array.isArray(value) ? value.map(String) : [];
-        return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
+        return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
             <div className="flex flex-wrap gap-2">
                 {filter.options.map((opt) => {
                     const checked = selectedValues.includes(opt.value);
@@ -84,7 +84,7 @@ export function renderAttributeField(filter: ExtendedCategoryFilter, value: unkn
             </div>
         </Field>;
     }
-    return <Field key={filter.id} label={filter.name} required={filter.isRequired} error={error}>
-        <Input value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="h-11 rounded-xl border-2 border-slate-100 focus:border-primary text-base" />
+    return <Field key={filter.id} label={filter.name} labelClassName="text-sm font-medium" required={filter.isRequired} error={error}>
+        <Input value={typeof value === "string" ? value : ""} onChange={(e) => updateAttribute(filter.id, e.target.value)} className="h-11 rounded-xl border border-slate-200 focus:border-primary text-sm font-medium" />
     </Field>;
 }

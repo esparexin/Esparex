@@ -27,7 +27,7 @@ export function CategorySection() {
     return (
         <section className="space-y-2" aria-labelledby="category-heading">
             <h2 id="category-heading" className="sr-only">Category</h2>
-            <Field error={categoryError as string} label="Select Category" required>
+            <Field error={categoryError as string} label="Select Category" labelClassName="text-sm font-medium" required>
                 <CategorySelectorGrid
                     categories={dynamicCategories}
                     selectedCategoryId={categoryId}

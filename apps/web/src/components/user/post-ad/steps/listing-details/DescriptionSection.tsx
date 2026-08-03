@@ -32,7 +32,7 @@ export function DescriptionSection() {
             <h2 id="description-heading" className="sr-only">Description</h2>
             <Field error={descriptionError as string}>
                 <div className="flex items-center justify-between gap-2 mb-1">
-                    <label htmlFor="description" className="text-base font-medium leading-snug text-foreground-secondary">
+                    <label htmlFor="description" className="text-sm font-medium leading-snug text-foreground-secondary">
                         Describe your product<span className="text-destructive ml-1">*</span>
                     </label>
                     {isAiAvailable && (
@@ -52,7 +52,7 @@ export function DescriptionSection() {
                     {...register("description")}
                     placeholder="Describe the condition, issues, and what's included..."
                     maxLength={MAX_AD_DESCRIPTION_CHARS}
-                    className="min-h-[160px] rounded-xl border-2 border-slate-100 focus:border-primary font-normal text-base py-3"
+                    className="min-h-[140px] pb-6 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600"
                 />
                 <div className="flex justify-end mt-1">
                     <CharCounter name="description" max={MAX_AD_DESCRIPTION_CHARS} />

@@ -57,7 +57,7 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <fieldset disabled={isEditMode} className="w-full border-0 p-0 m-0">
-                    <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
+                    <Field label="Screen Size" labelClassName="text-sm font-medium" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                             {availableSizes.map((size) => {
                                 const isSelected = screenSize === size;

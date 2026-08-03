@@ -24,7 +24,7 @@ export function StepOne() {
     }, [register]);
 
     return (
-        <div className="space-y-5" data-testid="step-one-fields">
+        <div className="space-y-6" data-testid="step-one-fields">
             <CategorySection />
             
             {categoryId && (

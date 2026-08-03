@@ -32,7 +32,7 @@ export function TitleSection() {
             <h2 id="title-heading" className="sr-only">Title</h2>
             <Field error={titleError as string}>
                 <div className="flex items-center justify-between gap-2 mb-1">
-                    <label htmlFor="title" className="text-base font-medium leading-snug text-foreground-secondary">
+                    <label htmlFor="title" className="text-sm font-medium leading-snug text-foreground-secondary">
                         Choose a catchy title<span className="text-destructive ml-1">*</span>
                     </label>
                     {isAiAvailable && (
@@ -52,7 +52,7 @@ export function TitleSection() {
                     {...register("title")}
                     placeholder="e.g. iPhone 13 Pro - Screen issue"
                     maxLength={MAX_AD_TITLE_CHARS}
-                    className="h-12 rounded-xl border-2 border-slate-100 focus:border-primary font-normal text-base"
+                    className="h-11 text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600"
                 />
                 <div className="flex justify-between items-center mt-1">
                     <CharCounter name="title" max={MAX_AD_TITLE_CHARS} />

@@ -80,7 +80,7 @@ export function DeviceConditionSection() {
 
             <section className="space-y-2" data-field="deviceCondition" aria-labelledby="condition-heading">
                 <h2 id="condition-heading" className="sr-only">Device Condition</h2>
-                <Field label="Device Condition" error={deviceConditionError as string}>
+                <Field label="Device Condition" labelClassName="text-sm font-medium" error={deviceConditionError as string}>
                     <div className="flex gap-2 flex-wrap">
                         {DEVICE_CONDITION_OPTIONS.map(({ value, label, dot, active }) => (
                             <button 
