@@ -1,3 +1,11 @@
+---
+status: archived
+archived_date: 2026-08-03
+reason: Completed historical sprint 3 candidate audit log
+replacement: docs/audit/enterprise-completion-audit.md
+reference: N/A
+---
+
 # Program 3 — Sprint 3 Candidate Audit (v2)
 ## Scored Responsibility Analysis — Full Evidence
 
