@@ -74,6 +74,9 @@ export function usePostAdSubmissionFlow({
 
     const handleSuccess = useCallback((ad: Listing) => {
         trackPostAdEvent({ event: "publish_success", metadata: { adId: ad.id } });
+        if (typeof window !== "undefined") {
+            try { localStorage.removeItem("esparex_post_ad_draft_v1"); } catch (_e) { /* ignore */ }
+        }
         setSubmittedAd(ad);
     }, [setSubmittedAd]);
 
