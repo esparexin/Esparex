@@ -247,8 +247,18 @@ export function CatalogSearchSelect<T>({
                                             onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-4 h-10 text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
+                                        className="pl-9 pr-10 h-10 text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
                                     />
+                                    {search.trim() && onProposeCustom && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleProposeCustom(search)}
+                                            title={`Add "${search.trim()}" as custom ${proposeType}`}
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
+                                        >
+                                            <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1">
@@ -258,8 +268,18 @@ export function CatalogSearchSelect<T>({
                                         <span>Loading...</span>
                                     </div>
                                 ) : filteredItems.length === 0 ? (
-                                    <div className="p-4 text-center text-sm font-medium text-slate-500">
-                                        {emptyMessage}
+                                    <div className="p-6 text-center space-y-3">
+                                        <p className="text-sm font-medium text-slate-500">{emptyMessage}</p>
+                                        {onProposeCustom && search.trim() && (
+                                            <button
+                                                type="button"
+                                                onClick={() => handleProposeCustom(search)}
+                                                className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-sm transition-colors border border-blue-200/80 active:scale-[0.99]"
+                                            >
+                                                <Plus className="w-4 h-4 stroke-[2.5]" />
+                                                <span>Add "{search.trim()}" as custom {proposeType}</span>
+                                            </button>
+                                        )}
                                     </div>
                                 ) : (
                                     filteredItems.map((item, idx) => {
