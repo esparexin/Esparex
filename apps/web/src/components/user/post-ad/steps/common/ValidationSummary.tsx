@@ -2,6 +2,7 @@
 
 import { usePostAdFlow } from "../../context";
 import { useCallback } from "react";
+import { isFieldInStep } from "../../config/postAdStepFields";
 
 const FIELD_LABELS: Record<string, string> = {
     title: "Title",
@@ -61,6 +62,7 @@ export function ValidationSummary() {
     }
 
     // Deduplicate aliased fields (e.g., category + categoryId share the same label)
+    // and filter to only the errors that belong to the current step.
     const seen = new Set<string>();
     const errorList = Object.entries(errors)
         .map(([key, error]) => ({
@@ -70,10 +72,13 @@ export function ValidationSummary() {
         }))
         .filter((e) => {
             if (!e.message) return false;
+            if (!isFieldInStep(e.key, currentStep)) return false;
             if (seen.has(e.canonicalKey)) return false;
             seen.add(e.canonicalKey);
             return true;
         });
+
+    if (!formError && errorList.length === 0) return null;
 
     return (
         <div
