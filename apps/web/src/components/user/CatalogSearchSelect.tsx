@@ -268,18 +268,8 @@ export function CatalogSearchSelect<T>({
                                         <span>Loading...</span>
                                     </div>
                                 ) : filteredItems.length === 0 ? (
-                                    <div className="p-6 text-center space-y-3">
-                                        <p className="text-sm font-medium text-slate-500">{emptyMessage}</p>
-                                        {onProposeCustom && search.trim() && (
-                                            <button
-                                                type="button"
-                                                onClick={() => handleProposeCustom(search)}
-                                                className="inline-flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-sm transition-colors border border-blue-200/80 active:scale-[0.99]"
-                                            >
-                                                <Plus className="w-4 h-4 stroke-[2.5]" />
-                                                <span>Add "{search.trim()}" as custom {proposeType}</span>
-                                            </button>
-                                        )}
+                                    <div className="p-4 text-center text-sm font-medium text-slate-500">
+                                        {emptyMessage}
                                     </div>
                                 ) : (
                                     filteredItems.map((item, idx) => {
