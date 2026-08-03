@@ -12,6 +12,8 @@ const checks = [
   require('./esparex/env-validator'),
   require('./esparex/ssot-validator'),
   require('./esparex/architecture-validator'),
+  require('./esparex/governance-guards-validator'),
+  require('./esparex/architecture-platform-validator'),
   require('./esparex/duplicate-validator'),
   require('./esparex/circular-validator'),
   require('./esparex/dependency-validator'),
