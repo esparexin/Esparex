@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { ModelSearchSelect } from "@/components/user/ModelSearchSelect";
-import { getNestedFieldMeta } from "../common/utils";
+import { getNestedFieldMeta } from "../common/Utils";
 import { cn } from "@/components/ui/utils";
 
 export function ModelSection() {

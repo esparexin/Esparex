@@ -4,7 +4,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { usePostAdFlow } from "../../context";
 import { ListingPriceField } from "@/components/user/shared/ListingFormFields";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta } from "../common/utils";
+import { getNestedFieldMeta } from "../common/Utils";
 import { useCallback } from "react";
 
 export function PriceSection() {
