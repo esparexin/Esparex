@@ -3,7 +3,6 @@
  *
  * Single source of truth for which form fields belong to which wizard step.
  * Consumed by:
- *   - ValidationSummary       (filters error banner to current-step fields only)
  *   - usePostAdStepNavigation (targeted trigger() on Continue)
  *
  * When adding a new step or field, update this file only.
