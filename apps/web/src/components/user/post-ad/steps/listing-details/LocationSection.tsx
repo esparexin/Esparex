@@ -9,7 +9,7 @@ import type { Location } from "@/lib/api/user/locations";
 import LocationSelector from "@/components/location/LocationSelector";
 import { LocationFacade, adaptLocationInput } from "@esparex/shared";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta } from "../common/utils";
+import { getNestedFieldMeta } from "../common/Utils";
 import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
 
 type SnappedLocation = Location & { formattedAddress?: string; isSnapped?: boolean };

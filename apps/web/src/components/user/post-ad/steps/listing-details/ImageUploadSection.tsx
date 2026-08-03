@@ -2,7 +2,7 @@
 
 import { usePostAdImages, usePostAdFlow, usePostAdAction } from "../../context";
 import { ListingImagesField, getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
-import { getNestedFieldMeta } from "../common/utils";
+import { getNestedFieldMeta } from "../common/Utils";
 import { useCallback } from "react";
 
 export function ImageUploadSection() {

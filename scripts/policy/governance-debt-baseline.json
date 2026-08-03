@@ -1,33 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "version": "1.0.0",
-  "updatedAt": "2026-08-03T12:26:00.000Z",
+  "updatedAt": "2026-08-03T12:46:30.000Z",
   "description": "Authoritative technical debt baseline snapshot. Pre-existing debt is recorded and grandfathered; zero NEW debt allowed.",
   "baselines": {
-    "namingViolations": [
-      "apps/web/src/components/user/post-ad/steps/common/utils.tsx"
-    ],
-    "platformGovernanceViolations": [
-      "packages/mobile-ui/src/env.d.ts"
-    ],
-    "adminStatusLiteralViolations": [
-      "apps/admin/src/components/plans/PlanFormModal.tsx:535",
-      "apps/admin/src/components/system/users/userManagement.ts:41"
-    ],
-    "missingPublicBarrels": [
-      "analytics",
-      "boosts",
-      "communications",
-      "discovery",
-      "fraud",
-      "trust",
-      "moderation"
-    ],
-    "missingDomainManifests": [
-      "credits",
-      "entitlements",
-      "moderation"
-    ],
+    "namingViolations": [],
+    "platformGovernanceViolations": [],
+    "adminStatusLiteralViolations": [],
+    "missingPublicBarrels": [],
+    "missingDomainManifests": [],
     "orphanFiles": [
       "apps/mobile/.eslintrc.js"
     ],

@@ -9,7 +9,7 @@ import { Button } from "@esparex/ui";
 import { Loader2 } from "@/icons/IconRegistry";
 import { MAX_AD_DESCRIPTION_CHARS } from "@esparex/contracts";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta, CharCounter } from "../common/utils";
+import { getNestedFieldMeta, CharCounter } from "../common/Utils";
 
 export function DescriptionSection() {
     const { register } = useFormContext<PostAdFormData>();

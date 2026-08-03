@@ -5,7 +5,7 @@ import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context"
 import { CircuitBoard } from "@/icons/IconRegistry";
 import { Field } from "@/components/ui/field";
 import { CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
-import { getNestedFieldMeta } from "../common/utils";
+import { getNestedFieldMeta } from "../common/Utils";
 
 export function CategorySection() {
     const { dynamicCategories } = usePostAdCatalog();

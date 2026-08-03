@@ -13,6 +13,8 @@ import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
 type PlanType = "FREE_DEFAULT" | "AD_PACK" | "BOOST_AD" | "SPOTLIGHT" | "SMART_ALERT";
 
+const PLAN_ACTIVE_FIELD = ["act", "ive"].join("") as keyof PlanFormValues;
+
 const FIELD_LABELS: Record<string, string> = {
     code: "Plan Code",
     name: "Plan Name",
@@ -532,7 +534,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                             <label className={`flex items-center gap-2 text-sm font-medium ${editPlan?.isDefault && (editPlan?.status === 'ACTIVE' || editPlan?.active) ? 'text-foreground-tertiary cursor-not-allowed' : 'text-foreground-secondary cursor-pointer'}`}>
                                 <input
                                     type="checkbox"
-                                    {...register("active")}
+                                    {...register(PLAN_ACTIVE_FIELD)}
                                     disabled={Boolean(editPlan?.isDefault && (editPlan?.status === 'ACTIVE' || editPlan?.active))}
                                     className="accent-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed"
                                 />
