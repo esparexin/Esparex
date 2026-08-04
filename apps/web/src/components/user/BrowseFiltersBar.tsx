@@ -97,7 +97,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
         </Button>
       }
     >
-      <div className="flex flex-col h-[75vh] max-h-[560px] -mx-4 -mb-4">
+      <div className="flex flex-col h-[75dvh] max-h-[560px] -mx-4 -mb-4">
         {/* Search Bar Header */}
         <div className="px-4 py-2 border-b border-slate-100">
           <div className="relative">
