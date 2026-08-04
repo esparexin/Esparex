@@ -36,7 +36,13 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+      accessibilityViewIsModal={true}
+    >
       <View className="flex-1 justify-end bg-black/50">
         <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6 max-h-[85%]">
           {/* Header */}
@@ -44,7 +50,12 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
             <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
               Edit Profile
             </AppText>
-            <TouchableOpacity onPress={onClose} accessibilityLabel="Close edit modal">
+            <TouchableOpacity
+              onPress={onClose}
+              accessibilityLabel="Close edit modal"
+              accessibilityRole="button"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <AppIcon name="X" size={20} color="#64748b" />
             </TouchableOpacity>
           </View>
