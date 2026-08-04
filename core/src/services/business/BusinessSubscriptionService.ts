@@ -116,33 +116,57 @@ export async function upgradePlan(
     durationDays = 365
 ): Promise<void> {
     const userIdStr = userId.toString();
-    const planObjId = new mongoose.Types.ObjectId(planId.toString());
+    const planIdStr = planId.toString();
+
+    if (!mongoose.Types.ObjectId.isValid(planIdStr)) {
+        logger.error('BusinessSubscriptionService.upgradePlan: invalid planId format', {
+            userId: userIdStr,
+            planId: planIdStr,
+        });
+        return;
+    }
+
+    const planObjId = new mongoose.Types.ObjectId(planIdStr);
 
     try {
         const now = new Date();
+        const targetEndDate = daysFromNow(durationDays);
+
+        const existing = await UserPlan.findOne({
+            userId: userIdStr,
+            planId: planObjId,
+        }).lean();
+
+        // Idempotency check: if plan is already active and valid beyond target date, preserve existing end date
+        const newEndDate = existing?.endDate && new Date(existing.endDate) > targetEndDate
+            ? new Date(existing.endDate)
+            : targetEndDate;
 
         await UserPlan.findOneAndUpdate(
             { userId: userIdStr, planId: planObjId },
             {
                 $set: {
-                    startDate: now,
-                    endDate: daysFromNow(durationDays),
+                    startDate: existing?.startDate || now,
+                    endDate: newEndDate,
                     status: 'active',
                 },
             },
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
 
-        logger.debug('BusinessSubscriptionService.upgradePlan: plan activated', {
+        logger.info('BusinessSubscriptionService.upgradePlan: plan activated (idempotent)', {
             userId: userIdStr,
-            planId: planId.toString(),
+            planId: planIdStr,
+            endDate: newEndDate.toISOString(),
+            isExisting: Boolean(existing),
         });
     } catch (err) {
         logger.error('BusinessSubscriptionService.upgradePlan: failed', {
             userId: userIdStr,
-            planId: planId.toString(),
+            planId: planIdStr,
             error: err instanceof Error ? err.message : String(err),
         });
+        throw err;
     }
 
     setImmediate(() => {
