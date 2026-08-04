@@ -29,6 +29,7 @@ import './UserPlan';
 import './UserWallet';
 import './CreditRule';
 import './CreditTransaction';
+import './Entitlement';
 
 
 

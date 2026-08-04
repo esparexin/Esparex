@@ -1,9 +1,9 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@esparex/ui";
 import { Star, Package, Bell } from "@/icons/IconRegistry";
 import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
-import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import { getPlanDisplayName } from "./PurchasesTab";
+import { MyBenefitsOverviewCard } from "../MyBenefitsOverviewCard";
 import type { ProfilePlan, ProfilePlanType } from "../types";
 
 type PlanCard = Omit<ProfilePlan, "type"> & { type: string };
@@ -55,6 +55,7 @@ interface PlansTabProps {
 function PlanCardView({
     plan,
     activeConfig,
+    currentPlan,
     formatCurrency,
     setSelectedPlan,
     setShowPlanDialog,
@@ -66,6 +67,7 @@ function PlanCardView({
 }: {
     plan: PlanCard;
     activeConfig: SubTabConfig;
+    currentPlan?: string;
     formatCurrency: (amount: number) => string;
     setSelectedPlan: (id: string) => void;
     setShowPlanDialog: (show: boolean) => void;
@@ -76,95 +78,112 @@ function PlanCardView({
     onNext?: () => void;
 }) {
     const isRecommended = plan.popular;
+    const cardConfig = SUB_TABS.find((t) => t.id === plan.type) ?? activeConfig;
+    const isCurrentPlan = currentPlan?.toLowerCase() === plan.name?.toLowerCase() || (plan.price === 0 && (currentPlan === "Free" || currentPlan === "USER_DEFAULT_PLAN" || !currentPlan));
+    const buttonLabel = plan.price === 0 ? "Claim Free" : "Buy Now";
 
     return (
-        <div
-            className={`bg-white rounded-2xl p-4 sm:p-5 border transition-all duration-200 relative h-auto space-y-4 ${
-                isRecommended
-                    ? "border-2 border-slate-900 shadow-md"
-                    : "border-slate-200 hover:border-slate-300 hover:shadow-xs"
-            }`}
-        >
-            {/* Recommended Badge Pill */}
-            {isRecommended && (
-                <div className="absolute -top-2.5 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-tiny font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs">
-                    Recommended
-                </div>
-            )}
-
-            {/* In-Card Header Arrow Navigation (Image 2 style) */}
-            {hasMultiplePlans && (
-                <div className="flex items-center justify-between sm:hidden pt-0.5">
-                    <button
-                        type="button"
-                        onClick={onPrev}
-                        disabled={activeSlideIndex === 0}
-                        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
-                        aria-label="Previous Plan"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <span className="text-tiny font-semibold text-slate-400 tracking-wider">
-                        {activeSlideIndex + 1} / {totalSlides}
-                    </span>
-                    <button
-                        type="button"
-                        onClick={onNext}
-                        disabled={activeSlideIndex === totalSlides - 1}
-                        className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
-                        aria-label="Next Plan"
-                    >
-                        <ChevronRight className="w-5 h-5" />
-                    </button>
-                </div>
-            )}
-
-            {/* Card Content Header & Category Icon */}
-            <div className="text-center">
-                <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-900">
-                    {activeConfig.icon}
-                </div>
-                <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                    {getPlanDisplayName(plan.name)}
-                </h3>
-                <p className="text-tiny text-slate-500 mt-0.5 leading-relaxed">
-                    {activeConfig.description}
-                </p>
-            </div>
-
-            {/* Price Section */}
-            <div className="text-center my-2">
-                <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                        {plan.price === 0 ? "Free" : formatCurrency(plan.price)}
-                    </span>
-                </div>
-                <span className="text-tiny font-medium text-slate-400 block mt-0.5">
-                    / {plan.duration}
-                </span>
-            </div>
-
-            {/* Primary Action Button */}
-            <Button
-                onClick={() => {
-                    setSelectedPlan(plan.id);
-                    setShowPlanDialog(true);
-                }}
-                className={`w-full h-9 rounded-lg font-semibold text-xs transition-all active:scale-[0.98] ${
-                    isRecommended
-                        ? "bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
-                        : "bg-white border border-slate-300 hover:bg-slate-50 text-slate-900"
+        <div className="space-y-2.5">
+            {/* Main Plan Card (Blue Border Card Box) */}
+            <div
+                className={`bg-white rounded-2xl p-4 sm:p-5 border-2 transition-all duration-200 relative text-center flex flex-col items-center justify-between gap-2.5 ${
+                    isCurrentPlan || isRecommended
+                        ? "border-blue-300 shadow-xs"
+                        : "border-slate-200 hover:border-slate-300"
                 }`}
             >
-                Buy Now
-            </Button>
+                {/* Current Plan Badge */}
+                {isCurrentPlan && (
+                    <div className="inline-block bg-blue-100 text-blue-700 text-tiny font-semibold px-3 py-0.5 rounded-full mb-0.5">
+                        Your current plan
+                    </div>
+                )}
 
-            {/* Features Checklist */}
-            <div className="pt-3 border-t border-slate-100 space-y-2 text-left">
-                <p className="text-tiny font-bold text-slate-900 uppercase tracking-wider">
-                    Highlights
-                </p>
-                <PlanFeatureList features={plan.features} />
+                {/* Multiple Plans In-Card Navigation */}
+                {hasMultiplePlans && (
+                    <div className="flex items-center justify-between w-full sm:hidden pt-0.5">
+                        <button
+                            type="button"
+                            onClick={onPrev}
+                            disabled={activeSlideIndex === 0}
+                            className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
+                            aria-label="Previous Plan"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                        <span className="text-tiny font-semibold text-slate-400 tracking-wider">
+                            {activeSlideIndex + 1} / {totalSlides}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={onNext}
+                            disabled={activeSlideIndex === totalSlides - 1}
+                            className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
+                            aria-label="Next Plan"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
+
+                {/* Circular Soft Blue Category Icon Container */}
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-blue-100/80 text-blue-600">
+                    {cardConfig.icon}
+                </div>
+
+                {/* Plan Name & Description */}
+                <div className="w-full">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                        {getPlanDisplayName(plan.name)}
+                    </h3>
+                    <p className="text-tiny text-slate-500 mt-0.5 leading-snug max-w-xs mx-auto">
+                        {cardConfig.description}
+                    </p>
+                </div>
+
+                {/* Price Display */}
+                <div className="w-full py-1">
+                    <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none">
+                            {plan.price === 0 ? "Free" : formatCurrency(plan.price)}
+                        </span>
+                        <span className="text-tiny font-normal text-slate-500 leading-none">
+                            / {plan.duration}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Primary CTA Action Button */}
+                {isCurrentPlan ? (
+                    <div className="w-full h-9 rounded-xl font-semibold text-xs bg-slate-100 text-slate-500 border border-slate-200/80 flex items-center justify-center select-none">
+                        Current Plan
+                    </div>
+                ) : (
+                    <Button
+                        onClick={() => {
+                            setSelectedPlan(plan.id);
+                            setShowPlanDialog(true);
+                        }}
+                        className="w-full h-9 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all active:scale-[0.98] tracking-tight mt-0.5"
+                    >
+                        {buttonLabel}
+                    </Button>
+                )}
+            </div>
+
+            {/* Plan Highlights Card (Separate Box below main card) */}
+            <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-3 sm:p-4 space-y-1.5 text-left">
+                <h4 className="text-tiny font-bold text-slate-900 tracking-tight">
+                    Plan highlights
+                </h4>
+                <ul className="space-y-1">
+                    {plan.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5 text-tiny font-medium text-slate-700">
+                            <span className="text-emerald-600 font-bold text-tiny">✓</span>
+                            <span>{feature}</span>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );
@@ -191,10 +210,6 @@ export function PlansTab({
     const isProfilePlanType = (value: string): value is ProfilePlanType => {
         return value === "Spotlight" || value === "More Ads" || value === "Boost Ad" || value === "Alert Slots";
     };
-
-    const countPlansForType = useCallback((type: ProfilePlanType) => {
-        return dynamicPlans.filter((p) => isProfilePlanType(p.type) && p.type === type).length;
-    }, [dynamicPlans]);
 
     const activeConfig: SubTabConfig = SUB_TABS.find((t) => t.id === activeTab) ?? DEFAULT_SUB_TAB;
     const filteredPlans = dynamicPlans.filter((p) => isProfilePlanType(p.type) && p.type === activeTab);
@@ -235,9 +250,10 @@ export function PlansTab({
 
     const scrollCarousel = (targetIndex: number) => {
         if (!carouselRef.current || targetIndex < 0 || targetIndex >= filteredPlans.length) return;
-        const width = carouselRef.current.clientWidth;
+        const cardEl = carouselRef.current.firstElementChild as HTMLElement | null;
+        const cardWidth = cardEl ? cardEl.offsetWidth + 16 : carouselRef.current.clientWidth;
         carouselRef.current.scrollTo({
-            left: targetIndex * width,
+            left: targetIndex * cardWidth,
             behavior: "smooth",
         });
         setActiveSlideIndex(targetIndex);
@@ -245,9 +261,10 @@ export function PlansTab({
 
     const handleCarouselScroll = () => {
         if (!carouselRef.current) return;
-        const width = carouselRef.current.clientWidth;
-        if (width > 0) {
-            const index = Math.round(carouselRef.current.scrollLeft / width);
+        const cardEl = carouselRef.current.firstElementChild as HTMLElement | null;
+        const cardWidth = cardEl ? cardEl.offsetWidth + 16 : carouselRef.current.clientWidth;
+        if (cardWidth > 0) {
+            const index = Math.round(carouselRef.current.scrollLeft / cardWidth);
             if (index !== activeSlideIndex && index >= 0 && index < filteredPlans.length) {
                 setActiveSlideIndex(index);
             }
@@ -256,16 +273,18 @@ export function PlansTab({
 
     return (
         <div className="space-y-4">
-            {/* Top Row: Single-Line Sub-Tabs Switcher + Desktop Current Plan Badge */}
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {/* Top Persistent My Benefits Overview Card */}
+            <MyBenefitsOverviewCard />
+
+            {/* Top Sub-Tabs Bar: Rounded Soft Blue Pills + Top Right Current Plan Badge */}
+            <div className="flex items-center justify-between gap-2 overflow-x-auto touch-pan-x scrollbar-none pb-0.5">
                 <div
                     role="tablist"
                     aria-label="Plan Categories"
-                    className="flex items-center justify-between w-full md:max-w-md gap-1.5 sm:gap-2"
+                    className="flex items-center gap-1.5 shrink-0"
                 >
                     {SUB_TABS.map((tab) => {
                         const isActive = activeTab === tab.id;
-                        const count = countPlansForType(tab.id);
 
                         return (
                             <button
@@ -278,34 +297,23 @@ export function PlansTab({
                                 tabIndex={isActive ? 0 : -1}
                                 onClick={() => setActiveTab(tab.id)}
                                 onKeyDown={(e) => handleKeyDown(e, tab.id)}
-                                className={`flex-1 flex flex-row items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-1 sm:px-3 text-tiny sm:text-xs font-bold rounded-full border transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${
+                                className={`flex flex-row items-center gap-1.5 py-1.5 px-3 text-tiny sm:text-xs font-semibold rounded-full border transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                                     isActive
-                                        ? "bg-blue-50/30 text-blue-900 border-blue-200 shadow-sm"
-                                        : "bg-white text-slate-500 border-slate-200 hover:text-slate-700 hover:bg-slate-50"
+                                        ? "bg-blue-100 text-blue-700 border-blue-200 shadow-none"
+                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                                 }`}
                             >
                                 <span className="shrink-0">{tab.icon}</span>
-                                <span className="whitespace-nowrap tracking-tight">{tab.label}</span>
-                                {count > 0 && (
-                                    <span
-                                        className={`px-1.5 py-0.5 text-tiny font-bold rounded-full ${
-                                            isActive
-                                                ? "bg-blue-100 text-blue-800"
-                                                : "bg-slate-100 text-slate-500"
-                                        }`}
-                                    >
-                                        {count}
-                                    </span>
-                                )}
+                                <span className="whitespace-nowrap">{tab.label}</span>
                             </button>
                         );
                     })}
                 </div>
 
-                {/* Desktop-only Current Plan Badge */}
+                {/* Top Right Plan Badge */}
                 {currentPlan && (
-                    <div className="hidden md:block text-xs font-medium text-slate-500 bg-slate-100/80 border border-slate-200/60 px-3 py-1.5 rounded-full shrink-0">
-                        Current: <span className="font-bold text-slate-800">{currentPlan}</span>
+                    <div className="bg-blue-100 text-blue-700 text-tiny font-semibold px-2.5 py-0.5 rounded-full shrink-0">
+                        {currentPlan === "Free" || currentPlan === "USER_DEFAULT_PLAN" ? "Free plan" : currentPlan}
                     </div>
                 )}
             </div>
@@ -320,19 +328,20 @@ export function PlansTab({
             >
                 {filteredPlans.length > 0 ? (
                     <>
-                        {/* MOBILE VIEWPORT: Carousel Card Deck (Image 2 style) */}
-                        <div className="block sm:hidden pt-1">
+                        {/* MOBILE VIEWPORT: Carousel Card Deck */}
+                        <div className="block sm:hidden pt-0.5">
                             {/* Slider Track */}
                             <div
                                 ref={carouselRef}
                                 onScroll={handleCarouselScroll}
-                                className="flex overflow-x-auto scrollbar-none snap-x snap-mandatory gap-4 pb-1 scroll-smooth"
+                                className="flex overflow-x-auto scrollbar-none snap-x snap-mandatory gap-4 pb-0.5 scroll-smooth touch-pan-x overscroll-x-contain"
                             >
                                 {filteredPlans.map((plan) => (
                                     <div key={plan.id} className="w-full shrink-0 snap-center">
                                         <PlanCardView
                                             plan={plan}
                                             activeConfig={activeConfig}
+                                            currentPlan={currentPlan}
                                             formatCurrency={formatCurrency}
                                             setSelectedPlan={setSelectedPlan}
                                             setShowPlanDialog={setShowPlanDialog}
@@ -346,9 +355,9 @@ export function PlansTab({
                                 ))}
                             </div>
 
-                            {/* Pagination Dots Indicator (Image 2 style: ● ○ ○) */}
+                            {/* Pagination Dots Indicator */}
                             {filteredPlans.length > 1 && (
-                                <div className="flex items-center justify-center gap-1.5 mt-2.5">
+                                <div className="flex items-center justify-center gap-1.5 mt-2">
                                     {filteredPlans.map((_, idx) => (
                                         <button
                                             key={idx}
@@ -357,8 +366,8 @@ export function PlansTab({
                                             aria-label={`Go to plan ${idx + 1}`}
                                             className={`transition-all duration-200 ${
                                                 activeSlideIndex === idx
-                                                    ? "w-4 h-1.5 bg-blue-600 rounded-full"
-                                                    : "w-1.5 h-1.5 bg-slate-300 rounded-full hover:bg-slate-400"
+                                                    ? "w-3.5 h-1 bg-blue-600 rounded-full"
+                                                    : "w-1 h-1 bg-slate-300 rounded-full hover:bg-slate-400"
                                             }`}
                                         />
                                     ))}
@@ -373,6 +382,7 @@ export function PlansTab({
                                     key={plan.id}
                                     plan={plan}
                                     activeConfig={activeConfig}
+                                    currentPlan={currentPlan}
                                     formatCurrency={formatCurrency}
                                     setSelectedPlan={setSelectedPlan}
                                     setShowPlanDialog={setShowPlanDialog}

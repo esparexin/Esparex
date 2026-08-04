@@ -1,6 +1,7 @@
-import { ClientSession } from 'mongoose';
+import { ClientSession, Types } from 'mongoose';
 import UserWallet from '../../../models/UserWallet';
 import Transaction, { type ITransaction } from '../../../models/Transaction';
+import Entitlement from '../../../models/Entitlement';
 import { getUserConnection } from '../../../config/db';
 import { AppError } from '../../../utils/AppError';
 import { getPrimaryPlanCreditCount } from "@esparex/shared";
@@ -16,14 +17,25 @@ export interface WalletAmount {
 export type CreditType = keyof WalletAmount;
 
 export const buildWalletIncrement = (tx: ITransaction): WalletAmount => {
+    const limits = tx.planSnapshot?.limits as Record<string, number> | undefined;
     const kind = tx.planSnapshot?.type;
-    const credits = getPrimaryPlanCreditCount(tx.planSnapshot);
+    const primaryCredits = getPrimaryPlanCreditCount(tx.planSnapshot);
     const amount: WalletAmount = {};
 
-    if (kind === 'AD_PACK') amount.adCredits = credits;
-    if (kind === 'BOOST_AD') amount.boostCredits = credits;
-    if (kind === 'SPOTLIGHT') amount.spotlightCredits = credits;
-    if (kind === 'SMART_ALERT') amount.smartAlertSlots = credits;
+    if (limits?.maxAds && limits.maxAds > 0) {
+        amount.adCredits = limits.maxAds;
+    }
+    if (limits?.spotlightCredits && limits.spotlightCredits > 0) {
+        amount.spotlightCredits = limits.spotlightCredits;
+    }
+    if (limits?.smartAlerts && limits.smartAlerts > 0) {
+        amount.smartAlertSlots = limits.smartAlerts;
+    }
+
+    if (kind === 'AD_PACK' && !amount.adCredits) amount.adCredits = primaryCredits;
+    if (kind === 'BOOST_AD' && !amount.boostCredits) amount.boostCredits = primaryCredits;
+    if (kind === 'SPOTLIGHT' && !amount.spotlightCredits) amount.spotlightCredits = primaryCredits;
+    if (kind === 'SMART_ALERT' && !amount.smartAlertSlots) amount.smartAlertSlots = primaryCredits;
 
     return amount;
 };
@@ -53,23 +65,42 @@ interface RecordTransactionParams {
  */
 async function withTransaction<T>(
     existingSession: ClientSession | undefined,
-    operation: (session: ClientSession) => Promise<T>
+    operation: (session: ClientSession | undefined) => Promise<T>
 ): Promise<T> {
     if (existingSession) {
         return operation(existingSession);
     }
 
-    const session = await getUserConnection().startSession();
+    let session: ClientSession | undefined;
     try {
-        session.startTransaction();
+        const s = await getUserConnection().startSession();
+        s.startTransaction();
+        session = s;
+    } catch {
+        session = undefined;
+    }
+
+    if (!session) {
+        return operation(undefined);
+    }
+
+    try {
         const result = await operation(session);
         await session.commitTransaction();
         return result;
     } catch (error) {
-        await session.abortTransaction();
+        try {
+            await session.abortTransaction();
+        } catch {
+            // ignore abort failure
+        }
         throw error;
     } finally {
-        void session.endSession();
+        try {
+            void session.endSession();
+        } catch {
+            // ignore endSession failure
+        }
     }
 }
 
@@ -126,7 +157,7 @@ export const recordTransaction = async ({
 };
 
 /**
- * 2. Credit Wallet
+ * 2. Credit Wallet & Grant Entitlements (SSOT)
  */
 export const credit = async ({
     userId,
@@ -137,18 +168,74 @@ export const credit = async ({
 }: WalletOperationParams) => {
     return withTransaction(session, async (activeSession) => {
         const incrementPayload: Record<string, number> = {};
-        if (amount.adCredits) incrementPayload.adCredits = amount.adCredits;
-        if (amount.spotlightCredits) incrementPayload.spotlightCredits = amount.spotlightCredits;
-        if (amount.smartAlertSlots) incrementPayload.smartAlertSlots = amount.smartAlertSlots;
+        const userObjId = new Types.ObjectId(userId);
+        const sourceId = metadata?.transactionId ? new Types.ObjectId(String(metadata.transactionId)) : new Types.ObjectId();
+
+        if (amount.adCredits && amount.adCredits > 0) {
+            incrementPayload.adCredits = amount.adCredits;
+            await Entitlement.create([{
+                userId: userObjId,
+                type: 'AD_POSTING',
+                sourceType: 'PURCHASED_PACK',
+                sourceId,
+                quantity: amount.adCredits,
+                consumed: 0,
+                remaining: amount.adCredits,
+                status: 'ACTIVE',
+            }], ...(activeSession ? [{ session: activeSession }] : []));
+        }
+
+        if (amount.spotlightCredits && amount.spotlightCredits > 0) {
+            incrementPayload.spotlightCredits = amount.spotlightCredits;
+            await Entitlement.create([{
+                userId: userObjId,
+                type: 'SPOTLIGHT_CAT',
+                sourceType: 'PURCHASED_PACK',
+                sourceId,
+                quantity: amount.spotlightCredits,
+                consumed: 0,
+                remaining: amount.spotlightCredits,
+                status: 'ACTIVE',
+            }], ...(activeSession ? [{ session: activeSession }] : []));
+        }
+
+        if (amount.boostCredits && amount.boostCredits > 0) {
+            incrementPayload.boostCredits = amount.boostCredits;
+            await Entitlement.create([{
+                userId: userObjId,
+                type: 'PUSH_TO_TOP',
+                sourceType: 'PURCHASED_PACK',
+                sourceId,
+                quantity: amount.boostCredits,
+                consumed: 0,
+                remaining: amount.boostCredits,
+                status: 'ACTIVE',
+            }], ...(activeSession ? [{ session: activeSession }] : []));
+        }
+
+        if (amount.smartAlertSlots && amount.smartAlertSlots > 0) {
+            incrementPayload.smartAlertSlots = amount.smartAlertSlots;
+            await Entitlement.create([{
+                userId: userObjId,
+                type: 'SMART_ALERT_SLOT',
+                sourceType: 'PURCHASED_PACK',
+                sourceId,
+                quantity: amount.smartAlertSlots,
+                consumed: 0,
+                remaining: amount.smartAlertSlots,
+                status: 'ACTIVE',
+            }], ...(activeSession ? [{ session: activeSession }] : []));
+        }
 
         if (Object.keys(incrementPayload).length === 0) {
             throw new AppError('No valid credit amounts provided.', 400, 'INVALID_WALLET_OPERATION');
         }
 
+        // Update UserWallet derived read snapshot
         const updatedWallet = await UserWallet.findOneAndUpdate(
             { userId },
             { $inc: incrementPayload },
-            { upsert: true, new: true, session: activeSession }
+            { upsert: true, new: true, ...(activeSession ? { session: activeSession } : {}) }
         );
 
         await recordTransaction({
@@ -175,7 +262,9 @@ export const debit = async ({
     session
 }: WalletOperationParams) => {
     return withTransaction(session, async (activeSession) => {
-        const wallet = await UserWallet.findOne({ userId }).session(activeSession);
+        const query = UserWallet.findOne({ userId });
+        if (activeSession) query.session(activeSession);
+        const wallet = await query;
         if (!wallet) {
             throw new AppError('Wallet not found for deduction.', 404, 'WALLET_NOT_FOUND');
         }
@@ -203,7 +292,7 @@ export const debit = async ({
         const updatedWallet = await UserWallet.findOneAndUpdate(
             { userId },
             { $inc: decrementPayload },
-            { new: true, session: activeSession }
+            { new: true, ...(activeSession ? { session: activeSession } : {}) }
         );
 
         await recordTransaction({

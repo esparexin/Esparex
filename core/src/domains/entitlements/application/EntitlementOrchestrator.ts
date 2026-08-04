@@ -11,12 +11,14 @@
  * decision logic from AdSlotService or ListingSubmissionPolicy.
  */
 
+import { Types } from 'mongoose';
 import {
   getAdPostingBalance,
 } from '../../boosts/application/services/AdSlotService';
 import { LISTING_TYPE, type PostingEntitlementMatrixDTO, type SingleEntitlementState } from '@esparex/contracts';
 import { getListingRepository } from '../../../composition/listings';
 import UserPlan from '../../../models/UserPlan';
+import Entitlement from '../../../models/Entitlement';
 import { calculateUserPlan } from '../../payments';
 import logger from '../../../utils/logger';
 
@@ -61,7 +63,7 @@ export class EntitlementOrchestrator {
     };
   }
 
-  private static async getServiceEntitlement(userId: string): Promise<SingleEntitlementState> {
+  private static async getUserActivePlanPermissions(userId: string) {
     const activePlans = await UserPlan.find({
       userId,
       status: 'active',
@@ -69,7 +71,11 @@ export class EntitlementOrchestrator {
     }).populate('planId').lean();
 
     const plans = activePlans.map((up) => (up as { planId: unknown }).planId).filter(Boolean);
-    const permissions = calculateUserPlan(plans);
+    return calculateUserPlan(plans);
+  }
+
+  private static async getServiceEntitlement(userId: string): Promise<SingleEntitlementState> {
+    const permissions = await EntitlementOrchestrator.getUserActivePlanPermissions(userId);
     const limit = permissions.maxServices || 100;
 
     const used = await getListingRepository().countActiveBySeller({
@@ -91,14 +97,7 @@ export class EntitlementOrchestrator {
   }
 
   private static async getSparePartsEntitlement(userId: string): Promise<SingleEntitlementState> {
-    const activePlans = await UserPlan.find({
-      userId,
-      status: 'active',
-      $or: [{ endDate: { $gte: new Date() } }, { endDate: null }],
-    }).populate('planId').lean();
-
-    const plans = activePlans.map((up) => (up as { planId: unknown }).planId).filter(Boolean);
-    const permissions = calculateUserPlan(plans);
+    const permissions = await EntitlementOrchestrator.getUserActivePlanPermissions(userId);
     const limit = permissions.maxParts || 100;
 
     const used = await getListingRepository().countActiveBySeller({
@@ -120,17 +119,37 @@ export class EntitlementOrchestrator {
   }
 
   private static async getSmartAlertsEntitlement(userId: string): Promise<SingleEntitlementState> {
-    // Default smart alert entitlement limit
-    const limit = 5;
-    const used = 0;
-    const remaining = 5;
+    const userObjId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : null;
+    if (!userObjId) {
+      return EntitlementOrchestrator.createFallbackState('SERVICE_UNAVAILABLE', 'CONTACT_SUPPORT');
+    }
+
+    const entitlements = await Entitlement.find({
+      userId: userObjId,
+      type: 'SMART_ALERT_SLOT',
+      status: 'ACTIVE',
+      remaining: { $gt: 0 }
+    }).lean();
+
+    const totalRemaining = entitlements.reduce(
+      (sum, e) => sum + Number(e.remaining ?? 0), 0
+    );
+    const totalConsumed = entitlements.reduce(
+      (sum, e) => sum + Number(e.consumed ?? 0), 0
+    );
+    const totalQuantity = entitlements.reduce(
+      (sum, e) => sum + Number(e.quantity ?? 0), 0
+    );
+
+    const allowed = totalRemaining > 0;
+
     return {
-      allowed: true,
-      reason: 'OK',
-      action: 'POST',
-      limit,
-      used,
-      remaining,
+      allowed,
+      reason: allowed ? 'OK' : 'QUOTA_EXHAUSTED',
+      action: allowed ? 'POST' : 'BUY_AD_PACK',
+      limit: totalQuantity,
+      used: totalConsumed,
+      remaining: totalRemaining,
     };
   }
 

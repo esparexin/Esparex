@@ -246,41 +246,43 @@ export function BusinessTab({
 
 
     return (
-        <Card className="rounded-3xl gap-0">
-            <CardHeader className="space-y-2">
-                <CardTitle className="flex items-center gap-2 text-base">
-                    <Building2 className="h-5 w-5 text-link" />
-                    Register your business
-                </CardTitle>
-                <CardDescription>
-                    Create one verified business profile to list services, spare parts, and contact details in one place.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                    <ul className="space-y-2 text-sm text-blue-900">
-                        <li className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-link" />
-                            <span>Get a verified public business profile customers can trust.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-link" />
-                            <span>Post services and manage business listings from one workspace.</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-link" />
-                            <span>Use your real address and review documents once, then keep the profile updated.</span>
-                        </li>
-                    </ul>
+        <div className="max-w-xl mx-auto space-y-4 px-1 sm:px-0">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100/80 text-blue-600">
+                    <Building2 className="h-5 w-5" />
                 </div>
+                <div>
+                    <h3 className="text-base font-bold text-slate-900 tracking-tight">Register your business</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                        Create a verified business profile to list services and spare parts.
+                    </p>
+                </div>
+            </div>
 
-                <Button
-                    onClick={() => navigateTo("business-register")}
-                    className="h-11 w-full rounded-xl bg-blue-600 font-semibold hover:bg-blue-700"
-                >
-                    Start business registration
-                </Button>
-            </CardContent>
-        </Card>
+            {/* Highlights List */}
+            <ul className="space-y-2.5 text-xs sm:text-sm text-slate-700 pt-1">
+                <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                    <span>Get a verified public business profile customers can trust.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                    <span>Post services and manage business listings from one workspace.</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                    <span>Use your real address and review documents once, then keep the profile updated.</span>
+                </li>
+            </ul>
+
+            {/* CTA Button */}
+            <Button
+                onClick={() => navigateTo("business-register")}
+                className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md active:scale-[0.98] mt-2"
+            >
+                Start business registration
+            </Button>
+        </div>
     );
 }

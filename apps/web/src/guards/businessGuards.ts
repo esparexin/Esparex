@@ -3,14 +3,13 @@ import { BusinessStatus } from "@esparex/contracts";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
 
 export function canEditBusiness(status: BusinessStatus | undefined) {
-    const normalizedStatus = normalizeBusinessStatus(status, 'pending');
+    const normalizedStatus = normalizeBusinessStatus(status, 'none');
     // Allow editing for rejected and pending (users can fix application before review)
-    // If no status is provided, it defaults to pending for the guard check
     return normalizedStatus === 'rejected' || normalizedStatus === 'pending';
 }
 
 export function canPublishBusiness(status: BusinessStatus | undefined) {
-    const normalized = normalizeBusinessStatus(status, 'pending');
+    const normalized = normalizeBusinessStatus(status, 'none');
     return normalized === 'active' || normalized === 'live';
 }
 
@@ -21,7 +20,7 @@ export function canRegisterBusiness(user: User) {
 }
 
 export function isBusinessPending(user: User) {
-    return normalizeBusinessStatus(user.businessStatus, 'pending') === "pending";
+    return normalizeBusinessStatus(user.businessStatus, 'none') === "pending";
 }
 
 export function isApprovedBusiness(user: User | null | undefined) {
@@ -30,5 +29,5 @@ export function isApprovedBusiness(user: User | null | undefined) {
 }
 
 export function isRejectedBusiness(user: User) {
-    return normalizeBusinessStatus(user.businessStatus, 'pending') === "rejected";
+    return normalizeBusinessStatus(user.businessStatus, 'none') === "rejected";
 }

@@ -3,6 +3,13 @@ import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
+/**
+ * ARCHITECTURAL NOTICE:
+ * `UserWallet` represents the user-facing benefit snapshot / projection view.
+ * Per Esparex Monetization SSOT Architecture (ADR-001 & BR-006):
+ * `Entitlement` records are the SINGLE SOURCE OF TRUTH for user benefits.
+ * `UserWallet` MUST NOT be updated directly; it is projected from active `Entitlement` records.
+ */
 export interface IUserWallet {
     userId: Types.ObjectId;
     adCredits: number;
