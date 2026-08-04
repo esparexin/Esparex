@@ -6,6 +6,10 @@ export const metadata = {
     description: 'The page you are looking for does not exist on Esparex.',
 };
 
+/**
+ * 404 Not Found Page Component.
+ * Aligned with Esparex design system semantic theme tokens and standardized border radii.
+ */
 export default function NotFound() {
     return (
         <div className="flex-1 flex flex-col items-center justify-center px-4 relative z-10 w-full min-h-[calc(100vh-14rem)] py-4 sm:py-8">
