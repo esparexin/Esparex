@@ -9,7 +9,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 - **`@esparex/backend-api`** (`backend/api`): Unified API services (user + admin namespaces)
 - **`@esparex/core`** (`core`): Core business domain, domain models, and DB services structured under Hexagonal Ports & Adapters pattern. See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed guidelines.
 - **`@esparex/shared`** (`shared`): Shared contracts, types, and utility constants
-- **`apps/mobile`** *(not an npm workspace)*: Capacitor shell that wraps `apps/web` for native iOS/Android deployment. It has no independent TypeScript build pipeline — it loads the web app via a configured server URL. Mobile-specific native code (Android/iOS) lives here. See `apps/mobile/capacitor.config.ts`.
+- **`apps/mobile`** (`apps/mobile`): Native mobile application built with **Expo SDK 52 + React Native 0.76**, NativeWind v4, and EAS Build integration. It consumes shared DTO contracts from `@esparex/contracts` and domain formatters from `@esparex/shared`.
 
 ### 📁 Folder Breakdown
 
@@ -24,7 +24,7 @@ Esparex is an npm workspaces monorepo with the following structure:
 
 > **Workspace Governance Rule**: Every top-level directory in this repository must either be a registered npm workspace (listed in the root `package.json` `workspaces` array), or explicitly documented as an infrastructure/runtime wrapper in this README. Undocumented directories are not permitted.
 >
-> `apps/mobile` is the current documented exception — a Capacitor native shell with no independent TypeScript build pipeline.
+> `apps/mobile` is the native mobile workspace targeting iOS and Android via Expo SDK 52 + React Native 0.76 and EAS build pipelines.
 
 ## Setup
 
