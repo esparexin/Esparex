@@ -5,6 +5,7 @@ import { ProfileScreen } from '../features/user/presentation/screens/ProfileScre
 import { SettingsScreen } from '../features/user/presentation/screens/SettingsScreen';
 import { BusinessRegistrationWizardScreen, BusinessStatusScreen, useBusinessProfile } from '../features/business';
 import { PlanSelectionScreen, TransactionHistoryScreen } from '../features/payment';
+import { SmartAlertsScreen } from '../features/smartAlert';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -36,6 +37,14 @@ function BusinessStatusWrapper({ navigation }: any) {
   );
 }
 
+function SmartAlertsWrapper({ navigation }: any) {
+  return (
+    <SmartAlertsScreen
+      onUpgradePlan={() => navigation.navigate(ROUTES.PLAN_SELECTION)}
+    />
+  );
+}
+
 export const ProfileNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name={ROUTES.PROFILE_OVERVIEW} component={ProfileScreen} />
@@ -44,5 +53,6 @@ export const ProfileNavigator = () => (
     <Stack.Screen name={ROUTES.BUSINESS_STATUS} component={BusinessStatusWrapper} />
     <Stack.Screen name={ROUTES.PLAN_SELECTION} component={PlanSelectionScreen} />
     <Stack.Screen name={ROUTES.TRANSACTION_HISTORY} component={TransactionHistoryScreen} />
+    <Stack.Screen name={ROUTES.SMART_ALERTS} component={SmartAlertsWrapper} />
   </Stack.Navigator>
 );

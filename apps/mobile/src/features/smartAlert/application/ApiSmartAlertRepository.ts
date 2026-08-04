@@ -1,0 +1,31 @@
+import { apiClient } from '../../../infrastructure/api/apiClient';
+import { SmartAlert } from '../domain/SmartAlert';
+import { SmartAlertFormState } from '../domain/SmartAlertFormState';
+import { ISmartAlertRepository } from './ISmartAlertRepository';
+import { CreateSmartAlertMapper } from './mappers/CreateSmartAlertMapper';
+
+export class ApiSmartAlertRepository implements ISmartAlertRepository {
+  async getSmartAlerts(): Promise<SmartAlert[]> {
+    const response = await apiClient.get<{ data: SmartAlert[] }>('/v1/smart-alerts');
+    const resData = response.data;
+    if (Array.isArray(resData)) return resData;
+    return resData?.data || [];
+  }
+
+  async createSmartAlert(state: SmartAlertFormState): Promise<SmartAlert> {
+    const payload = CreateSmartAlertMapper.toPayload(state);
+    const response = await apiClient.post<{ data: SmartAlert }>('/v1/smart-alerts', payload);
+    const resData = response.data;
+    return resData?.data || (resData as unknown as SmartAlert);
+  }
+
+  async updateSmartAlert(id: string, state: Partial<SmartAlertFormState>): Promise<SmartAlert> {
+    const response = await apiClient.patch<{ data: SmartAlert }>(`/v1/smart-alerts/${id}`, state);
+    const resData = response.data;
+    return resData?.data || (resData as unknown as SmartAlert);
+  }
+
+  async deleteSmartAlert(id: string): Promise<void> {
+    await apiClient.delete(`/v1/smart-alerts/${id}`);
+  }
+}
