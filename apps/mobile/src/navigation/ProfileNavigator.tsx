@@ -4,6 +4,7 @@ import { ProfileStackParamList, ROUTES } from './routes';
 import { ProfileScreen } from '../features/user/presentation/screens/ProfileScreen';
 import { SettingsScreen } from '../features/user/presentation/screens/SettingsScreen';
 import { BusinessRegistrationWizardScreen, BusinessStatusScreen, useBusinessProfile } from '../features/business';
+import { PlanSelectionScreen, TransactionHistoryScreen } from '../features/payment';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -41,5 +42,7 @@ export const ProfileNavigator = () => (
     <Stack.Screen name={ROUTES.PROFILE_SETTINGS} component={SettingsScreen} />
     <Stack.Screen name={ROUTES.BUSINESS_REGISTRATION} component={BusinessRegistrationWrapper} />
     <Stack.Screen name={ROUTES.BUSINESS_STATUS} component={BusinessStatusWrapper} />
+    <Stack.Screen name={ROUTES.PLAN_SELECTION} component={PlanSelectionScreen} />
+    <Stack.Screen name={ROUTES.TRANSACTION_HISTORY} component={TransactionHistoryScreen} />
   </Stack.Navigator>
 );
