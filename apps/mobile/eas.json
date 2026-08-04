@@ -8,6 +8,9 @@
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
+      "env": {
+        "EX_DEV_CLIENT_NETWORK_INSPECTOR": "true"
+      },
       "ios": {
         "simulator": true
       }
@@ -15,6 +18,10 @@
     "preview": {
       "distribution": "internal",
       "channel": "preview",
+      "env": {
+        "EX_DEV_CLIENT_NETWORK_INSPECTOR": "false",
+        "EXPO_PUBLIC_API_URL": "https://api.esparex.in/api"
+      },
       "android": {
         "buildType": "apk"
       }
@@ -22,6 +29,10 @@
     "production": {
       "channel": "production",
       "autoIncrement": true,
+      "env": {
+        "EX_DEV_CLIENT_NETWORK_INSPECTOR": "false",
+        "EXPO_PUBLIC_API_URL": "https://api.esparex.in/api"
+      },
       "android": {
         "buildType": "app-bundle"
       }

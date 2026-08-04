@@ -56,6 +56,14 @@
           "color": "#0A0C0B",
           "sounds": []
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Esparex requires photo library access to upload listing images.",
+          "cameraPermission": "Esparex requires camera access to capture listing photos.",
+          "requestMicrophonePermissionsIOS": false
+        }
       ]
     ]
   }
