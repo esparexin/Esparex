@@ -3,6 +3,7 @@ export interface PaymentOrder {
   keyId: string;
   amount: number;
   currency: string;
+  status?: string;
   userName?: string;
   userEmail?: string;
   userPhone?: string;
