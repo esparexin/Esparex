@@ -12,7 +12,13 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress }) =
   const primaryImage = listing.images.find((img) => img.isPrimary)?.url || listing.images[0]?.url;
 
   return (
-    <TouchableOpacity onPress={() => onPress(listing.id)} activeOpacity={0.7} className="mb-4">
+    <TouchableOpacity
+      onPress={() => onPress(listing.id)}
+      activeOpacity={0.7}
+      className="mb-4"
+      accessibilityRole="button"
+      accessibilityLabel={`${listing.title}, ${listing.price.formatted}${listing.location?.display ? `, ${listing.location.display}` : ''}`}
+    >
       <Card className="overflow-hidden">
         {primaryImage ? (
           <Image

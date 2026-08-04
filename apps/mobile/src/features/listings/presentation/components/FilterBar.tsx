@@ -55,6 +55,8 @@ export const FilterBar = React.memo<FilterBarProps>(({
           <TouchableOpacity
             onPress={onRemoveSort}
             className="flex-row items-center bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-full border border-sky-200 dark:border-sky-800"
+            accessibilityRole="button"
+            accessibilityLabel={`Remove sort by ${filters.sortBy} filter`}
           >
             <AppText variant="caption" className="text-sky-700 dark:text-sky-300 font-medium mr-1">
               Sort: {filters.sortBy}
@@ -68,6 +70,8 @@ export const FilterBar = React.memo<FilterBarProps>(({
           <TouchableOpacity
             onPress={onRemoveCondition}
             className="flex-row items-center bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-full border border-sky-200 dark:border-sky-800"
+            accessibilityRole="button"
+            accessibilityLabel={`Remove condition ${filters.condition} filter`}
           >
             <AppText variant="caption" className="text-sky-700 dark:text-sky-300 font-medium mr-1">
               Condition: {filters.condition}
@@ -81,6 +85,8 @@ export const FilterBar = React.memo<FilterBarProps>(({
           <TouchableOpacity
             onPress={onRemovePrice}
             className="flex-row items-center bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-full border border-sky-200 dark:border-sky-800"
+            accessibilityRole="button"
+            accessibilityLabel={`Remove price filter`}
           >
             <AppText variant="caption" className="text-sky-700 dark:text-sky-300 font-medium mr-1">
               Price: ₹{filters.minPrice || 0} - ₹{filters.maxPrice || 'Any'}
