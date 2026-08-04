@@ -29,6 +29,8 @@ export const ROUTES = {
   PROFILE_SETTINGS: 'ProfileSettings',
   BUSINESS_REGISTRATION: 'BusinessRegistration',
   BUSINESS_STATUS: 'BusinessStatus',
+  PLAN_SELECTION: 'PlanSelection',
+  TRANSACTION_HISTORY: 'TransactionHistory',
 } as const;
 
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -64,12 +66,14 @@ export type ChatStackParamList = {
   [ROUTES.CHAT_THREAD]: { conversationId: string };
 };
 
-// Profile stack: overview → settings → business
+// Profile stack: overview → settings → business → payment
 export type ProfileStackParamList = {
   [ROUTES.PROFILE_OVERVIEW]: undefined;
   [ROUTES.PROFILE_SETTINGS]: undefined;
   [ROUTES.BUSINESS_REGISTRATION]: undefined;
   [ROUTES.BUSINESS_STATUS]: undefined;
+  [ROUTES.PLAN_SELECTION]: undefined;
+  [ROUTES.TRANSACTION_HISTORY]: undefined;
 };
 
 
