@@ -18,6 +18,7 @@ import type { ListingStatus } from "@/hooks/useUserListingManagement";
 import { UserListingsTemplate } from "@/components/user/shared/UserListingsTemplate";
 import { ListingItem } from "@/components/user/shared/ListingItem";
 import { SoldReasonDialog, type SoldReason } from "@/components/user/shared/SoldReasonDialog";
+import { BoostPlanDialog } from "@/components/user/BoostPlanDialog";
 import {
     ACCOUNT_LISTING_STATUS_TABS,
     buildAccountListingRoute,
@@ -152,6 +153,9 @@ export function MyListingsTab({
     const [sparesSoldReason, setSparesSoldReason] = useState<SoldReason | null>(null);
     const [isSpareSelling, setIsSpareSelling] = useState(false);
 
+    const [boostAd, setBoostAd] = useState<Listing | null>(null);
+    const [isBoostOpen, setIsBoostOpen] = useState(false);
+
     // Handlers
     const confirmDeleteAd = async () => {
         if (!adToDelete) return;
@@ -271,6 +275,7 @@ export function MyListingsTab({
                     onDeactivate={() => { setAdToDeactivate(listing); setIsDeactivateOpen(true); }}
                     onActivate={() => { setAdToActivate(listing); setIsActivateOpen(true); }}
                     onRenew={() => handleRepostAd(listing.id)}
+                    onBoost={() => { setBoostAd(listing); setIsBoostOpen(true); }}
                 />
             )
         },
@@ -504,6 +509,18 @@ export function MyListingsTab({
                 isSubmitting={isSpareSelling}
                 onConfirm={confirmSoldSpare}
             />
+
+            {boostAd && (
+                <BoostPlanDialog
+                    open={isBoostOpen}
+                    onOpenChange={setIsBoostOpen}
+                    adId={boostAd.id}
+                    adTitle={boostAd.title}
+                    onPlanPurchased={() => {
+                        void fetchMyAds();
+                    }}
+                />
+            )}
         </div>
     );
 }

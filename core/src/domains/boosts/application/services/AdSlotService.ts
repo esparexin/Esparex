@@ -5,6 +5,7 @@
  */
 import { ClientSession, Types } from "mongoose";
 import UserWallet from "../../../../models/UserWallet";
+import Entitlement from "../../../../models/Entitlement";
 import CreditTransaction from "../../../../models/CreditTransaction";
 import redisClient from "../../../../config/redis";
 import { AppError } from "../../../../utils/AppError";
@@ -220,6 +221,31 @@ export const AdSlotService = {
             await UserWallet.updateOne({ userId }, { $inc: { monthlyFreeAdsUsed: 1 } }, { session });
         } else {
             await UserWallet.updateOne({ userId }, { $inc: { adCredits: -1 } }, { session });
+            await Entitlement.findOneAndUpdate(
+                {
+                    userId: new Types.ObjectId(userId),
+                    type: 'AD_POSTING',
+                    status: 'ACTIVE',
+                    remaining: { $gt: 0 }
+                },
+                [
+                    {
+                        $set: {
+                            consumed: { $add: ['$consumed', 1] },
+                            remaining: { $subtract: ['$remaining', 1] },
+                            status: {
+                                $cond: {
+                                    if: { $lte: [{ $subtract: ['$remaining', 1] }, 0] },
+                                    then: 'EXHAUSTED',
+                                    else: '$status'
+                                }
+                            },
+                            updatedAt: new Date()
+                        }
+                    }
+                ],
+                { sort: { createdAt: 1 }, session }
+            );
         }
 
         // Audit Trail: Log immutable credit transaction record

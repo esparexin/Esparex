@@ -52,16 +52,9 @@ allFiles.forEach(file => {
     }
 });
 
-// Also load cache/metadata files to simulate original grep behavior on root
 const metadataFiles = [
     'package.json',
     'package-lock.json',
-    '.eslintcache',
-    '.eslintcache/admin',
-    '.eslintcache/web',
-    '.eslintcache/backend',
-    '.eslintcache/core',
-    '.eslintcache/shared',
     '.jscpd-report/jscpd-report.json'
 ];
 
@@ -121,7 +114,7 @@ allFiles.forEach((file, index) => {
     // Skip entrypoints, configs, tests, scripts, seeds, cron, etc.
     const normalizedPath = relPath.replace(/\\/g, '/');
     const isTest = normalizedPath.includes('__tests__') || normalizedPath.endsWith('.spec.ts') || normalizedPath.endsWith('.spec.tsx') || normalizedPath.endsWith('.test.ts') || normalizedPath.endsWith('.test.tsx');
-    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json');
+    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.includes('.eslintrc') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json');
     if (isTest || isScriptOrConfig) {
         return;
     }

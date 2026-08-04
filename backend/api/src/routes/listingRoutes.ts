@@ -70,8 +70,8 @@ router.get("/my", protect, statsController.getMyTabListings);
  */
 
 // GET /api/v1/listings/:id
-// Publicly fetch listing by ID or Slug
-router.get("/:id", publicCacheControl(300, 3600), validateIdOrSlug('id'), extractUser, getListingsController.getListingDetail);
+// Publicly fetch listing by ID or Slug (extractUser first so owner can view non-live ads)
+router.get("/:id", extractUser, validateIdOrSlug('id'), getListingsController.getListingDetail);
 
 // GET /api/v1/listings/:id/view
 // Increment view count (public)

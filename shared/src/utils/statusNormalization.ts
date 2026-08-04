@@ -6,7 +6,7 @@
 export type DomainStatus = 'pending' | 'live' | 'active' | 'rejected' | 'suspended' | 'expired' | 'deactivated' | 'sold' | 'deleted' | 'closed';
 
 export type UserStatusDomain = 'active' | 'inactive' | 'suspended' | 'banned' | 'deleted' | 'live';
-export type BusinessStatusDomain = 'pending' | 'active' | 'rejected' | 'suspended' | 'deleted' | 'closed' | 'live' | 'deactivated' | 'expired';
+export type BusinessStatusDomain = 'pending' | 'active' | 'rejected' | 'suspended' | 'deleted' | 'closed' | 'live' | 'deactivated' | 'expired' | 'none';
 export type ListingStatusDomain = 'draft' | 'pending' | 'live' | 'sold' | 'expired' | 'rejected' | 'deactivated';
 
 /**
@@ -35,9 +35,9 @@ export function normalizeUserStatus(value: unknown, fallback: UserStatusDomain =
 /**
  * Specific normalizer for Business Account status.
  */
-export function normalizeBusinessStatus(value: unknown, fallback: BusinessStatusDomain = 'pending'): BusinessStatusDomain {
+export function normalizeBusinessStatus(value: unknown, fallback: BusinessStatusDomain = 'none'): BusinessStatusDomain {
     const raw = cleanStatusString(value);
-    if (!raw) return fallback;
+    if (!raw || raw === 'none' || raw === 'unregistered') return fallback;
 
     if (raw === 'approved' || raw === 'active' || raw === 'live') return 'active';
     if (raw === 'pending') return 'pending';

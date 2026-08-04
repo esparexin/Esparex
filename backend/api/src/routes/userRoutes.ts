@@ -72,6 +72,8 @@ router.post('/:id/block', protect, validateObjectId, mutationLimiter, userContro
 router.delete('/:id/block', protect, validateObjectId, mutationLimiter, userController.unblockUser);
 router.get('/me/wallet', protect, walletController.getWalletSummary);
 router.get('/me/posting-balance', protect, walletController.getPostingBalance);
+router.get('/me/benefits', protect, searchLimiter, userController.resolveUserBenefits);
+router.get('/benefits/resolve', protect, searchLimiter, userController.resolveUserBenefits);
 router.get('/me/transactions', protect, walletController.getTransactionHistory);
 router.get('/me/boosts', protect, boostController.getMyBoosts);
 router.patch('/me', protect, upload.single('profilePhoto'), validateRequest(updateUserProfileSchema), userController.updateMe);
