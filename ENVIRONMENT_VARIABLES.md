@@ -178,7 +178,7 @@
 | `SMOKE_FIXTURE_REVEAL_EXPECT` | `backend/api/src/scripts/` | Fixture generation config |
 | `SMOKE_FIXTURE_OUTPUT_PATH` | `backend/api/src/scripts/` | Fixture output path |
 | `BACKUP_ENCRYPTION_KEY` | `core/src/scripts/backup-database.ts` | Backup encryption |
-| `CAPACITOR_SERVER_URL` | `apps/mobile/capacitor.config.ts` | Capacitor dev server |
+| `EXPO_PUBLIC_API_URL` | `apps/mobile/.env.example` | Base Backend API Endpoint URL for Expo native mobile app |
 
 ---
 
