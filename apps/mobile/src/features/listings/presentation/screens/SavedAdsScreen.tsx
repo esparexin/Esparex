@@ -41,6 +41,11 @@ export function SavedAdsScreen({ onPressListing, onExploreListings }: SavedAdsSc
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} colors={['#2563eb']} tintColor="#2563eb" />}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            windowSize={5}
+            maxToRenderPerBatch={5}
+            initialNumToRender={5}
             ListEmptyComponent={
               <Card style={styles.emptyCard}>
                 <Text style={styles.emptyTitle}>No Saved Ads Yet</Text>
