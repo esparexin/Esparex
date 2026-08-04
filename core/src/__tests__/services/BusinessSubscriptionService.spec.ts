@@ -24,6 +24,7 @@ jest.mock('../../services/business/BusinessPlanSyncService', () => ({
 jest.mock('../../utils/logger', () => ({
     __esModule: true,
     default: {
+        info: jest.fn(),
         debug: jest.fn(),
         warn: jest.fn(),
         error: jest.fn(),
@@ -97,6 +98,9 @@ describe('BusinessSubscriptionService', () => {
 
     describe('upgradePlan', () => {
         it('should activate purchased plan via UserPlan findOneAndUpdate', async () => {
+            mockUserPlan.findOne.mockReturnValue({
+                lean: jest.fn().mockResolvedValue(null),
+            });
             mockUserPlan.findOneAndUpdate.mockResolvedValue({});
 
             await upgradePlan(userId, planId, 365);
