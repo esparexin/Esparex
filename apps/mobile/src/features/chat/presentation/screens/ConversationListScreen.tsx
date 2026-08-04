@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import { View, FlatList, TouchableOpacity, RefreshControl, Image } from 'react-native';
+import { View, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { Image } from 'expo-image';
 import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
 import { useConversations } from '../hooks/useConversations';
 import { IConversationDTO } from '@esparex/contracts';
@@ -36,7 +37,11 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
               {item.ad.thumbnail ? (
                 <Image
                   source={{ uri: item.ad.thumbnail }}
-                  className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800"
+                  contentFit="cover"
+                  cachePolicy="memory-disk"
+                  transition={150}
+                  style={{ width: 48, height: 48, borderRadius: 8 }}
+                  accessibilityLabel={`Thumbnail for ${item.ad.title}`}
                 />
               ) : (
                 <View className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/40 items-center justify-center">
