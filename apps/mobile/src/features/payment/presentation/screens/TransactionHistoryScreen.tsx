@@ -44,6 +44,11 @@ export function TransactionHistoryScreen() {
             data={transactions || []}
             keyExtractor={(item) => item.id || item.orderId}
             renderItem={renderTransactionItem}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            windowSize={5}
+            maxToRenderPerBatch={8}
+            initialNumToRender={10}
             ListEmptyComponent={
               <Card style={styles.emptyCard}>
                 <Text style={styles.emptyText}>No previous credit purchases found.</Text>

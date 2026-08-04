@@ -133,6 +133,10 @@ export const NotificationScreen = () => {
           renderItem={renderNotificationItem}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+          removeClippedSubviews={true}
+          windowSize={5}
+          maxToRenderPerBatch={8}
+          initialNumToRender={10}
           ListEmptyComponent={
             !isLoading ? (
               <View className="items-center justify-center py-16 px-4">
