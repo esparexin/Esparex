@@ -124,14 +124,14 @@ export const resolveBrowseCategorySelection = (
         return {};
     }
 
-    const canonicalSlug = CatalogFacade.category.normalize.canonicalizeCategorySlug(rawCategoryToken);
+    const canonicalSlug = CatalogFacade?.category?.normalize?.canonicalizeCategorySlug(rawCategoryToken) ?? rawCategoryToken;
     const targetSlugLower = (canonicalSlug || rawCategoryToken).toLowerCase();
 
     const matchedCategory = categories.find((category) => {
         if (!category) return false;
         if (category.id === rawCategoryToken) return true;
         const categorySlugLower = (category.slug || "").toLowerCase();
-        const canonicalCategorySlug = CatalogFacade.category.normalize.canonicalizeCategorySlug(categorySlugLower);
+        const canonicalCategorySlug = CatalogFacade?.category?.normalize?.canonicalizeCategorySlug(categorySlugLower) ?? categorySlugLower;
         return (
             categorySlugLower === targetSlugLower ||
             canonicalCategorySlug === targetSlugLower ||
