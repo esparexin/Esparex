@@ -31,6 +31,21 @@ export class ApiListingRepository implements IListingRepository {
     return response.data.data.map(ListingMapper.mapAdToListing);
   }
 
+  public async getSavedListings(): Promise<readonly Listing[]> {
+    const response = await apiClient.get<{ data: Ad[] }>('/v1/users/saved-ads');
+    const resData = response.data;
+    const items = Array.isArray(resData) ? resData : resData?.data || [];
+    return items.map(ListingMapper.mapAdToListing);
+  }
+
+  public async toggleSaveListing(adId: string, isSaved: boolean): Promise<void> {
+    if (isSaved) {
+      await apiClient.delete(`/v1/users/saved-ads/${adId}`);
+    } else {
+      await apiClient.post('/v1/users/saved-ads', { adId });
+    }
+  }
+
   public async create(request: CreateListingRequest): Promise<CreatedListing> {
     const response = await apiClient.post<{ data: Ad }>('/v1/listings', request);
     return CreatedListingMapper.fromDto(response.data.data);
