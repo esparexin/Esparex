@@ -4,6 +4,7 @@ export * from "./popup/popupDialogView";
 export * from "./hooks/usePopupQueue";
 
 // Tokens
+export * from "./tokens/colors";
 export * from "./tokens/zIndex";
 export * from "./tokens/typography";
 export * from "./tokens/spacing";

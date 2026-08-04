@@ -36,3 +36,6 @@ export const colors = {
   warning: '#f59e0b',
   info: '#3b82f6',
 };
+
+export const COLOR_PALETTE = colors;
+
