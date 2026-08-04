@@ -71,7 +71,7 @@ export function LocationOverlayHost({
             <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
                 <SheetContent
                     side="bottom"
-                    className="h-[60vh] max-h-[440px] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[70vh] sm:max-h-[520px]"
+                    className="h-[60dvh] max-h-[440px] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[70dvh] sm:max-h-[520px]"
                 >
                     <SheetTitle className="sr-only">Select Location</SheetTitle>
                     <SheetDescription className="sr-only">Choose your city</SheetDescription>
@@ -85,7 +85,7 @@ export function LocationOverlayHost({
         <div
             ref={dropdownRef}
             style={{ zIndex: Z_INDEX.userHeaderDropdown, ...dropdownStyle }}
-            className="max-h-[52vh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0"
+            className="max-h-[52dvh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0"
             onClick={(e) => e.stopPropagation()}
         >
             <div className="flex-1 overflow-hidden">
