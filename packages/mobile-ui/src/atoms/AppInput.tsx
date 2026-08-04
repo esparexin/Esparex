@@ -41,12 +41,19 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
           ref={ref}
           className={`${baseInput} ${className}`}
           placeholderTextColor="#94a3b8"
+          accessibilityRole="text"
+          accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
+          accessibilityState={{
+            invalid: hasError,
+            ...(props.accessibilityState || {}),
+          }}
+          accessibilityHint={props.accessibilityHint || error}
           {...(props as any)}
         />
         {rightIcon && <View className="ml-2" {...({} as any)}>{rightIcon}</View>}
       </View>
       {error && (
-        <AppText variant="caption" color="error" className="mt-1">
+        <AppText variant="caption" color="error" className="mt-1" accessibilityLiveRegion="polite">
           {error}
         </AppText>
       )}
