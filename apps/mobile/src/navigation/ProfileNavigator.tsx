@@ -6,6 +6,7 @@ import { SettingsScreen } from '../features/user/presentation/screens/SettingsSc
 import { BusinessRegistrationWizardScreen, BusinessStatusScreen, useBusinessProfile } from '../features/business';
 import { PlanSelectionScreen, TransactionHistoryScreen } from '../features/payment';
 import { SmartAlertsScreen } from '../features/smartAlert';
+import { SavedAdsScreen } from '../features/listings/presentation/screens/SavedAdsScreen';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -45,6 +46,15 @@ function SmartAlertsWrapper({ navigation }: any) {
   );
 }
 
+function SavedAdsWrapper({ navigation }: any) {
+  return (
+    <SavedAdsScreen
+      onPressListing={(id) => navigation.navigate(ROUTES.LISTING_DETAILS, { id })}
+      onExploreListings={() => navigation.navigate(ROUTES.SEARCH_TAB)}
+    />
+  );
+}
+
 export const ProfileNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name={ROUTES.PROFILE_OVERVIEW} component={ProfileScreen} />
@@ -54,5 +64,6 @@ export const ProfileNavigator = () => (
     <Stack.Screen name={ROUTES.PLAN_SELECTION} component={PlanSelectionScreen} />
     <Stack.Screen name={ROUTES.TRANSACTION_HISTORY} component={TransactionHistoryScreen} />
     <Stack.Screen name={ROUTES.SMART_ALERTS} component={SmartAlertsWrapper} />
+    <Stack.Screen name={ROUTES.SAVED_ADS} component={SavedAdsWrapper} />
   </Stack.Navigator>
 );
