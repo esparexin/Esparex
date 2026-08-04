@@ -122,16 +122,16 @@ for (const filePath of webEnvFiles) {
   if (lineHasVarAssignment(content, 'NEXT_PUBLIC_ADMIN_API_URL')) {
     errors.push(`${filePath}: NEXT_PUBLIC_ADMIN_API_URL must not be defined in web env files`);
   }
-  if (lineHasVarAssignment(content, 'CAPACITOR_SERVER_URL')) {
-    errors.push(`${filePath}: CAPACITOR_SERVER_URL must only be defined in mobile env files`);
+  if (lineHasVarAssignment(content, 'EXPO_PUBLIC_API_URL')) {
+    errors.push(`${filePath}: EXPO_PUBLIC_API_URL must only be defined in mobile env files`);
   }
 }
 
 for (const filePath of mobileEnvFiles) {
   if (!fileExists(filePath)) continue;
   const content = readFile(filePath);
-  if (!lineHasVarAssignment(content, 'CAPACITOR_SERVER_URL')) {
-    errors.push(`${filePath}: missing required CAPACITOR_SERVER_URL`);
+  if (!lineHasVarAssignment(content, 'EXPO_PUBLIC_API_URL')) {
+    errors.push(`${filePath}: missing required EXPO_PUBLIC_API_URL`);
   }
   if (lineHasVarAssignment(content, 'NEXT_PUBLIC_ADMIN_API_URL')) {
     errors.push(`${filePath}: NEXT_PUBLIC_ADMIN_API_URL must not be defined in mobile env files`);
