@@ -23,10 +23,10 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
     checkoutMutation.mutate(
       { plan },
       {
-        onSuccess: (order) => {
+        onSuccess: (result) => {
           Alert.alert(
-            'Order Created',
-            `Order ID: ${order.orderId}\nAmount: ₹${order.amount}\nCredits will update upon verification.`,
+            'Payment Successful',
+            `Payment ID: ${result.razorpay_payment_id}\nYour ad credits have been added to your wallet!`,
             [
               {
                 text: 'OK',
@@ -36,7 +36,10 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
           );
         },
         onError: (err: any) => {
-          Alert.alert('Checkout Error', err?.message || 'Unable to create payment order. Please try again.');
+          if (err?.message?.toLowerCase().includes('cancelled')) {
+            return; // User cancelled — silent exit
+          }
+          Alert.alert('Checkout Failed', err?.message || 'Unable to complete payment order. Please try again.');
         },
       }
     );
