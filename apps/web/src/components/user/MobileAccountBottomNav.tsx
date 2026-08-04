@@ -32,7 +32,7 @@ export function MobileAccountBottomNav({
   return (
     <nav
       aria-label="Mobile account navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200 flex md:hidden items-center justify-around px-1"
+      className="fixed bottom-0 left-0 right-0 z-40 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white/95 backdrop-blur-md border-t border-slate-200 flex md:hidden items-center justify-around px-1"
     >
       {items.map((item) => {
         const Icon = item.icon;
