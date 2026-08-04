@@ -23,7 +23,11 @@ export const OTPScreen = () => {
       title="Verify Account"
       description="Enter the 6-digit code sent to your email"
       footer={
-        <TouchableOpacity onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.LOGIN })}>
+        <TouchableOpacity
+          onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.LOGIN })}
+          accessibilityRole="button"
+          accessibilityLabel="Back to Login"
+        >
           <AppText variant="body" className="text-slate-500">
             Back to <AppText className="text-sky-500 font-semibold">Login</AppText>
           </AppText>

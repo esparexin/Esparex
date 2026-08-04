@@ -31,7 +31,12 @@ export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
     <Card style={styles.alertCard}>
       <View style={styles.cardHeader}>
         <Text style={styles.alertName}>{item.name}</Text>
-        <TouchableOpacity onPress={() => handleDelete(item)}>
+        <TouchableOpacity
+          onPress={() => handleDelete(item)}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete smart alert ${item.name}`}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
           <Text style={styles.deleteText}>Delete</Text>
         </TouchableOpacity>
       </View>
