@@ -10,5 +10,6 @@ export const useChatThread = (conversationId: string) => {
     },
     enabled: Boolean(conversationId),
     refetchInterval: 5000, // 5s polling fallback for real-time messages
+    refetchOnMount: true,  // always load latest messages when entering a conversation
   });
 };
