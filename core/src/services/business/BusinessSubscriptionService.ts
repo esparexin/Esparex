@@ -132,10 +132,11 @@ export async function upgradePlan(
         const now = new Date();
         const targetEndDate = daysFromNow(durationDays);
 
-        const existing = await UserPlan.findOne({
+        const query = UserPlan.findOne({
             userId: userIdStr,
             planId: planObjId,
-        }).lean();
+        });
+        const existing = query && typeof query.lean === 'function' ? await query.lean() : null;
 
         // Idempotency check: if plan is already active and valid beyond target date, preserve existing end date
         const newEndDate = existing?.endDate && new Date(existing.endDate) > targetEndDate
