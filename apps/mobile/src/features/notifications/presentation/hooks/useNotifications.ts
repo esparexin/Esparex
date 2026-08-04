@@ -8,6 +8,7 @@ export const useNotifications = () => {
       return await services.notificationService.getNotifications();
     },
     staleTime: 1000 * 30, // 30s
+    refetchOnMount: true, // unread count drives OS badge — always refresh on mount
   });
 };
 

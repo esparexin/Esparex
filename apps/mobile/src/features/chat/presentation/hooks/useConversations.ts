@@ -8,5 +8,6 @@ export const useConversations = () => {
       return await services.chatService.getConversations();
     },
     staleTime: 1000 * 30, // 30 seconds
+    refetchOnMount: true, // unread counts per conversation must be fresh on chat tab entry
   });
 };

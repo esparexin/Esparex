@@ -11,5 +11,6 @@ export function useWalletSummary(enabled: boolean = true) {
     queryFn: () => paymentService.getWalletSummary(),
     enabled,
     staleTime: 1000 * 60 * 2, // 2 minutes
+    refetchOnMount: true, // balance must reflect post-payment state on wallet screen entry
   });
 }
