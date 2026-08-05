@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, Image } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { AppText, Card, Badge, AppIcon } from '@esparex/mobile-ui';
 import { Listing } from '../../domain/Listing';
 
@@ -12,13 +13,22 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress }) =
   const primaryImage = listing.images.find((img) => img.isPrimary)?.url || listing.images[0]?.url;
 
   return (
-    <TouchableOpacity onPress={() => onPress(listing.id)} activeOpacity={0.7} className="mb-4">
+    <TouchableOpacity
+      onPress={() => onPress(listing.id)}
+      activeOpacity={0.7}
+      className="mb-4"
+      accessibilityRole="button"
+      accessibilityLabel={`${listing.title}, ${listing.price.formatted}${listing.location?.display ? `, ${listing.location.display}` : ''}`}
+    >
       <Card className="overflow-hidden">
         {primaryImage ? (
           <Image
             source={{ uri: primaryImage }}
-            resizeMode="cover"
+            contentFit="cover"
+            transition={200}
+            cachePolicy="memory-disk"
             className="w-full h-48 bg-slate-800"
+            accessibilityLabel={`Photo of ${listing.title}`}
           />
         ) : (
           <View className="w-full h-48 bg-slate-800 items-center justify-center">

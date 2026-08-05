@@ -3,24 +3,20 @@
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
-import { getNestedFieldMeta } from "../common/utils";
+import { useStepFieldError } from "../common/Utils";
 import { cn } from "@/components/ui/utils";
 import { getVisibleAttributeFilters, renderAttributeField } from "../common/attribute-fields";
 
 export function SpecificationSection() {
     const { categorySchema, requiresScreenSize, availableSizes } = usePostAdCatalog();
-    const { isEditMode, form, stepValidationAttempts } = usePostAdFlow();
+    const { isEditMode, form } = usePostAdFlow();
     const { watch, setValue } = usePostAdAction();
 
     const attributes = watch("attributes") as Record<string, unknown> | undefined;
     const screenSize = String(watch("screenSize") || "");
 
-    const { touchedFields } = form.formState;
-    const { errors } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]);
-
-    const shouldShowFieldError = useCallback((path: string) => hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, path)), [hasAttemptedStepValidation, touchedFields]);
-    const screenSizeError = shouldShowFieldError("screenSize") ? errors.screenSize?.message : undefined;
+    const getFieldError = useStepFieldError(1);
+    const screenSizeError = getFieldError("screenSize");
 
     const onScreenSizeChange = useCallback((val: string) => {
         setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
@@ -48,7 +44,7 @@ export function SpecificationSection() {
                         {dynamicAttributeFilters.map((f) => renderAttributeField(
                             f, 
                             getAttributeValue(attributes, f.id) ?? f.defaultValue, 
-                            shouldShowFieldError(`attributes.${f.id}`) ? (getNestedFieldMeta(errors, `attributes.${f.id}.message`) as string | undefined) : undefined, 
+                            getFieldError(`attributes.${f.id}`), 
                             updateAttribute
                         ))}
                     </div>
@@ -57,7 +53,7 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <fieldset disabled={isEditMode} className="w-full border-0 p-0 m-0">
-                    <Field label="Screen Size" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
+                    <Field label="Screen Size" labelClassName="text-sm font-medium" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                             {availableSizes.map((size) => {
                                 const isSelected = screenSize === size;

@@ -19,6 +19,13 @@ jobs:
           
       - name: Install Dependencies
         run: npm ci
+
+      - name: Run Repository Gate
+        run: npm run repo:gate
+
+      - name: Generate Governance Observability Dashboard Summary
+        if: always()
+        run: npm run repo:governance-dashboard
         
       - name: Validate Governance Data (Schema, DAG, References)
         run: npm run governance:validate

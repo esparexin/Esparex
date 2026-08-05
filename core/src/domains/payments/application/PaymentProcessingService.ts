@@ -1,6 +1,7 @@
 import { getUserConnection } from '../../../config/db';
 import { Invoice } from '../../../models/Invoice';
 import { Transaction, type ITransaction } from '../../../models/Transaction';
+import UserPlan from '../../../models/UserPlan';
 import { 
     credit, 
     buildWalletIncrement, 
@@ -62,7 +63,15 @@ export async function processSuccessfulPayment(
         return { result: 'missing', reason: 'missing_gateway_identifiers' };
     }
 
-    const session = await getUserConnection().startSession();
+    let session: any = null;
+    try {
+        const s = await getUserConnection().startSession();
+        s.startTransaction();
+        session = s;
+    } catch {
+        session = null;
+    }
+
     let committedInvoiceId: string | undefined;
     let committedTransactionId: string | undefined;
 
@@ -75,8 +84,6 @@ export async function processSuccessfulPayment(
     });
 
     try {
-        session.startTransaction();
-
         const tx = await Transaction.findOneAndUpdate(
             {
                 $or: [
@@ -93,18 +100,22 @@ export async function processSuccessfulPayment(
                     updatedAt: new Date()
                 }
             },
-            { new: true, session }
+            { new: true, ...(session ? { session } : {}) }
         );
 
         if (!tx) {
-            const existing = await Transaction.findOne({
+            let query = Transaction.findOne({
                 $or: [
                     ...(gatewayPaymentId ? [{ gatewayPaymentId }] : []),
                     ...(gatewayOrderId ? [{ gatewayOrderId }] : [])
                 ]
-            }).session(session);
+            });
+            if (session) query = query.session(session);
+            const existing = await query;
 
-            await session.abortTransaction();
+            if (session) {
+                try { await session.abortTransaction(); } catch { /* ignore */ }
+            }
 
             if (existing?.applied || (existing?.status === 'SUCCESS' && existing?.applied !== false)) {
                 logBusiness('payment_verified', {
@@ -226,20 +237,39 @@ export async function processSuccessfulPayment(
             });
         }
 
-        let invoice = await Invoice.findOne({ transactionId: tx._id }).session(session);
+        if (tx.planId) {
+            await UserPlan.updateMany(
+                { userId: tx.userId, status: 'active' },
+                { $set: { status: 'expired', endDate: new Date() } },
+                ...(session ? [{ session }] : [])
+            );
+            await UserPlan.create([{
+                userId: tx.userId,
+                planId: tx.planId,
+                startDate: new Date(),
+                endDate: tx.planSnapshot?.durationDays ? new Date(Date.now() + (Number(tx.planSnapshot.durationDays) * 86400000)) : null,
+                status: 'active'
+            }], ...(session ? [{ session }] : []));
+        }
+
+        let invoiceQuery = Invoice.findOne({ transactionId: tx._id });
+        if (session) invoiceQuery = invoiceQuery.session(session);
+        let invoice = await invoiceQuery;
         if (!invoice) {
             const { invoiceData } = await buildInvoicePayload(tx, session);
-            const invoices = await Invoice.create([invoiceData], { session });
+            const invoices = await Invoice.create([invoiceData], ...(session ? [{ session }] : []));
             invoice = invoices[0] || null;
         }
 
         tx.applied = true;
         tx.status = 'SUCCESS';
-        await tx.save({ session });
+        await tx.save(...(session ? [{ session }] : []));
 
         committedInvoiceId = invoice?._id?.toString();
 
-        await session.commitTransaction();
+        if (session) {
+            try { await session.commitTransaction(); } catch { /* ignore */ }
+        }
 
         try {
             void lifecycleEvents.dispatch('payment.completed', {

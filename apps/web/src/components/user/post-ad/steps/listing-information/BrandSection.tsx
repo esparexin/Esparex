@@ -4,24 +4,20 @@ import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
 import { Field } from "@/components/ui/field";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
-import { getNestedFieldMeta } from "../common/utils";
+import { useStepFieldError } from "../common/Utils";
 import { Button } from "@esparex/ui";
 
 export function BrandSection() {
     const { availableBrands, brandMap, isLoadingBrands, brandsError } = usePostAdCatalog();
     const { watch, handleBrandChange, loadBrandsForCategory } = usePostAdAction();
-    const { form, stepValidationAttempts, isEditMode } = usePostAdFlow();
+    const { form, isEditMode } = usePostAdFlow();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
     const customBrandName = String(watch("customBrandName") ?? "");
 
-    const { touchedFields } = form.formState;
-    const { errors } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[1]);
-
-    const shouldShowFieldError = useCallback((path: string) => hasAttemptedStepValidation || Boolean(getNestedFieldMeta(touchedFields, path)), [hasAttemptedStepValidation, touchedFields]);
-    const brandError = (shouldShowFieldError("brand") || shouldShowFieldError("brandId")) ? (errors.brand?.message ?? errors.brandId?.message) : undefined;
+    const getFieldError = useStepFieldError(1);
+    const brandError = getFieldError("brand") || getFieldError("brandId");
 
     const onBrandChange = useCallback((name: string, rId?: string) => {
         if (isEditMode) return;
@@ -40,7 +36,7 @@ export function BrandSection() {
     return (
         <section className="space-y-2" aria-labelledby="brand-heading">
             <h2 id="brand-heading" className="sr-only">Brand</h2>
-            <Field label="Brand" error={brandError as string} required>
+            <Field label="Brand" labelClassName="text-sm font-medium" error={brandError as string} required>
                 <BrandSearchSelect 
                     brands={availableBrands} 
                     brandMap={brandMap as any} 

@@ -41,14 +41,6 @@ export const SearchScreen = () => {
 
   const keyExtractor = useCallback((item: Listing) => item.id, []);
 
-  const getItemLayout = useCallback(
-    (_: ArrayLike<Listing> | null | undefined, index: number) => ({
-      length: 300,
-      offset: 300 * index,
-      index,
-    }),
-    [],
-  );
 
   const listings = data?.pages.flat() ?? [];
   const hasSearched = debouncedQuery.length > 0;
@@ -87,7 +79,6 @@ export const SearchScreen = () => {
         data={listings}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        getItemLayout={getItemLayout}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews

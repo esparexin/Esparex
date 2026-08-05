@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "updatedAt": "2026-08-03T12:46:30.000Z",
+  "description": "Authoritative technical debt baseline snapshot. Pre-existing debt is recorded and grandfathered; zero NEW debt allowed.",
+  "baselines": {
+    "namingViolations": [],
+    "platformGovernanceViolations": [],
+    "adminStatusLiteralViolations": [],
+    "missingPublicBarrels": [],
+    "missingDomainManifests": [],
+    "orphanFiles": [
+      "apps/mobile/.eslintrc.js"
+    ],
+    "duplicateCodeClones": 15
+  }
+}

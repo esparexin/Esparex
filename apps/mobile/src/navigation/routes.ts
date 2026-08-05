@@ -27,6 +27,12 @@ export const ROUTES = {
   // Profile nested screens
   PROFILE_OVERVIEW: 'ProfileOverview',
   PROFILE_SETTINGS: 'ProfileSettings',
+  BUSINESS_REGISTRATION: 'BusinessRegistration',
+  BUSINESS_STATUS: 'BusinessStatus',
+  PLAN_SELECTION: 'PlanSelection',
+  TRANSACTION_HISTORY: 'TransactionHistory',
+  SMART_ALERTS: 'SmartAlerts',
+  SAVED_ADS: 'SavedAds',
 } as const;
 
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -62,10 +68,16 @@ export type ChatStackParamList = {
   [ROUTES.CHAT_THREAD]: { conversationId: string };
 };
 
-// Profile stack: overview → settings
+// Profile stack: overview → settings → business → payment → smart alerts → saved ads
 export type ProfileStackParamList = {
   [ROUTES.PROFILE_OVERVIEW]: undefined;
   [ROUTES.PROFILE_SETTINGS]: undefined;
+  [ROUTES.BUSINESS_REGISTRATION]: undefined;
+  [ROUTES.BUSINESS_STATUS]: undefined;
+  [ROUTES.PLAN_SELECTION]: undefined;
+  [ROUTES.TRANSACTION_HISTORY]: undefined;
+  [ROUTES.SMART_ALERTS]: undefined;
+  [ROUTES.SAVED_ADS]: undefined;
 };
 
 

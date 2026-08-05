@@ -22,7 +22,6 @@ export interface Transaction {
     amount: number;
     currency: string;
     status: "INITIATED" | "SUCCESS" | "FAILED";
-    validUntil?: string;
 
     createdAt: string;
     updatedAt: string;

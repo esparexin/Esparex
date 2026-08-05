@@ -40,7 +40,7 @@ function run(val) {
     } catch { /* ignore */ }
   });
 
-  const metadataFiles = ['package.json', 'package-lock.json', '.eslintcache', '.jscpd-report/jscpd-report.json'];
+  const metadataFiles = ['package.json', 'package-lock.json', '.jscpd-report/jscpd-report.json'];
   metadataFiles.forEach(f => {
     const fullPath = path.join(ROOT, f);
     try {
@@ -73,7 +73,7 @@ function run(val) {
     const relPath = path.relative(ROOT, file);
     const normalizedPath = relPath.replace(/\\/g, '/');
     const isTest = normalizedPath.includes('__tests__') || normalizedPath.endsWith('.spec.ts') || normalizedPath.endsWith('.spec.tsx') || normalizedPath.endsWith('.test.ts') || normalizedPath.endsWith('.test.tsx');
-    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json') || normalizedPath.endsWith('.eslintrc.js');
+    const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.includes('.eslintrc') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json');
 
     if (isTest || isScriptOrConfig) return;
 

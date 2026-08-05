@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, Image, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { View, FlatList, Dimensions, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
+import { Image } from 'expo-image';
 import { Center, AppIcon, AppText } from '@esparex/mobile-ui';
 
 const { width } = Dimensions.get('window');
@@ -35,12 +36,14 @@ export const ImageCarousel = ({ images }: ImageCarouselProps) => {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
-        scrollEventThrottle={16}
+        scrollEventThrottle={100}
         renderItem={({ item }) => (
           <Image
             source={{ uri: item }}
             style={{ width, height: '100%' }}
-            resizeMode="cover"
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={150}
           />
         )}
       />

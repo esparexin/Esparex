@@ -247,8 +247,18 @@ export function CatalogSearchSelect<T>({
                                             onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-4 h-10 text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
+                                        className="pl-9 pr-10 h-10 text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
                                     />
+                                    {search.trim() && onProposeCustom && (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleProposeCustom(search)}
+                                            title={`Add "${search.trim()}" as custom ${proposeType}`}
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
+                                        >
+                                            <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1">

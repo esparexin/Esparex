@@ -14,12 +14,14 @@ import { cn } from "@/components/ui/utils";
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 import { useImageDropzone } from "./useImageDropzone";
 import { UploadSourcePicker } from "./UploadSourcePicker";
+import { useIsMobileDevice } from "@/components/ui/useMobile";
 
 interface ListingImagesFieldProps {
     images: ListingImage[];
     onUpload: (files: File[]) => void;
     onRemove: (idOrIndex: any) => void;
     onSetMain?: (index: number) => void;
+    onReorder?: (startIndex: number, endIndex: number) => void;
     firstImageBadgeLabel?: string;
     error?: string;
     helperText?: string;
@@ -31,20 +33,30 @@ export function ListingImagesField({
     onUpload,
     onRemove,
     onSetMain,
+    onReorder,
     firstImageBadgeLabel = "MAIN",
     error,
     helperText,
     disabled = false,
 }: ListingImagesFieldProps) {
     const [pickerOpen, setPickerOpen] = useState(false);
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
     const galleryInputRef = useRef<HTMLInputElement>(null);
+    const isMobileDevice = useIsMobileDevice();
 
     const { isDraggingOver, dropzoneProps } = useImageDropzone({ onUpload, disabled });
 
     const handleOpenPicker = () => {
         if (disabled || pickerOpen) return;
-        setPickerOpen(true);
+        if (isMobileDevice) {
+            setPickerOpen(true);
+        } else {
+            if (galleryInputRef.current) {
+                galleryInputRef.current.value = "";
+                galleryInputRef.current.click();
+            }
+        }
     };
 
     const handleCamera = () => {
@@ -62,7 +74,7 @@ export function ListingImagesField({
     };
 
     return (
-        <Field label="Photos (up to 10)" error={error}>
+        <Field label="Photos (up to 10)" labelClassName="text-sm font-medium" error={error}>
             <div className="space-y-3">
                 <div
                     {...dropzoneProps}
@@ -144,7 +156,31 @@ export function ListingImagesField({
                         {images.map((img, index) => (
                             <div
                                 key={img.id || index}
-                                className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs"
+                                draggable={Boolean(onReorder && !disabled)}
+                                onDragStart={(e) => {
+                                    setDraggedIndex(index);
+                                    e.dataTransfer.effectAllowed = "move";
+                                    e.dataTransfer.setData("text/plain", String(index));
+                                }}
+                                onDragOver={(e) => {
+                                    if (onReorder) {
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = "move";
+                                    }
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    if (onReorder && draggedIndex !== null && draggedIndex !== index) {
+                                        onReorder(draggedIndex, index);
+                                    }
+                                    setDraggedIndex(null);
+                                }}
+                                onDragEnd={() => setDraggedIndex(null)}
+                                className={cn(
+                                    "relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs transition-transform",
+                                    onReorder && !disabled && "cursor-grab active:cursor-grabbing",
+                                    draggedIndex === index && "opacity-40 scale-95 border-primary border-dashed"
+                                )}
                             >
                                 <Image
                                     src={img.preview}
@@ -152,7 +188,7 @@ export function ListingImagesField({
                                     fill
                                     unoptimized
                                     sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
-                                    className="object-cover"
+                                    className="object-cover pointer-events-none"
                                 />
 
                                 {/* Mobile Always-Visible Remove Button / Desktop Hover Overlay */}
@@ -165,7 +201,7 @@ export function ListingImagesField({
                                                 onRemove(img.id ?? index);
                                             }}
                                             aria-label={getRemovePhotoAriaLabel(index, images.length)}
-                                            className="p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[32px] min-w-[32px] flex items-center justify-center"
+                                            className="p-1.5 bg-black/70 text-white rounded-full hover:bg-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
                                         >
                                             <X className="w-3.5 h-3.5" />
                                         </button>
@@ -177,7 +213,7 @@ export function ListingImagesField({
                                                 e.stopPropagation();
                                                 onSetMain(index);
                                             }}
-                                            className="w-full py-1 text-tiny font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation"
+                                            className="w-full py-1 text-tiny font-semibold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-wider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation cursor-pointer"
                                         >
                                             Set Main
                                         </button>
@@ -218,7 +254,7 @@ export function ListingLocationField({
     helperText,
 }: ListingLocationFieldProps) {
     return (
-        <Field label="Listing Location" error={error}>
+        <Field label="Listing Location" labelClassName="text-sm font-medium" error={error}>
             <div className="space-y-2">
                 {display ? (
                     <div className="flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-foreground-secondary">
@@ -260,7 +296,7 @@ interface ListingTitleFieldProps {
 }
 export function ListingTitleField({ label, error, required = true, registerProps, placeholder, valueLength, maxLength = 60 }: ListingTitleFieldProps) {
     return (
-        <Field label={label} error={error} required={required}>
+        <Field label={label} labelClassName="text-sm font-medium" error={error} required={required}>
             <div className="relative">
                 <Input
                     {...registerProps}
@@ -302,15 +338,17 @@ export function ListingPriceField({
     disabled = false,
 }: ListingPriceFieldProps) {
     return (
-        <Field label={label} error={error} required={required}>
+        <Field label={label} labelClassName="text-sm font-medium" error={error} required={required}>
             <div className="flex flex-row gap-3">
                 <div className="relative flex-1 min-w-0">
                     {showCurrencySymbol && (
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm pointer-events-none">₹</span>
                     )}
                     <Input
-                        type="number"
-                        min={0}
+                        type="text"
+                        inputMode="decimal"
+                        pattern="[0-9]*"
+                        autoComplete="off"
                         disabled={disabled || isFree}
                         {...registerProps}
                         placeholder={placeholder}
@@ -367,7 +405,7 @@ interface ListingDescriptionFieldProps {
 }
 export function ListingDescriptionField({ label = "Description", error, required = true, registerProps, placeholder, valueLength, maxLength = 2000 }: ListingDescriptionFieldProps) {
     return (
-        <Field label={label} error={error} required={required}>
+        <Field label={label} labelClassName="text-sm font-medium" error={error} required={required}>
             <div className="relative">
                 <Textarea
                     {...registerProps}

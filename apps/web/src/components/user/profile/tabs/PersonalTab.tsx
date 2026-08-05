@@ -4,17 +4,13 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { personalProfileSchema, type PersonalProfileValues } from "@esparex/contracts";
-import { MOBILE_VISIBILITY } from "@esparex/contracts";
+import { personalProfileSchema, type PersonalProfileValues, MOBILE_VISIBILITY } from "@esparex/contracts";
 
-import { PageSection } from "@/components/layout";
 import { Button, Switch } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { User, Camera, Upload, Trash2, Save } from "@/icons/IconRegistry";
-import { PhoneInput } from "../PhoneInput";
+import { User, Camera, Lock } from "@/icons/IconRegistry";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
 
 import { updateProfile } from "@/lib/api/user/users";
@@ -75,13 +71,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         submitData.append("name", data.name);
         submitData.append("email", data.email);
         submitData.append("mobileVisibility", data.mobileVisibility);
-        
+
         if (selectedPhotoFile) {
             submitData.append("profilePhoto", selectedPhotoFile);
         } else if (previewPhoto === null && user?.profilePhoto) {
-            // They removed the photo, we might need to send a flag to delete it,
-            // or maybe updateProfile handles empty profilePhoto?
-            // Assuming the API allows setting it to empty.
             submitData.append("removePhoto", "true");
         }
 
@@ -128,7 +121,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         reader.onloadend = () => {
             setPreviewPhoto(reader.result as string);
             setShowPhotoDialog(false);
-            notify.success("Photo selected! Click 'Save Changes' to upload.");
+            notify.success("Photo selected! Click 'Save changes' to upload.");
         };
         reader.readAsDataURL(file);
     };
@@ -139,202 +132,163 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         setPhotoError(undefined);
         setGlobalError(null);
         setShowPhotoDialog(false);
-        notify.success("Photo removed! Click 'Save Changes' to apply.");
+        notify.success("Photo removed! Click 'Save changes' to apply.");
     };
 
     const nameError = form.formState.errors.name?.message;
     const emailError = form.formState.errors.email?.message;
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
-            <PageSection
-                variant="bordered"
-                title={
-                    <span className="flex items-center gap-2 text-lg font-semibold text-slate-900">
-                        <User className="h-5 w-5 text-blue-600" />
-                        Personal Information
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="max-w-xl mx-auto space-y-3.5 px-1 sm:px-0">
+            {/* Profile Photo Section */}
+            <div className="flex items-center gap-3.5">
+                <div
+                    className="relative cursor-pointer group shrink-0"
+                    onClick={() => setShowPhotoDialog(true)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setShowPhotoDialog(true);
+                        }
+                    }}
+                    aria-label="Change profile photo"
+                >
+                    <div className="h-14 w-14 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center relative shadow-2xs">
+                        {previewPhoto ? (
+                            <Image
+                                src={previewPhoto}
+                                alt="Profile"
+                                fill
+                                priority
+                                unoptimized
+                                className="object-cover"
+                                sizes="56px"
+                            />
+                        ) : (
+                            <User className="h-7 w-7 text-slate-400" />
+                        )}
+                    </div>
+                    <div className="absolute bottom-0 right-0 h-5.5 w-5.5 rounded-full bg-slate-900 text-white border-2 border-white flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105">
+                        <Camera className="h-3 w-3" />
+                    </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">Profile photo</h4>
+                    <p className="text-tiny sm:text-xs text-slate-500 mt-0.5">
+                        JPG, PNG, WEBP. Max 5MB.
+                    </p>
+                    <FormError message={photoError} />
+                </div>
+            </div>
+
+            {/* Full Name Field */}
+            <div className="space-y-1.5">
+                <Label htmlFor="profile-name" className="text-xs font-semibold text-slate-700">
+                    Full name
+                </Label>
+                <Input
+                    id="profile-name"
+                    placeholder="Kalyn"
+                    maxLength={50}
+                    {...form.register("name")}
+                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${nameError ? "border-red-500" : ""}`}
+                    aria-invalid={!!nameError}
+                    aria-describedby={nameError ? "profile-name-error" : undefined}
+                    autoComplete="name"
+                />
+                <FormError id="profile-name-error" message={nameError} />
+            </div>
+
+            {/* Email Field */}
+            <div className="space-y-1.5">
+                <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
+                    Email
+                </Label>
+                <Input
+                    id="profile-email"
+                    type="email"
+                    placeholder="name@company.com"
+                    {...form.register("email")}
+                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${emailError ? "border-red-500" : ""}`}
+                    aria-invalid={!!emailError}
+                    aria-describedby={emailError ? "profile-email-error" : undefined}
+                    autoComplete="email"
+                />
+                <FormError id="profile-email-error" message={emailError} />
+            </div>
+
+            {/* Mobile Number Read-Only Display */}
+            <div className="space-y-1.5">
+                <Label htmlFor="profile-mobile" className="text-xs font-semibold text-slate-700">
+                    Mobile number
+                </Label>
+                <div className="h-10 sm:h-10.5 rounded-xl bg-slate-100/70 border border-slate-200/80 px-3.5 flex items-center gap-2.5">
+                    <Lock className="h-4 w-4 text-slate-400 shrink-0" />
+                    <span className="text-xs sm:text-sm font-semibold text-slate-800 tracking-wide">
+                        {user?.mobile ? (user.mobile.startsWith("+") ? user.mobile : `+91 ${user.mobile}`) : "+91 96787 87688"}
                     </span>
-                }
-                subtitle="Update your personal details"
+                </div>
+            </div>
+
+            {/* Show Number to Buyers Switch Row */}
+            <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-3">
+                <div>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900">Show number to buyers</h4>
+                    <p className="text-tiny text-slate-500 mt-0.5">Buyers can call you directly</p>
+                </div>
+                <Controller
+                    name="mobileVisibility"
+                    control={form.control}
+                    render={({ field }) => (
+                        <Switch
+                            id="mobile-visibility-toggle"
+                            checked={field.value === 'show'}
+                            onCheckedChange={(checked) => field.onChange(checked ? 'show' : 'hide')}
+                        />
+                    )}
+                />
+            </div>
+
+            <FormError message={globalError} />
+
+            {/* Full-Width Dark Save Changes Button (Normal Standard Button Size) */}
+            <Button
+                type="submit"
+                size="lg"
+                disabled={isSaving}
+                className="w-full h-11 sm:h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm sm:text-base rounded-xl transition-all shadow-sm active:scale-[0.98] mt-4 flex items-center justify-center min-h-[44px]"
             >
-                    {/* Profile Photo Section */}
-                    <div className="space-y-2">
-                        <Label className="account-field-label">Profile Photo</Label>
-                        <div className="flex items-center gap-4">
-                            <div className="relative">
-                                <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-2 border-slate-100 overflow-hidden bg-slate-50 flex items-center justify-center shadow-inner">
-                                    {previewPhoto ? (
-                                        <Image
-                                            src={previewPhoto}
-                                            alt="Profile"
-                                            fill
-                                            priority
-                                            unoptimized
-                                            className="object-cover"
-                                            sizes="80px"
-                                        />
-                                    ) : (
-                                        <User className="h-8 w-8 md:h-10 md:w-10 text-foreground-subtle" />
-                                    )}
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPhotoDialog(true)}
-                                    aria-label="Upload profile photo"
-                                    title="Upload profile photo"
-                                    className="absolute -bottom-1 -right-1 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-blue-600 text-white shadow-md transition-transform active:scale-95 z-10 hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                                >
-                                    <Camera className="h-5 w-5" />
-                                </button>
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex gap-2">
-                                    <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => setShowPhotoDialog(true)}
-                                        className="gap-2"
-                                    >
-                                        <Upload className="h-3 w-3" />
-                                        Upload
-                                    </Button>
-                                    {previewPhoto && (
-                                        <Button
-                                            type="button"
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={handlePhotoDelete}
-                                            className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                        >
-                                            <Trash2 className="h-3 w-3" />
-                                            Remove
-                                        </Button>
-                                    )}
-                                </div>
-                                <p className="mt-1.5 text-xs text-muted-foreground">
-                                    {PROFILE_PHOTO_ALLOWED_LABEL}. Max 5MB.
-                                </p>
-                                <FormError message={photoError} />
-                            </div>
-                        </div>
-                    </div>
+                {isSaving ? "Saving..." : "Save changes"}
+            </Button>
 
-                    <Separator className="my-2" />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-                        <div className="space-y-1.5">
-                            <div className="flex items-center justify-between max-w-[420px]">
-                                <Label htmlFor="profile-name">Full Name *</Label>
-                                {/* eslint-disable-next-line react-hooks/incompatible-library -- intentional: form.watch() for live char count; react-hook-form limitation */}
-                                <span className={`text-xs font-medium ${(form.watch('name') || "").length > 50 ? "text-destructive" : "text-muted-foreground"}`}>
-                                    {(form.watch('name') || "").length}/50
-                                </span>
-                            </div>
-                            <Input
-                                id="profile-name"
-                                placeholder="Enter your name"
-                                maxLength={50}
-                                {...form.register("name")}
-                                className={`max-w-[420px] ${nameError ? "border-red-500" : ""}`}
-                                aria-invalid={!!nameError}
-                                aria-describedby={nameError ? "profile-name-error" : undefined}
-                                autoComplete="name"
-                            />
-                            <FormError id="profile-name-error" message={nameError} />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="profile-email">Email *</Label>
-                            <Input
-                                id="profile-email"
-                                type="email"
-                                placeholder="Enter your email"
-                                {...form.register("email")}
-                                className={`max-w-[420px] ${emailError ? "border-red-500" : ""}`}
-                                aria-invalid={!!emailError}
-                                aria-describedby={emailError ? "profile-email-error" : undefined}
-                                autoComplete="email"
-                            />
-                            <FormError id="profile-email-error" message={emailError} />
-                        </div>
-
-                        <div className="space-y-1.5 md:col-span-2 max-w-[420px]">
-                            <div className="flex items-center justify-between pb-0.5">
-                                <Label htmlFor="mobile-visibility-toggle">Mobile Number</Label>
-                                <div className="flex items-center gap-2">
-                                    <Label htmlFor="mobile-visibility-toggle" className="text-xs text-muted-foreground font-normal cursor-pointer">
-                                        {form.watch('mobileVisibility') === 'show' ? "Visible to buyers" : "Hidden from buyers"}
-                                    </Label>
-                                    <Controller
-                                        name="mobileVisibility"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <Switch
-                                                id="mobile-visibility-toggle"
-                                                checked={field.value === 'show'}
-                                                onCheckedChange={(checked) => field.onChange(checked ? 'show' : 'hide')}
-                                                className="scale-90 origin-right"
-                                            />
-                                        )}
-                                    />
-                                </div>
-                            </div>
-                            <PhoneInput
-                                id="profile-mobile"
-                                name="mobile"
-                                value={user?.mobile || ""}
-                                disabled
-                                isVerified={user?.isPhoneVerified}
-                                autoComplete="tel"
-                            />
-                            <p className="mt-1 text-xs text-muted-foreground">
-                                Your verified mobile number is managed separately. Need to change it? <a href="mailto:support@esparex.com" className="text-link hover:underline">Contact Support</a>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="fixed bottom-16 left-0 right-0 z-30 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg md:static md:p-0 md:bg-transparent md:border-0 md:shadow-none md:pt-3 md:flex md:justify-end">
-                        <div className="w-full md:w-auto">
-                            <FormError message={globalError} />
-                            <Button
-                                type="submit"
-                                disabled={isSaving}
-                                className="w-full md:w-auto md:min-w-[200px] md:max-w-[320px] bg-blue-600 text-white shadow-lg shadow-blue-200/50 hover:bg-blue-700 disabled:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 h-12 md:h-10 text-sm font-semibold"
-                            >
-                                <Save className="h-4 w-4 mr-2" />
-                                {isSaving ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </div>
-                    </div>
-                </PageSection>
-
-            <input 
+            <input
                 ref={cameraInputRef}
-                type="file" 
-                id="photo-upload-camera" 
-                className="hidden" 
-                accept={PROFILE_PHOTO_ACCEPT} 
+                type="file"
+                id="photo-upload-camera"
+                className="hidden"
+                accept={PROFILE_PHOTO_ACCEPT}
                 capture="user"
                 onChange={(e) => {
                     handlePhotoSelect(e);
                     e.target.value = "";
-                }} 
+                }}
             />
-            <input 
+            <input
                 ref={galleryInputRef}
-                type="file" 
-                id="photo-upload-gallery" 
-                className="hidden" 
-                accept={PROFILE_PHOTO_ACCEPT} 
+                type="file"
+                id="photo-upload-gallery"
+                className="hidden"
+                accept={PROFILE_PHOTO_ACCEPT}
                 onChange={(e) => {
                     handlePhotoSelect(e);
                     e.target.value = "";
-                }} 
+                }}
             />
-            <UploadSourcePicker 
-                open={showPhotoDialog} 
-                onOpenChange={setShowPhotoDialog} 
+            <UploadSourcePicker
+                open={showPhotoDialog}
+                onOpenChange={setShowPhotoDialog}
                 onCamera={handleCamera}
                 onGallery={handleGallery}
                 onRemovePhoto={handlePhotoDelete}

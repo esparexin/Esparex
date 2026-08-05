@@ -38,7 +38,7 @@ export function getUserDisplayName(user: Pick<User, "name" | "mobile" | "email">
 }
 
 export function normalizeManagedUserStatus(status?: User["status"]) {
-    return normalizeUserStatus(status, 'active');
+    return normalizeUserStatus(status, USER_STATUS.LIVE);
 }
 
 export function isManagedUserActive(status?: User["status"]) {

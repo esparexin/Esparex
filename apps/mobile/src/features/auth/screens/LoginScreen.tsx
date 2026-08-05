@@ -30,7 +30,11 @@ export const LoginScreen = () => {
       title="Welcome Back"
       description="Enter your credentials to continue"
       footer={
-        <TouchableOpacity onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.SIGNUP })}>
+        <TouchableOpacity
+          onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.SIGNUP })}
+          accessibilityRole="button"
+          accessibilityLabel="Don't have an account? Sign up"
+        >
           <AppText variant="body" className="text-slate-500">
             Don't have an account? <AppText className="text-sky-500 font-semibold">Sign up</AppText>
           </AppText>
@@ -52,7 +56,12 @@ export const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.FORGOT_PASSWORD })} className="self-end mb-2">
+      <TouchableOpacity
+        onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.FORGOT_PASSWORD })}
+        className="self-end mb-2"
+        accessibilityRole="button"
+        accessibilityLabel="Forgot Password?"
+      >
         <AppText variant="caption" className="text-sky-500">Forgot Password?</AppText>
       </TouchableOpacity>
       

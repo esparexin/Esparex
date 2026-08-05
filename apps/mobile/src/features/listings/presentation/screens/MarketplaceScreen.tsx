@@ -71,14 +71,7 @@ export const MarketplaceScreen = () => {
 
   const keyExtractor = useCallback((item: Listing) => item.id, []);
 
-  const getItemLayout = useCallback(
-    (_: ArrayLike<Listing> | null | undefined, index: number) => ({
-      length: 300,
-      offset: 300 * index,
-      index,
-    }),
-    [],
-  );
+
 
   if (isError) {
     return (
@@ -114,7 +107,6 @@ export const MarketplaceScreen = () => {
             data={listings}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
-            getItemLayout={getItemLayout}
             contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={true}

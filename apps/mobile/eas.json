@@ -1,19 +1,42 @@
 {
   "cli": {
-    "version": ">= 12.5.0"
+    "version": ">= 12.5.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "development",
+      "env": {
+        "EX_DEV_CLIENT_NETWORK_INSPECTOR": "true"
+      },
       "ios": {
         "simulator": true
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "EX_DEV_CLIENT_NETWORK_INSPECTOR": "false",
+        "EXPO_PUBLIC_API_URL": "https://api.esparex.in/api"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
-    "production": {}
+    "production": {
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "EX_DEV_CLIENT_NETWORK_INSPECTOR": "false",
+        "EXPO_PUBLIC_API_URL": "https://api.esparex.in/api"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    }
   },
   "submit": {
     "production": {}

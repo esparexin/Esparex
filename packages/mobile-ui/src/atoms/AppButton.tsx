@@ -65,11 +65,21 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
   const textStyle = `${getTextColor()} font-semibold ${size === 'lg' ? 'text-lg' : size === 'sm' ? 'text-sm' : 'text-base'}`;
 
+  const computedHitSlop = props.hitSlop || (size === 'sm' ? { top: 8, bottom: 8, left: 8, right: 8 } : undefined);
+
   return (
     <TouchableOpacity
       className={getContainerStyles()}
       disabled={disabled || loading}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={props.accessibilityLabel || label}
+      accessibilityState={{
+        disabled: !!(disabled || loading),
+        busy: !!loading,
+        ...(props.accessibilityState || {}),
+      }}
+      hitSlop={computedHitSlop}
       {...(props as any)}
     >
       {loading ? (

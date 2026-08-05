@@ -125,6 +125,10 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
             contentContainerStyle={{ padding: 16, paddingBottom: 20 }}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+            windowSize={10}
+            maxToRenderPerBatch={10}
+            initialNumToRender={15}
+            removeClippedSubviews={true}
           />
 
           {/* Input Composer */}

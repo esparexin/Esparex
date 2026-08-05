@@ -4,7 +4,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 import Link from "next/link";
 import {
     Clock, Edit2, Trash2, RefreshCw, CheckSquare,
-    PowerOff, Power, MoreVertical, Share2,
+    PowerOff, Power, MoreVertical, Share2, Sparkles, Zap,
 } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageSrc } from "@/lib/image/imageUrl";
@@ -53,6 +53,7 @@ interface ListingItemProps {
     onDeactivate?: () => void;
     onActivate?: () => void;
     onMarkSold?: () => void;
+    onBoost?: () => void;
     metaBadges?: MetaBadge[];
     tags?: Tag[];
     priority?: boolean;
@@ -76,7 +77,7 @@ export function ListingItem({
     title, status, listingType = "ad", thumbnail, priceLabel, priceClassName,
     rejectionReason, createdAt, expiresAt, views, likes: _likes,
     getStatusBadge, editHref, detailHref,
-    onDelete, onRenew, onDeactivate, onActivate, onMarkSold,
+    onDelete, onRenew, onDeactivate, onActivate, onMarkSold, onBoost,
     metaBadges = [], tags = [], priority = false, showStatusBadge = true, className,
 }: ListingItemProps) {
     const isAd = listingType.toLowerCase() === "ad";
@@ -94,11 +95,12 @@ export function ListingItem({
     const showActivate   = isDeactivated && !!onActivate;
     const showMarkSold   = isAd && (isActive || isExpired) && !!onMarkSold;
     const showRenew      = !isAd && (isExpired || isSold) && !!onRenew;
+    const showBoost      = isActive && !!onBoost;
     // Delete is NEVER shown on live / active listings
     const showDelete     = !isActive;
 
     const hasOverflowItems =
-        showMarkSold || showDeactivate || showActivate || showRenew || showDelete;
+        showMarkSold || showDeactivate || showActivate || showRenew || showBoost || showDelete;
 
     // ── View count ────────────────────────────────────────────────
     const viewMetrics: ListingViews | null =
@@ -132,24 +134,46 @@ export function ListingItem({
             {/* ══════════════════════════════════════════════════════
                 ZONE 1 — Thumbnail  (fixed 62 × 62 / 68 × 68)
             ══════════════════════════════════════════════════════ */}
-            <div
-                className={cn(
-                    "shrink-0 self-center",
-                    "relative w-[62px] h-[62px]",
-                    "md:w-[68px] md:h-[68px]",
-                    "rounded-lg overflow-hidden bg-slate-100 border border-slate-100/80",
-                )}
-            >
-                <SafeImage
-                    src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
-                    alt={title}
-                    fill
-                    priority={priority}
-                    unoptimized
-                    className="object-cover"
-                    sizes="(max-width: 768px) 62px, 68px"
-                />
-            </div>
+            {detailHref ? (
+                <Link href={detailHref} className="shrink-0 self-center group">
+                    <div
+                        className={cn(
+                            "relative w-[62px] h-[62px]",
+                            "md:w-[68px] md:h-[68px]",
+                            "rounded-lg overflow-hidden bg-slate-100 border border-slate-100/80 group-hover:opacity-90 transition-opacity",
+                        )}
+                    >
+                        <SafeImage
+                            src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
+                            alt={title}
+                            fill
+                            priority={priority}
+                            unoptimized
+                            className="object-cover"
+                            sizes="(max-width: 768px) 62px, 68px"
+                        />
+                    </div>
+                </Link>
+            ) : (
+                <div
+                    className={cn(
+                        "shrink-0 self-center",
+                        "relative w-[62px] h-[62px]",
+                        "md:w-[68px] md:h-[68px]",
+                        "rounded-lg overflow-hidden bg-slate-100 border border-slate-100/80",
+                    )}
+                >
+                    <SafeImage
+                        src={toSafeImageSrc(thumbnail, DEFAULT_IMAGE_PLACEHOLDER)}
+                        alt={title}
+                        fill
+                        priority={priority}
+                        unoptimized
+                        className="object-cover"
+                        sizes="(max-width: 768px) 62px, 68px"
+                    />
+                </div>
+            )}
 
             {/* ══════════════════════════════════════════════════════
                 ZONE 2 — Content  (flex-1, owns: title / price / meta)
@@ -245,20 +269,11 @@ export function ListingItem({
 
             {/* ══════════════════════════════════════════════════════
                 ZONE 3 — Fixed Action Column
-                Width: 72px (all breakpoints — fixed, never grows)
-                Internal layout:
-                  Mobile:  [Badge + ⋮] in one row  →  [Edit] below
-                  Desktop: Badge / ⋮ / Edit stacked vertically
-
-                Every row renders this column at the same width,
-                so badges, menus, and edit buttons ALWAYS align.
             ══════════════════════════════════════════════════════ */}
-            <div className="shrink-0 w-[72px] self-center flex flex-col items-center gap-1.5">
+            <div className="shrink-0 min-w-[80px] self-center flex flex-col items-end gap-1.5">
 
                 {/*
                  * ── Row A: Badge + ⋮ ──
-                 * showStatusBadge=true  → [Badge][⋮]  (justify-between)
-                 * showStatusBadge=false → [    ][⋮]  (⋮ right-aligned, badge absent)
                  */}
                 <div className={cn(
                     "w-full flex items-center gap-1",
@@ -288,45 +303,54 @@ export function ListingItem({
                                     <MoreVertical className="h-3.5 w-3.5" />
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" sideOffset={4} className="min-w-[170px] text-[13px]">
+                            <DropdownMenuContent align="end" sideOffset={4} className="min-w-[140px] p-1 shadow-md border border-slate-200 bg-white">
                                 {showMarkSold && (
                                     <DropdownMenuItem
                                         onClick={onMarkSold}
-                                        className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer"
+                                        className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
                                     >
-                                        <CheckSquare className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        <CheckSquare className="h-3 w-3 mr-1.5 shrink-0" />
                                         Mark as Sold
                                     </DropdownMenuItem>
                                 )}
                                 {showDeactivate && (
                                     <DropdownMenuItem
                                         onClick={onDeactivate}
-                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer"
+                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
                                     >
-                                        <PowerOff className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        <PowerOff className="h-3 w-3 mr-1.5 shrink-0" />
                                         Deactivate
                                     </DropdownMenuItem>
                                 )}
                                 {showActivate && (
                                     <DropdownMenuItem
                                         onClick={onActivate}
-                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
                                     >
-                                        <Power className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        <Power className="h-3 w-3 mr-1.5 shrink-0" />
                                         Activate
+                                    </DropdownMenuItem>
+                                )}
+                                {onBoost && (status === "live" || status === "active") && (
+                                    <DropdownMenuItem
+                                        onClick={onBoost}
+                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                    >
+                                        <Sparkles className="h-3 w-3 mr-1.5 shrink-0 text-amber-500" />
+                                        Apply Boost / Spotlight
                                     </DropdownMenuItem>
                                 )}
                                 {showRenew && (
                                     <DropdownMenuItem
                                         onClick={onRenew}
-                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer"
+                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
                                     >
-                                        <RefreshCw className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        <RefreshCw className="h-3 w-3 mr-1.5 shrink-0" />
                                         Renew
                                     </DropdownMenuItem>
                                 )}
                                 {(showMarkSold || showDeactivate || showActivate || showRenew) &&
-                                    showDelete && <DropdownMenuSeparator />}
+                                    showDelete && <DropdownMenuSeparator className="my-1" />}
                                 {detailHref && (
                                     <DropdownMenuItem
                                         onClick={() => {
@@ -338,18 +362,18 @@ export function ListingItem({
                                                 );
                                             }
                                         }}
-                                        className="cursor-pointer"
+                                        className="cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center text-slate-700"
                                     >
-                                        <Share2 className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        <Share2 className="h-3 w-3 mr-1.5 shrink-0" />
                                         Share
                                     </DropdownMenuItem>
                                 )}
                                 {showDelete && (
                                     <DropdownMenuItem
                                         onClick={onDelete}
-                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
                                     >
-                                        <Trash2 className="h-3.5 w-3.5 mr-2 shrink-0" />
+                                        <Trash2 className="h-3 w-3 mr-1.5 shrink-0" />
                                         Delete
                                     </DropdownMenuItem>
                                 )}
@@ -363,25 +387,41 @@ export function ListingItem({
                     )}
                 </div>
 
-                {/* ── Row B: Pencil icon — direct edit shortcut ── */}
-                {showEdit ? (
-                    <Link
-                        href={editHref}
-                        aria-label="Edit listing"
-                        className={cn(
-                            "h-7 w-7 flex items-center justify-center",
-                            "rounded-md border border-slate-200 text-slate-500",
-                            "hover:text-slate-800 hover:bg-slate-100 hover:border-slate-300",
-                            "transition-colors",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1",
-                        )}
-                    >
-                        <Edit2 className="h-3.5 w-3.5" />
-                    </Link>
-                ) : (
-                    /* Invisible placeholder — preserves vertical rhythm */
-                    <div className="h-7 w-7" aria-hidden="true" />
-                )}
+                {/* ── Row B: Direct Action Shortcut (⚡ Boost + ✏️ Edit) ── */}
+                <div className="flex items-center gap-1 justify-end w-full">
+                    {onBoost && (status === "live" || status === "active") && (
+                        <button
+                            type="button"
+                            onClick={onBoost}
+                            aria-label="Promote listing"
+                            title="Promote / Boost Ad"
+                            className={cn(
+                                "h-7 w-7 flex items-center justify-center shrink-0",
+                                "rounded-md border border-amber-300 bg-amber-50 text-amber-700",
+                                "hover:bg-amber-100 hover:border-amber-400",
+                                "transition-colors shadow-2xs cursor-pointer",
+                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1",
+                            )}
+                        >
+                            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
+                        </button>
+                    )}
+                    {showEdit ? (
+                        <Link
+                            href={editHref}
+                            aria-label="Edit listing"
+                            className={cn(
+                                "h-7 w-7 flex items-center justify-center shrink-0",
+                                "rounded-md border border-slate-200 text-slate-500",
+                                "hover:text-slate-800 hover:bg-slate-100 hover:border-slate-300",
+                                "transition-colors",
+                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1",
+                            )}
+                        >
+                            <Edit2 className="h-3.5 w-3.5" />
+                        </Link>
+                    ) : null}
+                </div>
             </div>
         </div>
     );

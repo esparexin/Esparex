@@ -785,7 +785,69 @@ No pull request containing UI or workflow changes may be merged unless all appli
    - Verify a single owner already exists.
    - Do not introduce additional spacing until ownership has been verified.
 
+---
+
+# 🚨 ESPAREX PLATFORM ARCHITECTURE OPERATING MODEL (MANDATORY)
+
+## Core Architectural Axiom
+
+> **Business rules must never depend on platform. Platform only changes how users interact with the system—not what the system does.**
+
+This standard applies to **every feature, hook, application, component, capability, integration, and workflow** across the Esparex multi-platform monorepo (`apps/web`, `apps/mobile`, `apps/admin`, `@esparex/ui`, `@esparex/core`, `@esparex/contracts`).
+
+---
+
+## 1. Day-to-Day Development Decision Tree
+
+Before writing any code, engineers and AI agents MUST process every feature through the architectural decision tree:
+
+```text
+Is this business logic, domain calculation, or validation?
+    │
+    ├── YES ──► Write in @esparex/core or @esparex/contracts
+    │
+    └── NO
+         │
+         ├── Is it a reusable presentation control, token, or layout primitive?
+         │    │
+         │    ├── YES ──► Write inside @esparex/ui
+         │    │
+         │    └── NO
+         │         │
+         │         ├── Is it a device hardware or browser OS capability?
+         │         │    │
+         │         │    ├── YES ──► Extend/Implement Platform Capability Catalog (Contract + Adapters)
+         │         │    │
+         │         │    └── NO
+         │         │         │
+         │         │         ├── Is it an external cloud service, payment gateway, or SDK integration?
+         │         │         │    │
+         │         │         │    ├── YES ──► Extend/Implement Platform Integration Catalog (Contract + Adapters)
+         │         │         │    │
+         │         │         │    └── NO ──► Feature Module Orchestration Layer
+```
+
+---
+
+## 2. Platform Architecture Specifications & Checklists
+
+For full platform governance specifications, decision records (PADR), capability/integration catalogs, and debt definitions, refer to the authoritative architecture documentation:
+
+- 📘 **Operating Model Specification:** [PLATFORM_ARCHITECTURE.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_ARCHITECTURE.md)
+- 📙 **Capability & Integration Catalog:** [PLATFORM_CAPABILITY_CATALOG.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_CAPABILITY_CATALOG.md)
+- 📋 **Architectural Review Checklist:** [ARCHITECTURE_CHECKLIST.md](file:///Users/admin/Desktop/Esparex/docs/architecture/ARCHITECTURE_CHECKLIST.md)
 
 
+---
 
+## 3. Platform Verification Quality Gate Summary
+
+No pull request containing platform capabilities or integrations may be merged unless all items pass verification:
+
+- [ ] **Web Desktop Verified:** Verified on Desktop Chrome/Safari. Hardware/media capabilities use browser-native patterns (e.g., native OS File Picker). Zero mobile hardware dialogs rendered.
+- [ ] **Web Mobile Verified:** Verified responsive behavior and web capability fallbacks on mobile browsers.
+- [ ] **Tablet Web Verified:** Verified touch & pointer interaction parity on tablet viewports.
+- [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with native permission handling.
+- [ ] **Android Native Verified:** Verified native Android device/emulator behavior with native back button and permission handling.
+- [ ] **Parity Verification:** Business logic, validation rules, and API DTO contracts are 100% identical across all 5 platforms.
 

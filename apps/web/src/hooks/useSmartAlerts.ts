@@ -76,13 +76,46 @@ const mapAlertToListItem = (alert: SmartAlert): SmartAlertListItem => {
     };
 };
 
+export const deriveSmartAlertName = (data: {
+    category?: string;
+    brand?: string;
+    model?: string;
+    keywords?: string;
+    location?: string;
+    radiusKm?: number;
+}): string => {
+    const parts: string[] = [];
+    if (data.brand && data.model) {
+        parts.push(`${data.brand} ${data.model}`);
+    } else if (data.brand) {
+        parts.push(data.brand);
+    } else if (data.keywords?.trim()) {
+        parts.push(data.keywords.trim());
+    } else if (data.category) {
+        parts.push(data.category);
+    } else {
+        parts.push("Smart Alert");
+    }
+
+    if (data.location?.trim()) {
+        parts.push(data.location.trim());
+    }
+    if (typeof data.radiusKm === "number" && data.radiusKm > 0) {
+        parts.push(`${data.radiusKm} km`);
+    }
+
+    return parts.join(" • ");
+};
+
 const createInitialSmartAlertForm = (): SmartAlertFormData => ({
   name: "",
   keywords: "",
   category: "",
+  brand: "",
+  model: "",
   location: "",
   locationId: null,
-  radiusKm: 50,
+  radiusKm: 25,
   notificationChannels: ["email"],
 });
 
@@ -189,7 +222,7 @@ export function useSmartAlerts(enabled = true) {
             category: alert.category,
             location: alert.location,
             locationId: alert.locationId || null,
-            radiusKm: alert.radiusKm ?? 50,
+            radiusKm: alert.radiusKm ?? 25,
             notificationChannels: (alert.notificationChannels as ("email" | "sms" | "push")[]) || ["email"],
         });
         setSmartAlertErrors(emptySmartAlertFieldErrors());
@@ -218,7 +251,7 @@ export function useSmartAlerts(enabled = true) {
             return;
         }
 
-        const { name, keywords, category, location, locationId, radiusKm, notificationChannels } = parsedForm.data;
+        const { keywords, category, brand, model, location, locationId, radiusKm, notificationChannels } = parsedForm.data;
         const canonicalCoordinates = toCanonicalGeoPoint(selectedLocation?.coordinates);
         const canonicalLocationId = sanitizeMongoObjectId(selectedLocation?.locationId || selectedLocation?.id || locationId);
         const locationDisplay = selectedLocation?.display || selectedLocation?.name || selectedLocation?.city || location || "";
@@ -226,11 +259,22 @@ export function useSmartAlerts(enabled = true) {
         setSmartAlertErrors(emptySmartAlertFieldErrors());
         setSmartAlertGlobalError(null);
 
+        const computedName = deriveSmartAlertName({
+            category,
+            brand,
+            model,
+            keywords,
+            location: locationDisplay,
+            radiusKm,
+        });
+
         const basePayload = {
-            name,
+            name: computedName,
             criteria: {
                 keywords,
                 category: category || undefined,
+                brand: brand || undefined,
+                model: model || undefined,
                 location: locationDisplay || undefined,
                 locationId: canonicalLocationId || undefined,
             },

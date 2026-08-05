@@ -26,6 +26,7 @@ export function Field({
     headerExtra,
     children,
     className,
+    labelClassName,
 }: {
     id?: string;
     label?: string;
@@ -34,6 +35,8 @@ export function Field({
     headerExtra?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
+    /** Override label text size/weight for specific form contexts (e.g. compact listing forms). Does not affect the global default. */
+    labelClassName?: string;
 }) {
     const reactId = React.useId().replace(/:/g, "");
     const resolvedId = customId ?? `field-${reactId}`;
@@ -54,7 +57,10 @@ export function Field({
                     <div className="flex items-center justify-between gap-2">
                         <label
                             htmlFor={resolvedId}
-                            className="text-base font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            className={cn(
+                                "text-base font-medium leading-snug text-foreground-secondary peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+                                labelClassName
+                            )}
                         >
                             {label}
                             {required && <span className="text-destructive ml-1">*</span>}

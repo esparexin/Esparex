@@ -3,6 +3,11 @@ import { Schema, Model, Types } from "mongoose";
 import { getUserConnection } from "../config/db";
 import { applyToJSONTransform } from '../utils/schemaOptions';
 
+/**
+ * @deprecated
+ * Inline CreditRule model is superseded by `MonetizationRulesEngine.ts` (ADR-004).
+ * All posting deduction and credit requirement logic is now evaluated by the central rules engine.
+ */
 export interface ICreditRule {
     categoryId?: Types.ObjectId;
     locationId?: Types.ObjectId;

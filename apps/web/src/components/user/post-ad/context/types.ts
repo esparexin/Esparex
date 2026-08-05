@@ -37,6 +37,7 @@ export interface PostAdContextType {
     addImages: (files: File[]) => void;
     removeImage: (index: number) => void;
     setMainImage: (index: number) => void;
+    reorderImages: (startIndex: number, endIndex: number) => void;
     listingLocation: ListingLocation | null;
     locationDisplay: string;
     coordinates: GeoJSONPoint | null | undefined;
@@ -132,5 +133,5 @@ export type PostAdFlowState = {
     listingId?: string;
 };
 
-export type PostAdStateContextType = Omit<PostAdContextType, 'setCurrentStep' | 'nextStep' | 'prevStep' | 'handleCategoryChange' | 'handleBrandChange' | 'handleModelChange' | 'toggleSparePart' | 'toggleAllSpareParts' | 'addImages' | 'removeImage' | 'setMainImage' | 'setLocation' | 'loadBrandsForCategory' | 'loadModelsForBrand' | 'loadSparePartsForCategory' | 'loadCategorySchema' | 'refreshBrands' | 'generateDescription' | 'submitAd' | 'setUserHasInteracted' | 'setLoadError' | 'setFormError' | 'setImageUploadError' | 'setSubmittedAd' | 'setValue' | 'register' | 'watch' | 'initializeFromListing' | 'resetToCreateMode'>;
-export type PostAdActionContextType = Pick<PostAdContextType, 'setCurrentStep' | 'nextStep' | 'prevStep' | 'handleCategoryChange' | 'handleBrandChange' | 'handleModelChange' | 'toggleSparePart' | 'toggleAllSpareParts' | 'addImages' | 'removeImage' | 'setMainImage' | 'setLocation' | 'loadBrandsForCategory' | 'loadModelsForBrand' | 'loadSparePartsForCategory' | 'loadCategorySchema' | 'refreshBrands' | 'generateDescription' | 'submitAd' | 'setUserHasInteracted' | 'setLoadError' | 'setFormError' | 'setImageUploadError' | 'setSubmittedAd' | 'setValue' | 'register' | 'watch' | 'initializeFromListing' | 'resetToCreateMode'>;
+export type PostAdStateContextType = Omit<PostAdContextType, 'setCurrentStep' | 'nextStep' | 'prevStep' | 'handleCategoryChange' | 'handleBrandChange' | 'handleModelChange' | 'toggleSparePart' | 'toggleAllSpareParts' | 'addImages' | 'removeImage' | 'setMainImage' | 'reorderImages' | 'setLocation' | 'loadBrandsForCategory' | 'loadModelsForBrand' | 'loadSparePartsForCategory' | 'loadCategorySchema' | 'refreshBrands' | 'generateDescription' | 'submitAd' | 'setUserHasInteracted' | 'setLoadError' | 'setFormError' | 'setImageUploadError' | 'setSubmittedAd' | 'setValue' | 'register' | 'watch' | 'initializeFromListing' | 'resetToCreateMode'>;
+export type PostAdActionContextType = Pick<PostAdContextType, 'setCurrentStep' | 'nextStep' | 'prevStep' | 'handleCategoryChange' | 'handleBrandChange' | 'handleModelChange' | 'toggleSparePart' | 'toggleAllSpareParts' | 'addImages' | 'removeImage' | 'setMainImage' | 'reorderImages' | 'setLocation' | 'loadBrandsForCategory' | 'loadModelsForBrand' | 'loadSparePartsForCategory' | 'loadCategorySchema' | 'refreshBrands' | 'generateDescription' | 'submitAd' | 'setUserHasInteracted' | 'setLoadError' | 'setFormError' | 'setImageUploadError' | 'setSubmittedAd' | 'setValue' | 'register' | 'watch' | 'initializeFromListing' | 'resetToCreateMode'>;

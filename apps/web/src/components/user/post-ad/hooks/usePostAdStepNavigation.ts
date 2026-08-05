@@ -3,6 +3,7 @@ import { Path, UseFormReturn } from "react-hook-form";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
 import type { CategoryFilter } from "@esparex/contracts";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
+import { getStepFields } from "../config/postAdStepFields";
 
 interface UsePostAdStepNavigationProps {
     form: UseFormReturn<PostAdFormData>;
@@ -90,23 +91,21 @@ export function usePostAdStepNavigation({
                 const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
                 if (scrollTarget) {
                     scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+                    const focusable = scrollTarget.querySelector("input, select, textarea, button") as HTMLElement | null;
+                    focusable?.focus();
                 }
             });
             return;
         }
 
-        let fieldsToValidate: Path<PostAdFormData>[] = [];
+        let fieldsToValidate = getStepFields(currentStep) as Path<PostAdFormData>[];
 
-        if (currentStep === 1) {
-            fieldsToValidate = [
-                "categoryId", 
-                "category", 
-                "brand", 
-                requiresScreenSize ? "screenSize" : "model",
-                "deviceCondition"
-            ] as Path<PostAdFormData>[];
-        } else if (currentStep === 2) {
-            fieldsToValidate = ["title", "description", "price", "location"] as Path<PostAdFormData>[];
+        // For step 1, screenSize is conditional: only validate it when required.
+        // Replace "model" with "screenSize" in the validation list when screenSize is required.
+        if (currentStep === 1 && requiresScreenSize) {
+            fieldsToValidate = fieldsToValidate.map(
+                (f) => (f === "model" ? "screenSize" : f)
+            ) as Path<PostAdFormData>[];
         }
 
         const isValid = await trigger(fieldsToValidate);
@@ -125,6 +124,8 @@ export function usePostAdStepNavigation({
             const scrollTarget = firstError?.closest("[data-field]") ?? firstError;
             if (scrollTarget) {
                 scrollTarget.scrollIntoView({ behavior: "smooth", block: "center" });
+                const focusable = scrollTarget.querySelector("input, select, textarea, button") as HTMLElement | null;
+                focusable?.focus();
             }
         });
     }, [

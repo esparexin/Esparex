@@ -2,15 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { usePostAdLocationState, usePostAdFlow, usePostAdAction } from "../../context";
+import { usePostAdLocationState, usePostAdAction } from "../../context";
 import { useLocationData } from "@/context/LocationContext";
 import { Field } from "@/components/ui/field";
 import type { Location } from "@/lib/api/user/locations";
 import LocationSelector from "@/components/location/LocationSelector";
 import { LocationFacade, adaptLocationInput } from "@esparex/shared";
 import { AdPayload as PostAdFormData } from "@/schemas/adPayload.schema";
-import { getNestedFieldMeta } from "../common/utils";
-import { getFirstFormErrorMessage } from "@/components/user/shared/ListingFormFields";
+import { useStepFieldError } from "../common/Utils";
 
 type SnappedLocation = Location & { formattedAddress?: string; isSnapped?: boolean };
 
@@ -25,7 +24,6 @@ const buildLocationValue = (adapted: ReturnType<typeof adaptLocationInput>): Non
 export function LocationSection() {
     const { setValue, setError } = useFormContext<PostAdFormData>();
     const { isLocationLocked } = usePostAdLocationState();
-    const { form, stepValidationAttempts } = usePostAdFlow();
     const { setLocation: setContextLocation } = usePostAdAction();
 
     const locationVal = useWatch({ name: "location" });
@@ -135,28 +133,20 @@ export function LocationSection() {
         locationVal?.coordinates,
     ]);
 
-    const { touchedFields, errors, submitCount } = form.formState;
-    const hasAttemptedStepValidation = Boolean(stepValidationAttempts[2]);
-    const hasAttemptedSubmit = submitCount > 0;
-
-    const shouldShowFieldError = useCallback((path: string) => {
-        if (hasAttemptedSubmit || hasAttemptedStepValidation) return true;
-        return Boolean(getNestedFieldMeta(touchedFields, path));
-    }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields]);
-
-    const locationError = shouldShowFieldError("location") ? getFirstFormErrorMessage(errors.location) : undefined;
+    const getFieldError = useStepFieldError(2);
+    const locationError = getFieldError("location");
 
     return (
         <section className="space-y-3" aria-labelledby="location-heading">
             <h2 id="location-heading" className="sr-only">Location</h2>
-            <Field label="Where are you located?" required error={locationError as string}>
+            <Field label="Where are you located?" labelClassName="text-sm font-medium" required error={locationError as string}>
                 <div className="space-y-2">
                     <LocationSelector
                         variant="inline"
                         mode="postAd"
                         onLocationSelect={handleSelectLocation}
                         currentDisplay={locationVal?.display}
-                        className="h-12 font-normal rounded-xl border-2"
+                        className="h-11 font-normal rounded-xl border border-slate-200"
                         disabled={isLocationLocked}
                     />
                     {isLocationLocked ? (

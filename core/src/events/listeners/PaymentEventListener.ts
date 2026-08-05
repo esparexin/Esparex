@@ -12,25 +12,44 @@ import { upgradePlan } from '../../services/business/BusinessSubscriptionService
  */
 export const registerPaymentEventListener = () => {
     lifecycleEvents.on('payment.completed', async (payload: PaymentCompletedEvent) => {
+        const planTypeNorm = payload.planType?.toLowerCase() || '';
+
         logger.info(`[PaymentEventListener] Processing payment.completed for tx ${payload.transactionId}`, {
+            transactionId: payload.transactionId,
             userId: payload.userId,
+            planId: payload.planId,
             planType: payload.planType,
-            amount: payload.amount
+            gatewayOrderId: payload.gatewayOrderId,
+            gatewayPaymentId: payload.gatewayPaymentId,
+            amount: payload.amount,
+            currency: payload.currency,
         });
 
         try {
-            // 1. Business Plan Upgrade Hook
-            if (payload.planType === 'business' || payload.planType?.toUpperCase() === 'BUSINESS_PLAN') {
+            // 1. Business & Subscription Plan Activation Hook
+            const isSubscriptionPlan =
+                planTypeNorm === 'business' ||
+                planTypeNorm === 'business_plan' ||
+                planTypeNorm === 'subscription';
+
+            if (isSubscriptionPlan) {
                 const durationDays = 365;
                 if (payload.planId) {
                     await upgradePlan(payload.userId, payload.planId, durationDays);
-                    logger.info(`[PaymentEventListener] Business plan upgraded for user ${payload.userId}`);
+                    logger.info(`[PaymentEventListener] Business subscription plan processed cleanly for user ${payload.userId}`, {
+                        transactionId: payload.transactionId,
+                        userId: payload.userId,
+                        planId: payload.planId,
+                    });
                 }
             }
         } catch (error) {
             logger.error(`[PaymentEventListener] Failed to process payment side-effects for tx ${payload.transactionId}`, {
+                transactionId: payload.transactionId,
+                userId: payload.userId,
+                planId: payload.planId,
                 error: error instanceof Error ? error.message : String(error),
-                payload
+                payload,
             });
         }
     }, 'Payment_Completed_SideEffects');

@@ -17,7 +17,7 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
             retry: 2,
             refetchOnReconnect: true,
             refetchOnWindowFocus: false,
-            refetchOnMount: true,
+            refetchOnMount: false,
           },
           mutations: {
             retry: 1,

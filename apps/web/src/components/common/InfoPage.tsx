@@ -4,6 +4,10 @@ interface InfoPageProps {
     children: React.ReactNode;
 }
 
+/**
+ * InfoPage wrapper for public content routes.
+ * Uses an <article> landmark to prevent main tag nesting inside CommonLayout.
+ */
 export function InfoPage({ title, lastUpdated, children }: InfoPageProps) {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">

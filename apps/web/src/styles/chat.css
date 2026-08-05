@@ -869,13 +869,19 @@
   border: 1.5px solid #e5e7eb;
   border-radius: 20px;
   padding: 0.625rem 1rem;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.5;
   outline: none;
   max-height: 120px;
   overflow-y: auto;
   transition: border-color 0.2s;
   font-family: inherit;
+}
+
+@media (min-width: 768px) {
+  .chat-input__textarea {
+    font-size: 0.9375rem;
+  }
 }
 
 .chat-input__textarea:focus {

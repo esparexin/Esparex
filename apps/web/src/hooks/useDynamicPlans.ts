@@ -84,14 +84,22 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
                     ? "business"
                     : "normal";
             const data = await getPlans({ userType });
+            const mapPlanType = (rawType: string): ProfilePlanType => {
+                switch (rawType) {
+                    case "SPOTLIGHT": return "Spotlight";
+                    case "AD_PACK": return "More Ads";
+                    case "BOOST_AD": return "Boost Ad";
+                    case "SMART_ALERT": return "Alert Slots";
+                    case "FREE_DEFAULT": return "More Ads";
+                    default: return "More Ads";
+                }
+            };
             const mapped: ProfilePlan[] = data.map((p) => ({
                 id: p.id,
                 name: p.name,
                 price: p.price,
                 duration: p.duration || (p.durationDays ? `${p.durationDays} Days` : "Lifetime"),
-                type: (
-                    p.type === "AD_PACK" ? "More Ads" : (p.type === "BOOST_AD" ? "Boost Ad" : (p.type === "SPOTLIGHT" ? "Spotlight" : "Alert Slots"))
-                ) as ProfilePlanType,
+                type: mapPlanType(p.type),
                 features: getPlanEntitlementFeatures(p),
                 popular: Boolean(p.isDefault),
             }));
