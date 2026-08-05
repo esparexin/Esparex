@@ -10,7 +10,6 @@ import {
 
 import { cn } from "../utils";
 
-import { useFieldContext } from "../patterns/Field";
 
 function Select({
   ...props
@@ -41,21 +40,14 @@ function SelectTrigger({
   size?: "sm" | "default";
 }) {
   const reactId = React.useId().replace(/:/g, "");
-  const fieldContext = useFieldContext();
-
+  
   // ID Resolution Order:
-  // 1. Context ID (if present inside a <Field> container)
-  // 2. Explicit custom ID passed directly to SelectTrigger
-  // 3. Fallback auto-generated ID
-  const resolvedId = fieldContext?.id ?? customId ?? `select-trigger-${reactId}`;
+  const resolvedId = customId ?? `select-trigger-${reactId}`;
 
   // ARIA DescribedBy: merge existing custom descriptions with context error identifier
-  const errorId = fieldContext?.hasError ? fieldContext.errorId : undefined;
-  const resolvedDescribedBy = [customDescribedBy, errorId].filter(Boolean).join(" ") || undefined;
-
+  const resolvedDescribedBy = customDescribedBy;
   // ARIA Invalid: dynamically set to "true" if an error is present, unless explicitly overridden
-  const isInvalid = props["aria-invalid"] ?? (fieldContext?.hasError ? "true" : undefined);
-
+  const isInvalid = props["aria-invalid"];
   return (
     <SelectPrimitive.Trigger
       id={resolvedId}

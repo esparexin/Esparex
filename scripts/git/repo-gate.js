@@ -18,6 +18,7 @@ const checks = [
   require('./esparex/circular-validator'),
   require('./esparex/dependency-validator'),
   require('./esparex/auditor-validator'),
+  require('./esparex/ui-validator'),
 ];
 
 const results = [];

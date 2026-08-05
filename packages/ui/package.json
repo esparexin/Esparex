@@ -22,6 +22,7 @@
     "lucide-react": "^0.562.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.84.0",
     "tailwind-merge": "^3.6.0",
     "vaul": "^1.1.2"
   },

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "../utils";
-import { FormError } from "../atoms/FormError";
+import { FormError } from "./FormError";
 
 export interface FieldContextValue {
     id: string;
@@ -18,6 +18,9 @@ export function useFieldContext() {
     return React.useContext(FieldContext);
 }
 
+/**
+ * @deprecated Use the new compositional Field API (`FieldRoot`, `FieldControl`, etc.) or `Controlled*` wrappers.
+ */
 export function Field({
     id: customId,
     label,
@@ -35,7 +38,6 @@ export function Field({
     headerExtra?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
-    /** Override label text size/weight for specific form contexts (e.g. compact listing forms). Does not affect the global default. */
     labelClassName?: string;
 }) {
     const reactId = React.useId().replace(/:/g, "");

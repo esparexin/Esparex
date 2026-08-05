@@ -10,7 +10,7 @@ import { cn } from "@/components/ui/utils";
 import { Button, Spinner } from "@esparex/ui";
 import { usePostAdForm } from "@/hooks/usePostAdForm";
 import { FormProvider } from "react-hook-form";
-import { useNavigation } from "@/context/NavigationContext";
+// useNavigation removed
 import { usePostingEntitlement } from "@/hooks/usePostingEntitlement";
 import { EntitlementExhaustedShell } from "@/components/user/shared/EntitlementExhaustedShell";
 import type { PostAdWizardProps } from "./types";
@@ -21,7 +21,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
   const { currentStep, isEditMode, isSubmitting, submittedAd } = usePostAdFlow();
   const { isUploadingImages } = usePostAdImages();
   const { prevStep, nextStep, submitAd } = usePostAdAction();
-  const { confirmNavigation } = useNavigation();
+  // Navigation handled without confirmation due to Draft Recovery
   const { entitlement, isAllowed, isLoading: isLoadingEntitlement } = usePostingEntitlement("ads");
 
   const handleGoHome = useCallback(() => navigateTo("home"), [navigateTo]);
@@ -30,8 +30,8 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
     window.location.href = "/account/plans";
   }, []);
   const handleClose = useCallback(() => {
-    confirmNavigation(handleGoHome);
-  }, [confirmNavigation, handleGoHome]);
+    handleGoHome();
+  }, [handleGoHome]);
 
   const isButtonDisabled = isSubmitting || isUploadingImages;
 

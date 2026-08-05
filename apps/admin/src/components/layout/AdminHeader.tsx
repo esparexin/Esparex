@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "@/context/AdminAuthContext";
-import { Bell, LogOut, ShieldCheck } from "@esparex/ui";
+import { Bell, LogOut, ShieldCheck, Menu } from "@esparex/ui";
 
 
 const SECTION_META: Record<string, { title: string; subtitle: string }> = {
@@ -94,7 +94,11 @@ const SECTION_META: Record<string, { title: string; subtitle: string }> = {
     },
 };
 
-export function AdminHeader() {
+interface AdminHeaderProps {
+    onMobileMenuClick?: () => void;
+}
+
+export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
     const { admin, logout } = useAdminAuth();
     const pathname = usePathname();
 
@@ -141,9 +145,19 @@ export function AdminHeader() {
             <div className="flex flex-col gap-3 px-4 py-3 lg:px-8">
                 <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                        <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-sky-700">
-                            <ShieldCheck size={13} />
-                            Admin Console
+                        <div className="mb-2 inline-flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={onMobileMenuClick}
+                                className="lg:hidden mr-2 p-1 text-foreground-secondary hover:text-foreground transition-colors"
+                                aria-label="Open navigation menu"
+                            >
+                                <Menu size={20} />
+                            </button>
+                            <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-sky-700">
+                                <ShieldCheck size={13} />
+                                Admin Console
+                            </div>
                         </div>
                         {!isCompactRoute && (
                             <>

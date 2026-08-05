@@ -4,20 +4,16 @@ import * as React from "react";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Circle } from "lucide-react";
 import { cn } from "../utils";
-import { useFieldContext } from "../patterns/Field";
 
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
 >(({ className, id: customId, "aria-describedby": customDescribedBy, ...props }, ref) => {
   const reactId = React.useId().replace(/:/g, "");
-  const fieldContext = useFieldContext();
-  
-  const resolvedId = fieldContext?.id ?? customId ?? `radiogroup-${reactId}`;
-  const errorId = fieldContext?.hasError ? fieldContext.errorId : undefined;
-  const resolvedDescribedBy = [customDescribedBy, errorId].filter(Boolean).join(" ") || undefined;
-  const isInvalid = props["aria-invalid"] ?? (fieldContext?.hasError ? "true" : undefined);
-
+    
+  const resolvedId = customId ?? `radiogroup-${reactId}`;
+  const resolvedDescribedBy = customDescribedBy;
+  const isInvalid = props["aria-invalid"];
   return (
     <RadioGroupPrimitive.Root
       id={resolvedId}

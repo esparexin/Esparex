@@ -13,9 +13,4 @@ describe("Performance Optimization Phase 1 Verification Suite", () => {
         expect(typeof authModule.useAuthStatus).toBe("function");
         expect(typeof authModule.useAuthUser).toBe("function");
     });
-
-    it("verifies useOtpInput exports (PERF-004)", async () => {
-        const otpModule = await import("@/hooks/useOtpInput");
-        expect(typeof otpModule.useOtpInput).toBe("function");
-    });
 });

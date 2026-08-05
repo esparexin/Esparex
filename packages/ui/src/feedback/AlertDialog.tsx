@@ -4,7 +4,7 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "../utils";
-import { buttonVariants } from "./Button";
+import { buttonVariants } from "../atoms/Button";
 import { OVERLAY_STYLES } from "../styles/overlay";
 
 import { Z_INDEX } from "../tokens/zIndex";
