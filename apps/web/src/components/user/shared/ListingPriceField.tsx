@@ -2,6 +2,7 @@
 import { FieldPath, FieldValues } from "react-hook-form";
 import { Input } from "@esparex/ui";
 import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
+import { Stack } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 
 export type ListingPriceFieldProps<
@@ -37,7 +38,7 @@ export function ListingPriceField<
     <FieldRoot<TFieldValues, TName>
       name={name}
       render={({ field }) => (
-        <div className={cn("space-y-1.5", className)}>
+        <Stack gap="sm" className={className}>
           <div className="flex justify-between items-center">
             {label && (
               <FieldLabel required={required} className="text-sm font-semibold text-foreground">
@@ -109,7 +110,7 @@ export function ListingPriceField<
           </FieldControl>
           
           <FieldMessage />
-        </div>
+        </Stack>
       )}
     />
   );

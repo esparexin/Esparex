@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Upload, X, AlertCircle } from "@/icons/IconRegistry";
 import type { ListingImage } from "@/types/listing";
 import { cn } from "@/components/ui/utils";
+import { Stack } from "@esparex/ui";
 
 import { getRemovePhotoAriaLabel } from "./uploadHelpers";
 import { useImageDropzone } from "./useImageDropzone";
@@ -81,7 +82,7 @@ export function ListingImagesField({
     }, [draggedIndex, onReorder]);
 
     return (
-        <div className="space-y-2">
+        <Stack gap="sm">
             <div className="flex justify-between items-center mb-1.5">
                 <label className="text-xs font-semibold text-foreground">
                     Photos (up to 10)
@@ -92,7 +93,7 @@ export function ListingImagesField({
             </div>
 
             <div className="w-full">
-                <div className="space-y-3">
+                <Stack gap="md">
                     <div
                         {...dropzoneProps}
                         className={cn(
@@ -260,7 +261,7 @@ export function ListingImagesField({
                             ))}
                         </div>
                     )}
-                </div>
+                </Stack>
             </div>
             
             {(error || helperText) && (
@@ -275,6 +276,6 @@ export function ListingImagesField({
                     )}
                 </div>
             )}
-        </div>
+        </Stack>
     );
 }
