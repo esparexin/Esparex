@@ -119,7 +119,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
     );
 
     return (
-      <div ref={ref} className={cn("flex items-center gap-2 sm:gap-3 py-2", className)} {...props}>
+      <div ref={ref} className={cn("flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3 py-2", className)} {...props}>
         {otp.map((digit, index) => (
           <Input
             key={index}
@@ -134,7 +134,7 @@ export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
             onPaste={(e) => handlePaste(index, e)}
             disabled={disabled}
             className={cn(
-              "h-12 w-11 text-center text-base font-semibold sm:w-12 sm:text-lg rounded-xl",
+              "h-11 w-9 text-center text-base font-semibold sm:h-12 sm:w-11 md:w-12 sm:text-lg rounded-xl flex-1 max-w-[48px]",
               hasError && "border-destructive ring-destructive/20 focus-visible:ring-destructive"
             )}
             inputMode="numeric"

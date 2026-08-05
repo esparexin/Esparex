@@ -11,7 +11,7 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { cn } from "../utils";
-
+import { Stack } from "../layout/Stack";
 const Form = FormProvider;
 
 type FieldContextValue = {
@@ -84,7 +84,7 @@ const FormItem = React.forwardRef<
 
   return (
     <FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <Stack gap="sm" ref={ref} className={className} {...props} />
     </FormItemContext.Provider>
   );
 });

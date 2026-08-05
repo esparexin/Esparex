@@ -9,6 +9,7 @@ import {
   FieldRoot,
   FormItem,
 } from "./Form";
+import { Stack } from "../layout/Stack";
 
 export type ControlledSwitchProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -29,10 +30,10 @@ export function ControlledSwitch<
       render={({ field }) => (
         <FormItem className={className}>
           <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-            <div className="space-y-0.5">
+            <Stack gap="xs">
               <FieldLabel className="text-base">{label}</FieldLabel>
               {description && <FieldDescription>{description}</FieldDescription>}
-            </div>
+            </Stack>
             <FieldControl>
               <Switch
                 checked={field.value}

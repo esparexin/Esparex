@@ -9,6 +9,7 @@ import {
   FieldRoot,
   FormItem,
 } from "./Form";
+import { Stack } from "../layout/Stack";
 
 export type ControlledCheckboxProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -28,7 +29,7 @@ export function ControlledCheckbox<
       name={name}
       render={({ field }) => (
         <FormItem className={className}>
-          <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+          <Stack direction="row" gap="md" align="start" className="rounded-md border p-4">
             <FieldControl>
               <Checkbox
                 checked={field.value}
@@ -36,11 +37,11 @@ export function ControlledCheckbox<
                 {...props}
               />
             </FieldControl>
-            <div className="space-y-1 leading-none">
+            <Stack gap="xs" className="leading-none">
               <FieldLabel>{label}</FieldLabel>
               {description && <FieldDescription>{description}</FieldDescription>}
-            </div>
-          </div>
+            </Stack>
+          </Stack>
           <FieldMessage />
         </FormItem>
       )}

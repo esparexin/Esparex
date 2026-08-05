@@ -16,7 +16,7 @@ exports.run = (v) => {
 
   const countPattern = (pattern) => {
     try {
-      const output = execSync(`git grep -c '${pattern}' apps/ packages/ || true`, {
+      const output = execSync(`git grep -c '${pattern}' -- 'apps/**/*.ts*' 'packages/**/*.ts*' || true`, {
         cwd: ROOT,
         encoding: 'utf8'
       });
