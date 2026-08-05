@@ -4,20 +4,14 @@ import * as React from "react";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 
 import { cn } from "../utils";
-import { useFieldContext } from "../patterns/Field";
 
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>
 >(({ className, id: customId, "aria-describedby": customDescribedBy, ...props }, ref) => {
   const reactId = React.useId().replace(/:/g, "");
-  const fieldContext = useFieldContext();
-  
-  const resolvedId = fieldContext?.id ?? customId ?? `switch-${reactId}`;
-  const errorId = fieldContext?.hasError ? fieldContext.errorId : undefined;
-  const resolvedDescribedBy = [customDescribedBy, errorId].filter(Boolean).join(" ") || undefined;
-  const isInvalid = props["aria-invalid"] ?? (fieldContext?.hasError ? "true" : undefined);
-
+    
+  const resolvedId = customId ?? `switch-${reactId}`;    const resolvedDescribedBy = customDescribedBy;  const isInvalid = props["aria-invalid"];
   return (
     <SwitchPrimitives.Root
       className={cn(

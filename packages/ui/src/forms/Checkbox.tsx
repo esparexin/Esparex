@@ -5,7 +5,6 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 import { CheckIcon } from "lucide-react";
 
 import { cn } from "../utils";
-import { useFieldContext } from "../patterns/Field";
 
 function Checkbox({
   className,
@@ -14,21 +13,13 @@ function Checkbox({
   ...props
 }: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
   const reactId = React.useId().replace(/:/g, "");
-  const fieldContext = useFieldContext();
-
+  
   // ID Resolution Order:
-  // 1. Context ID (if present inside a <Field> container)
-  // 2. Explicit custom ID passed directly to Checkbox
-  // 3. Fallback auto-generated ID
-  const resolvedId = fieldContext?.id ?? customId ?? `checkbox-${reactId}`;
-
+    const resolvedId = customId ?? `checkbox-${reactId}`;
   // ARIA DescribedBy: merge existing custom descriptions with context error identifier
-  const errorId = fieldContext?.hasError ? fieldContext.errorId : undefined;
-  const resolvedDescribedBy = [customDescribedBy, errorId].filter(Boolean).join(" ") || undefined;
-
+    const resolvedDescribedBy = customDescribedBy;
   // ARIA Invalid: dynamically set to "true" if an error is present, unless explicitly overridden
-  const isInvalid = props["aria-invalid"] ?? (fieldContext?.hasError ? "true" : undefined);
-
+  const isInvalid = props["aria-invalid"];
   return (
     <CheckboxPrimitive.Root
       id={resolvedId}
