@@ -44,3 +44,7 @@ export * from "./patterns/DataTable/DataTableTypes";
 export * from "./patterns/Layout/PageShell";
 export * from "./patterns/Layout/Sidebar";
 export * from "./patterns/Layout/HeaderShell";
+export * from "./patterns/Layout/Container";
+export * from "./patterns/Layout/Section";
+export * from "./patterns/Layout/Stack";
+export * from "./patterns/Layout/Grid";
