@@ -1,22 +1,15 @@
 import express from 'express';
-import { requireAdmin, requirePermission } from '../middleware/adminAuth';
+import { requireAdmin, requireMutationPermission } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
 import * as adminCatalog from '../controllers/admin/catalog';
-import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
+import { adminLimiter } from '../middleware/rateLimiter';
 import { deprecateMethod } from '../middleware/deprecations';
 
 const router = express.Router();
 
 router.use(requireAdmin);
 router.use(adminLimiter);
-router.use((req, res, next) => {
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
-        return adminMutationLimiter(req, res, () => {
-            requirePermission('catalog:write')(req, res, next);
-        });
-    }
-    return next();
-});
+router.use(requireMutationPermission('catalog:write'));
 
 router.get('/categories', adminCatalog.getCategories);
 router.get('/categories/counts', adminCatalog.getCategoryCounts);
