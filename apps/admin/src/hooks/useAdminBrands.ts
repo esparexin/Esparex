@@ -11,6 +11,7 @@ import { CreateBrandDTO, UpdateBrandDTO, Brand } from "@esparex/contracts";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
 
 import { type AdminListPagination } from "@/hooks/useAdminCrudList";
+import { useCatalogMutation } from "./useCatalogMutation";
 
 export function useAdminBrands(options?: {
     initialFilters?: Partial<{ search: string; categoryId: string; status: string }>;
@@ -55,35 +56,14 @@ export function useAdminBrands(options?: {
         initialPagination: { limit: 50 },
     }, options);
 
-    const handleApprove = async (id: string) => {
-        await runAction(() => approveBrand(id), {
-            successMessage: "Brand approved",
-            errorMessage: "Failed to approve brand",
-            onSuccess: async () => {
-                await fetchBrands();
-            },
-        });
-    };
-
-    const handleReject = async (id: string, reason: string) => {
-        await runAction(() => rejectBrand(id, reason), {
-            successMessage: "Brand rejected",
-            errorMessage: "Failed to reject brand",
-            onSuccess: async () => {
-                await fetchBrands();
-            },
-        });
-    };
-
-    const handleToggleStatus = async (id: string) => {
-        await runAction(() => toggleBrandStatus(id), {
-            successMessage: "Status updated",
-            errorMessage: "Failed to toggle status",
-            onSuccess: async () => {
-                await fetchBrands();
-            },
-        });
-    };
+    const { handleApprove, handleReject, handleToggleStatus } = useCatalogMutation({
+        approveFn: approveBrand,
+        rejectFn: rejectBrand,
+        toggleStatusFn: toggleBrandStatus,
+        fetchItems: fetchBrands,
+        runAction,
+        entityName: "Brand",
+    });
 
     return {
         brands,

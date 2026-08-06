@@ -27,6 +27,7 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
     ref
   ) => {
     const isFullscreen = variant === "fullscreen";
+    const isAdmin = variant === "admin";
     const hasSidebar = Boolean(sidebar);
 
     if (isFullscreen) {
@@ -47,7 +48,7 @@ export const PageLayout = React.forwardRef<HTMLDivElement, PageLayoutProps>(
         
         <div className="flex flex-1 overflow-hidden">
           {hasSidebar && (
-            <aside className="hidden w-64 shrink-0 border-r border-border md:block">
+            <aside className={cn("shrink-0 border-r border-border", isAdmin ? "" : "hidden w-64 md:block")}>
               {sidebar}
             </aside>
           )}
