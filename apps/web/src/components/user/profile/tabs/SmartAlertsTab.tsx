@@ -78,7 +78,7 @@ export function SmartAlertsTab({
     if (loading) return <div className="p-12 text-center text-slate-500 animate-pulse">Loading Alerts...</div>;
 
     return (
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <div className="space-y-4 w-full">
             {/* Header & Create Action */}
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border-blue-200/80 gap-0 rounded-3xl">
                 <FeatureCard
