@@ -85,8 +85,8 @@ const executeBulkWarningOperation = async (
     config: {
         validate?: (ad: AdDocument) => string | null;
         notificationTemplate: string;
-        getNotificationData: (ad: AdDocument) => Record<string, unknown>;
-        getNotificationOptions: (ad: AdDocument) => Record<string, unknown>;
+        getNotificationData: (ad: AdDocument) => Record<string, any>;
+        getNotificationOptions: (ad: AdDocument) => Record<string, any>;
         updateSet: Record<string, unknown>;
         updateInc: Record<string, number>;
         logDomain: string;
