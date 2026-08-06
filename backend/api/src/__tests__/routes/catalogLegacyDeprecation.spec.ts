@@ -7,6 +7,7 @@ jest.mock('../../middleware/adminAuth', () => ({
         next();
     },
     requirePermission: () => (req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
+    requireMutationPermission: () => (req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
 }));
 
 jest.mock('../../middleware/rateLimiter', () => ({
