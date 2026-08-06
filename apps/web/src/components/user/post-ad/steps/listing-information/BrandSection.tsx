@@ -2,9 +2,8 @@
 
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
-import { Field } from "@/components/ui/field";
+import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import { BrandSearchSelect } from "@/components/user/BrandSearchSelect";
-import { useStepFieldError } from "../common/Utils";
 import { Button } from "@esparex/ui";
 
 export function BrandSection() {
@@ -15,9 +14,6 @@ export function BrandSection() {
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const brandNameValue = String(watch("brand") ?? "");
     const customBrandName = String(watch("customBrandName") ?? "");
-
-    const getFieldError = useStepFieldError(1);
-    const brandError = getFieldError("brand") || getFieldError("brandId");
 
     const onBrandChange = useCallback((name: string, rId?: string) => {
         if (isEditMode) return;
@@ -34,25 +30,34 @@ export function BrandSection() {
     }, [isEditMode, form, handleBrandChange]);
 
     return (
-        <section className="space-y-2" aria-labelledby="brand-heading">
+        <section className="flex flex-col gap-2" aria-labelledby="brand-heading">
             <h2 id="brand-heading" className="sr-only">Brand</h2>
-            <Field label="Brand" labelClassName="text-sm font-medium" error={brandError as string} required>
-                <BrandSearchSelect 
-                    brands={availableBrands} 
-                    brandMap={brandMap as any} 
-                    categoryId={categoryId} 
-                    value={brandNameValue} 
-                    onChange={(_id, name) => onBrandChange(name, _id)}
-                    onProposeCustom={onProposeCustomBrand}
-                    onClear={() => onBrandChange("", "")}
-                    isCustom={Boolean(customBrandName)}
-                    disabled={isEditMode} 
-                    loading={isLoadingBrands}
-                    placeholder={isLoadingBrands ? "Loading brands…" : "Search or select brand"} 
-                />
-            </Field>
+            <FieldRoot<any>
+                name="brand"
+                render={() => (
+                    <div className="flex flex-col gap-1.5">
+                        <FieldLabel required className="text-sm font-semibold">Brand</FieldLabel>
+                        <FieldControl animateOnError>
+                            <BrandSearchSelect 
+                                brands={availableBrands} 
+                                brandMap={brandMap as any} 
+                                categoryId={categoryId} 
+                                value={brandNameValue} 
+                                onChange={(_id, name) => onBrandChange(name, _id)}
+                                onProposeCustom={onProposeCustomBrand}
+                                onClear={() => onBrandChange("", "")}
+                                isCustom={Boolean(customBrandName)}
+                                disabled={isEditMode} 
+                                loading={isLoadingBrands}
+                                placeholder={isLoadingBrands ? "Loading brands…" : "Search or select brand"} 
+                            />
+                        </FieldControl>
+                        <FieldMessage />
+                    </div>
+                )}
+            />
             {brandsError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl mt-2">
                     <p className="text-xs text-red-700 text-center mb-2">{brandsError}</p>
                     <Button 
                         type="button" 

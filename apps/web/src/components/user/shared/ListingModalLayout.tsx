@@ -37,7 +37,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                 <X className="w-4 h-4" />
                             </button>
                             <div className="flex-1 flex items-center gap-2.5 ml-2">
-                                <DialogTitle className="font-bold text-slate-900 text-sm sm:text-base tracking-tight">
+                                <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
                                     {title}
                                 </DialogTitle>
                                 {subtitle && (
@@ -73,7 +73,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                         <X className="w-4.5 h-4.5" />
                     </button>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2.5 min-w-0">
-                        <DialogTitle className="font-bold text-slate-900 text-sm sm:text-base tracking-tight truncate">
+                        <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight truncate">
                             {title}
                         </DialogTitle>
                         {subtitle && (

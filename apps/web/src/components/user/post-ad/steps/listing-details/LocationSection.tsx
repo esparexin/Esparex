@@ -139,7 +139,7 @@ export function LocationSection() {
     return (
         <section className="space-y-3" aria-labelledby="location-heading">
             <h2 id="location-heading" className="sr-only">Location</h2>
-            <Field label="Where are you located?" labelClassName="text-sm font-medium" required error={locationError as string}>
+            <Field label="Where are you located?" labelClassName="text-sm font-semibold" required error={locationError as string}>
                 <div className="space-y-2">
                     <LocationSelector
                         variant="inline"

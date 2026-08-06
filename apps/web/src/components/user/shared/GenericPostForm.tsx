@@ -55,7 +55,7 @@ export function GenericPostForm<TFormValues extends GenericPostFormValues>({
             <ListingModalLayout title={title} onClose={onClose}>
                     <form id={formId} onSubmit={onSubmit} className="flex flex-col flex-1 overflow-hidden">
                         <ListingModalBody>
-                            <div className="space-y-6">
+                            <div className="space-y-5">
                                 {children}
 
                                 <ListingImagesField
