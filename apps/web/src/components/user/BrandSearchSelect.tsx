@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CatalogSearchSelect } from "./CatalogSearchSelect";
+import { EntitySearchCombobox } from "./EntitySearchCombobox";
 
 interface BrandSearchSelectProps {
     brands: string[];
@@ -42,7 +42,7 @@ export function BrandSearchSelect({
     }, [value, brandMap]);
 
     return (
-        <CatalogSearchSelect<string>
+        <EntitySearchCombobox<string>
             items={brands}
             loading={loading}
             value={value}
