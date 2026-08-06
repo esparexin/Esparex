@@ -246,7 +246,7 @@ export function BusinessTab({
 
 
     return (
-        <div className="max-w-xl mx-auto space-y-4 px-1 sm:px-0">
+        <div className="w-full space-y-4">
             {/* Header */}
             <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-100/80 text-blue-600">

@@ -139,7 +139,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
     const emailError = form.formState.errors.email?.message;
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="max-w-xl mx-auto space-y-3.5 px-1 sm:px-0">
+        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full space-y-3.5">
             {/* Profile Photo Section */}
             <div className="flex items-center gap-3.5">
                 <div
