@@ -28,6 +28,7 @@ function SidebarFooterMeta({ role }: { role?: string }) {
     );
 }
 
+import { cn } from "@esparex/ui";
 import { isSuperAdminRole } from "@esparex/shared";
 
 export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsMinified }: AdminSidebarProps) {
@@ -61,7 +62,12 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
         if (isMobileOpen) {
             el.removeAttribute("inert");
         } else {
-            el.setAttribute("inert", "");
+            // Apply inert on mobile view when closed
+            if (window.innerWidth < 1024) {
+                el.setAttribute("inert", "");
+            } else {
+                el.removeAttribute("inert");
+            }
         }
     }, [isMobileOpen]);
 
@@ -72,12 +78,14 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
     return (
         <>
-            {isMobileOpen && (
-                <div
-                    className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm lg:hidden"
-                    onClick={() => setIsMobileOpen(false)}
-                />
-            )}
+            <div
+                className={cn(
+                    "fixed inset-0 z-30 bg-black/50 backdrop-blur-sm transition-opacity lg:hidden",
+                    isMobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+                aria-hidden="true"
+            />
 
             <button
                 className="fixed bottom-6 right-6 z-50 rounded-full bg-primary p-4 text-white shadow-2xl transition-transform active:scale-95 lg:hidden"
@@ -88,32 +96,45 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
 
             <aside
                 ref={sidebarRef}
-                aria-hidden={!isMobileOpen}
-                className={`
-                    fixed inset-y-0 left-0 z-40 flex w-[var(--sidebar-expanded)] flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-transform duration-300 ease-in-out lg:hidden
-                    ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-                `}
+                className={cn(
+                    "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
+                    isMobileOpen ? "translate-x-0 w-[var(--sidebar-expanded)]" : "-translate-x-full w-[var(--sidebar-expanded)]",
+                    "lg:relative lg:z-20 lg:h-full lg:shrink-0 lg:translate-x-0",
+                    isMinified ? "lg:w-[var(--sidebar-minified)]" : "lg:w-[var(--sidebar-expanded)]"
+                )}
+                style={{ width: isMinified ? "var(--sidebar-minified)" : "var(--sidebar-width)" }}
             >
-                <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 px-4">
+                <div className={cn("flex h-14 shrink-0 items-center border-b border-slate-800 px-4", isMinified ? "lg:justify-center justify-between" : "justify-between")}>
                     <div className="flex items-center gap-3 overflow-hidden">
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-blue-500 font-bold text-white shadow-sm">
                             E
                         </div>
-                        <span className="whitespace-nowrap text-xl font-bold tracking-tight text-white">
+                        <span className={cn("whitespace-nowrap text-xl font-bold tracking-tight text-white", isMinified && "lg:hidden")}>
                             Esparex
                         </span>
                     </div>
-                    <button
-                        className="rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white"
-                        onClick={() => setIsMobileOpen(false)}
-                    >
-                        <X size={20} />
-                    </button>
+
+                    <div className="flex items-center">
+                        <button
+                            className="lg:hidden rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white"
+                            onClick={() => setIsMobileOpen(false)}
+                        >
+                            <X size={20} />
+                        </button>
+                        
+                        <button
+                            className={cn("hidden lg:flex rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white", isMinified && "h-9 w-9 items-center justify-center")}
+                            onClick={() => setIsMinified(!isMinified)}
+                            aria-label={isMinified ? "Expand sidebar" : "Collapse sidebar"}
+                        >
+                            {isMinified ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={20} />}
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
                     <div className="px-4 pt-4">
-                        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-3">
+                        <div className={cn("rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-3", isMinified && "lg:hidden")}>
                             <p className="text-tiny font-bold uppercase tracking-[0.14em] text-foreground-tertiary">Navigation</p>
                             <p className="mt-2 text-xs text-foreground-subtle">
                                 Modules consolidate filtered views into tabs and query-driven screens.
@@ -121,70 +142,16 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                         </div>
                     </div>
 
-                    <SidebarNavigation items={visibleModules} counts={counts} />
-                </div>
-
-                <div className="border-t border-slate-800 px-4 py-3">
-                    <SidebarFooterMeta role={admin?.role} />
-                </div>
-            </aside>
-
-            <aside
-                className="relative z-20 hidden h-full shrink-0 flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-[width] duration-300 ease-in-out lg:flex"
-                style={{ width: "var(--sidebar-width)" }}
-            >
-                <div className={`flex h-14 shrink-0 items-center border-b border-slate-800 px-4 ${isMinified ? "justify-center" : "justify-between"}`}>
-                    <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-blue-500 font-bold text-white shadow-sm">
-                            E
-                        </div>
-                        {!isMinified && (
-                            <span className="whitespace-nowrap text-xl font-bold tracking-tight text-white">
-                                Esparex
-                            </span>
-                        )}
-                    </div>
-
-                    {!isMinified ? (
-                        <button
-                            className="rounded-md p-1.5 text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white"
-                            onClick={() => setIsMinified(true)}
-                            aria-label="Collapse sidebar"
-                        >
-                            <PanelLeftClose size={20} />
-                        </button>
-                    ) : (
-                        <button
-                            className="flex h-9 w-9 items-center justify-center rounded-md text-foreground-subtle transition-colors hover:bg-slate-800 hover:text-white"
-                            onClick={() => setIsMinified(false)}
-                            aria-label="Expand sidebar"
-                        >
-                            <PanelLeftOpen size={18} />
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
-                    <div className="px-4 pt-4">
-                        {!isMinified ? (
-                            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-3">
-                                <p className="text-tiny font-bold uppercase tracking-[0.14em] text-foreground-tertiary">Navigation</p>
-                                <p className="mt-2 text-xs text-foreground-subtle">
-                                    Modules consolidate filtered views into tabs and query-driven screens.
-                                </p>
-                            </div>
-                        ) : null}
-                    </div>
-
                     <SidebarNavigation items={visibleModules} counts={counts} isMinified={isMinified} />
                 </div>
 
-                <div className={`border-t border-slate-800 px-4 py-3 ${isMinified ? "text-center" : ""}`}>
-                    {!isMinified ? (
+                <div className={cn("border-t border-slate-800 px-4 py-3", isMinified && "lg:text-center")}>
+                    <div className={cn(isMinified && "lg:hidden block")}>
                         <SidebarFooterMeta role={admin?.role} />
-                    ) : (
-                        <span className="select-none text-tiny font-bold tracking-widest text-foreground-subtle">v2</span>
-                    )}
+                    </div>
+                    <span className={cn("hidden select-none text-tiny font-bold tracking-widest text-foreground-subtle", isMinified && "lg:inline-block")}>
+                        v2
+                    </span>
                 </div>
             </aside>
         </>

@@ -5,6 +5,7 @@ import { useCallback } from "react";
 
 
 import { type AdminListPagination } from "@/hooks/useAdminCrudList";
+import { useCatalogMutation } from "./useCatalogMutation";
 
 export function useAdminModels(options?: {
     initialFilters?: Partial<{ search: string; brandId: string; categoryId: string; parentModelId: string; variantModelId: string; status: string }>;
@@ -51,35 +52,22 @@ export function useAdminModels(options?: {
         deleteErrorMessage: "Failed to delete model",
     }, options);
 
-    const handleToggleStatus = useCallback(async (id: string) => {
-        await runAction(() => toggleModelStatus(id), {
-            successMessage: "Model visibility updated",
-            errorMessage: "Failed to toggle model status",
-            onSuccess: async () => {
-                setItems((prev) => prev.map((m) => m.id === id ? { ...m, isActive: !m.isActive } : m));
-            }
-        });
-    }, [runAction, setItems]);
-
-    const handleApproveModel = useCallback(async (id: string) => {
-        await runAction(() => approveModel(id), {
-            successMessage: "Model approved and activated successfully",
-            errorMessage: "Failed to approve model",
-            onSuccess: async () => {
-                setItems((prev) => prev.map((m) => m.id === id ? { ...m, approvalStatus: "approved", isActive: true } : m));
-            }
-        });
-    }, [runAction, setItems]);
-
-    const handleRejectModel = useCallback(async (id: string, reason: string) => {
-        await runAction(() => rejectModel(id, reason), {
-            successMessage: "Model rejected successfully",
-            errorMessage: "Failed to reject model",
-            onSuccess: async () => {
-                setItems((prev) => prev.map((m) => m.id === id ? { ...m, approvalStatus: "rejected", isActive: false } : m));
-            }
-        });
-    }, [runAction, setItems]);
+    const { handleApprove: handleApproveModel, handleReject: handleRejectModel, handleToggleStatus } = useCatalogMutation({
+        approveFn: approveModel,
+        rejectFn: rejectModel,
+        toggleStatusFn: toggleModelStatus,
+        runAction,
+        entityName: "Model",
+        onApproveSuccess: (id) => {
+            setItems((prev) => prev.map((m) => m.id === id ? { ...m, approvalStatus: "approved", isActive: true } : m));
+        },
+        onRejectSuccess: (id) => {
+            setItems((prev) => prev.map((m) => m.id === id ? { ...m, approvalStatus: "rejected", isActive: false } : m));
+        },
+        onToggleSuccess: (id) => {
+            setItems((prev) => prev.map((m) => m.id === id ? { ...m, isActive: !m.isActive } : m));
+        }
+    });
 
     return {
         models,

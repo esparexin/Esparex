@@ -10,6 +10,7 @@ import {
     type CatalogRequestStatus,
 } from "@/lib/api/catalogRequests";
 import { useAdminCatalogCollection } from "@/hooks/useAdminCatalogCollection";
+import { useCatalogMutation } from "./useCatalogMutation";
 
 export function useAdminCatalogRequests(options?: {
     initialFilters?: { search: string; status: string };
@@ -60,25 +61,13 @@ export function useAdminCatalogRequests(options?: {
         initialPagination: options?.initialPagination,
     });
 
-    const handleApprove = async (id: string) => {
-        await runAction(() => approveAdminCatalogRequest(id), {
-            successMessage: "Request approved",
-            errorMessage: "Failed to approve request",
-            onSuccess: async () => {
-                await refresh();
-            },
-        });
-    };
-
-    const handleReject = async (id: string, reason: string) => {
-        await runAction(() => rejectAdminCatalogRequest(id, { rejectionReason: reason }), {
-            successMessage: "Request rejected",
-            errorMessage: "Failed to reject request",
-            onSuccess: async () => {
-                await refresh();
-            },
-        });
-    };
+    const { handleApprove, handleReject } = useCatalogMutation({
+        approveFn: approveAdminCatalogRequest,
+        rejectFn: (id, reason) => rejectAdminCatalogRequest(id, { rejectionReason: reason }),
+        fetchItems: refresh,
+        runAction,
+        entityName: "Request",
+    });
 
     const handleMarkDuplicate = async (id: string, duplicateOfEntityId: string) => {
         await runAction(() => markAdminCatalogRequestDuplicate(id, { duplicateOfEntityId }), {

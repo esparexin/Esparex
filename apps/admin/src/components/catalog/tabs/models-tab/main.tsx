@@ -17,8 +17,9 @@ import { CatalogCategoryTags, CatalogEntityCell, CatalogEditDeleteActions, Catal
 import { Model } from "@esparex/contracts";
 import type { ModelFormData } from "./types";
 import { ModelsFormRenderer } from "./form";
-import { ModelsDeleteModal } from "./delete-modal";
-import { ModelsRejectModal } from "./reject-modal";
+import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
+import { CatalogRejectModal } from "@/components/catalog/CatalogRejectModal";
+import { useCatalogTabState } from "@/hooks/useCatalogTabState";
 
 export default function ModelsTab() {
     const sp = useSearchParams();
@@ -27,18 +28,27 @@ export default function ModelsTab() {
     const initialBrandId = normalizeSearchParamValue(sp.get("brandId")) || "all";
     const initialStatus = normalizeSearchParamValue(sp.get("status")) || "all";
     const initialPage = parsePositiveIntParam(sp.get("page"), 1);
-    const [searchInput, setSearchInput] = useState(initialSearch);
 
     const { models, loading, error, handleDelete, handleCreate, handleUpdate, pagination, handleToggleStatus, handleApproveModel, handleRejectModel } = useAdminModels({
         initialFilters: { search: initialSearch, categoryId: initialCategoryId, brandId: initialBrandId, status: initialStatus },
         initialPagination: { page: initialPage, limit: 20 },
     });
 
-    const [deletingModel, setDeletingModel] = useState<Model | null>(null);
-    const [rejectingModel, setRejectingModel] = useState<Model | null>(null);
-    const [rejectionReason, setRejectionReason] = useState("");
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isRejecting, setIsRejecting] = useState(false);
+    const {
+        searchInput, setSearchInput,
+        deletingItem: deletingModel, setDeletingItem: setDeletingModel,
+        isDeleting, setIsDeleting, closeDelete,
+        rejectingItem: rejectingModel, setRejectingItem: setRejectingModel,
+        rejectionReason, setRejectionReason, isRejecting, setIsRejecting, closeReject, replaceQueryState
+    } = useCatalogTabState<Model>({ 
+        totalPages: pagination.totalPages, 
+        loading,
+        initialSearch,
+        initialCategoryId,
+        initialBrandId,
+        initialStatus,
+        initialPage
+    });
 
     const confirmDelete = async () => { if (!deletingModel) return; setIsDeleting(true); const ok = await handleDelete(deletingModel.id); setIsDeleting(false); if (ok) setDeletingModel(null); };
     const confirmReject = async () => { if (!rejectingModel || !rejectionReason.trim()) return; setIsRejecting(true); await handleRejectModel(rejectingModel.id, rejectionReason.trim()); setIsRejecting(false); setRejectingModel(null); setRejectionReason(""); };
@@ -47,7 +57,6 @@ export default function ModelsTab() {
     const { categories } = useAdminCategories();
     const { assignableCategories, assignableCategoryIdSet } = useAssignableCategories(categories);
     const categoryOptions = toCategoryOptions(assignableCategories);
-    const { replaceQueryState } = useCatalogQueryStateSync({ searchInput, initialSearch, loading, initialPage, totalPages: pagination.totalPages });
     const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
 
     const categoryFilterOptions = useMemo(() => categoryOptions.map((o) => ({ value: o.id, label: o.name })), [categoryOptions]);
@@ -99,8 +108,22 @@ export default function ModelsTab() {
                     <ModelsFormRenderer formData={formData} setFormData={setFormData} isEditing={isEditing} editingItem={editingItem ?? undefined} brands={brands} categoryOptions={categoryOptions} archivedCategoryCount={archivedCategoryCount} />
                 )}
             />
-            <ModelsDeleteModal model={deletingModel} isDeleting={isDeleting} onClose={() => setDeletingModel(null)} onConfirm={confirmDelete} />
-            <ModelsRejectModal model={rejectingModel} reason={rejectionReason} isSubmitting={isRejecting} onReasonChange={setRejectionReason} onClose={() => setRejectingModel(null)} onConfirm={confirmReject} />
+            <CatalogDeleteModal
+                isOpen={!!deletingModel}
+                itemName={deletingModel?.name || ""}
+                isDeleting={isDeleting}
+                onClose={closeDelete}
+                onConfirm={confirmDelete}
+            />
+            <CatalogRejectModal
+                isOpen={!!rejectingModel}
+                itemName={rejectingModel?.name || ""}
+                reason={rejectionReason}
+                isRejecting={isRejecting}
+                onReasonChange={setRejectionReason}
+                onClose={closeReject}
+                onConfirm={confirmReject}
+            />
         </>
     );
 }
