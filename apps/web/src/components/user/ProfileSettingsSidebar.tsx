@@ -12,7 +12,6 @@ import { useProfileSettings } from "@/hooks/useProfileSettings";
 import type { ProfileUser } from "@/components/user/profile/types";
 
 // UI Components
-import { PageContainer } from "@/components/ui/PageContainer";
 import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -323,7 +322,7 @@ export function ProfileSettingsSidebar({
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
       {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
       <AccountHeader
         activeTab={activeTab}
@@ -345,7 +344,7 @@ export function ProfileSettingsSidebar({
         }
       />
 
-      <PageContainer variant="wide" className="pt-1 pb-20 md:pb-10">
+      <div className="w-full max-w-7xl mx-auto pt-1 md:py-6">
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6">
           {/* LEFT SIDEBAR (Desktop Only) */}
@@ -385,7 +384,7 @@ export function ProfileSettingsSidebar({
             {renderContent()}
           </section>
         </div>
-      </PageContainer>
+      </div>
 
       <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
 
