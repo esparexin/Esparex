@@ -52,31 +52,47 @@ export const adminBulkExtendListings = async (ids: string[], actorId: string, lo
     executeAdminListingsBulkOperation(ids, id => adminExtendListing(id, actorId, logFn), false);
 
 export const adminBulkResendListingWarnings = async (ids: string[], actorId: string, logFn: AdminLogFn) => {
-    if (!Array.isArray(ids) || ids.length === 0) throw new AppError('A non-empty list of listing IDs is required', 400);
-    const ads = await Ad.find({ _id: { $in: ids } });
-    const adsById = new Map(ads.map(a => [a._id.toString(), a]));
-    const results: Array<{ id: string; success: boolean; message?: string }> = [];
-    const bulkOps: Array<{
-        updateOne: {
-            filter: { _id: typeof ads[0]['_id'] };
-            update: { $set: Record<string, unknown>; $inc?: { expiryWarningCount: number } };
-        };
-    }> = [];
-    for (const id of ids) {
-        const ad = adsById.get(id);
-        if (!ad) { results.push({ id, success: false, message: 'Listing not found' }); continue; }
-        try {
-            await dispatchTemplatedNotification(ad.sellerId.toString(), 'SYSTEM', 'LISTING_EXPIRY_WARNING_3D', { title: ad.title, date: ad.expiresAt?.toLocaleDateString() || 'N/A' }, { adId: ad._id.toString() });
-            bulkOps.push({ updateOne: { filter: { _id: ad._id }, update: { $set: { expiryWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' }, $inc: { expiryWarningCount: 1 } } } });
-            await logFn('expiry_warning_resent', 'ExpiryWarning', id, { entityType: 'Ad', adminId: actorId });
-            results.push({ id, success: true });
-        } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
-    }
-    if (bulkOps.length > 0) await Ad.bulkWrite(bulkOps, { ordered: false });
-    return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
+    return executeBulkWarningOperation(ids, actorId, logFn, {
+        notificationTemplate: 'LISTING_EXPIRY_WARNING_3D',
+        getNotificationData: (ad) => ({ title: ad.title, date: ad.expiresAt?.toLocaleDateString() || 'N/A' }),
+        getNotificationOptions: (ad) => ({ adId: ad._id.toString() }),
+        updateSet: { expiryWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' },
+        updateInc: { expiryWarningCount: 1 },
+        logDomain: 'ExpiryWarning',
+        getLogData: (adminId) => ({ entityType: 'Ad', adminId })
+    });
 };
 
 export const adminBulkResendSpotlightWarnings = async (ids: string[], actorId: string, logFn: AdminLogFn) => {
+    return executeBulkWarningOperation(ids, actorId, logFn, {
+        validate: (ad) => (!ad.isSpotlight ? 'Listing is not in spotlight' : null),
+        notificationTemplate: 'SPOTLIGHT_EXPIRY_WARNING_3D',
+        getNotificationData: (ad) => ({ title: ad.title, date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' }),
+        getNotificationOptions: (ad) => ({ adId: ad._id.toString(), type: 'spotlight' }),
+        updateSet: { spotlightWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' },
+        updateInc: { spotlightWarningCount: 1 },
+        logDomain: 'SpotlightPromotion',
+        getLogData: (adminId) => ({ type: 'spotlight', adminId })
+    });
+};
+
+type AdDocument = InstanceType<typeof Ad>;
+
+const executeBulkWarningOperation = async (
+    ids: string[],
+    actorId: string,
+    logFn: AdminLogFn,
+    config: {
+        validate?: (ad: AdDocument) => string | null;
+        notificationTemplate: string;
+        getNotificationData: (ad: AdDocument) => Record<string, unknown>;
+        getNotificationOptions: (ad: AdDocument) => Record<string, unknown>;
+        updateSet: Record<string, unknown>;
+        updateInc: Record<string, number>;
+        logDomain: string;
+        getLogData: (actorId: string) => Record<string, unknown>;
+    }
+) => {
     if (!Array.isArray(ids) || ids.length === 0) throw new AppError('A non-empty list of listing IDs is required', 400);
     const ads = await Ad.find({ _id: { $in: ids } });
     const adsById = new Map(ads.map(a => [a._id.toString(), a]));
@@ -84,20 +100,42 @@ export const adminBulkResendSpotlightWarnings = async (ids: string[], actorId: s
     const bulkOps: Array<{
         updateOne: {
             filter: { _id: typeof ads[0]['_id'] };
-            update: { $set: Record<string, unknown>; $inc?: { spotlightWarningCount: number } };
+            update: { $set: Record<string, unknown>; $inc?: Record<string, number> };
         };
     }> = [];
+
     for (const id of ids) {
         const ad = adsById.get(id);
         if (!ad) { results.push({ id, success: false, message: 'Listing not found' }); continue; }
-        if (!ad.isSpotlight) { results.push({ id, success: false, message: 'Listing is not in spotlight' }); continue; }
+        
+        if (config.validate) {
+            const errorMsg = config.validate(ad);
+            if (errorMsg) { results.push({ id, success: false, message: errorMsg }); continue; }
+        }
+
         try {
-            await dispatchTemplatedNotification(ad.sellerId.toString(), 'SYSTEM', 'SPOTLIGHT_EXPIRY_WARNING_3D', { title: ad.title, date: ad.spotlightExpiresAt?.toLocaleDateString() || 'N/A' }, { adId: ad._id.toString(), type: 'spotlight' });
-            bulkOps.push({ updateOne: { filter: { _id: ad._id }, update: { $set: { spotlightWarningSentAt: new Date(), lastExpiryWarningChannel: 'in-app' }, $inc: { spotlightWarningCount: 1 } } } });
-            await logFn('expiry_warning_resent', 'SpotlightPromotion', id, { type: 'spotlight', adminId: actorId });
+            await dispatchTemplatedNotification(
+                ad.sellerId.toString(),
+                'SYSTEM',
+                config.notificationTemplate,
+                config.getNotificationData(ad),
+                config.getNotificationOptions(ad)
+            );
+            
+            bulkOps.push({
+                updateOne: {
+                    filter: { _id: ad._id },
+                    update: { $set: config.updateSet, $inc: config.updateInc }
+                }
+            });
+            
+            await logFn('expiry_warning_resent', config.logDomain as any, id, config.getLogData(actorId));
             results.push({ id, success: true });
-        } catch (error) { results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) }); }
+        } catch (error) {
+            results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) });
+        }
     }
+
     if (bulkOps.length > 0) await Ad.bulkWrite(bulkOps, { ordered: false });
     return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };
