@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, type ReactNode } from "react";
-import { Search, Loader2, Minus, Plus } from "@/icons/IconRegistry";
+import { Search, Loader2, X, Plus, ChevronDown } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import { Input } from "@/components/ui/input";
 import { Drawer } from "@esparex/ui";
@@ -165,13 +165,11 @@ export function CatalogSearchSelect<T>({
             ref={containerRef}
         >
             <div className="relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                    {loading ? (
+                {loading && (
+                    <div className="absolute right-9 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                         <Loader2 className="w-4 h-4 text-primary animate-spin" />
-                    ) : (
-                        <Search className="w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                    )}
-                </div>
+                    </div>
+                )}
                 <Input
                     autoFocus={isEditing}
                     value={search || (isEditing ? "" : selectedName)}
@@ -184,7 +182,7 @@ export function CatalogSearchSelect<T>({
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
-                    className="pl-9 pr-9 h-11 text-sm font-medium border-slate-200/90 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600"
+                    className="pl-3 pr-9 h-11 text-base md:text-sm font-medium border-slate-200/90 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 cursor-pointer"
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
@@ -193,7 +191,7 @@ export function CatalogSearchSelect<T>({
                     autoComplete="off"
                 />
 
-                {/* Clean inline + / - controls on the right side of the input field */}
+                {/* Clean inline + / X controls on the right side of the input field */}
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
                     {isCustom || (selectedName && !isEditing) ? (
                         <button
@@ -203,10 +201,10 @@ export function CatalogSearchSelect<T>({
                                 setSearch("");
                                 onClear?.();
                             }}
-                            title="Remove custom selection"
+                            title="Remove selection"
                             className="p-1 rounded-md text-slate-400 hover:text-red-600 hover:bg-slate-100 transition-colors"
                         >
-                            <Minus className="w-4 h-4" />
+                            <X className="w-4 h-4" />
                         </button>
                     ) : search.trim() && onProposeCustom ? (
                         <button
@@ -220,7 +218,9 @@ export function CatalogSearchSelect<T>({
                         >
                             <Plus className="w-5 h-5 font-bold stroke-[2.5]" />
                         </button>
-                    ) : null}
+                    ) : (
+                        <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none" />
+                    )}
                 </div>
             </div>
 
@@ -247,7 +247,7 @@ export function CatalogSearchSelect<T>({
                                             onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
+                                        className="pl-9 pr-10 h-10 text-base md:text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button
@@ -261,7 +261,7 @@ export function CatalogSearchSelect<T>({
                                     )}
                                 </div>
                             </div>
-                            <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1">
+                            <div id="select-options-list" role="listbox" className="flex flex-col gap-1 overflow-y-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                                 {loading ? (
                                     <div className="p-4 text-center text-sm text-slate-400 flex items-center justify-center gap-2">
                                         <Loader2 className="w-4 h-4 animate-spin text-primary" />
@@ -287,8 +287,8 @@ export function CatalogSearchSelect<T>({
                                                     handleItemSelect(item);
                                                 }}
                                                 className={cn(
-                                                    "w-full px-4 py-3 min-h-[48px] text-left text-base font-semibold text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl cursor-pointer select-none flex items-center",
-                                                    isSelected && "bg-blue-50 text-blue-900 font-bold"
+                                                    "w-full px-4 py-2.5 min-h-[44px] text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 active:bg-slate-100 rounded-xl cursor-pointer select-none flex items-center",
+                                                    isSelected && "bg-blue-50 text-blue-900 font-semibold"
                                                 )}
                                             >
                                                 {renderItem ? renderItem(item, isSelected) : label}

@@ -18,10 +18,10 @@ const variants = {
 };
 
 const sizes = {
-  default: "h-9 px-4",
-  sm: "h-8 px-3 text-sm",
-  lg: "h-10 px-5 text-base",
-  icon: "size-9",
+  default: "h-11 px-5",
+  sm: "h-9 px-4 text-sm",
+  lg: "h-12 px-6 text-base",
+  icon: "size-11",
 };
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

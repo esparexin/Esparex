@@ -34,7 +34,7 @@ export function CharCounter({ name, max }: { name: string; max: number }) {
     return (
         <span className={cn(
             "text-xs font-normal tracking-tight",
-            value.length >= max ? "text-amber-600" : "text-foreground-subtle"
+            value.length >= max ? "text-amber-600" : "text-slate-400"
         )}>
             {value.length} / {max}
         </span>

@@ -12,10 +12,12 @@ export const healthCheckHandler = async (req: Request, res: Response) => {
         }
         const deep = req.query.deep === 'true';
         const healthData = await getHealthCheckData(deep);
-        return res.status(200).json(healthData);
+        const statusCode = healthData.status === 'error' ? 503 : 200;
+        const success = healthData.status !== 'error';
+        return res.status(statusCode).json({ ...healthData, success });
     } catch (error) {
-        return res.status(200).json({
-            success: true,
+        return res.status(503).json({
+            success: false,
             status: 'error',
             services: {
                 mongo: isDbReady() ? 'healthy' : 'failed',

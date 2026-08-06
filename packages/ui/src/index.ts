@@ -40,6 +40,7 @@ export * from "./forms/ControlledCheckbox";
 export * from "./forms/ControlledSwitch";
 export * from "./forms/ControlledPassword";
 export * from "./forms/ControlledOtp";
+export * from "./forms/ControlledRadioGroup";
 export * from "./forms/InputGroup";
 export * from "./forms/Field"; // Legacy
 export * from "./data-display/DataTable/DataTable";

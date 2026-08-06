@@ -389,6 +389,24 @@ class APIClient {
                     latestStatus !== 429 && // Exclude 429 from auto-retries
                     !isSendOtp; // Exclude /auth/send-otp under any circumstance
 
+
+                
+                const normalizedMessage = normalized.message.toLowerCase();
+                const isAbortLikeNetworkError =
+                    normalizedMessage.includes('abort') ||
+                    normalizedMessage.includes('cancel');
+
+                // 🚀 TRIGGER HEALTH PROBE IMMEDIATELY IF BACKEND IS DOWN OR NETWORK FAILS
+                // This must happen BEFORE the retry delay so that the subsequent retry
+                // hits the request interceptor and correctly awaits the health check promise.
+                if (!isHealthEndpoint) {
+                    if (source === 'network' && !isAbortLikeNetworkError) {
+                        this.triggerBackendHealthProbe();
+                    } else if (latestStatus === 503 || latestStatus === 502) {
+                        this.triggerBackendHealthProbe();
+                    }
+                }
+
                 if (isTransientError && requestConfig && currentRetryCount < maxRetries) {
                     const delay = Math.pow(2, currentRetryCount) * 1000;
                     logger.warn(`[API Client] Transient failure (${latestStatus}). Retrying in ${delay}ms... (Attempt ${currentRetryCount + 1}/${maxRetries})`);
@@ -400,15 +418,6 @@ class APIClient {
                         _retryCount: currentRetryCount + 1
                     };
                     return this.client.request(retryConfig);
-                }
-
-                const normalizedMessage = normalized.message.toLowerCase();
-                const isAbortLikeNetworkError =
-                    normalizedMessage.includes('abort') ||
-                    normalizedMessage.includes('cancel');
-
-                if (source === 'network' && !isHealthEndpoint && !isAbortLikeNetworkError) {
-                    this.triggerBackendHealthProbe();
                 }
 
                 const apiError = new APIError({
