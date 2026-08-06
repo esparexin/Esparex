@@ -121,8 +121,8 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                 )}
 
                 {isError && recommendedAds.length === 0 && (
-                    <div className="rounded-xl border border-red-100 bg-red-50 p-6 text-center">
-                        <p className="text-sm text-red-700 mb-3">
+                    <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-6 text-center">
+                        <p className="text-sm text-destructive mb-3">
                             Failed to load recommended ads. Please try again.
                         </p>
                         <Button variant="outline" onClick={() => refetch()}>
@@ -163,7 +163,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
                                         });
                                     }}
                                     disabled={isFetching}
-                                    className="bg-blue-600 hover:bg-blue-700 rounded-xl px-8 h-11 font-semibold shadow-md shadow-blue-100 transition-all active:scale-95"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-8 h-11 font-semibold shadow-sm transition-all active:scale-95"
                                 >
                                     {isFetching ? (
                                         <>
