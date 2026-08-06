@@ -8,7 +8,7 @@ import { Drawer } from "@esparex/ui";
 import { useIsMobile } from "@/components/ui/useMobile";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
-export interface CatalogSearchSelectProps<T> {
+export interface EntitySearchComboboxProps<T> {
     items: T[];
     loading?: boolean;
     value: string;
@@ -29,7 +29,7 @@ export interface CatalogSearchSelectProps<T> {
     renderItem?: (item: T, isSelected: boolean) => ReactNode;
 }
 
-export function CatalogSearchSelect<T>({
+export function EntitySearchCombobox<T>({
     items,
     loading = false,
     value,
@@ -48,7 +48,7 @@ export function CatalogSearchSelect<T>({
     getLabel,
     getId,
     renderItem,
-}: CatalogSearchSelectProps<T>) {
+}: EntitySearchComboboxProps<T>) {
     const [search, setSearch] = useState("");
     const [isEditing, setIsEditing] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
