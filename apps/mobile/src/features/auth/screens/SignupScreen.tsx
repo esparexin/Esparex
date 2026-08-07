@@ -29,7 +29,7 @@ export const SignupScreen = () => {
           accessibilityLabel="Already have an account? Login"
         >
           <AppText variant="body" className="text-slate-500">
-            Already have an account? <AppText className="text-sky-500 font-semibold">Login</AppText>
+            Already have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Login</AppText>
           </AppText>
         </TouchableOpacity>
       }
