@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import { View, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Screen } from '@esparex/mobile-ui';
 import { usePostAdDraft } from '../usePostAdDraft';
 import { PostAdValidator } from '../application/PostAdValidator';
@@ -111,26 +111,31 @@ export const PostAdScreen = () => {
 
   return (
     <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
-      {/* Progress indicator */}
-      <WizardProgress currentStep={currentStep} />
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        {/* Progress indicator */}
+        <WizardProgress currentStep={currentStep} />
 
-      {/* Active step content */}
-      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
-        <View className="flex-1 min-h-80">
-          <StepComponent />
-        </View>
-      </ScrollView>
+        {/* Active step content */}
+        <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
+          <View className="flex-1 min-h-80">
+            <StepComponent />
+          </View>
+        </ScrollView>
 
-      {/* Navigation controls */}
-      <WizardNavBar
-        currentStep={currentStep}
-        canGoNext={canGoNext}
-        isLastStep={isLastStep}
-        isLoading={isSubmitting}
-        nextLabel={nextLabel}
-        onBack={previousStep}
-        onNext={handleNext}
-      />
+        {/* Navigation controls */}
+        <WizardNavBar
+          currentStep={currentStep}
+          canGoNext={canGoNext}
+          isLastStep={isLastStep}
+          isLoading={isSubmitting}
+          nextLabel={nextLabel}
+          onBack={previousStep}
+          onNext={handleNext}
+        />
+      </KeyboardAvoidingView>
     </Screen>
   );
 };
