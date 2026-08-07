@@ -42,6 +42,8 @@ This matrix serves as the authoritative record of the documentation and governan
 | `.agents/governance/arch/ARCHITECTURE_SCORECARD.md` | Relocate | `.agents/governance/ARCHITECTURE_SCORECARD.md` | Keep | Unifying governance under `.agents/governance/`. |
 | `.agents/governance/arch/IMPLEMENTATION_GUIDE.md` | Relocate | `.agents/governance/IMPLEMENTATION_GUIDE.md` | Keep | Unifying governance under `.agents/governance/`. |
 | `.agents/governance/arch/DDD_CORE_CONSOLIDATION_PLAN.md` | Relocate | `.agents/governance/DDD_CORE_CONSOLIDATION_PLAN.md` | Keep | Unifying governance under `.agents/governance/`. |
+| `docs/audit/` (directory) | Consolidate | `docs/audits/` | Keep | Consolidated duplicate `docs/audit/` directory into canonical `docs/audits/`. |
+| `docs/architecture/adr-004-category-hierarchy-depth.md` | Relocate | `docs/architecture/adr/ADR-005-category-hierarchy-depth.md` | Keep | Re-indexed unindexed ADR to eliminate number collision with ADR-004. |
 
 ## Archive Strategy Policy
 * Any file marked as `Archive` in the list above will be moved to `docs/archive/` (or `docs/archive/esparex-core/` for the Esparex Core directory items). 

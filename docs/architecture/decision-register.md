@@ -22,6 +22,7 @@ Companion to the [Engineering Action Register](../tracking/engineering-action-re
 | D-006 | Document every exception before suppressing; no silent eslint-disable | Sprint 2 | — | ✅ Approved |
 | D-007 | Inline styles: static values migrate to StyleSheet; dynamic/runtime values are permanent exceptions | Sprint 2 | — | ✅ Approved |
 | D-008 | Semantic token names describe intent, not implementation | Sprint 2 | — | ✅ Approved |
+| D-009 | Category hierarchy depth capped at 3 levels (`treeDepth: 0 \| 1 \| 2`) | Sprint 3 | ADR-005 | ⏳ Proposed |
 
 ---
 

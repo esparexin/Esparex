@@ -87,6 +87,6 @@ Phase 2.3 — Database & Persistence Layer Audit (NEXT TARGET)
 
 **Status**: **✅ Phase 2.2 Backend Service & API Layer Performance Complete & Merged**  
 **Evidence Package Index**:
-- [pr-1-search-performance-evidence.md](file:///Users/admin/Desktop/Esparex/docs/reports/pr-1-search-performance-evidence.md)
-- [pr-2-admin-audit-performance-evidence.md](file:///Users/admin/Desktop/Esparex/docs/reports/pr-2-admin-audit-performance-evidence.md)
-- [pr-3-public-cache-evidence.md](file:///Users/admin/Desktop/Esparex/docs/reports/pr-3-public-cache-evidence.md)
+- [pr-1-search-performance-evidence.md](pr-1-search-performance-evidence.md)
+- [pr-2-admin-audit-performance-evidence.md](pr-2-admin-audit-performance-evidence.md)
+- [pr-3-public-cache-evidence.md](pr-3-public-cache-evidence.md)

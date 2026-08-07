@@ -527,4 +527,4 @@ Schema split forces type gymnastics at call sites. Clean but non-ideal.
 
 ---
 
-*End of audit. See docs/audit/ for future comparison baselines.*
+*End of audit. See docs/audits/ for future comparison baselines.*
