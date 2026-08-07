@@ -20,7 +20,7 @@ Do not edit manually.
 
 # Esparex Platform — Implementation Execution Ledger
 
-- **Governing Document:** [Architecture Constitution v1.0.0-FINAL](../esparex_architecture_report.md)
+- **Governing Document:** [Architecture Constitution v1.0.0-FINAL](../ARCHITECTURE.md)
 - **Governance Framework Version:** \`GV-1.1\`
 - **Evidence Schema Version:** \`EV-1.0\`
 - **Current Active Milestone:** \`${phase1.title}\`
