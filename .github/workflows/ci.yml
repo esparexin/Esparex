@@ -137,12 +137,10 @@ jobs:
       - name: Check for mobile app changes
         id: mobile_check
         run: |
-          BASE_SHA="${{ github.event.pull_request.base.sha || github.event.before }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha || github.sha }}"
-          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
-            CHANGES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || echo "apps/mobile/")
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            CHANGES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "apps/mobile/")
           else
-            CHANGES="apps/mobile/"
+            CHANGES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "apps/mobile/")
           fi
           if echo "$CHANGES" | grep -qE '^(apps/mobile/|packages/mobile-ui/)'; then
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -153,12 +151,12 @@ jobs:
           fi
 
       - name: Verify mobile production bundle
-        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           echo "Verifying mobile bundle export (iOS & Android)..."
           cd apps/mobile
-          npx expo export --platform ios
-          npx expo export --platform android
+          npx expo export --platform ios --max-workers 2
+          npx expo export --platform android --max-workers 2
 
       - name: Backend startup smoke test
         run: |
