@@ -2,7 +2,7 @@
 status: archived
 archived_date: 2026-08-03
 reason: Completed historical sprint 3 candidate audit log
-replacement: docs/audit/enterprise-completion-audit.md
+replacement: docs/audits/enterprise-completion-audit.md
 reference: N/A
 ---
 

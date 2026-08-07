@@ -13,7 +13,7 @@ Packages:        @esparex/design-tokens, @esparex/ui, @esparex/mobile-ui
 
 This technical specification is the single reference document for developers implementing UI across Esparex. Every page, form, layout, button, modal, and control must adhere strictly to these technical standards.
 
-* **"What was done in Sprint 1?"** ➔ See [`docs/audits/UI_FOUNDATION_AUDIT.md`](file:///Users/admin/Desktop/Esparex/docs/audits/UI_FOUNDATION_AUDIT.md)
+* **"What was done in Sprint 1?"** ➔ See [`docs/audits/UI_FOUNDATION_AUDIT.md`](../audits/UI_FOUNDATION_AUDIT.md)
 * **"How should UI be implemented from now on?"** ➔ Follow this document.
 
 ---

@@ -88,7 +88,7 @@
 
 ## 🛡️ 6. Open Risks Reference
 
-All long-lived project risks are maintained in the [Project Risk Register](file:///Users/admin/Desktop/Esparex/docs/governance/risk-register.md) (`docs/governance/risk-register.md`).
+All long-lived project risks are maintained in the [Project Risk Register](../governance/risk-register.md) (`docs/governance/risk-register.md`).
 
 ---
 

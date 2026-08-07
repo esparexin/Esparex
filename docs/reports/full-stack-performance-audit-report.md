@@ -5,7 +5,7 @@
 **Branch**: `audit/full-stack-performance-baseline`  
 **Target Integration Branch**: `develop`  
 **Governance Standard**: Esparex Architecture & Performance Governance (`AGENTS.md`)  
-**Evidence Index**: [Performance Evidence & Artifact Index](file:///Users/admin/Desktop/Esparex/docs/reports/performance-evidence-index.md)  
+**Evidence Index**: [Performance Evidence & Artifact Index](performance-evidence-index.md)  
 **Mode**: Read-Only / Evidence-Based Audit Complete  
 
 ---
@@ -14,7 +14,7 @@
 
 This master audit report synthesizes empirical performance metrics collected across the entire Esparex stack—from client rendering, React Scan profiling, Next.js hydration, and network request waterfalls down to Express middleware processing, MongoDB query plans, and bundle sizes.
 
-All conclusions are mapped directly to empirical logs and raw profiling artifacts documented in the [Performance Evidence & Artifact Index](file:///Users/admin/Desktop/Esparex/docs/reports/performance-evidence-index.md).
+All conclusions are mapped directly to empirical logs and raw profiling artifacts documented in the [Performance Evidence & Artifact Index](performance-evidence-index.md).
 
 ```text
 Status:
