@@ -25,3 +25,9 @@
 | **Platform Reliability** | Express Health Probes | ✅ Beta Ready | `backend/api/src/routes/health.ts` |
 | **Performance** | FlashList Feed Integration | ✅ Beta Ready | `apps/mobile/src/features/listings` |
 | **Security** | CORS & Secure Cookies | ✅ Beta Ready | `backend/api` Middleware |
+
+---
+
+## Engineering & Reliability Notes
+
+- **CI lifecycle fix — recurring 45-minute workflow cancellation eliminated**: The `Esparex CI / Lint, Test, and Build Monorepo` smoke step booted the full backend and never exited, so GitHub killed runs at the job timeout. The backend lifecycle is now explicit (`bootstrap()` → `startListener()` → `shutdownServer()`) with a dedicated bounded smoke entrypoint (`backend/api/src/smoke.ts`) that verifies the real `/health` endpoint and shuts down cleanly in ~1s. Reference `EA-034`.

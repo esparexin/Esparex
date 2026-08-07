@@ -1109,3 +1109,66 @@ docs/tracking/sprint-4.md
 
 **Verification**
 - ✅ All 10 Sprint 4 Success Metrics hit 100% target. Zero active errors or violations across monorepo.
+
+---
+
+### EA-034
+
+**Sprint**: Sprint 5  
+**PR**: CI hardening (issue-ci-security-and-metrics-hardening)  
+**Category**: CI / Platform Reliability  
+**Status**: ✅ Completed
+
+**Action**  
+Root-caused and permanently fixed the recurring 45-minute GitHub Actions cancellation of `Esparex CI / Lint, Test, and Build Monorepo (pull_request)`, and replaced the hang-prone backend smoke check with a bounded, real-server lifecycle test.
+
+**Reason**  
+The CI smoke step executed `node -e "require('./backend/api/dist/app')"`, which booted the full backend (Mongo + Redis + Socket.IO + background monitors) and kept the Node event loop alive indefinitely because nothing told the process to exit. The job was therefore killed by its own `timeout-minutes: 45` on every full-length run. All prior fixes targeted unrelated steps (TruffleHog timeout, Expo worker limits, E2E decoupling) and never addressed the hanging step.
+
+**Repository Impact Statement**
+```
+Problem: CI cancelled at 45 minutes due to a never-exiting backend smoke process.
+Existing SSOT: backend/api/src/server.ts (boot lifecycle), core/src/utils/shutdownHandler.ts (canonical shutdown)
+New Files: 1 (backend/api/src/smoke.ts — dedicated bounded smoke entrypoint)
+Existing Files Modified: 4
+Duplicate Risk: None
+Reason: Lifecycle split (bootstrap → startListener → shutdownServer) reused by both production entrypoint and smoke test; smoke drives the canonical shutdown path.
+```
+
+**Files Created / Modified**
+```
+backend/api/src/smoke.ts                          (new — bootstrap → /health → shutdown → exit 0/1)
+backend/api/src/server.ts                          (refactor — exported bootstrap/startListener/shutdownServer)
+backend/api/package.json                           (added "smoke" script)
+core/src/utils/shutdownHandler.ts                  (ERR_SERVER_NOT_RUNNING treated as success — closeIO closes HTTP server first)
+.github/workflows/ci.yml                           (smoke step runs `npm run smoke -w @esparex/backend-api`, timeout-minutes: 3)
+```
+
+**Decision Reference**: Root-cause CI audit (issue-ci-security-and-metrics-hardening)
+
+**Dependencies**: None
+
+**Evidence**
+- Run `31187464282` (2026-08-07): `Backend startup smoke test` step started 14:32:46Z, produced zero output for 37m, killed at job timeout 15:10:17Z (`##[error]The operation was canceled.`).
+- Run `31183233812`: same step hung 13:40:38Z → 14:19:31Z (38m51s) before timeout cancellation.
+- Successful develop run `3117364278` (no mongo/redis services) completed the smoke step in 1 second (fail-fast, `continue-on-error`).
+- Local execution against live mongo/redis: success path `exit 0` in ~1.0s (health 200, clean shutdown of Socket.IO/HTTP/Redis/Mongoose); failure path `exit 1` in 33.6s (bounded by DB retry/backoff).
+- `npm run repo:gate` → PASS (Health Score 100%).
+
+**Verification**
+- ✅ Backend build (`tsc` + `tsc-alias`) → exit 0
+- ✅ Root `npm run type-check` (all workspaces) → exit 0
+- ✅ Backend tests 69 suites / 345 tests pass
+- ✅ Core tests 60 suites / 352 tests pass
+- ✅ Full monorepo `npm run build` → exit 0 (incl. apps-web + apps-admin Next.js)
+- ✅ ESLint clean on changed files
+- ✅ `ci.yml` YAML validated (Ruby)
+- ✅ `npm run repo:gate` → PASS (100%)
+
+**Rollback**
+```bash
+# Restore snapshot of the four modified files and delete backend/api/src/smoke.ts:
+git checkout -- .github/workflows/ci.yml backend/api/package.json backend/api/src/server.ts core/src/utils/shutdownHandler.ts
+rm backend/api/src/smoke.ts
+# Revert CI smoke step to the previous command and re-add continue-on-error if desired
+```

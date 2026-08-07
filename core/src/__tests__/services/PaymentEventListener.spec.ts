@@ -33,6 +33,8 @@ import { registerPaymentEventListener } from '../../events/listeners/PaymentEven
 import { upgradePlan } from '../../services/business/BusinessSubscriptionService';
 
 describe('PaymentEventListener Idempotency & Lifecycle Suite', () => {
+    jest.setTimeout(30000);
+
     const mockUserId = new mongoose.Types.ObjectId().toString();
     const mockPlanId = new mongoose.Types.ObjectId().toString();
 

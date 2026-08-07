@@ -23,5 +23,13 @@ module.exports = {
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(sanitize-html|htmlparser2|domhandler|domelementtype|domutils|dom-serializer|entities|escape-string-regexp|parse5)/)'
-  ]
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 40,
+      functions: 50,
+      lines: 50,
+      statements: 50
+    }
+  }
 };
