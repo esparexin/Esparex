@@ -3,7 +3,7 @@
 **Branch**: `audit/full-stack-performance-baseline`  
 **Evidence ID**: `PERF-003`  
 **Focus Area**: Mongoose Query Execution, Index Coverage, `explain("executionStats")` & Repository Performance  
-**Raw Execution Artifacts**: [mongodb-explain-users-me.json](file:///Users/admin/Desktop/Esparex/docs/reports/artifacts/mongodb-explain-users-me.json), [mongodb-explain-saved.json](file:///Users/admin/Desktop/Esparex/docs/reports/artifacts/mongodb-explain-saved.json)  
+**Raw Execution Artifacts**: [mongodb-explain-users-me.json](artifacts/mongodb-explain-users-me.json), [mongodb-explain-saved.json](artifacts/mongodb-explain-saved.json)  
 
 ---
 

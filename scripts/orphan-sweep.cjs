@@ -17,14 +17,18 @@ function getAllFiles(dir, allFiles = []) {
     const files = fs.readdirSync(dir);
     files.forEach(file => {
         const name = path.join(dir, file);
-        if (fs.statSync(name).isDirectory()) {
-            if (file !== 'node_modules' && file !== 'dist' && file !== 'coverage' && !file.startsWith('.')) {
-                getAllFiles(name, allFiles);
+        try {
+            if (fs.statSync(name).isDirectory()) {
+                if (file !== 'node_modules' && file !== 'dist' && file !== 'coverage' && file !== 'Pods' && !file.startsWith('.')) {
+                    getAllFiles(name, allFiles);
+                }
+            } else {
+                if (EXTENSIONS.includes(path.extname(file)) && !file.endsWith('.d.ts')) {
+                    allFiles.push(name);
+                }
             }
-        } else {
-            if (EXTENSIONS.includes(path.extname(file)) && !file.endsWith('.d.ts')) {
-                allFiles.push(name);
-            }
+        } catch {
+            // Ignore broken symlinks or unreadable files
         }
     });
     return allFiles;
