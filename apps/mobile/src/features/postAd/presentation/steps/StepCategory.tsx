@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { AppText, Center, AppIcon } from '@esparex/mobile-ui';
 import { usePostAdDraft } from '../../usePostAdDraft';
 import { useCategories } from '../../application/useCategories';
@@ -35,7 +35,7 @@ export const StepCategory = () => {
   return (
     <ScrollView
       className="flex-1"
-      contentContainerStyle={{ padding: 16 }}
+      contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
       <AppText
@@ -70,3 +70,7 @@ export const StepCategory = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: { padding: 16 },
+});

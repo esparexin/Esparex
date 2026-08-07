@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { View, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Screen, Container, AppText, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { useChatThread } from '../hooks/useChatThread';
 import { useSendMessage } from '../hooks/useSendMessage';
+import { useProfile } from '../../../user/presentation/hooks/useProfile';
 import { IMessageDTO } from '@esparex/contracts';
 import { ErrorState } from '../../../common/components/ErrorState';
 
@@ -14,9 +15,11 @@ interface ChatThreadScreenProps {
 
 export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
   conversationId,
-  currentUserId = 'usr-me',
+  currentUserId: currentUserIdProp,
   onBack,
 }) => {
+  const { data: userProfile } = useProfile();
+  const activeUserId = currentUserIdProp || userProfile?.id || '';
   const { data: messages, isLoading, isError, refetch } = useChatThread(conversationId);
   const sendMessageMutation = useSendMessage();
   const [inputText, setInputText] = useState('');
@@ -39,7 +42,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
 
   const renderMessageItem = useCallback(
     ({ item }: { item: IMessageDTO }) => {
-      const isMine = item.senderId === currentUserId;
+      const isMine = item.senderId === activeUserId;
       const formattedTime = item.createdAt
         ? new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         : '';
@@ -85,7 +88,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
         </View>
       );
     },
-    [currentUserId]
+    [activeUserId]
   );
 
   if (isError) {
@@ -113,7 +116,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
 
         {/* Keyboard-aware Message Feed */}
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={styles.kavContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
@@ -122,7 +125,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
             data={messages || []}
             keyExtractor={(item) => item.id}
             renderItem={renderMessageItem}
-            contentContainerStyle={{ padding: 16, paddingBottom: 20 }}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
             windowSize={10}
@@ -157,3 +160,8 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  kavContainer: { flex: 1 },
+  scrollContent: { padding: 16, paddingBottom: 20 },
+});

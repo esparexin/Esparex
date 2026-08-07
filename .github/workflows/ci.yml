@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -120,6 +120,13 @@ jobs:
           echo "Verifying admin app entry points..."
           test -f apps/admin/.next/required-server-files.json
 
+      - name: Verify mobile production bundle
+        run: |
+          echo "Verifying mobile bundle export (iOS & Android)..."
+          cd apps/mobile
+          npx expo export --platform ios
+          npx expo export --platform android
+
       - name: Backend startup smoke test
         continue-on-error: true
         run: |
@@ -130,7 +137,7 @@ jobs:
         run: cp -r apps/web/.next apps/web/next-build
 
       - name: Upload Web Build Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: web-build-artifacts
           path: apps/web/next-build
@@ -165,7 +172,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -179,7 +186,7 @@ jobs:
         working-directory: apps/web
 
       - name: Download Web Build Artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: web-build-artifacts
           path: apps/web/next-build
@@ -201,7 +208,7 @@ jobs:
 
       - name: Upload test artifacts on failure
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-listing-edit
           path: apps/web/test-results/

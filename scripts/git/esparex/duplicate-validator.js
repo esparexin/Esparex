@@ -14,12 +14,13 @@ function run(val) {
     if (!fs.existsSync(dir)) return allFiles;
     const files = fs.readdirSync(dir);
     files.forEach(file => {
+      if (file === 'node_modules' || file === 'dist' || file === 'coverage' || file === 'Pods' || file === 'build' || file.startsWith('.')) return;
       const name = path.join(dir, file);
-      const stat = fs.statSync(name);
+      if (!fs.existsSync(name)) return;
+      const stat = fs.lstatSync(name);
+      if (stat.isSymbolicLink()) return;
       if (stat.isDirectory()) {
-        if (file !== 'node_modules' && file !== 'dist' && file !== 'coverage' && !file.startsWith('.')) {
-          getAllFiles(name, allFiles);
-        }
+        getAllFiles(name, allFiles);
       } else {
         if (EXTENSIONS.includes(path.extname(file)) && !file.endsWith('.d.ts')) {
           allFiles.push(name);

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, View, StyleSheet } from 'react-native';
 import { Screen, Container } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 import { useListings } from '../hooks/useListings';
@@ -107,7 +107,7 @@ export const MarketplaceScreen = () => {
             data={listings}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
-            contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={true}
             windowSize={5}
@@ -158,3 +158,7 @@ export const MarketplaceScreen = () => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: { padding: 16, paddingBottom: 100 },
+});

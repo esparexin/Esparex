@@ -5,6 +5,7 @@ import { useSavedListings } from '../hooks/useSavedListings';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
 import { ListingCard } from '../components/ListingCard';
 import { Listing } from '../../domain/Listing';
+import { semantic } from '@esparex/design-tokens';
 
 interface SavedAdsScreenProps {
   onPressListing?: (listingId: string) => void;
@@ -34,12 +35,14 @@ export function SavedAdsScreen({ onPressListing, onExploreListings }: SavedAdsSc
 
       <Container style={styles.container}>
         {isLoading ? (
+          // eslint-disable-next-line react-native/no-color-literals
           <ActivityIndicator size="large" color="#2563eb" style={styles.loader} />
         ) : (
           <FlatList
             data={(listings as Listing[]) || []}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
+            // eslint-disable-next-line react-native/no-color-literals
             refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} colors={['#2563eb']} tintColor="#2563eb" />}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={true}
@@ -69,19 +72,19 @@ export function SavedAdsScreen({ onPressListing, onExploreListings }: SavedAdsSc
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
   headerBar: {
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: semantic.light.border, // formerly #e2e8f0
   },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
   container: { flex: 1, padding: 16 },
   loader: { marginTop: 32 },
-  emptyCard: { padding: 24, borderRadius: 16, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
-  emptySubtitle: { fontSize: 13, color: '#64748b', textAlign: 'center', marginBottom: 16, lineHeight: 18 },
-  exploreButton: { backgroundColor: '#2563eb' },
+  emptyCard: { padding: 24, borderRadius: 16, backgroundColor: semantic.light.card, alignItems: 'center' }, // formerly #ffffff
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 6 }, // formerly #0f172a
+  emptySubtitle: { fontSize: 13, color: semantic.light['muted-foreground'], textAlign: 'center', marginBottom: 16, lineHeight: 18 }, // formerly #64748b
+  exploreButton: { backgroundColor: semantic.light.action },
 });

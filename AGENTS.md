@@ -388,17 +388,21 @@ Every UI-related pull request must include confirmation that:
 
 ---
 
-## Definition of Done
+## Definition of Done (Mandatory PR Checklist)
 
-A UI feature is **not complete** until all of the following are true:
+Every pull request merged into Esparex MUST satisfy the non-negotiable Feature Definition of Done:
 
-- Functional requirements are satisfied.
-- Responsive behavior is verified.
-- Accessibility requirements are satisfied.
-- Keyboard navigation is fully operational.
-- Focus management is correct.
-- Screen reader support is verified where applicable.
-- No accessibility regressions remain.
+- [ ] **Feature Implementation**: Functional requirements fully satisfied according to SSOT contracts.
+- [ ] **Automated Testing**: Unit tests (`npm test`), integration tests, and contract compatibility checks pass with 100% green status.
+- [ ] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
+- [ ] **Multi-Platform Verification**: Verified on Web (Desktop & Mobile viewports) and Mobile (Expo iOS & Android exports).
+- [ ] **Accessibility Audit**: WCAG 2.2 AA compliant, visible focus rings, keyboard navigable, screen reader compatible (`accessibilityRole`/`accessibilityLabel`).
+- [ ] **Performance Review**: Zero frame drops on list viewports, LCP < 2.5s, CLS < 0.1, unbounded queries paginated.
+- [ ] **Security Review**: Input sanitized, CORS origin restricted, authentication & authorization guards enforced, 0 secret exposures.
+- [ ] **Zero Suppression Policy**: 0 `no-color-literals` and 0 `no-inline-styles` suppressions added.
+- [ ] **Contract Stability**: No breaking changes to public contracts in `@esparex/contracts` unless approved by ADR.
+- [ ] **Feature Flags & Telemetry**: Feature flags documented/retired and telemetry events wired for new user flows.
+- [ ] **Release Notes & EA Ledger**: `engineering-action-register.md` updated and `release-notes.md` updated for user-facing changes.
 
 ---
 

@@ -162,19 +162,21 @@ const nextConfig = {
         ],
     },
     images: {
-        domains: [
-            'esparexdev.s3.ap-south-1.amazonaws.com',
-            'esparexdev.s3.amazonaws.com',
-            's3.ap-south-1.amazonaws.com',
-            's3.amazonaws.com',
-            'images.unsplash.com',
-            'placehold.co',
-        ],
         remotePatterns: [
             ...regionalS3RemotePatterns,
             ...dynamicS3BucketPattern,
             ...dynamicApiRemotePattern,
             ...staticRemotePatterns,
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'placehold.co',
+                pathname: '/**',
+            },
         ],
         formats: ['image/avif', 'image/webp'],
         dangerouslyAllowSVG: true,

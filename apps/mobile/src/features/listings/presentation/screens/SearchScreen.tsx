@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, View, StyleSheet } from 'react-native';
 import { Screen, Container, AppText, Center, AppIcon } from '@esparex/mobile-ui';
 import { useSearch } from '../hooks/useSearch';
 import { SearchBar } from '../components/SearchBar';
@@ -79,7 +79,7 @@ export const SearchScreen = () => {
         data={listings}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews
         windowSize={5}
@@ -122,3 +122,7 @@ export const SearchScreen = () => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: { padding: 16, paddingBottom: 100 },
+});

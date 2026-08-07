@@ -4,6 +4,7 @@ import { Container, Card } from '@esparex/mobile-ui';
 import * as ImagePicker from 'expo-image-picker';
 import { BusinessFormState } from '../../domain/BusinessFormState';
 import { ApiBusinessRepository } from '../../application/ApiBusinessRepository';
+import { semantic } from '@esparex/design-tokens';
 
 interface StepDocumentsUploadProps {
   formState: BusinessFormState;
@@ -59,6 +60,7 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
 
         {uploading && (
           <View style={styles.loadingBanner}>
+            {/* eslint-disable-next-line react-native/no-color-literals */}
             <ActivityIndicator size="small" color="#2563eb" />
             <Text style={styles.loadingText}>Uploading document to secure storage...</Text>
           </View>
@@ -102,36 +104,36 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
-  card: { padding: 16, borderRadius: 16, backgroundColor: '#ffffff' },
-  title: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 4 },
-  subtitle: { fontSize: 13, color: '#64748b', marginBottom: 16 },
+  card: { padding: 16, borderRadius: 16, backgroundColor: semantic.light.card }, // formerly #ffffff
+  title: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 4 }, // formerly #0f172a
+  subtitle: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 16 }, // formerly #64748b
   loadingBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#eff6ff',
+    backgroundColor: semantic.light['info-subtle'],
     padding: 10,
     borderRadius: 8,
     marginBottom: 12,
   },
-  loadingText: { marginLeft: 8, fontSize: 12, color: '#1d4ed8' },
+  loadingText: { marginLeft: 8, fontSize: 12, color: semantic.light['info-dark'] },
   docItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: semantic.light.border, // formerly #f1f5f9
   },
   docInfo: { flex: 1, marginRight: 12 },
-  docTitle: { fontSize: 14, fontWeight: '600', color: '#1e293b' },
-  docDesc: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  docTitle: { fontSize: 14, fontWeight: '600', color: semantic.light.foreground }, // formerly #1e293b
+  docDesc: { fontSize: 12, color: semantic.light['muted-foreground'], marginTop: 2 }, // formerly #64748b
   uploadButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: semantic.light.action,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  uploadedButton: { backgroundColor: '#dcfce7' },
-  buttonText: { fontSize: 13, fontWeight: '600', color: '#ffffff' },
-  uploadedText: { color: '#15803d' },
+  uploadedButton: { backgroundColor: semantic.light['success-subtle'] },
+  buttonText: { fontSize: 13, fontWeight: '600', color: semantic.light['primary-foreground'] }, // formerly #ffffff
+  uploadedText: { color: semantic.light['success-dark'] },
 });

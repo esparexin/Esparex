@@ -44,6 +44,12 @@
       "@esparex/contracts/*": [
         "../../packages/contracts/src/*"
       ],
+      "@esparex/design-tokens": [
+        "../../packages/design-tokens/src/index.ts"
+      ],
+      "@esparex/design-tokens/*": [
+        "../../packages/design-tokens/src/*"
+      ],
       "@esparex/ui": [
         "../../packages/ui/src/index.ts"
       ],

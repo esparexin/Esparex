@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View, TouchableOpacity, ScrollView } from 'react-native';
+import { Modal, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { AppText, AppButton, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { User } from '@esparex/contracts';
 
@@ -89,8 +89,8 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
 
           {/* Actions */}
           <View className="flex-row gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <AppButton variant="outline" onPress={onClose} label="Cancel" style={{ flex: 1 }} />
-            <AppButton variant="primary" onPress={handleSave} label="Save Changes" loading={isSaving} style={{ flex: 2 }} />
+            <AppButton variant="outline" onPress={onClose} label="Cancel" style={styles.cancelButton} />
+            <AppButton variant="primary" onPress={handleSave} label="Save Changes" loading={isSaving} style={styles.saveButton} />
           </View>
         </View>
       </View>
@@ -99,3 +99,8 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
 });
 
 EditProfileModal.displayName = 'EditProfileModal';
+
+const styles = StyleSheet.create({
+  cancelButton: { flex: 1 },
+  saveButton: { flex: 2 },
+});
