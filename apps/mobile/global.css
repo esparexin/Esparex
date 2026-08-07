@@ -1,4 +1,4 @@
-@import "../../packages/design-tokens/dist/css-variables.css";
+@import "@esparex/design-tokens/dist/css-variables.css";
 
 @tailwind base;
 @tailwind components;
