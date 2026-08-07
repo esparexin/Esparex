@@ -165,23 +165,11 @@ jobs:
           echo "Running backend startup verification..."
           MONGODB_URI=mongodb://localhost:27017/test ADMIN_MONGODB_URI=mongodb://localhost:27017/test REDIS_URL=redis://localhost:6379 JWT_SECRET=supersecretjwtsecretmustbeatleast32characters node -e "require('./backend/api/dist/app')" && echo "✅ Backend startup verification succeeded!"
 
-      - name: Copy web build for artifact upload
-        run: cp -r apps/web/.next apps/web/next-build
-
-      - name: Upload Web Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-build-artifacts
-          path: apps/web/next-build
-          if-no-files-found: error
-          retention-days: 1
-
   # ── Job 2: Playwright E2E — Listing Edit regression suite ────────────────────
   e2e-listing-edit:
     name: E2E – Listing Edit Suite
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: ci
     env:
       NEXT_PUBLIC_APP_ENV: local
       NEXT_PUBLIC_PROD_RISK_OVERRIDE: "false"
@@ -213,18 +201,15 @@ jobs:
       - name: Install dependencies
         run: HUSKY=0 npm ci
 
+      - name: Build web app and shared dependencies
+        run: |
+          npm run build -w @esparex/contracts
+          npm run build -w @esparex/shared
+          npm run build -w @esparex/apps-web
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
         working-directory: apps/web
-
-      - name: Download Web Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: web-build-artifacts
-          path: apps/web/next-build
-
-      - name: Restore web build to .next
-        run: mv apps/web/next-build apps/web/.next
 
       - name: Start web app
         run: npm run start -w @esparex/apps-web &
