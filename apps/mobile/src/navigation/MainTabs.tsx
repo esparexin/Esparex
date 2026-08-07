@@ -9,6 +9,7 @@ import { PostAdScreen } from '../features/postAd/presentation/PostAdScreen';
 import { ChatNavigator } from './ChatNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 import { useUnreadNotificationsCount } from '../features/notifications/presentation/hooks/useNotifications';
+import { semantic } from '@esparex/design-tokens';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -42,11 +43,11 @@ export const MainTabs = () => {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#020617', // slate-950
-          borderTopColor: '#1e293b',  // slate-800
+          backgroundColor: semantic.dark.background, // formerly #020617 (slate-950) -> Dark theme tab bar
+          borderTopColor: semantic.dark.border,  // formerly #1e293b (slate-800) -> Dark theme tab bar
         },
-        tabBarActiveTintColor: '#0ea5e9',   // sky-500
-        tabBarInactiveTintColor: '#64748b', // slate-500
+        tabBarActiveTintColor: semantic.light.primary,   // formerly #0ea5e9 (sky-500)
+        tabBarInactiveTintColor: semantic.light['muted-foreground'], // formerly #64748b (slate-500)
         tabBarIcon: ({ color, size }) => {
           let iconName: React.ComponentProps<typeof AppIcon>['name'] = 'Home';
 
@@ -82,7 +83,7 @@ export const MainTabs = () => {
           title: 'Chat',
           // Show a badge when there are unread notifications
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: '#ef4444', color: '#ffffff', fontSize: 10 },
+          tabBarBadgeStyle: { backgroundColor: semantic.light.destructive, color: semantic.light['destructive-foreground'], fontSize: 10 },
         }}
       />
       <Tab.Screen

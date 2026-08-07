@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Screen, Container, Card, AppButton } from '@esparex/mobile-ui';
 import { BUSINESS_STATUS, Business } from '@esparex/contracts';
+import { semantic } from '@esparex/design-tokens';
 
 interface BusinessStatusScreenProps {
   business: Business;
@@ -73,17 +74,17 @@ export function BusinessStatusScreen({ business, onEdit, onBack }: BusinessStatu
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
   container: { padding: 16 },
-  card: { padding: 20, borderRadius: 20, backgroundColor: '#ffffff' },
-  pendingCard: { borderLeftWidth: 4, borderLeftColor: '#d97706' },
-  activeCard: { borderLeftWidth: 4, borderLeftColor: '#16a34a' },
-  rejectedCard: { borderLeftWidth: 4, borderLeftColor: '#dc2626' },
-  badgePending: { fontSize: 13, fontWeight: '700', color: '#d97706', marginBottom: 8 },
-  badgeActive: { fontSize: 13, fontWeight: '700', color: '#16a34a', marginBottom: 8 },
-  badgeRejected: { fontSize: 13, fontWeight: '700', color: '#dc2626', marginBottom: 8 },
-  title: { fontSize: 20, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
-  description: { fontSize: 14, color: '#475569', lineHeight: 20, marginBottom: 12 },
-  subtext: { fontSize: 12, color: '#94a3b8' },
-  editButton: { marginTop: 12, backgroundColor: '#2563eb' },
+  card: { padding: 20, borderRadius: 20, backgroundColor: semantic.light.card }, // formerly #ffffff
+  pendingCard: { borderLeftWidth: 4, borderLeftColor: semantic.light['warning-dark'] },
+  activeCard: { borderLeftWidth: 4, borderLeftColor: semantic.light['success-dark'] },
+  rejectedCard: { borderLeftWidth: 4, borderLeftColor: semantic.light['destructive-dark'] },
+  badgePending: { fontSize: 13, fontWeight: '700', color: semantic.light['warning-dark'], marginBottom: 8 },
+  badgeActive: { fontSize: 13, fontWeight: '700', color: semantic.light['success-dark'], marginBottom: 8 },
+  badgeRejected: { fontSize: 13, fontWeight: '700', color: semantic.light['destructive-dark'], marginBottom: 8 },
+  title: { fontSize: 20, fontWeight: '700', color: semantic.light.foreground, marginBottom: 8 }, // formerly #0f172a
+  description: { fontSize: 14, color: semantic.light['muted-foreground'], lineHeight: 20, marginBottom: 12 }, // formerly #475569
+  subtext: { fontSize: 12, color: semantic.light.muted }, // formerly #94a3b8
+  editButton: { marginTop: 12, backgroundColor: semantic.light.action },
 });

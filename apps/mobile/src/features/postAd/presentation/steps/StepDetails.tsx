@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
 import { AppText } from '@esparex/mobile-ui';
 import { usePostAdDraft } from '../../usePostAdDraft';
 import { TitleField } from '../components/TitleField';
@@ -29,7 +29,7 @@ export const StepDetails = () => {
   return (
     <ScrollView
       className="flex-1"
-      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >
@@ -69,3 +69,7 @@ export const StepDetails = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: { padding: 16, paddingBottom: 32 },
+});

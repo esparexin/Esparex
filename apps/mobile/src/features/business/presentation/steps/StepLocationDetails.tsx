@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Container, Card } from '@esparex/mobile-ui';
 import { BusinessFormState } from '../../domain/BusinessFormState';
+import { semantic } from '@esparex/design-tokens';
 
 interface StepLocationDetailsProps {
   formState: BusinessFormState;
@@ -20,6 +21,7 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
           <TextInput
             style={styles.input}
             placeholder="Shop No. 12, Main Market Road"
+            placeholderTextColor={semantic.light.muted}
             value={formState.address}
             onChangeText={(text) => onChange({ address: text })}
           />
@@ -30,6 +32,7 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
           <TextInput
             style={styles.input}
             placeholder="e.g. Mumbai, New Delhi, Bengaluru"
+            placeholderTextColor={semantic.light.muted}
             value={formState.city}
             onChangeText={(text) => onChange({ city: text })}
           />
@@ -40,6 +43,7 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
           <TextInput
             style={styles.input}
             placeholder="e.g. Maharashtra, Karnataka"
+            placeholderTextColor={semantic.light.muted}
             value={formState.state}
             onChangeText={(text) => onChange({ state: text })}
           />
@@ -50,6 +54,7 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
           <TextInput
             style={styles.input}
             placeholder="6-digit PIN code"
+            placeholderTextColor={semantic.light.muted}
             keyboardType="number-pad"
             maxLength={6}
             value={formState.pincode}
@@ -62,6 +67,7 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
           <TextInput
             style={styles.input}
             placeholder="e.g. 27AAAAA0000A1Z5"
+            placeholderTextColor={semantic.light.muted}
             autoCapitalize="characters"
             value={formState.gstNumber}
             onChangeText={(text) => onChange({ gstNumber: text })}
@@ -74,19 +80,19 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
-  card: { padding: 16, borderRadius: 16, backgroundColor: '#ffffff' },
-  title: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 4 },
-  subtitle: { fontSize: 13, color: '#64748b', marginBottom: 16 },
+  card: { padding: 16, borderRadius: 16, backgroundColor: semantic.light.card }, // formerly #ffffff
+  title: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 4 }, // formerly #0f172a
+  subtitle: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 16 }, // formerly #64748b
   fieldGroup: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 6 },
+  label: { fontSize: 13, fontWeight: '600', color: semantic.light['secondary-foreground'], marginBottom: 6 }, // formerly #334155
   input: {
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: semantic.light.border, // formerly #cbd5e1
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
+    color: semantic.light.foreground, // formerly #0f172a
+    backgroundColor: semantic.light.background, // formerly #f8fafc
   },
 });

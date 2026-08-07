@@ -4,15 +4,15 @@ import { INotificationRepository } from './INotificationRepository';
 
 export class ApiNotificationRepository implements INotificationRepository {
   async getNotifications(): Promise<AppNotification[]> {
-    const response = await apiClient.get<AppNotification[]>('/api/v1/notifications');
+    const response = await apiClient.get<AppNotification[]>('/v1/notifications');
     return response.data;
   }
 
   async markRead(id: string): Promise<void> {
-    await apiClient.patch(`/api/v1/notifications/${id}/read`);
+    await apiClient.patch(`/v1/notifications/${id}/read`);
   }
 
   async markAllRead(): Promise<void> {
-    await apiClient.patch('/api/v1/notifications/all/read');
+    await apiClient.patch('/v1/notifications/all/read');
   }
 }

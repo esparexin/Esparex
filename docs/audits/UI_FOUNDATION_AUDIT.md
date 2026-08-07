@@ -78,6 +78,4 @@ b89463e6 refactor(tokens): align mobile token adapter with design tokens
 d59df07f refactor(ui): remove verified duplicate and orphaned UI code
 4649f460 fix(a11y): improve shared mobile touch targets
 f93f0f1f chore(ui): verify build, lint, type-check and regression
-efaa4283 docs(ui): document definitive platform UI contract
-9513683b docs(ui): establish complete UI foundation governance contract
 ```

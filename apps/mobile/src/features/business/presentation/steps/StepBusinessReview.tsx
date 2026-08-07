@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Container, Card } from '@esparex/mobile-ui';
 import { BusinessFormState } from '../../domain/BusinessFormState';
+import { semantic } from '@esparex/design-tokens';
 
 interface StepBusinessReviewProps {
   formState: BusinessFormState;
@@ -58,12 +59,12 @@ export function StepBusinessReview({ formState }: StepBusinessReviewProps) {
 
 const styles = StyleSheet.create({
   container: { padding: 16 },
-  card: { padding: 16, borderRadius: 16, backgroundColor: '#ffffff' },
-  title: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 4 },
-  subtitle: { fontSize: 13, color: '#64748b', marginBottom: 16 },
-  section: { marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  sectionHeader: { fontSize: 14, fontWeight: '700', color: '#1e293b', marginBottom: 6 },
-  detailRow: { fontSize: 13, color: '#475569', marginBottom: 3 },
-  detailLabel: { fontWeight: '600', color: '#334155' },
-  detailVal: { color: '#0f172a' },
+  card: { padding: 16, borderRadius: 16, backgroundColor: semantic.light.card }, // formerly #ffffff
+  title: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 4 }, // formerly #0f172a
+  subtitle: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 16 }, // formerly #64748b
+  section: { marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: semantic.light.border }, // formerly #f1f5f9
+  sectionHeader: { fontSize: 14, fontWeight: '700', color: semantic.light.foreground, marginBottom: 6 }, // formerly #1e293b
+  detailRow: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 3 }, // formerly #475569
+  detailLabel: { fontWeight: '600', color: semantic.light['secondary-foreground'] }, // formerly #334155
+  detailVal: { color: semantic.light.foreground }, // formerly #0f172a
 });

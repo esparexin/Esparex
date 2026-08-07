@@ -8,6 +8,7 @@ import { StepLocationDetails } from '../steps/StepLocationDetails';
 import { StepDocumentsUpload } from '../steps/StepDocumentsUpload';
 import { StepBusinessReview } from '../steps/StepBusinessReview';
 import { useSubmitBusinessRegistration } from '../hooks/useSubmitBusinessRegistration';
+import { semantic } from '@esparex/design-tokens';
 
 interface BusinessRegistrationWizardScreenProps {
   onSuccess?: () => void;
@@ -157,37 +158,37 @@ export function BusinessRegistrationWizardScreen({ onSuccess, onCancel }: Busine
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
   headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: semantic.light.border, // formerly #e2e8f0
   },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  stepCounter: { fontSize: 13, fontWeight: '600', color: '#64748b' },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
+  stepCounter: { fontSize: 13, fontWeight: '600', color: semantic.light['muted-foreground'] }, // formerly #64748b
   scrollContent: { flex: 1 },
   footerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderTopWidth: 1,
-    borderTopColor: '#e2e8f0',
+    borderTopColor: semantic.light.border, // formerly #e2e8f0
   },
   backButton: { paddingVertical: 12, paddingHorizontal: 16 },
-  backText: { fontSize: 15, fontWeight: '600', color: '#64748b' },
+  backText: { fontSize: 15, fontWeight: '600', color: semantic.light['muted-foreground'] }, // formerly #64748b
   nextButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: semantic.light.action,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,
   },
-  disabledButton: { backgroundColor: '#94a3b8' },
-  nextText: { fontSize: 15, fontWeight: '700', color: '#ffffff' },
+  disabledButton: { backgroundColor: semantic.light.muted }, // formerly #94a3b8
+  nextText: { fontSize: 15, fontWeight: '700', color: semantic.light['primary-foreground'] }, // formerly #ffffff
 });

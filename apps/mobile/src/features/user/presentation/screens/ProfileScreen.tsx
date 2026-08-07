@@ -5,6 +5,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen, Container, AppText, Avatar, Card, AppIcon, Badge } from '@esparex/mobile-ui';
@@ -69,7 +70,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#0ea5e9" />
           }
-          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+          contentContainerStyle={styles.scrollContent}
         >
           {/* Main User Card */}
           <Card className="p-5 mb-4 items-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
@@ -161,3 +162,8 @@ export const ProfileScreen = ({ navigation }: Props) => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  // paddingBottom: 100 clears the bottom tab navigation bar (MainTabs height ~60px + safe area)
+  scrollContent: { padding: 16, paddingBottom: 100 },
+});

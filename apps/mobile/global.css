@@ -1,3 +1,5 @@
+@import "../../packages/design-tokens/dist/css-variables.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

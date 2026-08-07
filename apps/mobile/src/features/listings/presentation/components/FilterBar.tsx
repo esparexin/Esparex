@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 
@@ -28,7 +28,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center', gap: 8 }}
+        contentContainerStyle={styles.scrollContent}
       >
         {/* Main Filter Action Button */}
         <TouchableOpacity
@@ -100,6 +100,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
           <TouchableOpacity
             onPress={onClearFilters}
             className="px-2 py-1.5"
+            accessibilityRole="button"
             accessibilityLabel="Clear all filters"
           >
             <AppText variant="caption" className="text-red-500 font-semibold">
@@ -113,3 +114,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
 });
 
 FilterBar.displayName = 'FilterBar';
+
+const styles = StyleSheet.create({
+  scrollContent: { alignItems: 'center', gap: 8 },
+});

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { Card, AppButton } from '@esparex/mobile-ui';
 import { SmartAlertFormState, INITIAL_SMART_ALERT_FORM_STATE } from '../../domain/SmartAlertFormState';
 import { useCreateSmartAlert } from '../hooks/useCreateSmartAlert';
 import { SmartAlert } from '../../domain/SmartAlert';
+import { semantic } from '@esparex/design-tokens';
 
 interface CreateSmartAlertModalProps {
   visible: boolean;
@@ -21,7 +22,7 @@ export function CreateSmartAlertModal({
   const [formState, setFormState] = useState<SmartAlertFormState>(INITIAL_SMART_ALERT_FORM_STATE);
   const createMutation = useCreateSmartAlert();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (initialAlert) {
       setFormState({
         name: initialAlert.name || '',
@@ -103,6 +104,7 @@ export function CreateSmartAlertModal({
               <TextInput
                 style={styles.input}
                 placeholder="e.g. iPhone 13 in Mumbai"
+                placeholderTextColor={semantic.light.muted}
                 value={formState.name}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, name: text }))}
               />
@@ -113,6 +115,7 @@ export function CreateSmartAlertModal({
               <TextInput
                 style={styles.input}
                 placeholder="e.g. OLED TV, Royal Enfield"
+                placeholderTextColor={semantic.light.muted}
                 value={formState.keywords}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, keywords: text }))}
               />
@@ -123,6 +126,7 @@ export function CreateSmartAlertModal({
               <TextInput
                 style={styles.input}
                 placeholder="e.g. Mobile Phones, Electronics"
+                placeholderTextColor={semantic.light.muted}
                 value={formState.category}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, category: text }))}
               />
@@ -134,6 +138,7 @@ export function CreateSmartAlertModal({
                 <TextInput
                   style={styles.input}
                   placeholder="Min"
+                  placeholderTextColor={semantic.light.muted}
                   keyboardType="numeric"
                   value={formState.minPrice}
                   onChangeText={(text) => setFormState((prev) => ({ ...prev, minPrice: text }))}
@@ -145,6 +150,7 @@ export function CreateSmartAlertModal({
                 <TextInput
                   style={styles.input}
                   placeholder="Max"
+                  placeholderTextColor={semantic.light.muted}
                   keyboardType="numeric"
                   value={formState.maxPrice}
                   onChangeText={(text) => setFormState((prev) => ({ ...prev, maxPrice: text }))}
@@ -157,6 +163,7 @@ export function CreateSmartAlertModal({
               <TextInput
                 style={styles.input}
                 placeholder="e.g. Mumbai, New Delhi"
+                placeholderTextColor={semantic.light.muted}
                 value={formState.location}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, location: text }))}
               />
@@ -178,32 +185,32 @@ export function CreateSmartAlertModal({
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.6)', justifyContent: 'flex-end' },
+  overlay: { flex: 1, backgroundColor: semantic.light.overlay, justifyContent: 'flex-end' },
   modalContent: {
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 20,
     maxHeight: '85%',
   },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  closeText: { fontSize: 18, color: '#64748b', fontWeight: '600' },
+  modalTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
+  closeText: { fontSize: 18, color: semantic.light['muted-foreground'], fontWeight: '600' }, // formerly #64748b
   scrollForm: { marginBottom: 16 },
   fieldGroup: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: '#334155', marginBottom: 6 },
+  label: { fontSize: 13, fontWeight: '600', color: semantic.light['secondary-foreground'], marginBottom: 6 }, // formerly #334155
   input: {
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: semantic.light.border, // formerly #cbd5e1
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
+    color: semantic.light.foreground, // formerly #0f172a
+    backgroundColor: semantic.light.background, // formerly #f8fafc
   },
   rowGroup: { flexDirection: 'row', justifyContent: 'space-between' },
   halfField: { width: '48%' },
   modalFooter: { paddingTop: 8 },
-  submitButton: { backgroundColor: '#2563eb' },
+  submitButton: { backgroundColor: semantic.light.action },
 });

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import { View, ScrollView, Switch, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen, Container, AppText, Card, AppIcon, AppButton } from '@esparex/mobile-ui';
 import { useProfile } from '../hooks/useProfile';
@@ -68,7 +68,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+          contentContainerStyle={styles.scrollContent}
         >
           {/* Account Profile Card */}
           <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
@@ -167,3 +167,8 @@ export const SettingsScreen = ({ navigation }: Props) => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  // paddingBottom: 100 clears the bottom tab navigation bar (MainTabs height ~60px + safe area)
+  scrollContent: { padding: 16, paddingBottom: 100 },
+});
