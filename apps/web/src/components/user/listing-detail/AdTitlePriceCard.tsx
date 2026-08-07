@@ -23,7 +23,7 @@ export function AdTitlePriceCard({
     const isSparePart = ad.listingType === "spare_part";
 
     return (
-        <Card className="bg-white rounded-none md:rounded-[2rem] border-x-0 md:border border-t-0 md:border-t border-b border-slate-100/50 shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+        <Card className="bg-card text-card-foreground rounded-none md:rounded-2xl border-x-0 md:border border-t-0 md:border-t border-b border-border shadow-none md:shadow-xs overflow-hidden">
             <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                 <div className="flex items-start justify-between gap-2 md:gap-3">
                     <div className="flex flex-wrap items-center gap-1.5 md:gap-2">

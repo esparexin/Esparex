@@ -136,7 +136,7 @@ export function ListingBottomActions({
           </div>
 
           {/* Action Bar */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)] z-40">
+          <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border shadow-lg z-40">
             <div className="grid grid-cols-3 gap-1.5 px-2 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               {/* Edit */}
               <Button
@@ -205,7 +205,7 @@ export function ListingBottomActions({
     return (
       <div className="md:hidden">
         <div 
-          className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.07)]"
+          className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t border-border shadow-lg"
           style={{ zIndex: Z_INDEX.listingBottomActions }}
         >
           <div className={`grid gap-2 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${showPhoneAction && showChatAction ? "grid-cols-2" : "grid-cols-1"}`}>

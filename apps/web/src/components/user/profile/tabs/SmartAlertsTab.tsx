@@ -129,7 +129,7 @@ export function SmartAlertsTab({
                     ) : (
                         <div className="space-y-3">
                             {smartAlerts.map((alert) => (
-                                <div key={alert.id} className="border border-slate-200/80 rounded-2xl p-4 space-y-3 bg-white hover:border-blue-200 transition-colors">
+                                <div key={alert.id} className="border border-border rounded-2xl p-4 space-y-3 bg-card text-card-foreground hover:border-primary/50 transition-colors">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2 mb-1">

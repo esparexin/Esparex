@@ -23,10 +23,10 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
             <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
                 <DialogContent
                     hideClose
-                    className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-dvh max-h-none rounded-none border-none p-0 bg-white flex flex-col overflow-hidden"
+                    className="fixed inset-0 top-0 left-0 translate-x-0 translate-y-0 w-full max-w-none h-dvh max-h-none rounded-none border-none p-0 bg-background text-foreground flex flex-col overflow-hidden"
                     style={{ zIndex: Z_INDEX.listingModal }}
                 >
-                    <header className="shrink-0 bg-white border-b border-slate-200 flex items-center px-4 h-14 sm:px-6">
+                    <header className="shrink-0 bg-background border-b border-border flex items-center px-4 h-14 sm:px-6">
                         <div className="flex items-center w-full max-w-2xl mx-auto">
                             <button
                                 type="button"
