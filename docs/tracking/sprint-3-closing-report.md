@@ -37,7 +37,7 @@
 | Design Tokens (`no-color-literals`) | ✅ PASS | `0` | `sprint-4-verification-matrix.md#8-design-system-lint-baseline-audit` (0 violations) |
 | Styling (`no-inline-styles`) | ✅ PASS | `0` | `sprint-4-verification-matrix.md#8-design-system-lint-baseline-audit` (0 violations) |
 
-Full raw terminal execution logs, timestamps, and exit codes are authoritatively maintained in [sprint-4-verification-matrix.md](file:///Users/admin/Desktop/Esparex/docs/tracking/sprint-4-verification-matrix.md).
+Full raw terminal execution logs, timestamps, and exit codes are authoritatively maintained in [sprint-4-verification-matrix.md](sprint-4-verification-matrix.md).
 
 ---
 

@@ -97,7 +97,7 @@ docs(governance): add dual-instance architecture audit and consolidation roadmap
 ```
 
 **Files:**
-- `docs/audit/dual-instance-audit-2026-07-21.md` (+530) — Full 25-finding audit
+- `docs/audits/dual-instance-audit-2026-07-21.md` (+530) — Full 25-finding audit
 - `docs/architecture/search-filters-verification.md` (+50) — Post-refactor verification
 - `docs/architecture/admin-sidebar-verification.md` (+67) — WCAG fix + pre-existing gaps
 - `docs/architecture/listing-forms-compatibility-audit.md` (+174) — 87%/47% similarity
