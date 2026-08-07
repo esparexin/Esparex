@@ -215,6 +215,7 @@ import requestIdMiddleware from './middleware/requestId';
 import { sentryRequestHandler, sentryTracingHandler } from './middleware/sentryErrorHandler';
 import { apiLatencyMiddleware, getApiReliabilitySummary, memoryUsageMiddleware } from './middleware/metricsMiddleware';
 import { getSystemMetricsSummary } from '@esparex/core/utils/systemMetricsSummary';
+import { requireMetricsAuth } from './middleware/metricsAuth';
 
 app.use(requestIdMiddleware); // FIRST: establishes correlationId in AsyncLocalStorage
 app.use(sentryRequestHandler); // Sentry request context
@@ -307,7 +308,7 @@ app.get('/system/status', async (_req, res) => {
     }
 });
 
-app.get('/system/metrics-summary', async (_req, res) => {
+app.get('/system/metrics-summary', requireMetricsAuth, async (_req, res) => {
     try {
         const summary = await getSystemMetricsSummary();
         const apiReliability = getApiReliabilitySummary();
@@ -354,7 +355,7 @@ app.get('/', (_req, res) => {
  * Protected by basic auth or internal network restricted in production.
  */
 import { register } from '@esparex/core/utils/metrics';
-app.get('/metrics', async (_req, res) => {
+app.get('/metrics', requireMetricsAuth, async (_req, res) => {
     try {
         res.set('Content-Type', register.contentType);
         res.end(await register.metrics());

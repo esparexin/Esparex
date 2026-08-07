@@ -27,6 +27,20 @@ jobs:
     name: Lint, Test, and Build Monorepo
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       NEXT_PUBLIC_APP_ENV: local
       NEXT_PUBLIC_PROD_RISK_OVERRIDE: "false"
@@ -64,7 +78,7 @@ jobs:
 
       - name: Secret Scanning — Commit Diff Mode (TruffleHog)
         if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' && github.event.before != github.event.after) }}
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.88.0
         with:
           path: ./
           base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
@@ -73,7 +87,7 @@ jobs:
 
       - name: Secret Scanning — Filesystem Mode (TruffleHog)
         if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.event.before == '0000000000000000000000000000000000000000' || github.event.before == github.event.after)) }}
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.88.0
         with:
           path: ./
           extra_args: --debug --only-verified
@@ -128,7 +142,6 @@ jobs:
           npx expo export --platform android
 
       - name: Backend startup smoke test
-        continue-on-error: true
         run: |
           echo "Running backend startup verification..."
           MONGODB_URI=mongodb://localhost:27017/test ADMIN_MONGODB_URI=mongodb://localhost:27017/test REDIS_URL=redis://localhost:6379 JWT_SECRET=supersecretjwtsecretmustbeatleast32characters node -e "require('./backend/api/dist/app')" && echo "✅ Backend startup verification succeeded!"
