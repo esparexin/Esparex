@@ -8,6 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@esparex/design-tokens": "*",
     "lucide-react-native": "^1.28.0",
     "nativewind": "^4.0.0",
     "react-native-safe-area-context": "^5.8.0",
