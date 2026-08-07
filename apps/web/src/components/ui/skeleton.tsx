@@ -1,15 +1,7 @@
-import { cn } from "@/lib/utils"
+"use client";
 
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-primary/10", className)}
-      {...props}
-    />
-  )
-}
-
-export { Skeleton }
+/**
+ * skeleton.tsx — Single Source of Truth Re-export
+ * Re-exports canonical Skeleton primitive from @esparex/ui.
+ */
+export { Skeleton } from "@esparex/ui";

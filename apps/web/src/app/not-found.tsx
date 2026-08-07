@@ -12,7 +12,7 @@ export const metadata = {
  */
 export default function NotFound() {
     return (
-        <div className="flex-1 flex flex-col items-center justify-center px-4 relative z-10 w-full min-h-[calc(100vh-14rem)] py-4 sm:py-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 relative z-10 w-full min-h-[calc(100dvh-14rem)] py-4 sm:py-8">
             {/* Mesh Gradient Background */}
             <div className="absolute top-0 -left-4 w-72 h-72 bg-green-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
             <div className="absolute top-0 -right-4 w-72 h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-700" />

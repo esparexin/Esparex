@@ -59,7 +59,7 @@ export function MobileNavDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="left" className="w-[82%] max-w-[300px] p-0 border-r-0 bg-white shadow-2xl transform-gpu">
+      <SheetContent side="left" inert={!isOpen ? ("" as unknown as boolean) : undefined} className="w-[82%] max-w-[300px] p-0 border-r-0 bg-card text-card-foreground shadow-2xl transform-gpu">
         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <SheetDescription className="sr-only">Access site navigation</SheetDescription>
 
@@ -112,7 +112,7 @@ export function MobileNavDrawer({
                 <Button
                   key={item.id}
                   variant="ghost"
-                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-foreground-secondary hover:bg-slate-50 hover:text-foreground rounded-xl"
+                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-foreground-secondary hover:bg-muted hover:text-foreground rounded-xl"
                   onClick={() => handleNavigationItemClick(item)}
                 >
                   <Icon className="h-4.5 w-4.5 text-foreground-subtle flex-shrink-0" /> {item.label}
@@ -122,7 +122,7 @@ export function MobileNavDrawer({
 
             {isLoggedIn && (
               <>
-                <div className="h-px bg-slate-100 my-3 mx-2" />
+                <div className="h-px bg-border my-3 mx-2" />
                 <Button
                   variant="ghost"
                   className="w-full justify-start gap-3 h-11 text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl"

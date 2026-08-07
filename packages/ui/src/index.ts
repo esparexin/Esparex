@@ -30,6 +30,11 @@ export * from "./feedback/StatusChip";
 export * from "./atoms/Spinner";
 export * from "./forms/Switch";
 export * from "./forms/Textarea";
+export * from "./navigation/DropdownMenu";
+export * from "./navigation/Accordion";
+export * from "./data-display/Card";
+export * from "./data-display/Badge";
+export * from "./feedback/Skeleton";
 
 // UI Patterns
 export * from "./forms/Form";

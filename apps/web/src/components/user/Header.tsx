@@ -227,8 +227,8 @@ export function Header({
         <div className="flex items-center gap-3 ml-auto">
           {!isMounted || isAuthLoading ? (
             <>
-              <div className="hidden lg:flex h-8 w-32 rounded-xl bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
-              <div className="h-8 w-8 rounded-full bg-slate-100 animate-pulse border border-slate-200" aria-hidden="true" />
+              <div className="hidden lg:flex h-8 w-32 rounded-xl bg-muted animate-pulse border border-border" aria-hidden="true" />
+              <div className="h-8 w-8 rounded-full bg-muted animate-pulse border border-border" aria-hidden="true" />
             </>
           ) : isLoggedIn ? (
             <>
@@ -295,14 +295,14 @@ export function Header({
                         onError={() => setImgErrPhoto(safeProfilePhoto)}
                       />
                     ) : (
-                      <div className="flex h-8 w-8 items-center justify-center bg-slate-100 text-foreground-secondary font-semibold border border-slate-200 rounded-full hover:bg-white hover:border-slate-300 text-xs">
+                      <div className="flex h-8 w-8 items-center justify-center bg-muted text-foreground-secondary font-semibold border border-border rounded-full hover:bg-accent text-xs">
                         {getUserInitials(user?.name || "", user?.mobile)}
                       </div>
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={6} className="w-56 rounded-xl shadow-lg border-slate-100 p-1">
-                  <DropdownMenuLabel className="font-normal p-3 bg-slate-50/50 rounded-t-xl mb-1">
+                <DropdownMenuContent align="end" sideOffset={6} className="w-56 rounded-xl shadow-lg border-border p-1">
+                  <DropdownMenuLabel className="font-normal p-3 bg-muted/50 rounded-t-xl mb-1">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-semibold leading-none">{user?.name || "Esparex User"}</p>
                       <p className="text-xs text-muted-foreground">
@@ -310,21 +310,21 @@ export function Header({
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-slate-100" />
+                  <DropdownMenuSeparator className="bg-border" />
                   {profileMenuItems.map((item) => {
                     const Icon = item.icon;
                     return (
                       <DropdownMenuItem
                         key={item.id}
                         onClick={() => handleMenuItemClick(item)}
-                        className="cursor-pointer rounded-lg focus:bg-slate-50"
+                        className="cursor-pointer rounded-lg focus:bg-muted"
                       >
                         <Icon className="mr-2 h-4 w-4 text-muted-foreground" />
                         <span>{item.label}</span>
                       </DropdownMenuItem>
                     );
                   })}
-                  <DropdownMenuSeparator className="bg-slate-100" />
+                  <DropdownMenuSeparator className="bg-border" />
                   <DropdownMenuItem
                     onClick={onLogout}
                     className="cursor-pointer rounded-lg text-red-600 focus:bg-red-50 focus:text-red-700"
@@ -356,7 +356,7 @@ export function Header({
       {/* ── MOBILE HEADER INNER (< MD) ───────────────────────────────────────────────────────────── */}
       <div className="md:hidden">
         {/* Top Location Bar */}
-        <div className="h-11 bg-slate-50/90 border-b border-slate-100 flex items-center px-4">
+        <div className="h-11 bg-muted/90 border-b border-border flex items-center px-4">
           <button
             type="button"
             className="flex items-center gap-2 mr-3 h-10"
@@ -372,11 +372,11 @@ export function Header({
             />
           </button>
 
-          <div className="h-4 w-[1px] bg-slate-200 mx-2" />
+          <div className="h-4 w-[1px] bg-border mx-2" />
 
           <button
             type="button"
-            className="active:bg-slate-100 transition-colors flex items-center flex-1 min-w-0 text-left h-10"
+            className="active:bg-muted transition-colors flex items-center flex-1 min-w-0 text-left h-10"
             onClick={() => isMounted && setShowLocationSelector(true)}
             aria-label={
               headerLocationDetails.headerText
@@ -385,21 +385,21 @@ export function Header({
             }
           >
             <MapPin className="h-4 w-4 text-blue-600 mr-1.5 flex-shrink-0" />
-            <span className="min-w-0 flex-1 truncate text-xs sm:text-sm font-normal text-slate-700">
+            <span className="min-w-0 flex-1 truncate text-xs sm:text-sm font-normal text-foreground-secondary">
               <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
                 {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
               </span>
             </span>
-            <ChevronDown className="h-4 w-4 text-slate-500 ml-1.5 flex-shrink-0" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground ml-1.5 flex-shrink-0" />
           </button>
         </div>
 
         {/* Main Header Row */}
-        <div className={`flex items-center px-3 py-1 bg-white ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-slate-100" : "min-h-[58px] h-14 gap-2.5"}`}>
+        <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 rounded-xl -ml-1 hover:bg-slate-100 text-foreground-secondary"
+            className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary"
             aria-label="Open navigation menu"
             onClick={() => setIsMobileDrawerOpen(true)}
           >
@@ -413,7 +413,7 @@ export function Header({
                 setIsMobileSearchEditing(true);
                 setSearchQuery(browseParams.q || "");
               }}
-              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 h-11 text-left hover:bg-slate-100 transition-colors"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors"
               aria-label={`Tap to search. Current search: ${stickySearchLabel}`}
             >
               <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
@@ -432,7 +432,7 @@ export function Header({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
               <Input
                 autoFocus={isMobileSearchEditing}
-                className="w-full pl-9 h-11 bg-slate-100 border-transparent focus-visible:bg-white focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
+                className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
                 placeholder="Search phones, laptops, spare parts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
