@@ -3,10 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    },
+    "./dist/css-variables.css": "./dist/css-variables.css"
+  },
   "scripts": {
+    "build": "tsc -b && tsx scripts/generate-css.ts",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "tsx": "^4.19.0",
     "typescript": "^5.0.0"
   }
 }

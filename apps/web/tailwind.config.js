@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const { typography } = require("../../packages/design-tokens/dist/index.js");
+const { typography } = require("@esparex/design-tokens");
 
 const config = {
 	content: [
