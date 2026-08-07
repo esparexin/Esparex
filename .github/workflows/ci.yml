@@ -165,9 +165,10 @@ jobs:
           npx expo export --platform android --max-workers 2
 
       - name: Backend startup smoke test
+        timeout-minutes: 3
         run: |
           echo "Running backend startup verification..."
-          MONGODB_URI=mongodb://localhost:27017/test ADMIN_MONGODB_URI=mongodb://localhost:27017/test REDIS_URL=redis://localhost:6379 JWT_SECRET=supersecretjwtsecretmustbeatleast32characters node -e "require('./backend/api/dist/app')" && echo "✅ Backend startup verification succeeded!"
+          MONGODB_URI=mongodb://localhost:27017/test ADMIN_MONGODB_URI=mongodb://localhost:27017/test REDIS_URL=redis://localhost:6379 JWT_SECRET=supersecretjwtsecretmustbeatleast32characters npm run smoke -w @esparex/backend-api
 
   # ── Job 2: Playwright E2E — Listing Edit regression suite ────────────────────
   e2e-listing-edit:

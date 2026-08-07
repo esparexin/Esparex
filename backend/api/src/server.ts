@@ -22,6 +22,9 @@ import { warmAllCaches } from '@esparex/core/utils/cacheWarmer';
 import { resetAllOpenCircuitBreakers } from '@esparex/core/utils/resilience';
 import { runCatalogApprovalStatusMigration } from '@esparex/core/migrations/catalogApprovalMigration';
 
+import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
+import redisClient from '@esparex/core/utils/redisCache';
+
 
 const PORT = env.PORT;
 let reliabilityProbeInterval: NodeJS.Timeout | null = null;
@@ -43,119 +46,144 @@ async function ensureLiveAdminPresence() {
     }
 }
 
+/**
+ * 🚀 BOOTSTRAP — initialises every transport and core subsystem that the API
+ * needs before it can accept traffic: MongoDB, Redis, cache warming, metadata
+ * validation, event dispatch, database metrics monitoring, and startup guards.
+ *
+ * This is intentionally side-effect driven and does NOT create the HTTP
+ * listener. It is shared verbatim by the production entrypoint and the CI
+ * smoke test so both exercise the exact same boot path.
+ */
+export async function bootstrap(): Promise<{ shouldRunSchedulers: boolean }> {
+    logger.info('Starting Esparex server...');
 
+    const schedulerRequested = env.ENABLE_SCHEDULER || env.RUN_SCHEDULERS;
+
+    if (env.NODE_ENV === 'production') {
+        if (env.PROCESS_ROLE === 'api' && schedulerRequested) {
+            throw new Error(
+                'Invalid production scheduler config: PROCESS_ROLE=api must run with scheduler flags disabled.'
+            );
+        }
+        if (env.PROCESS_ROLE === 'scheduler' && !schedulerRequested) {
+            throw new Error(
+                'Invalid production scheduler config: PROCESS_ROLE=scheduler requires scheduler flags enabled.'
+            );
+        }
+    }
+
+    await connectDB();
+    logger.info('MongoDB connected successfully');
+    await waitForRedisReady({
+        context: `${env.PROCESS_ROLE}:server-startup`,
+    });
+    logger.info('Redis readiness gate passed for API bootstrap');
+
+    // Proactive Cache Warming
+    await warmAllCaches();
+
+    // Validate Metadata Integrity (Split-Safe Check)
+    await validateMetadataHealth();
+
+    // Initialize Core Subsystems
+    initializeEventDispatcher();
+
+    initializeDatabaseMonitoring();
+    logger.info('Boot safety mode active: skipping all index sync/create/drop operations on API startup');
+    await assertDuplicateRolloutReadiness();
+    await assertCriticalStartupReadiness();
+    // Ensure at least one LIVE admin is present for operations
+    await ensureLiveAdminPresence();
+    await runCatalogApprovalStatusMigration();
+
+    const shouldRunSchedulers =
+        env.PROCESS_ROLE === 'scheduler'
+            ? schedulerRequested
+            : env.NODE_ENV !== 'production' && schedulerRequested;
+
+    if (shouldRunSchedulers) {
+        logger.info('ENABLE_SCHEDULER is true. Attempting to start scheduler inside backend entry...');
+        await startScheduler();
+    } else {
+        logger.info('Scheduler execution disabled on this API process');
+    }
+
+    // Start system heartbeat monitor
+    startSystemMonitor();
+    startReliabilityProbeLoop();
+
+    if (shouldRunSchedulers) {
+        // Start user geo audit cron (lightweight; runs with distributed lock)
+        startGeoAuditCron();
+
+        // Start fraud auto-escalation cron (distributed lock; auto-suspends high-risk users)
+        startFraudEscalationCron();
+    } else {
+        logger.info('Background cron execution disabled (RUN_SCHEDULERS=false)');
+    }
+
+    return { shouldRunSchedulers };
+}
+
+/**
+ * 🌐 LISTEN — creates the HTTP server, attaches Socket.IO, and binds the port.
+ * No production-only signal wiring is performed here, so callers (production
+ * `startServer()` or the CI smoke test) decide when/how the process shuts down.
+ */
+export async function startListener(): Promise<Server> {
+    const { default: app } = await import('./app');
+
+    // 3️⃣ CREATE HTTP SERVER
+    const server = createServer(app);
+
+    // 4️⃣ ATTACH SOCKET.IO (must happen before listen so the upgrade is available)
+    initIO(server);
+
+    // 5️⃣ START LISTENER WITH DETERMINISTIC BIND ERROR HANDLING
+    await new Promise<void>((resolve, reject) => {
+        const onError = (err: NodeJS.ErrnoException) => {
+            server.off('error', onError);
+            if (err.code === 'EADDRINUSE') {
+                logger.error(`Port ${PORT} already in use. Backend already running.`, {
+                    port: PORT,
+                    code: err.code,
+                });
+            }
+            reject(err);
+        };
+
+        server.once('error', onError);
+        server.listen(PORT, () => {
+            server.off('error', onError);
+            logger.info(`Server running on http://localhost:${PORT}`, {
+                port: PORT,
+                environment: env.NODE_ENV,
+            });
+            resolve();
+        });
+    });
+
+    // Post-bind errors should be logged but should not crash process unconditionally.
+    server.on('error', (err: NodeJS.ErrnoException) => {
+        logger.error('HTTP server runtime error', {
+            code: err.code,
+            message: err.message,
+        });
+    });
+
+    return server;
+}
+
+/**
+ * 🚀 START — the production entrypoint. Boots all subsystems, starts the HTTP
+ * listener, and wires process-level graceful shutdown handlers.
+ */
 export async function startServer() {
     try {
-        logger.info('Starting Esparex server...');
-
-        const schedulerRequested = env.ENABLE_SCHEDULER || env.RUN_SCHEDULERS;
-
-        if (env.NODE_ENV === 'production') {
-            if (env.PROCESS_ROLE === 'api' && schedulerRequested) {
-                throw new Error(
-                    'Invalid production scheduler config: PROCESS_ROLE=api must run with scheduler flags disabled.'
-                );
-            }
-            if (env.PROCESS_ROLE === 'scheduler' && !schedulerRequested) {
-                throw new Error(
-                    'Invalid production scheduler config: PROCESS_ROLE=scheduler requires scheduler flags enabled.'
-                );
-            }
-        }
-
-        await connectDB();
-        logger.info('MongoDB connected successfully');
-        await waitForRedisReady({
-            context: `${env.PROCESS_ROLE}:server-startup`,
-        });
-        logger.info('Redis readiness gate passed for API bootstrap');
-
-        // Proactive Cache Warming
-        await warmAllCaches();
-
-        
-        // Validate Metadata Integrity (Split-Safe Check)
-        await validateMetadataHealth();
-        
-        // Initialize Core Subsystems
-        initializeEventDispatcher();
-        
-        initializeDatabaseMonitoring();
-        logger.info('Boot safety mode active: skipping all index sync/create/drop operations on API startup');
-        await assertDuplicateRolloutReadiness();
-        await assertCriticalStartupReadiness();
-        // Ensure at least one LIVE admin is present for operations
-        await ensureLiveAdminPresence();
-        await runCatalogApprovalStatusMigration();
-
-        const shouldRunSchedulers =
-            env.PROCESS_ROLE === 'scheduler'
-                ? schedulerRequested
-                : env.NODE_ENV !== 'production' && schedulerRequested;
-
-        if (shouldRunSchedulers) {
-            logger.info('ENABLE_SCHEDULER is true. Attempting to start scheduler inside backend entry...');
-            await startScheduler();
-        } else {
-            logger.info('Scheduler execution disabled on this API process');
-        }
-
-        // Start system heartbeat monitor
-        startSystemMonitor();
-        startReliabilityProbeLoop();
-
-        if (shouldRunSchedulers) {
-            // Start user geo audit cron (lightweight; runs with distributed lock)
-            startGeoAuditCron();
-
-            // Start fraud auto-escalation cron (distributed lock; auto-suspends high-risk users)
-            startFraudEscalationCron();
-        } else {
-            logger.info('Background cron execution disabled (RUN_SCHEDULERS=false)');
-        }
-
-        const { default: app } = await import('./app');
-
-        // 3️⃣ CREATE HTTP SERVER
-        const server = createServer(app);
-
-        // 4️⃣ ATTACH SOCKET.IO (must happen before listen so the upgrade is available)
-        initIO(server);
-
-        // 5️⃣ START LISTENER WITH DETERMINISTIC BIND ERROR HANDLING
-        await new Promise<void>((resolve, reject) => {
-            const onError = (err: NodeJS.ErrnoException) => {
-                server.off('error', onError);
-                if (err.code === 'EADDRINUSE') {
-                    logger.error(`Port ${PORT} already in use. Backend already running.`, {
-                        port: PORT,
-                        code: err.code,
-                    });
-                }
-                reject(err);
-            };
-
-            server.once('error', onError);
-            server.listen(PORT, () => {
-                server.off('error', onError);
-                logger.info(`Server running on http://localhost:${PORT}`, {
-                    port: PORT,
-                    environment: env.NODE_ENV,
-                });
-                resolve();
-            });
-        });
-
-        // Post-bind errors should be logged but should not crash process unconditionally.
-        server.on('error', (err: NodeJS.ErrnoException) => {
-            logger.error('HTTP server runtime error', {
-                code: err.code,
-                message: err.message,
-            });
-        });
-
+        const { shouldRunSchedulers } = await bootstrap();
+        const server = await startListener();
         setupGracefulShutdown(server, shouldRunSchedulers);
-
     } catch (err) {
         const error = err as NodeJS.ErrnoException;
         if (error?.code === 'EADDRINUSE') {
@@ -174,8 +202,28 @@ export async function startServer() {
     }
 }
 
-import { gracefulShutdown } from '@esparex/core/utils/shutdownHandler';
-import redisClient from '@esparex/core/utils/redisCache';
+/**
+ * 🧯 SHUTDOWN — idempotent teardown through the canonical graceful shutdown
+ * path. Used by the process signal handlers and by the CI smoke test.
+ */
+export async function shutdownServer(server: Server, shouldRunSchedulers = false): Promise<void> {
+    if (reliabilityProbeInterval) {
+        clearInterval(reliabilityProbeInterval);
+        reliabilityProbeInterval = null;
+    }
+    if (shouldRunSchedulers) {
+        await stopScheduler().catch((error: unknown) => {
+            logger.error('Failed to stop scheduler during shutdown', {
+                error: error instanceof Error ? error.message : String(error),
+            });
+        });
+    }
+    await gracefulShutdown({
+        server,
+        redisClient,
+        mongooseConnection: mongoose.connection
+    });
+}
 
 let previousHealthState: Record<string, string> = {};
 let isFirstProbe = true;
@@ -186,7 +234,7 @@ function startReliabilityProbeLoop() {
         void getHealthCheckData()
             .then((health) => {
                 const currentServices = health.services as Record<string, string>;
-                
+
                 if (isFirstProbe) {
                     isFirstProbe = false;
                     for (const [service, state] of Object.entries(currentServices)) {
@@ -210,7 +258,7 @@ function startReliabilityProbeLoop() {
                         }
                     }
                 }
-                
+
                 previousHealthState = { ...currentServices };
 
                 if (health.status === 'ok') {
@@ -236,22 +284,7 @@ function startReliabilityProbeLoop() {
  */
 function setupGracefulShutdown(server: Server, shouldStopScheduler: boolean) {
     const handleShutdown = async () => {
-        if (reliabilityProbeInterval) {
-            clearInterval(reliabilityProbeInterval);
-            reliabilityProbeInterval = null;
-        }
-        if (shouldStopScheduler) {
-            await stopScheduler().catch((error: unknown) => {
-                logger.error('Failed to stop scheduler during shutdown', {
-                    error: error instanceof Error ? error.message : String(error),
-                });
-            });
-        }
-        await gracefulShutdown({
-            server,
-            redisClient,
-            mongooseConnection: mongoose.connection
-        });
+        await shutdownServer(server, shouldStopScheduler);
     };
 
     process.on('SIGTERM', () => void handleShutdown());
