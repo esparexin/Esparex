@@ -61,7 +61,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node 22
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -104,11 +104,11 @@ jobs:
           ! find . -name "dist" -type d | grep -v "node_modules"
           ! find . -name ".next" -type d | grep -v "node_modules"
 
-      - name: Run build
-        run: npm run build
-
       - name: Run type-check
         run: npm run type-check
+
+      - name: Run build
+        run: npm run build
 
       - name: Run tests
         run: npm run test
@@ -138,11 +138,13 @@ jobs:
         id: mobile_check
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            CHANGES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} HEAD 2>/dev/null || git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "apps/mobile/")
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            CHANGES=$(git diff --name-only "$BASE" "$HEAD" 2>/dev/null || echo "")
           else
-            CHANGES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "apps/mobile/")
+            CHANGES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
           fi
-          if echo "$CHANGES" | grep -qE '^(apps/mobile/|packages/mobile-ui/)'; then
+          if [ -n "$CHANGES" ] && echo "$CHANGES" | grep -qE '^(apps/mobile/|packages/mobile-ui/)'; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Mobile app changes detected — Expo export required."
           else
