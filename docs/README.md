@@ -10,6 +10,10 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 * [DELETION_GATE.md](governance/DELETION_GATE.md) — 10 mandatory criteria for file deletions.
 * [PROJECT_PRINCIPLES.md](governance/PROJECT_PRINCIPLES.md) — Development & product standards (mobile-first, accessibility, small PRs).
 
+### 🏛️ [Architecture & UI Specs](architecture/)
+* [UI_TECHNICAL_SPECIFICATION.md](architecture/UI_TECHNICAL_SPECIFICATION.md) — Living Single Source of Truth for UI implementations.
+* [UI_FOUNDATION_AUDIT.md](audits/UI_FOUNDATION_AUDIT.md) — Immutable Sprint 1 Milestone Audit Record.
+
 ### 🛠️ [Development & Product Specs](development/)
 * [PROJECT_SPECIFICATION.md](development/PROJECT_SPECIFICATION.md) — Monorepo layout, context boundaries, and end-to-end data flows.
 * [SELLER_EXPERIENCE_BRD.md](development/SELLER_EXPERIENCE_BRD.md) — Business Requirements Document for Post Ad 2.0.
