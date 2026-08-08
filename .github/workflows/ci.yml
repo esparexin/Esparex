@@ -112,6 +112,9 @@ jobs:
       - name: Verify unused files and dependencies (Knip)
         run: npm run guard:knip
 
+      - name: Verify 'as unknown as' type cast baseline
+        run: npm run guard:type-casts
+
       - name: Verify no stale build artifacts
         run: |
           echo "Verifying clean state..."

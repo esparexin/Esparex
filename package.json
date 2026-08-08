@@ -74,6 +74,7 @@
     "guard:dependencies": "depcruise --config .dependency-cruiser.js core backend/api apps/web/src apps/admin/src apps/mobile/src packages/mobile-ui/src",
     "guard:dead-code": "node scripts/orphan-sweep.cjs",
     "guard:knip": "knip --no-config-hints",
+    "guard:type-casts": "node scripts/guard-type-cast-baseline.js",
     "guard:generated-artifacts": "node scripts/guard-generated-artifacts.js",
     "audit:duplicates": "node scripts/catalog-governance-audit.js duplicates",
     "audit:orphans": "node scripts/catalog-governance-audit.js orphans",
