@@ -378,7 +378,7 @@ export function getConditionBadge(
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
+        "inline-flex items-center gap-1 text-2xs font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md border select-none shrink-0",
         isPowerOn
           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
           : "bg-red-50 text-red-700 border-red-200",

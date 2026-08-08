@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
-import { Screen, Container } from '@esparex/mobile-ui';
+import { View, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import { Screen, AppText } from '@esparex/mobile-ui';
 import { BusinessWizardStep } from '../../domain/BusinessWizardStep';
 import { BusinessFormState, INITIAL_BUSINESS_FORM_STATE } from '../../domain/BusinessFormState';
 import { StepBusinessInfo } from '../steps/StepBusinessInfo';
@@ -8,7 +8,6 @@ import { StepLocationDetails } from '../steps/StepLocationDetails';
 import { StepDocumentsUpload } from '../steps/StepDocumentsUpload';
 import { StepBusinessReview } from '../steps/StepBusinessReview';
 import { useSubmitBusinessRegistration } from '../hooks/useSubmitBusinessRegistration';
-import { semantic } from '@esparex/design-tokens';
 
 interface BusinessRegistrationWizardScreenProps {
   onSuccess?: () => void;
@@ -124,71 +123,42 @@ export function BusinessRegistrationWizardScreen({ onSuccess, onCancel }: Busine
   };
 
   return (
-    <Screen style={styles.screen}>
-      <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>Business Registration</Text>
-        <Text style={styles.stepCounter}>Step {currentStepIndex + 1} of {STEPS_ORDER.length}</Text>
+    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <View className="flex-row items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100 text-base">
+          Business Registration
+        </AppText>
+        <AppText variant="caption" className="font-semibold text-slate-500 dark:text-slate-400">
+          Step {currentStepIndex + 1} of {STEPS_ORDER.length}
+        </AppText>
       </View>
 
-      <ScrollView style={styles.scrollContent}>
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {renderStepComponent()}
       </ScrollView>
 
-      <View style={styles.footerBar}>
-        <TouchableOpacity style={styles.backButton} onPress={handlePrev}>
-          <Text style={styles.backText}>{currentStepIndex === 0 ? 'Cancel' : 'Back'}</Text>
+      <View className="flex-row items-center justify-between p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+        <TouchableOpacity className="py-3 px-4" onPress={handlePrev}>
+          <AppText variant="body" className="font-semibold text-slate-600 dark:text-slate-400">
+            {currentStepIndex === 0 ? 'Cancel' : 'Back'}
+          </AppText>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.nextButton, submitMutation.isPending && styles.disabledButton]}
+          className={`py-3 px-6 rounded-xl ${submitMutation.isPending ? 'bg-slate-300 dark:bg-slate-700' : 'bg-brand-600 dark:bg-brand-500'}`}
           onPress={handleNext}
           disabled={submitMutation.isPending}
         >
-          <Text style={styles.nextText}>
+          <AppText variant="body" className="font-bold text-white">
             {submitMutation.isPending
               ? 'Submitting...'
               : currentStepIndex === STEPS_ORDER.length - 1
               ? 'Submit Application'
               : 'Continue'}
-          </Text>
+          </AppText>
         </TouchableOpacity>
       </View>
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
-  headerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: semantic.light.card, // formerly #ffffff
-    borderBottomWidth: 1,
-    borderBottomColor: semantic.light.border, // formerly #e2e8f0
-  },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
-  stepCounter: { fontSize: 13, fontWeight: '600', color: semantic.light['muted-foreground'] }, // formerly #64748b
-  scrollContent: { flex: 1 },
-  footerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: semantic.light.card, // formerly #ffffff
-    borderTopWidth: 1,
-    borderTopColor: semantic.light.border, // formerly #e2e8f0
-  },
-  backButton: { paddingVertical: 12, paddingHorizontal: 16 },
-  backText: { fontSize: 15, fontWeight: '600', color: semantic.light['muted-foreground'] }, // formerly #64748b
-  nextButton: {
-    backgroundColor: semantic.light.action,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-  },
-  disabledButton: { backgroundColor: semantic.light.muted }, // formerly #94a3b8
-  nextText: { fontSize: 15, fontWeight: '700', color: semantic.light['primary-foreground'] }, // formerly #ffffff
-});

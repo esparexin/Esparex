@@ -1,10 +1,12 @@
 import React, { useCallback } from 'react';
 import { View, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
 import { AppNotification } from '../../domain/Notification';
 import { ErrorState } from '../../../common/components/ErrorState';
+
 
 export const NotificationScreen = () => {
   const { data: notifications, isLoading, isError, refetch, isRefetching } = useNotifications();
@@ -65,7 +67,7 @@ export const NotificationScreen = () => {
                 item.isRead ? 'bg-slate-100 dark:bg-slate-800' : 'bg-sky-100 dark:bg-sky-900/50'
               }`}
             >
-              <AppIcon name={getNotificationIcon(item.type)} size={18} color="#0ea5e9" />
+              <AppIcon name={getNotificationIcon(item.type)} size={18} color={base.brand[500]} />
             </View>
 
             {/* Notification Body */}
@@ -141,7 +143,7 @@ export const NotificationScreen = () => {
             !isLoading ? (
               <View className="items-center justify-center py-16 px-4">
                 <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
-                  <AppIcon name="Bell" size={28} color="#94a3b8" />
+                  <AppIcon name="Bell" size={28} color={base.slate[400]} />
                 </View>
                 <AppText variant="h3" className="font-bold text-slate-800 dark:text-slate-200 mb-1">
                   No Notifications

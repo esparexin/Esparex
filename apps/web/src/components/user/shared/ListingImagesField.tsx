@@ -245,7 +245,7 @@ export function ListingImagesField({
                                                     e.stopPropagation();
                                                     onSetMain(index);
                                                 }}
-                                                className="w-full py-1.5 text-[10px] font-bold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation cursor-pointer"
+                                                className="w-full py-1.5 text-2xs font-bold text-white bg-black/70 rounded-md backdrop-blur-sm hover:bg-primary transition-colors uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white touch-manipulation cursor-pointer"
                                             >
                                                 Make Cover
                                             </button>
@@ -253,7 +253,7 @@ export function ListingImagesField({
                                     </div>
 
                                     {index === 0 && (
-                                        <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-1 text-center text-[10px] font-bold text-white uppercase tracking-widest pointer-events-none shadow-sm backdrop-blur-sm">
+                                        <div className="absolute bottom-0 left-0 right-0 bg-primary/95 py-1 text-center text-2xs font-bold text-white uppercase tracking-widest pointer-events-none shadow-sm backdrop-blur-sm">
                                             {firstImageBadgeLabel}
                                         </div>
                                     )}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { Modal, View, TouchableOpacity, ScrollView } from 'react-native';
 import { AppText, AppButton, AppInput, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { ListingQueryParams } from '@esparex/contracts';
 
 interface FilterModalProps {
@@ -74,7 +75,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
       accessibilityViewIsModal={true}
     >
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6 max-h-[85%]">
+        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6 max-h-[85%] border-t border-slate-200 dark:border-slate-800">
           {/* Header */}
           <View className="flex-row items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
             <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
@@ -86,7 +87,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
               accessibilityRole="button"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <AppIcon name="X" size={20} color="#64748b" />
+              <AppIcon name="X" size={20} color={base.slate[400]} />
             </TouchableOpacity>
           </View>
 
@@ -103,7 +104,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                     onPress={() => setSortBy(opt.value)}
                     className={`px-3.5 py-2 rounded-xl border ${
                       sortBy === opt.value
-                        ? 'bg-sky-500 border-sky-500'
+                        ? 'bg-brand-600 border-brand-600'
                         : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                     }`}
                   >
@@ -132,7 +133,7 @@ export const FilterModal: React.FC<FilterModalProps> = ({
                     onPress={() => setCondition(condition === opt.value ? undefined : opt.value)}
                     className={`px-3.5 py-2 rounded-xl border ${
                       condition === opt.value
-                        ? 'bg-sky-500 border-sky-500'
+                        ? 'bg-brand-600 border-brand-600'
                         : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                     }`}
                   >
@@ -180,10 +181,10 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
           {/* Action Buttons */}
           <View className="flex-row gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <AppButton variant="outline" onPress={handleResetInternal} style={styles.resetBtn}>
+            <AppButton variant="outline" onPress={handleResetInternal} className="flex-1">
               Reset
             </AppButton>
-            <AppButton variant="primary" onPress={handleApply} style={styles.applyBtn}>
+            <AppButton variant="primary" onPress={handleApply} className="flex-[2] bg-brand-600 hover:bg-brand-700">
               Apply Filters
             </AppButton>
           </View>
@@ -193,7 +194,3 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  resetBtn: { flex: 1 },
-  applyBtn: { flex: 2 },
-});

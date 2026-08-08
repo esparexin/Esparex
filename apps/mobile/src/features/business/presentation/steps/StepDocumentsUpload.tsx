@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { Container, Card } from '@esparex/mobile-ui';
+import { View, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { Container, Card, AppText } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import * as ImagePicker from 'expo-image-picker';
 import { BusinessFormState } from '../../domain/BusinessFormState';
 import { services } from '../../../../bootstrap';
-import { semantic } from '@esparex/design-tokens';
 
 interface StepDocumentsUploadProps {
   formState: BusinessFormState;
@@ -51,48 +51,83 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
   const isUploaded = (type: string) => formState.documents.some((d) => d.type === type);
 
   return (
-    <Container style={styles.container}>
-      <Card style={styles.card}>
-        <Text style={styles.title}>Verification Documents</Text>
-        <Text style={styles.subtitle}>Upload your ID proof and business verification documents</Text>
+    <Container className="p-4">
+      <Card className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100 mb-1">
+          Verification Documents
+        </AppText>
+        <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-4">
+          Upload your ID proof and business verification documents
+        </AppText>
 
         {uploading && (
-          <View style={styles.loadingBanner}>
-            {/* eslint-disable-next-line react-native/no-color-literals */}
-            <ActivityIndicator size="small" color="#2563eb" />
-            <Text style={styles.loadingText}>Uploading document to secure storage...</Text>
+          <View className="flex-row items-center bg-sky-50 dark:bg-sky-950 p-2.5 rounded-lg mb-3">
+            <ActivityIndicator size="small" color={base.brand[500]} />
+            <AppText variant="caption" className="ml-2 text-sky-700 dark:text-sky-300">
+              Uploading document to secure storage...
+            </AppText>
           </View>
         )}
 
-        <View style={styles.docItem}>
-          <View style={styles.docInfo}>
-            <Text style={styles.docTitle}>Identity Proof (Aadhaar / PAN) *</Text>
-            <Text style={styles.docDesc}>Government issued photo ID proof</Text>
+        <View className="flex-row items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800">
+          <View className="flex-1 mr-3">
+            <AppText variant="body" className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              Identity Proof (Aadhaar / PAN) *
+            </AppText>
+            <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mt-0.5">
+              Government issued photo ID proof
+            </AppText>
           </View>
           <TouchableOpacity
-            style={[styles.uploadButton, isUploaded('id_proof') && styles.uploadedButton]}
+            className={`px-3.5 py-2 rounded-lg ${
+              isUploaded('id_proof')
+                ? 'bg-emerald-100 dark:bg-emerald-950'
+                : 'bg-brand-600 dark:bg-brand-500'
+            }`}
             onPress={() => handlePickDocument('id_proof')}
             disabled={uploading}
           >
-            <Text style={[styles.buttonText, isUploaded('id_proof') && styles.uploadedText]}>
+            <AppText
+              variant="caption"
+              className={`font-semibold ${
+                isUploaded('id_proof')
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-white'
+              }`}
+            >
               {isUploaded('id_proof') ? '✓ Attached' : 'Upload ID'}
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.docItem}>
-          <View style={styles.docInfo}>
-            <Text style={styles.docTitle}>Business Proof (GST / Shop License)</Text>
-            <Text style={styles.docDesc}>Shop establishment certificate or GST card</Text>
+        <View className="flex-row items-center justify-between py-3">
+          <View className="flex-1 mr-3">
+            <AppText variant="body" className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+              Business Proof (GST / Shop License)
+            </AppText>
+            <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mt-0.5">
+              Shop establishment certificate or GST card
+            </AppText>
           </View>
           <TouchableOpacity
-            style={[styles.uploadButton, isUploaded('business_proof') && styles.uploadedButton]}
+            className={`px-3.5 py-2 rounded-lg ${
+              isUploaded('business_proof')
+                ? 'bg-emerald-100 dark:bg-emerald-950'
+                : 'bg-brand-600 dark:bg-brand-500'
+            }`}
             onPress={() => handlePickDocument('business_proof')}
             disabled={uploading}
           >
-            <Text style={[styles.buttonText, isUploaded('business_proof') && styles.uploadedText]}>
+            <AppText
+              variant="caption"
+              className={`font-semibold ${
+                isUploaded('business_proof')
+                  ? 'text-emerald-700 dark:text-emerald-300'
+                  : 'text-white'
+              }`}
+            >
               {isUploaded('business_proof') ? '✓ Attached' : 'Upload Proof'}
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
       </Card>
@@ -100,38 +135,3 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
   );
 }
 
-const styles = StyleSheet.create({
-  container: { padding: 16 },
-  card: { padding: 16, borderRadius: 16, backgroundColor: semantic.light.card }, // formerly #ffffff
-  title: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 4 }, // formerly #0f172a
-  subtitle: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 16 }, // formerly #64748b
-  loadingBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: semantic.light['info-subtle'],
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  loadingText: { marginLeft: 8, fontSize: 12, color: semantic.light['info-dark'] },
-  docItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: semantic.light.border, // formerly #f1f5f9
-  },
-  docInfo: { flex: 1, marginRight: 12 },
-  docTitle: { fontSize: 14, fontWeight: '600', color: semantic.light.foreground }, // formerly #1e293b
-  docDesc: { fontSize: 12, color: semantic.light['muted-foreground'], marginTop: 2 }, // formerly #64748b
-  uploadButton: {
-    backgroundColor: semantic.light.action,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  uploadedButton: { backgroundColor: semantic.light['success-subtle'] },
-  buttonText: { fontSize: 13, fontWeight: '600', color: semantic.light['primary-foreground'] }, // formerly #ffffff
-  uploadedText: { color: semantic.light['success-dark'] },
-});

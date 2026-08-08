@@ -29,28 +29,22 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
 
   if (error && !admin) {
     return (
-      <div style={{ padding: 48, textAlign: "center" }}>
-        <h2 style={{ color: "#e11d48", marginBottom: 16 }}>Connection Error</h2>
-        <p style={{ marginBottom: 24, color: "#4b5563" }}>
+      <div className="p-12 text-center max-w-md mx-auto">
+        <h2 className="text-xl font-bold text-rose-600 dark:text-rose-500 mb-4">Connection Error</h2>
+        <p className="text-sm text-muted-foreground mb-6">
           We&apos;re having trouble connecting to the administration server.
           <br />
           {error.message}
         </p>
         <button
           onClick={() => refresh()}
-          style={{
-            backgroundColor: "#0f172a",
-            color: "white",
-            padding: "10px 24px",
-            borderRadius: 8,
-            cursor: "pointer",
-            fontWeight: 600
-          }}
+          className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity shadow-sm"
         >
           Try Again
         </button>
       </div>
     );
+
   }
 
   if (!admin) return null;

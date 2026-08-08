@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Home, Search, Compass, MapPinOff } from 'lucide-react';
+import { Home, Search, Compass, MapPinOff } from '@esparex/ui';
+
 
 export const metadata = {
     title: '404 - Page Not Found | Esparex',
@@ -37,7 +38,7 @@ export default function NotFound() {
 
                     {/* Content */}
                     <div className="space-y-3">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-700 text-[11px] font-bold uppercase tracking-wider">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-700 text-tiny font-bold uppercase tracking-wider">
                             Error 404
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">

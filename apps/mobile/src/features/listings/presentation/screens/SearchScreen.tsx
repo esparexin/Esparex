@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { Screen, Container, AppText, Center, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useSearch } from '../hooks/useSearch';
 import { SearchBar } from '../components/SearchBar';
 import { ListingCard } from '../components/ListingCard';
@@ -49,7 +50,7 @@ export const SearchScreen = () => {
     if (!hasSearched) {
       return (
         <Center className="flex-1 px-8">
-          <AppIcon name="Search" size={48} color="#334155" />
+          <AppIcon name="Search" size={48} color={base.slate[400]} />
           <AppText variant="h4" className="text-slate-500 dark:text-slate-400 mt-4 text-center">
             Search for listings
           </AppText>
@@ -126,3 +127,4 @@ export const SearchScreen = () => {
 const styles = StyleSheet.create({
   scrollContent: { padding: 16, paddingBottom: 100 },
 });
+

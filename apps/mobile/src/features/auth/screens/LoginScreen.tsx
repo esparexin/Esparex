@@ -62,7 +62,8 @@ export const LoginScreen = () => {
         accessibilityRole="button"
         accessibilityLabel="Forgot Password?"
       >
-        <AppText variant="caption" className="text-sky-500">Forgot Password?</AppText>
+        <AppText variant="caption" className="text-brand-600 dark:text-brand-400 font-semibold">Forgot Password?</AppText>
+
       </TouchableOpacity>
       
       <AppButton

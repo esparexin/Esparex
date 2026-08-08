@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, ScrollView, Switch, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen, Container, AppText, Card, AppIcon, AppButton } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useProfile } from '../hooks/useProfile';
 import { useUpdateProfile } from '../hooks/useUpdateProfile';
 import { useAuth } from '../../../../providers/AuthProvider';
@@ -59,7 +60,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
             accessibilityRole="button"
             className="mr-3 p-1"
           >
-            <AppIcon name="ArrowLeft" size={22} color="#0ea5e9" />
+            <AppIcon name="ArrowLeft" size={22} color={base.brand[500]} />
           </TouchableOpacity>
           <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
             Settings
@@ -80,8 +81,8 @@ export const SettingsScreen = ({ navigation }: Props) => {
                 onPress={() => setIsEditModalOpen(true)}
                 className="flex-row items-center bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full"
               >
-                <AppIcon name="User" size={14} color="#0ea5e9" />
-                <AppText variant="caption" className="font-semibold text-sky-600 dark:text-sky-400 ml-1">
+                <AppIcon name="User" size={14} color={base.brand[500]} />
+                <AppText variant="caption" className="font-semibold text-brand-600 dark:text-brand-400 ml-1">
                   Edit
                 </AppText>
               </TouchableOpacity>
@@ -124,7 +125,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
               <Switch
                 value={pushEnabled}
                 onValueChange={setPushEnabled}
-                trackColor={{ false: '#cbd5e1', true: '#38bdf8' }}
+                trackColor={{ false: base.slate[300], true: base.brand[400] }}
               />
             </View>
 
@@ -140,7 +141,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
               <Switch
                 value={emailEnabled}
                 onValueChange={setEmailEnabled}
-                trackColor={{ false: '#cbd5e1', true: '#38bdf8' }}
+                trackColor={{ false: base.slate[300], true: base.brand[400] }}
               />
             </View>
           </Card>
@@ -172,3 +173,4 @@ const styles = StyleSheet.create({
   // paddingBottom: 100 clears the bottom tab navigation bar (MainTabs height ~60px + safe area)
   scrollContent: { padding: 16, paddingBottom: 100 },
 });
+

@@ -265,7 +265,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
                 Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
                 !backendReady
               }
-              className="w-full h-11 sm:h-12 rounded-xl bg-[#8ba4f9] hover:bg-[#7895f8] active:bg-[#6686f7] text-white font-bold text-sm shadow-md shadow-blue-400/20 transition-all disabled:opacity-50"
+              className="w-full h-11 sm:h-12 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-600/20 transition-all disabled:opacity-50"
             >
               {isSendingOTP && <Loader2 className="animate-spin mr-2" size={18} />}
               {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
@@ -425,7 +425,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
               !isOtpComplete ||
               (requiresName && !nameValue.trim())
             }
-            className="mt-2 w-full h-11 sm:h-12 rounded-xl bg-[#8ba4f9] hover:bg-[#7895f8] active:bg-[#6686f7] text-white font-bold text-sm shadow-md shadow-blue-400/20 transition-all disabled:opacity-50"
+            className="mt-2 w-full h-11 sm:h-12 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-600/20 transition-all disabled:opacity-50"
           >
             {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
             Verify OTP

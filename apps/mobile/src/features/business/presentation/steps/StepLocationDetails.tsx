@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
-import { Container, Card } from '@esparex/mobile-ui';
+import { View, TextInput } from 'react-native';
+import { Container, Card, AppText } from '@esparex/mobile-ui';
 import { BusinessFormState } from '../../domain/BusinessFormState';
-import { semantic } from '@esparex/design-tokens';
 
 interface StepLocationDetailsProps {
   formState: BusinessFormState;
@@ -11,50 +10,62 @@ interface StepLocationDetailsProps {
 
 export function StepLocationDetails({ formState, onChange }: StepLocationDetailsProps) {
   return (
-    <Container style={styles.container}>
-      <Card style={styles.card}>
-        <Text style={styles.title}>Shop & Location Address</Text>
-        <Text style={styles.subtitle}>Provide your shop address for buyer discovery</Text>
+    <Container className="p-4">
+      <Card className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100 mb-1">
+          Shop & Location Address
+        </AppText>
+        <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-4">
+          Provide your shop address for buyer discovery
+        </AppText>
 
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Shop / Street Address *</Text>
+        <View className="mb-3.5">
+          <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            Shop / Street Address *
+          </AppText>
           <TextInput
-            style={styles.input}
+            className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
             placeholder="Shop No. 12, Main Market Road"
-            placeholderTextColor={semantic.light.muted}
+            placeholderTextColor="#94a3b8"
             value={formState.address}
             onChangeText={(text) => onChange({ address: text })}
           />
         </View>
 
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>City *</Text>
+        <View className="mb-3.5">
+          <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            City *
+          </AppText>
           <TextInput
-            style={styles.input}
+            className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
             placeholder="e.g. Mumbai, New Delhi, Bengaluru"
-            placeholderTextColor={semantic.light.muted}
+            placeholderTextColor="#94a3b8"
             value={formState.city}
             onChangeText={(text) => onChange({ city: text })}
           />
         </View>
 
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>State *</Text>
+        <View className="mb-3.5">
+          <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            State *
+          </AppText>
           <TextInput
-            style={styles.input}
+            className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
             placeholder="e.g. Maharashtra, Karnataka"
-            placeholderTextColor={semantic.light.muted}
+            placeholderTextColor="#94a3b8"
             value={formState.state}
             onChangeText={(text) => onChange({ state: text })}
           />
         </View>
 
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Pincode *</Text>
+        <View className="mb-3.5">
+          <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            Pincode *
+          </AppText>
           <TextInput
-            style={styles.input}
+            className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
             placeholder="6-digit PIN code"
-            placeholderTextColor={semantic.light.muted}
+            placeholderTextColor="#94a3b8"
             keyboardType="number-pad"
             maxLength={6}
             value={formState.pincode}
@@ -62,12 +73,14 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
           />
         </View>
 
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>GSTIN / Business Reg. No. (Optional)</Text>
+        <View className="mb-3.5">
+          <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            GSTIN / Business Reg. No. (Optional)
+          </AppText>
           <TextInput
-            style={styles.input}
+            className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
             placeholder="e.g. 27AAAAA0000A1Z5"
-            placeholderTextColor={semantic.light.muted}
+            placeholderTextColor="#94a3b8"
             autoCapitalize="characters"
             value={formState.gstNumber}
             onChangeText={(text) => onChange({ gstNumber: text })}
@@ -78,21 +91,3 @@ export function StepLocationDetails({ formState, onChange }: StepLocationDetails
   );
 }
 
-const styles = StyleSheet.create({
-  container: { padding: 16 },
-  card: { padding: 16, borderRadius: 16, backgroundColor: semantic.light.card }, // formerly #ffffff
-  title: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 4 }, // formerly #0f172a
-  subtitle: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 16 }, // formerly #64748b
-  fieldGroup: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: semantic.light['secondary-foreground'], marginBottom: 6 }, // formerly #334155
-  input: {
-    borderWidth: 1,
-    borderColor: semantic.light.border, // formerly #cbd5e1
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: semantic.light.foreground, // formerly #0f172a
-    backgroundColor: semantic.light.background, // formerly #f8fafc
-  },
-});

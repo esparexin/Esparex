@@ -53,9 +53,9 @@ export const ConditionField = ({ value, onChange }: ConditionFieldProps) => {
               accessibilityState={{ selected: isSelected }}
               activeOpacity={0.7}
               className={[
-                'px-4 py-2 rounded-full border',
+                'px-4 py-2 rounded-full border min-h-[44px] justify-center',
                 isSelected
-                  ? 'bg-sky-500 border-sky-500'
+                  ? 'bg-brand-600 border-brand-600'
                   : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600',
               ].join(' ')}
             >

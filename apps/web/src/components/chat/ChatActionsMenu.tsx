@@ -1,7 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreVertical } from 'lucide-react';
+import {
+  MoreVertical,
+  Z_INDEX,
+} from "@esparex/ui";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +14,8 @@ import {
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { CHAT_REPORT_REASON } from "@esparex/contracts";
-import {
-  Z_INDEX,
-} from "@esparex/ui";
+
+
 import { ChatReportReasonValue } from "@esparex/contracts";
 import { BlockChatDialog } from './BlockChatDialog';
 import { ReportChatDialog } from './ReportChatDialog';

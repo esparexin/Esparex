@@ -75,7 +75,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
             ].join(" ")}>
                 {/* Title row — desktop only (mobile: Post Ad lives in AccountHeader) */}
                 <div className="hidden md:flex items-center justify-between mb-2.5">
-                    <h1 className="flex items-center gap-2 text-[17px] md:text-lg font-bold text-slate-900 tracking-tight">
+                    <h1 className="flex items-center gap-2 text-base md:text-lg font-bold text-slate-900 tracking-tight">
                         {icon || <LayoutGrid className="h-5 w-5 text-link" />}
                         {title}
                     </h1>
@@ -120,7 +120,7 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                         <button
                             key={status}
                             onClick={() => onStatusChange(status)}
-                            className={`h-7 flex items-center justify-center rounded-md text-[11px] font-semibold whitespace-nowrap transition-all px-1 ${selectedStatus === status
+                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 ${selectedStatus === status
                                 ? "bg-white text-slate-900 shadow-sm"
                                 : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/40"
                                 }`}
