@@ -1,7 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ApiListingRepository } from '../../application/ApiListingRepository';
-
-const listingRepo = new ApiListingRepository();
+import { services } from '../../../../bootstrap';
 
 interface ToggleSaveParams {
   adId: string;
@@ -12,7 +10,7 @@ export function useToggleSaveListing() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, ToggleSaveParams>({
-    mutationFn: ({ adId, isSaved }) => listingRepo.toggleSaveListing(adId, isSaved),
+    mutationFn: ({ adId, isSaved }) => services.listingService.toggleSaveListing(adId, isSaved),
     onSuccess: () => {
       // Invalidate saved listings, search listings, and details to keep favorite hearts synchronized in real time
       queryClient.invalidateQueries({ queryKey: ['listings', 'saved'] });

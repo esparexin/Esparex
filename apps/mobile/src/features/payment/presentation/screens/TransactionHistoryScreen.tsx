@@ -2,17 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Screen, Container, Card } from '@esparex/mobile-ui';
 import { useQuery } from '@tanstack/react-query';
-import { ApiPaymentRepository } from '../../application/ApiPaymentRepository';
-import { PaymentService } from '../../application/PaymentService';
+import { services } from '../../../../bootstrap';
 import { PaymentTransaction } from '../../domain/PaymentTransaction';
 import { semantic } from '@esparex/design-tokens';
-
-const paymentService = new PaymentService(new ApiPaymentRepository());
 
 export function TransactionHistoryScreen() {
   const { data: transactions, isLoading } = useQuery<PaymentTransaction[], Error>({
     queryKey: ['payment', 'history'],
-    queryFn: () => paymentService.getTransactionHistory(),
+    queryFn: () => services.paymentService.getTransactionHistory(),
     staleTime: 1000 * 60 * 5,
   });
 

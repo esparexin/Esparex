@@ -31,4 +31,22 @@ export class ListingService {
       throw error;
     }
   }
+
+  public async getSavedListings(): Promise<readonly Listing[]> {
+    try {
+      return await this.repository.getSavedListings();
+    } catch (error) {
+      console.error('ListingService.getSavedListings failed:', error);
+      throw error;
+    }
+  }
+
+  public async toggleSaveListing(adId: string, isSaved: boolean): Promise<void> {
+    try {
+      return await this.repository.toggleSaveListing(adId, isSaved);
+    } catch (error) {
+      console.error(`ListingService.toggleSaveListing failed for ID ${adId}:`, error);
+      throw error;
+    }
+  }
 }

@@ -3,15 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Alert } fr
 import { Container, Card } from '@esparex/mobile-ui';
 import * as ImagePicker from 'expo-image-picker';
 import { BusinessFormState } from '../../domain/BusinessFormState';
-import { ApiBusinessRepository } from '../../application/ApiBusinessRepository';
+import { services } from '../../../../bootstrap';
 import { semantic } from '@esparex/design-tokens';
 
 interface StepDocumentsUploadProps {
   formState: BusinessFormState;
   onChange: (updates: Partial<BusinessFormState>) => void;
 }
-
-const apiRepository = new ApiBusinessRepository();
 
 export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUploadProps) {
   const [uploading, setUploading] = useState(false);
@@ -32,7 +30,7 @@ export function StepDocumentsUpload({ formState, onChange }: StepDocumentsUpload
       if (!result.canceled && result.assets && result.assets[0]) {
         const asset = result.assets[0];
         setUploading(true);
-        const fileUrl = await apiRepository.uploadDocument(asset.uri, asset.mimeType || 'image/jpeg');
+        const fileUrl = await services.businessService.uploadDocument(asset.uri, asset.mimeType || 'image/jpeg');
 
         const updatedDocs = formState.documents.filter((d) => d.type !== docType);
         updatedDocs.push({

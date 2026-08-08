@@ -1,11 +1,11 @@
-import { ApiListingRepository } from '../../../application/ApiListingRepository';
-import { apiClient } from '../../../../../infrastructure/api/apiClient';
+import { ApiListingRepository } from '../../application/ApiListingRepository';
+import { apiClient } from '../../../../infrastructure/api/apiClient';
 
 jest.mock('expo-crypto', () => ({
   randomUUID: jest.fn(() => 'test-uuid-1234'),
 }));
 
-jest.mock('../../../../../infrastructure/api/apiClient', () => ({
+jest.mock('../../../../infrastructure/api/apiClient', () => ({
   apiClient: {
     get: jest.fn(),
     post: jest.fn(),

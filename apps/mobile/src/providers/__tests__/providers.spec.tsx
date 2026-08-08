@@ -135,6 +135,9 @@ describe('AppProvider', () => {
       unregisterPushToken: jest.fn().mockResolvedValue(true),
     } as unknown as any,
     imagePicker: { pick: jest.fn() },
+    businessService: { getMyBusiness: jest.fn() } as unknown as any,
+    paymentService: { getPlans: jest.fn() } as unknown as any,
+    smartAlertService: { getSmartAlerts: jest.fn() } as unknown as any,
   };
 
 
