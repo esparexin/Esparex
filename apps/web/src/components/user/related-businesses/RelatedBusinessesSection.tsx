@@ -113,10 +113,10 @@ export function RelatedBusinessesSection({
     return (
       <Card
         key={business.id}
-        className="w-72 flex-shrink-0 border border-slate-200/70 shadow-2xs rounded-2xl bg-white p-3 space-y-2.5"
+        className="w-72 flex-shrink-0 border border-border shadow-xs rounded-2xl bg-card p-3.5 space-y-2.5"
       >
         <div className="flex items-start gap-3">
-          <div className="relative size-14 shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+          <div className="relative size-14 shrink-0 rounded-xl overflow-hidden bg-muted/50 border border-border">
             <SafeImage
               src={imageSrc}
               alt={business.name}
@@ -129,7 +129,7 @@ export function RelatedBusinessesSection({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
-              <h3 className="line-clamp-1 text-xs font-bold text-slate-900 flex-1">
+              <h3 className="line-clamp-1 text-xs font-bold text-foreground flex-1">
                 {business.name}
               </h3>
               {business.status === "live" && (
@@ -138,8 +138,8 @@ export function RelatedBusinessesSection({
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1 text-tiny text-slate-500 mt-0.5">
-              <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
+            <div className="flex items-center gap-1 text-tiny text-muted-foreground mt-0.5">
+              <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/70" />
               <span className="truncate">{locationLabel}</span>
               {distanceLabel ? <span className="shrink-0">· {distanceLabel}</span> : null}
             </div>

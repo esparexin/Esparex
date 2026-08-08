@@ -57,9 +57,10 @@ export const AppButton: React.FC<AppButtonProps> = ({
       case 'secondary':
         return 'text-slate-900 dark:text-slate-100';
       case 'destructive':
+        return 'text-white';
       case 'primary':
       default:
-        return 'text-white';
+        return 'text-white dark:text-slate-950';
     }
   };
 

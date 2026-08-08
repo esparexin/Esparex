@@ -42,8 +42,8 @@ export function AdSellerCard({
         : null;
 
     const isInteractive = !ad.isBusiness && !!sellerProfileHref;
-    const panelClassName = `items-center p-2.5 rounded-[1.5rem] border border-transparent ${
-        isInteractive ? "hover:bg-slate-50 group hover:border-slate-100" : ""
+    const panelClassName = `items-center p-2.5 rounded-2xl border border-transparent ${
+        isInteractive ? "hover:bg-muted/50 group hover:border-border" : ""
     }`;
     const showInlineChat = !isChatLocked && Boolean(onChat);
     const showInlinePhone = Boolean(onRevealPhone);
@@ -61,8 +61,8 @@ export function AdSellerCard({
             );
         }
         return (
-            <div className={`h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                <span className="font-bold text-foreground-tertiary text-base">
+            <div className={`h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                <span className="font-bold text-primary text-base">
                     {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
                 </span>
             </div>
@@ -70,7 +70,7 @@ export function AdSellerCard({
     };
 
     return (
-        <Card className="border-none shadow-sm md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden rounded-none md:rounded-[2rem] border-b border-slate-100 md:border-slate-100/50">
+        <Card className="border border-border shadow-xs overflow-hidden rounded-2xl bg-card">
             <CardContent className="p-4 md:p-6 space-y-4 md:space-y-5">
                 <SellerIdentityPanel
                     href={sellerProfileHref}

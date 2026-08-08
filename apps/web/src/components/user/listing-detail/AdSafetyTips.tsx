@@ -3,7 +3,7 @@ import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "@/icons/IconRegist
 
 export function AdSafetyTips() {
     return (
-        <Card className="bg-amber-50/40 border border-amber-100/80 shadow-none rounded-2xl overflow-hidden">
+        <Card className="bg-amber-50/50 border border-amber-200/80 shadow-xs rounded-2xl overflow-hidden">
             <CardContent className="p-4 md:p-5 space-y-3.5">
                 <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
@@ -44,8 +44,8 @@ export function AdSafetyTips() {
                     </div>
                 </div>
 
-                <div className="border-t border-amber-100 pt-3">
-                    <p className="text-2xs text-amber-400 font-semibold uppercase tracking-widest text-center">Safety First · Esparex Trust</p>
+                <div className="border-t border-amber-200/80 pt-3">
+                    <p className="text-2xs text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest text-center">Safety First · Esparex Trust</p>
                 </div>
             </CardContent>
         </Card>

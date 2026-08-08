@@ -70,7 +70,7 @@ export function ListingDetailSidebar({
     } as const;
 
     return (
-        <div className="space-y-3 md:space-y-4 p-4 md:p-0">
+        <div className="space-y-4">
             <AdTitlePriceCard
                 ad={ad}
                 categoryLabel={categoryLabel}

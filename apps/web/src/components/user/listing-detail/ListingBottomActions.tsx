@@ -39,7 +39,6 @@ export function ListingBottomActions({
   onDeleteClick,
   onMarkSoldClick,
   onPromoteClick,
-  onAnalyticsClick,
   onChatClick,
   onRevealPhone,
   isPhoneLoading,
@@ -180,14 +179,6 @@ export function ListingBottomActions({
                 Boost
               </Button>
             </div>
-
-            {/* Analytics Quick View */}
-            <button
-              onClick={onAnalyticsClick}
-              className="w-full h-11 flex items-center justify-center gap-1 text-xs text-foreground-subtle border-t border-slate-100 hover:bg-slate-50 active:bg-slate-100 transition-colors"
-            >
-              <span className="font-medium text-muted-foreground">View Analytics</span> · Tap for detailed stats
-            </button>
           </div>
         </div>
 
