@@ -212,3 +212,9 @@ tech-debt-insights.md
 
 .agents/skills/
 .scratch/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
