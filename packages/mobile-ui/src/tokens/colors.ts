@@ -16,3 +16,6 @@ export const colors = {
   action: base.action,
   semantic,
 };
+
+export const COLOR_PALETTE = colors;
+
