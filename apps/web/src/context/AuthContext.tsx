@@ -145,8 +145,9 @@ export function AuthProvider({
 
     if (fetchingRef.current) return;
     fetchingRef.current = true;
-
-    setStatus("loading");
+    if (!user) {
+      setStatus("loading");
+    }
 
     try {
       const response = await authApi.me({ silent: true });

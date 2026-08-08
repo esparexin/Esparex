@@ -14,7 +14,7 @@ import { mapErrorToMessage } from "@/lib/errorMapper";
 
 export default function BusinessApplyPage() {
     const router = useRouter();
-    const { user, refreshUser, loading: authLoading } = useUser();
+    const { user, refreshUser, updateUser, loading: authLoading } = useUser();
     const { businessData, isLoading: businessLoading, isFetched: businessFetched, error: businessError, retry: retryBusiness } = useBusiness(user, undefined, {
         includeStats: false,
         silent: true,
@@ -176,6 +176,12 @@ export default function BusinessApplyPage() {
                 await retryBusiness();
             }}
             onComplete={async () => {
+                if (user) {
+                    updateUser({
+                        ...user,
+                        businessStatus: "pending",
+                    });
+                }
                 await refreshUser();
                 await retryBusiness();
             }}
