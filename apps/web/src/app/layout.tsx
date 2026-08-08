@@ -65,7 +65,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
 
     return (
-        <html lang="en" className={geist.variable}>
+        <html lang="en" className={geist.variable} suppressHydrationWarning>
             <body className="font-sans antialiased">
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
             </body>

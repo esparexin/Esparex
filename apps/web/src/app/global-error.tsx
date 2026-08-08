@@ -20,7 +20,7 @@ export default function GlobalError({
     }, [error]);
 
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <body>
                 <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4 py-8">
                     <div className="w-full max-w-md transition-all">
