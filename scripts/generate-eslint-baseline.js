@@ -13,6 +13,16 @@ const path = require('path');
 
 const BASELINE_FILE = path.join(__dirname, '../eslint-baseline.json');
 
+// CI Guard: Baseline regeneration is prohibited in CI environments.
+// The baseline must only shrink (debt paid down), never expand.
+// If you have new violations, fix them — do not re-baseline.
+if (process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true') {
+    console.error('❌ Baseline regeneration is prohibited in CI.');
+    console.error('   Fix lint violations instead of re-baselining.');
+    console.error('   If you intend to reduce the baseline, run this script locally and commit the result.');
+    process.exit(1);
+}
+
 console.log('🚀 Starting full monorepo lint to generate baseline...');
 
 function normalizeFilePath(filePath) {
