@@ -40,7 +40,6 @@ export class ApiPaymentRepository implements IPaymentRepository {
 
   async openNativeCheckout(order: PaymentOrder): Promise<PaymentSuccessResult> {
     if (!RazorpayCheckout || typeof RazorpayCheckout.open !== 'function') {
-      console.warn('RazorpayCheckout native module is not available in current runtime environment.');
       throw new Error('Native payment gateway is not available on this device platform. Please use Web or supported build.');
     }
 

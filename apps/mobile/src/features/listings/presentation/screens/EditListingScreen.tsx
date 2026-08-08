@@ -1,33 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Screen, Container, Card, AppText } from '@esparex/mobile-ui';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { useUpdateListing } from '../hooks/useUpdateListing';
-import { semantic } from '@esparex/design-tokens';
+import { Listing } from '../../domain/Listing';
 
 type EditListingRouteProp = RouteProp<ProfileStackParamList, typeof ROUTES.EDIT_LISTING>;
 
-export function EditListingScreen() {
-  const route = useRoute<EditListingRouteProp>();
-  const navigation = useNavigation();
-  const { id } = route.params;
+interface EditListingFormProps {
+  id: string;
+  listing: Listing;
+}
 
-  const { data: listing, isLoading: isFetching } = useListingDetails(id);
+function EditListingForm({ id, listing }: EditListingFormProps) {
+  const navigation = useNavigation();
   const updateMutation = useUpdateListing();
 
-  const [title, setTitle] = useState('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-
-  useEffect(() => {
-    if (listing) {
-      setTitle(listing.title || '');
-      setPrice(listing.price ? String(listing.price) : '');
-      setDescription(listing.description || '');
-    }
-  }, [listing]);
+  const [title, setTitle] = useState(listing.title || '');
+  const [price, setPrice] = useState(listing.price ? String(listing.price) : '');
+  const [description, setDescription] = useState(listing.description || '');
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -53,20 +46,11 @@ export function EditListingScreen() {
       Alert.alert('Success', 'Listing updated successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
-    } catch (err: any) {
-      Alert.alert('Update Failed', err?.message || 'Unable to update listing. Please try again.');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unable to update listing. Please try again.';
+      Alert.alert('Update Failed', errorMessage);
     }
   };
-
-  if (isFetching) {
-    return (
-      <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
-        <Container className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#0ea5e9" />
-        </Container>
-      </Screen>
-    );
-  }
 
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
@@ -134,4 +118,22 @@ export function EditListingScreen() {
       </ScrollView>
     </Screen>
   );
+}
+
+export function EditListingScreen() {
+  const route = useRoute<EditListingRouteProp>();
+  const { id } = route.params;
+  const { data: listing, isLoading: isFetching } = useListingDetails(id);
+
+  if (isFetching || !listing) {
+    return (
+      <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+        <Container className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#0ea5e9" />
+        </Container>
+      </Screen>
+    );
+  }
+
+  return <EditListingForm key={listing.id} id={id} listing={listing} />;
 }
