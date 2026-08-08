@@ -7,6 +7,8 @@ import { BusinessRegistrationWizardScreen, BusinessStatusScreen, useBusinessProf
 import { PlanSelectionScreen, TransactionHistoryScreen } from '../features/payment';
 import { SmartAlertsScreen } from '../features/smartAlert';
 import { SavedAdsScreen } from '../features/listings/presentation/screens/SavedAdsScreen';
+import { EditListingScreen } from '../features/listings/presentation/screens/EditListingScreen';
+import { TermsAndPrivacyScreen } from '../features/user/presentation/screens/TermsAndPrivacyScreen';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
@@ -65,5 +67,7 @@ export const ProfileNavigator = () => (
     <Stack.Screen name={ROUTES.TRANSACTION_HISTORY} component={TransactionHistoryScreen} />
     <Stack.Screen name={ROUTES.SMART_ALERTS} component={SmartAlertsWrapper} />
     <Stack.Screen name={ROUTES.SAVED_ADS} component={SavedAdsWrapper} />
+    <Stack.Screen name={ROUTES.EDIT_LISTING} component={EditListingScreen} />
+    <Stack.Screen name={ROUTES.TERMS_AND_PRIVACY} component={TermsAndPrivacyScreen} />
   </Stack.Navigator>
 );

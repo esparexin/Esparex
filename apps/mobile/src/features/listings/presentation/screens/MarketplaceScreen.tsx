@@ -73,7 +73,7 @@ export const MarketplaceScreen = () => {
 
   const keyExtractor = useCallback((item: Listing) => item.id, []);
 
-
+  const listings = useMemo(() => data?.pages.flat() || [], [data?.pages]);
 
   if (isError) {
     return (
@@ -82,8 +82,6 @@ export const MarketplaceScreen = () => {
       </Screen>
     );
   }
-
-  const listings = data?.pages.flat() || [];
 
   return (
     <Screen edges={['top', 'left', 'right']}>

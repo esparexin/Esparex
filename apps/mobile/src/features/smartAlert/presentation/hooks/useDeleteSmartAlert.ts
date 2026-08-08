@@ -1,15 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ApiSmartAlertRepository } from '../../application/ApiSmartAlertRepository';
-import { SmartAlertService } from '../../application/SmartAlertService';
+import { services } from '../../../../bootstrap';
 import { SmartAlert } from '../../domain/SmartAlert';
-
-const smartAlertService = new SmartAlertService(new ApiSmartAlertRepository());
 
 export function useDeleteSmartAlert() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string, { previousAlerts?: SmartAlert[] }>({
-    mutationFn: (id: string) => smartAlertService.deleteSmartAlert(id),
+    mutationFn: (id: string) => services.smartAlertService.deleteSmartAlert(id),
     onMutate: async (deletedId: string) => {
       await queryClient.cancelQueries({ queryKey: ['smart-alerts', 'list'] });
       const previousAlerts = queryClient.getQueryData<SmartAlert[]>(['smart-alerts', 'list']);

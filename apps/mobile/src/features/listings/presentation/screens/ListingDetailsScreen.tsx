@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import { View, ScrollView, SafeAreaView, ActivityIndicator, Alert, Linking } from 'react-native';
+import { View, ScrollView, ActivityIndicator, Alert, Linking } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { AppText, Center } from '@esparex/mobile-ui';
+import { AppText, Center, Screen } from '@esparex/mobile-ui';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { ImageCarousel } from '../components/details/ImageCarousel';
@@ -39,17 +39,17 @@ export const ListingDetailsScreen = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-slate-950">
+      <Screen className="flex-1 bg-white dark:bg-slate-950">
         <Center className="flex-1">
           <ActivityIndicator size="large" color="#0ea5e9" />
         </Center>
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   if (error || !listing) {
     return (
-      <SafeAreaView className="flex-1 bg-white dark:bg-slate-950">
+      <Screen className="flex-1 bg-white dark:bg-slate-950">
         <Center className="flex-1 px-4">
           <AppText variant="h3" className="text-red-500 mb-2">
             Error loading listing
@@ -58,7 +58,7 @@ export const ListingDetailsScreen = () => {
             {error ? error.message : 'Listing not found'}
           </AppText>
         </Center>
-      </SafeAreaView>
+      </Screen>
     );
   }
 
@@ -91,7 +91,7 @@ export const ListingDetailsScreen = () => {
   ];
 
   return (
-    <View className="flex-1 bg-slate-50 dark:bg-slate-950">
+    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <ImageCarousel images={imageUrls} />
 
@@ -109,6 +109,6 @@ export const ListingDetailsScreen = () => {
       <View className="absolute bottom-0 w-full">
         <ActionBar actions={actions} />
       </View>
-    </View>
+    </Screen>
   );
 };

@@ -8,6 +8,8 @@
       "@esparex/core/*": ["core/src/*"],
       "@esparex/shared": ["shared/src"],
       "@esparex/shared/*": ["shared/src/*"],
+      "@esparex/design-tokens": ["packages/design-tokens/src"],
+      "@esparex/design-tokens/*": ["packages/design-tokens/src/*"],
       "@esparex/contracts": ["packages/contracts/src"],
       "@esparex/contracts/*": ["packages/contracts/src/v1/*"],
       "@esparex/ui": ["packages/ui/src"],
@@ -25,6 +27,7 @@
   },
   "files": [],
   "references": [
+    { "path": "./packages/design-tokens" },
     { "path": "./packages/contracts" },
     { "path": "./packages/ui" },
     { "path": "./packages/mobile-ui" },

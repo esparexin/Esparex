@@ -33,6 +33,13 @@ const targets = {
   '--ui': [
     'packages/ui/dist',
     'packages/ui/tsconfig.tsbuildinfo'
+  ],
+  '--tokens': [
+    'packages/design-tokens/dist',
+    'packages/design-tokens/tsconfig.tsbuildinfo'
+  ],
+  '--mobile-ui': [
+    'packages/mobile-ui/tsconfig.tsbuildinfo'
   ]
 };
 
