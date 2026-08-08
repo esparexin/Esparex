@@ -176,7 +176,7 @@ export function DataTable<T extends { id: string | number }>({
                             <thead className="bg-slate-50 text-slate-500 border-b border-slate-200 sticky top-0 z-10">
                                 <tr>
                                     {visibleColumns.map((col, idx) => (
-                                        <th key={idx} className={`px-3.5 py-2.5 sm:px-4 sm:py-2.5 font-semibold uppercase tracking-wider text-[10px] ${col.className || ""}`}>
+                                        <th key={idx} className={`px-3.5 py-2.5 sm:px-4 sm:py-2.5 font-semibold uppercase tracking-wider text-tiny ${col.className || ""}`}>
                                             <button
                                                 type="button"
                                                 disabled={!col.sortable || !onSortChange}

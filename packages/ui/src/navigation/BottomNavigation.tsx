@@ -49,7 +49,7 @@ export function BottomNavigation({
             aria-disabled={item.disabled}
           >
             {Icon && <Icon className="h-5 w-5 shrink-0" />}
-            <span className="text-[10px] font-medium leading-none truncate w-full text-center">
+            <span className="text-tiny font-medium leading-none truncate w-full text-center">
               {item.label}
             </span>
           </LinkComponent>

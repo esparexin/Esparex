@@ -77,8 +77,8 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
             </AppText>
             {formattedTime ? (
               <AppText
-                variant="caption"
-                className={`text-[10px] text-right mt-1 ${
+                variant="tiny"
+                className={`text-right mt-1 ${
                   isMine ? 'text-brand-100' : 'text-slate-500 dark:text-slate-400'
                 }`}
               >

@@ -26,10 +26,10 @@ export const AppText: React.FC<AppTextProps> = ({
       case 'h3': return 'text-xl leading-normal font-semibold tracking-tight'; // 20px
       case 'h4': return 'text-lg leading-normal font-semibold'; // 18px
       case 'body': return 'text-sm leading-normal'; // 14px
-      case 'small': return 'text-[13px] leading-normal'; // 13px
+      case 'small': return 'text-small leading-normal'; // 13px
       case 'label': return 'text-sm font-medium leading-none'; // 14px
       case 'caption': return 'text-xs leading-tight'; // 12px
-      case 'tiny': return 'text-[11px] leading-tight'; // 11px
+      case 'tiny': return 'text-tiny leading-tight'; // 11px
       default: return 'text-sm leading-normal';
     }
   };

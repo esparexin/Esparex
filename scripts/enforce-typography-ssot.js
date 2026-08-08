@@ -8,6 +8,9 @@ const repoRoot = path.resolve(__dirname, "..");
 const TARGET_DIRECTORIES = [
     path.join(repoRoot, "apps", "web", "src"),
     path.join(repoRoot, "apps", "admin", "src"),
+    path.join(repoRoot, "apps", "mobile", "src"),
+    path.join(repoRoot, "packages", "ui", "src"),
+    path.join(repoRoot, "packages", "mobile-ui", "src"),
 ];
 
 const SSOT_TOKEN_FILE = path.join(repoRoot, "packages", "ui", "src", "tokens", "typography.ts");
