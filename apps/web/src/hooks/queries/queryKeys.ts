@@ -41,6 +41,7 @@ export const queryKeys = {
     user: {
         all: ['user'] as const,
         me: () => [...queryKeys.user.all, 'me'] as const,
+        benefits: () => [...queryKeys.user.all, 'benefits'] as const,
     },
 
 
