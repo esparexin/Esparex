@@ -11,10 +11,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.js"
     },
+    "./src": "./src/index.ts",
     "./dist/css-variables.css": "./dist/css-variables.css"
   },
   "scripts": {
-    "build": "tsc -b && tsx scripts/generate-css.ts",
+    "build": "tsc -b --force && tsx scripts/generate-css.ts",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
