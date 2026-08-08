@@ -127,6 +127,10 @@ const connectSrc = [
     'https://*.s3.ap-south-1.amazonaws.com',
     'https://s3.ap-south-1.amazonaws.com',
     'https://esparexdev.s3.ap-south-1.amazonaws.com', // Explicitly add known bucket
+    'https://vercel.live',
+    'wss://vercel.live',
+    'https://*.vercel.live',
+    'wss://*.vercel.live',
     ...dynamicApiConnectSources,
 ].join(' '); // Forced update for CSP
 
@@ -137,6 +141,8 @@ const scriptSrc = [
     ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
     'https://maps.googleapis.com',
     'https://maps.gstatic.com',
+    'https://vercel.live',
+    'https://*.vercel.live',
 ].join(' ');
 
 /** @type {import('next').NextConfig} */
@@ -207,7 +213,7 @@ const nextConfig = {
                             `connect-src ${connectSrc}`,
 
                             "frame-ancestors 'self'",
-                            "frame-src 'self' https://www.openstreetmap.org",
+                            "frame-src 'self' https://www.openstreetmap.org https://vercel.live https://*.vercel.live",
                             "base-uri 'self'",
                             "form-action 'self'"
                         ].join('; ')
