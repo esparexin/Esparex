@@ -19,6 +19,8 @@ import {
   AlertCircle,
   Loader2,
   KeyRound,
+  Heading,
+  Text,
   Form,
   FieldRoot,
   FieldControl,
@@ -169,8 +171,8 @@ function LoginForm() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary shadow-xl shadow-primary/20 mb-4 animate-in zoom-in duration-500">
             <Shield className="text-white w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Esparex Admin</h1>
-          <p className="text-foreground-tertiary text-sm">Secure access to the command center</p>
+          <Heading variant="h1">Esparex Admin</Heading>
+          <Text variant="small" className="text-foreground-tertiary">Secure access to the command center</Text>
         </div>
 
         <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-2xl shadow-slate-200/50 border border-white isolate animate-in fade-in slide-in-from-bottom-4 duration-700">
