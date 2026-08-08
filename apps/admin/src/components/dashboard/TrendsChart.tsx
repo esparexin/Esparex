@@ -71,20 +71,20 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
                             dataKey="name"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#94a3b8', fontSize: 12 }}
+                            tick={{ fill: "var(--color-slate-400, #94a3b8)", fontSize: 12 }}
                             dy={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#94a3b8', fontSize: 12 }}
+                            tick={{ fill: "var(--color-slate-400, #94a3b8)", fontSize: 12 }}
                         />
                         <Tooltip
                             contentStyle={{
-                                backgroundColor: '#fff',
-                                borderRadius: '8px',
-                                border: '1px solid #e2e8f0',
-                                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                backgroundColor: "var(--color-surface, #ffffff)",
+                                borderRadius: "8px",
+                                border: "1px solid var(--color-border, #e2e8f0)",
+                                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
                             }}
                         />
                         <Area

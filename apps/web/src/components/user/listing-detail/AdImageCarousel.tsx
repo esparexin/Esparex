@@ -125,10 +125,10 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
     return (
         <>
-        <Card className="rounded-none md:rounded-[2.5rem] overflow-hidden border-none shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white md:p-2">
+        <Card className="rounded-2xl border border-border shadow-xs bg-card overflow-hidden md:p-3">
             <CardContent className="p-0">
                 <div
-                    className="relative aspect-[4/3] md:aspect-[16/10] bg-slate-100 rounded-none md:rounded-[2rem] overflow-hidden group/main cursor-pointer"
+                    className="relative aspect-[4/3] md:aspect-[16/10] bg-muted/40 rounded-xl md:rounded-2xl overflow-hidden group/main cursor-pointer"
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                     onClick={openLightbox}
@@ -206,7 +206,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
                 {/* Thumbnail Carousel */}
                 {safeImages.length > 1 && (
-                    <div className="px-3 py-3 md:px-4 md:py-4 bg-transparent">
+                    <div className="px-3 pt-3 pb-2 md:px-4 md:pt-4 md:pb-3 bg-transparent">
                         <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1 scrollbar-hide">
                             {safeImages.map((image: string, index: number) => (
                                 <button
@@ -215,8 +215,8 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                     aria-label={`View photo ${index + 1} of ${safeImages.length}`}
                                     className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl overflow-hidden border-2 transition-all duration-200 relative ${
                                         index === currentImageIndex
-                                            ? "border-green-500 ring-2 ring-green-100 scale-95"
-                                            : "border-transparent hover:border-slate-300 opacity-50 hover:opacity-100"
+                                            ? "border-primary ring-2 ring-primary/20 scale-95"
+                                            : "border-transparent hover:border-border opacity-70 hover:opacity-100"
                                     }`}
                                 >
                                     <SafeImage
@@ -227,7 +227,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                         className="object-cover"
                                     />
                                     {index === currentImageIndex && (
-                                        <div className="absolute inset-0 bg-green-500/5" />
+                                        <div className="absolute inset-0 bg-primary/5" />
                                     )}
                                 </button>
                             ))}

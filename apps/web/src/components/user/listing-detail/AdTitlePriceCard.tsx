@@ -23,7 +23,7 @@ export function AdTitlePriceCard({
     const isSparePart = ad.listingType === "spare_part";
 
     return (
-        <Card className="bg-card text-card-foreground rounded-none md:rounded-2xl border-x-0 md:border border-t-0 md:border-t border-b border-border shadow-none md:shadow-xs overflow-hidden">
+        <Card className="bg-card text-card-foreground rounded-2xl border border-border shadow-xs overflow-hidden">
             <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                 <div className="flex items-start justify-between gap-2 md:gap-3">
                     <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
@@ -41,7 +41,7 @@ export function AdTitlePriceCard({
                         ) : null}
 
                         {/* Category Badge */}
-                        <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-slate-200 text-muted-foreground rounded-lg md:bg-slate-100 md:border-none md:px-2.5 md:py-0.5 md:text-2xs">
+                        <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-border text-muted-foreground rounded-lg bg-muted/60 px-2.5 py-0.5 text-2xs">
                             {categoryLabel}
                         </Badge>
 
@@ -107,7 +107,7 @@ export function AdTitlePriceCard({
                     )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-xs text-foreground-subtle border-t border-slate-100 pt-3 md:pt-5">
+                <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-xs text-foreground-subtle border-t border-border pt-3 md:pt-5">
                     <div className="flex flex-col md:gap-1">
                         <span className="hidden md:block text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Location</span>
                         <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">

@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Crown,
   LogOut,
-} from "@/components/ui/icons";
+} from "@/icons/IconRegistry";
 
 // Types & Constants
 import type { UserPage } from "@/lib/routeUtils";

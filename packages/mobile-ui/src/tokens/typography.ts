@@ -1,51 +1,28 @@
-// Typography tokens corresponding to Tailwind classes
+import { typography as canonicalTypography } from '@esparex/design-tokens';
+
+/**
+ * typography.ts — Mobile UI Typography Tokens for Esparex Platform
+ * Re-exports canonical typography tokens derived from @esparex/design-tokens SSOT.
+ */
 
 export const typography = {
-  fontFamily: {
-    sans: ['System', 'Helvetica', 'Arial', 'sans-serif'],
-    serif: ['Georgia', 'Cambria', 'Times New Roman', 'Times', 'serif'],
-    mono: ['Menlo', 'Monaco', 'Courier New', 'monospace'],
-  },
-  fontSize: {
-    xs: 12,
-    sm: 14,
-    base: 16,
-    lg: 18,
-    xl: 20,
-    '2xl': 24,
-    '3xl': 30,
-    '4xl': 36,
-    '5xl': 48,
-    '6xl': 60,
-    '7xl': 72,
-    '8xl': 96,
-    '9xl': 128,
-  },
-  fontWeight: {
-    thin: '100',
-    extralight: '200',
-    light: '300',
-    normal: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-    extrabold: '800',
-    black: '900',
-  },
+  fontFamily: canonicalTypography.fonts,
+  fontSize: canonicalTypography.fontSizes,
+  fontWeight: canonicalTypography.fontWeights,
   lineHeight: {
     none: 1,
-    tight: 1.25,
-    snug: 1.375,
+    tight: 1.2,
+    snug: 1.3,
     normal: 1.5,
-    relaxed: 1.625,
+    relaxed: 1.55,
     loose: 2,
   },
   letterSpacing: {
-    tighter: -0.8,
-    tight: -0.4,
+    tight: -0.02,
     normal: 0,
-    wide: 0.4,
-    wider: 0.8,
-    widest: 1.6,
+    wide: 0.02,
   },
 };
+
+export type TypographyFontSize = 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'caption' | 'tiny';
+export type TypographyFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';

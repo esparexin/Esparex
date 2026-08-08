@@ -3,7 +3,7 @@
 import type { User } from "@/types/User";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { Card } from "@/components/ui/card";
-import { LogOut } from "@/components/ui/icons";
+import { LogOut } from "@/icons/IconRegistry";
 import { AccountNavItemList } from "../../AccountNavItemList";
 
 interface MoreMenuTabProps {

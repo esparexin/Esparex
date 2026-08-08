@@ -1,2 +1,4 @@
 node scripts/guard-generated-artifacts.js
+npm run guard:unused-imports
+npm run guard:pr-quality
 npx lint-staged

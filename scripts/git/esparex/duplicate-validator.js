@@ -114,23 +114,31 @@ function run(val) {
     } catch { /* fallback */ }
   }
 
-  if (fs.existsSync(reportPath)) {
+  if (!fs.existsSync(reportPath)) {
     try {
-      const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-      const currentRate = report.statistics?.total?.percentage || 0;
-
-      if (currentRate > previousBaseline + 0.01) {
-        val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds previous baseline ${previousBaseline}%`);
-      } else if (currentRate < previousBaseline) {
-        val.info(`Duplicate Rate Improved: ${currentRate}% (Previous baseline: ${previousBaseline}%)`);
-        // Automatically save new tighter baseline
-        fs.writeFileSync(baselinePath, JSON.stringify({ baselinePercentage: currentRate, lastUpdated: new Date().toISOString() }, null, 2));
-      } else {
-        val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${previousBaseline}%)`);
-      }
+      const { execSync } = require('child_process');
+      execSync('npm run guard:duplicate-code', { cwd: ROOT, stdio: ['pipe', 'pipe', 'pipe'] });
     } catch {
-      val.warning('Could not parse JSCPD report file');
+      val.error('JSCPD report not found and could not be generated. Run npm run guard:duplicate-code before repo:gate.');
+      return;
     }
+  }
+
+  try {
+    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    const currentRate = report.statistics?.total?.percentage || 0;
+
+    if (currentRate > previousBaseline + 0.01) {
+      val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds previous baseline ${previousBaseline}%`);
+    } else if (currentRate < previousBaseline) {
+      val.info(`Duplicate Rate Improved: ${currentRate}% (Previous baseline: ${previousBaseline}%)`);
+      // Automatically save new tighter baseline
+      fs.writeFileSync(baselinePath, JSON.stringify({ baselinePercentage: currentRate, lastUpdated: new Date().toISOString() }, null, 2));
+    } else {
+      val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${previousBaseline}%)`);
+    }
+  } catch {
+    val.warning('Could not parse JSCPD report file');
   }
 }
 

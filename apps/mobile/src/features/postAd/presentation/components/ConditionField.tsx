@@ -50,6 +50,7 @@ export const ConditionField = ({ value, onChange }: ConditionFieldProps) => {
               accessible
               accessibilityRole="radio"
               accessibilityLabel={option.label}
+              accessibilityHint={`Selects ${option.label} condition`}
               accessibilityState={{ selected: isSelected }}
               activeOpacity={0.7}
               className={[

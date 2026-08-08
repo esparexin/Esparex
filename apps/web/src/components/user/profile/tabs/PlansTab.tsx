@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@esparex/ui";
 import { Star, Package, Bell } from "@/icons/IconRegistry";
-import { ChevronLeft, ChevronRight } from "@/components/ui/icons";
+import { ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
 import { getPlanDisplayName } from "./PurchasesTab";
 import { MyBenefitsOverviewCard } from "../MyBenefitsOverviewCard";
 import type { ProfilePlan, ProfilePlanType } from "../types";

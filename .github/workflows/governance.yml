@@ -20,13 +20,35 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Generate duplicate code report
+        run: npm run guard:duplicate-code
+
       - name: Run Repository Gate
         run: npm run repo:gate
 
       - name: Generate Governance Observability Dashboard Summary
         if: always()
         run: npm run repo:governance-dashboard
-        
+
+      - name: Enforce Governance Health Score Minimum
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = '.governance/latest-run.json';
+          if (!fs.existsSync(path)) {
+            console.log('No governance run file found at ' + path + ', skipping score check.');
+            process.exit(0);
+          }
+          const run = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const score = run.healthScore ?? 100;
+          const threshold = 85;
+          if (score < threshold) {
+            console.error('❌ Governance health score ' + score + '% is below minimum threshold of ' + threshold + '%');
+            process.exit(1);
+          }
+          console.log('✅ Governance health score ' + score + '% meets minimum threshold of ' + threshold + '%');
+          "
+
       - name: Validate Governance Data (Schema, DAG, References)
         run: npm run governance:validate
         

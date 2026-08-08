@@ -2,7 +2,7 @@ import React from 'react';
 import { Text as RNText, TextProps as RNTextProps } from 'react-native';
 
 export interface AppTextProps extends RNTextProps {
-  variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'label' | 'caption';
+  variant?: 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'label' | 'caption' | 'tiny';
   color?: 'default' | 'muted' | 'brand' | 'error' | 'success';
   weight?: 'normal' | 'medium' | 'semibold' | 'bold';
   align?: 'left' | 'center' | 'right';
@@ -20,14 +20,17 @@ export const AppText: React.FC<AppTextProps> = ({
 }) => {
   const getVariantStyles = () => {
     switch (variant) {
-      case 'h1': return 'text-4xl leading-tight font-bold tracking-tight';
-      case 'h2': return 'text-3xl leading-snug font-bold tracking-tight';
-      case 'h3': return 'text-2xl leading-normal font-semibold tracking-tight';
-      case 'h4': return 'text-xl leading-normal font-semibold';
-      case 'label': return 'text-sm font-medium leading-none';
-      case 'caption': return 'text-xs leading-tight';
-      case 'body':
-      default: return 'text-base leading-normal';
+      case 'display': return 'text-4xl leading-tight font-bold tracking-tight'; // 36px
+      case 'h1': return 'text-3xl leading-snug font-bold tracking-tight'; // 30px
+      case 'h2': return 'text-2xl leading-snug font-bold tracking-tight'; // 24px
+      case 'h3': return 'text-xl leading-normal font-semibold tracking-tight'; // 20px
+      case 'h4': return 'text-lg leading-normal font-semibold'; // 18px
+      case 'body': return 'text-sm leading-normal'; // 14px
+      case 'small': return 'text-small leading-normal'; // 13px
+      case 'label': return 'text-sm font-medium leading-none'; // 14px
+      case 'caption': return 'text-xs leading-tight'; // 12px
+      case 'tiny': return 'text-tiny leading-tight'; // 11px
+      default: return 'text-sm leading-normal';
     }
   };
 
@@ -61,8 +64,6 @@ export const AppText: React.FC<AppTextProps> = ({
     }
   };
 
-  // We combine the base classes. The `weight` prop overrides the variant's default weight if provided explicitly.
-  // In a real app, you might use `tailwind-merge` or `clsx` for cleaner class merging.
   const classes = [
     getVariantStyles(),
     getColorStyles(),

@@ -51,7 +51,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
               )}
               {unreadCount > 0 && (
                 <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 items-center justify-center">
-                  <AppText variant="caption" className="text-white text-[10px] font-bold">
+                  <AppText variant="tiny" className="text-white font-bold">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </AppText>
                 </View>

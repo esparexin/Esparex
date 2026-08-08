@@ -18,7 +18,7 @@ const geist = Geist({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={geist.variable}>
+    <html lang="en" className={geist.variable} suppressHydrationWarning>
       <body className="font-sans antialiased">
         <AdminProviders>{children}</AdminProviders>
       </body>

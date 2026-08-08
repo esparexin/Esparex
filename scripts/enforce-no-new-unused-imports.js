@@ -63,7 +63,7 @@ function lintWorkspaceChangedFiles(workspace, files) {
   const result = spawnSync("npx", args, {
     cwd: workspace,
     stdio: ["ignore", "pipe", "pipe"],
-    shell: true,
+    shell: false,
     encoding: "utf8",
   });
 

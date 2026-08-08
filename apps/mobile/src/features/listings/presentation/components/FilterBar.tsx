@@ -44,7 +44,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
           </AppText>
           {activeFilterCount > 0 && (
             <View className="ml-1.5 bg-brand-600 rounded-full w-5 h-5 items-center justify-center">
-              <AppText variant="caption" className="text-white text-[10px] font-bold">
+              <AppText variant="tiny" className="text-white font-bold">
                 {activeFilterCount}
               </AppText>
             </View>

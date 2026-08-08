@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { ChevronRight } from "@/components/ui/icons";
+import { ChevronRight } from "@/icons/IconRegistry";
 import type { ProfileTabValue } from "@/config/navigation";
 
 export interface AccountNavItem {
