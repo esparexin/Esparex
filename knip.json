@@ -9,6 +9,7 @@
     "types": "warn",
     "duplicates": "warn"
   },
+  "ignoreBinaries": ["eslint", "tsc"],
   "ignoreDependencies": [
     "@radix-ui/*",
     "@react-google-maps/api",
@@ -87,7 +88,8 @@
     // False positives: devDeps used by Expo/Babel build toolchain, not directly imported
     "@babel/core",
     "@commitlint/cli",
-    "husky"
+    "husky",
+    "babel-preset-expo"
   ],
   "workspaces": {
     "apps/admin": {
@@ -148,6 +150,8 @@
     // backend/api/scripts use relative paths (../src/config/db) and are standalone migration runners
     "backend/api/scripts/**",
     // mobile-ui test files use describe/it without exports — not consumable modules
-    "packages/mobile-ui/src/**/__tests__/**"
+    "packages/mobile-ui/src/**/__tests__/**",
+    // mobile build config — loaded by Metro/Babel CLI, not imported
+    "apps/mobile/babel.config.js"
   ]
 }
