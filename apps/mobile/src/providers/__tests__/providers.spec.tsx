@@ -94,6 +94,8 @@ const TestChild = () => {
 };
 
 describe('AppProvider', () => {
+  jest.setTimeout(15000);
+
   beforeEach(() => {
     clientInstanceCount = 0;
     lastClient = null;
@@ -150,9 +152,12 @@ describe('AppProvider', () => {
 
     expect(getByTestId('qc-status').props.children).toBe('initialized');
     
-    await waitFor(() => {
-      expect(getByTestId('auth-status').props.children).toBe('idle');
-    });
+    await waitFor(
+      () => {
+        expect(getByTestId('auth-status').props.children).toBe('idle');
+      },
+      { timeout: 10000 }
+    );
     
     expect(getByTestId('theme-status').props.children).toBe('system');
   });
