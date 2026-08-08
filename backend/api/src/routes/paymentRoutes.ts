@@ -25,6 +25,9 @@ if (env.NODE_ENV === 'production') {
 const router = express.Router();
 
 
+// Plans & Wallet Aggregated Dashboard Snapshot
+router.get('/account/plans-wallet', protect, paymentController.getPlansWalletDashboard);
+
 // Purchase History
 router.get('/history', protect, paymentController.getPurchaseHistory);
 
@@ -41,6 +44,7 @@ import * as creditController from '../controllers/payment/creditController';
 // Credit Evaluation & Wallet Breakdown
 router.post('/credits/evaluate', protect, creditController.evaluateCredits);
 router.get('/credits/wallet', protect, creditController.getCreditWalletSummary);
+router.get('/credits/history', protect, creditController.getCreditLedgerHistory);
 router.post('/credits/renew-business', protect, creditController.renewBusinessPlanController);
 
 

@@ -9,6 +9,7 @@ import { InvoiceUser } from '@esparex/core/config/razorpay';
 import { getUserTransactions, getTransactionWithUser } from '@esparex/core/domains/payments/application/TransactionService';
 import { getActivePlans } from '@esparex/core/domains/payments/application/PlanService';
 import { getInvoiceByIdOrTransaction } from '@esparex/core/domains/payments/application/InvoiceService';
+import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
 
 /**
  * 3. GET PLANS
@@ -206,5 +207,33 @@ export const getInvoice = async (req: Request, res: Response) => {
         const err = error as Error;
         logger.error('Get Invoice Error:', err);
         sendErrorResponse(req, res, 500, 'Failed to generate invoice');
+    }
+};
+
+/**
+ * 5. GET PLANS & WALLET DASHBOARD AGGREGATION
+ * Fetches aggregated PlansWalletV1DTO snapshot for the authenticated user.
+ */
+export const getPlansWalletDashboard = async (req: Request, res: Response) => {
+    try {
+        if (!req.user) {
+            return sendErrorResponse(req, res, 401, 'Unauthorized');
+        }
+
+        const userId = req.user.id || req.user._id;
+        if (!userId) {
+            return sendErrorResponse(req, res, 401, 'User ID is required');
+        }
+
+        const snapshot = await DashboardFacade.getDashboardSnapshot(userId.toString());
+
+        res.json(respond<ApiResponse<unknown>>({
+            success: true,
+            data: snapshot,
+        }));
+    } catch (error: unknown) {
+        const err = error as Error;
+        logger.error('Get Plans Wallet Dashboard Error:', err);
+        sendErrorResponse(req, res, 500, 'Failed to fetch plans and wallet dashboard snapshot');
     }
 };

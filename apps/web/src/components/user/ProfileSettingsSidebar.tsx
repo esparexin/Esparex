@@ -28,7 +28,6 @@ import { type ListingStatsResponse } from "@/lib/api/user/listings";
 import { useDynamicPlans } from "@/hooks/useDynamicPlans";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
-import { usePurchases } from "@/hooks/usePurchases";
 import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
 import { isApprovedBusiness } from "@/guards/businessGuards";
@@ -49,7 +48,6 @@ import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
-import { PurchasesTab } from "./profile/tabs/PurchasesTab";
 import { MyListingsTab } from "./profile/tabs/MyListingsTab";
 import { SavedAds } from "./SavedAds";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
@@ -124,7 +122,6 @@ export function ProfileSettingsSidebar({
     handleCreateAlert,
     resetAlertForm,
   } = useSmartAlerts(activeTab === "smartalerts");
-  const { purchaseHistory, loading: loadingPurchased } = usePurchases(activeTab === "purchases");
   const chatUnreadCount = useChatUnreadCount(user?.id ?? null, !!user);
 
     const {
@@ -325,7 +322,7 @@ export function ProfileSettingsSidebar({
           />
         </div>
       );
-      case "purchases": return <PurchasesTab purchaseHistory={purchaseHistory} formatDate={formatDate} formatCurrency={formatPrice} setActiveTab={setActiveTabFromChild} loading={loadingPurchased} />;
+      case "purchases": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
       default: return null;
     }
   };

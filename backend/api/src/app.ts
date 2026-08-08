@@ -445,6 +445,11 @@ app.use('/api/v1/invoices', invoiceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
 app.use('/api/v1', entitlementRoutes);
 
+// Canonical SSOT Route Mapping: /api/v1/account/plans-wallet
+import * as paymentController from './controllers/payment';
+import { protect } from './middleware/authMiddleware';
+app.get('/api/v1/account/plans-wallet', protect, paymentController.getPlansWalletDashboard);
+
 // Communication & Feedback
 app.use('/api/v1/contacts', contactRoutes);
 app.use('/api/v1/reports', reportRoutes);

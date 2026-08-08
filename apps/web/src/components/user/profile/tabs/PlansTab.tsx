@@ -1,405 +1,187 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Button } from "@esparex/ui";
-import { Star, Package, Bell } from "@/icons/IconRegistry";
-import { ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
-import { getPlanDisplayName } from "./PurchasesTab";
-import { MyBenefitsOverviewCard } from "../MyBenefitsOverviewCard";
-import type { ProfilePlan, ProfilePlanType } from "../types";
+import React, { useState } from 'react';
+import { usePlansWalletDashboard } from '@/hooks/usePlansWalletDashboard';
+import { ActiveSubscriptionCard } from '../cards/ActiveSubscriptionCard';
+import { WalletOverviewCard } from '../cards/WalletOverviewCard';
+import { CreditPackListCard } from '../cards/CreditPackListCard';
+import { ActivePromotionsCard } from '../cards/ActivePromotionsCard';
+import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
+import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
+import type { ProfilePlan } from '../types';
 
-type PlanCard = Omit<ProfilePlan, "type"> & { type: string };
-
-interface SubTabConfig {
-    id: ProfilePlanType;
-    label: string;
-    description: string;
-    icon: React.ReactNode;
-}
-
-const DEFAULT_SUB_TAB: SubTabConfig = {
-    id: "Spotlight",
-    label: "Spotlight",
-    description: "Get your ad to the top of search results for maximum buyer reach",
-    icon: <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />,
-};
-
-const SUB_TABS: SubTabConfig[] = [
-    DEFAULT_SUB_TAB,
-    {
-        id: "More Ads",
-        label: "More Ads",
-        description: "Post additional ads beyond your free monthly posting allowance",
-        icon: <Package className="h-3.5 w-3.5 text-blue-600" />,
-    },
-    {
-        id: "Boost Ad",
-        label: "Boost Ad",
-        description: "Elevate your listing search ranking priority score",
-        icon: <Star className="h-3.5 w-3.5 text-amber-600" />,
-    },
-    {
-        id: "Alert Slots",
-        label: "Smart Alerts",
-        description: "Increase active automated search & instant stock alert capacity",
-        icon: <Bell className="h-3.5 w-3.5 text-purple-600" />,
-    },
-];
+type PlanCard = Omit<ProfilePlan, 'type'> & { type: string };
 
 interface PlansTabProps {
-    dynamicPlans: PlanCard[];
-    currentPlan: string;
-    isError?: boolean;
-    setSelectedPlan: (id: string) => void;
-    setShowPlanDialog: (show: boolean) => void;
-    formatCurrency: (amount: number) => string;
+  dynamicPlans: PlanCard[];
+  currentPlan: string;
+  isError?: boolean;
+  setSelectedPlan: (id: string) => void;
+  onPlanSelected?: (plan: ProfilePlan) => void;
+  setShowPlanDialog?: (show: boolean) => void;
+  formatCurrency?: (price: number) => string;
 }
 
-function PlanCardView({
-    plan,
-    activeConfig,
-    currentPlan,
-    formatCurrency,
-    setSelectedPlan,
-    setShowPlanDialog,
-    hasMultiplePlans = false,
-    activeSlideIndex = 0,
-    totalSlides = 1,
-    onPrev,
-    onNext,
-}: {
-    plan: PlanCard;
-    activeConfig: SubTabConfig;
-    currentPlan?: string;
-    formatCurrency: (amount: number) => string;
-    setSelectedPlan: (id: string) => void;
-    setShowPlanDialog: (show: boolean) => void;
-    hasMultiplePlans?: boolean;
-    activeSlideIndex?: number;
-    totalSlides?: number;
-    onPrev?: () => void;
-    onNext?: () => void;
-}) {
-    const isRecommended = plan.popular;
-    const cardConfig = SUB_TABS.find((t) => t.id === plan.type) ?? activeConfig;
-    const isCurrentPlan = currentPlan?.toLowerCase() === plan.name?.toLowerCase() || (plan.price === 0 && (currentPlan === "Free" || currentPlan === "USER_DEFAULT_PLAN" || !currentPlan));
-    const buttonLabel = plan.price === 0 ? "Claim Free" : "Buy Now";
+type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'BUY_PLANS';
 
-    return (
-        <div className="space-y-2.5">
-            {/* Main Plan Card (Blue Border Card Box) */}
-            <div
-                className={`bg-white rounded-2xl p-4 sm:p-5 border-2 transition-all duration-200 relative text-center flex flex-col items-center justify-between gap-2.5 ${
-                    isCurrentPlan || isRecommended
-                        ? "border-blue-300 shadow-xs"
-                        : "border-slate-200 hover:border-slate-300"
-                }`}
-            >
-                {/* Current Plan Badge */}
-                {isCurrentPlan && (
-                    <div className="inline-block bg-blue-100 text-blue-700 text-tiny font-semibold px-3 py-0.5 rounded-full mb-0.5">
-                        Your current plan
-                    </div>
-                )}
+export const PlansTab: React.FC<PlansTabProps> = ({
+  dynamicPlans,
+  currentPlan,
+  setSelectedPlan,
+  onPlanSelected,
+  setShowPlanDialog: _setShowPlanDialog,
+  formatCurrency: _formatCurrency,
+}) => {
+  const [activeTab, setActiveTab] = useState<DashboardHubTab>('OVERVIEW');
+  const { dashboardData, isLoading, isError, refetch } = usePlansWalletDashboard();
 
-                {/* Multiple Plans In-Card Navigation */}
-                {hasMultiplePlans && (
-                    <div className="flex items-center justify-between w-full sm:hidden pt-0.5">
-                        <button
-                            type="button"
-                            onClick={onPrev}
-                            disabled={activeSlideIndex === 0}
-                            className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
-                            aria-label="Previous Plan"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <span className="text-tiny font-semibold text-slate-400 tracking-wider">
-                            {activeSlideIndex + 1} / {totalSlides}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={onNext}
-                            disabled={activeSlideIndex === totalSlides - 1}
-                            className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-20 disabled:pointer-events-none transition-all active:scale-95"
-                            aria-label="Next Plan"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-                )}
+  const handleTabSwitch = (tab: DashboardHubTab) => {
+    setActiveTab(tab);
+    trackPlansWalletEvent('plans_tab_switched', { tabName: tab });
+  };
 
-                {/* Circular Soft Blue Category Icon Container */}
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-blue-100/80 text-blue-600">
-                    {cardConfig.icon}
-                </div>
+  return (
+    <div className="space-y-6">
+      {/* 3-Tab Hub Navigation Header */}
+      <div className="border-b border-border/60 pb-3">
+        <nav className="flex space-x-2 sm:space-x-4" aria-label="Plans and Wallet Navigation">
+          <button
+            onClick={() => handleTabSwitch('OVERVIEW')}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'OVERVIEW'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+            }`}
+          >
+            Subscription & Balances
+          </button>
 
-                {/* Plan Name & Description */}
-                <div className="w-full">
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                        {getPlanDisplayName(plan.name)}
-                    </h3>
-                    <p className="text-tiny text-slate-500 mt-0.5 leading-snug max-w-xs mx-auto">
-                        {cardConfig.description}
-                    </p>
-                </div>
+          <button
+            onClick={() => handleTabSwitch('CREDIT_PACKS')}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'CREDIT_PACKS'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+            }`}
+          >
+            Itemized Credit Packs
+            {dashboardData?.creditPacks && dashboardData.creditPacks.length > 0 && (
+              <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-background/20 text-current">
+                {dashboardData.creditPacks.length}
+              </span>
+            )}
+          </button>
 
-                {/* Price Display */}
-                <div className="w-full py-1">
-                    <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-none">
-                            {plan.price === 0 ? "Free" : formatCurrency(plan.price)}
-                        </span>
-                        <span className="text-tiny font-normal text-slate-500 leading-none">
-                            / {plan.duration}
-                        </span>
-                    </div>
-                </div>
+          <button
+            onClick={() => handleTabSwitch('BUY_PLANS')}
+            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              activeTab === 'BUY_PLANS'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+            }`}
+          >
+            Buy Plans & Top-ups
+          </button>
+        </nav>
+      </div>
 
-                {/* Primary CTA Action Button */}
-                {isCurrentPlan ? (
-                    <div className="w-full h-9 rounded-xl font-semibold text-xs bg-slate-100 text-slate-500 border border-slate-200/80 flex items-center justify-center select-none">
-                        Current Plan
-                    </div>
-                ) : (
-                    <Button
-                        onClick={() => {
-                            setSelectedPlan(plan.id);
-                            setShowPlanDialog(true);
-                        }}
-                        className="w-full h-9 rounded-xl font-bold text-xs sm:text-sm bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all active:scale-[0.98] tracking-tight mt-0.5"
-                    >
-                        {buttonLabel}
-                    </Button>
-                )}
-            </div>
-
-            {/* Plan Highlights Card (Separate Box below main card) */}
-            <div className="bg-slate-50/50 border border-slate-200/80 rounded-2xl p-3 sm:p-4 space-y-1.5 text-left">
-                <h4 className="text-tiny font-bold text-slate-900 tracking-tight">
-                    Plan highlights
-                </h4>
-                <ul className="space-y-1">
-                    {plan.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5 text-tiny font-medium text-slate-700">
-                            <span className="text-emerald-600 font-bold text-tiny">✓</span>
-                            <span>{feature}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+      {/* Loading Skeletons */}
+      {isLoading && (
+        <div className="space-y-4 animate-pulse">
+          <div className="h-32 bg-muted rounded-xl" />
+          <div className="h-40 bg-muted rounded-xl" />
         </div>
-    );
-}
+      )}
 
-export function PlansTab({
-    dynamicPlans,
-    currentPlan,
-    isError = false,
-    setSelectedPlan,
-    setShowPlanDialog,
-    formatCurrency,
-}: PlansTabProps) {
-    const [activeTab, setActiveTab] = useState<ProfilePlanType>("Spotlight");
-    const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
-    const carouselRef = useRef<HTMLDivElement | null>(null);
+      {/* Error Boundary Banner */}
+      {isError && (
+        <div role="alert" className="bg-destructive/10 text-destructive p-4 rounded-xl text-sm flex items-center justify-between border border-destructive/20">
+          <span>Unable to load live plans and wallet data. Please refresh or try again later.</span>
+          <button
+            onClick={() => void refetch()}
+            className="px-3 py-1 bg-destructive text-destructive-foreground rounded-lg text-xs font-semibold hover:bg-destructive/90 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
-    const tabRefs = useRef<Record<ProfilePlanType, HTMLButtonElement | null>>({
-        Spotlight: null,
-        "More Ads": null,
-        "Boost Ad": null,
-        "Alert Slots": null,
-    });
+      {/* TAB 1: OVERVIEW & BALANCES */}
+      {activeTab === 'OVERVIEW' && !isLoading && (
+        <div className="space-y-6">
+          <ActiveSubscriptionCard
+            subscription={dashboardData?.subscription || null}
+            onBrowsePlans={() => setActiveTab('BUY_PLANS')}
+          />
 
-    const isProfilePlanType = (value: string): value is ProfilePlanType => {
-        return value === "Spotlight" || value === "More Ads" || value === "Boost Ad" || value === "Alert Slots";
-    };
+          {dashboardData?.wallet && (
+            <WalletOverviewCard wallet={dashboardData.wallet} />
+          )}
 
-    const activeConfig: SubTabConfig = SUB_TABS.find((t) => t.id === activeTab) ?? DEFAULT_SUB_TAB;
-    const filteredPlans = dynamicPlans.filter((p) => isProfilePlanType(p.type) && p.type === activeTab);
+          <ActivePromotionsCard promotions={dashboardData?.activePromotions || []} />
+        </div>
+      )}
 
-    // Reset slide index when active category tab changes
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: resets carousel slide position when plan category changes
-        setActiveSlideIndex(0);
-        if (carouselRef.current) {
-            carouselRef.current.scrollLeft = 0;
-        }
-    }, [activeTab]);
+      {/* TAB 2: ITEMIZED CREDIT PACKS & AUDIT HISTORY */}
+      {activeTab === 'CREDIT_PACKS' && !isLoading && (
+        <div className="space-y-6">
+          <CreditPackListCard creditPacks={dashboardData?.creditPacks || []} />
+          <CreditLedgerHistoryCard />
+        </div>
+      )}
 
-    const handleKeyDown = (e: React.KeyboardEvent, currentType: ProfilePlanType) => {
-        const index = SUB_TABS.findIndex((t) => t.id === currentType);
-        let nextIndex = index >= 0 ? index : 0;
+      {/* TAB 3: BUY PLANS & TOP-UPS */}
+      {activeTab === 'BUY_PLANS' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {dynamicPlans.map((plan) => {
+              const isCurrent = currentPlan === plan.id;
 
-        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-            e.preventDefault();
-            nextIndex = (nextIndex + 1) % SUB_TABS.length;
-        } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-            e.preventDefault();
-            nextIndex = (nextIndex - 1 + SUB_TABS.length) % SUB_TABS.length;
-        } else if (e.key === "Home") {
-            e.preventDefault();
-            nextIndex = 0;
-        } else if (e.key === "End") {
-            e.preventDefault();
-            nextIndex = SUB_TABS.length - 1;
-        }
-
-        const targetTab = SUB_TABS[nextIndex];
-        if (nextIndex !== index && targetTab) {
-            setActiveTab(targetTab.id);
-            tabRefs.current[targetTab.id]?.focus();
-        }
-    };
-
-    const scrollCarousel = (targetIndex: number) => {
-        if (!carouselRef.current || targetIndex < 0 || targetIndex >= filteredPlans.length) return;
-        const cardEl = carouselRef.current.firstElementChild as HTMLElement | null;
-        const cardWidth = cardEl ? cardEl.offsetWidth + 16 : carouselRef.current.clientWidth;
-        carouselRef.current.scrollTo({
-            left: targetIndex * cardWidth,
-            behavior: "smooth",
-        });
-        setActiveSlideIndex(targetIndex);
-    };
-
-    const handleCarouselScroll = () => {
-        if (!carouselRef.current) return;
-        const cardEl = carouselRef.current.firstElementChild as HTMLElement | null;
-        const cardWidth = cardEl ? cardEl.offsetWidth + 16 : carouselRef.current.clientWidth;
-        if (cardWidth > 0) {
-            const index = Math.round(carouselRef.current.scrollLeft / cardWidth);
-            if (index !== activeSlideIndex && index >= 0 && index < filteredPlans.length) {
-                setActiveSlideIndex(index);
-            }
-        }
-    };
-
-    return (
-        <div className="space-y-4">
-            {/* Error banner: shown when plan fetch fails */}
-            {isError && <div role="alert" className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><span aria-hidden="true">⚠️</span><span>Unable to load plans. Please refresh the page or try again later.</span></div>}
-            {/* Top Persistent My Benefits Overview Card */}
-            <MyBenefitsOverviewCard />
-
-            {/* Top Sub-Tabs Bar: Rounded Soft Blue Pills + Top Right Current Plan Badge */}
-            <div className="flex items-center justify-between gap-2 overflow-x-auto touch-pan-x scrollbar-none pb-0.5">
+              return (
                 <div
-                    role="tablist"
-                    aria-label="Plan Categories"
-                    className="flex items-center gap-1.5 shrink-0"
+                  key={plan.id}
+                  className={`bg-surface rounded-xl p-5 border shadow-sm transition-all flex flex-col justify-between ${
+                    isCurrent ? 'border-primary ring-1 ring-primary' : 'border-border/60 hover:border-border'
+                  }`}
                 >
-                    {SUB_TABS.map((tab) => {
-                        const isActive = activeTab === tab.id;
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {plan.type}
+                      </span>
+                      {isCurrent && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                          Active
+                        </span>
+                      )}
+                    </div>
 
-                        return (
-                            <button
-                                key={tab.id}
-                                ref={(el) => { tabRefs.current[tab.id] = el; }}
-                                role="tab"
-                                id={`tab-${tab.id.replace(/\s+/g, '-').toLowerCase()}`}
-                                aria-selected={isActive}
-                                aria-controls={`tabpanel-${tab.id.replace(/\s+/g, '-').toLowerCase()}`}
-                                tabIndex={isActive ? 0 : -1}
-                                onClick={() => setActiveTab(tab.id)}
-                                onKeyDown={(e) => handleKeyDown(e, tab.id)}
-                                className={`flex flex-row items-center gap-1.5 py-1.5 px-3 text-tiny sm:text-xs font-semibold rounded-full border transition-all duration-200 shrink-0 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                                    isActive
-                                        ? "bg-blue-100 text-blue-700 border-blue-200 shadow-none"
-                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-                                }`}
-                            >
-                                <span className="shrink-0">{tab.icon}</span>
-                                <span className="whitespace-nowrap">{tab.label}</span>
-                            </button>
-                        );
-                    })}
+                    <h4 className="text-lg font-bold text-foreground">{plan.name}</h4>
+                    <div className="mt-2 text-2xl font-black text-foreground">
+                      ₹{plan.price.toLocaleString()}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedPlan(plan.id);
+                      if (onPlanSelected) {
+                        onPlanSelected(plan as ProfilePlan);
+                      }
+                    }}
+                    className={`w-full mt-5 py-2.5 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                      isCurrent
+                        ? 'bg-muted text-muted-foreground cursor-default'
+                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    }`}
+                    disabled={isCurrent}
+                  >
+                    {isCurrent ? 'Current Plan' : 'Purchase Package'}
+                  </button>
                 </div>
-
-                {/* Top Right Plan Badge */}
-                {currentPlan && (
-                    <div className="bg-blue-100 text-blue-700 text-tiny font-semibold px-2.5 py-0.5 rounded-full shrink-0">
-                        {currentPlan === "Free" || currentPlan === "USER_DEFAULT_PLAN" ? "Free plan" : currentPlan}
-                    </div>
-                )}
-            </div>
-
-            {/* Active Tab Panel Content */}
-            <div
-                id={`tabpanel-${activeConfig.id.replace(/\s+/g, '-').toLowerCase()}`}
-                role="tabpanel"
-                aria-labelledby={`tab-${activeConfig.id.replace(/\s+/g, '-').toLowerCase()}`}
-                tabIndex={0}
-                className="outline-none"
-            >
-                {filteredPlans.length > 0 ? (
-                    <>
-                        {/* MOBILE VIEWPORT: Carousel Card Deck */}
-                        <div className="block sm:hidden pt-0.5">
-                            {/* Slider Track */}
-                            <div
-                                ref={carouselRef}
-                                onScroll={handleCarouselScroll}
-                                className="flex overflow-x-auto scrollbar-none snap-x snap-mandatory gap-4 pb-0.5 scroll-smooth touch-pan-x overscroll-x-contain"
-                            >
-                                {filteredPlans.map((plan) => (
-                                    <div key={plan.id} className="w-full shrink-0 snap-center">
-                                        <PlanCardView
-                                            plan={plan}
-                                            activeConfig={activeConfig}
-                                            currentPlan={currentPlan}
-                                            formatCurrency={formatCurrency}
-                                            setSelectedPlan={setSelectedPlan}
-                                            setShowPlanDialog={setShowPlanDialog}
-                                            hasMultiplePlans={filteredPlans.length > 1}
-                                            activeSlideIndex={activeSlideIndex}
-                                            totalSlides={filteredPlans.length}
-                                            onPrev={() => scrollCarousel(activeSlideIndex - 1)}
-                                            onNext={() => scrollCarousel(activeSlideIndex + 1)}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Pagination Dots Indicator */}
-                            {filteredPlans.length > 1 && (
-                                <div className="flex items-center justify-center gap-1.5 mt-2">
-                                    {filteredPlans.map((_, idx) => (
-                                        <button
-                                            key={idx}
-                                            type="button"
-                                            onClick={() => scrollCarousel(idx)}
-                                            aria-label={`Go to plan ${idx + 1}`}
-                                            className={`transition-all duration-200 ${
-                                                activeSlideIndex === idx
-                                                    ? "w-3.5 h-1 bg-blue-600 rounded-full"
-                                                    : "w-1 h-1 bg-slate-300 rounded-full hover:bg-slate-400"
-                                            }`}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* DESKTOP VIEWPORT: Clean Grid Layout */}
-                        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
-                            {filteredPlans.map((plan) => (
-                                <PlanCardView
-                                    key={plan.id}
-                                    plan={plan}
-                                    activeConfig={activeConfig}
-                                    currentPlan={currentPlan}
-                                    formatCurrency={formatCurrency}
-                                    setSelectedPlan={setSelectedPlan}
-                                    setShowPlanDialog={setShowPlanDialog}
-                                />
-                            ))}
-                        </div>
-                    </>
-                ) : (
-                    <div className="bg-white rounded-xl border border-dashed border-slate-300 p-6 text-center text-xs text-slate-500">
-                        No plans currently available for {activeConfig.label}. Please check back soon.
-                    </div>
-                )}
-            </div>
+              );
+            })}
+          </div>
         </div>
-    );
-}
+      )}
+    </div>
+  );
+};
