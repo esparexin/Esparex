@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { ListingPageClient } from "@/app/(public)/ads/[slug]/ListingPageClient";
-import { getListingById } from "@/lib/api/user/listings";
+import { getListingById, type Listing } from "@/lib/api/user/listings";
 import { toSafeJsonLd } from "@/lib/seo/jsonLd";
 import { generateAdSlug } from "@/lib/slug";
 
@@ -32,6 +32,7 @@ export interface ListingLike {
     condition?: string;
     brandName?: string;
     locationName?: string;
+    seoSlug?: string;
 }
 
 interface BuildListingMetadataOptions {
@@ -84,7 +85,7 @@ export async function buildListingMetadata({
     const locationSuffix = listing.locationName ? ` in ${listing.locationName}` : "";
     const listingTitle = `${listing.title}${locationSuffix}` || missingTitle;
     
-    const canonicalSlug = generateAdSlug(listing.title || "");
+    const canonicalSlug = listing.seoSlug || generateAdSlug(listing.title || "");
     const canonicalUrl = `${canonicalBasePath}/${canonicalSlug}-${listing.id}`;
     const previousImages = (await parent).openGraph?.images || [];
     const mainImage = listing.images?.[0];
@@ -128,37 +129,37 @@ export async function renderListingDetailPage({
     const { id, slug: incomingSlug } = parseListingSlugParam(rawParam);
     if (!id) notFound();
 
+    let listing: Listing | null = null;
     try {
         const cookieHeader = (await cookies()).toString();
-        const listing = await getListingById(
+        listing = await getListingById(
             id,
             cookieHeader ? { Cookie: cookieHeader } : undefined,
             { throwOnServerError: true }
         );
-        if (!listing) {
-            notFound();
-        }
-
-        const canonicalSlug = generateAdSlug(listing.title);
-        if (incomingSlug !== canonicalSlug || String(listing.id) !== String(id)) {
-            permanentRedirect(`${canonicalBasePath}/${canonicalSlug}-${listing.id}`);
-        }
-
-        return (
-            <>
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{
-                        __html: toSafeJsonLd(buildStructuredData(listing)),
-                    }}
-                />
-                <ListingPageClient ad={listing} />
-            </>
-        );
     } catch {
-        // The slug is invalid (e.g., a category name like "battery" instead of a
-        // MongoDB ObjectId slug). Return 404 so Googlebot stops crawling these
-        // invalid sitemap URLs and doesn't waste budget on empty pages.
+        // Fetch failed or threw network exception — trigger 404 handler outside catch block
+        listing = null;
+    }
+
+    if (!listing) {
         notFound();
     }
+
+    const canonicalSlug = listing.seoSlug || generateAdSlug(listing.title || "");
+    if (incomingSlug !== canonicalSlug || String(listing.id) !== String(id)) {
+        permanentRedirect(`${canonicalBasePath}/${canonicalSlug}-${listing.id}`);
+    }
+
+    return (
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: toSafeJsonLd(buildStructuredData(listing)),
+                }}
+            />
+            <ListingPageClient ad={listing} />
+        </>
+    );
 }

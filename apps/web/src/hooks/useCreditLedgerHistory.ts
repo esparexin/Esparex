@@ -18,7 +18,7 @@ export function useCreditLedgerHistory(page: number = 1, limit: number = 10) {
     queryFn: async () => {
       try {
         const res = await apiClient.get<{ success?: boolean; data?: PaginatedLedgerResponse }>(
-          `/payment/credits/history?page=${page}&limit=${limit}`
+          `/payments/credits/history?page=${page}&limit=${limit}`
         );
         if (res.data) {
           return res.data;

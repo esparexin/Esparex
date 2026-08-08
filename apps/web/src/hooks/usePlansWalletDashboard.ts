@@ -9,7 +9,7 @@ export const PLANS_WALLET_QUERY_KEYS = {
 
 async function fetchPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
   try {
-    const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/payment/account/plans-wallet');
+    const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/payments/account/plans-wallet');
     if (res?.data) {
       return res.data;
     }
