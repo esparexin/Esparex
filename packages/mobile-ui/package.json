@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type-check": "npm run build -w @esparex/design-tokens && tsc --noEmit"
   },
   "dependencies": {
     "@esparex/design-tokens": "*",
