@@ -1,63 +1,13 @@
+@import "@esparex/design-tokens/dist/css-variables.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* =========================================
-   DESIGN TOKENS (LIGHT MODE)
+   DESIGN TOKENS (LIGHT & DARK MODE)
    ========================================= */
 :root {
-  --background: 0 0% 100%;
-  /* #ffffff */
-  --foreground: 0 0% 10.2%;
-  /* #1a1a1a (Near Black) */
-
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 10.2%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 10.2%;
-
-  --primary: 142.1 76.2% 45.3%;
-  /* #22c55e (Green) */
-  --primary-foreground: 0 0% 100%;
-
-  --secondary: 204 100% 97.1%;
-  /* #f0f9ff (Light Sky Blue) */
-  --secondary-foreground: 201.3 96.3% 32.2%;
-  /* #0369a1 (Dark Blue) */
-
-  --muted: 210 40% 98%;
-  /* #f8fafc (Very Light Gray) */
-  --muted-foreground: 215.4 16.3% 46.9%;
-
-  --accent: 210 40% 96.1%;
-  /* #f1f5f9 (Pale Gray) */
-  --accent-foreground: 222.2 47.4% 11.2%;
-
-  --destructive: 0 84.2% 60.2%;
-  /* #ef4444 (Red) */
-  --destructive-foreground: 0 0% 100%;
-
-  --success: 158.1 84.4% 39.4%;
-  /* #10b981 (Emerald Green) */
-  --success-foreground: 0 0% 100%;
-
-  --warning: 37.7 92.1% 50.2%;
-  /* #f59e0b (Amber) */
-  --warning-foreground: 0 0% 100%;
-
-  --info: 188.7 94.5% 42.7%;
-  /* #06b6d4 (Cyan) */
-  --info-foreground: 0 0% 100%;
-
-  --border: 214.3 31.8% 91.4%;
-  /* #e2e8f0 (Light Gray) */
-  --input: 214.3 31.8% 91.4%;
-  --ring: 142.1 76.2% 45.3%;
-  /* Match Primary */
-
-  --radius: 0.625rem;
-
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
@@ -167,6 +117,24 @@
   --color-info: #06b6d4;
   --color-info-surface: #ecfeff;
 
+  /* Interaction Tokens */
+  --interaction-hover: rgba(0, 0, 0, 0.05);
+  --interaction-pressed: rgba(0, 0, 0, 0.1);
+  --interaction-focus-ring: var(--ring);
+  --interaction-focus-offset: var(--background);
+  --interaction-selected: rgba(0, 0, 0, 0.03);
+  --interaction-disabled-opacity: 0.5;
+  --interaction-disabled-background: var(--muted);
+  --interaction-disabled-border: var(--border);
+  --interaction-disabled-foreground: var(--muted-foreground);
+
+  /* State Tokens */
+  --state-loading: var(--muted);
+  --state-success: var(--success);
+  --state-warning: var(--warning);
+  --state-error: var(--destructive);
+  --state-info: var(--info);
+
   --radius-none: 0;
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -200,44 +168,7 @@
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  /* Dark Slate */
-  --foreground: 210 40% 98%;
-
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-
-  --primary: 142.1 70% 50%;
-  /* Slightly lighter Green for dark mode */
-  --primary-foreground: 222.2 47.4% 11.2%;
-
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-
-  --success: 158.1 84.4% 39.4%;
-  --success-foreground: 210 40% 98%;
-
-  --warning: 37.7 92.1% 50.2%;
-  --warning-foreground: 222.2 47.4% 11.2%;
-
-  --info: 188.7 94.5% 42.7%;
-  --info-foreground: 222.2 47.4% 11.2%;
-
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 142.1 70% 50%;
+  /* Note: base semantic colors are generated in css-variables.css */
 
   /* Sidebar Tokens (Dark) */
   --sidebar: 222.2 84% 4.9%;
@@ -258,6 +189,11 @@
   --link: 213.1 93.9% 67.8%;        /* blue-400 for better contrast on dark bg */
   --link-dark: 217.2 91.2% 59.8%;   /* blue-500 — hover/active on dark bg */
   --link-foreground: 0 0% 100%;
+
+  /* Interaction Tokens (Dark Overrides) */
+  --interaction-hover: rgba(255, 255, 255, 0.1);
+  --interaction-pressed: rgba(255, 255, 255, 0.15);
+  --interaction-selected: rgba(255, 255, 255, 0.05);
 
   /* Charts Dark Mode (Adjusted for visibility if needed, or keep same) */
   --chart-1: 142.1 70% 50%;
@@ -492,15 +428,15 @@ header.sticky {
   }
 
   .account-field-label {
-    @apply text-xs font-medium text-slate-600;
+    @apply text-xs font-medium text-foreground-tertiary;
   }
 
   .account-input-text {
-    @apply text-sm font-normal text-slate-900;
+    @apply text-sm font-normal text-foreground;
   }
 
   .account-micro-text {
-    @apply text-xs font-normal text-slate-400;
+    @apply text-xs font-normal text-foreground-subtle;
   }
 
   /* Container Width Variants */
@@ -521,7 +457,7 @@ header.sticky {
   }
 
   .account-focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   /* Mobile & Tablet Typography Overrides (< 1024px) */

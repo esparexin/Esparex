@@ -1,3 +1,4 @@
+import { semantic } from '@esparex/design-tokens';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
@@ -87,14 +88,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#020617', // slate-950
+    backgroundColor: semantic.light.foreground, // formerly #020617
     padding: 32,
   },
   iconWrapper: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#fef2f2', // red-50
+    backgroundColor: semantic.light.destructive, // replaced #fef2f2 with destructive token
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
@@ -105,25 +106,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#f1f5f9', // slate-100
+    color: semantic.light.background, // formerly #f1f5f9
     textAlign: 'center',
     marginBottom: 8,
   },
   body: {
     fontSize: 14,
-    color: '#94a3b8', // slate-400
+    color: semantic.light.muted, // formerly #94a3b8
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 28,
   },
   button: {
-    backgroundColor: '#0ea5e9', // sky-500
+    backgroundColor: semantic.light.primary, // formerly #0ea5e9
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 32,
   },
   buttonText: {
-    color: '#ffffff',
+    color: semantic.light['primary-foreground'],
     fontWeight: '600',
     fontSize: 15,
   },

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@esparex/ui";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, LayoutDashboard, Wrench, Phone } from "@/icons/IconRegistry";
-import { PageContainer } from "@/components/ui/PageContainer";
 import { BusinessProfileFlow } from "@/components/user/business-registration/BusinessProfileFlow";
 import { BusinessApplicationStatus } from "@/components/user/profile/BusinessApplicationStatus";
 import { useCurrentUser as useUser } from "@/hooks/useCurrentUser";
@@ -39,7 +38,7 @@ export default function BusinessApplyPage() {
 
     if (businessError) {
         return (
-            <PageContainer variant="compact" className="py-12">
+            <div className="w-full max-w-3xl mx-auto py-12">
                 <Card className="rounded-2xl border-slate-200 bg-white p-6 shadow-sm">
                     <CardHeader className="p-0 mb-4">
                         <CardTitle className="text-lg font-semibold text-foreground">Unable to verify business status</CardTitle>
@@ -53,14 +52,14 @@ export default function BusinessApplyPage() {
                         </Button>
                     </CardContent>
                 </Card>
-            </PageContainer>
+            </div>
         );
     }
 
     // Require mobile verification before registration
     if (user && !user.isPhoneVerified) {
         return (
-            <PageContainer variant="compact" className="py-12 space-y-4">
+            <div className="w-full max-w-3xl mx-auto py-12 space-y-4">
                 <Card className="rounded-3xl border-amber-200 bg-amber-50/50 p-6">
                     <CardHeader className="p-0 mb-3 flex flex-row items-center gap-3">
                         <Phone className="h-6 w-6 text-amber-600 shrink-0" />
@@ -78,7 +77,7 @@ export default function BusinessApplyPage() {
                         </Button>
                     </CardContent>
                 </Card>
-            </PageContainer>
+            </div>
         );
     }
 
@@ -110,7 +109,7 @@ export default function BusinessApplyPage() {
     // State 1: Approved Business (Informational View)
     if (status === "live" || status === "active") {
         return (
-            <PageContainer variant="compact" className="py-12 space-y-4">
+            <div className="w-full max-w-3xl mx-auto py-12 space-y-4">
                 <Card className="rounded-3xl border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-6 shadow-sm">
                     <CardHeader className="p-0 mb-4 flex flex-row items-start gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shrink-0">
@@ -146,14 +145,14 @@ export default function BusinessApplyPage() {
                         </div>
                     </CardContent>
                 </Card>
-            </PageContainer>
+            </div>
         );
     }
 
     // State 2 & 3: Pending or Rejected Business Application Status
     if (hasExistingBusiness && (status === "pending" || status === "rejected" || status === "suspended")) {
         return (
-            <PageContainer variant="compact" className="py-12">
+            <div className="w-full max-w-3xl mx-auto py-12">
                 <BusinessApplicationStatus
                     businessData={businessData}
                     onEditApplication={() => setIsEditing(true)}
@@ -163,7 +162,7 @@ export default function BusinessApplyPage() {
                         await retryBusiness();
                     }}
                 />
-            </PageContainer>
+            </div>
         );
     }
 

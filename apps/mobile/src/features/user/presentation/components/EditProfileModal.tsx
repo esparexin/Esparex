@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, TouchableOpacity, ScrollView } from 'react-native';
 import { AppText, AppButton, AppInput, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { User } from '@esparex/contracts';
 
 interface EditProfileModalProps {
@@ -44,7 +45,7 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
       accessibilityViewIsModal={true}
     >
       <View className="flex-1 justify-end bg-black/50">
-        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6 max-h-[85%]">
+        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6 max-h-[85%] border-t border-slate-200 dark:border-slate-800">
           {/* Header */}
           <View className="flex-row items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
             <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
@@ -56,7 +57,7 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
               accessibilityRole="button"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <AppIcon name="X" size={20} color="#64748b" />
+              <AppIcon name="X" size={20} color={base.slate[400]} />
             </TouchableOpacity>
           </View>
 
@@ -89,8 +90,8 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
 
           {/* Actions */}
           <View className="flex-row gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <AppButton variant="outline" onPress={onClose} label="Cancel" style={{ flex: 1 }} />
-            <AppButton variant="primary" onPress={handleSave} label="Save Changes" loading={isSaving} style={{ flex: 2 }} />
+            <AppButton variant="outline" onPress={onClose} label="Cancel" className="flex-1" />
+            <AppButton variant="primary" onPress={handleSave} label="Save Changes" loading={isSaving} className="flex-[2] bg-brand-600 hover:bg-brand-700" />
           </View>
         </View>
       </View>
@@ -99,3 +100,4 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
 });
 
 EditProfileModal.displayName = 'EditProfileModal';
+

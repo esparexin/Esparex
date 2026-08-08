@@ -92,7 +92,7 @@ Every non-trivial feature or platform interaction MUST document a Platform Archi
 
 ## 6. Categorized Platform Catalogs
 
-Capabilities and integrations MUST NOT be mixed. For the full inventory of contracts, owners, adapters, and consumers, see the authoritative [PLATFORM_CAPABILITY_CATALOG.md](file:///Users/admin/Desktop/Esparex/docs/architecture/PLATFORM_CAPABILITY_CATALOG.md).
+Capabilities and integrations MUST NOT be mixed. For the full inventory of contracts, owners, adapters, and consumers, see the authoritative [PLATFORM_CAPABILITY_CATALOG.md](PLATFORM_CAPABILITY_CATALOG.md).
 
 ### A. Platform Capability Catalog (Hardware & OS Features)
 

@@ -12,7 +12,6 @@ import { useProfileSettings } from "@/hooks/useProfileSettings";
 import type { ProfileUser } from "@/components/user/profile/types";
 
 // UI Components
-import { PageContainer } from "@/components/ui/PageContainer";
 import { Button } from "@esparex/ui";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -238,10 +237,13 @@ export function ProfileSettingsSidebar({
     switch (activeTab) {
       case "more": return <MoreMenuTab user={user} onTabChange={handleTabChange} onLogout={onLogout} renderTabBadge={renderTabBadge} />;
       case "personal": return (
-        <PersonalTab
-          user={user}
-          onUpdateUser={onUpdateUser}
-        />
+        // Layout constraint: Forms require a narrower max-width (xl) for readability and UX
+        <div className="max-w-xl mx-auto w-full px-2 sm:px-0">
+          <PersonalTab
+            user={user}
+            onUpdateUser={onUpdateUser}
+          />
+        </div>
       );
       case "mylistings": return (
         <MyListingsTab
@@ -266,17 +268,20 @@ export function ProfileSettingsSidebar({
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
       case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
       case "business": return (
-        <BusinessTab 
-          businessData={businessData} 
-          businessStats={businessStats} 
-          isLoading={businessLoading} 
-          isFetched={businessFetched} 
-          navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)}
-          onDeactivate={deactivateBusiness}
-          onReactivate={reactivateBusiness}
-          onClose={closeBusiness}
-          onRenew={renewBusiness}
-        />
+        // Layout constraint: Forms require a narrower max-width (xl) for readability and UX
+        <div className="max-w-xl mx-auto w-full px-2 sm:px-0">
+          <BusinessTab 
+            businessData={businessData} 
+            businessStats={businessStats} 
+            isLoading={businessLoading} 
+            isFetched={businessFetched} 
+            navigateTo={(page, adId, category, sellerIdOrBusinessId) => navigateTo(page as UserPage, adId, category, sellerIdOrBusinessId)}
+            onDeactivate={deactivateBusiness}
+            onReactivate={reactivateBusiness}
+            onClose={closeBusiness}
+            onRenew={renewBusiness}
+          />
+        </div>
       );
 
       case "settings": return (
@@ -287,35 +292,38 @@ export function ProfileSettingsSidebar({
         />
       );
       case "smartalerts": return (
-        <SmartAlertsTab
-          smartAlerts={smartAlertItems}
-          savedSearches={savedSearches}
-          smartAlertForm={smartAlertForm}
-          updateSmartAlertForm={updateSmartAlertForm}
-          handleCreateAlert={handleCreateAlert}
-          handleToggleAlertStatus={(id) => { void toggleSmartAlertStatus(id); }}
-          handleDeleteAlert={(id) => { void deleteSmartAlert(id); }}
-          handleDeleteSavedSearch={(id) => {
-            void deleteSavedSearch(id);
-          }}
-          handleViewAlertMatches={(alert) => {
-            void router.push(buildPublicBrowseRoute({
-              type: "ad",
-              q: alert.keywords,
-              category: alert.category,
-              locationId: alert.locationId,
-              location: alert.locationId ? undefined : alert.location,
-              radiusKm: alert.radiusKm,
-            }));
-          }}
-          handleEditAlert={(alert) => handleEditAlert(alert)}
-          editingAlertId={editingAlertId}
-          resetAlertForm={resetAlertForm}
-          setActiveTab={setActiveTabFromChild} loading={loadingAlerts}
-          smartAlertErrors={smartAlertErrors}
-          smartAlertGlobalError={smartAlertGlobalError}
-          clearSmartAlertError={clearSmartAlertError}
-        />
+        // Layout constraint: Lists/tables need wider space than forms, but constrained (4xl) to avoid stretching too far
+        <div className="max-w-4xl mx-auto w-full px-2 sm:px-0">
+          <SmartAlertsTab
+            smartAlerts={smartAlertItems}
+            savedSearches={savedSearches}
+            smartAlertForm={smartAlertForm}
+            updateSmartAlertForm={updateSmartAlertForm}
+            handleCreateAlert={handleCreateAlert}
+            handleToggleAlertStatus={(id) => { void toggleSmartAlertStatus(id); }}
+            handleDeleteAlert={(id) => { void deleteSmartAlert(id); }}
+            handleDeleteSavedSearch={(id) => {
+              void deleteSavedSearch(id);
+            }}
+            handleViewAlertMatches={(alert) => {
+              void router.push(buildPublicBrowseRoute({
+                type: "ad",
+                q: alert.keywords,
+                category: alert.category,
+                locationId: alert.locationId,
+                location: alert.locationId ? undefined : alert.location,
+                radiusKm: alert.radiusKm,
+              }));
+            }}
+            handleEditAlert={(alert) => handleEditAlert(alert)}
+            editingAlertId={editingAlertId}
+            resetAlertForm={resetAlertForm}
+            setActiveTab={setActiveTabFromChild} loading={loadingAlerts}
+            smartAlertErrors={smartAlertErrors}
+            smartAlertGlobalError={smartAlertGlobalError}
+            clearSmartAlertError={clearSmartAlertError}
+          />
+        </div>
       );
       case "purchases": return <PurchasesTab purchaseHistory={purchaseHistory} formatDate={formatDate} formatCurrency={formatPrice} setActiveTab={setActiveTabFromChild} loading={loadingPurchased} />;
       default: return null;
@@ -323,7 +331,7 @@ export function ProfileSettingsSidebar({
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
       {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
       <AccountHeader
         activeTab={activeTab}
@@ -345,7 +353,7 @@ export function ProfileSettingsSidebar({
         }
       />
 
-      <PageContainer variant="wide" className="pt-1 pb-20 md:pb-10">
+      <div className="w-full max-w-7xl mx-auto pt-1 md:py-6">
         {/* LAYOUT CONTAINER */}
         <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6">
           {/* LEFT SIDEBAR (Desktop Only) */}
@@ -385,7 +393,7 @@ export function ProfileSettingsSidebar({
             {renderContent()}
           </section>
         </div>
-      </PageContainer>
+      </div>
 
       <MobileAccountBottomNav activeTab={activeTab} onTabChange={handleTabChange} unreadCount={chatUnreadCount} />
 

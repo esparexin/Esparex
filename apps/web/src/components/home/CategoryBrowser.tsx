@@ -75,7 +75,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                     className="
                                         group flex flex-col items-center justify-center gap-1.5 
                                         h-[76px] md:h-32 rounded-lg md:rounded-[20px] border border-slate-100 bg-white/95 
-                                        shadow-[0_1px_4px_rgba(15,23,42,0.01)] hover:shadow-premium-hover 
+                                        shadow-sm hover:shadow-premium-hover 
                                         transition-all duration-300 hover:border-slate-200/80 hover:-translate-y-0.5 
                                         active:scale-[0.98] p-1.5 md:p-4 min-w-0 w-full
                                     "

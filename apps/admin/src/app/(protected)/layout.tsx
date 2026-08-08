@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AdminRouteGuard } from "@/components/auth/AdminRouteGuard";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { AdminHeader } from "@/components/layout/AdminHeader";
+import { PageLayout } from "@esparex/ui";
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
   const [isMinified, setIsMinified] = useState(false);
@@ -24,27 +25,24 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
 
   return (
     <AdminRouteGuard>
-      <div
-        className="flex min-h-screen min-h-dvh overflow-x-hidden bg-[radial-gradient(circle_at_top,#e2e8f0_0%,#f8fafc_30%,#f8fafc_100%)] [--sidebar-expanded:240px] [--sidebar-collapsed:72px] lg:h-screen lg:overflow-hidden"
-        style={{
-          ["--sidebar-width" as string]: isMinified ? "var(--sidebar-collapsed)" : "var(--sidebar-expanded)",
-        }}
+      <PageLayout
+        variant="admin"
+        header={
+          <AdminHeader 
+            onMobileMenuClick={() => setIsMobileOpen(true)}
+          />
+        }
+        sidebar={
+          <AdminSidebar
+            isMinified={isMinified}
+            setIsMinified={setIsMinified}
+            isMobileOpen={isMobileOpen}
+            setIsMobileOpen={setIsMobileOpen}
+          />
+        }
       >
-        <AdminSidebar
-          isMinified={isMinified}
-          setIsMinified={setIsMinified}
-          isMobileOpen={isMobileOpen}
-          setIsMobileOpen={setIsMobileOpen}
-        />
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible lg:overflow-hidden">
-          <AdminHeader />
-          <main className="flex flex-1 min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain px-4 pb-20 pt-3 lg:px-6 lg:pb-6 lg:pt-4">
-            <div className="flex min-h-full flex-1 flex-col">
-              {children}
-            </div>
-          </main>
-        </div>
-      </div>
+        {children}
+      </PageLayout>
     </AdminRouteGuard>
   );
 }

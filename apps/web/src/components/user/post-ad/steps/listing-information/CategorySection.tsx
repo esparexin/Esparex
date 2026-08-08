@@ -2,10 +2,9 @@
 
 import { useCallback } from "react";
 import { usePostAdCatalog, usePostAdFlow, usePostAdAction } from "../../context";
-import { CircuitBoard } from "@/icons/IconRegistry";
-import { Field } from "@/components/ui/field";
+import { FieldRoot, FieldLabel, FieldControl, FieldMessage } from "@esparex/ui";
 import { CategorySelectorGrid } from "@/components/user/shared/ListingFormFields";
-import { useStepFieldError } from "../common/Utils";
+import { Tag } from "@/icons/IconRegistry";
 
 export function CategorySection() {
     const { dynamicCategories } = usePostAdCatalog();
@@ -13,26 +12,35 @@ export function CategorySection() {
     const { watch, handleCategoryChange } = usePostAdAction();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
-    const getFieldError = useStepFieldError(1);
-    const categoryError = getFieldError("categoryId") || getFieldError("category");
 
     const onCategoryClick = useCallback((catId: string) => {
         if (isEditMode) return;
         handleCategoryChange(catId);
     }, [isEditMode, handleCategoryChange]);
 
+
+
     return (
-        <section className="space-y-2" aria-labelledby="category-heading">
+        <section className="flex flex-col gap-2" aria-labelledby="category-heading">
             <h2 id="category-heading" className="sr-only">Category</h2>
-            <Field error={categoryError as string} label="Select Category" labelClassName="text-sm font-medium" required>
-                <CategorySelectorGrid
-                    categories={dynamicCategories}
-                    selectedCategoryId={categoryId}
-                    onSelect={onCategoryClick}
-                    disabled={isEditMode}
-                    defaultIcon={CircuitBoard}
-                />
-            </Field>
+            <FieldRoot<any>
+                name="categoryId"
+                render={() => (
+                    <div className="flex flex-col gap-1.5">
+                        <FieldLabel required className="text-sm font-semibold">Category</FieldLabel>
+                        <FieldControl animateOnError>
+                            <CategorySelectorGrid
+                                categories={dynamicCategories}
+                                selectedCategoryId={categoryId}
+                                onSelect={onCategoryClick}
+                                disabled={isEditMode}
+                                defaultIcon={Tag}
+                            />
+                        </FieldControl>
+                        <FieldMessage />
+                    </div>
+                )}
+            />
         </section>
     );
 }

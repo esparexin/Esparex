@@ -235,7 +235,7 @@ export function CreateSmartAlertDialog({
                                 <Label htmlFor="alert-keywords" className="text-xs font-semibold text-slate-900">
                                     Search Keywords <span className="text-slate-400 font-normal">(Optional Fallback)</span>
                                 </Label>
-                                <span className="text-[10px] text-slate-400">
+                                <span className="text-2xs text-slate-400">
                                     {(formData.keywords || "").length}/150
                                 </span>
                             </div>
@@ -268,7 +268,7 @@ export function CreateSmartAlertDialog({
                         {/* Location Radius Scroller */}
                         <div ref={radiusRef} className="pt-0.5">
                             <div className="flex items-center justify-between mb-1">
-                                <Label htmlFor="alert-radius" className="text-[11px] font-semibold text-slate-900">Location Radius</Label>
+                                <Label htmlFor="alert-radius" className="text-tiny font-semibold text-slate-900">Location Radius</Label>
                                 <span className="text-xs font-bold text-blue-600">{formData.radiusKm} km</span>
                             </div>
                             <input
@@ -281,7 +281,7 @@ export function CreateSmartAlertDialog({
                                 onChange={(e) => updateFormData({ radiusKm: parseInt(e.target.value, 10) || 5 })}
                                 className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                             />
-                            <div className="flex items-center justify-between text-[10px] font-medium text-slate-500 mt-0.5">
+                            <div className="flex items-center justify-between text-2xs font-medium text-slate-500 mt-0.5">
                                 <span>5 km</span>
                                 <span>500 km</span>
                             </div>

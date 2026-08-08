@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Home, RefreshCcw } from 'lucide-react';
+import { AlertTriangle, Home, RefreshCcw } from '@esparex/ui';
+
 import logger from "@/lib/logger";
 import '@/styles/globals.css';
 
@@ -36,7 +37,7 @@ export default function GlobalError({
 
                             {/* Title & Message */}
                             <div className="space-y-2">
-                                <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                                <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-tiny font-bold uppercase tracking-wider text-rose-700">
                                     500 · System Error
                                 </div>
                                 <h1 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
@@ -67,7 +68,7 @@ export default function GlobalError({
                             </div>
 
                             {error.digest ? (
-                                <p className="mt-5 text-[10px] text-slate-400">
+                                <p className="mt-5 text-2xs text-slate-400">
                                     Error ID: {error.digest}
                                 </p>
                             ) : null}

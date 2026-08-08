@@ -34,6 +34,7 @@ if (shouldAutoIndex) {
 }
 
 mongoose.set('autoIndex', shouldAutoIndex);
+mongoose.set('bufferCommands', false);
 
 /* ======================================================
    ENV VALIDATION & CONNECTION URIS
@@ -88,7 +89,9 @@ const DB_CONNECTION_OPTIONS = {
 ====================================================== */
 
 export function isDbReady(): boolean {
-    return userCache.isReady && adminCache.isReady;
+    const isUserReady = userCache.conn ? userCache.conn.readyState === 1 : false;
+    const isAdminReady = adminCache.conn ? adminCache.conn.readyState === 1 : false;
+    return isUserReady && isAdminReady;
 }
 
 /* ======================================================

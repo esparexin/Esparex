@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, View, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Container } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 import { useListings } from '../hooks/useListings';
@@ -14,6 +15,7 @@ import { ROUTES } from '../../../../navigation/routes';
 import { Listing } from '../../domain/Listing';
 
 export const MarketplaceScreen = () => {
+  const insets = useSafeAreaInsets();
   const [filters, setFilters] = useState<ListingQueryParams>({});
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
@@ -71,7 +73,7 @@ export const MarketplaceScreen = () => {
 
   const keyExtractor = useCallback((item: Listing) => item.id, []);
 
-
+  const listings = useMemo(() => data?.pages.flat() || [], [data?.pages]);
 
   if (isError) {
     return (
@@ -80,8 +82,6 @@ export const MarketplaceScreen = () => {
       </Screen>
     );
   }
-
-  const listings = data?.pages.flat() || [];
 
   return (
     <Screen edges={['top', 'left', 'right']}>
@@ -107,7 +107,7 @@ export const MarketplaceScreen = () => {
             data={listings}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
-            contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+            contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 64 }}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={true}
             windowSize={5}
@@ -158,3 +158,4 @@ export const MarketplaceScreen = () => {
     </Screen>
   );
 };
+

@@ -115,8 +115,12 @@ function scanDirectories() {
     }
     for (const item of items) {
       const full = path.join(d, item);
-      if (fs.statSync(full).isDirectory()) {
-        checkEmpty(full);
+      try {
+        if (fs.statSync(full).isDirectory()) {
+          checkEmpty(full);
+        }
+      } catch (_e) {
+        /* ignore broken symlinks or unreadable entries */
       }
     }
   }

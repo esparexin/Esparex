@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, ScrollView, Alert } from 'react-native';
+import { View, ScrollView, Alert, StyleSheet } from 'react-native';
 import { AppText, Center, AppIcon } from '@esparex/mobile-ui';
 import { usePostAdDraft } from '../../usePostAdDraft';
 import { ImageGrid, AddPhotoButton } from '../components/ImagePickerComponents';
@@ -63,7 +63,7 @@ export const StepImages = () => {
   return (
     <ScrollView
       className="flex-1"
-      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
       <AppText variant="h3" className="text-slate-800 dark:text-slate-100 mb-1">
@@ -98,3 +98,7 @@ export const StepImages = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: { padding: 16, paddingBottom: 32 },
+});

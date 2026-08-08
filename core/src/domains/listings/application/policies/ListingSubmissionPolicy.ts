@@ -50,10 +50,8 @@ export class ListingSubmissionPolicy {
 
 
         // For Services and Spare Parts, enforce active inventory limits
-        // defined in the user's plan. Delegates to PlanService for the
-        // lock, plan lookup, permission calculation, and limit enforcement.
-        // TODO(PR-E): Replace with ListingRepositoryPort.countActiveBySeller()
-        //             after extracting a PlanPort for limit checking.
+        // defined in the user's plan. Delegates to PlanService which executes
+        // active inventory checks via ListingRepositoryPort.countActiveBySeller().
         const type = input.listingType === LISTING_TYPE.SERVICE
             ? 'service'
             : 'spare_part_listing';

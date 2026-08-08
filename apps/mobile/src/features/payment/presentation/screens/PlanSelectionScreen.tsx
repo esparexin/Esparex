@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { Screen, Container, Card, AppButton } from '@esparex/mobile-ui';
+import { View, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { Screen, Container, Card, AppButton, AppText } from '@esparex/mobile-ui';
 import { Plan } from '@esparex/contracts';
 import { usePaymentPlans } from '../hooks/usePaymentPlans';
 import { useWalletSummary } from '../hooks/useWalletSummary';
@@ -46,73 +46,105 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
   };
 
   return (
-    <Screen style={styles.screen}>
-      <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>Ad Credits & Wallet Plans</Text>
+    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <View className="px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
+          Ad Credits & Wallet Plans
+        </AppText>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView className="flex-1">
         {/* Wallet Credit Badge Summary */}
-        <Container style={styles.walletContainer}>
-          <Card style={styles.walletCard}>
-            <Text style={styles.walletTitle}>Your Credit Balances</Text>
-            <View style={styles.walletRow}>
-              <View style={styles.walletItem}>
-                <Text style={styles.walletCount}>{wallet?.adCredits ?? 0}</Text>
-                <Text style={styles.walletLabel}>Ad Credits</Text>
+        <Container className="p-4">
+          <Card className="p-4 rounded-2xl bg-slate-800 dark:bg-slate-900 border-none">
+            <AppText variant="caption" className="font-semibold text-slate-300 mb-3">
+              Your Credit Balances
+            </AppText>
+            <View className="flex-row justify-between">
+              <View className="items-center flex-1">
+                <AppText variant="h2" className="font-extrabold text-white">
+                  {wallet?.adCredits ?? 0}
+                </AppText>
+                <AppText variant="caption" className="text-slate-400 mt-0.5">
+                  Ad Credits
+                </AppText>
               </View>
-              <View style={styles.walletItem}>
-                <Text style={styles.walletCount}>{wallet?.spotlightCredits ?? 0}</Text>
-                <Text style={styles.walletLabel}>Spotlight</Text>
+              <View className="items-center flex-1">
+                <AppText variant="h2" className="font-extrabold text-white">
+                  {wallet?.spotlightCredits ?? 0}
+                </AppText>
+                <AppText variant="caption" className="text-slate-400 mt-0.5">
+                  Spotlight
+                </AppText>
               </View>
-              <View style={styles.walletItem}>
-                <Text style={styles.walletCount}>{wallet?.smartAlertSlots ?? 0}</Text>
-                <Text style={styles.walletLabel}>Alert Slots</Text>
+              <View className="items-center flex-1">
+                <AppText variant="h2" className="font-extrabold text-white">
+                  {wallet?.smartAlertSlots ?? 0}
+                </AppText>
+                <AppText variant="caption" className="text-slate-400 mt-0.5">
+                  Alert Slots
+                </AppText>
               </View>
             </View>
           </Card>
         </Container>
 
         {/* Plan Cards List */}
-        <Container style={styles.plansContainer}>
-          <Text style={styles.sectionTitle}>Available Credit Packages</Text>
+        <Container className="px-4 pb-6">
+          <AppText variant="h4" className="font-bold text-slate-900 dark:text-slate-100 mb-3">
+            Available Credit Packages
+          </AppText>
 
           {loadingPlans && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#2563eb" />
+            <View className="p-8 items-center">
+              <ActivityIndicator size="large" color="#0284c7" />
             </View>
           )}
 
           {plans && plans.length === 0 && (
-            <Card style={styles.emptyCard}>
-              <Text style={styles.emptyText}>No active credit packages available right now.</Text>
+            <Card className="p-5 rounded-xl bg-white dark:bg-slate-900 items-center border-slate-200 dark:border-slate-800">
+              <AppText variant="body" className="text-slate-500 dark:text-slate-400">
+                No active credit packages available right now.
+              </AppText>
             </Card>
           )}
 
           {plans?.map((plan) => {
             const isProcessing = checkoutMutation.isPending && selectedPlanId === plan.id;
             return (
-              <Card key={plan.id} style={styles.planCard}>
-                <View style={styles.planHeader}>
-                  <Text style={styles.planName}>{plan.name}</Text>
-                  <Text style={styles.planPrice}>
+              <Card key={plan.id} className="p-4 rounded-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 mb-3">
+                <View className="flex-row justify-between items-center mb-1.5">
+                  <AppText variant="h4" className="font-bold text-slate-900 dark:text-slate-100">
+                    {plan.name}
+                  </AppText>
+                  <AppText variant="h3" className="font-extrabold text-brand-600 dark:text-brand-400">
                     {plan.currency === 'INR' || !plan.currency ? '₹' : plan.currency}
                     {plan.price}
-                  </Text>
+                  </AppText>
                 </View>
 
-                {plan.description && <Text style={styles.planDesc}>{plan.description}</Text>}
+                {plan.description && (
+                  <AppText variant="caption" className="text-slate-500 dark:text-slate-400 mb-2.5">
+                    {plan.description}
+                  </AppText>
+                )}
 
-                <View style={styles.planFeatures}>
-                  <Text style={styles.featureItem}>✓ {plan.credits} Listing Credits included</Text>
-                  {plan.durationDays && <Text style={styles.featureItem}>✓ Valid for {plan.durationDays} days</Text>}
+                <View className="mb-3.5">
+                  <AppText variant="caption" className="text-slate-700 dark:text-slate-300 mb-1">
+                    ✓ {plan.credits} Listing Credits included
+                  </AppText>
+                  {plan.durationDays && (
+                    <AppText variant="caption" className="text-slate-700 dark:text-slate-300 mb-1">
+                      ✓ Valid for {plan.durationDays} days
+                    </AppText>
+                  )}
                 </View>
 
                 <AppButton
                   label={isProcessing ? 'Processing...' : 'Buy Package'}
                   onPress={() => handlePurchase(plan)}
                   disabled={isProcessing}
-                  style={styles.buyButton}
+                  variant="primary"
                 />
               </Card>
             );
@@ -123,35 +155,3 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
-  headerBar: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  content: { flex: 1 },
-  walletContainer: { padding: 16 },
-  walletCard: { padding: 16, borderRadius: 16, backgroundColor: '#1e293b' },
-  walletTitle: { fontSize: 14, fontWeight: '600', color: '#94a3b8', marginBottom: 12 },
-  walletRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  walletItem: { alignItems: 'center', flex: 1 },
-  walletCount: { fontSize: 22, fontWeight: '800', color: '#ffffff' },
-  walletLabel: { fontSize: 12, color: '#cbd5e1', marginTop: 2 },
-  plansContainer: { paddingHorizontal: 16, paddingBottom: 24 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 12 },
-  loadingContainer: { padding: 32, alignItems: 'center' },
-  emptyCard: { padding: 20, borderRadius: 12, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#64748b' },
-  planCard: { padding: 16, borderRadius: 16, backgroundColor: '#ffffff', marginBottom: 12 },
-  planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  planName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  planPrice: { fontSize: 18, fontWeight: '800', color: '#2563eb' },
-  planDesc: { fontSize: 13, color: '#64748b', marginBottom: 10 },
-  planFeatures: { marginBottom: 14 },
-  featureItem: { fontSize: 13, color: '#334155', marginBottom: 4 },
-  buyButton: { backgroundColor: '#2563eb' },
-});

@@ -36,7 +36,7 @@ export const LoginScreen = () => {
           accessibilityLabel="Don't have an account? Sign up"
         >
           <AppText variant="body" className="text-slate-500">
-            Don't have an account? <AppText className="text-sky-500 font-semibold">Sign up</AppText>
+            Don't have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Sign up</AppText>
           </AppText>
         </TouchableOpacity>
       }
@@ -62,7 +62,8 @@ export const LoginScreen = () => {
         accessibilityRole="button"
         accessibilityLabel="Forgot Password?"
       >
-        <AppText variant="caption" className="text-sky-500">Forgot Password?</AppText>
+        <AppText variant="caption" className="text-brand-600 dark:text-brand-400 font-semibold">Forgot Password?</AppText>
+
       </TouchableOpacity>
       
       <AppButton

@@ -51,6 +51,27 @@ export async function generateMetadata(
     };
 }
 
+const buildBrowseFilters = (
+    parsed: ReturnType<typeof parsePublicBrowseParams>,
+    resolvedCategoryId?: string
+) => {
+    return {
+        status: 'live' as const,
+        type: parsed.type,
+        page: parsed.page ?? 1,
+        limit: 20,
+        ...(parsed.q ? { search: parsed.q } : {}),
+        ...(resolvedCategoryId ? { categoryId: resolvedCategoryId } : {}),
+        ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
+        ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
+        ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
+        ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
+        ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
+        ...(parsed.brands ? { brandId: parsed.brands } : {}),
+        ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
+    };
+};
+
 export default async function SearchPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
     const searchParams = await props.searchParams;
     const parsed = parsePublicBrowseParams(searchParams);
@@ -72,21 +93,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
         initialCategories = await getCategories({ fetchOptions: { next: { revalidate: 3600 } } });
         const resolvedCategory = resolveBrowseCategorySelection(rawCategoryInput, initialCategories);
         initialResults = await getAdsPage(
-            {
-                status: 'live',
-                type: parsed.type,
-                page: parsed.page ?? 1,
-                limit: 20,
-                ...(parsed.q ? { search: parsed.q } : {}),
-                ...(resolvedCategory.categoryId ? { categoryId: resolvedCategory.categoryId } : {}),
-                ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
-                ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
-                ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
-                ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
-                ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
-                ...(parsed.brands ? { brandId: parsed.brands } : {}),
-                ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
-            },
+            buildBrowseFilters(parsed, resolvedCategory.categoryId),
             {
                 endpoint,
                 fetchOptions: { next: { revalidate: 60 } }
@@ -97,21 +104,7 @@ export default async function SearchPage(props: { searchParams: Promise<{ [key: 
         [initialCategories, initialResults] = await Promise.all([
             getCategories({ fetchOptions: { next: { revalidate: 3600 } } }),
             getAdsPage(
-                {
-                    status: 'live',
-                    type: parsed.type,
-                    page: parsed.page ?? 1,
-                    limit: 20,
-                    ...(parsed.q ? { search: parsed.q } : {}),
-                    ...(directCategoryId ? { categoryId: directCategoryId } : {}),
-                    ...(parsed.modelId ? { modelId: parsed.modelId } : {}),
-                    ...(parsed.sort ? { sortBy: PUBLIC_BROWSE_SORT_MAP[parsed.sort as SortOption] } : {}),
-                    ...(typeof parsed.minPrice === "number" ? { minPrice: parsed.minPrice } : {}),
-                    ...(typeof parsed.maxPrice === "number" ? { maxPrice: parsed.maxPrice } : {}),
-                    ...(parsed.locationId ? { locationId: parsed.locationId } : {}),
-                    ...(parsed.brands ? { brandId: parsed.brands } : {}),
-                    ...(typeof parsed.radiusKm === "number" && parsed.locationId ? { radiusKm: parsed.radiusKm } : {}),
-                },
+                buildBrowseFilters(parsed, directCategoryId),
                 {
                     endpoint,
                     fetchOptions: { next: { revalidate: 60 } }

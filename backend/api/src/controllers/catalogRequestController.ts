@@ -305,23 +305,36 @@ export const getAdminCatalogRequestStats = async (req: Request, res: Response) =
     }
 };
 
+const processBulkCatalogAction = async <T extends { request: ICatalogRequest; resolvedEntityId?: unknown }>(
+    requestIds: string[],
+    actionFn: (id: string) => Promise<T>,
+    outcomeStatus: 'approved' | 'rejected' | 'merged',
+    getOutcomeDetails?: (result: T) => Record<string, unknown>
+) => {
+    const results = [];
+    for (const requestId of requestIds) {
+        try {
+            const result = await actionFn(requestId);
+            void notifyRequesterReviewOutcome(result.request, outcomeStatus, getOutcomeDetails ? getOutcomeDetails(result) : undefined);
+            results.push({ id: requestId, status: 'success' });
+        } catch (err) {
+            results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
+        }
+    }
+    return results;
+};
+
 export const bulkApproveCatalogRequestsByAdmin = async (req: Request, res: Response) => {
     try {
         const adminId = getAdminActorId(req);
         const { requestIds } = req.body as { requestIds: string[] };
-        const results = [];
-
-        for (const requestId of requestIds) {
-            try {
-                const result = await approveCatalogRequest({ requestId, adminId });
-                void notifyRequesterReviewOutcome(result.request, 'approved', {
-                    approvedEntityId: String(result.resolvedEntityId),
-                });
-                results.push({ id: requestId, status: 'success' });
-            } catch (err) {
-                results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
-            }
-        }
+        
+        const results = await processBulkCatalogAction(
+            requestIds,
+            (requestId) => approveCatalogRequest({ requestId, adminId }),
+            'approved',
+            (result) => ({ approvedEntityId: String(result.resolvedEntityId) })
+        );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
     } catch (error) {
@@ -333,19 +346,13 @@ export const bulkRejectCatalogRequestsByAdmin = async (req: Request, res: Respon
     try {
         const adminId = getAdminActorId(req);
         const { requestIds, reason } = req.body as { requestIds: string[]; reason: string };
-        const results = [];
-
-        for (const requestId of requestIds) {
-            try {
-                const result = await rejectCatalogRequest({ requestId, adminId, rejectionReason: reason });
-                void notifyRequesterReviewOutcome(result.request, 'rejected', {
-                    rejectionReason: result.request.rejectionReason,
-                });
-                results.push({ id: requestId, status: 'success' });
-            } catch (err) {
-                results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
-            }
-        }
+        
+        const results = await processBulkCatalogAction(
+            requestIds,
+            (requestId) => rejectCatalogRequest({ requestId, adminId, rejectionReason: reason }),
+            'rejected',
+            (result) => ({ rejectionReason: result.request.rejectionReason })
+        );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
     } catch (error) {
@@ -357,19 +364,13 @@ export const bulkMarkCatalogRequestsMergedByAdmin = async (req: Request, res: Re
     try {
         const adminId = getAdminActorId(req);
         const { requestIds, mergedIntoEntityId } = req.body as { requestIds: string[]; mergedIntoEntityId: string };
-        const results = [];
-
-        for (const requestId of requestIds) {
-            try {
-                const result = await markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: mergedIntoEntityId });
-                void notifyRequesterReviewOutcome(result.request, 'merged', {
-                    mergedIntoEntityId: String(result.resolvedEntityId),
-                });
-                results.push({ id: requestId, status: 'success' });
-            } catch (err) {
-                results.push({ id: requestId, status: 'error', message: err instanceof Error ? err.message : String(err) });
-            }
-        }
+        
+        const results = await processBulkCatalogAction(
+            requestIds,
+            (requestId) => markCatalogRequestDuplicate({ requestId, adminId, duplicateOfEntityId: mergedIntoEntityId }),
+            'merged',
+            (result) => ({ mergedIntoEntityId: String(result.resolvedEntityId) })
+        );
 
         return sendSuccessResponse(res, { results }, `Processed ${requestIds.length} catalog requests`);
     } catch (error) {

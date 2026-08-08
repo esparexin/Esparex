@@ -133,12 +133,12 @@ export function RelatedBusinessesSection({
                 {business.name}
               </h3>
               {business.status === "live" && (
-                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-[9px] font-semibold border-none">
+                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-2xs font-semibold border-none">
                   Verified
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+            <div className="flex items-center gap-1 text-tiny text-slate-500 mt-0.5">
               <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
               <span className="truncate">{locationLabel}</span>
               {distanceLabel ? <span className="shrink-0">· {distanceLabel}</span> : null}
@@ -149,16 +149,16 @@ export function RelatedBusinessesSection({
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <div className="flex flex-wrap gap-1">
             {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 border-none">
+              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-2xs font-medium text-blue-700 border-none">
                 {matchingServicesCount} matching
               </Badge>
             ) : activeServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600 border-none">
+              <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-2xs font-medium text-slate-600 border-none">
                 {activeServicesCount} live
               </Badge>
             ) : null}
             {typeof business.trustScore === "number" ? (
-              <Badge variant="secondary" className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 border-none">
+              <Badge variant="secondary" className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-2xs font-medium text-emerald-700 border-none">
                 Trust {business.trustScore}
               </Badge>
             ) : null}

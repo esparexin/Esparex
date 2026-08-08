@@ -1,5 +1,9 @@
-/** @type {import('tailwindcss').Config} */
-const { TYPOGRAPHY_TOKENS } = require("../../packages/ui/src/tokens/typography");
+let typography;
+try {
+  ({ typography } = require("@esparex/design-tokens"));
+} catch {
+  ({ typography } = require("../../packages/design-tokens/src"));
+}
 
 const config = {
 	content: [
@@ -9,12 +13,12 @@ const config = {
 	darkMode: ["class"],
 	theme: {
 		extend: {
-			fontFamily: TYPOGRAPHY_TOKENS.fontFamily,
+			fontFamily: typography.fonts,
 			fontSize: {
-				...TYPOGRAPHY_TOKENS.fontSize,
+				...typography.fontSizes,
 				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px legacy fallback
 			},
-			fontWeight: TYPOGRAPHY_TOKENS.fontWeight,
+			fontWeight: typography.fontWeights,
 			colors: {
 				link: {
 					DEFAULT: 'hsl(var(--link))',
@@ -92,6 +96,14 @@ const config = {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			keyframes: {
+				shake: {
+					'0%, 100%': { transform: 'translateX(0)' },
+					'25%': { transform: 'translateX(-4px)' },
+					'50%': { transform: 'translateX(4px)' },
+					'75%': { transform: 'translateX(-4px)' },
+				}
 			}
 		}
 	},

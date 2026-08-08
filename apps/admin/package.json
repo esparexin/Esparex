@@ -4,12 +4,13 @@
     "version": "0.1.0",
     "type": "module",
     "engines": {
-        "node": ">=22.0.0"
+        "node": ">=22"
     },
     "scripts": {
         "clean": "node ../../scripts/kill-port.js 3001 && node ../../scripts/clean.js --admin",
         "predev": "npm run clean",
         "dev": "next dev -p 3001",
+        "prebuild": "npm run build -w @esparex/design-tokens",
         "build": "cross-env NEXT_DISABLE_WEBPACK_CACHE=1 next build --webpack",
         "analyze": "cross-env ANALYZE=true next build --webpack",
         "start": "next start -p 3001",
@@ -26,6 +27,7 @@
     },
     "dependencies": {
         "@esparex/contracts": "*",
+        "@esparex/design-tokens": "*",
         "@esparex/shared": "*",
         "@esparex/ui": "*",
         "@hookform/resolvers": "^5.2.2",
@@ -37,6 +39,7 @@
         "react-hook-form": "^7.72.1",
         "react-is": "^18.3.1",
         "recharts": "^3.7.0",
+        "tailwindcss-animate": "^1.0.7",
         "zod": "^3.25.76"
     },
     "devDependencies": {

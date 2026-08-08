@@ -77,11 +77,11 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                                 "flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-center transition-colors",
                                 isActive
                                     ? "bg-blue-50 text-link-dark font-medium"
-                                    : "text-muted-foreground hover:bg-slate-50 hover:text-foreground font-normal"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground font-normal"
                             )}
                         >
                             <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: '18px', height: '18px' }} />
-                            <span className="max-w-full truncate text-[10px] font-normal leading-tight">
+                            <span className="max-w-full truncate text-2xs font-normal leading-tight">
                                 {item.label}
                             </span>
                         </Link>
@@ -94,7 +94,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
     return (
         <nav
             aria-label="Mobile footer navigation"
-            className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/95 shadow-[0_-4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl md:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 shadow-[0_-4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl md:hidden"
         >
             <div className="mx-auto flex max-w-screen-sm items-end gap-1 px-2 pt-1 pl-[max(0.5rem,env(safe-area-inset-left))] pr-[max(0.5rem,env(safe-area-inset-right))] pb-[max(0.35rem,env(safe-area-inset-bottom))]">
                 {renderNavItems(leftItems)}
@@ -120,7 +120,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     </div>
                     <span
                         className={cn(
-                            "text-[10px] font-normal leading-tight",
+                            "text-2xs font-normal leading-tight",
                             isBackendUp ? "text-link" : "text-muted-foreground"
                         )}
                     >

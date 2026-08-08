@@ -23,6 +23,12 @@ import { IPushNotificationEventService } from '../features/notifications/applica
 import { ExpoPushNotificationEventService } from '../features/notifications/infrastructure/ExpoPushNotificationEventService';
 import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
 import { ApiPushTokenRegistrationService } from '../features/notifications/infrastructure/ApiPushTokenRegistrationService';
+import { ApiBusinessRepository } from '../features/business/application/ApiBusinessRepository';
+import { BusinessService } from '../features/business/application/BusinessService';
+import { ApiPaymentRepository } from '../features/payment/application/ApiPaymentRepository';
+import { PaymentService } from '../features/payment/application/PaymentService';
+import { ApiSmartAlertRepository } from '../features/smartAlert/application/ApiSmartAlertRepository';
+import { SmartAlertService } from '../features/smartAlert/application/SmartAlertService';
 
 export interface IServices {
   authService: IAuthService;
@@ -36,6 +42,9 @@ export interface IServices {
   pushNotificationEventService: IPushNotificationEventService;
   pushTokenRegistrationService: IPushTokenRegistrationService;
   imagePicker: IImagePicker;
+  businessService: BusinessService;
+  paymentService: PaymentService;
+  smartAlertService: SmartAlertService;
 }
 
 export const bootstrapServices = (): IServices => {
@@ -78,6 +87,18 @@ export const bootstrapServices = (): IServices => {
   // 9. Image Picker (native Expo adapter)
   const imagePicker = new ExpoImagePicker();
 
+  // 10. Business
+  const businessRepository = new ApiBusinessRepository();
+  const businessService = new BusinessService(businessRepository);
+
+  // 11. Payment
+  const paymentRepository = new ApiPaymentRepository();
+  const paymentService = new PaymentService(paymentRepository);
+
+  // 12. Smart Alerts
+  const smartAlertRepository = new ApiSmartAlertRepository();
+  const smartAlertService = new SmartAlertService(smartAlertRepository);
+
   return {
     authService,
     userService,
@@ -90,6 +111,9 @@ export const bootstrapServices = (): IServices => {
     pushNotificationEventService,
     pushTokenRegistrationService,
     imagePicker,
+    businessService,
+    paymentService,
+    smartAlertService,
   };
 };
 

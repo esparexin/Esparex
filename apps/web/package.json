@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22"
   },
   "scripts": {
     "clean": "node ../../scripts/kill-port.js 3000 && node ../../scripts/clean.js --web",
     "predev": "npm run clean",
     "dev": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next dev -p 3000",
-    "build": "cross-env SKIP_ENV_VALIDATION=true NEXT_DISABLE_WEBPACK_CACHE=1 next build --webpack",
+    "prebuild": "npm run build -w @esparex/design-tokens",
+    "build": "npm run build -w @esparex/design-tokens && cross-env SKIP_ENV_VALIDATION=true NEXT_DISABLE_WEBPACK_CACHE=1 next build --webpack",
     "analyze:routes": "node scripts/analyze-next-build.cjs",
     "analyze:build": "npm run build && npm run analyze:routes",
     "start": "cross-env NODE_OPTIONS=--disable-warning=DEP0169 next start -p 3000",
@@ -29,6 +30,7 @@
   },
   "dependencies": {
     "@esparex/contracts": "*",
+    "@esparex/design-tokens": "*",
     "@esparex/shared": "*",
     "@esparex/ui": "*",
     "@hookform/resolvers": "^5.2.2",

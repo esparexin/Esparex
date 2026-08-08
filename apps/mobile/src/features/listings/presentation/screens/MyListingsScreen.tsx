@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { FlatList, RefreshControl, View, TouchableOpacity, ScrollView } from 'react-native';
+import { FlatList, RefreshControl, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Screen, Container, AppText } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useMyListings } from '../hooks/useMyListings';
 import { ListingCard } from '../components/ListingCard';
 import { ListingSkeleton } from '../components/ListingSkeleton';
@@ -70,14 +71,14 @@ export const MyListingsScreen = () => {
       <Container className="flex-1">
         {/* Status Filter Tabs */}
         <View className="py-2 px-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContent}>
             {STATUS_TABS.map((tab) => (
               <TouchableOpacity
                 key={tab.label}
                 onPress={() => setSelectedStatus(tab.value)}
                 className={`px-4 py-2 rounded-full border ${
                   selectedStatus === tab.value
-                    ? 'bg-sky-500 border-sky-500'
+                    ? 'bg-brand-600 border-brand-600'
                     : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                 }`}
               >
@@ -108,7 +109,7 @@ export const MyListingsScreen = () => {
             renderItem={renderItem}
             keyExtractor={keyExtractor}
             getItemLayout={getItemLayout}
-            contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+            contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={true}
             windowSize={5}
@@ -135,7 +136,7 @@ export const MyListingsScreen = () => {
               <RefreshControl
                 refreshing={isLoading && listings.length > 0}
                 onRefresh={refetch}
-                tintColor="#0ea5e9"
+                tintColor={base.brand[500]}
               />
             }
             ListFooterComponent={
@@ -151,3 +152,9 @@ export const MyListingsScreen = () => {
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  tabsContent: { gap: 8 },
+  listContent: { padding: 16, paddingBottom: 100 },
+});
+

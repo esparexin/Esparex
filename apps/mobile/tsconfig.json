@@ -24,6 +24,12 @@
       ],
       "@esparex/shared/*": [
         "../../shared/src/*"
+      ],
+      "@esparex/design-tokens": [
+        "../../packages/design-tokens/src"
+      ],
+      "@esparex/design-tokens/*": [
+        "../../packages/design-tokens/src/*"
       ]
     }
   },

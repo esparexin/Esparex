@@ -11,8 +11,8 @@ import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogName
 import { adminBrandSchema } from "@/schemas/admin.schemas";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { AdminApiError } from "@/lib/api/adminClient";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
-import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
+import { useCatalogTabState } from "@/hooks/useCatalogTabState";
+import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
 import {
     deriveCatalogLifecycleStatus,
     getEntityCategoryIds,
@@ -32,6 +32,8 @@ import {
     CatalogRejectSuggestionForm,
     CatalogSearchInput,
 } from "@/components/catalog/CatalogUiPrimitives";
+import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
+
 import { Brand } from "@esparex/contracts";
 
 export default function BrandsTab() {
@@ -40,8 +42,6 @@ export default function BrandsTab() {
     const initialCategoryId = normalizeSearchParamValue(searchParams.get("categoryId")) || "all";
     const initialStatus = normalizeSearchParamValue(searchParams.get("status")) || "all";
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
-
-    const [searchInput, setSearchInput] = useState(initialSearch);
 
     const {
         brands,
@@ -55,22 +55,26 @@ export default function BrandsTab() {
         handleApprove,
         handleReject
     } = useAdminBrands({
-        initialFilters: {
-            search: initialSearch,
-            categoryId: initialCategoryId,
-            status: initialStatus,
-        },
-        initialPagination: {
-            page: initialPage,
-            limit: 50,
-        },
+        initialFilters: { search: initialSearch, categoryId: initialCategoryId, status: initialStatus },
+        initialPagination: { page: initialPage, limit: 20 },
     });
 
-    const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
-    const [rejectingBrand, setRejectingBrand] = useState<Brand | null>(null);
-    const [rejectionReason, setRejectionReason] = useState("");
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [isRejecting, setIsRejecting] = useState(false);
+    const {
+        searchInput, setSearchInput,
+        deletingItem: deletingBrand, setDeletingItem: setDeletingBrand,
+        isDeleting, setIsDeleting, closeDelete,
+        rejectingItem: rejectingBrand, setRejectingItem: setRejectingBrand,
+        rejectionReason, setRejectionReason, isRejecting, setIsRejecting, closeReject,
+        replaceQueryState
+    } = useCatalogTabState<Brand>({ 
+        totalPages: pagination.totalPages, 
+        loading,
+        initialSearch,
+        initialCategoryId,
+        initialStatus,
+        initialPage
+    });
+
     const [deleteError, setDeleteError] = useState<{
         message: string;
         details?: {
@@ -130,14 +134,6 @@ export default function BrandsTab() {
         categorySupportsAds
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
-
-    const { replaceQueryState } = useCatalogQueryStateSync({
-        searchInput,
-        initialSearch,
-        loading,
-        initialPage,
-        totalPages: pagination.totalPages,
-    });
 
     const [archivedCategoryCount, setArchivedCategoryCount] = useState(0);
 
@@ -318,56 +314,52 @@ export default function BrandsTab() {
                 )}
             />
 
-            <CatalogModal
+            <CatalogDeleteModal
                 isOpen={!!deletingBrand}
-                onClose={() => {
-                    if (!isDeleting) {
-                        setDeletingBrand(null);
-                        setDeleteError(null);
-                    }
-                }}
-                title="Delete Brand"
-            >
-                <div className="p-6 space-y-4">
-                    {deleteError ? (
-                        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 space-y-2">
-                            <div className="flex items-start gap-3">
-                                <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
-                                <div>
-                                    <p className="text-sm font-semibold text-rose-800">
-                                        Deletion Blocked (409 Conflict)
-                                    </p>
-                                    <p className="mt-1 text-sm text-rose-700">
-                                        {deleteError.message}
-                                    </p>
-                                </div>
+                itemName={deletingBrand?.name || ""}
+                isDeleting={isDeleting || !!deleteError}
+                onClose={() => { closeDelete(); setDeleteError(null); }}
+                onConfirm={confirmDelete}
+                customContent={deleteError ? (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 space-y-2">
+                        <div className="flex items-start gap-3">
+                            <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
+                            <div>
+                                <p className="text-sm font-semibold text-rose-800">
+                                    Deletion Blocked (409 Conflict)
+                                </p>
+                                <p className="mt-1 text-sm text-rose-700">
+                                    {deleteError.message}
+                                </p>
                             </div>
-                            {deleteError.details && (
-                                <div className="mt-2 pl-8 space-y-1">
-                                    <p className="text-xs font-semibold text-rose-800 uppercase tracking-wider">
-                                        Active Dependencies:
-                                    </p>
-                                    <ul className="text-xs text-rose-700 list-disc list-inside space-y-1">
-                                        {typeof deleteError.details.listings === "number" && deleteError.details.listings > 0 && (
-                                            <li>Marketplace Listings: <strong>{deleteError.details.listings}</strong></li>
-                                        )}
-                                        {typeof deleteError.details.models === "number" && deleteError.details.models > 0 && (
-                                            <li>Catalog Models: <strong>{deleteError.details.models}</strong></li>
-                                        )}
-                                        {typeof deleteError.details.spareParts === "number" && deleteError.details.spareParts > 0 && (
-                                            <li>Spare Parts: <strong>{deleteError.details.spareParts}</strong></li>
-                                        )}
-                                        {typeof deleteError.details.screenSizes === "number" && deleteError.details.screenSizes > 0 && (
-                                            <li>Screen Sizes: <strong>{deleteError.details.screenSizes}</strong></li>
-                                        )}
-                                        {typeof deleteError.details.smartAlerts === "number" && deleteError.details.smartAlerts > 0 && (
-                                            <li>Smart Alerts: <strong>{deleteError.details.smartAlerts}</strong></li>
-                                        )}
-                                    </ul>
-                                </div>
-                            )}
                         </div>
-                    ) : (
+                        {deleteError.details && (
+                            <div className="mt-2 pl-8 space-y-1">
+                                <p className="text-xs font-semibold text-rose-800 uppercase tracking-wider">
+                                    Active Dependencies:
+                                </p>
+                                <ul className="text-xs text-rose-700 list-disc list-inside space-y-1">
+                                    {typeof deleteError.details.listings === "number" && deleteError.details.listings > 0 && (
+                                        <li>Marketplace Listings: <strong>{deleteError.details.listings}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.models === "number" && deleteError.details.models > 0 && (
+                                        <li>Catalog Models: <strong>{deleteError.details.models}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.spareParts === "number" && deleteError.details.spareParts > 0 && (
+                                        <li>Spare Parts: <strong>{deleteError.details.spareParts}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.screenSizes === "number" && deleteError.details.screenSizes > 0 && (
+                                        <li>Screen Sizes: <strong>{deleteError.details.screenSizes}</strong></li>
+                                    )}
+                                    {typeof deleteError.details.smartAlerts === "number" && deleteError.details.smartAlerts > 0 && (
+                                        <li>Smart Alerts: <strong>{deleteError.details.smartAlerts}</strong></li>
+                                    )}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <>
                         <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
                             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
                             <div>
@@ -380,48 +372,23 @@ export default function BrandsTab() {
                                 </p>
                             </div>
                         </div>
-                    )}
-                    <p className="text-sm text-foreground-secondary">
-                        To hide this brand temporarily, <strong>deactivate it</strong> instead of deleting.
-                    </p>
-                    <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            disabled={isDeleting}
-                            onClick={() => {
-                                setDeletingBrand(null);
-                                setDeleteError(null);
-                            }}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            disabled={isDeleting || !!deleteError}
-                            onClick={() => void confirmDelete()}
-                            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
-                        >
-                            {isDeleting ? (
-                                <><Loader2 size={14} className="animate-spin" /> Deleting…</>
-                            ) : (
-                                "Yes, Delete Brand"
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </CatalogModal>
+                        <p className="text-sm text-foreground-secondary">
+                            To hide this brand temporarily, <strong>deactivate it</strong> instead of deleting.
+                        </p>
+                    </>
+                )}
+            />
 
             <CatalogModal
                 isOpen={!!rejectingBrand}
-                onClose={() => !isRejecting && setRejectingBrand(null)}
+                onClose={closeReject}
                 title="Reject Brand Application"
             >
                 <CatalogRejectSuggestionForm
                     itemName={rejectingBrand?.name}
                     rejectionReason={rejectionReason}
                     onRejectionReasonChange={setRejectionReason}
-                    onCancel={() => setRejectingBrand(null)}
+                    onCancel={closeReject}
                     onConfirm={() => void confirmReject()}
                     isSubmitting={isRejecting}
                     placeholder="e.g. Logo missing, Invalid category mapping..."

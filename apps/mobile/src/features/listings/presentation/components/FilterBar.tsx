@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { ListingQueryParams } from '@esparex/contracts';
 
 interface FilterBarProps {
@@ -28,7 +29,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ alignItems: 'center', gap: 8 }}
+        contentContainerStyle={styles.scrollContent}
       >
         {/* Main Filter Action Button */}
         <TouchableOpacity
@@ -37,12 +38,12 @@ export const FilterBar = React.memo<FilterBarProps>(({
           accessibilityLabel="Open filter sheet"
           accessibilityRole="button"
         >
-          <AppIcon name="SlidersHorizontal" size={14} color="#0ea5e9" />
+          <AppIcon name="SlidersHorizontal" size={14} color={base.brand[500]} />
           <AppText variant="caption" className="font-semibold text-slate-800 dark:text-slate-200 ml-1.5">
             Filters
           </AppText>
           {activeFilterCount > 0 && (
-            <View className="ml-1.5 bg-sky-500 rounded-full w-5 h-5 items-center justify-center">
+            <View className="ml-1.5 bg-brand-600 rounded-full w-5 h-5 items-center justify-center">
               <AppText variant="caption" className="text-white text-[10px] font-bold">
                 {activeFilterCount}
               </AppText>
@@ -54,14 +55,14 @@ export const FilterBar = React.memo<FilterBarProps>(({
         {filters.sortBy && (
           <TouchableOpacity
             onPress={onRemoveSort}
-            className="flex-row items-center bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-full border border-sky-200 dark:border-sky-800"
+            className="flex-row items-center bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
             accessibilityRole="button"
             accessibilityLabel={`Remove sort by ${filters.sortBy} filter`}
           >
-            <AppText variant="caption" className="text-sky-700 dark:text-sky-300 font-medium mr-1">
+            <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium mr-1">
               Sort: {filters.sortBy}
             </AppText>
-            <AppIcon name="X" size={12} color="#0284c7" />
+            <AppIcon name="X" size={12} color={base.brand[600]} />
           </TouchableOpacity>
         )}
 
@@ -69,14 +70,14 @@ export const FilterBar = React.memo<FilterBarProps>(({
         {filters.condition && (
           <TouchableOpacity
             onPress={onRemoveCondition}
-            className="flex-row items-center bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-full border border-sky-200 dark:border-sky-800"
+            className="flex-row items-center bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
             accessibilityRole="button"
             accessibilityLabel={`Remove condition ${filters.condition} filter`}
           >
-            <AppText variant="caption" className="text-sky-700 dark:text-sky-300 font-medium mr-1">
+            <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium mr-1">
               Condition: {filters.condition}
             </AppText>
-            <AppIcon name="X" size={12} color="#0284c7" />
+            <AppIcon name="X" size={12} color={base.brand[600]} />
           </TouchableOpacity>
         )}
 
@@ -84,14 +85,14 @@ export const FilterBar = React.memo<FilterBarProps>(({
         {(filters.minPrice !== undefined || filters.maxPrice !== undefined) && (
           <TouchableOpacity
             onPress={onRemovePrice}
-            className="flex-row items-center bg-sky-50 dark:bg-sky-950/40 px-3 py-1.5 rounded-full border border-sky-200 dark:border-sky-800"
+            className="flex-row items-center bg-brand-50 dark:bg-brand-950/40 px-3 py-1.5 rounded-full border border-brand-200 dark:border-brand-800"
             accessibilityRole="button"
             accessibilityLabel={`Remove price filter`}
           >
-            <AppText variant="caption" className="text-sky-700 dark:text-sky-300 font-medium mr-1">
+            <AppText variant="caption" className="text-brand-700 dark:text-brand-300 font-medium mr-1">
               Price: ₹{filters.minPrice || 0} - ₹{filters.maxPrice || 'Any'}
             </AppText>
-            <AppIcon name="X" size={12} color="#0284c7" />
+            <AppIcon name="X" size={12} color={base.brand[600]} />
           </TouchableOpacity>
         )}
 
@@ -100,6 +101,7 @@ export const FilterBar = React.memo<FilterBarProps>(({
           <TouchableOpacity
             onPress={onClearFilters}
             className="px-2 py-1.5"
+            accessibilityRole="button"
             accessibilityLabel="Clear all filters"
           >
             <AppText variant="caption" className="text-red-500 font-semibold">
@@ -113,3 +115,8 @@ export const FilterBar = React.memo<FilterBarProps>(({
 });
 
 FilterBar.displayName = 'FilterBar';
+
+const styles = StyleSheet.create({
+  scrollContent: { alignItems: 'center', gap: 8 },
+});
+

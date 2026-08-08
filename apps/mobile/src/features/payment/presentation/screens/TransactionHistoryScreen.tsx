@@ -1,44 +1,56 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { Screen, Container, Card } from '@esparex/mobile-ui';
+import { View, FlatList, ActivityIndicator } from 'react-native';
+import { Screen, Container, Card, AppText } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useQuery } from '@tanstack/react-query';
-import { ApiPaymentRepository } from '../../application/ApiPaymentRepository';
-import { PaymentService } from '../../application/PaymentService';
+import { services } from '../../../../bootstrap';
 import { PaymentTransaction } from '../../domain/PaymentTransaction';
-
-const paymentService = new PaymentService(new ApiPaymentRepository());
 
 export function TransactionHistoryScreen() {
   const { data: transactions, isLoading } = useQuery<PaymentTransaction[], Error>({
     queryKey: ['payment', 'history'],
-    queryFn: () => paymentService.getTransactionHistory(),
+    queryFn: () => services.paymentService.getTransactionHistory(),
     staleTime: 1000 * 60 * 5,
   });
 
-  const renderTransactionItem = ({ item }: { item: PaymentTransaction }) => (
-    <Card style={styles.itemCard}>
-      <View style={styles.itemHeader}>
-        <Text style={styles.planName}>{item.planName || 'Credit Purchase'}</Text>
-        <Text style={styles.amount}>₹{item.amount}</Text>
-      </View>
-      <View style={styles.itemFooter}>
-        <Text style={styles.date}>{new Date(item.createdAt).toLocaleDateString()}</Text>
-        <Text style={[styles.status, item.status === 'SUCCESS' ? styles.statusSuccess : styles.statusPending]}>
-          {item.status}
-        </Text>
-      </View>
-    </Card>
-  );
+  const renderTransactionItem = ({ item }: { item: PaymentTransaction }) => {
+    const isSuccess = item.status === 'SUCCESS';
+    return (
+      <Card className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-2.5">
+        <View className="flex-row justify-between mb-1.5">
+          <AppText variant="body" className="font-bold text-slate-900 dark:text-slate-100">
+            {item.planName || 'Credit Purchase'}
+          </AppText>
+          <AppText variant="body" className="font-extrabold text-brand-600 dark:text-brand-400">
+            ₹{item.amount}
+          </AppText>
+        </View>
+        <View className="flex-row justify-between items-center">
+          <AppText variant="caption" className="text-slate-500 dark:text-slate-400">
+            {new Date(item.createdAt).toLocaleDateString()}
+          </AppText>
+          <AppText
+            variant="caption"
+            className={`font-bold ${isSuccess ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}
+          >
+            {item.status}
+          </AppText>
+        </View>
+      </Card>
+    );
+  };
 
   return (
-    <Screen style={styles.screen}>
-      <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>Purchase History</Text>
+    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <View className="px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
+          Purchase History
+        </AppText>
       </View>
 
-      <Container style={styles.container}>
+      <Container className="flex-1 p-4">
         {isLoading ? (
-          <ActivityIndicator size="large" color="#2563eb" style={styles.loader} />
+          <ActivityIndicator size="large" color={base.brand[500]} className="mt-8" />
         ) : (
           <FlatList
             data={transactions || []}
@@ -50,8 +62,10 @@ export function TransactionHistoryScreen() {
             maxToRenderPerBatch={8}
             initialNumToRender={10}
             ListEmptyComponent={
-              <Card style={styles.emptyCard}>
-                <Text style={styles.emptyText}>No previous credit purchases found.</Text>
+              <Card className="p-5 rounded-xl bg-white dark:bg-slate-900 items-center border border-slate-200 dark:border-slate-800">
+                <AppText variant="body" className="text-slate-500 dark:text-slate-400">
+                  No previous credit purchases found.
+                </AppText>
               </Card>
             }
           />
@@ -61,27 +75,3 @@ export function TransactionHistoryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
-  headerBar: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  container: { flex: 1, padding: 16 },
-  loader: { marginTop: 32 },
-  itemCard: { padding: 14, borderRadius: 12, backgroundColor: '#ffffff', marginBottom: 10 },
-  itemHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  planName: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
-  amount: { fontSize: 15, fontWeight: '800', color: '#2563eb' },
-  itemFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  date: { fontSize: 12, color: '#64748b' },
-  status: { fontSize: 12, fontWeight: '700', color: '#64748b' },
-  statusSuccess: { color: '#16a34a' },
-  statusPending: { color: '#d97706' },
-  emptyCard: { padding: 20, borderRadius: 12, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#64748b' },
-});

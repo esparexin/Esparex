@@ -1,9 +1,3 @@
-// Breakpoints tokens
+// Breakpoints tokens re-exported from @esparex/design-tokens SSOT
+export { breakpoints } from '@esparex/design-tokens';
 
-export const breakpoints = {
-  sm: '640px',
-  md: '768px',
-  lg: '1024px',
-  xl: '1280px',
-  '2xl': '1536px',
-};

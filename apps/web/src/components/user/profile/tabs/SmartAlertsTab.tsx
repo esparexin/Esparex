@@ -78,7 +78,7 @@ export function SmartAlertsTab({
     if (loading) return <div className="p-12 text-center text-slate-500 animate-pulse">Loading Alerts...</div>;
 
     return (
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <div className="space-y-4 w-full">
             {/* Header & Create Action */}
             <Card className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border-blue-200/80 gap-0 rounded-3xl">
                 <FeatureCard
@@ -129,14 +129,14 @@ export function SmartAlertsTab({
                     ) : (
                         <div className="space-y-3">
                             {smartAlerts.map((alert) => (
-                                <div key={alert.id} className="border border-slate-200/80 rounded-2xl p-4 space-y-3 bg-white hover:border-blue-200 transition-colors">
+                                <div key={alert.id} className="border border-border rounded-2xl p-4 space-y-3 bg-card text-card-foreground hover:border-primary/50 transition-colors">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2 mb-1">
                                                 <h4 className="font-bold text-slate-900 text-sm tracking-tight truncate">{alert.name}</h4>
                                                 <Badge
                                                     variant="secondary"
-                                                    className={`text-[11px] font-semibold ${
+                                                    className={`text-tiny font-semibold ${
                                                         alert.active === false
                                                             ? "bg-slate-100 text-slate-600"
                                                             : "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -150,7 +150,7 @@ export function SmartAlertsTab({
                                                     Keywords: <span className="text-slate-900 font-semibold">{alert.keywords}</span>
                                                 </p>
                                             )}
-                                            <p className="text-[11px] text-slate-500 mt-1">
+                                            <p className="text-tiny text-slate-500 mt-1">
                                                 Category: {alert.category || "All"} • Location: {alert.location || "Any"} {alert.radiusKm ? `(${alert.radiusKm} km)` : ""}
                                             </p>
                                         </div>
@@ -160,13 +160,13 @@ export function SmartAlertsTab({
                                     <div className="flex items-center gap-2">
                                         <div className="flex-1 bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-500 text-[11px]">Last match</span>
+                                                <span className="text-slate-500 text-tiny">Last match</span>
                                                 <span className="font-semibold text-slate-900 text-xs">{alert.lastMatch || "None yet"}</span>
                                             </div>
                                         </div>
                                         <div className="flex-1 bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-500 text-[11px]">Total matches</span>
+                                                <span className="text-slate-500 text-tiny">Total matches</span>
                                                 <span className="font-semibold text-blue-600 text-xs">{alert.totalMatches || 0} ads</span>
                                             </div>
                                         </div>
@@ -239,7 +239,7 @@ export function SmartAlertsTab({
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-bold text-xs sm:text-sm text-slate-900">Want unlimited smart alerts?</h4>
-                                <p className="text-[11px] text-slate-500">Upgrade to Premium to create unlimited alert slots.</p>
+                                <p className="text-tiny text-slate-500">Upgrade to Premium to create unlimited alert slots.</p>
                             </div>
                             <Button
                                 size="sm"
@@ -266,7 +266,7 @@ export function SmartAlertsTab({
                                             <p className="text-xs font-bold text-slate-900 truncate">
                                                 {search.query?.trim() || "Saved search"}
                                             </p>
-                                            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                                            <p className="text-tiny text-slate-500 truncate mt-0.5">
                                                 {typeof search.priceMin === "number" || typeof search.priceMax === "number"
                                                     ? `Price: ${typeof search.priceMin === "number" ? `₹${search.priceMin}` : "Any"} - ${typeof search.priceMax === "number" ? `₹${search.priceMax}` : "Any"}`
                                                     : "Price: Any"}

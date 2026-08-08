@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { Screen, Container, Card, AppButton } from '@esparex/mobile-ui';
+import { View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { Screen, Container, Card, AppButton, AppText } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useSmartAlertsList } from '../hooks/useSmartAlertsList';
 import { useDeleteSmartAlert } from '../hooks/useDeleteSmartAlert';
 import { CreateSmartAlertModal } from '../components/CreateSmartAlertModal';
@@ -28,65 +29,89 @@ export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
   };
 
   const renderAlertItem = ({ item }: { item: SmartAlert }) => (
-    <Card style={styles.alertCard}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.alertName}>{item.name}</Text>
+    <Card className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 mb-3">
+      <View className="flex-row justify-between items-center mb-1.5">
+        <AppText variant="body" className="font-bold text-slate-900 dark:text-slate-100 text-base">
+          {item.name}
+        </AppText>
         <TouchableOpacity
           onPress={() => handleDelete(item)}
           accessibilityRole="button"
           accessibilityLabel={`Delete smart alert ${item.name}`}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.deleteText}>Delete</Text>
+          <AppText variant="caption" className="font-semibold text-rose-600 dark:text-rose-400">
+            Delete
+          </AppText>
         </TouchableOpacity>
       </View>
 
-      {item.criteria?.keywords && <Text style={styles.criteriaText}>Keywords: {item.criteria.keywords}</Text>}
-      {item.criteria?.category && <Text style={styles.criteriaText}>Category: {item.criteria.category}</Text>}
-      {item.criteria?.location && <Text style={styles.criteriaText}>Location: {item.criteria.location}</Text>}
+      {item.criteria?.keywords && (
+        <AppText variant="caption" className="text-slate-600 dark:text-slate-400 mb-0.5">
+          Keywords: {item.criteria.keywords}
+        </AppText>
+      )}
+      {item.criteria?.category && (
+        <AppText variant="caption" className="text-slate-600 dark:text-slate-400 mb-0.5">
+          Category: {item.criteria.category}
+        </AppText>
+      )}
+      {item.criteria?.location && (
+        <AppText variant="caption" className="text-slate-600 dark:text-slate-400 mb-0.5">
+          Location: {item.criteria.location}
+        </AppText>
+      )}
 
-      <View style={styles.cardFooter}>
-        <Text style={styles.frequencyText}>🔔 {item.frequency === 'instant' ? 'Instant Push' : 'Daily Digest'}</Text>
+      <View className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <AppText variant="caption" className="font-semibold text-brand-600 dark:text-brand-400">
+          🔔 {item.frequency === 'instant' ? 'Instant Push' : 'Daily Digest'}
+        </AppText>
       </View>
     </Card>
   );
 
   return (
-    <Screen style={styles.screen}>
-      <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>Smart Search Alerts</Text>
+    <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
+      <View className="flex-row items-center justify-between px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
+          Smart Search Alerts
+        </AppText>
         <TouchableOpacity
-          style={styles.addButton}
+          className="bg-brand-600 dark:bg-brand-500 px-3 py-1.5 rounded-lg"
           onPress={() => {
             setEditingAlert(null);
             setModalVisible(true);
           }}
         >
-          <Text style={styles.addText}>+ New Alert</Text>
+          <AppText variant="caption" className="font-bold text-white">
+            + New Alert
+          </AppText>
         </TouchableOpacity>
       </View>
 
-      <Container style={styles.container}>
+      <Container className="flex-1 p-4">
         {isLoading ? (
-          <ActivityIndicator size="large" color="#2563eb" style={styles.loader} />
+          <ActivityIndicator size="large" color={base.brand[500]} className="mt-8" />
         ) : (
           <FlatList
             data={alerts || []}
             keyExtractor={(item) => item.id}
             renderItem={renderAlertItem}
             ListEmptyComponent={
-              <Card style={styles.emptyCard}>
-                <Text style={styles.emptyTitle}>No Active Smart Alerts</Text>
-                <Text style={styles.emptySubtitle}>
+              <Card className="p-6 rounded-2xl bg-white dark:bg-slate-900 items-center border border-slate-200 dark:border-slate-800">
+                <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100 mb-1.5 text-center">
+                  No Active Smart Alerts
+                </AppText>
+                <AppText variant="body" className="text-slate-500 dark:text-slate-400 text-center mb-4 leading-5">
                   Create a smart alert to receive instant push notifications when matching spare parts or listings are posted.
-                </Text>
+                </AppText>
                 <AppButton
                   label="Create Smart Alert"
                   onPress={() => {
                     setEditingAlert(null);
                     setModalVisible(true);
                   }}
-                  style={styles.createButton}
+                  className="bg-brand-600 hover:bg-brand-700"
                 />
               </Card>
             }
@@ -104,32 +129,3 @@ export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
-  headerBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
-  },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  addButton: { backgroundColor: '#2563eb', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  addText: { fontSize: 13, fontWeight: '700', color: '#ffffff' },
-  container: { flex: 1, padding: 16 },
-  loader: { marginTop: 32 },
-  alertCard: { padding: 16, borderRadius: 14, backgroundColor: '#ffffff', marginBottom: 12 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  alertName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  deleteText: { fontSize: 13, color: '#dc2626', fontWeight: '600' },
-  criteriaText: { fontSize: 13, color: '#475569', marginBottom: 3 },
-  cardFooter: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
-  frequencyText: { fontSize: 12, fontWeight: '600', color: '#0284c7' },
-  emptyCard: { padding: 24, borderRadius: 16, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
-  emptySubtitle: { fontSize: 13, color: '#64748b', textAlign: 'center', marginBottom: 16, lineHeight: 18 },
-  createButton: { backgroundColor: '#2563eb' },
-});

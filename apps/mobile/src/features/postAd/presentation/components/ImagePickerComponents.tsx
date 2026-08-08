@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { AppText, AppIcon, Center } from '@esparex/mobile-ui';
+import { View, Image, TouchableOpacity } from 'react-native';
+import { AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 
 interface ImageGridProps {
   images: string[];
@@ -30,6 +31,7 @@ export const ImageGrid = ({ images, onRemove }: ImageGridProps) => {
           <TouchableOpacity
             onPress={() => onRemove(index)}
             className="absolute top-1 right-1 w-6 h-6 rounded-full bg-slate-900/70 items-center justify-center"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessible
             accessibilityRole="button"
             accessibilityLabel={`Remove photo ${index + 1}`}
@@ -64,11 +66,11 @@ export const AddPhotoButton = ({ onPress, disabled = false }: AddPhotoButtonProp
       'w-24 h-24 rounded-xl border-2 border-dashed items-center justify-center',
       disabled
         ? 'border-slate-200 dark:border-slate-700 opacity-50'
-        : 'border-sky-400 dark:border-sky-600',
+        : 'border-brand-400 dark:border-brand-600',
     ].join(' ')}
   >
-    <AppIcon name="Plus" size={28} color={disabled ? '#94a3b8' : '#0ea5e9'} />
-    <AppText variant="caption" className="text-sky-500 dark:text-sky-400 mt-1">
+    <AppIcon name="Plus" size={28} color={disabled ? base.slate[400] : base.brand[500]} />
+    <AppText variant="caption" className="text-brand-600 dark:text-brand-400 mt-1">
       Add
     </AppText>
   </TouchableOpacity>

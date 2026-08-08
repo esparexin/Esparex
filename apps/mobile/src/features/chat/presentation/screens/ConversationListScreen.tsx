@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
-import { View, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useConversations } from '../hooks/useConversations';
 import { IConversationDTO } from '@esparex/contracts';
 import { ErrorState } from '../../../common/components/ErrorState';
@@ -40,12 +41,12 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
                   contentFit="cover"
                   cachePolicy="memory-disk"
                   transition={150}
-                  style={{ width: 48, height: 48, borderRadius: 8 }}
+                  style={styles.thumbnail}
                   accessibilityLabel={`Thumbnail for ${item.ad.title}`}
                 />
               ) : (
-                <View className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/40 items-center justify-center">
-                  <AppIcon name="MessageSquare" size={20} color="#0ea5e9" />
+                <View className="w-12 h-12 rounded-full bg-brand-50 dark:bg-brand-950/40 items-center justify-center">
+                  <AppIcon name="MessageSquare" size={20} color={base.brand[500]} />
                 </View>
               )}
               {unreadCount > 0 && (
@@ -74,7 +75,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
                 ) : null}
               </View>
 
-              <AppText variant="caption" className="text-sky-600 dark:text-sky-400 font-medium mb-1">
+              <AppText variant="caption" className="text-brand-600 dark:text-brand-400 font-medium mb-1">
                 {item.ad.title}
               </AppText>
 
@@ -87,7 +88,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
               </AppText>
             </View>
 
-            <AppIcon name="ChevronRight" size={18} color="#94a3b8" />
+            <AppIcon name="ChevronRight" size={18} color={base.slate[400]} />
           </TouchableOpacity>
         </Card>
       );
@@ -119,12 +120,12 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
           keyExtractor={(item) => item.id}
           renderItem={renderConversationItem}
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={base.brand[500]} />}
           ListEmptyComponent={
             !isLoading ? (
               <View className="items-center justify-center py-16 px-4">
                 <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
-                  <AppIcon name="MessageSquare" size={28} color="#94a3b8" />
+                  <AppIcon name="MessageSquare" size={28} color={base.slate[400]} />
                 </View>
                 <AppText variant="h3" className="font-bold text-slate-800 dark:text-slate-200 mb-1">
                   No Messages Yet
@@ -140,3 +141,8 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  thumbnail: { width: 48, height: 48, borderRadius: 8 },
+});
+

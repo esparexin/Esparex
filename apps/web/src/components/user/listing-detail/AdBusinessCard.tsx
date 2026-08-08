@@ -24,7 +24,7 @@ export function AdBusinessCard({ ad, navigateTo }: AdBusinessCardProps) {
     const locationLabel = resolveBusinessLocationLabel(ad);
 
     return (
-        <Card className="bg-white border-none shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-none md:rounded-[2rem] overflow-hidden border-b md:border border-slate-100">
+        <Card className="bg-card text-card-foreground shadow-none md:shadow-xs rounded-none md:rounded-2xl overflow-hidden border-b md:border border-border">
             <CardContent className="p-4 md:p-6 space-y-4">
                 {/* Header */}
                 <div className="flex items-center gap-3">

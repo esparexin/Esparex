@@ -30,7 +30,12 @@ export const gracefulShutdown = async ({ server, worker, workers, redisClient, m
         if (server) {
             await new Promise<void>((resolve, reject) => {
                 server.close((err) => {
-                    if (err) return reject(err);
+                    // closeIO() already closed the underlying HTTP server, so a
+                    // subsequent close() reports ERR_SERVER_NOT_RUNNING — that is
+                    // the desired end state, not a failure.
+                    if (err && (err as NodeJS.ErrnoException).code !== 'ERR_SERVER_NOT_RUNNING') {
+                        return reject(err);
+                    }
                     resolve();
                 });
             });

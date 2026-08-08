@@ -53,8 +53,8 @@ export function SpecificationSection() {
 
             {requiresScreenSize && (
                 <fieldset disabled={isEditMode} className="w-full border-0 p-0 m-0">
-                    <Field label="Screen Size" labelClassName="text-sm font-medium" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                    <Field label="Screen Size" labelClassName="text-sm font-semibold" error={screenSizeError as string} className={cn(isEditMode && "opacity-60 cursor-not-allowed")}>
+                        <div className="flex flex-wrap gap-2 mt-1">
                             {availableSizes.map((size) => {
                                 const isSelected = screenSize === size;
                                 return (
@@ -65,10 +65,10 @@ export function SpecificationSection() {
                                         onClick={() => onScreenSizeChange(size)}
                                         aria-pressed={isSelected}
                                         className={cn(
-                                            "flex h-11 items-center justify-center rounded-xl border-2 text-sm font-medium transition-all duration-200 active:scale-[0.98]",
+                                            "h-9 px-4 rounded-xl border text-sm font-medium transition-all duration-200 cursor-pointer select-none",
                                             isSelected
-                                                ? "border-primary bg-primary/5 text-primary shadow-sm"
-                                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50",
+                                                ? "bg-blue-600 border-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20"
+                                                : "bg-slate-50/80 border-slate-200/90 text-slate-700 hover:bg-slate-100 hover:border-slate-300",
                                             isEditMode && "cursor-not-allowed opacity-60"
                                         )}
                                     >

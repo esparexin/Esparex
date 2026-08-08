@@ -1,8 +1,8 @@
 import express from 'express';
-import { requireAdmin, requirePermission } from '../middleware/adminAuth';
+import { requireAdmin, requireMutationPermission } from '../middleware/adminAuth';
 import { validateObjectId } from '../middleware/validateObjectId';
 import { validateRequest } from '../middleware/validateRequest';
-import { adminLimiter, adminMutationLimiter } from '../middleware/rateLimiter';
+import { adminLimiter } from '../middleware/rateLimiter';
 import {
     adminCatalogRequestListQuerySchema,
     adminCatalogRequestStatsQuerySchema,
@@ -29,14 +29,7 @@ const router = express.Router();
 
 router.use(requireAdmin);
 router.use(adminLimiter);
-router.use((req, res, next) => {
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
-        return adminMutationLimiter(req, res, () => {
-            requirePermission('catalog:write')(req, res, next);
-        });
-    }
-    return next();
-});
+router.use(requireMutationPermission('catalog:write'));
 
 router.get('/stats', validateRequest({ query: adminCatalogRequestStatsQuerySchema }), getAdminCatalogRequestStats);
 router.get('/', validateRequest({ query: adminCatalogRequestListQuerySchema }), getAdminCatalogRequests);

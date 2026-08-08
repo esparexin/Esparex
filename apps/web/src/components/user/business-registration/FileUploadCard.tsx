@@ -95,13 +95,13 @@ export function FileUploadCard({
                             <span className="truncate text-xs font-semibold text-foreground max-w-full px-2">
                                 {getBusinessFileName(file)}
                             </span>
-                            <span className="text-[10px] text-muted-foreground mt-0.5">
+                            <span className="text-2xs text-muted-foreground mt-0.5">
                                 {getBusinessFileMeta(file)}
                             </span>
                         </div>
                     )}
                     <div className="absolute inset-0 flex items-start justify-between bg-gradient-to-t from-slate-900/60 via-slate-900/0 to-slate-900/0 p-2 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
-                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                        <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-2xs font-bold text-white shadow-sm">
                             Attached
                         </span>
                         <Button
@@ -131,7 +131,7 @@ export function FileUploadCard({
                 >
                     <Upload className="mb-1.5 h-5 w-5 text-foreground-subtle" />
                     <span className="text-xs font-semibold text-foreground-secondary">Choose file</span>
-                    <span className="mt-0.5 text-[11px] text-muted-foreground">PDF, JPG up to 10MB</span>
+                    <span className="mt-0.5 text-tiny text-muted-foreground">PDF, JPG up to 10MB</span>
                 </button>
             )}
 

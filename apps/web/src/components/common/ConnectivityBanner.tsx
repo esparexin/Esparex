@@ -1,11 +1,14 @@
 "use client";
 
 import React from 'react';
-import { WifiOff, AlertTriangle } from 'lucide-react';
-import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import {
+  WifiOff,
+  AlertTriangle,
   Z_INDEX,
 } from "@esparex/ui";
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+
+
 
 interface ConnectivityBannerProps {
     apiUnavailable?: boolean;

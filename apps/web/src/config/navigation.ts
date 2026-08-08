@@ -25,7 +25,7 @@ export type NavigationRole = "guest" | "user" | "business";
 export type NavigationSurface = "profile-dropdown" | "mobile-drawer" | "mobile-bottom-nav";
 export type NavigationSection = "main" | "account";
 
-export interface NavigationItem {
+export interface WebNavigationItem {
   id: string;
   label: string;
   slug: string;
@@ -42,7 +42,7 @@ interface NavigationContext {
   user: AppUser | null;
 }
 
-export interface ResolvedNavigationItem extends NavigationItem {
+export interface ResolvedNavigationItem extends WebNavigationItem {
   page?: UserPage;
   href?: string;
 }
@@ -90,7 +90,7 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
     business: "my-business",
   });
 
-const BASE_NAVIGATION: NavigationItem[] = [
+const BASE_NAVIGATION: WebNavigationItem[] = [
   {
     id: "home",
     label: "Home",
@@ -220,7 +220,7 @@ export function isBusinessVerified(user: AppUser | null): boolean {
 }
 
 function resolveBusinessItem(
-  item: NavigationItem,
+  item: WebNavigationItem,
   user: AppUser | null
 ): ResolvedNavigationItem {
   const status = normalizeBusinessStatus(user?.businessStatus, "pending");
@@ -244,7 +244,7 @@ function resolveBusinessItem(
 }
 
 function resolveItem(
-  item: NavigationItem,
+  item: WebNavigationItem,
   context: NavigationContext
 ): ResolvedNavigationItem {
   if (item.id === "business-hub") {

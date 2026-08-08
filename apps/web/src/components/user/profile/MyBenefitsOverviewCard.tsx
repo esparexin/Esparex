@@ -53,7 +53,7 @@ export function MyBenefitsOverviewCard() {
                     <p className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight mt-0.5">
                         {freeSlots} <span className="text-xs text-slate-400 font-normal">/ {freeTotal}</span>
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Resets 1st of Month</p>
+                    <p className="text-2xs text-slate-400 mt-0.5">Resets 1st of Month</p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200/80 bg-white/90 p-2.5 text-center">
@@ -61,7 +61,7 @@ export function MyBenefitsOverviewCard() {
                     <p className="text-base sm:text-lg font-extrabold text-blue-600 tracking-tight mt-0.5">
                         {paidCredits}
                     </p>
-                    <p className="text-[10px] text-emerald-600 font-medium mt-0.5">Never Expires</p>
+                    <p className="text-2xs text-emerald-600 font-medium mt-0.5">Never Expires</p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200/80 bg-white/90 p-2.5 text-center">
@@ -69,7 +69,7 @@ export function MyBenefitsOverviewCard() {
                     <p className="text-base sm:text-lg font-extrabold text-amber-600 tracking-tight mt-0.5">
                         {spotlightCredits}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Top Search Visibility</p>
+                    <p className="text-2xs text-slate-400 mt-0.5">Top Search Visibility</p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200/80 bg-white/90 p-2.5 text-center">
@@ -77,7 +77,7 @@ export function MyBenefitsOverviewCard() {
                     <p className="text-base sm:text-lg font-extrabold text-purple-600 tracking-tight mt-0.5">
                         {topAdCredits}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Instant Bump</p>
+                    <p className="text-2xs text-slate-400 mt-0.5">Instant Bump</p>
                 </div>
             </div>
         </div>
