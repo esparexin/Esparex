@@ -72,8 +72,7 @@ export const PROFILE_TAB_ITEMS: Array<{
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
-    { value: "purchases", label: "My Purchases", icon: Package },
-    { value: "plans", label: "Plans", icon: CreditCard },
+    { value: "plans", label: "Plans & Wallet", icon: CreditCard },
     { value: "settings", label: "Settings", icon: Settings },
   ];
 
