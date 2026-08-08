@@ -114,23 +114,26 @@ function run(val) {
     } catch { /* fallback */ }
   }
 
-  if (fs.existsSync(reportPath)) {
-    try {
-      const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-      const currentRate = report.statistics?.total?.percentage || 0;
+  if (!fs.existsSync(reportPath)) {
+    val.error('JSCPD report not found at .jscpd-report/jscpd-report.json. Run npm run guard:duplicate-code before repo:gate.');
+    return;
+  }
 
-      if (currentRate > previousBaseline + 0.01) {
-        val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds previous baseline ${previousBaseline}%`);
-      } else if (currentRate < previousBaseline) {
-        val.info(`Duplicate Rate Improved: ${currentRate}% (Previous baseline: ${previousBaseline}%)`);
-        // Automatically save new tighter baseline
-        fs.writeFileSync(baselinePath, JSON.stringify({ baselinePercentage: currentRate, lastUpdated: new Date().toISOString() }, null, 2));
-      } else {
-        val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${previousBaseline}%)`);
-      }
-    } catch {
-      val.warning('Could not parse JSCPD report file');
+  try {
+    const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    const currentRate = report.statistics?.total?.percentage || 0;
+
+    if (currentRate > previousBaseline + 0.01) {
+      val.error(`Duplicate Rate Regression: Current ${currentRate}% exceeds previous baseline ${previousBaseline}%`);
+    } else if (currentRate < previousBaseline) {
+      val.info(`Duplicate Rate Improved: ${currentRate}% (Previous baseline: ${previousBaseline}%)`);
+      // Automatically save new tighter baseline
+      fs.writeFileSync(baselinePath, JSON.stringify({ baselinePercentage: currentRate, lastUpdated: new Date().toISOString() }, null, 2));
+    } else {
+      val.info(`Duplicate Rate Preserved: ${currentRate}% (Baseline: ${previousBaseline}%)`);
     }
+  } catch {
+    val.warning('Could not parse JSCPD report file');
   }
 }
 

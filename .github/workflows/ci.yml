@@ -97,13 +97,20 @@ jobs:
       - name: Validate workspace dependency graph
         run: npm run guard:buildgraph
 
+      - name: Generate duplicate code report
+        run: npm run guard:duplicate-code
+
       - name: Run Repository Gate
         run: npm run repo:gate
 
-      - name: Verify circular dependencies & dead code
+      - name: Verify circular dependencies, dead code & package boundaries
         run: |
           npm run guard:circular
           npm run guard:dead-code
+          npm run guard:dependencies
+
+      - name: Verify unused files and dependencies (Knip)
+        run: npm run guard:knip
 
       - name: Verify no stale build artifacts
         run: |
@@ -113,6 +120,9 @@ jobs:
 
       - name: Run ESLint Baseline Enforcement
         run: npm run lint:ci
+
+      - name: Check for new unused imports in changed files
+        run: npm run guard:unused-imports
 
       - name: Run type-check
         run: npm run type-check
