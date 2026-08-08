@@ -80,7 +80,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                                     : "text-muted-foreground hover:bg-muted hover:text-foreground font-normal"
                             )}
                         >
-                            <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: '18px', height: '18px' }} />
+                            <Icon className="h-4.5 w-4.5 shrink-0" />
                             <span className="max-w-full truncate text-2xs font-normal leading-tight">
                                 {item.label}
                             </span>
