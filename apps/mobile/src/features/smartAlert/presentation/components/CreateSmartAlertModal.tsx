@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { Card, AppButton } from '@esparex/mobile-ui';
+import { Modal, View, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { AppButton, AppText } from '@esparex/mobile-ui';
 import { SmartAlertFormState, INITIAL_SMART_ALERT_FORM_STATE } from '../../domain/SmartAlertFormState';
 import { useCreateSmartAlert } from '../hooks/useCreateSmartAlert';
 import { SmartAlert } from '../../domain/SmartAlert';
-import { semantic } from '@esparex/design-tokens';
 
 interface CreateSmartAlertModalProps {
   visible: boolean;
@@ -84,73 +83,87 @@ export function CreateSmartAlertModal({
       onRequestClose={onClose}
       accessibilityViewIsModal={true}
     >
-      <View style={styles.overlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{initialAlert ? 'Edit Smart Alert' : 'Create Smart Alert'}</Text>
+      <View className="flex-1 bg-black/50 justify-end">
+        <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-5 max-h-[85%] border-t border-slate-200 dark:border-slate-800">
+          <View className="flex-row justify-between items-center mb-4">
+            <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
+              {initialAlert ? 'Edit Smart Alert' : 'Create Smart Alert'}
+            </AppText>
             <TouchableOpacity
               onPress={onClose}
               accessibilityRole="button"
               accessibilityLabel="Close smart alert dialog"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={styles.closeText}>✕</Text>
+              <AppText variant="body" className="font-semibold text-slate-500 dark:text-slate-400 text-lg">
+                ✕
+              </AppText>
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.scrollForm}>
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Alert Label *</Text>
+          <ScrollView className="mb-4" showsVerticalScrollIndicator={false}>
+            <View className="mb-3.5">
+              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Alert Label *
+              </AppText>
               <TextInput
-                style={styles.input}
+                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
                 placeholder="e.g. iPhone 13 in Mumbai"
-                placeholderTextColor={semantic.light.muted}
+                placeholderTextColor="#94a3b8"
                 value={formState.name}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, name: text }))}
               />
             </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Search Keyword</Text>
+            <View className="mb-3.5">
+              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Search Keyword
+              </AppText>
               <TextInput
-                style={styles.input}
+                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
                 placeholder="e.g. OLED TV, Royal Enfield"
-                placeholderTextColor={semantic.light.muted}
+                placeholderTextColor="#94a3b8"
                 value={formState.keywords}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, keywords: text }))}
               />
             </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Category</Text>
+            <View className="mb-3.5">
+              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Category
+              </AppText>
               <TextInput
-                style={styles.input}
+                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
                 placeholder="e.g. Mobile Phones, Electronics"
-                placeholderTextColor={semantic.light.muted}
+                placeholderTextColor="#94a3b8"
                 value={formState.category}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, category: text }))}
               />
             </View>
 
-            <View style={styles.rowGroup}>
-              <View style={[styles.fieldGroup, styles.halfField]}>
-                <Text style={styles.label}>Min Price (₹)</Text>
+            <View className="flex-row justify-between mb-3.5">
+              <View className="w-[48%]">
+                <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Min Price (₹)
+                </AppText>
                 <TextInput
-                  style={styles.input}
+                  className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
                   placeholder="Min"
-                  placeholderTextColor={semantic.light.muted}
+                  placeholderTextColor="#94a3b8"
                   keyboardType="numeric"
                   value={formState.minPrice}
                   onChangeText={(text) => setFormState((prev) => ({ ...prev, minPrice: text }))}
                 />
               </View>
 
-              <View style={[styles.fieldGroup, styles.halfField]}>
-                <Text style={styles.label}>Max Price (₹)</Text>
+              <View className="w-[48%]">
+                <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Max Price (₹)
+                </AppText>
                 <TextInput
-                  style={styles.input}
+                  className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
                   placeholder="Max"
-                  placeholderTextColor={semantic.light.muted}
+                  placeholderTextColor="#94a3b8"
                   keyboardType="numeric"
                   value={formState.maxPrice}
                   onChangeText={(text) => setFormState((prev) => ({ ...prev, maxPrice: text }))}
@@ -158,24 +171,26 @@ export function CreateSmartAlertModal({
               </View>
             </View>
 
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Location / City</Text>
+            <View className="mb-3.5">
+              <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                Location / City
+              </AppText>
               <TextInput
-                style={styles.input}
+                className="border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-base text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950"
                 placeholder="e.g. Mumbai, New Delhi"
-                placeholderTextColor={semantic.light.muted}
+                placeholderTextColor="#94a3b8"
                 value={formState.location}
                 onChangeText={(text) => setFormState((prev) => ({ ...prev, location: text }))}
               />
             </View>
           </ScrollView>
 
-          <View style={styles.modalFooter}>
+          <View className="pt-2">
             <AppButton
               label={createMutation.isPending ? 'Saving...' : 'Save Smart Alert'}
               onPress={handleSubmit}
               disabled={createMutation.isPending}
-              style={styles.submitButton}
+              className="bg-brand-600 hover:bg-brand-700"
             />
           </View>
         </View>
@@ -184,33 +199,3 @@ export function CreateSmartAlertModal({
   );
 }
 
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: semantic.light.overlay, justifyContent: 'flex-end' },
-  modalContent: {
-    backgroundColor: semantic.light.card, // formerly #ffffff
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 20,
-    maxHeight: '85%',
-  },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
-  closeText: { fontSize: 18, color: semantic.light['muted-foreground'], fontWeight: '600' }, // formerly #64748b
-  scrollForm: { marginBottom: 16 },
-  fieldGroup: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: semantic.light['secondary-foreground'], marginBottom: 6 }, // formerly #334155
-  input: {
-    borderWidth: 1,
-    borderColor: semantic.light.border, // formerly #cbd5e1
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: semantic.light.foreground, // formerly #0f172a
-    backgroundColor: semantic.light.background, // formerly #f8fafc
-  },
-  rowGroup: { flexDirection: 'row', justifyContent: 'space-between' },
-  halfField: { width: '48%' },
-  modalFooter: { paddingTop: 8 },
-  submitButton: { backgroundColor: semantic.light.action },
-});

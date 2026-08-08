@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { View, FlatList, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Screen, Container, AppText, AppInput, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useChatThread } from '../hooks/useChatThread';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useProfile } from '../../../user/presentation/hooks/useProfile';
@@ -64,7 +65,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
           <View
             className={`max-w-[78%] rounded-2xl px-4 py-2.5 ${
               isMine
-                ? 'bg-sky-500 rounded-tr-none text-white'
+                ? 'bg-brand-600 rounded-tr-none text-white'
                 : 'bg-slate-200 dark:bg-slate-800 rounded-tl-none'
             }`}
           >
@@ -78,7 +79,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
               <AppText
                 variant="caption"
                 className={`text-[10px] text-right mt-1 ${
-                  isMine ? 'text-sky-100' : 'text-slate-500 dark:text-slate-400'
+                  isMine ? 'text-brand-100' : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {formattedTime}
@@ -106,7 +107,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
         <View className="flex-row items-center p-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           {onBack && (
             <TouchableOpacity onPress={onBack} className="mr-3" accessibilityLabel="Back to chat list">
-              <AppIcon name="ArrowLeft" size={20} color="#0ea5e9" />
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
             </TouchableOpacity>
           )}
           <AppText variant="h3" className="font-bold text-slate-900 dark:text-white flex-1">
@@ -148,11 +149,11 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
               onPress={handleSend}
               disabled={!inputText.trim() || sendMessageMutation.isPending}
               className={`w-11 h-11 rounded-full items-center justify-center ${
-                inputText.trim() ? 'bg-sky-500' : 'bg-slate-200 dark:bg-slate-800'
+                inputText.trim() ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-800'
               }`}
               accessibilityLabel="Send message"
             >
-              <AppIcon name="Send" size={18} color={inputText.trim() ? '#ffffff' : '#94a3b8'} />
+              <AppIcon name="Send" size={18} color={inputText.trim() ? '#ffffff' : base.slate[400]} />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -165,3 +166,4 @@ const styles = StyleSheet.create({
   kavContainer: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 20 },
 });
+

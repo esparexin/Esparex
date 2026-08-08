@@ -40,13 +40,15 @@ const config: Config = {
                     foreground: 'hsl(var(--popover-foreground))'
                 },
                 sidebar: {
-                    DEFAULT: "#1e293b", // slate-800
-                    foreground: "#f8fafc", // slate-50
+                    DEFAULT: "hsl(var(--sidebar, 215 28% 17%))",
+                    foreground: "hsl(var(--sidebar-foreground, 210 40% 98%))",
+                    border: "hsl(var(--sidebar-border, 215 28% 17%))",
                 },
                 primary: {
-                    DEFAULT: "#3b82f6", // blue-500
-                    foreground: "#ffffff",
+                    DEFAULT: "hsl(var(--primary))",
+                    foreground: "hsl(var(--primary-foreground))",
                 }
+
             },
             keyframes: {
                 shake: {

@@ -221,11 +221,11 @@ export function BoostPlanDialog({
                           <h4 className="text-xs font-bold text-slate-800">
                             {formattedName}
                           </h4>
-                          <Badge className="bg-amber-100 text-amber-800 text-[10px] px-1.5 py-0 font-semibold border-0">
+                          <Badge className="bg-amber-100 text-amber-800 text-2xs px-1.5 py-0 font-semibold border-0">
                             {plan.displayBoost} Visibility
                           </Badge>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-tiny text-slate-500 mt-0.5">
                           Featured for {plan.durationDays} Days
                         </p>
                       </div>

@@ -237,7 +237,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                 </div>
 
                 <div className="pt-2 space-y-2">
-                  <Label className="text-[11px] font-semibold text-slate-500">Quick Presets</Label>
+                  <Label className="text-tiny font-semibold text-slate-500">Quick Presets</Label>
                   <div className="flex flex-wrap gap-2">
                     {[
                       { label: "Under ₹5,000", min: "", max: "5000" },
@@ -252,7 +252,7 @@ export const BrowseFiltersHeaderTrigger = memo(function BrowseFiltersHeaderTrigg
                           setLocalMin(preset.min);
                           setLocalMax(preset.max);
                         }}
-                        className="px-3 py-1.5 rounded-full border border-slate-200 text-[11px] font-medium text-slate-700 hover:border-slate-900 hover:bg-slate-50 transition-colors"
+                        className="px-3 py-1.5 rounded-full border border-slate-200 text-tiny font-medium text-slate-700 hover:border-slate-900 hover:bg-slate-50 transition-colors"
                       >
                         {preset.label}
                       </button>

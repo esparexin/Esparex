@@ -184,19 +184,19 @@ export function ListingItem({
                 {/* Title */}
                 {detailHref ? (
                     <Link href={detailHref} className="min-w-0 hover:text-blue-600 transition-colors">
-                        <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
+                        <h3 className="text-caption md:text-small font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
                             {title}
                         </h3>
                     </Link>
                 ) : (
-                    <h3 className="text-[12px] md:text-[13px] font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
+                    <h3 className="text-caption md:text-small font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
                         {title}
                     </h3>
                 )}
 
                 {/* Price */}
                 <p className={cn(
-                    "text-[13px] font-semibold md:text-[18px] md:font-bold leading-normal",
+                    "text-small font-semibold md:text-h4 md:font-bold leading-normal",
                     priceClassName || "text-emerald-600",
                 )}>
                     {priceLabel}
@@ -204,12 +204,12 @@ export function ListingItem({
 
                 {/* Rejection reason (replaces meta on rejected state) */}
                 {status === "rejected" && rejectionReason ? (
-                    <p className="text-[11px] text-red-500 line-clamp-1 leading-normal">
+                    <p className="text-tiny text-red-500 line-clamp-1 leading-normal">
                         {rejectionReason}
                     </p>
                 ) : (
                     /* ── Single-line meta ── */
-                    <div className="flex items-center flex-nowrap gap-1 text-[11px] text-slate-500 leading-normal min-w-0 overflow-hidden">
+                    <div className="flex items-center flex-nowrap gap-1 text-tiny text-slate-500 leading-normal min-w-0 overflow-hidden">
                         <span className="shrink-0">👁 {totalViews}</span>
 
                         {showExpiry && (
@@ -255,7 +255,7 @@ export function ListingItem({
                                 <span
                                     key={i}
                                     className={cn(
-                                        "px-1.5 py-px rounded text-[10px] font-medium border",
+                                        "px-1.5 py-px rounded text-2xs font-medium border",
                                         tag.className || "bg-slate-50 text-slate-400 border-slate-100",
                                     )}
                                 >
@@ -281,7 +281,7 @@ export function ListingItem({
                 )}>
                     {/* Status badge — hidden when caller says showStatusBadge=false */}
                     {showStatusBadge && (
-                        <div className="[&>*]:!text-[10px] [&>*]:!font-semibold [&>*]:!px-1.5 [&>*]:!py-[3px] [&>*]:!rounded [&>*]:!leading-none shrink-0">
+                        <div className="[&>*]:!text-2xs [&>*]:!font-semibold [&>*]:!px-1.5 [&>*]:!py-[3px] [&>*]:!rounded [&>*]:!leading-none shrink-0">
                             {getStatusBadge(status)}
                         </div>
                     )}
@@ -307,7 +307,7 @@ export function ListingItem({
                                 {showMarkSold && (
                                     <DropdownMenuItem
                                         onClick={onMarkSold}
-                                        className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                        className="text-emerald-700 focus:text-emerald-700 focus:bg-emerald-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
                                     >
                                         <CheckSquare className="h-3 w-3 mr-1.5 shrink-0" />
                                         Mark as Sold
@@ -316,7 +316,7 @@ export function ListingItem({
                                 {showDeactivate && (
                                     <DropdownMenuItem
                                         onClick={onDeactivate}
-                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
                                     >
                                         <PowerOff className="h-3 w-3 mr-1.5 shrink-0" />
                                         Deactivate
@@ -325,7 +325,7 @@ export function ListingItem({
                                 {showActivate && (
                                     <DropdownMenuItem
                                         onClick={onActivate}
-                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
                                     >
                                         <Power className="h-3 w-3 mr-1.5 shrink-0" />
                                         Activate
@@ -334,7 +334,7 @@ export function ListingItem({
                                 {onBoost && (status === "live" || status === "active") && (
                                     <DropdownMenuItem
                                         onClick={onBoost}
-                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                        className="text-amber-700 focus:text-amber-700 focus:bg-amber-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
                                     >
                                         <Sparkles className="h-3 w-3 mr-1.5 shrink-0 text-amber-500" />
                                         Apply Boost / Spotlight
@@ -343,7 +343,7 @@ export function ListingItem({
                                 {showRenew && (
                                     <DropdownMenuItem
                                         onClick={onRenew}
-                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                        className="text-blue-700 focus:text-blue-700 focus:bg-blue-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
                                     >
                                         <RefreshCw className="h-3 w-3 mr-1.5 shrink-0" />
                                         Renew
@@ -362,7 +362,7 @@ export function ListingItem({
                                                 );
                                             }
                                         }}
-                                        className="cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center text-slate-700"
+                                        className="cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center text-slate-700"
                                     >
                                         <Share2 className="h-3 w-3 mr-1.5 shrink-0" />
                                         Share
@@ -371,7 +371,7 @@ export function ListingItem({
                                 {showDelete && (
                                     <DropdownMenuItem
                                         onClick={onDelete}
-                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer !text-[11px] font-medium py-1 px-2 flex items-center"
+                                        className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer !text-tiny font-medium py-1 px-2 flex items-center"
                                     >
                                         <Trash2 className="h-3 w-3 mr-1.5 shrink-0" />
                                         Delete

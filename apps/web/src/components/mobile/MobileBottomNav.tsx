@@ -81,7 +81,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                             )}
                         >
                             <Icon className="h-4.5 w-4.5 shrink-0" style={{ width: '18px', height: '18px' }} />
-                            <span className="max-w-full truncate text-[10px] font-normal leading-tight">
+                            <span className="max-w-full truncate text-2xs font-normal leading-tight">
                                 {item.label}
                             </span>
                         </Link>
@@ -120,7 +120,7 @@ export function MobileBottomNav({ enabled = true }: MobileBottomNavProps) {
                     </div>
                     <span
                         className={cn(
-                            "text-[10px] font-normal leading-tight",
+                            "text-2xs font-normal leading-tight",
                             isBackendUp ? "text-link" : "text-muted-foreground"
                         )}
                     >

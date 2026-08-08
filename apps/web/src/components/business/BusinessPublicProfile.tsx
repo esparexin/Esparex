@@ -210,7 +210,7 @@ export function BusinessPublicProfile({
                   <div className="flex flex-wrap items-center gap-1.5">
                     <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">{business.name}</h1>
                     {business.status === "live" && (
-                      <Badge className="bg-blue-600 text-white text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
+                      <Badge className="bg-blue-600 text-white text-2xs sm:text-tiny font-semibold px-2 py-0.5 rounded-full border-none shrink-0 inline-flex items-center gap-1">
                         <CheckCircle className="size-2.5 sm:size-3" />
                         Verified
                       </Badge>
@@ -219,18 +219,18 @@ export function BusinessPublicProfile({
                   {business.tagline && <p className="text-xs text-slate-500 mt-0.5 font-normal">{business.tagline}</p>}
 
                   <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500 font-normal">
-                    <span className="inline-flex items-center gap-1 text-slate-700 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-[11px]">
+                    <span className="inline-flex items-center gap-1 text-slate-700 font-medium bg-slate-100 px-2 py-0.5 rounded-md text-tiny">
                       <Store className="size-3 text-blue-600" />
                       {primaryBusinessType}
                     </span>
                     {mapData.locationLabel && (
-                      <span className="inline-flex items-center gap-1 text-slate-500 text-[11px]">
+                      <span className="inline-flex items-center gap-1 text-slate-500 text-tiny">
                         <MapPin className="size-3 text-slate-400" />
                         {mapData.locationLabel}
                       </span>
                     )}
                     {business.rating ? (
-                      <span className="inline-flex items-center gap-1 text-slate-700 font-semibold text-[11px]">
+                      <span className="inline-flex items-center gap-1 text-slate-700 font-semibold text-tiny">
                         <Star className="size-3 fill-amber-400 text-amber-400" />
                         {business.rating.toFixed(1)}
                       </span>
@@ -310,7 +310,7 @@ export function BusinessPublicProfile({
           {business.description ? (
             <Card className="rounded-2xl border-slate-200/80 shadow-2xs bg-white">
               <CardHeader className="pb-1.5 pt-3.5 px-3.5 sm:px-5">
-                <CardTitle className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">About Business</CardTitle>
+                <CardTitle className="text-tiny font-bold text-slate-500 uppercase tracking-wider">About Business</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2.5 px-3.5 sm:px-5 pb-3.5">
                 <p className="leading-relaxed text-xs sm:text-sm text-slate-700 font-normal whitespace-pre-wrap">{business.description}</p>
@@ -343,7 +343,7 @@ export function BusinessPublicProfile({
                   >
                     {tab.icon}
                     {tab.label}
-                    <span className={`ml-1 rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                    <span className={`ml-1 rounded-full px-1.5 py-0.2 text-2xs font-bold ${
                       activeTab === tab.key ? "bg-blue-100 text-blue-800" : "bg-slate-100 text-slate-600"
                     }`}>
                       {tab.count}
@@ -381,7 +381,7 @@ export function BusinessPublicProfile({
         <div className="space-y-3 sm:space-y-4">
           <Card className="rounded-2xl border-slate-200/80 shadow-2xs bg-white">
             <CardHeader className="pb-1.5 pt-3.5 px-3.5 sm:px-5">
-              <CardTitle className="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <CardTitle className="text-tiny font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                 <MapPin className="size-3.5 text-slate-400" />
                 Store Location & Address
               </CardTitle>
@@ -405,7 +405,7 @@ export function BusinessPublicProfile({
                 </div>
                 {mapData.externalUrl ? (
                   <div className="flex items-center justify-between border-t border-slate-100 bg-white px-3 py-2">
-                    <span className="text-[10px] text-slate-500">Google Maps</span>
+                    <span className="text-2xs text-slate-500">Google Maps</span>
                     <a href={mapData.externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline">
                       Open in Maps <ExternalLink className="size-3" />
                     </a>

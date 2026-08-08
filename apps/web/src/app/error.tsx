@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Home, RefreshCcw, Mail } from 'lucide-react';
+import { AlertTriangle, Home, RefreshCcw, Mail } from '@esparex/ui';
+
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 
@@ -38,7 +39,7 @@ export default function Error({
 
                     {/* Badge & Title */}
                     <div className="space-y-2">
-                        <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                        <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-200/60 bg-rose-50 px-3 py-1 text-tiny font-bold uppercase tracking-wider text-rose-700">
                             500 · Server Error
                         </div>
                         <h1 className="text-xl font-extrabold text-foreground sm:text-2xl">
@@ -55,11 +56,11 @@ export default function Error({
                             <summary className="cursor-pointer font-bold text-rose-900 select-none">
                                 View Error Details
                             </summary>
-                            <p className="mt-2 font-mono text-[11px] text-rose-700 break-all">
+                            <p className="mt-2 font-mono text-tiny text-rose-700 break-all">
                                 {safeMessage}
                             </p>
                             {error.digest && (
-                                <p className="mt-1 text-[10px] text-rose-600">
+                                <p className="mt-1 text-2xs text-rose-600">
                                     Digest: {error.digest}
                                 </p>
                             )}

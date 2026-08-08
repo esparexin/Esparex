@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen, Container, AppText, Avatar, Card, AppIcon, Badge } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useProfile } from '../hooks/useProfile';
 import { ErrorState } from '../../../common/components/ErrorState';
 import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
@@ -41,7 +42,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
     return (
       <Screen edges={['top', 'left', 'right']}>
         <Container className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#0ea5e9" />
+          <ActivityIndicator size="large" color={base.brand[500]} />
         </Container>
       </Screen>
     );
@@ -61,14 +62,14 @@ export const ProfileScreen = ({ navigation }: Props) => {
             accessibilityRole="button"
             className="p-2"
           >
-            <AppIcon name="Settings" size={22} color="#64748b" />
+            <AppIcon name="Settings" size={22} color={base.slate[500]} />
           </TouchableOpacity>
         </View>
 
         <ScrollView
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#0ea5e9" />
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={base.brand[500]} />
           }
           contentContainerStyle={styles.scrollContent}
         >
@@ -91,7 +92,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
             <View className="flex-row gap-2 mt-3 flex-wrap justify-center">
               {profile?.isPhoneVerified && (
                 <View className="flex-row items-center bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                  <AppIcon name="CheckCircle2" size={12} color="#10b981" />
+                  <AppIcon name="CheckCircle2" size={12} color={base.success} />
                   <AppText variant="caption" className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1">
                     Phone Verified
                   </AppText>
@@ -114,7 +115,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
 
             {memberSince && (
               <View className="flex-row items-center py-2 border-b border-slate-100 dark:border-slate-800">
-                <AppIcon name="Calendar" size={16} color="#64748b" />
+                <AppIcon name="Calendar" size={16} color={base.slate[500]} />
                 <AppText variant="body" className="text-slate-600 dark:text-slate-400 ml-2.5">
                   Member since {memberSince}
                 </AppText>
@@ -123,7 +124,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
 
             {profile?.location?.city && (
               <View className="flex-row items-center py-2 border-b border-slate-100 dark:border-slate-800">
-                <AppIcon name="MapPin" size={16} color="#64748b" />
+                <AppIcon name="MapPin" size={16} color={base.slate[500]} />
                 <AppText variant="body" className="text-slate-600 dark:text-slate-400 ml-2.5">
                   {profile.location.city}
                   {profile.location.state ? `, ${profile.location.state}` : ''}
@@ -132,7 +133,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
             )}
 
             <View className="flex-row items-center py-2">
-              <AppIcon name="Shield" size={16} color="#64748b" />
+              <AppIcon name="Shield" size={16} color={base.slate[500]} />
               <AppText variant="body" className="text-slate-600 dark:text-slate-400 ml-2.5">
                 Account Status: {profile?.status || 'Active'}
               </AppText>
@@ -148,12 +149,12 @@ export const ProfileScreen = ({ navigation }: Props) => {
             <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
-                  <AppIcon name="Settings" size={18} color="#64748b" />
+                  <AppIcon name="Settings" size={18} color={base.slate[500]} />
                   <AppText variant="body" className="font-semibold text-slate-800 dark:text-slate-200 ml-2.5">
                     Account Settings
                   </AppText>
                 </View>
-                <AppIcon name="ChevronRight" size={18} color="#94a3b8" />
+                <AppIcon name="ChevronRight" size={18} color={base.slate[400]} />
               </View>
             </Card>
           </TouchableOpacity>
@@ -167,3 +168,4 @@ const styles = StyleSheet.create({
   // paddingBottom: 100 clears the bottom tab navigation bar (MainTabs height ~60px + safe area)
   scrollContent: { padding: 16, paddingBottom: 100 },
 });
+

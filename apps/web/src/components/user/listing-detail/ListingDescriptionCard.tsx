@@ -43,7 +43,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                             <div className="flex items-start gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
                                 <ShieldCheck className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
+                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Warranty</p>
                                     <p className="text-xs font-bold text-slate-800 mt-0.5">{String(ad.warranty)}</p>
                                 </div>
                             </div>
@@ -53,7 +53,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                             <div className="flex items-start gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
                                 <Wrench className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Service Type</p>
+                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Service Type</p>
                                     <p className="text-xs font-bold text-slate-800 mt-0.5">{ad.onsiteService ? 'Doorstep Service' : 'In-Shop Only'}</p>
                                 </div>
                             </div>
@@ -63,7 +63,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                             <div className="flex items-start gap-2 bg-slate-50 rounded-xl p-2.5 border border-slate-100">
                                 <CircuitBoard className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Condition</p>
+                                    <p className="text-2xs uppercase font-bold text-slate-400 tracking-wider">Condition</p>
                                     <p className="text-xs font-bold text-slate-800 mt-0.5">{ad.deviceCondition === 'power_on' ? 'Power On' : 'Power Off'}</p>
                                 </div>
                             </div>
