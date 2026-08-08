@@ -19,6 +19,8 @@ ios/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
+lint-output.txt
 
 # OS files
 .DS_Store

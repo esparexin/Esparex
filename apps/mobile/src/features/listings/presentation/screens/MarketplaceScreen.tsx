@@ -83,7 +83,7 @@ export const MarketplaceScreen = () => {
     );
   }
 
-  const listings = data?.pages.flat() || [];
+  const listings = useMemo(() => data?.pages.flat() || [], [data?.pages]);
 
   return (
     <Screen edges={['top', 'left', 'right']}>

@@ -73,6 +73,10 @@
       "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
+    "apps/mobile": {
+      "entry": ["App.tsx", "index.js"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
     "backend/api": {
       "entry": ["src/index.ts", "src/cron/**/*.ts"],
       "project": ["src/**/*.ts"]
