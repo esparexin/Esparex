@@ -54,7 +54,7 @@
     "@next/eslint-plugin-next",
     "@types/*",
     "eslint-config-prettier",
-    "eslint-plugin-unusedimports",
+    "eslint-plugin-unused-imports",
     "globals",
     "pm2",
     "dotenv",
