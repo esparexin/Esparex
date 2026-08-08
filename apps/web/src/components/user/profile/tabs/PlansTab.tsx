@@ -27,7 +27,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   currentPlan,
   setSelectedPlan,
   onPlanSelected,
-  setShowPlanDialog: _setShowPlanDialog,
+  setShowPlanDialog,
   formatCurrency: _formatCurrency,
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardHubTab>('OVERVIEW');
@@ -165,6 +165,9 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                       setSelectedPlan(plan.id);
                       if (onPlanSelected) {
                         onPlanSelected(plan as ProfilePlan);
+                      }
+                      if (setShowPlanDialog) {
+                        setShowPlanDialog(true);
                       }
                     }}
                     className={`w-full mt-5 py-2.5 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
