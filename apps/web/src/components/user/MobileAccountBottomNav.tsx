@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProfileTabValue } from "@/config/navigation";
-import { User, Package, MessageSquare, Bell, MoreHorizontal } from "@/components/ui/icons";
+import { User, Package, MessageCircle as MessageSquare, Bell, MoreHorizontal } from "@/icons/IconRegistry";
 
 interface MobileAccountBottomNavProps {
   activeTab: ProfileTabValue;

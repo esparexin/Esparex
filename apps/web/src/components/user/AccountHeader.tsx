@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, SettingsIcon } from "@/components/ui/icons";
+import { ChevronLeft, Settings as SettingsIcon } from "@/icons/IconRegistry";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { ACCOUNT_COPY } from "@/config/copy/account";
 

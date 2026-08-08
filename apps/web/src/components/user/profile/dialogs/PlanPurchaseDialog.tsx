@@ -12,7 +12,7 @@ import {
 } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Crown, AlertCircle } from "@/components/ui/icons";
+import { Crown, AlertCircle } from "@/icons/IconRegistry";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";

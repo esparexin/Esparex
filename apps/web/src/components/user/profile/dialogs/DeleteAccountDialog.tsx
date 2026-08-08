@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { AlertTriangle } from "@/components/ui/icons";
+import { AlertTriangle } from "@/icons/IconRegistry";
 import type { DeleteAccountFieldErrors, DeleteAccountReason } from "../types";
 
 interface DeleteAccountDialogProps {
