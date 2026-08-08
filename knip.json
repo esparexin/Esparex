@@ -1,8 +1,8 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "rules": {
-    "files": "warn",
-    "dependencies": "warn",
+    "files": "error",
+    "dependencies": "error",
     "devDependencies": "warn",
     "unlisted": "warn",
     "exports": "warn",
@@ -62,27 +62,59 @@
     "date-fns",
     "postcss",
     "tailwindcss",
-    "autoprefixer"
+    "autoprefixer",
+    "ts-node",
+    "tsx",
+    "jest",
+    "vitest",
+    "clsx",
+    "tailwind-merge",
+    "vaul",
+    "@tanstack/react-virtual",
+    "eslint-plugin-react",
+    "eslint-plugin-react-hooks",
+    // False positive: consumed in packages/ui/src/data-display/Badge.tsx
+    "class-variance-authority",
+    // False positives: used throughout apps/mobile/src — knip mis-attributes mobile workspace deps
+    "expo-status-bar",
+    "react-native-svg",
+    "@esparex/design-tokens",
+    "@esparex/shared",
+    "expo-updates",
+    "expo-system-ui",
+    "expo-constants",
+    "lucide-react-native",
+    // False positives: devDeps used by Expo/Babel build toolchain, not directly imported
+    "@babel/core",
+    "@commitlint/cli",
+    "husky"
   ],
   "workspaces": {
     "apps/admin": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/web": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/mobile": {
-      "entry": ["App.tsx", "index.js"],
+      "entry": ["App.tsx", "index.js", "capacitor.config.ts"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "backend/api": {
-      "entry": ["src/index.ts", "src/cron/**/*.ts"],
+      "entry": ["src/index.ts", "src/cron/**/*.ts", "src/smoke.ts"],
       "project": ["src/**/*.ts"]
     },
     "core": {
-      "entry": ["src/index.ts", "src/services/**/*.ts", "src/utils/**/*.ts"],
+      "entry": [
+        "src/index.ts",
+        "src/services/**/*.ts",
+        "src/utils/**/*.ts",
+        "src/domains/**/index.ts",
+        "src/domains/**/ports/*.ts",
+        "src/scripts/**/*.ts"
+      ],
       "project": ["src/**/*.ts"]
     },
     "shared": {
@@ -109,6 +141,13 @@
     "**/*.snap",
     "**/.eslintcache",
     "**/storybook-static/**",
-    "**/public/build/**"
+    "**/public/build/**",
+    "scripts/**",
+    "eslint.config.mjs",
+    "tooling/**",
+    // backend/api/scripts use relative paths (../src/config/db) and are standalone migration runners
+    "backend/api/scripts/**",
+    // mobile-ui test files use describe/it without exports — not consumable modules
+    "packages/mobile-ui/src/**/__tests__/**"
   ]
 }
