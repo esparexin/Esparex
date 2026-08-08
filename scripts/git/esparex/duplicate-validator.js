@@ -115,8 +115,13 @@ function run(val) {
   }
 
   if (!fs.existsSync(reportPath)) {
-    val.error('JSCPD report not found at .jscpd-report/jscpd-report.json. Run npm run guard:duplicate-code before repo:gate.');
-    return;
+    try {
+      const { execSync } = require('child_process');
+      execSync('npm run guard:duplicate-code', { cwd: ROOT, stdio: ['pipe', 'pipe', 'pipe'] });
+    } catch {
+      val.error('JSCPD report not found and could not be generated. Run npm run guard:duplicate-code before repo:gate.');
+      return;
+    }
   }
 
   try {

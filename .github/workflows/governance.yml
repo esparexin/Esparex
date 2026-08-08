@@ -20,6 +20,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Generate duplicate code report
+        run: npm run guard:duplicate-code
+
       - name: Run Repository Gate
         run: npm run repo:gate
 
