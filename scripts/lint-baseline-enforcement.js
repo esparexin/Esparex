@@ -41,18 +41,25 @@ const CRITICAL_RULES = [
 let newIssues = [];
 let legacyIssuesCount = 0;
 
+function normalizePath(filePath) {
+    if (!filePath) return '';
+    let relPath = path.isAbsolute(filePath) ? path.relative(process.cwd(), filePath) : filePath;
+    relPath = relPath.replace(/^.*?[/\\](apps|backend|core|shared|packages|scripts|tooling|\.agents|\.github)/, '$1');
+    return relPath.replace(/\\/g, '/');
+}
+
 // Create a lookup map for the baseline
-// Key: filePath + ruleId + line (approximate)
+// Key: filePath + ruleId
 const baselineMap = new Set();
 baseline.forEach(file => {
-    const relPath = path.relative(process.cwd(), file.filePath);
+    const relPath = normalizePath(file.filePath);
     file.messages.forEach(msg => {
         baselineMap.add(`${relPath}:${msg.ruleId}`);
     });
 });
 
 ciResults.forEach(file => {
-    const relPath = path.relative(process.cwd(), file.filePath);
+    const relPath = normalizePath(file.filePath);
     file.messages.forEach(msg => {
         const key = `${relPath}:${msg.ruleId}`;
         
