@@ -15,3 +15,24 @@
 
 # Shared library contracts & validations
 /shared/ @esparex/architects
+
+# UI package — all new primitives require architect review to prevent duplication
+/packages/ui/ @esparex/architects
+
+# Shared contracts (DTOs, schemas) — changes here affect all consumers
+/packages/contracts/ @esparex/architects
+
+# Design tokens — changes propagate to all platforms
+/packages/design-tokens/ @esparex/architects
+
+# Web app components — highest SSOT violation risk area per RCA audit
+/apps/web/src/components/ @esparex/architects
+
+# Admin app components
+/apps/admin/src/components/ @esparex/architects
+
+# Governance configuration files — require architect review to prevent enforcement bypass
+/knip.json @esparex/architects
+/.jscpd.json @esparex/architects
+/.jscpd-baseline.json @esparex/architects
+/eslint-baseline.json @esparex/architects
