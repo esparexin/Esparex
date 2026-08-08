@@ -264,10 +264,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             )}
 
             {categoryId && (
-                <ListingPriceField
-                    error={getFirstFormErrorMessage(errors.price as any)}
-                    registerProps={register("price", { valueAsNumber: true })}
-                />
+                <ListingPriceField name="price" />
             )}
 
             {categoryId && (

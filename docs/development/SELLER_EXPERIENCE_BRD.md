@@ -154,7 +154,7 @@ They are **busy, pragmatic, and margin-sensitive**. They are not professional e-
 | **Name** | Sunil |
 | **Business** | Mobile repair service (no parts sales) |
 | **Inventory** | Services (screen repair, battery replacement, water damage repair) |
-| **Goals** | Get service bookings from nearby customers. Display expertise. Set price range. |
+| **Goals** | Get customer inquiries for spare parts and repairs. Display expertise. Set price range. |
 | **Pain points** | Has to create a "listing" for a service, but the form is designed for physical products. Cannot set service area radius. Cannot publish a price range (₹500–1500). |
 | **Tech proficiency** | Low. Runs shop via walk-ins and phone calls. |
 | **Device usage** | 100% mobile. |

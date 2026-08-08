@@ -14,7 +14,8 @@ import {
     CatalogSelectFilter,
     CatalogSearchInput,
 } from "@/components/catalog/CatalogUiPrimitives";
-import { CatalogModal } from "@/components/catalog/CatalogModal";
+import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
+import { useCatalogTabState } from "@/hooks/useCatalogTabState";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminServiceTypes, type ServiceType } from "@/hooks/useAdminServiceTypes";
 import { categorySupportsServices, useAssignableCategories } from "@/hooks/useAssignableCategories";
@@ -30,8 +31,6 @@ export default function ServiceTypesTab() {
     const initialCategoryId = normalizeSearchParamValue(searchParams.get("categoryId")) || "all";
     const initialStatus = normalizeSearchParamValue(searchParams.get("status")) || "all";
     const initialPage = parsePositiveIntParam(searchParams.get("page"), 1);
-
-    const [searchInput, setSearchInput] = useState(initialSearch);
 
     const { categories } = useAdminCategories();
     const {
@@ -49,14 +48,22 @@ export default function ServiceTypesTab() {
             categoryId: initialCategoryId,
             status: initialStatus,
         },
-        initialPagination: {
-            page: initialPage,
-            limit: 20,
-        },
+        initialPagination: { page: 1, limit: 20 },
     });
 
-    const [deletingServiceType, setDeletingServiceType] = useState<ServiceType | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const {
+        searchInput, setSearchInput,
+        deletingItem: deletingServiceType, setDeletingItem: setDeletingServiceType,
+        isDeleting, setIsDeleting, closeDelete, replaceQueryState
+    } = useCatalogTabState<ServiceType>({ 
+        totalPages: pagination.totalPages, 
+        loading,
+        initialSearch,
+        initialCategoryId,
+        initialStatus,
+        initialPage
+    });
+
 
     const confirmDelete = async () => {
         if (!deletingServiceType) return;
@@ -71,14 +78,6 @@ export default function ServiceTypesTab() {
         categorySupportsServices
     );
     const categoryOptions = toCategoryOptions(assignableCategories);
-
-    const { replaceQueryState } = useCatalogQueryStateSync({
-        searchInput,
-        initialSearch,
-        loading,
-        initialPage,
-        totalPages: pagination.totalPages,
-    });
 
     return (
         <>
@@ -209,47 +208,13 @@ export default function ServiceTypesTab() {
                 )}
             />
 
-            <CatalogModal
+            <CatalogDeleteModal
                 isOpen={!!deletingServiceType}
-                onClose={() => !isDeleting && setDeletingServiceType(null)}
-                title="Delete Service Type"
-            >
-                <div className="p-6 space-y-4">
-                    <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-                        <div>
-                            <p className="text-sm font-semibold text-red-700">
-                                Delete confirmation
-                            </p>
-                            <p className="mt-1 text-sm text-red-600">
-                                Are you sure you want to delete <strong>&ldquo;{deletingServiceType?.name}&rdquo;</strong>?
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            disabled={isDeleting}
-                            onClick={() => setDeletingServiceType(null)}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-foreground-secondary hover:bg-slate-50 disabled:opacity-50 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            disabled={isDeleting}
-                            onClick={() => void confirmDelete()}
-                            className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
-                        >
-                            {isDeleting ? (
-                                <><Loader2 size={14} className="animate-spin" /> Deleting…</>
-                            ) : (
-                                "Yes, Delete Service Type"
-                            )}
-                        </button>
-                    </div>
-                </div>
-            </CatalogModal>
+                itemName={deletingServiceType?.name || ""}
+                isDeleting={isDeleting}
+                onClose={closeDelete}
+                onConfirm={confirmDelete}
+            />
         </>
     );
 }

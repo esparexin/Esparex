@@ -5,6 +5,7 @@ import { Plan } from '@esparex/contracts';
 import { usePaymentPlans } from '../hooks/usePaymentPlans';
 import { useWalletSummary } from '../hooks/useWalletSummary';
 import { useCheckoutPayment } from '../hooks/useCheckoutPayment';
+import { semantic } from '@esparex/design-tokens';
 
 interface PlanSelectionScreenProps {
   onSuccess?: () => void;
@@ -79,6 +80,7 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
 
           {loadingPlans && (
             <View style={styles.loadingContainer}>
+              {/* eslint-disable-next-line react-native/no-color-literals */}
               <ActivityIndicator size="large" color="#2563eb" />
             </View>
           )}
@@ -124,34 +126,34 @@ export function PlanSelectionScreen({ onSuccess, onBack }: PlanSelectionScreenPr
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
   headerBar: {
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: semantic.light.border, // formerly #e2e8f0
   },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
   content: { flex: 1 },
   walletContainer: { padding: 16 },
-  walletCard: { padding: 16, borderRadius: 16, backgroundColor: '#1e293b' },
-  walletTitle: { fontSize: 14, fontWeight: '600', color: '#94a3b8', marginBottom: 12 },
+  walletCard: { padding: 16, borderRadius: 16, backgroundColor: semantic.light['inverse-surface'] },
+  walletTitle: { fontSize: 14, fontWeight: '600', color: semantic.light['inverse-muted'], marginBottom: 12 },
   walletRow: { flexDirection: 'row', justifyContent: 'space-between' },
   walletItem: { alignItems: 'center', flex: 1 },
-  walletCount: { fontSize: 22, fontWeight: '800', color: '#ffffff' },
-  walletLabel: { fontSize: 12, color: '#cbd5e1', marginTop: 2 },
+  walletCount: { fontSize: 22, fontWeight: '800', color: semantic.light['primary-foreground'] }, // formerly #ffffff
+  walletLabel: { fontSize: 12, color: semantic.light['inverse-subtle'], marginTop: 2 },
   plansContainer: { paddingHorizontal: 16, paddingBottom: 24 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 12 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: semantic.light.foreground, marginBottom: 12 }, // formerly #0f172a
   loadingContainer: { padding: 32, alignItems: 'center' },
-  emptyCard: { padding: 20, borderRadius: 12, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#64748b' },
-  planCard: { padding: 16, borderRadius: 16, backgroundColor: '#ffffff', marginBottom: 12 },
+  emptyCard: { padding: 20, borderRadius: 12, backgroundColor: semantic.light.card, alignItems: 'center' }, // formerly #ffffff
+  emptyText: { fontSize: 14, color: semantic.light['muted-foreground'] }, // formerly #64748b
+  planCard: { padding: 16, borderRadius: 16, backgroundColor: semantic.light.card, marginBottom: 12 }, // formerly #ffffff
   planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  planName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  planPrice: { fontSize: 18, fontWeight: '800', color: '#2563eb' },
-  planDesc: { fontSize: 13, color: '#64748b', marginBottom: 10 },
+  planName: { fontSize: 16, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
+  planPrice: { fontSize: 18, fontWeight: '800', color: semantic.light.action },
+  planDesc: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 10 }, // formerly #64748b
   planFeatures: { marginBottom: 14 },
-  featureItem: { fontSize: 13, color: '#334155', marginBottom: 4 },
-  buyButton: { backgroundColor: '#2563eb' },
+  featureItem: { fontSize: 13, color: semantic.light['secondary-foreground'], marginBottom: 4 }, // formerly #334155
+  buyButton: { backgroundColor: semantic.light.action },
 });

@@ -86,8 +86,10 @@ export function useBusinessWizardBridge<TFieldValues extends FieldValues>({
                 return;
             }
 
+            const hasError = !!(errors as Record<string, unknown>)[key];
             setValue(key as Path<TFieldValues>, value as PathValue<TFieldValues, Path<TFieldValues>>, {
                 shouldDirty: true,
+                shouldValidate: hasError,
             });
         });
     };

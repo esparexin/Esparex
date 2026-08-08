@@ -1,11 +1,10 @@
 "use client";
 
 import { memo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { AdCardCover, AdCardMeta, AdCardActions } from "./primitives";
+import { CardContent } from "@/components/ui/card";
+import { AdCardCover, AdCardMeta, AdCardActions, AdCardShell } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {
-  AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
 } from "./shared";
@@ -64,34 +63,20 @@ export const AdCardGrid = memo(function AdCardGrid({
   const isBusiness = Boolean(adRecord.isBusiness);
 
   return (
-    <AdCardLinkWrapper href={resolvedHref} enabled={useDeclarativeLink}>
-      {/* article gives screen readers proper document structure for list items */}
-      <article aria-label={ad.title}>
-        <Card
-          tabIndex={useDeclarativeLink ? undefined : 0}
-          role={useDeclarativeLink ? undefined : "button"}
-          className={cn(
-            "overflow-hidden transition-all duration-300 group cursor-pointer",
-            "border-border bg-white shadow-premium rounded-2xl",
-            "hover:shadow-premium-hover hover:-translate-y-1.5",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-            ad.isSpotlight &&
-              "ring-2 ring-amber-400/30 shadow-[0_8px_30px_rgba(245,158,11,0.15)]",
-            className
-          )}
-          onClick={useDeclarativeLink ? undefined : handleCardClick}
-          onKeyDown={
-            useDeclarativeLink
-              ? undefined
-              : (e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleCardClick();
-                  }
-                }
-          }
-        >
-          {/* Image section — AdCardCover handles promotion + verified badges internally */}
+    <AdCardShell
+      ad={ad}
+      resolvedHref={resolvedHref}
+      useDeclarativeLink={useDeclarativeLink}
+      handleCardClick={handleCardClick}
+      className={cn(
+        "duration-300 border-border bg-white shadow-premium rounded-2xl",
+        "hover:shadow-premium-hover hover:-translate-y-1.5",
+        ad.isSpotlight &&
+          "ring-2 ring-amber-400/30 shadow-[0_8px_30px_rgba(245,158,11,0.15)]",
+        className
+      )}
+    >
+      {/* Image section — AdCardCover handles promotion + verified badges internally */}
           <AdCardCover
             ad={ad}
             imageUrl={imageUrl}
@@ -116,9 +101,7 @@ export const AdCardGrid = memo(function AdCardGrid({
           <CardContent className="p-3">
             <AdCardMeta ad={ad} variant="default" />
           </CardContent>
-        </Card>
-      </article>
-    </AdCardLinkWrapper>
+    </AdCardShell>
   );
 }, areAdCardGridPropsEqual);
 

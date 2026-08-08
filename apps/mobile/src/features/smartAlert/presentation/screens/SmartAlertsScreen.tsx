@@ -5,6 +5,7 @@ import { useSmartAlertsList } from '../hooks/useSmartAlertsList';
 import { useDeleteSmartAlert } from '../hooks/useDeleteSmartAlert';
 import { CreateSmartAlertModal } from '../components/CreateSmartAlertModal';
 import { SmartAlert } from '../../domain/SmartAlert';
+import { semantic } from '@esparex/design-tokens';
 
 interface SmartAlertsScreenProps {
   onUpgradePlan?: () => void;
@@ -68,6 +69,7 @@ export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
 
       <Container style={styles.container}>
         {isLoading ? (
+          // eslint-disable-next-line react-native/no-color-literals
           <ActivityIndicator size="large" color="#2563eb" style={styles.loader} />
         ) : (
           <FlatList
@@ -105,31 +107,31 @@ export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
   headerBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: semantic.light.border, // formerly #e2e8f0
   },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
-  addButton: { backgroundColor: '#2563eb', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
-  addText: { fontSize: 13, fontWeight: '700', color: '#ffffff' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
+  addButton: { backgroundColor: semantic.light.action, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  addText: { fontSize: 13, fontWeight: '700', color: semantic.light['primary-foreground'] }, // formerly #ffffff
   container: { flex: 1, padding: 16 },
   loader: { marginTop: 32 },
-  alertCard: { padding: 16, borderRadius: 14, backgroundColor: '#ffffff', marginBottom: 12 },
+  alertCard: { padding: 16, borderRadius: 14, backgroundColor: semantic.light.card, marginBottom: 12 }, // formerly #ffffff
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  alertName: { fontSize: 16, fontWeight: '700', color: '#0f172a' },
-  deleteText: { fontSize: 13, color: '#dc2626', fontWeight: '600' },
-  criteriaText: { fontSize: 13, color: '#475569', marginBottom: 3 },
-  cardFooter: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
-  frequencyText: { fontSize: 12, fontWeight: '600', color: '#0284c7' },
-  emptyCard: { padding: 24, borderRadius: 16, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 6 },
-  emptySubtitle: { fontSize: 13, color: '#64748b', textAlign: 'center', marginBottom: 16, lineHeight: 18 },
-  createButton: { backgroundColor: '#2563eb' },
+  alertName: { fontSize: 16, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
+  deleteText: { fontSize: 13, color: semantic.light['destructive-dark'], fontWeight: '600' },
+  criteriaText: { fontSize: 13, color: semantic.light['muted-foreground'], marginBottom: 3 }, // formerly #475569
+  cardFooter: { marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: semantic.light.border }, // formerly #f1f5f9
+  frequencyText: { fontSize: 12, fontWeight: '600', color: semantic.light.primary },
+  emptyCard: { padding: 24, borderRadius: 16, backgroundColor: semantic.light.card, alignItems: 'center' }, // formerly #ffffff
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground, marginBottom: 6 }, // formerly #0f172a
+  emptySubtitle: { fontSize: 13, color: semantic.light['muted-foreground'], textAlign: 'center', marginBottom: 16, lineHeight: 18 }, // formerly #64748b
+  createButton: { backgroundColor: semantic.light.action },
 });

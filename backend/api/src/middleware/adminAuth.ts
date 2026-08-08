@@ -125,6 +125,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 };
 
 import { isSuperAdminRole } from '@esparex/core/utils/roleNormalization';
+import { adminMutationLimiter } from './rateLimiter';
 
 export const requirePermission = (permission: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
@@ -156,5 +157,16 @@ export const requirePermission = (permission: string) => {
         }
 
         next();
+    };
+};
+
+export const requireMutationPermission = (permission: string) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method.toUpperCase())) {
+            return adminMutationLimiter(req, res, () => {
+                requirePermission(permission)(req, res, next);
+            });
+        }
+        return next();
     };
 };

@@ -6,7 +6,7 @@ import { useAdminCrudList, type AdminListPagination } from "@/hooks/useAdminCrud
 type FilterValue = string | number | boolean | null | undefined;
 type AdminCollectionFilters = Record<string, FilterValue>;
 
-type AdminResponseLike = {
+export type AdminResponseLike = {
     success?: boolean;
     message?: string;
     payload?: {

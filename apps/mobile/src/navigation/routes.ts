@@ -33,6 +33,8 @@ export const ROUTES = {
   TRANSACTION_HISTORY: 'TransactionHistory',
   SMART_ALERTS: 'SmartAlerts',
   SAVED_ADS: 'SavedAds',
+  EDIT_LISTING: 'EditListing',
+  TERMS_AND_PRIVACY: 'TermsAndPrivacy',
 } as const;
 
 import { NavigatorScreenParams } from '@react-navigation/native';
@@ -68,7 +70,7 @@ export type ChatStackParamList = {
   [ROUTES.CHAT_THREAD]: { conversationId: string };
 };
 
-// Profile stack: overview → settings → business → payment → smart alerts → saved ads
+// Profile stack: overview → settings → business → payment → smart alerts → saved ads → edit listing → terms
 export type ProfileStackParamList = {
   [ROUTES.PROFILE_OVERVIEW]: undefined;
   [ROUTES.PROFILE_SETTINGS]: undefined;
@@ -78,6 +80,8 @@ export type ProfileStackParamList = {
   [ROUTES.TRANSACTION_HISTORY]: undefined;
   [ROUTES.SMART_ALERTS]: undefined;
   [ROUTES.SAVED_ADS]: undefined;
+  [ROUTES.EDIT_LISTING]: { id: string };
+  [ROUTES.TERMS_AND_PRIVACY]: undefined;
 };
 
 

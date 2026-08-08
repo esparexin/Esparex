@@ -30,7 +30,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
 
     let sizeStyles = '';
     switch (size) {
-      case 'sm': sizeStyles = 'px-3 py-2'; break;
+      case 'sm': sizeStyles = 'px-3 py-2 min-h-[44px] min-w-[44px]'; break;
       case 'lg': sizeStyles = 'px-8 py-4'; break;
       case 'md':
       default: sizeStyles = 'px-4 py-3'; break;

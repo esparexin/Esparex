@@ -39,7 +39,7 @@ export function AccountHeader({
     <>
       {/* MOBILE: Sticky contextual header (hidden on md+) */}
       <header
-        className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 flex md:hidden items-center justify-between px-3 h-14 w-full"
+        className="sticky top-0 z-20 bg-background/95 backdrop-blur-md border-b border-border flex md:hidden items-center justify-between px-3 h-14 w-full text-foreground"
         aria-label="Account section header"
       >
         <div className="flex items-center gap-2 min-w-0">

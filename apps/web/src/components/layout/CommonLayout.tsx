@@ -10,9 +10,10 @@ import { UserAppProviders } from '@/components/providers/UserAppProviders';
 import { HeaderWrapper } from '@/app/HeaderWrapper';
 import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
-import { getMobileChromePolicy, isChatRoute } from '@/lib/mobile/chromePolicy';
+import { isChatRoute } from '@/lib/mobile/chromePolicy';
 
-import { PageContainer } from '@/components/ui/PageContainer';
+
+import { PageLayout, Container } from '@esparex/ui';
 
 interface CommonLayoutProps {
     children: ReactNode;
@@ -39,7 +40,7 @@ export function CommonLayout({
         segments[0] === "edit-ad" ||
         segments[0] === "post-service";
     const hideShellExtras = chatRoute || isWizardRoute;
-    const hasMobileBottomNav = !hideShellExtras && getMobileChromePolicy(pathname).showMobileBottomNav;
+
     const header = suspenseHeader ? (
         <Suspense fallback={null}>
             <HeaderWrapper />
@@ -51,19 +52,22 @@ export function CommonLayout({
     return (
         <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>
             <BottomBarProvider>
-                <div className={hideShellExtras ? "flex h-dvh flex-col overflow-hidden overflow-x-clip" : "flex min-h-screen flex-col overflow-x-clip"}>
+                <PageLayout
+                    variant={hideShellExtras ? "fullscreen" : "default"}
+                    header={!hideShellExtras ? header : undefined}
+                >
                     <ScrollSentinel />
-                    {!hideShellExtras && header}
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
-                    <main className={hideShellExtras ? "flex-1 min-h-0" : hasMobileBottomNav ? "flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0" : "flex-1"}>
-                        <PageContainer variant={hideShellExtras ? "full" : "wide"}>
-                            {children}
-                        </PageContainer>
-                    </main>
+                    
+                    {/* Replaced PageContainer with the new primitive Container */}
+                    <Container variant={hideShellExtras ? "full" : "xl"}>
+                        {children}
+                    </Container>
+
                     {!hideShellExtras && <BusinessPostFAB />}
                     {!hideShellExtras && <Footer currentYear={activeYear} />}
-                </div>
+                </PageLayout>
             </BottomBarProvider>
         </UserAppProviders>
     );

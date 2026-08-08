@@ -1,10 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plan } from '@esparex/contracts';
-import { ApiPaymentRepository } from '../../application/ApiPaymentRepository';
-import { PaymentService } from '../../application/PaymentService';
+import { services } from '../../../../bootstrap';
 import { PaymentSuccessResult } from '../../application/IPaymentRepository';
-
-const paymentService = new PaymentService(new ApiPaymentRepository());
 
 export interface CheckoutInput {
   plan: Plan;
@@ -15,7 +12,7 @@ export function useCheckoutPayment() {
 
   return useMutation<PaymentSuccessResult, Error, CheckoutInput>({
     mutationFn: async ({ plan }: CheckoutInput) => {
-      return await paymentService.processCheckout(plan.id);
+      return await services.paymentService.processCheckout(plan.id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payment', 'wallet'] });

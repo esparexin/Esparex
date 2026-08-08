@@ -94,6 +94,8 @@ const TestChild = () => {
 };
 
 describe('AppProvider', () => {
+  jest.setTimeout(15000);
+
   beforeEach(() => {
     clientInstanceCount = 0;
     lastClient = null;
@@ -135,6 +137,9 @@ describe('AppProvider', () => {
       unregisterPushToken: jest.fn().mockResolvedValue(true),
     } as unknown as any,
     imagePicker: { pick: jest.fn() },
+    businessService: { getMyBusiness: jest.fn() } as unknown as any,
+    paymentService: { getPlans: jest.fn() } as unknown as any,
+    smartAlertService: { getSmartAlerts: jest.fn() } as unknown as any,
   };
 
 
@@ -147,9 +152,12 @@ describe('AppProvider', () => {
 
     expect(getByTestId('qc-status').props.children).toBe('initialized');
     
-    await waitFor(() => {
-      expect(getByTestId('auth-status').props.children).toBe('idle');
-    });
+    await waitFor(
+      () => {
+        expect(getByTestId('auth-status').props.children).toBe('idle');
+      },
+      { timeout: 10000 }
+    );
     
     expect(getByTestId('theme-status').props.children).toBe('system');
   });

@@ -2,16 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Screen, Container, Card } from '@esparex/mobile-ui';
 import { useQuery } from '@tanstack/react-query';
-import { ApiPaymentRepository } from '../../application/ApiPaymentRepository';
-import { PaymentService } from '../../application/PaymentService';
+import { services } from '../../../../bootstrap';
 import { PaymentTransaction } from '../../domain/PaymentTransaction';
-
-const paymentService = new PaymentService(new ApiPaymentRepository());
+import { semantic } from '@esparex/design-tokens';
 
 export function TransactionHistoryScreen() {
   const { data: transactions, isLoading } = useQuery<PaymentTransaction[], Error>({
     queryKey: ['payment', 'history'],
-    queryFn: () => paymentService.getTransactionHistory(),
+    queryFn: () => services.paymentService.getTransactionHistory(),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -38,6 +36,7 @@ export function TransactionHistoryScreen() {
 
       <Container style={styles.container}>
         {isLoading ? (
+          // eslint-disable-next-line react-native/no-color-literals
           <ActivityIndicator size="large" color="#2563eb" style={styles.loader} />
         ) : (
           <FlatList
@@ -62,26 +61,26 @@ export function TransactionHistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8fafc' },
+  screen: { flex: 1, backgroundColor: semantic.light.background }, // formerly #f8fafc
   headerBar: {
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#ffffff',
+    backgroundColor: semantic.light.card, // formerly #ffffff
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: semantic.light.border, // formerly #e2e8f0
   },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
   container: { flex: 1, padding: 16 },
   loader: { marginTop: 32 },
-  itemCard: { padding: 14, borderRadius: 12, backgroundColor: '#ffffff', marginBottom: 10 },
+  itemCard: { padding: 14, borderRadius: 12, backgroundColor: semantic.light.card, marginBottom: 10 }, // formerly #ffffff
   itemHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  planName: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
-  amount: { fontSize: 15, fontWeight: '800', color: '#2563eb' },
+  planName: { fontSize: 15, fontWeight: '700', color: semantic.light.foreground }, // formerly #0f172a
+  amount: { fontSize: 15, fontWeight: '800', color: semantic.light.action },
   itemFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  date: { fontSize: 12, color: '#64748b' },
-  status: { fontSize: 12, fontWeight: '700', color: '#64748b' },
-  statusSuccess: { color: '#16a34a' },
-  statusPending: { color: '#d97706' },
-  emptyCard: { padding: 20, borderRadius: 12, backgroundColor: '#ffffff', alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#64748b' },
+  date: { fontSize: 12, color: semantic.light['muted-foreground'] }, // formerly #64748b
+  status: { fontSize: 12, fontWeight: '700', color: semantic.light['muted-foreground'] }, // formerly #64748b
+  statusSuccess: { color: semantic.light['success-dark'] },
+  statusPending: { color: semantic.light['warning-dark'] },
+  emptyCard: { padding: 20, borderRadius: 12, backgroundColor: semantic.light.card, alignItems: 'center' }, // formerly #ffffff
+  emptyText: { fontSize: 14, color: semantic.light['muted-foreground'] }, // formerly #64748b
 });

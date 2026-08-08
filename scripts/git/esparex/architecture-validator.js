@@ -22,12 +22,13 @@ function run(val) {
     if (!fs.existsSync(dir)) return files;
     const entries = fs.readdirSync(dir);
     for (const entry of entries) {
+      if (entry === 'node_modules' || entry === 'dist' || entry === '.next' || entry === 'Pods' || entry === 'build' || entry.startsWith('.')) continue;
       const full = path.join(dir, entry);
-      const stat = fs.statSync(full);
+      if (!fs.existsSync(full)) continue;
+      const stat = fs.lstatSync(full);
+      if (stat.isSymbolicLink()) continue;
       if (stat.isDirectory()) {
-        if (entry !== 'node_modules' && entry !== 'dist' && entry !== '.next' && !entry.startsWith('.')) {
-          getTsFiles(full, files);
-        }
+        getTsFiles(full, files);
       } else if (/\.(ts|tsx)$/.test(entry) && !entry.endsWith('.d.ts')) {
         files.push(full);
       }

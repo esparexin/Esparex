@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useEffect, useCallback } from "react";
-import { CatalogSearchSelect } from "./CatalogSearchSelect";
+import { EntitySearchCombobox } from "./EntitySearchCombobox";
 import { usePostAdCatalog, usePostAdAction } from "@/components/user/post-ad/context";
 import type { DeviceModel } from "@/lib/api/user/masterData";
 
@@ -55,7 +55,7 @@ export function ModelSearchSelect({
     }, [brandId, categoryId, loadModelsForBrand]);
 
     return (
-        <CatalogSearchSelect<DeviceModel>
+        <EntitySearchCombobox<DeviceModel>
             items={availableModels}
             loading={isLoadingModels}
             value={value}

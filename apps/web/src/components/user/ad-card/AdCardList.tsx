@@ -2,15 +2,14 @@
 
 import { memo } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
 import { Heart } from "@/icons/IconRegistry";
 import { haptics } from "@/lib/haptics";
 import { resolveListingCategoryLabel } from "@/lib/listings/listingPresentation";
-import { AdCardMeta } from "./primitives";
+import { AdCardShell, AdCardMeta } from "./primitives";
 import { cn } from "@/components/ui/utils";
 import {
-  AdCardLinkWrapper,
   type AdCardData,
   useAdCardBase,
   getPlanBadge,
@@ -70,30 +69,18 @@ export const AdCardList = memo(function AdCardList({
   const conditionBadge = getConditionBadge(ad);
 
   return (
-    <AdCardLinkWrapper href={resolvedHref} enabled={useDeclarativeLink}>
-      <article aria-label={ad.title}>
-        <Card
-          tabIndex={useDeclarativeLink ? undefined : 0}
-          role={useDeclarativeLink ? undefined : "button"}
-          className={cn(
-            "overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer border border-border rounded-xl group bg-white",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-            ad.isSpotlight ? "ring-2 ring-yellow-500 ring-offset-2" : "",
-            className
-          )}
-          onClick={useDeclarativeLink ? undefined : handleCardClick}
-          onKeyDown={
-            useDeclarativeLink
-              ? undefined
-              : (e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleCardClick();
-                  }
-                }
-          }
-        >
-          <CardContent className="p-3 sm:p-4">
+    <AdCardShell
+      ad={ad}
+      resolvedHref={resolvedHref}
+      useDeclarativeLink={useDeclarativeLink}
+      handleCardClick={handleCardClick}
+      className={cn(
+        "hover:shadow-md hover:-translate-y-0.5 border border-border rounded-xl bg-white",
+        ad.isSpotlight ? "ring-2 ring-yellow-500 ring-offset-2" : "",
+        className
+      )}
+    >
+      <CardContent className="p-3 sm:p-4">
             <div className="flex min-w-0 items-start gap-3 sm:gap-5">
               {/* List View Image */}
               <div className="relative h-28 w-28 sm:h-32 sm:w-36 shrink-0 overflow-hidden rounded-xl bg-muted/20">
@@ -164,10 +151,8 @@ export const AdCardList = memo(function AdCardList({
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </article>
-    </AdCardLinkWrapper>
+      </CardContent>
+    </AdCardShell>
   );
 }, areAdCardListPropsEqual);
 

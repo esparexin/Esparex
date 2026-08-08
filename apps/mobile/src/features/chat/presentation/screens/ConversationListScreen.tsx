@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
 import { useConversations } from '../hooks/useConversations';
@@ -40,7 +40,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
                   contentFit="cover"
                   cachePolicy="memory-disk"
                   transition={150}
-                  style={{ width: 48, height: 48, borderRadius: 8 }}
+                  style={styles.thumbnail}
                   accessibilityLabel={`Thumbnail for ${item.ad.title}`}
                 />
               ) : (
@@ -140,3 +140,7 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
     </Screen>
   );
 };
+
+const styles = StyleSheet.create({
+  thumbnail: { width: 48, height: 48, borderRadius: 8 },
+});

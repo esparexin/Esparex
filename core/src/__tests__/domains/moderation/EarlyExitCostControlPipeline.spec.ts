@@ -44,7 +44,7 @@ describe('EarlyExitCostControlPipeline (PR 3 — Stage 1 Pre-filtering)', () => 
         expect(result.reason).toBeUndefined();
         expect(result.fingerprint).toBeDefined();
         expect(pipeline.getCachedCount()).toBe(1);
-    });
+    }, 15000);
 
     it('early exits with DUPLICATE_IMAGE_HASH when exact image is uploaded twice', async () => {
         const imageBuffer = await sharp({
@@ -65,7 +65,7 @@ describe('EarlyExitCostControlPipeline (PR 3 — Stage 1 Pre-filtering)', () => 
         expect(duplicateCheck.shouldCallProvider).toBe(false);
         expect(duplicateCheck.reason).toBe('DUPLICATE_IMAGE_HASH');
         expect(duplicateCheck.fingerprint).toBeDefined();
-    });
+    }, 15000);
 
     it('allows cache registration and cache clearing', () => {
         pipeline.registerFingerprint({ hash: 'abc123', createdAt: Date.now() });

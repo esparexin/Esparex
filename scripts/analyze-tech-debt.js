@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 const BASELINE_PATH = path.join(__dirname, '../eslint-baseline.json');
-const REPORT_PATH = path.join(__dirname, '../tech-debt-insights.md');
+const REPORT_PATH = path.join(__dirname, '../docs/reports/tech-debt-insights-2026-07.md');
 
 if (!fs.existsSync(BASELINE_PATH)) {
     console.error('❌ Error: eslint-baseline.json not found. Run generate-eslint-baseline.js first.');

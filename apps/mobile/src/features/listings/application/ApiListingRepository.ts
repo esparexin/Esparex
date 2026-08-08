@@ -50,4 +50,9 @@ export class ApiListingRepository implements IListingRepository {
     const response = await apiClient.post<{ data: Ad }>('/v1/listings', request);
     return CreatedListingMapper.fromDto(response.data.data);
   }
+
+  public async update(id: string, request: Partial<CreateListingRequest>): Promise<Listing> {
+    const response = await apiClient.patch<{ data: Ad }>(`/v1/listings/${id}`, request);
+    return ListingMapper.mapAdToListing(response.data.data);
+  }
 }

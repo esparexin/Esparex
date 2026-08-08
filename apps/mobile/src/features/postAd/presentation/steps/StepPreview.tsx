@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, ScrollView } from 'react-native';
+import { View, Image, ScrollView, StyleSheet } from 'react-native';
 import { AppText, Card, AppIcon, Badge } from '@esparex/mobile-ui';
 import { usePostAdDraft } from '../../usePostAdDraft';
 
@@ -9,9 +9,10 @@ import { usePostAdDraft } from '../../usePostAdDraft';
  * Renders a read-only summary of everything the user has entered so far.
  * Acts as a final review before submission (Commit 23).
  *
- * Does NOT:
- * - Allow editing (tapping a field should navigate back — future enhancement)
- * - Call any API
+ * GOVERNANCE RULES:
+ * - Read-only representation of the draft state
+ * - Must NOT handle submission itself (PostAdScreen / useSubmitAd owns that)
+ * - Contain zero local state
  * - Mutate the draft
  */
 export const StepPreview = () => {
@@ -23,7 +24,7 @@ export const StepPreview = () => {
   return (
     <ScrollView
       className="flex-1"
-      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
       <AppText variant="h3" className="text-slate-800 dark:text-slate-100 mb-1">
@@ -120,3 +121,7 @@ export const StepPreview = () => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollContent: { padding: 16, paddingBottom: 32 },
+});

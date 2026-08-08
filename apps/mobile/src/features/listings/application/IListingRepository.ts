@@ -9,4 +9,5 @@ export interface IListingRepository {
   getSavedListings(): Promise<readonly Listing[]>;
   toggleSaveListing(adId: string, isSaved: boolean): Promise<void>;
   create(request: CreateListingRequest): Promise<CreatedListing>;
+  update(id: string, request: Partial<CreateListingRequest>): Promise<Listing>;
 }

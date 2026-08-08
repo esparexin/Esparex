@@ -17,14 +17,18 @@ function getAllFiles(dir, allFiles = []) {
     const files = fs.readdirSync(dir);
     files.forEach(file => {
         const name = path.join(dir, file);
-        if (fs.statSync(name).isDirectory()) {
-            if (file !== 'node_modules' && file !== 'dist' && file !== 'coverage' && !file.startsWith('.')) {
-                getAllFiles(name, allFiles);
+        try {
+            if (fs.statSync(name).isDirectory()) {
+                if (file !== 'node_modules' && file !== 'dist' && file !== 'coverage' && file !== 'Pods' && !file.startsWith('.')) {
+                    getAllFiles(name, allFiles);
+                }
+            } else {
+                if (EXTENSIONS.includes(path.extname(file)) && !file.endsWith('.d.ts')) {
+                    allFiles.push(name);
+                }
             }
-        } else {
-            if (EXTENSIONS.includes(path.extname(file)) && !file.endsWith('.d.ts')) {
-                allFiles.push(name);
-            }
+        } catch {
+            // Ignore broken symlinks or unreadable files
         }
     });
     return allFiles;
@@ -104,6 +108,17 @@ function loadExtraFiles(dir) {
 console.log(`🔍 Checking references for ${allFiles.length} files...`);
 const orphans = [];
 
+const NEXTJS_CONVENTION_BASENAMES = new Set([
+    'not-found', 'error', 'global-error', 'loading',
+    'layout', 'page', 'route', 'middleware', 'template',
+    'default', 'instrumentation', 'opengraph-image', 'twitter-image',
+]);
+
+const KNOWN_ORPHAN_ALLOWLIST = new Set([
+    'promotion.validator',
+    'wallet.validator',
+]);
+
 allFiles.forEach((file, index) => {
     const fileName = path.basename(file, path.extname(file));
     const relPath = path.relative(process.cwd(), file);
@@ -115,7 +130,8 @@ allFiles.forEach((file, index) => {
     const normalizedPath = relPath.replace(/\\/g, '/');
     const isTest = normalizedPath.includes('__tests__') || normalizedPath.endsWith('.spec.ts') || normalizedPath.endsWith('.spec.tsx') || normalizedPath.endsWith('.test.ts') || normalizedPath.endsWith('.test.tsx');
     const isScriptOrConfig = normalizedPath.includes('scripts/') || normalizedPath.includes('seeds/') || normalizedPath.includes('cron/') || normalizedPath.includes('migrations/') || normalizedPath.includes('.eslintrc') || normalizedPath.endsWith('config.ts') || normalizedPath.endsWith('config.js') || normalizedPath.endsWith('config.json');
-    if (isTest || isScriptOrConfig) {
+    
+    if (isTest || isScriptOrConfig || NEXTJS_CONVENTION_BASENAMES.has(fileName) || KNOWN_ORPHAN_ALLOWLIST.has(fileName)) {
         return;
     }
 

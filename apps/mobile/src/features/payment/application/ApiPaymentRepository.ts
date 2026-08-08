@@ -39,6 +39,10 @@ export class ApiPaymentRepository implements IPaymentRepository {
   }
 
   async openNativeCheckout(order: PaymentOrder): Promise<PaymentSuccessResult> {
+    if (!RazorpayCheckout || typeof RazorpayCheckout.open !== 'function') {
+      throw new Error('Native payment gateway is not available on this device platform. Please use Web or supported build.');
+    }
+
     const options = {
       description: 'Ad Credits Package',
       currency: order.currency || 'INR',

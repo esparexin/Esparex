@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, View, TouchableOpacity, ScrollView } from 'react-native';
+import { Modal, View, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { AppText, AppButton, AppInput, AppIcon } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 
@@ -180,10 +180,10 @@ export const FilterModal: React.FC<FilterModalProps> = ({
 
           {/* Action Buttons */}
           <View className="flex-row gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <AppButton variant="outline" onPress={handleResetInternal} style={{ flex: 1 }}>
+            <AppButton variant="outline" onPress={handleResetInternal} style={styles.resetBtn}>
               Reset
             </AppButton>
-            <AppButton variant="primary" onPress={handleApply} style={{ flex: 2 }}>
+            <AppButton variant="primary" onPress={handleApply} style={styles.applyBtn}>
               Apply Filters
             </AppButton>
           </View>
@@ -192,3 +192,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  resetBtn: { flex: 1 },
+  applyBtn: { flex: 2 },
+});
