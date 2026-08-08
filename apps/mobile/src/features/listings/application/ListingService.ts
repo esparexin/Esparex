@@ -1,6 +1,6 @@
 import { IListingRepository } from './IListingRepository';
 import { Listing } from '../domain/Listing';
-import { ListingQueryParams } from '@esparex/contracts';
+import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
 
 export class ListingService {
   constructor(private readonly repository: IListingRepository) {}
@@ -46,6 +46,15 @@ export class ListingService {
       return await this.repository.toggleSaveListing(adId, isSaved);
     } catch (error) {
       console.error(`ListingService.toggleSaveListing failed for ID ${adId}:`, error);
+      throw error;
+    }
+  }
+
+  public async updateListing(id: string, request: Partial<CreateListingRequest>): Promise<Listing> {
+    try {
+      return await this.repository.update(id, request);
+    } catch (error) {
+      console.error(`ListingService.updateListing failed for ID ${id}:`, error);
       throw error;
     }
   }
