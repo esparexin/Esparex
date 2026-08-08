@@ -1,5 +1,5 @@
 ## What does this PR do?
-<!-- One paragraph max. Link to issue with: Closes #N -->
+<!-- One paragraph max. Link to GitHub issue: Closes #N -->
 
 
 ## Type of change
@@ -11,40 +11,66 @@
 
 
 ## Packages affected
-- [ ] `backend`
+- [ ] `@esparex/contracts`
+- [ ] `@esparex/ui`
+- [ ] `@esparex/core`
+- [ ] `backend/api`
 - [ ] `apps/web`
 - [ ] `apps/admin`
 - [ ] `apps/mobile`
-- [ ] `shared` / `core` / `packages`
 
 
-## Repository Impact Statement
-<!-- Required for any PR that creates new files. Skip only for docs-only PRs. -->
+## 1. Repository Discovery & SSOT Audit (Clean Code Skill)
+<!-- Required per clean-code skill. Must prove search before implementation. -->
 
-**New files introduced:** _N_
-**Existing files modified:** _N_
-**Files deleted:** _N_
-
-### New File Justification (required if New files > 0)
-Repository discovery completed:
-- [ ] Searched `packages/ui`, `packages/contracts`, `shared/`, `core/`
-- [ ] No existing component, hook, service, or DTO covers this responsibility
-- [ ] New file placed in the canonical owner package per AGENTS.md ownership matrix
+- [ ] **Phase 0 Search Executed**: Searched existing repository before creating code.
+  - *Search Command / Query Used*: `git grep ...` or `grep -rn ...`
+  - *Existing Files Evaluated*: (list existing components/hooks/services checked)
+- [ ] **SSOT & Canonical Ownership Verified**: No duplicate logic, schema, or component introduced.
+- [ ] **Single Responsibility**: Every new/modified file has one clear domain responsibility.
 
 
-## Quality Gate Checklist
-- [ ] `npm run type-check` passes locally
-- [ ] `npm run guard:knip` passes locally (no new unused files or dependencies)
-- [ ] `npm run guard:dead-code` passes locally
-- [ ] `npm test` passes (backend / core)
-- [ ] No `.env` or secret values committed
-- [ ] No new `as unknown as` casts without an explanatory comment
-- [ ] No new `eslint-disable` suppressions without justification comment
+## 2. Code Quality & Discipline Statement (Code Quality Skill)
+<!-- Required per code-quality skill. Enforces principal engineering standards. -->
+
+- **New files introduced:** _N_
+- **Existing files modified:** _N_
+- **Files deleted:** _N_
+
+### File Size & Modularization Check
+- [ ] **Component Threshold**: All `.tsx` components are ≤250 lines (or oversized legacy files did not grow).
+- [ ] **Hook Threshold**: All custom hooks are ≤200 lines.
+- [ ] **Service Threshold**: All core/domain services are ≤300 lines.
+- [ ] **Utility/Schema Threshold**: All utilities and DTO schemas are ≤150–200 lines.
+
+### Type Safety & Security Audit
+- [ ] **Zero Unjustified `any` / Casts**: 0 new `as unknown as` assertions introduced without architect rationale (`npm run guard:type-casts`).
+- [ ] **Zero Log Exposure**: No `console.log` or unhandled exceptions left in production paths.
+- [ ] **Input Sanitization**: All API parameters sanitized & validated against `@esparex/contracts`.
 
 
-## Accessibility (required for UI changes)
+## 3. Automated Quality Gate Checklist
+<!-- All checks must pass locally before requesting review -->
+
+- [ ] `npm run type-check` passes cleanly (0 errors across 9 workspaces)
+- [ ] `npm run guard:pr-quality` passes locally (file size & discipline ratchet)
+- [ ] `npm run guard:knip` passes locally (0 unused files, 0 unused dependencies)
+- [ ] `npm run guard:type-casts` passes locally (within baseline count)
+- [ ] `npm run guard:unused-imports` passes locally (0 unused imports in changed files)
+- [ ] `npm run guard:duplicate-code` passes locally (JSCPD duplicate rate ≤ 0.12%)
+- [ ] `npm run repo:gate` passes locally (Health Score: 100%)
+- [ ] `npm test` passes with 100% green status
+
+
+## 4. Accessibility & Mobile Compliance (UI Changes)
 <!-- Skip with: N/A — no UI changes -->
-- [ ] Keyboard navigation verified
-- [ ] Focus order preserved
-- [ ] ARIA attributes correct
-- [ ] No accessibility regressions introduced
+- [ ] Keyboard navigation verified (Tab, Enter, Escape, Arrow keys)
+- [ ] Focus rings visible & focus restoration preserved
+- [ ] Hidden overlays/drawers use `inert` to prevent keyboard traps
+- [ ] Screen reader compatibility verified (aria-labels, semantic HTML)
+- [ ] Single-Instance Responsive Architecture maintained (no `Desktop*` vs `Mobile*` split)
+
+
+## 5. Post-Implementation Cleanup Ledger
+- [ ] Dead/orphan code removed: (list deleted files/exports if any)
+- [ ] Documentation / OpenAPI specs updated if contract modified

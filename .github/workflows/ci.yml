@@ -115,6 +115,9 @@ jobs:
       - name: Verify 'as unknown as' type cast baseline
         run: npm run guard:type-casts
 
+      - name: Verify PR code quality & file discipline thresholds
+        run: npm run guard:pr-quality
+
       - name: Verify no stale build artifacts
         run: |
           echo "Verifying clean state..."
