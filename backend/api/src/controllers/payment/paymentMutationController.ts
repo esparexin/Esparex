@@ -39,10 +39,6 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, 'Plan ID required');
         }
 
-        if (!mongoose.Types.ObjectId.isValid(normalizedPlanId)) {
-            return sendErrorResponse(req, res, 400, 'Invalid Plan ID');
-        }
-
         const user = await getUserForPayment((req.user)._id);
         if (!user) return sendErrorResponse(req, res, 404, 'User not found');
 
@@ -95,12 +91,21 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         if (isMock) {
             rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
         } else {
-            const razorpay = await getRazorpayClient();
-            rzpOrder = await razorpay.orders.create({
-                amount: plan.price * 100,
-                currency: plan.currency || 'INR',
-                receipt: `rcpt_${crypto.randomBytes(12).toString('hex')}`
-            });
+            try {
+                const razorpay = await getRazorpayClient();
+                rzpOrder = await razorpay.orders.create({
+                    amount: plan.price * 100,
+                    currency: plan.currency || 'INR',
+                    receipt: `rcpt_${crypto.randomBytes(12).toString('hex')}`
+                });
+            } catch (rzpErr) {
+                if (env.NODE_ENV === 'development') {
+                    logger.warn('Razorpay order creation failed in development mode. Falling back to mock order.', rzpErr);
+                    rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
+                } else {
+                    throw rzpErr;
+                }
+            }
         }
 
         const transaction = await createPaymentTransaction({

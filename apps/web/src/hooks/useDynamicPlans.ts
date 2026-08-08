@@ -96,7 +96,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
                 }
             };
             const mapped: ProfilePlan[] = data.map((p) => ({
-                id: p.id,
+                id: p.id || (p as unknown as { _id?: string })._id || "",
                 name: p.name,
                 price: p.price,
                 duration: p.duration || (p.durationDays ? `${p.durationDays} Days` : "Lifetime"),
