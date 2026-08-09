@@ -321,12 +321,15 @@ export const WalletModel = UserWallet as unknown as {
     ) => Promise<Record<string, unknown> | null>;
 };
 
+interface QueryChain {
+    sort: (sortBy: Record<string, 1 | -1>) => QueryChain;
+    skip: (skip: number) => QueryChain;
+    limit: (limit: number) => QueryChain;
+    select: (fields: string) => QueryChain;
+    lean: () => Promise<Record<string, unknown>[]>;
+}
+
 export const TransactionModel = Transaction as unknown as {
-    find: (query: Record<string, unknown>) => {
-        sort: (sortBy: Record<string, 1 | -1>) => any;
-        skip: (skip: number) => any;
-        limit: (limit: number) => any;
-        lean: () => Promise<Record<string, unknown>[]>;
-    };
+    find: (query: Record<string, unknown>) => QueryChain;
     countDocuments: (query: Record<string, unknown>) => Promise<number>;
 };

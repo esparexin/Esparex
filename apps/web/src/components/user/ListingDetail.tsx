@@ -124,6 +124,7 @@ export function ListingDetail({
 
   useViewTracking(ad?.id, isOwner, queryClient);
   const isPendingOwner = Boolean(isOwner && ad?.status === "pending");
+  const isActiveSpotlight = Boolean(ad?.isSpotlight);
 
   const getSellerDisplayName = () => {
     if (!ad) return "Seller";
@@ -246,7 +247,7 @@ export function ListingDetail({
 
             <ListingBottomActions
               variant={getActionBarVariant(isOwner, adStatus.isSold, ad.status)}
-              isSpotlight={Boolean(ad.isSpotlight) || (ad.spotlightExpiresAt ? new Date(String(ad.spotlightExpiresAt)).getTime() > Date.now() : false)}
+              isSpotlight={isActiveSpotlight}
               onEditClick={handleEdit}
               onDeleteClick={handleDeleteClick}
               onMarkSoldClick={() => handleMarkSoldClick()}

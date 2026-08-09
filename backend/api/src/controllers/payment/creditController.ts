@@ -116,15 +116,15 @@ export const getCreditLedgerHistory = async (req: Request, res: Response) => {
       TransactionModel.countDocuments({ userId }),
     ]);
 
-    const formattedItems = items.map((tx: any) => ({
-      transactionId: tx._id?.toString() || tx.id || '',
-      type: tx.type || 'DEBIT',
-      creditPool: tx.creditPool || 'PURCHASED',
-      amount: tx.amount || 1,
-      entitlementType: tx.entitlementType || 'AD_POSTING',
-      reason: tx.reason || 'Credit Transaction',
-      listingId: tx.listingId?.toString(),
-      createdAt: tx.createdAt ? new Date(tx.createdAt).toISOString() : new Date().toISOString(),
+    const formattedItems = items.map((tx: Record<string, unknown>) => ({
+      transactionId: (tx._id as { toString(): string } | undefined)?.toString() || String(tx.id || ''),
+      type: (tx.type as string) || 'DEBIT',
+      creditPool: (tx.creditPool as string) || 'PURCHASED',
+      amount: (tx.amount as number) || 1,
+      entitlementType: (tx.entitlementType as string) || 'AD_POSTING',
+      reason: (tx.reason as string) || 'Credit Transaction',
+      listingId: (tx.listingId as { toString(): string } | undefined)?.toString(),
+      createdAt: tx.createdAt ? new Date(String(tx.createdAt)).toISOString() : new Date().toISOString(),
     }));
 
     res.json(

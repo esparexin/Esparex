@@ -10,7 +10,7 @@ import { usePlansWalletDashboard } from '../hooks/usePlansWalletDashboard';
 import { styles } from './PlansWalletDashboardScreen.styles';
 
 export const PlansWalletDashboardScreen: React.FC = () => {
-  const { dashboardData, isLoading, isError, refetch, isRefetching } = usePlansWalletDashboard();
+  const { dashboardData, isLoading, refetch, isRefetching } = usePlansWalletDashboard();
 
   if (isLoading && !isRefetching) {
     return (

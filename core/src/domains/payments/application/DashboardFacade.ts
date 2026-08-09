@@ -67,34 +67,35 @@ export class DashboardFacade {
       ? await Transaction.find({ _id: { $in: sourceIds } }).select('_id planSnapshot').lean()
       : [];
 
-    const txSnapshotMap = new Map(
-      sourceTxRecords.map((tx: any) => [tx._id.toString(), tx.planSnapshot])
+    const txSnapshotMap = new Map<string, Record<string, unknown> | undefined>(
+      sourceTxRecords.map((tx: any) => [tx._id.toString(), tx.planSnapshot as Record<string, unknown> | undefined])
     );
 
     const entitlements = rawEntitlements.map((ent: any) => {
-      const snapshot = ent.sourceId ? txSnapshotMap.get(ent.sourceId.toString()) : undefined;
+      const sourceIdStr = ent.sourceId?.toString();
+      const snapshot = sourceIdStr ? txSnapshotMap.get(sourceIdStr) : undefined;
       return {
         ...ent,
-        planName: snapshot?.name || ent.planName || undefined,
-        planDurationDays: snapshot?.durationDays || undefined,
+        planName: (snapshot?.name as string | undefined) || ent.planName || undefined,
+        planDurationDays: (snapshot?.durationDays as number | undefined) || undefined,
       };
     });
 
     const rawBoosts = boostsResult.status === 'fulfilled' ? boostsResult.value || [] : [];
     const boosts = rawBoosts.map((b: any) => ({
       ...b,
-      entityTitle: adTitleMap.get(b.entityId?.toString()) || b.entityTitle || b.adTitle || 'Promoted Listing',
+      entityTitle: (adTitleMap.get(b.entityId?.toString()) || b.entityTitle || b.adTitle || 'Promoted Listing') as string,
     }));
     const creditTransactions = creditTxResult.status === 'fulfilled' ? creditTxResult.value || [] : [];
     const paymentTransactions = paymentTxResult.status === 'fulfilled' ? paymentTxResult.value || [] : [];
 
     const snapshot = PlansWalletMapper.mapToV1DTO({
-      userPlan,
-      userWallet,
-      entitlements,
-      boosts,
-      creditTransactions,
-      paymentTransactions,
+      userPlan: userPlan ? (userPlan as any) : undefined,
+      userWallet: userWallet ? (userWallet as any) : undefined,
+      entitlements: entitlements as any[],
+      boosts: boosts as any[],
+      creditTransactions: creditTransactions as any[],
+      paymentTransactions: paymentTransactions as any[],
     });
 
     // Cache the snapshot asynchronously

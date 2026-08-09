@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PlansWalletV1DTO } from '@esparex/contracts';
 import { apiClient } from '@/lib/api/client';
+import logger from '@/lib/logger';
 
 export const PLANS_WALLET_QUERY_KEYS = {
   all: ['plans-wallet'] as const,
@@ -15,7 +16,7 @@ async function fetchPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
     }
     return null;
   } catch (error) {
-    console.error('Failed to fetch plans wallet dashboard:', error);
+    logger.error('Failed to fetch plans wallet dashboard:', error);
     return null;
   }
 }

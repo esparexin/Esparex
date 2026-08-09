@@ -216,7 +216,7 @@ export function ListingItem({
                         <span className="shrink-0">👁 {totalViews}</span>
 
                         {showExpiry && (() => {
-                            const past = expiresAt ? new Date(expiresAt).getTime() <= Date.now() : false;
+                            const past = (status as string) === "expired";
                             return (
                                 <>
                                     <span className="opacity-30 shrink-0">•</span>

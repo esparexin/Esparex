@@ -296,19 +296,24 @@ export function normalizeListing(data: unknown): Listing {
     const decodedModelName = validated.modelName ? decodeHtmlEntities(validated.modelName) : undefined;
 
     const rawRecord = compatible as Record<string, unknown>;
+    const spotlightExpiresAt = rawRecord?.spotlightExpiresAt ?? (validated as Record<string, unknown>)?.spotlightExpiresAt;
+    const nowMs = Date.now();
+    const spotlightExpMs = spotlightExpiresAt ? new Date(String(spotlightExpiresAt)).getTime() : 0;
     const isSpotlight = Boolean(
         rawRecord?.isSpotlight === true ||
         rawRecord?.spotlight === true ||
-        (validated as Record<string, unknown>)?.isSpotlight === true
+        (validated as Record<string, unknown>)?.isSpotlight === true ||
+        (spotlightExpMs > 0 && spotlightExpMs > nowMs)
     );
-    const spotlightExpiresAt = rawRecord?.spotlightExpiresAt ?? (validated as Record<string, unknown>)?.spotlightExpiresAt;
 
+    const boostExpiresAt = rawRecord?.boostExpiresAt ?? (validated as Record<string, unknown>)?.boostExpiresAt;
+    const boostExpMs = boostExpiresAt ? new Date(String(boostExpiresAt)).getTime() : 0;
     const isBoosted = Boolean(
         rawRecord?.isBoosted === true ||
         rawRecord?.boosted === true ||
-        (validated as Record<string, unknown>)?.isBoosted === true
+        (validated as Record<string, unknown>)?.isBoosted === true ||
+        (boostExpMs > 0 && boostExpMs > nowMs)
     );
-    const boostExpiresAt = rawRecord?.boostExpiresAt ?? (validated as Record<string, unknown>)?.boostExpiresAt;
 
     return {
         ...validated,

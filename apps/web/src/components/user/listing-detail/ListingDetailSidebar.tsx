@@ -68,6 +68,7 @@ export function ListingDetailSidebar({
         businessProfileSurface: "business-card",
         visitorChatSurface: "sticky-mobile-inline-desktop",
     } as const;
+    const isActiveSpotlight = Boolean(ad.isSpotlight);
 
     return (
         <div className="space-y-4">
@@ -101,7 +102,7 @@ export function ListingDetailSidebar({
             {isOwner && (
                 <AdOwnerActions
                     isSold={adStatus.isSold}
-                    isSpotlight={Boolean(ad.isSpotlight) || (ad.spotlightExpiresAt ? new Date(String(ad.spotlightExpiresAt)).getTime() > Date.now() : false)}
+                    isSpotlight={isActiveSpotlight}
                     isChatLocked={adStatus.isChatLocked}
                     status={ad.status}
                     onEdit={onEdit}

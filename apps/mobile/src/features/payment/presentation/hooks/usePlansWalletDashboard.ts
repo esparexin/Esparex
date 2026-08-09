@@ -14,8 +14,7 @@ async function fetchPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
       return res.data.data;
     }
     return null;
-  } catch (error) {
-    console.error('Failed to fetch mobile plans wallet dashboard:', error);
+  } catch {
     return null;
   }
 }

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { CreditLedgerDTO } from '@esparex/contracts';
 import { apiClient } from '@/lib/api/client';
+import logger from '@/lib/logger';
 
 export interface PaginatedLedgerResponse {
   items: CreditLedgerDTO[];
@@ -25,7 +26,7 @@ export function useCreditLedgerHistory(page: number = 1, limit: number = 10) {
         }
         return null;
       } catch (error) {
-        console.error('Failed to fetch credit ledger history:', error);
+        logger.error('Failed to fetch credit ledger history:', error);
         return null;
       }
     },

@@ -108,16 +108,6 @@ export function useBoostPlanDialog({
     if (open) void fetchBoostPlans();
   }, [open, activeCategory, availableCredits]);
 
-  useEffect(() => {
-    if (availableCredits > 0) {
-      setSelectedPlanId("WALLET_CREDIT");
-      setSelectedPlan(null);
-    } else if (boostPlans.length > 0 && selectedPlanId === "WALLET_CREDIT") {
-      setSelectedPlanId(boostPlans[0]!.id);
-      setSelectedPlan(boostPlans[0]!);
-    }
-  }, [availableCredits, activeCategory, boostPlans, selectedPlanId]);
-
   const handleUseCredits = async () => {
     setIsProcessing(true);
     try {

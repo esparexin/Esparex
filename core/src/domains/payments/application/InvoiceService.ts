@@ -156,16 +156,16 @@ export const getInvoiceByIdOrTransaction = async (id: string): Promise<IInvoice 
 
 export const buildInvoicePayload = async (
     tx: ITransaction,
-    session: ClientSession
+    session?: ClientSession | null
 ) : Promise<{ invoiceData: Partial<IInvoice>; user: PaymentUserLike | null; business?: PaymentBusinessLike | null }> => {
     const user = await User.findById(tx.userId)
         .select('name email mobile location businessId')
-        .session(session)
+        .session(session || null)
         .lean<PaymentUserLike | null>();
 
     let business: PaymentBusinessLike | null = null;
     if (user?.businessId) {
-        business = await Business.findById(user.businessId).session(session).lean<PaymentBusinessLike | null>();
+        business = await Business.findById(user.businessId).session(session || null).lean<PaymentBusinessLike | null>();
     }
 
     const subtotal = Number((tx.amount / 1.18).toFixed(2));
@@ -179,7 +179,7 @@ export const buildInvoicePayload = async (
         user,
         business,
         invoiceData: {
-            invoiceNumber: await generateInvoiceNumber(session),
+            invoiceNumber: await generateInvoiceNumber(session || undefined),
             userId: tx.userId,
             transactionId: tx._id,
             planSnapshot: tx.planSnapshot,

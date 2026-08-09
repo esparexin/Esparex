@@ -1,23 +1,12 @@
+import type { ClientSession } from 'mongoose';
 import { getUserConnection } from '../../../config/db';
 import { Invoice } from '../../../models/Invoice';
 import { Transaction, type ITransaction } from '../../../models/Transaction';
 import UserPlan from '../../../models/UserPlan';
-import { 
-    credit, 
-    buildWalletIncrement, 
-    hasWalletIncrement 
-} from './WalletService';
+import { credit, buildWalletIncrement, hasWalletIncrement } from './WalletService';
 import { recordRevenue } from './RevenueAnalytics';
-import { 
-    buildInvoicePayload, 
-    ensureInvoicePdf 
-} from './InvoiceService';
-import { 
-    matchesGatewayAmount,
-    normalizeGatewayCurrency, 
-    GatewayService 
-} from '../../../services/GatewayService';
-
+import { buildInvoicePayload, ensureInvoicePdf } from './InvoiceService';
+import { matchesGatewayAmount, normalizeGatewayCurrency, GatewayService } from '../../../services/GatewayService';
 import { resolveCategoryName } from './TransactionService';
 import logger, { logBusiness, logSecurity } from '../../../utils/logger';
 import AdminLog from '../../../models/AdminLog';
@@ -25,12 +14,7 @@ import { lifecycleEvents } from '../../../events/LifecycleEventDispatcher';
 import { DashboardFacade } from './DashboardFacade';
 
 export type PaymentProcessingSource = 'webhook' | 'recovery';
-
-export type PaymentProcessResult =
-    | 'processed'
-    | 'duplicate'
-    | 'missing'
-    | 'failed';
+export type PaymentProcessResult = 'processed' | 'duplicate' | 'missing' | 'failed';
 
 export type ProcessPaymentParams = {
     gatewayPaymentId?: string;
@@ -64,7 +48,7 @@ export async function processSuccessfulPayment(
         return { result: 'missing', reason: 'missing_gateway_identifiers' };
     }
 
-    let session: any = null;
+    let session: ClientSession | null = null;
     try {
         const s = await getUserConnection().startSession();
         s.startTransaction();
@@ -85,7 +69,7 @@ export async function processSuccessfulPayment(
     });
 
     try {
-        const tx = await Transaction.findOneAndUpdate(
+        const tx = (await Transaction.findOneAndUpdate(
             {
                 $or: [
                     ...(gatewayPaymentId ? [{ gatewayPaymentId }] : []),
@@ -102,7 +86,7 @@ export async function processSuccessfulPayment(
                 }
             },
             { new: true, ...(session ? { session } : {}) }
-        );
+        )) as ITransaction | null;
 
         if (!tx) {
             let query = Transaction.findOne({
@@ -152,8 +136,8 @@ export async function processSuccessfulPayment(
                     expectedAmountPaise: Math.round(tx.amount * 100)
                 }
             };
-            await tx.save({ session });
-            await session.commitTransaction();
+            await tx.save({ ...(session ? { session } : {}) });
+            if (session) await session.commitTransaction();
 
             logSecurity('payment_amount_mismatch', 'high', {
                 transactionId: tx._id.toString(),
@@ -191,8 +175,8 @@ export async function processSuccessfulPayment(
                     expectedCurrency: normTransactionCurrency
                 }
             };
-            await tx.save({ session });
-            await session.commitTransaction();
+            await tx.save({ ...(session ? { session } : {}) });
+            if (session) await session.commitTransaction();
 
             logSecurity('payment_currency_mismatch', 'high', {
                 transactionId: tx._id.toString(),
@@ -228,7 +212,7 @@ export async function processSuccessfulPayment(
                     gatewayOrderId,
                     source
                 },
-                session
+                session: session || undefined
             });
 
             logBusiness('wallet_updated', {
@@ -257,7 +241,7 @@ export async function processSuccessfulPayment(
         if (session) invoiceQuery = invoiceQuery.session(session);
         let invoice = await invoiceQuery;
         if (!invoice) {
-            const { invoiceData } = await buildInvoicePayload(tx, session);
+            const { invoiceData } = await buildInvoicePayload(tx, session || undefined);
             const invoices = await Invoice.create([invoiceData], ...(session ? [{ session }] : []));
             invoice = invoices[0] || null;
         }
@@ -330,7 +314,9 @@ export async function processSuccessfulPayment(
         };
 
     } catch (error) {
-        await session.abortTransaction();
+        if (session) {
+            try { await session.abortTransaction(); } catch { /* ignore */ }
+        }
         logger.error('Payment processing failed', {
             source,
             event,
@@ -340,7 +326,9 @@ export async function processSuccessfulPayment(
         });
         throw error;
     } finally {
-        void session.endSession();
+        if (session) {
+            try { void session.endSession(); } catch { /* ignore */ }
+        }
     }
 }
 
