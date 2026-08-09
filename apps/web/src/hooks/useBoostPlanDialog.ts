@@ -1,48 +1,24 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getPlans, type Plan as ApiPlan } from "@/lib/api/user/plans";
-import { applySpotlightPromotion, applyTopAdPromotion } from "@/lib/api/user/listings";
+import { getPlans } from "@/lib/api/user/plans";
 import { notify } from "@/lib/feedback";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
-import { isListingUnavailableError } from "@/lib/listings/listingUnavailable";
 import { useUserBenefits } from "@/hooks/useUserBenefits";
 import { usePlansWalletDashboard } from "@/hooks/usePlansWalletDashboard";
+import { useBoostPromotionAction } from "./useBoostPromotionAction";
 
+import {
+  type PromotionCategory,
+  type BoostPlan,
+  getCreditRemaining,
+  formatPlanName,
+} from "./useBoostPlanDialog.types";
 
-export type PromotionCategory = "SPOTLIGHT" | "BOOST_AD";
-
-export type BoostPlan = ApiPlan & {
-  durationDays: number;
-  displayBoost: string;
-};
-
-function getCreditRemaining(raw: unknown): number {
-  if (typeof raw === "number") return raw;
-  if (
-    raw &&
-    typeof raw === "object" &&
-    "remaining" in raw &&
-    typeof (raw as { remaining: number }).remaining === "number"
-  ) {
-    return (raw as { remaining: number }).remaining;
-  }
-  return 0;
-}
-
-export function formatPlanName(
-  name?: string,
-  category: PromotionCategory = "SPOTLIGHT"
-): string {
-  if (!name || name.toLowerCase().includes("new user plan")) {
-    return category === "SPOTLIGHT"
-      ? "Spotlight Featured Boost"
-      : "Top Ad Priority Placement";
-  }
-  return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
+export type { PromotionCategory, BoostPlan };
+export { formatPlanName };
 
 interface UseBoostPlanDialogOptions {
   open: boolean;
@@ -80,8 +56,7 @@ export function useBoostPlanDialog({
   onPlanPurchased,
   onListingUnavailable,
 }: UseBoostPlanDialogOptions): UseBoostPlanDialogReturn {
-  const [activeCategory, setActiveCategory] =
-    useState<PromotionCategory>("SPOTLIGHT");
+  const [activeCategory, setActiveCategory] = useState<PromotionCategory>("SPOTLIGHT");
   const [boostPlans, setBoostPlans] = useState<BoostPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("WALLET_CREDIT");
   const [selectedPlan, setSelectedPlan] = useState<BoostPlan | null>(null);
@@ -89,22 +64,12 @@ export function useBoostPlanDialog({
   const { isProcessing, setIsProcessing, startPlanCheckout } = usePlanCheckout();
   const { benefits } = useUserBenefits();
   const { dashboardData } = usePlansWalletDashboard();
+  const { applyBoost } = useBoostPromotionAction({ adId, activeCategory, onOpenChange, onListingUnavailable });
 
-  const spotlightCredits = Math.max(
-    getCreditRemaining(benefits?.balances?.spotlightCredits),
-    dashboardData?.wallet?.spotlightCredits ?? 0
-  );
-  const topAdCredits = Math.max(
-    getCreditRemaining(benefits?.balances?.topAdCredits),
-    dashboardData?.wallet?.topAdCredits ?? 0
-  );
-  const availableCredits =
-    activeCategory === "SPOTLIGHT" ? spotlightCredits : topAdCredits;
-
-  const displayAdTitle =
-    String(adTitle || "")
-      .split(" with ")[0]
-      ?.trim() || "";
+  const spotlightCredits = Math.max(getCreditRemaining(benefits?.balances?.spotlightCredits), dashboardData?.wallet?.spotlightCredits ?? 0);
+  const topAdCredits = Math.max(getCreditRemaining(benefits?.balances?.topAdCredits), dashboardData?.wallet?.topAdCredits ?? 0);
+  const availableCredits = activeCategory === "SPOTLIGHT" ? spotlightCredits : topAdCredits;
+  const displayAdTitle = String(adTitle || "").split(" with ")[0]?.trim() || "";
 
   useEffect(() => {
     const fetchBoostPlans = async () => {
@@ -112,10 +77,7 @@ export function useBoostPlanDialog({
       try {
         const plans = await getPlans({ type: activeCategory, userType: "normal" });
         const normalized: BoostPlan[] = plans
-          .filter(
-            (plan) =>
-              plan.type === activeCategory && !plan.isDefault && plan.price > 0
-          )
+          .filter((plan) => plan.type === activeCategory && !plan.isDefault && plan.price > 0)
           .map((plan) => ({
             ...plan,
             durationDays: plan.durationDays || 7,
@@ -136,20 +98,14 @@ export function useBoostPlanDialog({
       } catch (error) {
         logger.error(`Failed to fetch ${activeCategory} plans`, error);
         setBoostPlans([]);
-        if (availableCredits > 0) {
-          setSelectedPlanId("WALLET_CREDIT");
-        } else {
-          setSelectedPlanId("");
-        }
+        setSelectedPlanId(availableCredits > 0 ? "WALLET_CREDIT" : "");
         setSelectedPlan(null);
       } finally {
         setIsLoadingPlans(false);
       }
     };
 
-    if (open) {
-      void fetchBoostPlans();
-    }
+    if (open) void fetchBoostPlans();
   }, [open, activeCategory, availableCredits]);
 
   useEffect(() => {
@@ -161,24 +117,6 @@ export function useBoostPlanDialog({
       setSelectedPlan(boostPlans[0]!);
     }
   }, [availableCredits, activeCategory, boostPlans, selectedPlanId]);
-
-  const applyBoost = async (durationDays: number) => {
-    try {
-      if (activeCategory === "SPOTLIGHT") {
-        await applySpotlightPromotion(adId, durationDays);
-      } else {
-        await applyTopAdPromotion(adId, durationDays);
-      }
-      return true;
-    } catch (error) {
-      if (isListingUnavailableError(error)) {
-        onOpenChange(false);
-        onListingUnavailable?.();
-        return false;
-      }
-      throw error;
-    }
-  };
 
   const handleUseCredits = async () => {
     setIsProcessing(true);
