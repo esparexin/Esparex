@@ -8,7 +8,7 @@ export class ApiBusinessRepository implements IBusinessRepository {
   async getMyBusiness(): Promise<Business | null> {
     try {
       const response = await apiClient.get<{ data: Business }>('/v1/businesses/me');
-      return response.data.data || (response.data as unknown as Business) || null;
+      return response.data.data || (response.data as any) || null;
     } catch (error: any) {
       if (error?.response?.status === 404) {
         return null;
@@ -20,7 +20,7 @@ export class ApiBusinessRepository implements IBusinessRepository {
   async registerBusiness(state: BusinessFormState): Promise<Business> {
     const payload = CreateBusinessRequestMapper.toPayload(state);
     const response = await apiClient.post<{ data: Business }>('/v1/businesses', payload);
-    return response.data.data || (response.data as unknown as Business);
+    return response.data.data || (response.data as any);
   }
 
   async uploadDocument(uri: string, fileType: string): Promise<string> {
@@ -49,6 +49,7 @@ export class ApiBusinessRepository implements IBusinessRepository {
       const inner = resData.data;
       return typeof inner === 'string' ? inner : inner.url;
     }
-    return resData as unknown as string;
+    const rawResData: unknown = resData;
+    return rawResData as string;
   }
 }

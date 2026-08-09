@@ -8,7 +8,7 @@ import { typography } from '@esparex/design-tokens';
 
 export const TYPOGRAPHY_FONT_FAMILY: Record<string, string[]> = typography.fonts;
 
-export const TYPOGRAPHY_FONT_SIZE: Record<string, readonly [string, { readonly lineHeight: string; readonly letterSpacing: string }]> = typography.fontSizes;
+export const TYPOGRAPHY_FONT_SIZE: Record<string, [string, { lineHeight: string; letterSpacing: string }]> = typography.fontSizes as any;
 
 
 export const TYPOGRAPHY_FONT_WEIGHT: Record<string, string> = typography.fontWeights;

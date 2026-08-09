@@ -2,8 +2,7 @@ import {
     mongoose,
     Business,
     Report,
-    LISTING_STATUS,
-    isBusinessPublishedStatus
+    LISTING_STATUS
 } from './_shared/adServiceBase';
 import type { PaginationOptions } from './_shared/adServiceBase';
 import { getListingRepository } from '../../../../../composition/listings';

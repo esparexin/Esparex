@@ -16,13 +16,13 @@ export class ApiSmartAlertRepository implements ISmartAlertRepository {
     const payload = CreateSmartAlertMapper.toPayload(state);
     const response = await apiClient.post<{ data: SmartAlert }>('/v1/smart-alerts', payload);
     const resData = response.data;
-    return resData?.data || (resData as unknown as SmartAlert);
+    return resData?.data || (resData as any);
   }
 
   async updateSmartAlert(id: string, state: Partial<SmartAlertFormState>): Promise<SmartAlert> {
     const response = await apiClient.patch<{ data: SmartAlert }>(`/v1/smart-alerts/${id}`, state);
     const resData = response.data;
-    return resData?.data || (resData as unknown as SmartAlert);
+    return resData?.data || (resData as any);
   }
 
   async deleteSmartAlert(id: string): Promise<void> {

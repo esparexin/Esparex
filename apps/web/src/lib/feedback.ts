@@ -67,6 +67,6 @@ export const notify = {
 };
 
 if (typeof window !== "undefined") {
-    (window as unknown as { __esparex_notify?: typeof notify }).__esparex_notify = notify;
+    (window as any).__esparex_notify = notify;
 }
 

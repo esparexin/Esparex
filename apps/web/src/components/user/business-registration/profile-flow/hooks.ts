@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { UseFormReturn, UseFormSetValue, FieldValues, FieldErrors, Path } from "react-hook-form";
+import type { UseFormReturn, FieldValues, FieldErrors, Path } from "react-hook-form";
 import { useBusinessWizardBridge, getBusinessWizardFieldsForStep } from "../useBusinessWizardBridge";
 
 export function useProfileWizardController<TFormShape extends FieldValues>(
@@ -14,7 +14,7 @@ export function useProfileWizardController<TFormShape extends FieldValues>(
     const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({ 
         formData: formData as TFormShape, 
         errors: errors as FieldErrors<TFormShape>, 
-        setValue: setValue as unknown as UseFormSetValue<TFormShape> 
+        setValue: (setValue as any) 
     });
 
     const handleNext = async () => {

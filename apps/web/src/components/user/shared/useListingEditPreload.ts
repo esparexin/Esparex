@@ -60,7 +60,8 @@ export function useListingEditPreload<TPayload extends Record<string, unknown>>(
                 if (!payload) {
                     throw new Error("Listing not found");
                 }
-                await callbacksRef.current.onPayload(payload as unknown as TPayload);
+                const rawPayload: unknown = payload;
+                await callbacksRef.current.onPayload(rawPayload as TPayload);
             } catch (error) {
                 if (!isActive) return;
                 loadedIdRef.current = null;

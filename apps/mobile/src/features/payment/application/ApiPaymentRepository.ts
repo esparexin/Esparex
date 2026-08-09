@@ -19,7 +19,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
     const payload = CreatePaymentOrderMapper.toPayload(planId);
     const response = await apiClient.post<{ data: PaymentOrder }>('/v1/payments/orders', payload);
     const resData = response.data;
-    return resData?.data || (resData as unknown as PaymentOrder);
+    return resData?.data || (resData as any);
   }
 
   async verifyPayment(input: VerifyPaymentInput): Promise<void> {
@@ -80,7 +80,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
     const resData = response.data;
     return (
       resData?.data ||
-      (resData as unknown as WalletSummary) || {
+      (resData as any) || {
         adCredits: 0,
         spotlightCredits: 0,
         smartAlertSlots: 0,

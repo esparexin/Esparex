@@ -33,7 +33,7 @@ export const sparePartFormConfig: ListingFormConfig = {
         categoryId: "",
         brandId: "",
         sparePartTypeId: "",
-        price: undefined as unknown as number,
+        price: undefined as any,
         description: "",
     },
 };

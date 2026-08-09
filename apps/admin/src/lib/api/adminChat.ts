@@ -42,7 +42,8 @@ export async function fetchAdminChats(params: {
   if (params.limit !== undefined) qs.set('limit', String(params.limit));
   if (params.q) qs.set('q', params.q);
   const res = await adminFetch<AdminChatListResponse>(`/chat/list?${qs.toString()}`);
-  return res as unknown as AdminChatListResponse;
+  const rawRes: unknown = res;
+  return rawRes as AdminChatListResponse;
 }
 
 export async function adminMuteChat(id: string, reason?: string): Promise<void> {

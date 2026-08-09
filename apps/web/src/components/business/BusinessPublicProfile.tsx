@@ -101,9 +101,10 @@ export function BusinessPublicProfile({
   const hasValidLogo = isRenderableUserPhoto(rawLogo);
 
   const mapData = useMemo(() => {
+    const rawLocation: unknown = business.location;
     const locationRecord =
       business.location && typeof business.location === "object"
-        ? (business.location as unknown as Record<string, unknown>)
+        ? (rawLocation as Record<string, unknown>)
         : null;
     const point =
       locationRecord?.coordinates && typeof locationRecord.coordinates === "object"

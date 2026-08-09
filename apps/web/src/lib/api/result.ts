@@ -134,7 +134,7 @@ export const createApiErrorResult = (error: unknown) => {
     error: normalized,
     statusCode:
       (normalized.context as { statusCode?: number } | undefined)?.statusCode ??
-      (normalized as unknown as { response?: { status?: number } })?.response?.status,
+      (normalized as any)?.response?.status,
   };
 };
 
