@@ -193,3 +193,231 @@ Templates live in `audit-reports/` (Volumes 1–5).
 ---
 
 *Owner: Engineering Governance. Governing doc: AGENTS.md — all scopes.*
+
+---
+
+# PART II — ENGINEERING GOVERNANCE STANDARDS
+
+## 10. Engineering Decision Governance (ADR)
+
+### 10.1 When an ADR is mandatory
+
+| Trigger | Example | Vol evidence |
+| --- | --- | --- |
+| New architecture / platform change | New package, module boundary change | PADR §5 |
+| Database schema changes | New collection, index policy, migration | V4 §44 |
+| Breaking API changes | Rename/remove DTO field; new version | V4 §43 |
+| Authentication changes | OTP provider, session management | F51/F02 |
+| Payment changes | Refund flow, capture policy, provider switch | V2-F06 |
+| Infrastructure changes | New service, env separation, DR topology | V4 §45 |
+| External integrations | New vendor (SMS, maps, AI) | V5 §52 |
+| Shared package creation | `packages/*` addition | AGENTS §ADR |
+| Design-system modifications | Tokens, primitives, dark-mode policy | ADR-004/005 trace |
+
+### 10.2 ADR template (aligns with existing `docs/architecture/adr/`)
+
+Every ADR file (`ADR-0NN-slug.md`) must contain: `ID · Date · Status · Decision Reference · Author` + the five mandated sections:
+
+1. **Context** — problem, constraints, current behavior (evidence refs required)
+2. **Decision** — the chosen option (explicit)
+3. **Alternatives** — ≥2 rejected options with why
+4. **Consequences** — trade-offs, migration impact, breakage list
+5. **Rollback strategy** — revert mirror to wave design (R1/R2/R3)
+6. **Approval** — ARB quorum record (§14); status flips `Draft → Proposed → Approved/Rejected`
+
+Files live in `docs/architecture/adr/`; the repo must maintain an ADR **index** (today: ADR-004/005 only — index + 001–003 backlog tracked as F54).
+
+### 10.3 Enforcement
+`guard:pr-impact-analysis` on PRs touching core/contracts/platform; missing ADR = RED gate.
+
+---
+
+## 11. Definition of Done (mandatory per feature/release)
+
+Every feature PR must prove, in its description:
+
+| Step | Gate | Automated |
+| --- | --- | --- |
+| Build passes | `npm run build` | ✅ |
+| Type check passes | `npm run type-check` | ✅ |
+| Unit + integration pass | `npm test` (all suites incl. web — V2-1) | ✅ |
+| Playwright passes | e2e suite (Wave 5; RC mandatory) | ⚠️ pending suite |
+| Docs updated | `docs/**` + manual §6-8 coverage check | 🟡 |
+| API contract updated | `@esparex/contracts` + `guard:api-surface` | ✅ |
+| ADR completed (if §10.1 applies) | ADR file + index row | 🟡 |
+| Security review complete | `repo:secret` + ARB/Security owner sign-off | ✅ (auto) + manual |
+| Performance verified | budgets per `baseline-report.md` (LCP<2.5s, CLS<0.1) | 🟡 |
+| Accessibility verified | WCAG 2.2 AA — axe + focus-ring + keyboard (AGENTS) | 🟡 |
+| Reviewer approval | CODEOWNERS reviewer + ARB when triggered | ✅ (manual) |
+
+Cross-reference: GATE-001 (`quality-gates.md`), `ENFORCEMENT_HIERARCHY.md` ("one repo → one `repo:gate`"), PR checklist in `.github/PULL_REQUEST_TEMPLATE.md`.
+
+**Supplement rules:** zero new suppressions; release evidence bundle per REV-001 (`docs/releases/release-v1.x.x/`).
+
+---
+
+## 12. Change Impact Analysis (every change)
+
+Mandatory section in PR descriptions for any PR touching **core, contracts, backend, or platform**:
+
+| Field | Required output |
+| --- | --- |
+| Affected modules | list of domains/packages |
+| Affected APIs | route + contract diff |
+| Database changes | model/index/migration plan |
+| UI changes | screens + design-token impact |
+| Mobile impact | parity changes (web/mobile drift risk) |
+| Admin impact | admin surfaces + guards |
+| Third-party integrations | vendors touched (§52-listed?) |
+| Migration requirements | data migration plan or "none" |
+| Rollback plan | R1/R2/R3 (revert / flag / migration-back) |
+
+Gate: `npm run guard:pr-impact-analysis` — fail if CIA block absent on qualifying PRs.
+
+---
+
+## 13. Risk Register Standard
+
+Operational register: `docs/governance/risk-register.md` (RISK-001). Standard entry card:
+
+| Field | Spec |
+| --- | --- |
+| Risk ID | `R-NNN` (finding-linked: `R-00n` ← `F##`) |
+| Probability | Low <20% · Med 20–50% · High >50% |
+| Impact | Low/Med/High (criteria in register) |
+| Severity | derived = P×I matrix (med/high/critical) |
+| Mitigation | concrete action + owner |
+| Owner | named (team/person) |
+| Target completion | date |
+| Status | Open → In Progress → Mitigated/Closed |
+
+**Audit link rule:** every open 🔴/🟠 audit finding MUST have a matching R-nnn row; Risk Register review is a sprint-end cadence item (§8) and Release RC item.
+
+---
+
+## 14. Architecture Review Board (ARB)
+
+**Membership (by role):** Core Lead · Backend Lead · Mobile Lead · Web Lead · SRE/DevOps · Security · Docs Owner. Server representative: CODEOWNERS area leads.
+
+**Approvals scope** (quorum 3 incl. security for security-flagged):
+
+| Change class | Approver |
+| --- | --- |
+| New modules / new packages | ARB |
+| Shared-package changes (contracts/ui/shared/core exports) | ARB + CODEOWNERS |
+| Database schema changes | ARB + backend lead |
+| API versioning / breaking changes | ARB + contracts owner |
+| Infrastructure changes | ARB + SRE |
+| Auth/payment/security changes | ARB + Security owner |
+
+**Process:** decision record → ADR (if mandatory) → vote in 48h timebox → minuted in `decision-register.md` → scored gate.
+
+---
+
+## 15. Version Governance
+
+Semver applied consistently; breaking bumps require ADR + ARB:
+
+| Artifact | Scheme | Notes |
+| --- | --- | --- |
+| APIs | path version (`/api/v{n}`) + semver contract | no silent breaking changes |
+| `@esparex/contracts` | semver MAJOR on any break; MINOR/PATCH additive | SSOT owner |
+| core / shared / ui / mobile-ui | semver (package.json) | — |
+| Packages (`packages/*`) | semver + changelog per package | — |
+| Mobile app | app-version `x.y.z` + build number | store parity |
+| Web / Admin | tag `vX.Y.Z` per release (repo tags exist: v2.9.0…) | CI cut |
+| Database | migration version (progressive, backward-safe) | ir-revocable rule |
+| Documentation | dated, changelog-per-doc | |
+
+Release-tag evidence: git tags `v2.9.0` pattern — keep; branches empty on tags.
+
+---
+
+## 16. Release Governance
+
+### 16.1 Environments & promotion ladder
+
+| Env | Deploys from | Gate to promote | Owner |
+| --- | --- | --- | --- |
+| Local | feature branch | — | dev |
+| Development | develop (CI) | guard set | ENG |
+
+| QA | RC candidate | QA suite + gate §6 | QA |
+| Staging | RC (full cert suite) | cert §6 green + SLO smoke | Release mgr |
+| UAT | staging snapshot | UAT sign-off | PM/Product |
+| Production | prod branch / tag vX.Y.Z | RC card + ARB + rollback plan | Release mgr + CTO |
+
+### 16.2 Promotion rules
+- No skip of levels (except hotfix, with ARB + revert-window).
+- Each promote must show evidence: guard-logs, test report, RC card (`docs/releases/release-v1.x.x/` per REV-001), and current certification level.
+- Feature flags = promote-deny switch: any flag-false feature is not available in prod rollout.
+
+---
+
+## 17. Repository Standards
+
+| Concern | Standard |
+| --- | --- |
+| Branch naming | `main` (protected) · `develop` · `feat/<issue>-<slug>` · `fix/<slug>` · `chore/<slug>` · `archive/*` |
+| Commit messages | Conventional Commits `<type>(<scope>): <summary>` |
+| PR naming | `<type>(<scope>): <issue?summary>` |
+| Labels | required: `feature|fix|chore|security|refactor` + severity + `wave-N` |
+| Milestones | wave milestones with gate dates |
+| Release tags | `vMAJOR.MINOR.PATCH` (+ rc/n for candidates) |
+| CODEOWNERS | 38 lines; reviewers respond ≤48h; no silence-merge without approval; exceptions auto-flag |
+
+Enforced by `repo:branch-protection` + `repo:lockfile` + `guard:pr-quality`; hygiene audit = §42 cadence.
+
+---
+
+## 18. Dependency Governance
+
+| Policy | Rule |
+| --- | --- |
+| Upgrade cadence | dependabot weekly (npm + actions); review within 7d |
+| Security patch windows | CRITICAL ≤ 48h, HIGH ≤ 7d, MEDIUM ≤ 30d |
+| Deprecated package removal | flagged → removal plan → removed within 1 quarter |
+| License review | `npm run guard:license` (allowlist) |
+| Vendor risk assessment | required for NEW integrations (V5 §52 attrib; ARB + Security) |
+
+Enforced: `guard:dependencies`, `repo:lockfile`, `repo:secret` nightly + release candidate.
+
+---
+
+## 19. Audit Exception (Waiver) Process
+
+| Rule | Text |
+| --- | --- |
+| No permanent exceptions | every exception has an expiration (auto-expire) |
+| Exception fields | EX-ID · Reason · Business justification · Expiration · Approval (ARB + Release mgr) · Review date |
+| Location | `.governance/waivers/*` (mirror in risk register) |
+| Lifecycle | Open → Active → Expired → Retired (retired = remediation issue) |
+| Gate | an active exception on a release-critical item blocks certification level |
+
+**Current state (2026-08-09):** WAIVER-001/002 active, **expire 2026-08-15** — must be retired or renewed with review before expiry (Vol 3 §39).
+
+---
+
+## 20. Governance Appendices
+
+### A. Document index (authoritative)
+| Doc | Role |
+| --- | --- |
+| AGENTS.md | Architecture & governance rules (SSOT) |
+| This manual | methodology + standards (§1–19) |
+| `quality-gates.md` (GATE-001) | mandatory gate list |
+| `risk-register.md` (RISK-001) | operational risk |
+| `ENFORCEMENT_HIERARCHY.md` | 5-tier repo:gate |
+| PLATFORM_ARCHITECTURE.md (PADR §5) | architecture decisions |
+| ARCHITECTURE_CHECKLIST.md | review checklist |
+| Volumes 1–5 `audit-reports/` | certification record |
+
+### B. Glossary
+SSOT · guard (`npm run guard:*`) · gate (repo:gate) · wave (remediation program) · RC (release candidate) · ARB (Architecture Review Board) · CIA (change impact analysis) · SLI/SLO · DoD (Definition of Done) · EX (exception).
+
+### C. Templates (created by this standard)
+ADR (`docs/architecture/adr/`) · PR CIA block · risk register rows · exception card · RC certification card.
+
+---
+
+*Owner: Engineering Governance · This manual is the single governing standard; Volumes 1–5 remain the evidence records of the 2026-08 certification cycle.*

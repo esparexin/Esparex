@@ -56,7 +56,7 @@ export function PopupDialogView({
             }
           }}
         >
-          <div className={joinClasses("flex items-start gap-3", isConfirm ? "" : "p-4")}>
+          <div className={joinClasses("flex items-start gap-3", isConfirm ? "" : "p-4")} role="status" aria-live={active.type === "error" ? "assertive" : "polite"}>
             <div
               className={joinClasses(
                 "mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
@@ -82,7 +82,7 @@ export function PopupDialogView({
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
               aria-label="Dismiss notification"
             >
               <X className="h-4 w-4" />
