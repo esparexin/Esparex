@@ -1,5 +1,6 @@
 import React from 'react';
 import type { SubscriptionSummaryDTO } from '@esparex/contracts';
+import { Crown } from '@/icons/IconRegistry';
 
 interface ActiveSubscriptionCardProps {
   subscription: SubscriptionSummaryDTO | null;
@@ -18,21 +19,22 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
 }) => {
   if (!subscription) {
     return (
-      <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs transition-all">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full text-2xs font-semibold bg-muted text-muted-foreground mb-1">
-              Free Plan
+      <div className="bg-gradient-to-br from-surface via-surface to-primary/5 rounded-2xl p-4 sm:p-5 border border-primary/20 shadow-sm relative overflow-hidden transition-all duration-300 hover:shadow-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-extrabold bg-primary/10 text-primary uppercase tracking-wide">
+              <Crown className="w-3 h-3 text-primary shrink-0" />
+              <span>FREE PLAN</span>
             </div>
-            <h3 className="text-sm sm:text-base font-bold text-foreground">Free Starter Plan</h3>
-            <p className="text-2xs sm:text-xs text-muted-foreground mt-0.5">
+            <h3 className="text-base sm:text-lg font-extrabold text-foreground tracking-tight">Free Starter Plan</h3>
+            <p className="text-2xs sm:text-xs text-muted-foreground max-w-lg">
               Monthly plan with free ad postings. Upgrade to unlock extra posting power, spotlight boosts, and instant buyer alerts.
             </p>
           </div>
           {onBrowsePlans && (
             <button
               onClick={onBrowsePlans}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-2xs whitespace-nowrap self-start sm:self-auto cursor-pointer"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary via-emerald-600 to-teal-600 text-white text-xs font-extrabold hover:opacity-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-md shadow-primary/20 hover:-translate-y-0.5 whitespace-nowrap self-start sm:self-auto cursor-pointer"
             >
               Upgrade Plan
             </button>
@@ -45,34 +47,34 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   const isExpired = subscription.status === 'EXPIRED';
 
   return (
-    <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+    <div className="bg-gradient-to-br from-surface via-surface to-primary/5 rounded-2xl p-4 sm:p-5 border border-primary/20 shadow-sm relative overflow-hidden transition-all duration-300 hover:shadow-md">
+      <div className="absolute -top-12 -right-12 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-bold bg-primary/10 text-primary uppercase tracking-wide">
-              {subscription.category || 'Standard'}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-2xs font-extrabold bg-primary/10 text-primary uppercase tracking-wide">
+              <Crown className="w-3 h-3 text-primary shrink-0" />
+              <span>{subscription.category || 'Standard'}</span>
             </span>
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-full text-2xs font-semibold ${
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold ${
                 isExpired
-                  ? 'bg-destructive/10 text-destructive'
-                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  ? 'bg-destructive/10 text-destructive border border-destructive/20'
+                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
               }`}
             >
+              <span className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-destructive' : 'bg-emerald-500 animate-pulse'} mr-1.5`} />
               {isExpired ? 'Expired' : 'Active Plan'}
             </span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+          <h3 className="text-lg sm:text-xl font-black text-foreground tracking-tight">
             {formatPlanName(subscription.planName)}
           </h3>
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs sm:text-xs text-muted-foreground mt-1">
-            <span>
-              30-Day Plan Validity • Resets on 1st of every month
-            </span>
+          <div className="text-2xs sm:text-xs text-muted-foreground">
+            30-Day Plan Validity • Resets on 1st of every month
           </div>
         </div>
 
@@ -80,7 +82,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
           {onBrowsePlans && (
             <button
               onClick={onBrowsePlans}
-              className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-2xs whitespace-nowrap cursor-pointer"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary via-emerald-600 to-teal-600 text-white text-xs font-extrabold hover:opacity-95 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-md shadow-primary/20 hover:-translate-y-0.5 whitespace-nowrap cursor-pointer"
             >
               Upgrade Plan
             </button>

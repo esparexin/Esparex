@@ -67,18 +67,18 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     <div className="space-y-6">
       {/* Header Navigation: 3-Tab Navigation for Wallet view, Standalone Title for Buy Plans view */}
       {initialTab !== 'BUY_PLANS' ? (
-        <div className="border-b border-border/60 pb-3">
-          <nav className="flex space-x-2 sm:space-x-4 overflow-x-auto pb-1 sm:pb-0 scrollbar-none" aria-label="Wallet Navigation" role="tablist">
+        <div className="bg-muted/50 p-1.5 rounded-2xl border border-border/50 shadow-2xs mb-4">
+          <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
             <button
               id="tab-overview"
               role="tab"
               aria-selected={activeTab === 'OVERVIEW'}
               aria-controls="panel-overview"
               onClick={() => handleTabSwitch('OVERVIEW')}
-              className={`min-h-[40px] px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              className={`min-h-[40px] px-5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'OVERVIEW'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
               }`}
             >
               My Plan
@@ -90,10 +90,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'CREDIT_PACKS'}
               aria-controls="panel-credit-packs"
               onClick={() => handleTabSwitch('CREDIT_PACKS')}
-              className={`min-h-[40px] px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              className={`min-h-[40px] px-5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'CREDIT_PACKS'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
               }`}
             >
               Ad Credits
@@ -105,10 +105,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'INVOICES'}
               aria-controls="panel-invoices"
               onClick={() => handleTabSwitch('INVOICES')}
-              className={`min-h-[40px] px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              className={`min-h-[40px] px-5 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all duration-200 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'INVOICES'
-                  ? 'bg-primary text-primary-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                  ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background/60'
               }`}
             >
               Invoices

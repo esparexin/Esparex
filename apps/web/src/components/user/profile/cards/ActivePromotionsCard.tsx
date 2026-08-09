@@ -67,9 +67,10 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
                   className={`inline-flex items-center px-2.5 py-1 rounded-full text-2xs font-extrabold ${
                     isExpired
                       ? 'bg-muted text-muted-foreground'
-                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
                   }`}
                 >
+                  <span className={`w-1.5 h-1.5 rounded-full ${isExpired ? 'bg-muted-foreground' : 'bg-emerald-500 animate-pulse'} mr-1.5`} />
                   {isExpired ? 'EXPIRED' : `ACTIVE • ${daysLeft} days left`}
                 </span>
               </div>

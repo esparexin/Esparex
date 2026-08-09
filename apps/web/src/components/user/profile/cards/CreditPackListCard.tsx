@@ -64,8 +64,8 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                <div className="bg-primary h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+              <div className="w-full bg-muted/60 rounded-full h-1.5 overflow-hidden">
+                <div className="bg-gradient-to-r from-primary via-emerald-500 to-teal-400 h-1.5 rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
               </div>
 
               <div className="flex items-center justify-between text-2xs text-muted-foreground">
