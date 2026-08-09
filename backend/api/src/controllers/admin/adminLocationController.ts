@@ -128,6 +128,15 @@ export const getGeofences = async (req: Request, res: Response) => {
     }
 };
 
+export const getGeofenceById = async (req: Request, res: Response) => {
+    try {
+        const geofence = await adminLocationService.adminGetGeofenceById(req.params.id as string);
+        return sendSuccessResponse(res, geofence);
+    } catch (error: unknown) {
+        return sendBaseAdminError(req, res, error);
+    }
+};
+
 export const createGeofence = async (req: Request, res: Response) => {
     try {
         const geofence = await adminLocationService.adminCreateGeofence(

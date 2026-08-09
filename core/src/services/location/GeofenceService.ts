@@ -6,6 +6,11 @@ import { geofenceRepository } from '../../composition/location';
 
 export const getAllGeofences = async () => geofenceRepository.getAllGeofences();
 
+export const getGeofenceById = async (id: string | undefined) => {
+    if (!id) return null;
+    return geofenceRepository.getGeofenceById(id);
+};
+
 export const createGeofenceRecord = async (data: Record<string, unknown>) =>
     geofenceRepository.createGeofence(data);
 
