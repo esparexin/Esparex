@@ -53,12 +53,14 @@ export class DashboardFacade {
     const userPlan = userPlanResult.status === 'fulfilled' ? userPlanResult.value : undefined;
     const userWallet = userWalletResult.status === 'fulfilled' ? userWalletResult.value : undefined;
     const rawEntitlements = entitlementsResult.status === 'fulfilled' ? entitlementsResult.value || [] : [];
+    type RawDoc = Record<string, unknown>;
+    const typedEntitlements = rawEntitlements as unknown as RawDoc[];
 
     // Batch resolve planName & durationDays from Transaction.planSnapshot via sourceId (0 N+1 queries)
     const sourceIds = Array.from(
       new Set(
-        rawEntitlements
-          .map((e: any) => e.sourceId?.toString())
+        typedEntitlements
+          .map((e) => (e.sourceId as { toString(): string } | undefined)?.toString())
           .filter((id: string | undefined): id is string => Boolean(id))
       )
     );
@@ -67,35 +69,40 @@ export class DashboardFacade {
       ? await Transaction.find({ _id: { $in: sourceIds } }).select('_id planSnapshot').lean()
       : [];
 
-    const txSnapshotMap = new Map<string, Record<string, unknown> | undefined>(
-      sourceTxRecords.map((tx: any) => [tx._id.toString(), tx.planSnapshot as Record<string, unknown> | undefined])
+    const typedSourceTx = sourceTxRecords as unknown as RawDoc[];
+    const txSnapshotMap = new Map<string, RawDoc | undefined>(
+      typedSourceTx.map((tx) => [(tx._id as { toString(): string }).toString(), tx.planSnapshot as RawDoc | undefined])
     );
 
-    const entitlements = rawEntitlements.map((ent: any) => {
-      const sourceIdStr = ent.sourceId?.toString();
+    const entitlements = typedEntitlements.map((ent) => {
+      const sourceIdStr = (ent.sourceId as { toString(): string } | undefined)?.toString();
       const snapshot = sourceIdStr ? txSnapshotMap.get(sourceIdStr) : undefined;
       return {
         ...ent,
-        planName: (snapshot?.name as string | undefined) || ent.planName || undefined,
+        planName: (snapshot?.name as string | undefined) || (ent.planName as string | undefined) || undefined,
         planDurationDays: (snapshot?.durationDays as number | undefined) || undefined,
       };
     });
 
     const rawBoosts = boostsResult.status === 'fulfilled' ? boostsResult.value || [] : [];
-    const boosts = rawBoosts.map((b: any) => ({
-      ...b,
-      entityTitle: (adTitleMap.get(b.entityId?.toString()) || b.entityTitle || b.adTitle || 'Promoted Listing') as string,
-    }));
+    const typedBoosts = rawBoosts as unknown as RawDoc[];
+    const boosts = typedBoosts.map((b) => {
+      const entityIdStr = (b.entityId as { toString(): string } | undefined)?.toString();
+      return {
+        ...b,
+        entityTitle: (entityIdStr ? adTitleMap.get(entityIdStr) : undefined) || (b.entityTitle as string | undefined) || (b.adTitle as string | undefined) || 'Promoted Listing',
+      };
+    });
     const creditTransactions = creditTxResult.status === 'fulfilled' ? creditTxResult.value || [] : [];
     const paymentTransactions = paymentTxResult.status === 'fulfilled' ? paymentTxResult.value || [] : [];
 
     const snapshot = PlansWalletMapper.mapToV1DTO({
-      userPlan: userPlan ? (userPlan as any) : undefined,
-      userWallet: userWallet ? (userWallet as any) : undefined,
-      entitlements: entitlements as any[],
-      boosts: boosts as any[],
-      creditTransactions: creditTransactions as any[],
-      paymentTransactions: paymentTransactions as any[],
+      userPlan: userPlan ? (userPlan as unknown as RawDoc) : undefined,
+      userWallet: userWallet ? (userWallet as unknown as RawDoc) : undefined,
+      entitlements: entitlements as unknown as RawDoc[],
+      boosts: boosts as unknown as RawDoc[],
+      creditTransactions: creditTransactions as unknown as RawDoc[],
+      paymentTransactions: paymentTransactions as unknown as RawDoc[],
     });
 
     // Cache the snapshot asynchronously
