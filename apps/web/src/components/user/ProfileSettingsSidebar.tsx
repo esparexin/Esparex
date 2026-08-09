@@ -49,7 +49,6 @@ import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
 import { MyListingsTab } from "./profile/tabs/MyListingsTab";
-import { SavedAds } from "./SavedAds";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
 import { AccountHeader } from "./AccountHeader";
 import { AccountNavItemList } from "./AccountNavItemList";
