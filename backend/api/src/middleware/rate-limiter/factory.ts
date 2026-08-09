@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
 import { recordOtpAbuseSignal, recordRateLimitSignal } from '@esparex/core/utils/securityMonitoring';
+import { sendErrorResponse } from '../../utils/errorResponse';
 
 const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldDisableRedisStore = (env.NODE_ENV === 'test' || isJestRuntime || !env.ALLOW_REDIS);
@@ -90,7 +91,12 @@ export const respondRateLimited = (req: Request, res: Response, error: string, b
     if (typeof options.retryAfterSeconds === 'number') res.set('Retry-After', String(options.retryAfterSeconds));
     let errorMessage = error;
     if (typeof options.retryAfterSeconds === 'number') errorMessage = `Too many requests. Please try again in ${formatCountdown(options.retryAfterSeconds)}.`;
-    return res.status(429).json({ success: false, error: errorMessage, bucket, path: req.originalUrl || req.path || 'unknown', status: 429, ...(options.retryAfterSeconds !== undefined ? { retryAfterSeconds: options.retryAfterSeconds } : {}), ...(options.retryAfterSeconds !== undefined ? { retryAfter: options.retryAfterSeconds } : {}), ...(options.code ? { code: options.code } : {}) });
+    return sendErrorResponse(req, res, 429, errorMessage, {
+        code: options.code || 'RATE_LIMITED',
+        bucket,
+        path: req.originalUrl || req.path || 'unknown',
+        ...(options.retryAfterSeconds !== undefined ? { retryAfterSeconds: options.retryAfterSeconds, retryAfter: options.retryAfterSeconds } : {})
+    });
 };
 
 const createEphemeralTestStore = (prefix: string, windowMs: number): Store => {

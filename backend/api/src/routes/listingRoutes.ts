@@ -49,6 +49,10 @@ router.get("/", publicCacheControl(300, 3600), extractUser, searchLimiter, getLi
 // Unified creation entry point
 router.post("/", protect, mutationLimiter, idempotencyMiddleware, requireVerifiedBusinessForServiceParts, createListingController.createListing);
 
+// POST /api/v1/listings/upload-presign
+// Generate presigned S3 upload URL for listing media
+router.post("/upload-presign", protect, mutationLimiter, createListingController.getPresignedUploadUrl);
+
 
 
 // GET /api/v1/listings/mine/stats
