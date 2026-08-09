@@ -23,16 +23,13 @@ export const getRazorpayRuntimeConfig = async (): Promise<RazorpayRuntimeConfig>
     const config = await getSystemConfigDoc();
     const razorpayConfig = config?.integrations?.payment?.razorpay;
 
-    const keyId = (
-        typeof razorpayConfig?.keyId === 'string' && razorpayConfig.keyId.trim().length > 0
-            ? razorpayConfig.keyId.trim()
-            : DEFAULT_RAZORPAY_KEY_ID
-    );
-    const keySecret = (
-        typeof razorpayConfig?.keySecret === 'string' && razorpayConfig.keySecret.trim().length > 0
-            ? razorpayConfig.keySecret.trim()
-            : DEFAULT_RAZORPAY_KEY_SECRET
-    );
+    const dbKeyId = typeof razorpayConfig?.keyId === 'string' ? razorpayConfig.keyId.trim() : '';
+    const dbKeySecret = typeof razorpayConfig?.keySecret === 'string' ? razorpayConfig.keySecret.trim() : '';
+
+    const isDbKeyDummy = !dbKeyId || dbKeyId === 'dummy-key-id' || dbKeyId === 'rzp_test_placeholder';
+
+    const keyId = DEFAULT_RAZORPAY_KEY_ID || (!isDbKeyDummy ? dbKeyId : '');
+    const keySecret = DEFAULT_RAZORPAY_KEY_SECRET || (!isDbKeyDummy ? dbKeySecret : '');
 
     // Payments are enabled by default.
     // Payments are disabled ONLY if an admin explicitly configured and disabled Razorpay in SystemConfig.
