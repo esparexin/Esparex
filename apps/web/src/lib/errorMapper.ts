@@ -86,7 +86,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export function mapErrorToMessage(error: unknown, fallback?: string): string {
     // Handle null/undefined
     if (!error) {
-        return fallback || 'Payment couldn\'t be started right now. Please try again in a few moments.';
+        return fallback || 'An unexpected error occurred';
     }
 
     // If the error already carries a user-friendly message (e.g. EsparexError), return it directly.
