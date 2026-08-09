@@ -53,14 +53,12 @@ export class DashboardFacade {
     const userPlan = userPlanResult.status === 'fulfilled' ? userPlanResult.value : undefined;
     const userWallet = userWalletResult.status === 'fulfilled' ? userWalletResult.value : undefined;
     const rawEntitlements = entitlementsResult.status === 'fulfilled' ? entitlementsResult.value || [] : [];
-    type RawDoc = Record<string, unknown>;
-    const typedEntitlements = rawEntitlements as unknown as RawDoc[];
 
     // Batch resolve planName & durationDays from Transaction.planSnapshot via sourceId (0 N+1 queries)
     const sourceIds = Array.from(
       new Set(
-        typedEntitlements
-          .map((e) => (e.sourceId as { toString(): string } | undefined)?.toString())
+        rawEntitlements
+          .map((e: { sourceId?: { toString(): string } }) => e.sourceId?.toString())
           .filter((id: string | undefined): id is string => Boolean(id))
       )
     );
@@ -69,40 +67,41 @@ export class DashboardFacade {
       ? await Transaction.find({ _id: { $in: sourceIds } }).select('_id planSnapshot').lean()
       : [];
 
-    const typedSourceTx = sourceTxRecords as unknown as RawDoc[];
-    const txSnapshotMap = new Map<string, RawDoc | undefined>(
-      typedSourceTx.map((tx) => [(tx._id as { toString(): string }).toString(), tx.planSnapshot as RawDoc | undefined])
+    const txSnapshotMap = new Map<string, { name?: string; durationDays?: number } | undefined>(
+      sourceTxRecords.map((tx: { _id: { toString(): string }; planSnapshot?: { name?: string; durationDays?: number } }) => [
+        tx._id.toString(),
+        tx.planSnapshot,
+      ])
     );
 
-    const entitlements = typedEntitlements.map((ent) => {
-      const sourceIdStr = (ent.sourceId as { toString(): string } | undefined)?.toString();
+    const entitlements = rawEntitlements.map((ent: { sourceId?: { toString(): string }; planName?: string }) => {
+      const sourceIdStr = ent.sourceId?.toString();
       const snapshot = sourceIdStr ? txSnapshotMap.get(sourceIdStr) : undefined;
       return {
         ...ent,
-        planName: (snapshot?.name as string | undefined) || (ent.planName as string | undefined) || undefined,
-        planDurationDays: (snapshot?.durationDays as number | undefined) || undefined,
+        planName: snapshot?.name || ent.planName || undefined,
+        planDurationDays: snapshot?.durationDays || undefined,
       };
     });
 
     const rawBoosts = boostsResult.status === 'fulfilled' ? boostsResult.value || [] : [];
-    const typedBoosts = rawBoosts as unknown as RawDoc[];
-    const boosts = typedBoosts.map((b) => {
-      const entityIdStr = (b.entityId as { toString(): string } | undefined)?.toString();
+    const boosts = rawBoosts.map((b: { entityId?: { toString(): string }; entityTitle?: string; adTitle?: string }) => {
+      const entityIdStr = b.entityId?.toString();
       return {
         ...b,
-        entityTitle: (entityIdStr ? adTitleMap.get(entityIdStr) : undefined) || (b.entityTitle as string | undefined) || (b.adTitle as string | undefined) || 'Promoted Listing',
+        entityTitle: (entityIdStr ? adTitleMap.get(entityIdStr) : undefined) || b.entityTitle || b.adTitle || 'Promoted Listing',
       };
     });
     const creditTransactions = creditTxResult.status === 'fulfilled' ? creditTxResult.value || [] : [];
     const paymentTransactions = paymentTxResult.status === 'fulfilled' ? paymentTxResult.value || [] : [];
 
     const snapshot = PlansWalletMapper.mapToV1DTO({
-      userPlan: userPlan ? (userPlan as unknown as RawDoc) : undefined,
-      userWallet: userWallet ? (userWallet as unknown as RawDoc) : undefined,
-      entitlements: entitlements as unknown as RawDoc[],
-      boosts: boosts as unknown as RawDoc[],
-      creditTransactions: creditTransactions as unknown as RawDoc[],
-      paymentTransactions: paymentTransactions as unknown as RawDoc[],
+      userPlan: userPlan || undefined,
+      userWallet: userWallet || undefined,
+      entitlements,
+      boosts,
+      creditTransactions,
+      paymentTransactions,
     });
 
     // Cache the snapshot asynchronously

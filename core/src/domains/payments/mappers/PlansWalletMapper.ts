@@ -13,24 +13,24 @@ import type {
 import { getEntitlementPresentationMeta } from '@esparex/shared';
 
 export interface RawDashboardData {
-  userPlan?: Record<string, unknown>;
-  planCatalogItem?: Record<string, unknown>;
-  userWallet?: Record<string, unknown>;
-  entitlements?: Record<string, unknown>[];
-  boosts?: Record<string, unknown>[];
-  creditTransactions?: Record<string, unknown>[];
-  paymentTransactions?: Record<string, unknown>[];
+  userPlan?: unknown;
+  planCatalogItem?: unknown;
+  userWallet?: unknown;
+  entitlements?: unknown[];
+  boosts?: unknown[];
+  creditTransactions?: unknown[];
+  paymentTransactions?: unknown[];
 }
 
 export class PlansWalletMapper {
   public static mapToV1DTO(data: RawDashboardData): PlansWalletV1DTO {
     return {
-      subscription: this.mapSubscription(data.userPlan, data.planCatalogItem),
-      wallet: this.mapWallet(data.userWallet, data.entitlements),
-      creditPacks: this.mapCreditPacks(data.entitlements || []),
-      activePromotions: this.mapPromotions(data.boosts || []),
-      recentUsage: this.mapRecentUsage(data.creditTransactions || []),
-      recentPayments: this.mapRecentPayments(data.paymentTransactions || []),
+      subscription: this.mapSubscription(data.userPlan as Record<string, unknown> | undefined, data.planCatalogItem as Record<string, unknown> | undefined),
+      wallet: this.mapWallet(data.userWallet as Record<string, unknown> | undefined, data.entitlements as Record<string, unknown>[] | undefined),
+      creditPacks: this.mapCreditPacks((data.entitlements || []) as Record<string, unknown>[]),
+      activePromotions: this.mapPromotions((data.boosts || []) as Record<string, unknown>[]),
+      recentUsage: this.mapRecentUsage((data.creditTransactions || []) as Record<string, unknown>[]),
+      recentPayments: this.mapRecentPayments((data.paymentTransactions || []) as Record<string, unknown>[]),
     };
   }
 
