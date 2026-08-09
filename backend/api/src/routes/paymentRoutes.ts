@@ -39,6 +39,9 @@ import { idempotencyMiddleware } from '../middleware/idempotency';
 // Create Payment Order
 router.post('/orders', protect, paymentRateLimiter, idempotencyMiddleware, validateRequest(Validators.createPaymentOrderSchema), paymentController.createPaymentOrder);
 
+// Verify Client Payment (Mobile Native Checkout Signature)
+router.post('/verify', protect, paymentRateLimiter, validateRequest(Validators.verifyPaymentSchema), paymentController.verifyPayment);
+
 import * as creditController from '../controllers/payment/creditController';
 
 // Credit Evaluation & Wallet Breakdown

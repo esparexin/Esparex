@@ -2,3 +2,4 @@
 export * from './paymentQueryController';
 export * from './paymentMutationController';
 export * from './paymentWebhook';
+export * from './paymentVerifyController';
