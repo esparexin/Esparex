@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
+import Ad from '../../models/Ad';
 import { mutateStatus } from '../lifecycle/StatusMutationService';
-import { BUSINESS_STATUS } from '@esparex/contracts';
+import { BUSINESS_STATUS, LIFECYCLE_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/contracts';
 
 
@@ -96,13 +97,21 @@ export const deactivateBusiness = async (userId: string) => {
     const business = await Business.findOne({ userId, status: BUSINESS_STATUS.LIVE });
     if (!business) return null;
 
-    return await mutateStatus({
+    const result = await mutateStatus({
         domain: 'business',
         entityId: business._id.toString(),
         toStatus: BUSINESS_STATUS.DEACTIVATED,
         actor: { type: ACTOR_TYPE.USER, id: userId },
         reason: 'User-initiated business deactivation'
     });
+
+    // Cascade status deactivation to listings owned by this business (SSOT: F09)
+    await Ad.updateMany(
+        { sellerId: new mongoose.Types.ObjectId(userId), status: { $ne: LIFECYCLE_STATUS.DEACTIVATED } },
+        { $set: { status: LIFECYCLE_STATUS.DEACTIVATED } }
+    );
+
+    return result;
 };
 
 export const reactivateBusiness = async (userId: string) => {

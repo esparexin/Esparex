@@ -300,8 +300,18 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
                 });
 
                 // Note: shadowDispatch currently disabled to trigger FCM push logic actively for Phase-2 verification
-                // To rollout silently, set { shadowDispatch: true }
                 await NotificationDispatcher.bulkDispatch(intents, { shadowDispatch: false });
+
+                // Persist delivery log records so smart-alert dedupe reads non-empty database history (SSOT: F43)
+                const deliveryRecords = batch.map(match => ({
+                    alertId: match._id,
+                    userId: match.userId,
+                    adId: ad.id,
+                    deliveredAt: new Date()
+                }));
+                await AlertDeliveryLog.insertMany(deliveryRecords, { ordered: false }).catch((err: Error) => {
+                    logger.warn('[SmartAlert] Duplicate delivery log ignored during bulk insert', { error: err.message });
+                });
 
                 logger.info('[AlertMatch] Processed batch of smart alert NotificationIntents via Dispatcher', {
                     count: batch.length,
