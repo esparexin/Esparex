@@ -33,40 +33,52 @@ export class PromotionService {
             throw new AppError('Invalid user or listing ID', 400, 'INVALID_ID');
         }
 
-        const wallet = await UserWallet.findOne({ userId: new mongoose.Types.ObjectId(userId) });
-        if (!wallet || (wallet.boostCredits || 0) < 1) {
-            throw new AppError('Insufficient boost credits', 400, 'INSUFFICIENT_BOOST_CREDITS');
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+            const wallet = await UserWallet.findOne({ userId: new mongoose.Types.ObjectId(userId) }).session(session);
+            if (!wallet || (wallet.boostCredits || 0) < 1) {
+                throw new AppError('Insufficient boost credits', 400, 'INSUFFICIENT_BOOST_CREDITS');
+            }
+
+            // Deduct 1 boost credit
+            wallet.boostCredits = (wallet.boostCredits || 0) - 1;
+            await wallet.save({ session });
+
+            const startsAt = new Date();
+            const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+
+            const [boost] = await Boost.create([{
+                entityId: new mongoose.Types.ObjectId(listingId),
+                entityType,
+                boostType: 'push_to_top',
+                startsAt,
+                endsAt,
+                isActive: true,
+            }], { session });
+
+            // Immutable Audit Log
+            await CreditTransaction.create([{
+                userId: new mongoose.Types.ObjectId(userId),
+                listingId: new mongoose.Types.ObjectId(listingId),
+                creditPool: 'PURCHASED',
+                amount: 1,
+                type: 'DEBIT',
+                reason: `Applied ${durationDays}-day Boost promotion to ${entityType} ${listingId}`,
+                metadata: { boostId: boost._id, boostType: 'push_to_top' },
+            }], { session });
+
+            await session.commitTransaction();
+            session.endSession();
+
+            logger.info('[PROMOTION_SERVICE] Boost applied successfully', { userId, listingId, durationDays });
+            return boost;
+        } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
         }
-
-        // Deduct 1 boost credit
-        wallet.boostCredits = (wallet.boostCredits || 0) - 1;
-        await wallet.save();
-
-        const startsAt = new Date();
-        const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
-
-        const boost = await Boost.create({
-            entityId: new mongoose.Types.ObjectId(listingId),
-            entityType,
-            boostType: 'push_to_top',
-            startsAt,
-            endsAt,
-            isActive: true,
-        });
-
-        // Immutable Audit Log
-        await CreditTransaction.create({
-            userId: new mongoose.Types.ObjectId(userId),
-            listingId: new mongoose.Types.ObjectId(listingId),
-            creditPool: 'PURCHASED',
-            amount: 1,
-            type: 'DEBIT',
-            reason: `Applied ${durationDays}-day Boost promotion to ${entityType} ${listingId}`,
-            metadata: { boostId: boost._id, boostType: 'push_to_top' },
-        });
-
-        logger.info('[PROMOTION_SERVICE] Boost applied successfully', { userId, listingId, durationDays });
-        return boost;
     }
 
     /**
