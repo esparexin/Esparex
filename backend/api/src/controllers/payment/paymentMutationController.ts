@@ -97,13 +97,16 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
                     receipt: `rcpt_${crypto.randomBytes(12).toString('hex')}`
                 });
             } catch (rzpErr) {
-                if (env.NODE_ENV === 'development') {
-                    logger.warn('[PAYMENT DEV BYPASS] Razorpay order creation failed in dev mode — falling back to mock order.', {
-                        hint: 'Verify RAZORPAY_KEY_ID in backend/.env or set MOCK_PAYMENTS=true',
+                if (env.NODE_ENV === 'development' && env.MOCK_PAYMENTS) {
+                    logger.warn('[PAYMENT DEV BYPASS] Razorpay order creation failed in dev mode — falling back to mock order because MOCK_PAYMENTS=true.', {
+                        hint: 'Verify RAZORPAY_KEY_ID in backend/.env',
                         error: rzpErr instanceof Error ? rzpErr.message : String(rzpErr)
                     });
                     rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
                 } else {
+                    logger.error('[PAYMENT] Razorpay order creation failed:', {
+                        error: rzpErr instanceof Error ? rzpErr.message : String(rzpErr)
+                    });
                     throw rzpErr;
                 }
             }
