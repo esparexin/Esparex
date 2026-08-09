@@ -393,7 +393,7 @@ Every UI-related pull request must include confirmation that:
 Every pull request merged into Esparex MUST satisfy the non-negotiable Feature Definition of Done:
 
 - [ ] **Feature Implementation**: Functional requirements fully satisfied according to SSOT contracts.
-- [ ] **Automated Testing**: Unit tests (`npm test`), integration tests, and contract compatibility checks pass with 100% green status.
+- [ ] **Automated Testing**: Unit tests (`npm test`), integration tests, contract compatibility checks, and Playwright E2E suites (`tests/plans-purchase.spec.ts`) pass with 100% green status.
 - [ ] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
 - [ ] **Multi-Platform Verification**: Verified on Web (Desktop & Mobile viewports) and Mobile (Expo iOS & Android exports).
 - [ ] **Accessibility Audit**: WCAG 2.2 AA compliant, visible focus rings, keyboard navigable, screen reader compatible (`accessibilityRole`/`accessibilityLabel`).
