@@ -81,7 +81,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
               }`}
             >
-              Subscription & Balances
+              My Plan
             </button>
 
             <button
@@ -96,12 +96,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
               }`}
             >
-              Credit Ledger & Packs
-              {dashboardData?.creditPacks && dashboardData.creditPacks.length > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-background/20 text-current">
-                  {dashboardData.creditPacks.length}
-                </span>
-              )}
+              Ad Credits
             </button>
 
             <button
@@ -116,12 +111,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
               }`}
             >
-              Invoices & Payments
-              {dashboardData?.recentPayments && dashboardData.recentPayments.length > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-background/20 text-current">
-                  {dashboardData.recentPayments.length}
-                </span>
-              )}
+              Invoices
             </button>
           </nav>
         </div>

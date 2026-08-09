@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { useCreditLedgerHistory } from '@/hooks/useCreditLedgerHistory';
 
+const formatReason = (reason?: string) => {
+  if (!reason) return 'Credit Activity';
+  // Strip raw 24-character MongoDB ObjectIDs
+  const clean = reason.replace(/[0-9a-fA-F]{24}/g, '').replace(/\s+to\s+ad\s*/i, ' ').trim();
+  if (clean.toLowerCase().includes('spotlight')) return 'Spotlight Boost Applied';
+  if (clean.toLowerCase().includes('top_ad') || clean.toLowerCase().includes('top ad')) return 'Top Ad Boost Applied';
+  if (clean.toLowerCase().includes('smart_alert') || clean.toLowerCase().includes('alert')) return 'Smart Alert Channel Activated';
+  if (clean.toLowerCase().includes('post') || clean.toLowerCase().includes('ad_posting')) return 'Ad Posting Credit Used';
+  return clean || 'Credit Activity';
+};
+
 export const CreditLedgerHistoryCard: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -10,37 +21,36 @@ export const CreditLedgerHistoryCard: React.FC = () => {
   const pagination = data?.pagination;
 
   return (
-    <div className="bg-surface rounded-xl p-5 border border-border/60 shadow-sm space-y-4">
+    <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-bold text-foreground uppercase tracking-wider">
-          Credit Ledger & Audit History
+        <h4 className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-wider">
+          Credit History
         </h4>
         {pagination && (
-          <span className="text-xs text-muted-foreground">
-            Total Transactions: {pagination.total}
+          <span className="text-2xs text-muted-foreground">
+            Total Activities: {pagination.total}
           </span>
         )}
       </div>
 
       {isLoading && (
         <div className="space-y-2 animate-pulse">
-          <div className="h-10 bg-muted rounded-lg" />
-          <div className="h-10 bg-muted rounded-lg" />
-          <div className="h-10 bg-muted rounded-lg" />
+          <div className="h-9 bg-muted rounded-lg" />
+          <div className="h-9 bg-muted rounded-lg" />
         </div>
       )}
 
       {isError && (
-        <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-xs flex justify-between items-center">
+        <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-2xs flex justify-between items-center">
           <span>Failed to load transaction history.</span>
-          <button onClick={() => void refetch()} className="font-bold underline">
+          <button onClick={() => void refetch()} className="font-bold underline cursor-pointer">
             Retry
           </button>
         </div>
       )}
 
       {!isLoading && items.length === 0 && (
-        <div className="text-center py-6 text-xs text-muted-foreground">
+        <div className="text-center py-5 text-2xs text-muted-foreground">
           No credit transactions recorded yet.
         </div>
       )}
@@ -52,9 +62,9 @@ export const CreditLedgerHistoryCard: React.FC = () => {
               <tr className="border-b border-border/40 text-muted-foreground font-semibold">
                 <th className="py-2 px-3">Date</th>
                 <th className="py-2 px-3">Type</th>
-                <th className="py-2 px-3">Pool</th>
+                <th className="py-2 px-3">Credit Pool</th>
                 <th className="py-2 px-3">Amount</th>
-                <th className="py-2 px-3">Reason</th>
+                <th className="py-2 px-3">Activity</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/20">
@@ -74,7 +84,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
                             : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                         }`}
                       >
-                        {tx.type}
+                        {isDebit ? 'USED' : 'ADDED'}
                       </span>
                     </td>
                     <td className="py-2.5 px-3 font-medium text-foreground">
@@ -84,7 +94,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
                       {isDebit ? `-${tx.amount}` : `+${tx.amount}`}
                     </td>
                     <td className="py-2.5 px-3 text-muted-foreground max-w-xs truncate">
-                      {tx.reason}
+                      {formatReason(tx.reason)}
                     </td>
                   </tr>
                 );
@@ -96,11 +106,11 @@ export const CreditLedgerHistoryCard: React.FC = () => {
 
       {/* Pagination Controls */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-xs">
+        <div className="flex items-center justify-between pt-2 border-t border-border/40 text-2xs">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1.5 rounded border border-border bg-background hover:bg-muted disabled:opacity-50 font-medium"
+            className="px-2.5 py-1 rounded border border-border bg-background hover:bg-muted disabled:opacity-50 font-medium cursor-pointer"
           >
             Previous
           </button>
@@ -110,7 +120,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
           <button
             onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
             disabled={page === pagination.totalPages}
-            className="px-3 py-1.5 rounded border border-border bg-background hover:bg-muted disabled:opacity-50 font-medium"
+            className="px-2.5 py-1 rounded border border-border bg-background hover:bg-muted disabled:opacity-50 font-medium cursor-pointer"
           >
             Next
           </button>
