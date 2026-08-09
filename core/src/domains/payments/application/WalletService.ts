@@ -323,13 +323,10 @@ export const WalletModel = UserWallet as unknown as {
 
 export const TransactionModel = Transaction as unknown as {
     find: (query: Record<string, unknown>) => {
-        sort: (sortBy: Record<string, 1 | -1>) => {
-            limit: (limit: number) => {
-                skip: (skip: number) => {
-                    lean: () => Promise<Record<string, unknown>[]>;
-                };
-            };
-        };
+        sort: (sortBy: Record<string, 1 | -1>) => any;
+        skip: (skip: number) => any;
+        limit: (limit: number) => any;
+        lean: () => Promise<Record<string, unknown>[]>;
     };
     countDocuments: (query: Record<string, unknown>) => Promise<number>;
 };
