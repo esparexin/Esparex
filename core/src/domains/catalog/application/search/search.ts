@@ -53,7 +53,7 @@ export function buildRegexSearchClauses(search: string, searchFields: string[]):
 }
 
 export async function tryAtlasCatalogSearch(params: {
-    model: Model<Document>;
+    model: Model<any>;
     query: Record<string, unknown>;
     search: string;
     searchFields: string[];

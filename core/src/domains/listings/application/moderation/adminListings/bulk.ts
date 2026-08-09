@@ -8,7 +8,6 @@ import {
     adminApproveListing, adminRejectListing, adminDeactivateListing,
     adminExpireListing, adminExtendListing,
 } from './mutations';
-import { validateListingId } from './helpers';
 
 const ADMIN_BULK_CONCURRENCY = 5;
 

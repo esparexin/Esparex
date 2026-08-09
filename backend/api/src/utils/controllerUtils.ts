@@ -4,6 +4,7 @@ import { sendErrorResponse } from './errorResponse';
 import { getSingleParam } from './requestParams';
 import { getListingRepository } from '@esparex/core/composition/listings';
 import { ListingFilter } from '@esparex/core/domains/listings';
+import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
 
 /**
  * Shared Controller Helpers
@@ -35,7 +36,7 @@ export const getAndVerifyOwnedListing = async (
     };
 
     if (options.listingType) {
-        filter.listingType = options.listingType as any;
+        filter.listingType = options.listingType as ListingTypeValue;
     }
 
     const listing = await getListingRepository().findOne(filter);
