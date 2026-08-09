@@ -882,4 +882,13 @@ export default Entitlement;
 2. **No Silent Error Swallowing**: Controller catch blocks MUST extract human-readable error descriptions from third-party SDK error objects (e.g. Razorpay SDK exceptions) and surface diagnostic details when `NODE_ENV === 'development'`.
 3. **Key Resolution Precedence**: `.env` variables (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) MUST take strict priority over seed values stored in database `SystemConfig`.
 
+---
+
+## 6. Documentation Hygiene & Anti-Sprawl Governance Rule (Mandatory)
+
+1. **5 Master SSOT Pillars Only**: All architecture standards, API contracts, domain logic rules, and action registers MUST be maintained exclusively within the 5 Authoritative SSOT Pillars (`AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`).
+2. **Strict Ban on Ad-hoc Documentation Files**: Creating ad-hoc, temporary, volume-based, or timestamped `.md` files in feature sub-folders, `audit-reports/`, or `docs/reports/` is strictly forbidden.
+3. **Continuous Documentation Auditing**: Periodic repository hygiene audits must remove unreferenced, zombie, orphan, or duplicate markdown files after confirming zero code dependencies.
+
+
 
