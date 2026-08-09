@@ -402,6 +402,7 @@ Every pull request merged into Esparex MUST satisfy the non-negotiable Feature D
 - [ ] **Zero Suppression Policy**: 0 `no-color-literals` and 0 `no-inline-styles` suppressions added.
 - [ ] **Contract Stability**: No breaking changes to public contracts in `@esparex/contracts` unless approved by ADR.
 - [ ] **Feature Flags & Telemetry**: Feature flags documented/retired and telemetry events wired for new user flows.
+- [ ] **Release Gate 16 (Operational Resilience & Disaster Recovery)**: Verified backend timeout recovery, MongoDB reconnect resilience, payment queue idempotency, and clean fallback error handling.
 - [ ] **Release Notes & EA Ledger**: `engineering-action-register.md` updated and `release-notes.md` updated for user-facing changes.
 
 ---
