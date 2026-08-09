@@ -855,3 +855,22 @@ No pull request containing platform capabilities or integrations may be merged u
 - [ ] **Android Native Verified:** Verified native Android device/emulator behavior with native back button and permission handling.
 - [ ] **Parity Verification:** Business logic, validation rules, and API DTO contracts are 100% identical across all 5 platforms.
 
+---
+
+## 4. Mongoose Dual-Connection Model Binding Governance Rule (Mandatory)
+
+Every Mongoose schema & model defined inside `core/src/models/` MUST be bound via Esparex's multi-tenant connection helpers (`getUserConnection()` or `getAdminConnection()`). 
+
+Direct exports using default `mongoose.model()` are strictly forbidden:
+
+```ts
+// ❌ PROHIBITED: Bypasses connection pool and queries disconnected default Mongoose instance
+export default mongoose.models.Entitlement || mongoose.model<IEntitlement>('Entitlement', EntitlementSchema);
+
+// ✅ MANDATORY: Binds model to tenant user connection pool
+const connection = getUserConnection();
+const Entitlement: Model<IEntitlement> = (connection.models.Entitlement as Model<IEntitlement>) ||
+    connection.model<IEntitlement>('Entitlement', EntitlementSchema);
+export default Entitlement;
+```
+
