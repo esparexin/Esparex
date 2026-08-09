@@ -80,15 +80,15 @@ export function PlanPurchaseDialog({
                     }
                 },
                 onPaymentFailed: (reason: string) => {
-                    notify.error(`Payment failed: ${reason}`);
+                    notify.error(reason);
                 },
                 onDismiss: () => {
-                    notify.info("Payment cancelled.");
+                    notify.info("Payment process was closed.");
                 },
             });
         } catch (error) {
             logger.error("Plan purchase failed", error);
-            notify.error("Failed to start payment. Please try again.");
+            notify.error("Payment couldn't be started right now. Please try again in a few moments.");
         }
     };
 

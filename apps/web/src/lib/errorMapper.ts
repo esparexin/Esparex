@@ -57,16 +57,20 @@ const ERROR_MESSAGES: Record<string, string> = {
     // Security & Fraud
     'FRAUD_DETECTED': 'Action flagged by security policy. Contact support if you believe this is an error.',
     'SPAM_DETECTED': 'Content flagged by anti-spam filters.',
-    'RATE_LIMIT_EXCEEDED': 'Too many requests. Please try again later',
+    'RATE_LIMIT_EXCEEDED': "You're trying too quickly. Please wait a moment before trying again.",
+    'TOO_MANY_REQUESTS': "You're trying too quickly. Please wait a moment before trying again.",
+    'TOO_MANY_PAYMENT_ATTEMPTS': "Too many payment attempts were detected. Please wait a short time and try again.",
     'IDEMPOTENCY_CONFLICT': 'Your request is already processing or was recently completed.',
     'IDEMPOTENCY_KEY_REUSED': 'Your submission is already being processed.',
     'IDEMPOTENCY_IN_PROGRESS': 'Your previous submit is still processing. Please wait a few seconds and retry.',
     'AD_VERSION_CONFLICT': 'This listing was updated elsewhere. Refresh and retry your changes.',
 
     // Payment
-    'PAYMENT_FAILED': 'Payment failed. Please try again',
-    'PAYMENT_ALREADY_COMPLETED': 'Payment is already processed.',
-    'PAYMENT_INSUFFICIENT_FUNDS': 'Insufficient credits. Please top up your wallet',
+    'PAYMENT_FAILED': "Payment couldn't be started right now. Please try again in a few moments.",
+    'PAYMENT_GATEWAY_ERROR': "Payment couldn't be started right now. Please try again in a few moments.",
+    'PAYMENT_DECLINED': "Payment couldn't be processed. Please check your payment details or try a different method.",
+    'PAYMENT_ALREADY_COMPLETED': 'This payment has already been processed.',
+    'PAYMENT_INSUFFICIENT_FUNDS': 'Insufficient credits. Please select a plan to top up.',
 
     // File Upload
     'UPLOAD_FILE_TOO_LARGE': 'File is too large. Maximum size is 5MB',
@@ -82,7 +86,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export function mapErrorToMessage(error: unknown, fallback?: string): string {
     // Handle null/undefined
     if (!error) {
-        return fallback || 'An unexpected error occurred';
+        return fallback || 'Payment couldn\'t be started right now. Please try again in a few moments.';
     }
 
     // If the error already carries a user-friendly message (e.g. EsparexError), return it directly.
@@ -145,7 +149,7 @@ export function mapErrorToMessage(error: unknown, fallback?: string): string {
         if (status) {
             switch (status) {
                 case 400:
-                    return 'Invalid request. Please check your input';
+                    return 'Invalid request. Please check your input and try again.';
                 case 401:
                     return 'Please log in to continue';
                 case 403:
@@ -157,13 +161,12 @@ export function mapErrorToMessage(error: unknown, fallback?: string): string {
                 case 413:
                     return 'Uploaded images are too large. Please use smaller images or fewer photos.';
                 case 429:
-                    return 'Too many requests. Please try again later';
+                    return "You're trying too quickly. Please wait a moment before trying again.";
                 case 500:
                 case 502:
                 case 503:
-                    return 'Server error. Please try again later';
                 case 504:
-                    return 'Request timed out. Please try again';
+                    return "Payment couldn't be started right now. Please try again in a few moments.";
                 default:
                     break;
             }

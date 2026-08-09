@@ -23,6 +23,7 @@ type WaitForCreditConfig = {
 
 type RazorpayPaymentFailedResponse = {
   error?: {
+    code?: string;
     description?: string;
     reason?: string;
   };
@@ -138,15 +139,30 @@ export function usePlanCheckout() {
       const razorpay = new window.Razorpay(options);
       razorpay.on?.("payment.failed", (response: unknown) => {
         const errorDetail = isPaymentFailedResponse(response) ? response.error : undefined;
-        logger.error("Payment failed", errorDetail);
-        const reason = errorDetail?.description || errorDetail?.reason || "Payment was declined or failed to process.";
-        onPaymentFailed?.(reason);
+        logger.error("Payment failed detail", errorDetail);
+
+        const userFriendlyReason = (() => {
+          const code = (errorDetail?.code || "").toUpperCase();
+          const desc = (errorDetail?.description || errorDetail?.reason || "").toLowerCase();
+          if (code.includes("RATE_LIMIT") || desc.includes("too many") || desc.includes("rate limit")) {
+            return "Too many payment attempts were detected. Please wait a short time and try again.";
+          }
+          if (desc.includes("cancelled") || desc.includes("closed")) {
+            return "Payment process was closed without completing.";
+          }
+          if (desc.includes("declined") || desc.includes("insufficient")) {
+            return "Payment couldn't be processed. Please check your payment details or try a different method.";
+          }
+          return "Payment couldn't be started right now. Please try again in a few moments.";
+        })();
+
+        onPaymentFailed?.(userFriendlyReason);
         setIsProcessing(false);
       });
       razorpay.open();
     } catch (error) {
-      logger.error("Checkout initialization failed", error);
-      const userMessage = mapErrorToMessage(error, "Failed to initialize payment gateway. Please try again later.");
+      logger.error("Checkout initialization failed detail", error);
+      const userMessage = mapErrorToMessage(error, "Payment couldn't be started right now. Please try again in a few moments.");
       onPaymentFailed?.(userMessage);
       setIsProcessing(false);
       throw error;

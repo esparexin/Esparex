@@ -167,11 +167,12 @@ export function useBoostPlanDialog({
           setSelectedPlan(null);
         },
         onPaymentFailed: (reason: string) => {
-          notify.error(`Payment failed: ${reason}`);
+          notify.error(reason);
         },
       });
     } catch (error) {
-      logger.error("Payment error:", error);
+      logger.error("Payment error detail:", error);
+      notify.error("Payment couldn't be started right now. Please try again in a few moments.");
     }
   };
 
