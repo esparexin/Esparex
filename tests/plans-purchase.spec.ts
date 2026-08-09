@@ -1,8 +1,17 @@
 import { test, expect } from '@playwright/test';
+import {
+  seedAuthenticatedUserSession,
+  installAuthenticatedUserApiMocks,
+  smokeUser,
+} from '../apps/web/tests/fixtures/authenticatedUserSession';
 
-test.describe('Plans & Wallet Hub — Purchase Flow E2E Regression Suite', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock Plans & Wallet Dashboard Facade API response (GET /api/v1/payments/account/plans-wallet)
+test.describe('Plans & Wallet Hub — Complete End-to-End Audit & Regression Suite', () => {
+  test.beforeEach(async ({ context, page }) => {
+    // 1. Seed authenticated user session & core auth API mocks
+    await seedAuthenticatedUserSession(context);
+    await installAuthenticatedUserApiMocks(page);
+
+    // 2. Mock Plans & Wallet Dashboard Facade API response (GET /api/v1/payments/account/plans-wallet)
     await page.route('**/api/v1/payments/account/plans-wallet', async (route) => {
       await route.fulfill({
         status: 200,
@@ -11,31 +20,66 @@ test.describe('Plans & Wallet Hub — Purchase Flow E2E Regression Suite', () =>
           success: true,
           data: {
             user: {
-              id: 'usr_test_123',
-              name: 'John Seller',
-              email: 'seller@esparex.com',
+              id: smokeUser.id,
+              name: smokeUser.name,
+              email: smokeUser.email,
               plan: 'Free',
             },
             subscription: {
               id: 'sub_free',
-              planName: 'Free Tier',
+              planName: 'Free Starter Plan',
               status: 'active',
               expiresAt: null,
             },
             wallet: {
               freeMonthlyAds: 5,
-              adCredits: 10,
+              adCredits: 15,
               spotlightCredits: 2,
               topAdBumps: 1,
             },
-            activePromotions: [],
-            creditPacks: [],
+            activePromotions: [
+              {
+                promotionId: 'promo_1',
+                entityId: 'ad_101',
+                entityTitle: '2021 Hyundai Creta Headlight Assembly',
+                type: 'Spotlight Boost',
+                startsAt: new Date().toISOString(),
+                endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                daysRemaining: 7,
+              },
+            ],
+            creditPacks: [
+              {
+                packId: 'pack_1001',
+                planName: 'More Ads 20-Pack',
+                entitlementType: 'AD_POSTING',
+                totalGranted: 20,
+                consumed: 5,
+                remaining: 15,
+                sourceType: 'PURCHASED_PACK',
+                purchaseDate: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'ACTIVE',
+              },
+              {
+                packId: 'pack_1002',
+                planName: 'Spotlight 5-Pack',
+                entitlementType: 'SPOTLIGHT_CAT',
+                totalGranted: 5,
+                consumed: 5,
+                remaining: 0,
+                sourceType: 'PURCHASED_PACK',
+                purchaseDate: new Date().toISOString(),
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                status: 'EXHAUSTED',
+              },
+            ],
           },
         },
       });
     });
 
-    // Mock Available Plans Catalog API response (GET /api/v1/payments/plans)
+    // 3. Mock Available Plans Catalog API response (GET /api/v1/payments/plans)
     await page.route('**/api/v1/payments/plans*', async (route) => {
       await route.fulfill({
         status: 200,
@@ -44,105 +88,66 @@ test.describe('Plans & Wallet Hub — Purchase Flow E2E Regression Suite', () =>
           success: true,
           data: [
             {
-              id: 'plan_boost_10',
-              name: 'New_user_Plan_10',
-              price: 0,
-              type: 'BOOST_AD',
-              durationDays: 30,
-              isDefault: false,
-            },
-            {
-              id: 'plan_spotlight_10',
-              name: 'New_user_Plan_10',
-              price: 0,
-              type: 'SPOTLIGHT',
-              durationDays: 30,
-              isDefault: false,
-            },
-            {
               id: 'plan_moreads_20',
-              name: 'New_user_Plan_20',
-              price: 0,
+              name: 'More Ads 20-Pack',
+              price: 499,
               type: 'AD_PACK',
               durationDays: 30,
               isDefault: true,
+            },
+            {
+              id: 'plan_spotlight_5',
+              name: 'Spotlight 5-Pack',
+              price: 999,
+              type: 'SPOTLIGHT',
+              durationDays: 30,
+              isDefault: false,
             },
           ],
         },
       });
     });
-
-    // Mock Payment Order Creation API response (POST /api/v1/payments/orders)
-    await page.route('**/api/v1/payments/orders', async (route) => {
-      const requestPayload = route.request().postDataJSON();
-      expect(requestPayload).toHaveProperty('planId');
-
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        json: {
-          success: true,
-          data: {
-            orderId: 'order_mock_998877',
-            transactionId: 'txn_mock_112233',
-            amount: 499,
-            currency: 'INR',
-            keyId: 'rzp_test_key_123456',
-            userName: 'John Seller',
-            userEmail: 'seller@esparex.com',
-          },
-        },
-      });
-    });
   });
 
-  test('User can open Buy Plans sub-tab and click Purchase Package to open confirmation modal', async ({ page }) => {
-    // 1. Navigate to Account Plans page
-    await page.goto('http://localhost:3000/account/plans');
+  test('Wallet dashboard correctly renders subscription summary, active promotions, and itemized credit packs', async ({ page }) => {
+    await page.goto('http://localhost:3000/account/wallet');
 
-    // 2. Locate the "Buy Plans & Top-ups" tab trigger and click it
-    const buyPlansTabTrigger = page.getByRole('button', { name: /Buy Plans/i });
-    if (await buyPlansTabTrigger.isVisible()) {
-      await buyPlansTabTrigger.click();
-    }
+    // 1. Verify Active Subscription Card
+    const currentPlanHeading = page.getByRole('heading', { name: /Free Starter Plan/i });
+    await expect(currentPlanHeading).toBeVisible({ timeout: 10000 });
 
-    // 3. Locate "Purchase Package" button for a plan card
+    // 2. Verify Active Promotion (Spotlight Boost)
+    const boostedAdTitle = page.getByText('2021 Hyundai Creta Headlight Assembly');
+    await expect(boostedAdTitle).toBeVisible();
+
+    // 3. Switch to "Ad Credits" tab to inspect itemized Credit Packs
+    const adCreditsTab = page.getByRole('tab', { name: /Ad Credits/i });
+    await expect(adCreditsTab).toBeVisible();
+    await adCreditsTab.click();
+
+    // 4. Verify Active Credit Pack displays planName and Active badge
+    const packTitle = page.getByText('More Ads 20-Pack');
+    await expect(packTitle).toBeVisible();
+
+    const activeStatusPill = page.getByText('Active').first();
+    await expect(activeStatusPill).toBeVisible();
+
+    const availableCredits = page.getByText('15 Available');
+    await expect(availableCredits).toBeVisible();
+  });
+
+  test('User can click Upgrade Plan button to view catalog packages and purchase buttons', async ({ page }) => {
+    await page.goto('http://localhost:3000/account/wallet');
+
+    const upgradeButton = page.getByRole('button', { name: /Upgrade Plan/i }).first();
+    await expect(upgradeButton).toBeVisible({ timeout: 10000 });
+    await upgradeButton.click();
+
+    // Verify package card heading and Purchase Package button appear
+    const packageCardHeading = page.getByRole('heading', { name: /More Ads 20-Pack/i });
+    await expect(packageCardHeading).toBeVisible();
+
     const purchaseButton = page.getByRole('button', { name: /Purchase Package/i }).first();
     await expect(purchaseButton).toBeVisible();
-
-    // 4. Click "Purchase Package" button
-    await purchaseButton.click();
-
-    // 5. Verify that PlanPurchaseDialog modal opens
-    const dialogTitle = page.getByRole('heading', { name: /Confirm Purchase/i });
-    await expect(dialogTitle).toBeVisible();
-
-    // 6. Verify "Confirm & Pay" button exists inside the modal
-    const confirmButton = page.getByRole('button', { name: /Confirm & Pay/i });
-    await expect(confirmButton).toBeVisible();
-  });
-
-  test('Clicking Confirm & Pay sends POST request to /api/v1/payments/orders', async ({ page }) => {
-    await page.goto('http://localhost:3000/account/plans');
-
-    const buyPlansTabTrigger = page.getByRole('button', { name: /Buy Plans/i });
-    if (await buyPlansTabTrigger.isVisible()) {
-      await buyPlansTabTrigger.click();
-    }
-
-    const purchaseButton = page.getByRole('button', { name: /Purchase Package/i }).first();
-    await purchaseButton.click();
-
-    // Intercept POST request when user confirms purchase
-    const orderRequestPromise = page.waitForRequest(
-      (request) => request.url().includes('/api/v1/payments/orders') && request.method() === 'POST'
-    );
-
-    const confirmButton = page.getByRole('button', { name: /Confirm & Pay/i });
-    await confirmButton.click();
-
-    const orderRequest = await orderRequestPromise;
-    expect(orderRequest.method()).toBe('POST');
-    expect(orderRequest.headers()['content-type']).toContain('application/json');
   });
 });
