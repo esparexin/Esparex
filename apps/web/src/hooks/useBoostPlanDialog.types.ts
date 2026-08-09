@@ -22,14 +22,5 @@ export function getCreditRemaining(raw: unknown): number {
   return 0;
 }
 
-export function formatPlanName(
-  name?: string,
-  category: PromotionCategory = "SPOTLIGHT"
-): string {
-  if (!name || name.toLowerCase().includes("new user plan")) {
-    return category === "SPOTLIGHT"
-      ? "Spotlight Featured Boost"
-      : "Top Ad Priority Placement";
-  }
-  return name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
+import { formatPlanName } from "@esparex/shared";
+export { formatPlanName };
