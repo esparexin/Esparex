@@ -33,7 +33,6 @@ function SpotlightOrBoostButton({ isSpotlight, onPromoteClick }: { isSpotlight: 
   );
 }
 
-
 interface ListingBottomActionsProps {
   variant: ActionBarVariant;
   isSpotlight?: boolean;
