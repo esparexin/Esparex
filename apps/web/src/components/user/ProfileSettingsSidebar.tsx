@@ -129,6 +129,7 @@ export function ProfileSettingsSidebar({
         deleteFeedback, setDeleteFeedback,
         deleteAccountErrors,
         deleteAccountGlobalError,
+        handleDeleteAccount,
         setShowPlanDialog,
         setSelectedPlan,
     } = useProfileSettings({ user, onLogout });
