@@ -81,7 +81,7 @@ async function withTransaction<T>(
     }
 
     if (!session) {
-        return operation(undefined);
+        throw new AppError('Failed to initialize database transaction session for wallet operation', 500, 'TRANSACTION_INIT_FAILED');
     }
 
     try {
