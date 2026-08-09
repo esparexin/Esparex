@@ -67,8 +67,11 @@ export function usePlanCheckout() {
       const baselineWallet = waitForCredit ? await getWalletSummary() : null;
       const order = await createPurchaseOrder(planId);
 
-      // If order is zero-cost (amount === 0) or mock order, complete checkout immediately
-      if (amount === 0 || (typeof order.orderId === "string" && order.orderId.startsWith("order_mock_"))) {
+      // If order is zero-cost (amount === 0) or explicit mock mode enabled, complete checkout immediately
+      const isMockOrder = typeof order.orderId === "string" && order.orderId.startsWith("order_mock_");
+      const allowMockBypass = process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true";
+
+      if (amount === 0 || (isMockOrder && allowMockBypass)) {
         await onPaymentVerified();
         setIsProcessing(false);
         return;
