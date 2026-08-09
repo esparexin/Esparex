@@ -1,7 +1,27 @@
-# Enterprise Audit Manual (`ENTERPRISE-AUDIT-MANUAL.md`)
+# Esparex Engineering Governance & Audit Manual (`ENTERPRISE-AUDIT-MANUAL.md`)
 
-> **Status:** Living standard · **Owner:** Engineering Governance (CODEOWNERS `docs/`) · **Last review:** 2026-08-09
-> Supersedes one-off audit runs. Volumes 1–5 (`audit-reports/enterprise-*`) are the reference findings of the first full certification cycle (Phases 1–60). This manual is the **permanent methodology** for re-running, extending, and governing those audits.
+> **Status:** Living standard — the single authoritative engineering governance document
+> **Owner:** Engineering Governance (CODEOWNERS `docs/`) · **Last review:** 2026-08-09
+> Volumes 1–5 (`audit-reports/enterprise-*`) are evidence-based certification records produced *by applying* this manual.
+> Companion standing docs (do not duplicate here): `ENFORCEMENT_HIERARCHY.md` (repo:gate 5-tier),
+> `quality-gates.md` (GATE-001), `risk-register.md` (RISK-001), `requirements-traceability.md`,
+> `sprint-execution-prompt.md`, `DELETION_GATE.md`, `PROJECT_PRINCIPLES.md`, AGENTS.md.
+
+### Contents
+
+| § | Section | § | Section |
+| --- | --- | --- | --- |
+| 1 | Purpose & scope | 11 | Definition of Done |
+| 2 | Non-negotiable principles | 12 | Change Impact Analysis |
+| 3 | Phase index (60 phases) | 13 | Risk Register Standard |
+| 4 | Evidence standards | 14 | Architecture Review Board |
+| 5 | Severity & scoring model | 15 | Version Governance |
+| 6 | Certification checklists C-1…C-8 | 16 | Release Governance |
+| 7 | Scoring contract & certification ladder | 17 | Repository Standards |
+| 8 | Governance cadence | 18 | Dependency Governance |
+| 9 | Reporting contract | 19 | Audit Exception Process |
+| 10 | Engineering Decision Governance (ADR) | 20 | Governance Appendices |
+| 10 | Engineering Decision Governance (ADR) | 20 | Governance Appendices |
 
 ---
 
