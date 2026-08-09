@@ -10,6 +10,7 @@ import type {
   EntitlementSourceType,
   EntitlementStatus,
 } from '@esparex/contracts';
+import { getEntitlementPresentationMeta } from '@esparex/shared';
 
 export interface RawDashboardData {
   userPlan?: any;
@@ -95,17 +96,35 @@ export class PlansWalletMapper {
   }
 
   private static mapCreditPacks(entitlements: any[]): CreditPackDTO[] {
-    return entitlements.slice(0, 5).map((ent) => ({
-      packId: ent._id?.toString() || ent.id || '',
-      entitlementType: (ent.type || 'AD_POSTING') as EntitlementType,
-      totalGranted: ent.quantity || 0,
-      consumed: ent.consumed || 0,
-      remaining: ent.remaining || 0,
-      sourceType: (ent.sourceType || 'PURCHASED_PACK') as EntitlementSourceType,
-      purchaseDate: ent.startsAt ? new Date(ent.startsAt).toISOString() : new Date().toISOString(),
-      expiresAt: ent.expiresAt ? new Date(ent.expiresAt).toISOString() : null,
-      status: (ent.status || 'ACTIVE') as EntitlementStatus,
-    }));
+    return entitlements.map((ent) => {
+      const startsAt = ent.startsAt ? new Date(ent.startsAt) : new Date();
+
+      // Priority Expiry Resolution:
+      // 1. Entitlement.expiresAt
+      // 2. Transaction.planSnapshot.durationDays
+      // 3. Legacy Compatibility Layer (30-day default)
+      let resolvedExpiry: Date;
+      if (ent.expiresAt) {
+        resolvedExpiry = new Date(ent.expiresAt);
+      } else if (typeof ent.planDurationDays === 'number' && ent.planDurationDays > 0) {
+        resolvedExpiry = new Date(startsAt.getTime() + ent.planDurationDays * 24 * 60 * 60 * 1000);
+      } else {
+        resolvedExpiry = new Date(startsAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+      }
+
+      return {
+        packId: ent._id?.toString() || ent.id || '',
+        planName: ent.planName || undefined,
+        entitlementType: (ent.type || 'AD_POSTING') as EntitlementType,
+        totalGranted: ent.quantity || 0,
+        consumed: ent.consumed || 0,
+        remaining: ent.remaining || 0,
+        sourceType: (ent.sourceType || 'PURCHASED_PACK') as EntitlementSourceType,
+        purchaseDate: startsAt.toISOString(),
+        expiresAt: resolvedExpiry.toISOString(),
+        status: (ent.status || 'ACTIVE') as EntitlementStatus,
+      };
+    });
   }
 
   private static mapPromotions(boosts: any[]): PromotionDTO[] {
@@ -130,13 +149,13 @@ export class PlansWalletMapper {
       const diffMs = endsAt.getTime() - now.getTime();
       const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
       const rawType = boost.boostType || boost.type || 'SPOTLIGHT_CAT';
-      const formattedType = rawType === 'push_to_top' ? 'Top Ad' : 'Spotlight Ad';
+      const meta = getEntitlementPresentationMeta(rawType);
 
       return {
         promotionId: boost._id?.toString() || boost.id || '',
         entityId: boost.entityId?.toString() || boost.adId?.toString() || '',
         entityTitle: boost.entityTitle || boost.adTitle || 'Promoted Listing',
-        type: formattedType as EntitlementType,
+        type: meta.label as EntitlementType,
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),
         daysRemaining,

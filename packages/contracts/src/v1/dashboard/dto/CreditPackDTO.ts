@@ -2,6 +2,7 @@ import type { EntitlementType, EntitlementSourceType, EntitlementStatus } from '
 
 export interface CreditPackDTO {
   packId: string;
+  planName?: string;
   entitlementType: EntitlementType;
   totalGranted: number;
   consumed: number;

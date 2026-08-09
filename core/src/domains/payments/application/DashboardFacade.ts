@@ -32,7 +32,6 @@ export class DashboardFacade {
     const userAdIds = userAds.map((a) => a._id);
     const adTitleMap = new Map(userAds.map((a) => [a._id.toString(), a.title]));
 
-    // Execute concurrent queries using Promise.allSettled for high resiliency
     const [
       userPlanResult,
       userWalletResult,
@@ -43,17 +42,44 @@ export class DashboardFacade {
     ] = await Promise.allSettled([
       UserPlan.findOne({ userId, status: 'active' }).populate('planId').lean(),
       UserWallet.findOne({ userId }).lean(),
-      Entitlement.find({ userId, status: 'ACTIVE' }).sort({ expiresAt: 1, createdAt: 1 }).lean(),
+      Entitlement.find({ userId }).sort({ createdAt: -1 }).lean(),
       userAdIds.length > 0
         ? Boost.find({ entityId: { $in: userAdIds }, isActive: true, endsAt: { $gte: new Date() } }).lean()
         : Promise.resolve([]),
       CreditTransaction.find({ userId }).sort({ createdAt: -1 }).limit(10).lean(),
-      Transaction.find({ userId }).sort({ createdAt: -1 }).limit(5).lean(),
+      Transaction.find({ userId }).sort({ createdAt: -1 }).limit(20).lean(),
     ]);
 
     const userPlan = userPlanResult.status === 'fulfilled' ? userPlanResult.value : undefined;
     const userWallet = userWalletResult.status === 'fulfilled' ? userWalletResult.value : undefined;
-    const entitlements = entitlementsResult.status === 'fulfilled' ? entitlementsResult.value || [] : [];
+    const rawEntitlements = entitlementsResult.status === 'fulfilled' ? entitlementsResult.value || [] : [];
+
+    // Batch resolve planName & durationDays from Transaction.planSnapshot via sourceId (0 N+1 queries)
+    const sourceIds = Array.from(
+      new Set(
+        rawEntitlements
+          .map((e: any) => e.sourceId?.toString())
+          .filter((id: string | undefined): id is string => Boolean(id))
+      )
+    );
+
+    const sourceTxRecords = sourceIds.length > 0
+      ? await Transaction.find({ _id: { $in: sourceIds } }).select('_id planSnapshot').lean()
+      : [];
+
+    const txSnapshotMap = new Map(
+      sourceTxRecords.map((tx: any) => [tx._id.toString(), tx.planSnapshot])
+    );
+
+    const entitlements = rawEntitlements.map((ent: any) => {
+      const snapshot = ent.sourceId ? txSnapshotMap.get(ent.sourceId.toString()) : undefined;
+      return {
+        ...ent,
+        planName: snapshot?.name || ent.planName || undefined,
+        planDurationDays: snapshot?.durationDays || undefined,
+      };
+    });
+
     const rawBoosts = boostsResult.status === 'fulfilled' ? boostsResult.value || [] : [];
     const boosts = rawBoosts.map((b: any) => ({
       ...b,

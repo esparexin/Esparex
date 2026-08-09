@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { CreditPackDTO } from '@esparex/contracts';
+import { getEntitlementPresentationMeta, formatPlanName } from '@esparex/shared';
 import { Package } from '@/icons/IconRegistry';
 
 interface CreditPackListCardProps {
@@ -23,8 +24,12 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
     );
   }
 
-  const displayedPacks = showAll ? creditPacks : creditPacks.slice(0, 3);
-  const hasMore = creditPacks.length > 3;
+  // Separate active usable packs vs exhausted/expired history
+  const activePacks = creditPacks.filter((p) => p.status === 'ACTIVE' && p.remaining > 0);
+  const historyPacks = creditPacks.filter((p) => p.status !== 'ACTIVE' || p.remaining === 0);
+
+  const displayedPacks = showAll ? creditPacks : activePacks.length > 0 ? activePacks : creditPacks.slice(0, 3);
+  const hasMore = creditPacks.length > displayedPacks.length;
 
   return (
     <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs">
@@ -33,10 +38,20 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
           <Package className="w-4 h-4 text-primary shrink-0" />
           My Credit Packs ({creditPacks.length})
         </h4>
+        {historyPacks.length > 0 && !showAll && (
+          <span className="text-2xs font-semibold text-muted-foreground">
+            {activePacks.length} Active • {historyPacks.length} Past
+          </span>
+        )}
       </div>
 
       <div className="space-y-2.5">
         {displayedPacks.map((pack) => {
+          const meta = getEntitlementPresentationMeta(pack.entitlementType);
+          const displayName = pack.planName ? formatPlanName(pack.planName) : meta.label;
+          const isExhausted = pack.status === 'EXHAUSTED' || pack.remaining === 0;
+          const isExpired = pack.status === 'EXPIRED';
+
           const isExpiringSoon = pack.expiresAt
             ? new Date(pack.expiresAt).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000
             : false;
@@ -48,14 +63,31 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
           return (
             <div
               key={pack.packId}
-              className="p-3 rounded-xl bg-background border border-border/40 text-xs space-y-2"
+              className={`p-3 rounded-xl border text-xs space-y-2 transition-all ${
+                isExhausted || isExpired
+                  ? 'bg-muted/30 border-border/30 opacity-80'
+                  : 'bg-background border-border/40'
+              }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-foreground">{pack.entitlementType.replace('_', ' ')}</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground uppercase">
-                    {pack.sourceType.replace('_', ' ')}
+                  <span className="font-bold text-foreground">{displayName}</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground">
+                    {meta.label}
                   </span>
+                  {isExhausted ? (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                      Used Up
+                    </span>
+                  ) : isExpired ? (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-destructive/10 text-destructive">
+                      Expired
+                    </span>
+                  ) : (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      Active
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-right font-black text-primary text-xs sm:text-sm">
@@ -65,7 +97,16 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
 
               {/* Progress Bar */}
               <div className="w-full bg-muted/60 rounded-full h-1.5 overflow-hidden">
-                <div className="bg-gradient-to-r from-primary via-emerald-500 to-teal-400 h-1.5 rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
+                <div
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    isExhausted
+                      ? 'bg-amber-500/60'
+                      : isExpired
+                      ? 'bg-destructive/60'
+                      : 'bg-gradient-to-r from-primary via-emerald-500 to-teal-400'
+                  }`}
+                  style={{ width: `${pct}%` }}
+                />
               </div>
 
               <div className="flex items-center justify-between text-2xs text-muted-foreground">
@@ -77,7 +118,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
                     </span>
                   ) : (
                     <span>
-                      30 Days Plan Validity
+                      30-Day Plan Validity
                     </span>
                   )}
                 </span>
@@ -92,7 +133,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
           onClick={() => setShowAll(!showAll)}
           className="w-full mt-3 py-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors text-center cursor-pointer"
         >
-          {showAll ? 'Show Fewer Packs' : `Show All ${creditPacks.length} Credit Packs`}
+          {showAll ? 'Show Only Active Credit Packs' : `Show All ${creditPacks.length} Credit Packs & History`}
         </button>
       )}
     </div>

@@ -171,60 +171,28 @@ export const credit = async ({
         const userObjId = new Types.ObjectId(userId);
         const sourceId = metadata?.transactionId ? new Types.ObjectId(String(metadata.transactionId)) : new Types.ObjectId();
 
+        const durationDays = Number(metadata?.durationDays || 30);
+        const startsAt = new Date();
+        const expiresAt = new Date(startsAt.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
         if (amount.adCredits && amount.adCredits > 0) {
             incrementPayload.adCredits = amount.adCredits;
-            await Entitlement.create([{
-                userId: userObjId,
-                type: 'AD_POSTING',
-                sourceType: 'PURCHASED_PACK',
-                sourceId,
-                quantity: amount.adCredits,
-                consumed: 0,
-                remaining: amount.adCredits,
-                status: 'ACTIVE',
-            }], ...(activeSession ? [{ session: activeSession }] : []));
+            await Entitlement.create([{ userId: userObjId, type: 'AD_POSTING', sourceType: 'PURCHASED_PACK', sourceId, quantity: amount.adCredits, consumed: 0, remaining: amount.adCredits, startsAt, expiresAt, status: 'ACTIVE' }], ...(activeSession ? [{ session: activeSession }] : []));
         }
 
         if (amount.spotlightCredits && amount.spotlightCredits > 0) {
             incrementPayload.spotlightCredits = amount.spotlightCredits;
-            await Entitlement.create([{
-                userId: userObjId,
-                type: 'SPOTLIGHT_CAT',
-                sourceType: 'PURCHASED_PACK',
-                sourceId,
-                quantity: amount.spotlightCredits,
-                consumed: 0,
-                remaining: amount.spotlightCredits,
-                status: 'ACTIVE',
-            }], ...(activeSession ? [{ session: activeSession }] : []));
+            await Entitlement.create([{ userId: userObjId, type: 'SPOTLIGHT_CAT', sourceType: 'PURCHASED_PACK', sourceId, quantity: amount.spotlightCredits, consumed: 0, remaining: amount.spotlightCredits, startsAt, expiresAt, status: 'ACTIVE' }], ...(activeSession ? [{ session: activeSession }] : []));
         }
 
         if (amount.boostCredits && amount.boostCredits > 0) {
             incrementPayload.boostCredits = amount.boostCredits;
-            await Entitlement.create([{
-                userId: userObjId,
-                type: 'PUSH_TO_TOP',
-                sourceType: 'PURCHASED_PACK',
-                sourceId,
-                quantity: amount.boostCredits,
-                consumed: 0,
-                remaining: amount.boostCredits,
-                status: 'ACTIVE',
-            }], ...(activeSession ? [{ session: activeSession }] : []));
+            await Entitlement.create([{ userId: userObjId, type: 'PUSH_TO_TOP', sourceType: 'PURCHASED_PACK', sourceId, quantity: amount.boostCredits, consumed: 0, remaining: amount.boostCredits, startsAt, expiresAt, status: 'ACTIVE' }], ...(activeSession ? [{ session: activeSession }] : []));
         }
 
         if (amount.smartAlertSlots && amount.smartAlertSlots > 0) {
             incrementPayload.smartAlertSlots = amount.smartAlertSlots;
-            await Entitlement.create([{
-                userId: userObjId,
-                type: 'SMART_ALERT_SLOT',
-                sourceType: 'PURCHASED_PACK',
-                sourceId,
-                quantity: amount.smartAlertSlots,
-                consumed: 0,
-                remaining: amount.smartAlertSlots,
-                status: 'ACTIVE',
-            }], ...(activeSession ? [{ session: activeSession }] : []));
+            await Entitlement.create([{ userId: userObjId, type: 'SMART_ALERT_SLOT', sourceType: 'PURCHASED_PACK', sourceId, quantity: amount.smartAlertSlots, consumed: 0, remaining: amount.smartAlertSlots, startsAt, expiresAt, status: 'ACTIVE' }], ...(activeSession ? [{ session: activeSession }] : []));
         }
 
         if (Object.keys(incrementPayload).length === 0) {
