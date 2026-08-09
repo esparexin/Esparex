@@ -131,6 +131,9 @@ const connectSrc = [
     'wss://vercel.live',
     'https://*.vercel.live',
     'wss://*.vercel.live',
+    'https://api.razorpay.com',
+    'https://lumberjack.razorpay.com',
+    'https://*.razorpay.com',
     ...dynamicApiConnectSources,
 ].join(' '); // Forced update for CSP
 
@@ -143,6 +146,8 @@ const scriptSrc = [
     'https://maps.gstatic.com',
     'https://vercel.live',
     'https://*.vercel.live',
+    'https://checkout.razorpay.com',
+    'https://*.razorpay.com',
 ].join(' ');
 
 /** @type {import('next').NextConfig} */
@@ -206,14 +211,14 @@ const nextConfig = {
                             "default-src 'self'",
                             `script-src ${scriptSrc}`,
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-                            "img-src 'self' data: blob: https: http://localhost:* https://maps.googleapis.com https://maps.gstatic.com https://images.unsplash.com",
+                            "img-src 'self' data: blob: https: http://localhost:* https://maps.googleapis.com https://maps.gstatic.com https://images.unsplash.com https://cdn.razorpay.com https://*.razorpay.com",
                             "font-src 'self' data: https://fonts.gstatic.com",
                             "worker-src 'self' blob:",
 
                             `connect-src ${connectSrc}`,
 
                             "frame-ancestors 'self'",
-                            "frame-src 'self' https://www.openstreetmap.org https://vercel.live https://*.vercel.live",
+                            "frame-src 'self' https://www.openstreetmap.org https://vercel.live https://*.vercel.live https://api.razorpay.com https://checkout.razorpay.com https://*.razorpay.com",
                             "base-uri 'self'",
                             "form-action 'self'"
                         ].join('; ')
