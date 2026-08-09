@@ -276,6 +276,8 @@ export function MyListingsTab({
                     onActivate={() => { setAdToActivate(listing); setIsActivateOpen(true); }}
                     onRenew={() => handleRepostAd(listing.id)}
                     onBoost={() => { setBoostAd(listing); setIsBoostOpen(true); }}
+                    isSpotlight={Boolean(listing.isSpotlight) || (listing.spotlightExpiresAt ? new Date(String(listing.spotlightExpiresAt)).getTime() > Date.now() : false)}
+                    isBoosted={Boolean(listing.isBoosted)}
                 />
             )
         },
@@ -516,6 +518,8 @@ export function MyListingsTab({
                     onOpenChange={setIsBoostOpen}
                     adId={boostAd.id}
                     adTitle={boostAd.title}
+                    isSpotlight={Boolean(boostAd.isSpotlight)}
+                    isBoosted={Boolean(boostAd.isBoosted)}
                     onPlanPurchased={() => {
                         void fetchMyAds();
                     }}

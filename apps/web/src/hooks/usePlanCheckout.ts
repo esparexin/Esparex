@@ -7,6 +7,7 @@ import { getWalletSummary, type WalletSummary } from "@/lib/api/user/users";
 import { loadRazorpay, type RazorpayOptions } from "@/lib/payments/razorpay";
 import { waitForWalletCredit } from "@/lib/payments/waitForWalletCredit";
 import logger from "@/lib/logger";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 
 type WalletCreditField = keyof Pick<
   WalletSummary,
@@ -130,7 +131,8 @@ export function usePlanCheckout() {
       razorpay.open();
     } catch (error) {
       logger.error("Checkout initialization failed", error);
-      onPaymentFailed?.("Failed to initialize payment gateway. Please try again later.");
+      const userMessage = mapErrorToMessage(error, "Failed to initialize payment gateway. Please try again later.");
+      onPaymentFailed?.(userMessage);
       setIsProcessing(false);
       throw error;
     }

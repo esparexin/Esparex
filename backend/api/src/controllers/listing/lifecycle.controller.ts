@@ -216,12 +216,22 @@ export const repostListing = async (req: Request, res: Response, next: NextFunct
  */
 export const promoteListing = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const user = req.user as AuthUser;
         const listing = req.listing;
-        if (!listing) return;
+        if (!listing || !user) return;
 
-        const policyResult = PromotionPolicyService.canPromote({
+        const userId = user._id ? user._id.toString() : (user.id ? String(user.id) : String(user));
+        const { days = 30, type = 'spotlight_hp' } = (req.body || {}) as { days?: number; type?: string };
+        const durationDays = Number(days) || 30;
+
+        const policyResult = PromotionPolicyService.validatePromotionEligibility({
             listingType: listing.listingType || 'ad',
-            status: listing.status
+            status: listing.status,
+            isSpotlight: (listing as Record<string, unknown>).isSpotlight as boolean | undefined,
+            spotlightExpiresAt: (listing as Record<string, unknown>).spotlightExpiresAt as Date | string | undefined,
+            isBoosted: (listing as Record<string, unknown>).isBoosted as boolean | undefined,
+            boostExpiresAt: (listing as Record<string, unknown>).boostExpiresAt as Date | string | undefined,
+            requestedType: type,
         });
 
         if (!policyResult.allowed) {
@@ -232,11 +242,36 @@ export const promoteListing = async (req: Request, res: Response, next: NextFunc
             );
         }
 
-        if (listing.status !== LISTING_STATUS.LIVE) {
-            return sendErrorResponse(req, res, 400, 'Only live listings can be promoted');
+        const { PromotionService } = await import('@esparex/core/domains/payments/application/PromotionService');
+
+        let promotionResult;
+        if (type === 'push_to_top' || type === 'boost') {
+            promotionResult = await PromotionService.applyBoost({
+                userId,
+                listingId: listing.id,
+                entityType: listing.listingType === 'service' ? 'service' : 'ad',
+                durationDays,
+            });
+        } else {
+            promotionResult = await PromotionService.applySpotlight({
+                userId,
+                listingId: listing.id,
+                entityType: listing.listingType === 'service' ? 'service' : 'ad',
+                spotlightType: type === 'spotlight_cat' ? 'spotlight_cat' : 'spotlight_hp',
+                durationDays,
+            });
         }
 
-        return sendSuccessResponse(res, { listingId: listing.id, currentStatus: listing.status, listingType: listing.listingType }, 'Proceed to promotion checkout');
+        return sendSuccessResponse(
+            res,
+            {
+                listingId: listing.id,
+                promotionId: promotionResult._id,
+                boostType: promotionResult.boostType,
+                expiresAt: promotionResult.endsAt,
+            },
+            'Promotion applied successfully! 🚀'
+        );
     } catch (error) {
         next(error);
     }

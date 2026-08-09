@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, ChevronRight, MessageCircle, MessageSquareOff, Phone } from "@/icons/IconRegistry";
+import { Building2, MessageCircle, MessageSquareOff, Phone } from "@/icons/IconRegistry";
 import type { Ad } from "@/schemas/ad.schema";
 import { SellerIdentityPanel } from "@/components/user/shared/SellerIdentityPanel";
 import { Button } from "@esparex/ui";
@@ -85,7 +85,7 @@ export function AdSellerCard({
                     badge={ad.isBusiness && ad.verified ? (
                         <Badge className="bg-blue-600 text-white text-2xs h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
                     ) : undefined}
-                    trailing={isInteractive ? <ChevronRight className="h-4 w-4 text-foreground-subtle group-hover:translate-x-1 transition-transform" /> : undefined}
+                    trailing={undefined}
                 />
 
                 {showDesktopActions && (

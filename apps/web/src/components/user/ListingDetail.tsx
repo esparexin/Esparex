@@ -212,10 +212,12 @@ export function ListingDetail({
 
                     <ListingDescriptionCard ad={ad} />
 
-                    <ListingRelatedBusinessesSection
-                      ad={ad}
-                      navigateTo={navigateTo}
-                    />
+                    {!isOwner && (
+                      <ListingRelatedBusinessesSection
+                        ad={ad}
+                        navigateTo={navigateTo}
+                      />
+                    )}
                   </div>
 
                   <ListingDetailSidebar
@@ -244,6 +246,7 @@ export function ListingDetail({
 
             <ListingBottomActions
               variant={getActionBarVariant(isOwner, adStatus.isSold, ad.status)}
+              isSpotlight={Boolean(ad.isSpotlight) || (ad.spotlightExpiresAt ? new Date(String(ad.spotlightExpiresAt)).getTime() > Date.now() : false)}
               onEditClick={handleEdit}
               onDeleteClick={handleDeleteClick}
               onMarkSoldClick={() => handleMarkSoldClick()}

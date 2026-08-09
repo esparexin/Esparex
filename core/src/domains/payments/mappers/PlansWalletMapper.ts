@@ -25,7 +25,7 @@ export class PlansWalletMapper {
   public static mapToV1DTO(data: RawDashboardData): PlansWalletV1DTO {
     return {
       subscription: this.mapSubscription(data.userPlan, data.planCatalogItem),
-      wallet: this.mapWallet(data.userWallet),
+      wallet: this.mapWallet(data.userWallet, data.entitlements),
       creditPacks: this.mapCreditPacks(data.entitlements || []),
       activePromotions: this.mapPromotions(data.boosts || []),
       recentUsage: this.mapRecentUsage(data.creditTransactions || []),
@@ -60,19 +60,35 @@ export class PlansWalletMapper {
     };
   }
 
-  private static mapWallet(userWallet?: any): WalletSummaryDTO {
-    const monthlyFreeTotal = 10;
+  private static mapWallet(userWallet?: any, entitlements?: any[]): WalletSummaryDTO {
+    const monthlyFreeTotal = userWallet?.monthlyFreeAdsTotal ?? 5;
     const usedFree = userWallet?.monthlyFreeAdsUsed || 0;
     const remainingFree = Math.max(0, monthlyFreeTotal - usedFree);
+
+    const activeSpotlightEntitlements = (entitlements || [])
+      .filter((e) => e.status === 'ACTIVE' && ['SPOTLIGHT_CAT', 'SPOTLIGHT_HP'].includes(e.type))
+      .reduce((acc, e) => acc + (e.remaining || 0), 0);
+
+    const activeTopAdEntitlements = (entitlements || [])
+      .filter((e) => e.status === 'ACTIVE' && e.type === 'PUSH_TO_TOP')
+      .reduce((acc, e) => acc + (e.remaining || 0), 0);
+
+    const activeAdEntitlements = (entitlements || [])
+      .filter((e) => e.status === 'ACTIVE' && e.type === 'AD_POSTING')
+      .reduce((acc, e) => acc + (e.remaining || 0), 0);
+
+    const spotlightCredits = Math.max(userWallet?.spotlightCredits || 0, activeSpotlightEntitlements);
+    const topAdCredits = Math.max(userWallet?.boostCredits || 0, activeTopAdEntitlements);
+    const paidAdCredits = Math.max(userWallet?.adCredits || 0, activeAdEntitlements);
 
     return {
       userId: userWallet?.userId?.toString() || '',
       monthlyFreeAdsTotal: monthlyFreeTotal,
       monthlyFreeAdsUsed: usedFree,
       monthlyFreeAdsRemaining: remainingFree,
-      paidAdCredits: userWallet?.adCredits || 0,
-      spotlightCredits: userWallet?.spotlightCredits || 0,
-      topAdCredits: userWallet?.boostCredits || 0,
+      paidAdCredits,
+      spotlightCredits,
+      topAdCredits,
       smartAlertSlots: userWallet?.smartAlertSlots || 2,
       nextMonthlyResetDate: userWallet?.lastMonthlyReset ? new Date(userWallet.lastMonthlyReset).toISOString() : null,
     };
@@ -93,18 +109,34 @@ export class PlansWalletMapper {
   }
 
   private static mapPromotions(boosts: any[]): PromotionDTO[] {
-    return boosts.slice(0, 5).map((boost) => {
+    const seenEntityIds = new Set<string>();
+    const uniqueBoosts: any[] = [];
+
+    for (const boost of boosts) {
+      const entityId = (boost.entityId?.toString() || boost.adId?.toString() || '').trim();
+      if (entityId && seenEntityIds.has(entityId)) {
+        continue;
+      }
+      if (entityId) {
+        seenEntityIds.add(entityId);
+      }
+      uniqueBoosts.push(boost);
+    }
+
+    return uniqueBoosts.slice(0, 10).map((boost) => {
       const startsAt = boost.startsAt ? new Date(boost.startsAt) : new Date();
       const endsAt = boost.endsAt ? new Date(boost.endsAt) : new Date();
       const now = new Date();
       const diffMs = endsAt.getTime() - now.getTime();
       const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+      const rawType = boost.boostType || boost.type || 'SPOTLIGHT_CAT';
+      const formattedType = rawType === 'push_to_top' ? 'Top Ad' : 'Spotlight Ad';
 
       return {
         promotionId: boost._id?.toString() || boost.id || '',
         entityId: boost.entityId?.toString() || boost.adId?.toString() || '',
         entityTitle: boost.entityTitle || boost.adTitle || 'Promoted Listing',
-        type: (boost.type || 'SPOTLIGHT_CAT') as EntitlementType,
+        type: formattedType as EntitlementType,
         startsAt: startsAt.toISOString(),
         endsAt: endsAt.toISOString(),
         daysRemaining,
@@ -126,14 +158,41 @@ export class PlansWalletMapper {
   }
 
   private static mapRecentPayments(payments: any[]): PaymentSummaryDTO[] {
-    return payments.slice(0, 5).map((pay) => ({
-      orderId: pay._id?.toString() || pay.orderId || pay.id || '',
-      amount: pay.amount || 0,
-      currency: pay.currency || 'INR',
-      status: (pay.status || 'SUCCESS') as PaymentSummaryDTO['status'],
-      description: pay.description || pay.title || 'Payment Order',
-      invoicePdfUrl: pay.invoicePdfUrl || pay.invoiceUrl,
-      createdAt: pay.createdAt ? new Date(pay.createdAt).toISOString() : new Date().toISOString(),
-    }));
+    const fifteenMinsAgo = Date.now() - 15 * 60 * 1000;
+
+    // Filter to retain SUCCESS orders and recent active PENDING checkout attempts (< 15 mins)
+    const activePayments = (payments || []).filter((pay) => {
+      const rawStatus = String(pay.status || '').toUpperCase();
+      if (['SUCCESS', 'CAPTURED', 'PAID'].includes(rawStatus)) {
+        return true;
+      }
+      const createdAtMs = pay.createdAt ? new Date(pay.createdAt).getTime() : 0;
+      // Retain pending checkout sessions created within the last 15 minutes
+      return ['INITIATED', 'CREATED', 'PENDING'].includes(rawStatus) && createdAtMs > fifteenMinsAgo;
+    });
+
+    return activePayments.slice(0, 10).map((pay) => {
+      const rawStatus = String(pay.status || '').toUpperCase();
+      let status: PaymentSummaryDTO['status'] = 'PENDING';
+      if (['SUCCESS', 'CAPTURED', 'PAID'].includes(rawStatus)) {
+        status = 'SUCCESS';
+      } else if (rawStatus === 'FAILED') {
+        status = 'FAILED';
+      } else if (rawStatus === 'REFUNDED') {
+        status = 'REFUNDED';
+      } else {
+        status = 'PENDING';
+      }
+
+      return {
+        orderId: pay._id?.toString() || pay.orderId || pay.id || '',
+        amount: pay.amount || 0,
+        currency: pay.currency || 'INR',
+        status,
+        description: pay.description || pay.title || pay.planSnapshot?.name || 'Payment Order',
+        invoicePdfUrl: pay.invoicePdfUrl || pay.invoiceUrl || `/api/v1/payment/invoice/${pay._id?.toString() || pay.id || ''}`,
+        createdAt: pay.createdAt ? new Date(pay.createdAt).toISOString() : new Date().toISOString(),
+      };
+    });
   }
 }

@@ -262,8 +262,8 @@ export function ProfileSettingsSidebar({
           initialConversation={initialConversation}
         />
       );
-      case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
-      case "plans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
+      case "plans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="OVERVIEW" />;
+      case "buyplans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="BUY_PLANS" />;
       case "business": return (
         // Layout constraint: Forms require a narrower max-width (xl) for readability and UX
         <div className="max-w-xl mx-auto w-full px-2 sm:px-0">

@@ -96,11 +96,12 @@ export function ListingDetailSidebar({
                 />
             ) : null}
 
-            <AdSafetyTips />
+            {!isOwner && <AdSafetyTips adId={ad.id} />}
 
             {isOwner && (
                 <AdOwnerActions
                     isSold={adStatus.isSold}
+                    isSpotlight={Boolean(ad.isSpotlight) || (ad.spotlightExpiresAt ? new Date(String(ad.spotlightExpiresAt)).getTime() > Date.now() : false)}
                     isChatLocked={adStatus.isChatLocked}
                     status={ad.status}
                     onEdit={onEdit}

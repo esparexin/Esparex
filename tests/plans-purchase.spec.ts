@@ -35,6 +35,43 @@ test.describe('Plans & Wallet Hub — Purchase Flow E2E Regression Suite', () =>
       });
     });
 
+    // Mock Available Plans Catalog API response (GET /api/v1/payments/plans)
+    await page.route('**/api/v1/payments/plans*', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          success: true,
+          data: [
+            {
+              id: 'plan_boost_10',
+              name: 'New_user_Plan_10',
+              price: 0,
+              type: 'BOOST_AD',
+              durationDays: 30,
+              isDefault: false,
+            },
+            {
+              id: 'plan_spotlight_10',
+              name: 'New_user_Plan_10',
+              price: 0,
+              type: 'SPOTLIGHT',
+              durationDays: 30,
+              isDefault: false,
+            },
+            {
+              id: 'plan_moreads_20',
+              name: 'New_user_Plan_20',
+              price: 0,
+              type: 'AD_PACK',
+              durationDays: 30,
+              isDefault: true,
+            },
+          ],
+        },
+      });
+    });
+
     // Mock Payment Order Creation API response (POST /api/v1/payments/orders)
     await page.route('**/api/v1/payments/orders', async (route) => {
       const requestPayload = route.request().postDataJSON();

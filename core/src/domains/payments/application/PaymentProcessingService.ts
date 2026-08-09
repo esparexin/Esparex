@@ -22,6 +22,7 @@ import { resolveCategoryName } from './TransactionService';
 import logger, { logBusiness, logSecurity } from '../../../utils/logger';
 import AdminLog from '../../../models/AdminLog';
 import { lifecycleEvents } from '../../../events/LifecycleEventDispatcher';
+import { DashboardFacade } from './DashboardFacade';
 
 export type PaymentProcessingSource = 'webhook' | 'recovery';
 
@@ -270,6 +271,8 @@ export async function processSuccessfulPayment(
         if (session) {
             try { await session.commitTransaction(); } catch { /* ignore */ }
         }
+
+        void DashboardFacade.invalidateCache(tx.userId.toString()).catch(() => {});
 
         try {
             void lifecycleEvents.dispatch('payment.completed', {

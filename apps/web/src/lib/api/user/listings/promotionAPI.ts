@@ -14,3 +14,17 @@ export async function applySpotlightPromotion(
         { silent: true }
     );
 }
+
+export async function applyTopAdPromotion(
+    listingId: string | number,
+    durationDays: number
+): Promise<void> {
+    await apiClient.post(
+        API_ROUTES.USER.LISTING_PROMOTE(String(listingId)),
+        {
+            days: durationDays,
+            type: "push_to_top",
+        },
+        { silent: true }
+    );
+}

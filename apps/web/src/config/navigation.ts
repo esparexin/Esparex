@@ -12,6 +12,7 @@ import {
   Sparkles,
   Wrench,
   CreditCard,
+  ShoppingBag,
 } from "@/icons/IconRegistry";
 import {
   type UserPage,
@@ -54,6 +55,7 @@ export type ProfileTabValue =
   | "saved"
   | "business"
   | "plans"
+  | "buyplans"
   | "settings"
   | "smartalerts"
   | "purchases"
@@ -72,7 +74,8 @@ export const PROFILE_TAB_ITEMS: Array<{
     { value: "saved", label: "Saved Ads", icon: Heart },
     { value: "business", label: "Business", icon: Building2 },
     { value: "smartalerts", label: "Smart Alerts", icon: Bell },
-    { value: "plans", label: "Plans & Wallet", icon: CreditCard },
+    { value: "plans", label: "Wallet", icon: CreditCard },
+    { value: "buyplans", label: "Plans", icon: ShoppingBag },
     { value: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -84,7 +87,8 @@ export const PROFILE_TAB_PAGE_ROUTES: Partial<Record<ProfileTabValue, UserPage>>
     messages: "messages",
     saved: "saved-ads",
     smartalerts: "smart-alerts",
-    plans: "plans-payments",
+    plans: "my-wallet",
+    buyplans: "plans-payments",
     purchases: "purchases",
     business: "my-business",
   });

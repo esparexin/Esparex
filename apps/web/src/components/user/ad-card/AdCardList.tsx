@@ -14,6 +14,7 @@ import {
   useAdCardBase,
   getPlanBadge,
   getConditionBadge,
+  isSpotlightAd,
 } from "./shared";
 
 export interface AdCardListProps {
@@ -37,7 +38,7 @@ function areAdCardListPropsEqual(
     prevProps.ad.id === nextProps.ad.id &&
     prevProps.ad.price === nextProps.ad.price &&
     prevProps.ad.title === nextProps.ad.title &&
-    prevProps.ad.isSpotlight === nextProps.ad.isSpotlight &&
+    isSpotlightAd(prevProps.ad) === isSpotlightAd(nextProps.ad) &&
     (prevProps.ad as Record<string, unknown>).isFeatured === (nextProps.ad as Record<string, unknown>).isFeatured &&
     (prevProps.ad as Record<string, unknown>).isPremium === (nextProps.ad as Record<string, unknown>).isPremium &&
     (prevProps.ad as Record<string, unknown>).isBoosted === (nextProps.ad as Record<string, unknown>).isBoosted &&
@@ -76,7 +77,7 @@ export const AdCardList = memo(function AdCardList({
       handleCardClick={handleCardClick}
       className={cn(
         "hover:shadow-md hover:-translate-y-0.5 border border-border rounded-xl bg-white",
-        ad.isSpotlight ? "ring-2 ring-yellow-500 ring-offset-2" : "",
+        isSpotlightAd(ad) ? "ring-2 ring-amber-400/50 shadow-[0_8px_30px_rgba(245,158,11,0.2)]" : "",
         className
       )}
     >

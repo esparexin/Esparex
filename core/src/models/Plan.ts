@@ -76,10 +76,9 @@ const PlanSchema = new Schema<IPlan>(
             type: String,
             enum: ["DRAFT", "ACTIVE", "INACTIVE", "ARCHIVED"],
             default: "ACTIVE",
-            index: true,
         },
         /** System-protected plans cannot be archived. Checked as single SSOT guard. */
-        isSystemPlan: { type: Boolean, default: false, index: true },
+        isSystemPlan: { type: Boolean, default: false },
 
         // Archival audit trail
         archivedAt: { type: Date, default: null },
@@ -99,6 +98,8 @@ const PlanSchema = new Schema<IPlan>(
 
 PlanSchema.index({ code: 1 }, { name: 'idx_plan_code_unique_idx', unique: true });
 PlanSchema.index({ type: 1 }, { name: 'idx_plan_type_idx' });
+PlanSchema.index({ status: 1 }, { name: 'idx_plan_status_idx' });
+PlanSchema.index({ isSystemPlan: 1 }, { name: 'idx_plan_isSystemPlan_idx' });
 PlanSchema.index({ createdByAdmin: 1 }, { name: 'idx_plan_createdByAdmin_idx' });
 
 /**

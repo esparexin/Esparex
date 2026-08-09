@@ -9,14 +9,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
   const [showAll, setShowAll] = useState(false);
 
   if (!creditPacks || creditPacks.length === 0) {
-    return (
-      <div className="bg-surface rounded-xl p-5 border border-border/60 shadow-sm text-center">
-        <h4 className="text-sm font-bold text-foreground mb-1">No Active Credit Packs</h4>
-        <p className="text-xs text-muted-foreground">
-          Purchased ad credit packs and promotional top-ups will appear here with individual expiry dates.
-        </p>
-      </div>
-    );
+    return null;
   }
 
   const displayedPacks = showAll ? creditPacks : creditPacks.slice(0, 3);

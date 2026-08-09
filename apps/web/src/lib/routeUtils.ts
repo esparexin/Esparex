@@ -88,6 +88,7 @@ export type UserPage =
     | "account-faq"
     | "smart-alerts-guide"
     | "plans-payments"
+    | "my-wallet"
     | "account";  // /account root — protects all /account/* paths
 
 const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
@@ -121,6 +122,7 @@ const STATIC_PAGE_ROUTE_MAP: Partial<Record<UserPage, string>> = {
     "how-it-works": "/how-it-works",
     sitemap: "/site-map",
     "plans-payments": "/account/plans",
+    "my-wallet": "/account/wallet",
     "smart-alerts": "/account/alerts",
     careers: "/faq",
     press: "/faq",

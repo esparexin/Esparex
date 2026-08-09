@@ -12,21 +12,21 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
 }) => {
   if (!subscription) {
     return (
-      <div className="bg-surface rounded-xl p-5 border border-border/60 shadow-sm transition-all">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs transition-all">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground mb-2">
+            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full text-2xs font-semibold bg-muted text-muted-foreground mb-1">
               Free Tier
             </div>
-            <h3 className="text-lg font-bold text-foreground">No Active Subscription</h3>
-            <p className="text-sm text-muted-foreground mt-1">
+            <h3 className="text-sm sm:text-base font-bold text-foreground">No Active Subscription</h3>
+            <p className="text-2xs sm:text-xs text-muted-foreground mt-0.5">
               Upgrade to a Pro or Business plan to unlock unlimited listings, top placements, and priority buyer inquiries.
             </p>
           </div>
           {onBrowsePlans && (
             <button
               onClick={onBrowsePlans}
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm whitespace-nowrap"
+              className="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-2xs whitespace-nowrap self-start sm:self-auto"
             >
               Browse Plans
             </button>
@@ -40,7 +40,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
   const daysRemaining = subscription.daysRemaining ?? 0;
 
   return (
-    <div className="bg-surface rounded-xl p-5 border border-border/60 shadow-sm relative overflow-hidden">
+    <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs relative overflow-hidden">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">

@@ -22,7 +22,6 @@ const EntitlementSchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-            index: true,
         },
         type: {
             type: String,
@@ -68,7 +67,6 @@ const EntitlementSchema: Schema = new Schema(
             enum: ['PENDING', 'ACTIVE', 'EXHAUSTED', 'EXPIRED', 'SUSPENDED', 'CANCELLED'],
             required: true,
             default: 'ACTIVE',
-            index: true,
         },
     },
     {
@@ -76,8 +74,8 @@ const EntitlementSchema: Schema = new Schema(
     }
 );
 
-// Compound Index for fast entitlement resolution
-EntitlementSchema.index({ userId: 1, status: 1, type: 1 });
-EntitlementSchema.index({ userId: 1, expiresAt: 1 });
+// Compound Indexes for fast entitlement resolution (Explicitly Named per Governance rules)
+EntitlementSchema.index({ userId: 1, status: 1, type: 1 }, { name: 'idx_entitlement_userId_status_type' });
+EntitlementSchema.index({ userId: 1, expiresAt: 1 }, { name: 'idx_entitlement_userId_expiresAt' });
 
 export default mongoose.models.Entitlement || mongoose.model<IEntitlement>('Entitlement', EntitlementSchema);

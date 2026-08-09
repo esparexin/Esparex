@@ -11,6 +11,7 @@ import {
   Trash2,
   MessageCircle,
   Phone,
+  Sparkles,
 } from "@/icons/IconRegistry";
 import { ActionBarVariant } from "@/lib/logic/bottomBarActions";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
@@ -18,6 +19,7 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 
 interface ListingBottomActionsProps {
   variant: ActionBarVariant;
+  isSpotlight?: boolean;
   // Owner props
   onEditClick?: () => void;
   onDeleteClick?: () => void;
@@ -35,6 +37,7 @@ interface ListingBottomActionsProps {
 
 export function ListingBottomActions({
   variant,
+  isSpotlight = false,
   onEditClick,
   onDeleteClick,
   onMarkSoldClick,
@@ -169,15 +172,22 @@ export function ListingBottomActions({
                 Sold
               </Button>
 
-              {/* Promote */}
-              <Button
-                variant="outline"
-                className="flex flex-col gap-1 h-11 text-xs rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white"
-                onClick={onPromoteClick}
-              >
-                <TrendingUp className="h-5 w-5" />
-                Boost
-              </Button>
+              {/* Promote / Spotlight Applied */}
+              {isSpotlight ? (
+                <div className="flex flex-col items-center justify-center gap-0.5 h-11 px-1 text-[11px] font-bold rounded-xl bg-amber-50 border border-amber-200 text-amber-800 select-none">
+                  <Sparkles className="h-4 w-4 text-amber-600 fill-amber-500" />
+                  Spotlight
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="flex flex-col gap-1 h-11 text-xs rounded-xl bg-violet-600 hover:bg-violet-700 border-none text-white"
+                  onClick={onPromoteClick}
+                >
+                  <TrendingUp className="h-5 w-5" />
+                  Boost
+                </Button>
+              )}
             </div>
           </div>
         </div>

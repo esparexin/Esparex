@@ -1,7 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldAlert, CheckCircle2, AlertCircle, Info } from "@/icons/IconRegistry";
 
-export function AdSafetyTips() {
+interface AdSafetyTipsProps {
+    adId?: string | number;
+}
+
+export function AdSafetyTips({ adId }: AdSafetyTipsProps) {
     return (
         <Card className="bg-amber-50/50 border border-amber-200/80 shadow-xs rounded-2xl overflow-hidden">
             <CardContent className="p-4 md:p-5 space-y-3.5">
@@ -44,8 +48,13 @@ export function AdSafetyTips() {
                     </div>
                 </div>
 
-                <div className="border-t border-amber-200/80 pt-3">
-                    <p className="text-2xs text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest text-center">Safety First · Esparex Trust</p>
+                <div className="border-t border-amber-200/80 pt-3 text-center space-y-1">
+                    <p className="text-2xs text-amber-700 dark:text-amber-400 font-bold uppercase tracking-widest">Safety First · Esparex Trust</p>
+                    {adId && (
+                        <p className="text-2xs text-muted-foreground font-medium pt-0.5">
+                            Listing ID: <span className="font-bold text-foreground font-mono">#{typeof adId === 'string' && adId.length === 24 ? adId.slice(-8).toUpperCase() : String(adId)}</span>
+                        </p>
+                    )}
                 </div>
             </CardContent>
         </Card>

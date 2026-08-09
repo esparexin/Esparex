@@ -89,7 +89,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
                 switch (rawType) {
                     case "SPOTLIGHT": return "Spotlight";
                     case "AD_PACK": return "More Ads";
-                    case "BOOST_AD": return "Boost Ad";
+                    case "BOOST_AD": return "Top Ad";
                     case "SMART_ALERT": return "Alert Slots";
                     case "FREE_DEFAULT": return "More Ads";
                     default: return "More Ads";
@@ -115,7 +115,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
     }, [user?.role, user?.businessStatus]);
 
     useEffect(() => {
-        if (activeTab === 'plans') {
+        if (activeTab === 'plans' || activeTab === 'buyplans' || activeTab === 'purchases') {
             const timeoutId = setTimeout(() => {
                 setIsError(false);
                 void fetchDynamicPlans();

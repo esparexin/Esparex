@@ -25,14 +25,16 @@ export interface ResolvedBalances {
 export async function resolveBalances(userId: string): Promise<ResolvedBalances> {
     const userObjId = new Types.ObjectId(userId);
 
+    const idFilter = { $in: [userObjId, userId] };
+
     const [entitlements, wallet, userPlan] = await Promise.all([
         Entitlement.find({
-            userId: userObjId,
+            userId: idFilter,
             status: 'ACTIVE',
             remaining: { $gt: 0 },
         }).lean(),
-        UserWallet.findOne({ userId: userObjId }).lean(),
-        UserPlan.findOne({ userId: userObjId, status: 'active' }).lean(),
+        UserWallet.findOne({ userId: idFilter }).lean(),
+        UserPlan.findOne({ userId: idFilter, status: 'active' }).lean(),
     ]);
 
     const adCredits = entitlements

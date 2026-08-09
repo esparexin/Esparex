@@ -10,6 +10,7 @@ interface RelativeTimeTextProps {
     variant?: "long" | "short";
     fallback?: string;
     updateIntervalMs?: number;
+    addSuffix?: boolean;
 }
 
 export function RelativeTimeText({
@@ -17,6 +18,7 @@ export function RelativeTimeText({
     variant = "long",
     fallback,
     updateIntervalMs = 60000,
+    addSuffix = true,
 }: RelativeTimeTextProps) {
     const parsedValue = useMemo(
         () => (typeof value === "string" ? new Date(value) : value),
@@ -37,9 +39,9 @@ export function RelativeTimeText({
         if (Number.isNaN(parsedValue.getTime())) return fallbackLabel;
         return variant === "short"
             ? formatShortRelativeTime(parsedValue)
-            : formatDistanceToNow(parsedValue, { addSuffix: true });
+            : formatDistanceToNow(parsedValue, { addSuffix });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fallbackLabel, parsedValue, tick, variant]);
+    }, [fallbackLabel, parsedValue, tick, variant, addSuffix]);
 
     return <>{label}</>;
 }

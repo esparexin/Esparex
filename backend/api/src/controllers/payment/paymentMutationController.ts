@@ -2,7 +2,6 @@ import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import mongoose from 'mongoose';
 import {
     checkTransactionVelocity,
     findPendingTransaction,

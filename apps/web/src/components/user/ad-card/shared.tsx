@@ -215,6 +215,20 @@ const BADGE_BASE =
 /* Promotion badge (image overlay — top-left)                                 */
 /* -------------------------------------------------------------------------- */
 
+export function isSpotlightAd(ad: AdCardData): boolean {
+  const adRecord = toAdRecord(ad);
+  const spotlightExp = adRecord.spotlightExpiresAt ? new Date(String(adRecord.spotlightExpiresAt)).getTime() : 0;
+  return Boolean(
+    ad.isSpotlight === true ||
+    adRecord.isSpotlight === true ||
+    adRecord.spotlight === true ||
+    adRecord.planType === 'SPOTLIGHT' ||
+    adRecord.promotionType === 'SPOTLIGHT' ||
+    adRecord.promotionType === 'SPOTLIGHT_CAT' ||
+    (spotlightExp > 0 && spotlightExp > Date.now())
+  );
+}
+
 export function getPlanBadge(
   ad: AdCardData,
   className?: string
@@ -226,11 +240,11 @@ export function getPlanBadge(
 
   const merged = cn(BADGE_BASE, className);
 
-  if (ad.isSpotlight) {
+  if (isSpotlightAd(ad)) {
     return (
       <Badge
         className={cn(
-          "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
+          "bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40",
           merged
         )}
         aria-label="Spotlight listing"

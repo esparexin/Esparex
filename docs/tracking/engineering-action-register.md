@@ -1172,3 +1172,31 @@ git checkout -- .github/workflows/ci.yml backend/api/package.json backend/api/sr
 rm backend/api/src/smoke.ts
 # Revert CI smoke step to the previous command and re-add continue-on-error if desired
 ```
+
+---
+
+### EA-035
+
+**Sprint**: Pending Completion  
+**PR**: N/A (PR creation blocked — work pending)  
+**Category**: Governance / Audit  
+**Status**: ⚠️ In Progress (Work Pending)  
+
+**Action**  
+Documented branch pending status on `feat/issue-2026-plans-wallet-hub`. PR creation is explicitly blocked until all pending items are complete.
+
+**Pending Items Required Before PR**:
+1. Complete the entire **Plans & Payments** module.
+2. Complete the **Wallet** functionality.
+3. Complete the **Invoice** module, including invoice design, view, and download.
+4. Finish all remaining end-to-end integrations, validations, and testing.
+
+**Files Updated**:
+- `audit-reports/enterprise-module-audit.md` (Updated status banner and added Section 18)
+- `docs/tracking/pending-work.md` (Created pending checklist)
+- `docs/tracking/engineering-action-register.md` (Recorded EA-035)
+
+**Verification**:
+- ✅ Branch checked out: `feat/issue-2026-plans-wallet-hub`
+- ✅ PR creation blocked as instructed
+

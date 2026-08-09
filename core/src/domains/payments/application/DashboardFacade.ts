@@ -2,6 +2,7 @@ import UserPlan from '../../../models/UserPlan';
 import UserWallet from '../../../models/UserWallet';
 import Entitlement from '../../../models/Entitlement';
 import Boost from '../../../models/Boost';
+import Ad from '../../../models/Ad';
 import CreditTransaction from '../../../models/CreditTransaction';
 import Transaction from '../../../models/Transaction';
 import { PlansWalletMapper } from '../mappers/PlansWalletMapper';
@@ -26,6 +27,11 @@ export class DashboardFacade {
       return cached;
     }
 
+    // Lookup user listings to query active boosts correctly
+    const userAds = await Ad.find({ sellerId: userId }).select('_id title').lean();
+    const userAdIds = userAds.map((a) => a._id);
+    const adTitleMap = new Map(userAds.map((a) => [a._id.toString(), a.title]));
+
     // Execute concurrent queries using Promise.allSettled for high resiliency
     const [
       userPlanResult,
@@ -38,7 +44,9 @@ export class DashboardFacade {
       UserPlan.findOne({ userId, status: 'active' }).populate('planId').lean(),
       UserWallet.findOne({ userId }).lean(),
       Entitlement.find({ userId, status: 'ACTIVE' }).sort({ expiresAt: 1, createdAt: 1 }).lean(),
-      Boost.find({ userId, status: 'ACTIVE' }).lean(),
+      userAdIds.length > 0
+        ? Boost.find({ entityId: { $in: userAdIds }, isActive: true, endsAt: { $gte: new Date() } }).lean()
+        : Promise.resolve([]),
       CreditTransaction.find({ userId }).sort({ createdAt: -1 }).limit(10).lean(),
       Transaction.find({ userId }).sort({ createdAt: -1 }).limit(5).lean(),
     ]);
@@ -46,7 +54,11 @@ export class DashboardFacade {
     const userPlan = userPlanResult.status === 'fulfilled' ? userPlanResult.value : undefined;
     const userWallet = userWalletResult.status === 'fulfilled' ? userWalletResult.value : undefined;
     const entitlements = entitlementsResult.status === 'fulfilled' ? entitlementsResult.value || [] : [];
-    const boosts = boostsResult.status === 'fulfilled' ? boostsResult.value || [] : [];
+    const rawBoosts = boostsResult.status === 'fulfilled' ? boostsResult.value || [] : [];
+    const boosts = rawBoosts.map((b: any) => ({
+      ...b,
+      entityTitle: adTitleMap.get(b.entityId?.toString()) || b.entityTitle || b.adTitle || 'Promoted Listing',
+    }));
     const creditTransactions = creditTxResult.status === 'fulfilled' ? creditTxResult.value || [] : [];
     const paymentTransactions = paymentTxResult.status === 'fulfilled' ? paymentTxResult.value || [] : [];
 

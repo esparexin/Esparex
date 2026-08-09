@@ -54,6 +54,8 @@ interface ListingItemProps {
     onActivate?: () => void;
     onMarkSold?: () => void;
     onBoost?: () => void;
+    isSpotlight?: boolean;
+    isBoosted?: boolean;
     metaBadges?: MetaBadge[];
     tags?: Tag[];
     priority?: boolean;
@@ -78,6 +80,7 @@ export function ListingItem({
     rejectionReason, createdAt, expiresAt, views, likes: _likes,
     getStatusBadge, editHref, detailHref,
     onDelete, onRenew, onDeactivate, onActivate, onMarkSold, onBoost,
+    isSpotlight = false, isBoosted: _isBoosted = false,
     metaBadges = [], tags = [], priority = false, showStatusBadge = true, className,
 }: ListingItemProps) {
     const isAd = listingType.toLowerCase() === "ad";
@@ -95,7 +98,7 @@ export function ListingItem({
     const showActivate   = isDeactivated && !!onActivate;
     const showMarkSold   = isAd && (isActive || isExpired) && !!onMarkSold;
     const showRenew      = !isAd && (isExpired || isSold) && !!onRenew;
-    const showBoost      = isActive && !!onBoost;
+    const showBoost      = !isSpotlight && isActive && !!onBoost;
     // Delete is NEVER shown on live / active listings
     const showDelete     = !isActive;
 
@@ -215,12 +218,21 @@ export function ListingItem({
                         {showExpiry && (
                             <>
                                 <span className="opacity-30 shrink-0">•</span>
-                                <span className="text-amber-700 font-medium shrink-0 flex items-center gap-0.5">
-                                    <Clock className="h-2.5 w-2.5 shrink-0" />
-                                    <span className="truncate">
-                                        <RelativeTimeText value={expiresAt!} /> left
-                                    </span>
-                                </span>
+                                {(() => {
+                                    const isPastExpiry = expiresAt ? new Date(expiresAt).getTime() <= Date.now() : false;
+                                    return (
+                                        <span className={cn("font-medium shrink-0 flex items-center gap-0.5", isPastExpiry ? "text-red-600" : "text-amber-700")}>
+                                            <Clock className="h-2.5 w-2.5 shrink-0" />
+                                            <span className="truncate">
+                                                {isPastExpiry ? (
+                                                    <>Expired <RelativeTimeText value={expiresAt!} addSuffix={false} /> ago</>
+                                                ) : (
+                                                    <><RelativeTimeText value={expiresAt!} addSuffix={false} /> left</>
+                                                )}
+                                            </span>
+                                        </span>
+                                    );
+                                })()}
                             </>
                         )}
 
@@ -387,24 +399,31 @@ export function ListingItem({
                     )}
                 </div>
 
-                {/* ── Row B: Direct Action Shortcut (⚡ Boost + ✏️ Edit) ── */}
-                <div className="flex items-center gap-1 justify-end w-full">
-                    {onBoost && (status === "live" || status === "active") && (
-                        <button
-                            type="button"
-                            onClick={onBoost}
-                            aria-label="Promote listing"
-                            title="Promote / Boost Ad"
-                            className={cn(
-                                "h-7 w-7 flex items-center justify-center shrink-0",
-                                "rounded-md border border-amber-300 bg-amber-50 text-amber-700",
-                                "hover:bg-amber-100 hover:border-amber-400",
-                                "transition-colors shadow-2xs cursor-pointer",
-                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1",
-                            )}
-                        >
-                            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
-                        </button>
+                {/* ── Row B: Direct Action Shortcut (✨ Spotlight / ⚡ Boost + ✏️ Edit) ── */}
+                <div className="flex items-center gap-1.5 justify-end w-full">
+                    {isSpotlight ? (
+                        <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-300/80 text-2xs font-bold px-2 py-1 rounded-md shadow-2xs shrink-0">
+                            <Sparkles className="h-3 w-3 text-amber-500 fill-amber-400" />
+                            Spotlight
+                        </span>
+                    ) : (
+                        onBoost && (status === "live" || status === "active") && (
+                            <button
+                                type="button"
+                                onClick={onBoost}
+                                aria-label="Promote listing"
+                                title="Promote / Boost Ad"
+                                className={cn(
+                                    "h-7 w-7 flex items-center justify-center shrink-0",
+                                    "rounded-md border border-amber-300 bg-amber-50 text-amber-700",
+                                    "hover:bg-amber-100 hover:border-amber-400",
+                                    "transition-colors shadow-2xs cursor-pointer",
+                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1",
+                                )}
+                            >
+                                <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
+                            </button>
+                        )
                     )}
                     {showEdit ? (
                         <Link

@@ -85,15 +85,11 @@ export const AdCardCover = memo(function AdCardCover({
         </div>
       )}
 
-      {/* Dashboard custom status badge — top-left (highest priority) */}
-      {customStatus && (
-        <div className="absolute top-2 left-2 z-20">{customStatus}</div>
-      )}
-
-      {/* Promotion badge — top-left (Spotlight / Featured / Boosted) */}
-      {planBadge && !customStatus && (
-        <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-10">
+      {/* Top-Left Overlay Badges (Spotlight / Top Ad / Custom Status) */}
+      {(planBadge || customStatus) && (
+        <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 z-20 flex flex-wrap items-center gap-1.5 pointer-events-none">
           {planBadge}
+          {customStatus}
         </div>
       )}
 

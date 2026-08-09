@@ -5,6 +5,7 @@ import { WalletOverviewCard } from '../cards/WalletOverviewCard';
 import { CreditPackListCard } from '../cards/CreditPackListCard';
 import { ActivePromotionsCard } from '../cards/ActivePromotionsCard';
 import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
+import { RecentPaymentsCard } from '../cards/RecentPaymentsCard';
 import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
 import type { ProfilePlan } from '../types';
 
@@ -18,9 +19,12 @@ interface PlansTabProps {
   onPlanSelected?: (plan: ProfilePlan) => void;
   setShowPlanDialog?: (show: boolean) => void;
   formatCurrency?: (price: number) => string;
+  initialTab?: DashboardHubTab;
 }
 
-type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'BUY_PLANS';
+type DashboardHubTab = 'OVERVIEW' | 'CREDIT_PACKS' | 'INVOICES' | 'BUY_PLANS';
+
+const DEFAULT_CATEGORIES: string[] = ['More Ads', 'Spotlight', 'Top Ad', 'Alert Slots'];
 
 export const PlansTab: React.FC<PlansTabProps> = ({
   dynamicPlans,
@@ -29,8 +33,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
   onPlanSelected,
   setShowPlanDialog,
   formatCurrency: _formatCurrency,
+  initialTab = 'OVERVIEW',
 }) => {
-  const [activeTab, setActiveTab] = useState<DashboardHubTab>('OVERVIEW');
+  const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
+  const [selectedCategory, setSelectedCategory] = useState<string>('More Ads');
   const { dashboardData, isLoading, isError, refetch } = usePlansWalletDashboard();
 
   const handleTabSwitch = (tab: DashboardHubTab) => {
@@ -38,50 +44,93 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     trackPlansWalletEvent('plans_tab_switched', { tabName: tab });
   };
 
+  // Derive unique categories from dynamic plans, merging with defaults
+  const availableCategories = Array.from(
+    new Set([
+      ...dynamicPlans.map((p) => p.type).filter(Boolean),
+      ...DEFAULT_CATEGORIES,
+    ])
+  );
+
+  // Ensure selected category is valid
+  const currentCategory = availableCategories.includes(selectedCategory)
+    ? selectedCategory
+    : availableCategories[0] || 'More Ads';
+
+  const filteredPlans = dynamicPlans.filter((plan) => plan.type === currentCategory);
+
   return (
     <div className="space-y-6">
-      {/* 3-Tab Hub Navigation Header */}
-      <div className="border-b border-border/60 pb-3">
-        <nav className="flex space-x-2 sm:space-x-4" aria-label="Plans and Wallet Navigation">
-          <button
-            onClick={() => handleTabSwitch('OVERVIEW')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-              activeTab === 'OVERVIEW'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-            }`}
-          >
-            Subscription & Balances
-          </button>
+      {/* Header Navigation: 3-Tab Navigation for Wallet view, Standalone Title for Buy Plans view */}
+      {initialTab !== 'BUY_PLANS' ? (
+        <div className="border-b border-border/60 pb-3">
+          <nav className="flex space-x-2 sm:space-x-4 overflow-x-auto pb-1 sm:pb-0 scrollbar-none" aria-label="Wallet Navigation" role="tablist">
+            <button
+              id="tab-overview"
+              role="tab"
+              aria-selected={activeTab === 'OVERVIEW'}
+              aria-controls="panel-overview"
+              onClick={() => handleTabSwitch('OVERVIEW')}
+              className={`min-h-[40px] px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                activeTab === 'OVERVIEW'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+              }`}
+            >
+              Subscription & Balances
+            </button>
 
-          <button
-            onClick={() => handleTabSwitch('CREDIT_PACKS')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-              activeTab === 'CREDIT_PACKS'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-            }`}
-          >
-            Itemized Credit Packs
-            {dashboardData?.creditPacks && dashboardData.creditPacks.length > 0 && (
-              <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-background/20 text-current">
-                {dashboardData.creditPacks.length}
-              </span>
-            )}
-          </button>
+            <button
+              id="tab-credit-packs"
+              role="tab"
+              aria-selected={activeTab === 'CREDIT_PACKS'}
+              aria-controls="panel-credit-packs"
+              onClick={() => handleTabSwitch('CREDIT_PACKS')}
+              className={`min-h-[40px] px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                activeTab === 'CREDIT_PACKS'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+              }`}
+            >
+              Credit Ledger & Packs
+              {dashboardData?.creditPacks && dashboardData.creditPacks.length > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-background/20 text-current">
+                  {dashboardData.creditPacks.length}
+                </span>
+              )}
+            </button>
 
-          <button
-            onClick={() => handleTabSwitch('BUY_PLANS')}
-            className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-              activeTab === 'BUY_PLANS'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-            }`}
-          >
-            Buy Plans & Top-ups
-          </button>
-        </nav>
-      </div>
+            <button
+              id="tab-invoices"
+              role="tab"
+              aria-selected={activeTab === 'INVOICES'}
+              aria-controls="panel-invoices"
+              onClick={() => handleTabSwitch('INVOICES')}
+              className={`min-h-[40px] px-4 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                activeTab === 'INVOICES'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+              }`}
+            >
+              Invoices & Payments
+              {dashboardData?.recentPayments && dashboardData.recentPayments.length > 0 && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-background/20 text-current">
+                  {dashboardData.recentPayments.length}
+                </span>
+              )}
+            </button>
+          </nav>
+        </div>
+      ) : (
+        <div className="border-b border-border/60 pb-3 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-foreground tracking-tight">Buy Plans & Packages</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Select an ad posting pack, spotlight promotion, or alert slot package for your account.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Loading Skeletons */}
       {isLoading && (
@@ -106,7 +155,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
       {/* TAB 1: OVERVIEW & BALANCES */}
       {activeTab === 'OVERVIEW' && !isLoading && (
-        <div className="space-y-6">
+        <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="space-y-3 sm:space-y-4">
           <ActiveSubscriptionCard
             subscription={dashboardData?.subscription || null}
             onBrowsePlans={() => setActiveTab('BUY_PLANS')}
@@ -122,67 +171,142 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
       {/* TAB 2: ITEMIZED CREDIT PACKS & AUDIT HISTORY */}
       {activeTab === 'CREDIT_PACKS' && !isLoading && (
-        <div className="space-y-6">
+        <div id="panel-credit-packs" role="tabpanel" aria-labelledby="tab-credit-packs" className="space-y-3 sm:space-y-4">
           <CreditPackListCard creditPacks={dashboardData?.creditPacks || []} />
           <CreditLedgerHistoryCard />
         </div>
       )}
 
-      {/* TAB 3: BUY PLANS & TOP-UPS */}
-      {activeTab === 'BUY_PLANS' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {dynamicPlans.map((plan) => {
-              const isCurrent = currentPlan === plan.id;
+      {/* TAB 3: INVOICES & PAYMENT HISTORY */}
+      {activeTab === 'INVOICES' && !isLoading && (
+        <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="space-y-3 sm:space-y-4">
+          <RecentPaymentsCard payments={dashboardData?.recentPayments || []} />
+        </div>
+      )}
 
-              return (
-                <div
-                  key={plan.id}
-                  className={`bg-surface rounded-xl p-5 border shadow-sm transition-all flex flex-col justify-between ${
-                    isCurrent ? 'border-primary ring-1 ring-primary' : 'border-border/60 hover:border-border'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        {plan.type}
-                      </span>
-                      {isCurrent && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                          Active
+      {/* TAB 3: BUY PLANS & TOP-UPS (Mobile-First Category Pills Navigation) */}
+      {activeTab === 'BUY_PLANS' && (
+        <div id="panel-buy-plans" role="tabpanel" aria-labelledby="tab-buy-plans" className="space-y-4">
+          {/* Mobile-First Category Filter Pills Bar */}
+          <div className="bg-surface rounded-xl p-1.5 sm:p-2 border border-border/60 shadow-2xs">
+            <div
+              className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none"
+              role="tablist"
+              aria-label="Plan Categories"
+            >
+              {availableCategories.map((catType) => {
+                const count = dynamicPlans.filter((p) => p.type === catType).length;
+                const isSelected = currentCategory === catType;
+
+                return (
+                  <button
+                    key={catType}
+                    id={`cat-tab-${catType.replace(/\s+/g, '-').toLowerCase()}`}
+                    role="tab"
+                    aria-selected={isSelected}
+                    onClick={() => setSelectedCategory(catType)}
+                    className={`min-h-[36px] px-3 py-1.5 rounded-lg text-2xs sm:text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                      isSelected
+                        ? 'bg-primary text-primary-foreground shadow-2xs'
+                        : 'bg-background text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-border/40'
+                    }`}
+                  >
+                    <span>{catType}</span>
+                    <span
+                      className={`px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-extrabold ${
+                        isSelected
+                          ? 'bg-primary-foreground/20 text-primary-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Standardized Compact Package Cards Grid */}
+          {filteredPlans.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredPlans.map((plan) => {
+                const isCurrent = currentPlan === plan.id;
+
+                return (
+                  <div
+                    key={plan.id}
+                    className={`bg-surface rounded-xl p-3.5 sm:p-4 border shadow-2xs transition-all flex flex-col justify-between relative overflow-hidden ${
+                      isCurrent ? 'border-primary ring-1 ring-primary/40' : 'border-border/60 hover:border-border hover:shadow-xs'
+                    }`}
+                  >
+                    {plan.popular && !isCurrent && (
+                      <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 font-extrabold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-bl-md shadow-2xs">
+                        Popular
+                      </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                          {plan.type}
                         </span>
+                        {isCurrent && (
+                          <span className="px-2 py-0.5 rounded-full text-2xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            Active
+                          </span>
+                        )}
+                      </div>
+
+                      <h4 className="text-sm sm:text-base font-bold text-foreground tracking-tight">{plan.name}</h4>
+                      <div className="mt-1.5 flex items-baseline gap-1">
+                        <span className="text-xl sm:text-2xl font-black text-foreground">₹{plan.price.toLocaleString()}</span>
+                        <span className="text-2xs font-medium text-muted-foreground">/ {plan.duration}</span>
+                      </div>
+
+                      {plan.features && plan.features.length > 0 && (
+                        <ul className="mt-3 space-y-1.5 text-2xs sm:text-xs text-muted-foreground border-t border-border/40 pt-2.5">
+                          {plan.features.map((feat, idx) => (
+                            <li key={idx} className="flex items-start gap-1.5">
+                              <span className="text-emerald-500 font-bold shrink-0">✓</span>
+                              <span className="leading-snug">{feat}</span>
+                            </li>
+                          ))}
+                        </ul>
                       )}
                     </div>
 
-                    <h4 className="text-lg font-bold text-foreground">{plan.name}</h4>
-                    <div className="mt-2 text-2xl font-black text-foreground">
-                      ₹{plan.price.toLocaleString()}
-                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedPlan(plan.id);
+                        if (onPlanSelected) {
+                          onPlanSelected(plan as ProfilePlan);
+                        }
+                        if (setShowPlanDialog) {
+                          setShowPlanDialog(true);
+                        }
+                      }}
+                      className={`w-full h-9 mt-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                        isCurrent
+                          ? 'bg-muted text-muted-foreground cursor-default'
+                          : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs active:scale-[0.99]'
+                      }`}
+                      disabled={isCurrent}
+                    >
+                      {isCurrent ? 'Current Plan' : 'Purchase Package'}
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => {
-                      setSelectedPlan(plan.id);
-                      if (onPlanSelected) {
-                        onPlanSelected(plan as ProfilePlan);
-                      }
-                      if (setShowPlanDialog) {
-                        setShowPlanDialog(true);
-                      }
-                    }}
-                    className={`w-full mt-5 py-2.5 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
-                      isCurrent
-                        ? 'bg-muted text-muted-foreground cursor-default'
-                        : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                    }`}
-                    disabled={isCurrent}
-                  >
-                    {isCurrent ? 'Current Plan' : 'Purchase Package'}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="bg-surface rounded-xl p-8 border border-border/60 text-center space-y-2">
+              <h4 className="text-sm font-bold text-foreground">No Packages Available</h4>
+              <p className="text-xs text-muted-foreground">
+                There are currently no active packages in the {currentCategory} category.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

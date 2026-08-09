@@ -13,6 +13,7 @@ import { BusinessErrorCode } from "@esparex/contracts";
 
 import Plan from "../../../../models/Plan";
 import logger from "../../../../utils/logger";
+import { DashboardFacade } from "../../../payments/application/DashboardFacade";
 
 export const DEFAULT_FREE_AD_SLOTS_FALLBACK = 5;
 export const MONTHLY_FREE_AD_SLOTS = DEFAULT_FREE_AD_SLOTS_FALLBACK;
@@ -262,6 +263,8 @@ export const AdSlotService = {
             ],
             { session }
         );
+
+        void DashboardFacade.invalidateCache(userId).catch(() => {});
 
         return { source };
     },

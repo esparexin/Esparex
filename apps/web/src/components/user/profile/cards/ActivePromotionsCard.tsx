@@ -6,7 +6,17 @@ interface ActivePromotionsCardProps {
 }
 
 export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ promotions }) => {
-  if (!promotions || promotions.length === 0) {
+  const uniquePromotions = React.useMemo(() => {
+    const seen = new Set<string>();
+    return (promotions || []).filter((promo) => {
+      const key = promo.entityId || promo.entityTitle || promo.promotionId;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [promotions]);
+
+  if (!uniquePromotions || uniquePromotions.length === 0) {
     return (
       <div className="bg-surface rounded-xl p-5 border border-border/60 shadow-sm text-center">
         <h4 className="text-sm font-bold text-foreground mb-1">No Active Promotions</h4>
@@ -21,12 +31,12 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
     <div className="bg-surface rounded-xl p-5 border border-border/60 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-sm font-bold text-foreground uppercase tracking-wider">
-          Active Listing Promotions ({promotions.length})
+          Active Listing Promotions ({uniquePromotions.length})
         </h4>
       </div>
 
       <div className="space-y-2.5">
-        {promotions.map((promo) => (
+        {uniquePromotions.map((promo) => (
           <div
             key={promo.promotionId}
             className="flex items-center justify-between p-3 rounded-lg bg-background border border-border/40 text-sm"
