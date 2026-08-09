@@ -59,14 +59,31 @@ Promotion rules per `RELEASE-GOVERNANCE.md` (no-skip, evidence bundle per REV-00
 - API: rate limits; p95 budgets per `baseline-report.md`.
 - On-demand growth: plan-based vertical; future: worker service splits.
 
-## 7. Ops ownership (RACI)
+## 8. Operational Runbooks & Incident Procedures (SSOT)
 
-| Area | Owner |
-| --- | --- |
-| CI orchestration | DevOps |
-| runbooks (deploy/incident/disk/CPU…) | SRE — 0/10 today → Wave 4 publishes 10 |
-| Dashboard/alert tuning | SRE + Perf lead |
-| DR drills | SRE + backend (quarterly) |
+| Scenario | Incident Level | Immediate Action | Escalation & Verification |
+| :--- | :---: | :--- | :--- |
+| **Production Deployment** | Standard | Verify clean git tag; run pre-deploy gate (`repo:gate`); check `/health` post-deploy. | If `/health` fails, revert immediately via Render dashboard commit rollback. |
+| **P1 Incident Response** | Critical | Declare incident; post status in `#incident-war-room`; engage service CODEOWNER. | Root cause triage within 15 min; hotfix deployed via PR with zero-breakage gate. |
+| **Payment DLQ Replay** | High | Inspect `deadLetterQueue`; verify transaction in Razorpay dashboard. | Trigger idempotent DLQ replay via admin tool; verify wallet/plan credit. |
+| **Database Failover** | Critical | Monitor MongoDB Atlas automatic replica set election; check connection pool. | If primary election stalls, force election in Atlas console; verify read/write health. |
+| **Queue Saturation** | Medium | Check BullMQ queue depth in Prometheus metrics; inspect stuck worker jobs. | Temporarily scale worker concurrency cap; flush poisoned jobs to DLQ. |
+| **Third-Party Outage** | High | Detect upstream 5xx/timeouts (MSG91/S3/AI); activate circuit-breaker fallback. | Toggle fallback provider or queue requests asynchronously; notify users. |
+| **Auth/OTP Storm** | Critical | Check IP-rate limiter and OTP HMAC failure metrics; inspect abuse signals. | Verify carrier delivery status; enable IP captcha/lockout if under brute-force. |
+| **High CPU (>80%)** | High | Identify hot endpoints in Prometheus `httpLatency`; inspect slow database queries. | Scale Render service plan vertically; review unbounded query execution. |
+| **Memory Leak / OOM** | High | Trigger heap snapshot via SRE tooling; inspect un-garbage-collected buffers. | Restart service instance; patch leaking listeners/closures in next deployment. |
+| **Disk / Storage Saturation** | Medium | Check S3 upload volume and local `/tmp` staging usage. | Clean orphan temporary upload files; verify 4 MiB image upload size guard. |
+
+## 9. Disaster Recovery & Business Continuity Framework
+
+- **Recovery Time Objective (RTO)**: **≤ 4 hours** (Maximum acceptable platform downtime during total regional outage).
+- **Recovery Point Objective (RPO)**: **≤ 1 hour** (Maximum acceptable data loss window).
+- **Database Backup & Point-in-Time Recovery**:
+  - Continuous oplog capture + automated daily snapshots managed via MongoDB Atlas.
+  - Quarterly restore drill to verify point-in-time snapshot integrity in isolated staging environment.
+- **Cache & Queue State Recovery**:
+  - Redis cache data is non-authoritative; cold re-warming occurs automatically on connection restore.
+  - BullMQ persistent jobs recover upon Redis reconnect with automatic transaction idempotency guards.
 
 ---
 
