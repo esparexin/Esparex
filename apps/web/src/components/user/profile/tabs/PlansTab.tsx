@@ -149,7 +149,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
       {/* TAB 1: OVERVIEW & BALANCES */}
       {activeTab === 'OVERVIEW' && !isLoading && (
-        <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="space-y-3 sm:space-y-4">
+        <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" className="flex flex-col gap-3 sm:gap-4">
           <ActiveSubscriptionCard
             subscription={dashboardData?.subscription || null}
             onBrowsePlans={() => setActiveTab('BUY_PLANS')}
@@ -165,7 +165,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
       {/* TAB 2: ITEMIZED CREDIT PACKS & AUDIT HISTORY */}
       {activeTab === 'CREDIT_PACKS' && !isLoading && (
-        <div id="panel-credit-packs" role="tabpanel" aria-labelledby="tab-credit-packs" className="space-y-3 sm:space-y-4">
+        <div id="panel-credit-packs" role="tabpanel" aria-labelledby="tab-credit-packs" className="flex flex-col gap-3 sm:gap-4">
           <CreditPackListCard creditPacks={dashboardData?.creditPacks || []} />
           <CreditLedgerHistoryCard />
         </div>
@@ -173,14 +173,14 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
       {/* TAB 3: INVOICES & PAYMENT HISTORY */}
       {activeTab === 'INVOICES' && !isLoading && (
-        <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="space-y-3 sm:space-y-4">
+        <div id="panel-invoices" role="tabpanel" aria-labelledby="tab-invoices" className="flex flex-col gap-3 sm:gap-4">
           <RecentPaymentsCard payments={dashboardData?.recentPayments || []} />
         </div>
       )}
 
       {/* TAB 3: BUY PLANS & TOP-UPS (Mobile-First Category Pills Navigation) */}
       {activeTab === 'BUY_PLANS' && (
-        <div id="panel-buy-plans" role="tabpanel" aria-labelledby="tab-buy-plans" className="space-y-4">
+        <div id="panel-buy-plans" role="tabpanel" aria-labelledby="tab-buy-plans" className="flex flex-col gap-4">
           {/* Mobile-First Category Filter Pills Bar */}
           <div className="bg-surface rounded-xl p-1.5 sm:p-2 border border-border/60 shadow-2xs">
             <div

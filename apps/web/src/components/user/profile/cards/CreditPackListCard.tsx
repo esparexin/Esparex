@@ -12,7 +12,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
 
   if (!creditPacks || creditPacks.length === 0) {
     return (
-      <div className="bg-surface rounded-xl p-4 sm:p-5 border border-border/60 shadow-2xs text-center space-y-1.5">
+      <div className="bg-surface rounded-xl p-4 sm:p-5 border border-border/60 shadow-2xs text-center flex flex-col gap-1.5">
         <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground mb-1">
           <Package className="w-4 h-4" />
         </div>
@@ -45,7 +45,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
         )}
       </div>
 
-      <div className="space-y-2.5">
+      <div className="flex flex-col gap-2.5">
         {displayedPacks.map((pack) => {
           const meta = getEntitlementPresentationMeta(pack.entitlementType);
           const displayName = pack.planName ? formatPlanName(pack.planName) : meta.label;
