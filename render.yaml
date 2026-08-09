@@ -106,8 +106,9 @@ services:
         sync: false
 
       # ── OTP ─────────────────────────────────────────────────────────────────
-      # OTP_PROVIDER=test: testing OTP (123456) active. Switch to "msg91" for
-      # production SMS delivery once MSG91/DLT registration is complete.
+      # OTP_PROVIDER=test: testing OTP (123456) intentionally active for staging /
+      # pre-launch validation. For live production SMS delivery, configure sync: false
+      # or set to "msg91" in the Render dashboard once MSG91/DLT registration is active.
       - key: OTP_PROVIDER
         value: test
       - key: ATLAS_LOCATION_SEARCH_INDEX

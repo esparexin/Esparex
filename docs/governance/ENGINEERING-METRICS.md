@@ -37,15 +37,19 @@
 | Risks/findings | Governance + Risk owner |
 | Readiness | Release mgr |
 
-## 4. Expected trajectory (2026)
+## 5. Platform Service Level Objectives (SLOs) & Error Budgets (F52)
 
-| Metric | Q3 | Q4 | Q1'27 |
-| --- | --- | --- | --- |
-| Readiness | ≥ 65 | ≥ 72 | ≥ 80 |
-| Security | ≥ 75 | ≥ 80 | ≥ 85 |
-| Debt critical | 0 | 0 | 0 |
-| Test (web+admin) | ≥ 35% | ≥ 50% | ≥ 70% |
-| OpenAPI | ≥ 50% | ≥ 70% | ≥ 90% |
+| Platform Service | Service Level Indicator (SLI) | Target (SLO) | Monthly Error Budget |
+| :--- | :--- | :--- | :--- |
+| **Authentication & OTP** | Proportion of successful OTP requests and verification cycles | **≥ 99.5%** | 0.5% (~216 min/month) |
+| **Listing Discovery & Search** | Proportion of `/v1/listings/search` requests served with p95 < 250ms | **≥ 99.0%** | 1.0% |
+| **Ad Posting & Ingestion** | Proportion of valid ad creation transactions committed without 5xx | **≥ 99.9%** | 0.1% (~43 min/month) |
+| **Payment & Webhooks** | Proportion of Razorpay webhook events acknowledged and processed | **≥ 99.9%** | 0.1% |
+| **Smart Alerts Dispatch** | Match notifications delivered to users within ≤ 60s of listing publish | **≥ 98.0%** | 2.0% |
+
+**Error Budget Policy**:
+- If 30-day error budget consumption exceeds **80%**, non-critical feature deployments pause until reliability fixes land.
+- If error budget is **exhausted (100%)**, all engineering efforts shift exclusively to stability and bug remediation.
 
 ---
 

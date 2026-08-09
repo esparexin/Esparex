@@ -55,9 +55,13 @@ No two docs define the same rule; conflicts resolve up the hierarchy (handbook <
 
 A docs-coverage script (`manual §6-8`) runs at sprint-end: modules, APIs, architecture, ADRs, env, deployment, runbooks, testing, business rules — target ≥ 90% by Wave 5.
 
-## 6. Required documents (DoD for new modules)
+## 7. Anti-Sprawl & Markdown Governance Policy (Zero Micro-Docs)
 
-New module/package ships with: README (why/what/entry), architecture note in PLATFORM_ARCHITECTURE.md if core, ADR if decision, API docs (routes annotated, contracts), runbook mention if prod-touching, tests §4.
+To prevent documentation fragmentation, clutter, and merge conflicts:
+- **Consolidate, Never Multiply**: Extend existing governance manuals and architecture documents instead of creating new standalone `.md` files. Operational procedures must be added as sections in `DEVOPS-GOVERNANCE.md` or `ENGINEERING-HANDBOOK.md`.
+- **Ephemeral Notes Ban**: Analysis notes, audit scratchpads, and temporary plans belong in local AI agent memory (`.gemini/antigravity-ide/brain/`), never committed into the git repository tree.
+- **Minimum Threshold (100 Lines)**: Any documentation under 100 lines must be integrated into its parent domain handbook rather than created as a separate file.
+- **Single Source of Truth**: Every domain concept must have exactly one authoritative file in `docs/governance/` or `docs/architecture/`.
 
 ---
 
