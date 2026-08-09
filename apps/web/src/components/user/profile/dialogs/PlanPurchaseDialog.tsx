@@ -75,6 +75,9 @@ export function PlanPurchaseDialog({
                 onPaymentVerified: async () => {
                     notify.success("Plan purchased successfully!");
                     onConfirm?.();
+                    if (typeof window !== "undefined") {
+                        window.location.href = "/account/wallet";
+                    }
                 },
                 onPaymentFailed: (reason: string) => {
                     notify.error(`Payment failed: ${reason}`);

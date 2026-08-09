@@ -13,7 +13,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
         Available Benefits & Balances
       </h4>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
         {/* Tile 1: Free Ads */}
         <div className="bg-background rounded-lg p-2.5 border border-border/40 flex flex-col justify-between">
           <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">Monthly Free Ads</span>
@@ -53,6 +53,15 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
             <span className="text-xl sm:text-2xl font-black text-blue-500">{wallet.topAdCredits}</span>
           </div>
           <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Instant Push To Top</span>
+        </div>
+
+        {/* Tile 5: Smart Alert Slots */}
+        <div className="bg-background rounded-lg p-2.5 border border-border/40 flex flex-col justify-between">
+          <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">Smart Alert Slots</span>
+          <div className="mt-1">
+            <span className="text-xl sm:text-2xl font-black text-emerald-600">{wallet.smartAlertSlots ?? 0}</span>
+          </div>
+          <span className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5">Active Alert Channels</span>
         </div>
       </div>
     </div>
