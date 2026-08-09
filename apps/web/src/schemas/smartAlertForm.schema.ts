@@ -5,7 +5,7 @@ const criteriaShape = smartAlertCriteriaBaseSchema.shape;
 const bodyShape = smartAlertBodyBaseSchema.shape;
 
 export const smartAlertFormSchema = z.object({
-  name: z.string().optional(),
+  name: z.string().min(3, "Alert name must be at least 3 characters.").max(100).optional(),
   keywords: z.string().max(150, "Search keywords must be 150 characters or fewer.").optional().default(""),
   category: z.string().min(1, "Category is required."),
   location: criteriaShape.location,

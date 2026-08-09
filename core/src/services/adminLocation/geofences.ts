@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError';
-import { getAllGeofences, createGeofenceRecord, updateGeofenceById, deleteGeofenceById } from '../location/GeofenceService';
+import { getAllGeofences, getGeofenceById, createGeofenceRecord, updateGeofenceById, deleteGeofenceById } from '../location/GeofenceService';
 import type { AdminLogFn } from '../AdminListingsService';
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
@@ -19,6 +19,12 @@ const sanitizeGeofenceUpdatePayload = (body: Record<string, unknown>): Record<st
 };
 
 export const adminGetGeofences = async () => getAllGeofences();
+
+export const adminGetGeofenceById = async (id: string) => {
+    const geofence = await getGeofenceById(id);
+    if (!geofence) throw new AppError('Geofence not found', 404);
+    return geofence;
+};
 
 export const adminCreateGeofence = async (body: Record<string, unknown>, logFn: AdminLogFn) => {
     const sanitizedBody = sanitizeGeofenceUpdatePayload(body);

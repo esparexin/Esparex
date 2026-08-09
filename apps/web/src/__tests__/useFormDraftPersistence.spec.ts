@@ -1,8 +1,23 @@
 import { getBusinessDraftKey, type DraftStorageEnvelope } from "../hooks/useFormDraftPersistence";
 
+const storage = new Map<string, string>();
+const mockSessionStorage = {
+    getItem: (k: string) => storage.get(k) ?? null,
+    setItem: (k: string, v: string) => storage.set(k, String(v)),
+    removeItem: (k: string) => storage.delete(k),
+    clear: () => storage.clear(),
+};
+
+if (typeof globalThis.sessionStorage === "undefined") {
+    Object.defineProperty(globalThis, "sessionStorage", {
+        value: mockSessionStorage,
+        writable: true,
+    });
+}
+
 describe("useFormDraftPersistence — Envelope & Key Storage Specifications", () => {
     beforeEach(() => {
-        sessionStorage.clear();
+        globalThis.sessionStorage.clear();
     });
 
     it("generates versioned draft storage keys incorporating userId", () => {

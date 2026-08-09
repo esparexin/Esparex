@@ -72,6 +72,18 @@ export const getPlans = async (req: Request, res: Response) => {
     }
 };
 
+export const getPlanById = async (req: Request, res: Response) => {
+    try {
+        const planId = getRequiredPlanId(req);
+        const plan = await adminGetPlanById(planId);
+        if (!plan) throw new AppError('Plan not found', 404, 'PLAN_NOT_FOUND');
+        res.json(respond({ success: true, data: plan }));
+    } catch (error: unknown) {
+        const appError = error instanceof AppError ? error : undefined;
+        sendErrorResponse(req, res, appError?.statusCode ?? 400, getErrorMessage(error));
+    }
+};
+
 export const togglePlan = async (req: Request, res: Response) => {
     try {
         const planId = getRequiredPlanId(req);

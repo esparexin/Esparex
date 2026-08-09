@@ -65,7 +65,7 @@ router.post('/admin-sessions/:id/revoke', requirePermission('system:config'), ad
 // Plans
 router.get('/plans', adminPlans.getPlans);
 router.post('/plans', requirePermission('system:config'), adminPlans.createPlan);
-router.get('/plans/:id', adminPlans.getPlans);
+router.get('/plans/:id', adminPlans.getPlanById);
 router.patch('/plans/:id', requirePermission('system:config'), adminPlans.updatePlan);
 router.put('/plans/:id', requirePermission('system:config'), adminPlans.updatePlan);
 router.patch('/plans/:id/toggle', requirePermission('system:config'), adminPlans.togglePlan);
@@ -167,7 +167,7 @@ router.delete('/locations/:id', adminLocations.deleteLocation);
 
 router.get('/geofences', adminLocations.getGeofences);
 router.post('/geofences', adminLocations.createGeofence);
-router.get('/geofences/:id', adminLocations.getGeofences);
+router.get('/geofences/:id', adminLocations.getGeofenceById);
 router.patch('/geofences/:id', adminLocations.updateGeofence);
 router.delete('/geofences/:id', adminLocations.deleteGeofence);
 

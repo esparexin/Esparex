@@ -30,6 +30,10 @@ export class MongoGeofenceRepositoryAdapter implements GeofenceRepositoryPort {
         return Geofence.find().sort({ createdAt: -1 });
     }
 
+    public async getGeofenceById(id: string): Promise<IGeofence | null> {
+        return Geofence.findById(id);
+    }
+
     public async createGeofence(data: Partial<IGeofence>): Promise<IGeofence> {
         const sanitizedData = this.sanitizeForMongo(data) as Partial<IGeofence>;
         return Geofence.create(sanitizedData) as unknown as Promise<IGeofence>;

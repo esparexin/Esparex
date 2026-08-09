@@ -328,7 +328,7 @@ AdSchema.index({ isSpotlight: 1 }, { name: 'idx_ad_isSpotlight_idx' });
 AdSchema.index({ sellerTrustSnapshot: 1 }, { name: 'idx_ad_sellerTrustSnapshot_idx' });
 AdSchema.index({ sellerPriorityScore: 1 }, { name: 'idx_ad_sellerPriorityScore_idx' });
 
-AdSchema.index({ expiresAt: 1 }, { name: 'idx_ad_expiresAt_ttl_idx', expireAfterSeconds: 0 });
+AdSchema.index({ expiresAt: 1 }, { name: 'idx_ad_expiresAt_ttl_idx', partialFilterExpression: { isDeleted: true }, expireAfterSeconds: 60 * 60 * 24 * 30 });
 AdSchema.index({ duplicateOf: 1 }, { name: 'idx_ad_duplicateOf_idx' });
 AdSchema.index({ modelId: 1 }, { name: 'idx_ad_modelId_idx' });
 

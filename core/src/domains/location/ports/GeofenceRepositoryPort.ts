@@ -6,6 +6,7 @@ import type { UpdateQuery } from 'mongoose';
  */
 export interface GeofenceRepositoryPort {
     getAllGeofences(): Promise<IGeofence[]>;
+    getGeofenceById(id: string): Promise<IGeofence | null>;
     createGeofence(data: Partial<IGeofence>): Promise<IGeofence>;
     updateGeofence(id: string, data: UpdateQuery<IGeofence>): Promise<IGeofence | null>;
     deleteGeofence(id: string): Promise<IGeofence | null>;

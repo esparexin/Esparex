@@ -268,6 +268,30 @@ app.use('/api/v1', globalLimiter);
 
 app.get('/health', healthCheckHandler);
 
+app.get('/health/worker', async (_req, res) => {
+    try {
+        const health = await getHealthCheckData(true);
+        const statusCode = health.workerStatus === 'up' ? 200 : 503;
+        res.status(statusCode).json({
+            status: health.workerStatus,
+            workerHealth: health.workerHealth,
+            timestamp: new Date().toISOString(),
+        });
+    } catch (error) {
+        res.status(500).json({ status: 'error', error: error instanceof Error ? error.message : String(error) });
+    }
+});
+
+app.get('/metrics', async (_req, res) => {
+    try {
+        const { register } = await import('@esparex/core/utils/metrics');
+        res.setHeader('Content-Type', register.contentType);
+        res.send(await register.metrics());
+    } catch {
+        res.status(500).send('# Metrics error\n');
+    }
+});
+
 app.get('/system/status', async (_req, res) => {
     try {
         const health = await getHealthCheckData(true);

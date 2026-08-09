@@ -48,8 +48,20 @@ const validateRedisUrl = (urlValue: string): void => {
     }
 };
 
+const getSentinelOptions = () => {
+    const sentinelMaster = process.env.REDIS_SENTINEL_MASTER;
+    const sentinelHosts = process.env.REDIS_SENTINEL_HOSTS;
+    if (!sentinelMaster || !sentinelHosts) return {};
+    const sentinels = sentinelHosts.split(',').map(h => {
+        const [host, port] = h.trim().split(':');
+        return { host, port: Number(port) || 26379 };
+    });
+    return { name: sentinelMaster, sentinels };
+};
+
 const baseRoleOptions = (role: RedisClientRole): RedisOptions => ({
     ...redisConnectionOptions,
+    ...getSentinelOptions(),
     maxRetriesPerRequest: role === 'app' && env.NODE_ENV !== 'production' ? 0 : null,
     enableOfflineQueue: role === 'pub' || role === 'sub',
     enableReadyCheck: true,

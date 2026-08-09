@@ -69,57 +69,94 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const [moderationSummary, serviceSummary, sparePartSummary, trendsResult, userOverview, reportPayload, businessOverviewPayload, financePayload, auditPayload, dashboardStatsPayload] = await Promise.all([
-          fetchAdminAdSummary(),
-          fetchAdminServiceSummary(),
-          fetchAdminSparePartSummary(),
-          adminFetch<TrendPoint[] | { items?: TrendPoint[] }>(ADMIN_ROUTES.ANALYTICS),
-          adminFetch<DashboardOverview>(ADMIN_ROUTES.USER_OVERVIEW),
-          adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
-          adminFetch<BusinessOverview>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
-          adminFetch<FinanceStats>(ADMIN_ROUTES.FINANCE_STATS),
-          fetchAuditLogs({ q: "", action: "all", page: 1, limit: 5 }),
-          adminFetch<Record<string, unknown>>(ADMIN_ROUTES.DASHBOARD_STATS),
-        ]);
+    const controller = new AbortController();
 
+    const safeSettle = async <T,>(
+      fetch: () => Promise<T>,
+      onSuccess: (data: T) => void,
+      label: string
+    ): Promise<void> => {
+      if (controller.signal.aborted) return;
+      try {
+        const data = await fetch();
+        if (!controller.signal.aborted) onSuccess(data);
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          const message = mapErrorToMessage(err, `Failed to load ${label}`);
+          setError(message);
+        }
+      }
+    };
+
+    // Panel Group 1: Moderation counts
+    void safeSettle(
+      () => Promise.all([fetchAdminAdSummary(), fetchAdminServiceSummary(), fetchAdminSparePartSummary()]),
+      ([moderationSummary, serviceSummary, sparePartSummary]) => {
+        setModerationCounts(moderationSummary);
+        setPendingServices(serviceSummary.pending);
+        setPendingSpareParts(sparePartSummary.pending);
+      },
+      "moderation data"
+    );
+
+    // Panel Group 2: User & Business overview
+    void safeSettle(
+      () => Promise.all([
+        adminFetch<DashboardOverview>(ADMIN_ROUTES.USER_OVERVIEW),
+        adminFetch<BusinessOverview>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
+        adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
+      ]),
+      ([userOverview, businessOverviewPayload, reportPayload]) => {
         const overviewData = parseAdminResponse<never, DashboardOverview>(userOverview).data || {} as DashboardOverview;
         const reportPagination = parseAdminResponse<Record<string, unknown>>(reportPayload).pagination;
         const businessOverview = parseAdminResponse<never, BusinessOverview>(businessOverviewPayload).data || {};
-        const parsedTrends = parseAdminResponse<TrendPoint, TrendPoint[]>(trendsResult);
-        const trendItems = parsedTrends.items.length > 0
-          ? parsedTrends.items
-          : Array.isArray(parsedTrends.data)
-            ? parsedTrends.data
-            : [];
-
         setStats({
           totalUsers: Number(overviewData.totalUsers || 0),
           activeUsers: Number(overviewData.activeUsers || 0),
           suspendedUsers: Number(overviewData.suspendedUsers || 0),
           verifiedUsers: Number(overviewData.verifiedUsers || 0),
         });
-        setFinanceStats(parseAdminResponse<never, FinanceStats>(financePayload).data || null);
-        setTrends(Array.isArray(trendItems) ? trendItems : []);
-        setModerationCounts(moderationSummary);
-        setPendingServices(serviceSummary.pending);
-        setPendingSpareParts(sparePartSummary.pending);
         setReportCount(Number(reportPagination?.total || 0));
         setPendingBusinessCount(Number(businessOverview.pending || 0));
-        setLiveLogs(auditPayload.items);
-        
-        const dashboardStats = parseAdminResponse<never, { catalogHealth?: CatalogHealthMetrics }>(dashboardStatsPayload).data;
-        if (dashboardStats?.catalogHealth) {
-          setCatalogHealth(dashboardStats.catalogHealth);
-        }
-      } catch (err) {
-        const message = mapErrorToMessage(err, "Failed to load dashboard data");
-        setError(message);
-      }
-    };
+      },
+      "user overview"
+    );
 
-    void load();
+    // Panel Group 3: Finance & trends
+    void safeSettle(
+      () => Promise.all([
+        adminFetch<FinanceStats>(ADMIN_ROUTES.FINANCE_STATS),
+        adminFetch<TrendPoint[] | { items?: TrendPoint[] }>(ADMIN_ROUTES.ANALYTICS),
+      ]),
+      ([financePayload, trendsResult]) => {
+        setFinanceStats(parseAdminResponse<never, FinanceStats>(financePayload).data || null);
+        const parsedTrends = parseAdminResponse<TrendPoint, TrendPoint[]>(trendsResult);
+        const trendItems = parsedTrends.items.length > 0
+          ? parsedTrends.items
+          : Array.isArray(parsedTrends.data) ? parsedTrends.data : [];
+        setTrends(Array.isArray(trendItems) ? trendItems : []);
+      },
+      "finance data"
+    );
+
+    // Panel Group 4: Catalog health & dashboard stats
+    void safeSettle(
+      () => adminFetch<Record<string, unknown>>(ADMIN_ROUTES.DASHBOARD_STATS),
+      (dashboardStatsPayload) => {
+        const dashboardStats = parseAdminResponse<never, { catalogHealth?: CatalogHealthMetrics }>(dashboardStatsPayload).data;
+        if (dashboardStats?.catalogHealth) setCatalogHealth(dashboardStats.catalogHealth);
+      },
+      "catalog health"
+    );
+
+    // Panel Group 5: Live audit logs
+    void safeSettle(
+      () => fetchAuditLogs({ q: "", action: "all", page: 1, limit: 5 }),
+      (auditPayload) => setLiveLogs(auditPayload.items),
+      "audit logs"
+    );
+
+    return () => { controller.abort(); };
   }, []);
 
   const calculateGrowth = () => {
