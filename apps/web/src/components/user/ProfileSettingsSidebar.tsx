@@ -129,9 +129,8 @@ export function ProfileSettingsSidebar({
         deleteFeedback, setDeleteFeedback,
         deleteAccountErrors,
         deleteAccountGlobalError,
-        handleDeleteAccount,
-        showPlanDialog, setShowPlanDialog,
-        selectedPlan, setSelectedPlan,
+        setShowPlanDialog,
+        setSelectedPlan,
     } = useProfileSettings({ user, onLogout });
 
   useEffect(() => {
