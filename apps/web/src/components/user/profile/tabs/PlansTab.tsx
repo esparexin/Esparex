@@ -6,6 +6,8 @@ import { CreditPackListCard } from '../cards/CreditPackListCard';
 import { ActivePromotionsCard } from '../cards/ActivePromotionsCard';
 import { CreditLedgerHistoryCard } from '../cards/CreditLedgerHistoryCard';
 import { RecentPaymentsCard } from '../cards/RecentPaymentsCard';
+import { PlanPurchaseDialog } from '../dialogs/PlanPurchaseDialog';
+import { formatPrice } from '@/lib/formatters';
 import { trackPlansWalletEvent } from '@/lib/analytics/plansWalletTelemetry';
 import type { ProfilePlan } from '../types';
 
@@ -15,7 +17,7 @@ interface PlansTabProps {
   dynamicPlans: PlanCard[];
   currentPlan: string;
   isError?: boolean;
-  setSelectedPlan: (id: string) => void;
+  setSelectedPlan?: (id: string) => void;
   onPlanSelected?: (plan: ProfilePlan) => void;
   setShowPlanDialog?: (show: boolean) => void;
   formatCurrency?: (price: number) => string;
@@ -37,6 +39,8 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardHubTab>(initialTab);
   const [selectedCategory, setSelectedCategory] = useState<string>('More Ads');
+  const [dialogSelectedPlan, setDialogSelectedPlan] = useState<string | null>(null);
+  const [isPurchaseDialogOpen, setIsPurchaseDialogOpen] = useState<boolean>(false);
   const { dashboardData, isLoading, isError, refetch } = usePlansWalletDashboard();
 
   const handleTabSwitch = (tab: DashboardHubTab) => {
@@ -278,7 +282,11 @@ export const PlansTab: React.FC<PlansTabProps> = ({
 
                     <button
                       onClick={() => {
-                        setSelectedPlan(plan.id);
+                        setDialogSelectedPlan(plan.id);
+                        setIsPurchaseDialogOpen(true);
+                        if (setSelectedPlan) {
+                          setSelectedPlan(plan.id);
+                        }
                         if (onPlanSelected) {
                           onPlanSelected(plan as ProfilePlan);
                         }
@@ -309,6 +317,22 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           )}
         </div>
       )}
+
+      {/* Plan Purchase Confirmation Dialog */}
+      <PlanPurchaseDialog
+        open={isPurchaseDialogOpen}
+        onOpenChange={setIsPurchaseDialogOpen}
+        selectedPlan={dialogSelectedPlan}
+        plans={dynamicPlans.map((p) => ({
+          id: p.id,
+          name: p.name,
+          type: p.type,
+          features: p.features || [],
+          price: p.price,
+        }))}
+        formatCurrency={_formatCurrency || formatPrice}
+      />
     </div>
   );
 };
+
