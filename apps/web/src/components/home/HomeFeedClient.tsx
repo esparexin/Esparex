@@ -70,7 +70,7 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
         void (async () => {
             if (!cursor) {
                 setFeedAds((previous) => (
-                    pageAds.length > 0 || (data as any).isFallback || previous.length === 0
+                    pageAds.length > 0 || (data as { isFallback?: boolean }).isFallback || previous.length === 0
                         ? replaceFeedPage(previous, pageAds)
                         : previous
                 ));

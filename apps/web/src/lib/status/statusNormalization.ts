@@ -25,7 +25,8 @@ export function normalizePartStatus(
   value: unknown,
   fallback: PartStatus = "pending"
 ): PartStatus | "live" {
-  return normalizeAdStatus(value, fallback as any) as PartStatus | "live";
+  const adFallback = fallback === "active" ? "live" : fallback;
+  return normalizeAdStatus(value, adFallback as Parameters<typeof normalizeAdStatus>[1]) as PartStatus | "live";
 }
 
 export function normalizePartCondition(

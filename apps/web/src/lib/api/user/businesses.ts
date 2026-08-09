@@ -65,7 +65,7 @@ const joinLocationParts = (...parts: unknown[]): string | undefined => {
 };
 
 export function normalizeBusiness(
-    apiBusiness: ApiBusiness | null | undefined
+    apiBusiness: ApiBusiness | null | undefined | Record<string, unknown>
 ): Business | null {
     if (!apiBusiness) return null;
 

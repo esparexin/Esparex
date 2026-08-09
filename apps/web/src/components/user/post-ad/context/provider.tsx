@@ -70,7 +70,7 @@ export function PostAdProvider({
     const { listingImages, setListingImages } = imagesHook;
     const { listingLocation, setLocation, coordinates, locationDisplay } = locationHook;
     const { requiresScreenSize, handleCategoryChange, handleBrandChange, handleModelChange, clearCategoryDependents } = useCategoryDependents(
-        form as any, categoryMap, brandMap as any, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema, loadModelsForBrand
+        form, categoryMap, brandMap, setFormError, setBrandIsPending, loadBrandsForCategory, loadSparePartsForCategory, loadCategorySchema, loadModelsForBrand
     );
     const { setIsDirty } = useNavigation();
 
@@ -96,25 +96,25 @@ export function PostAdProvider({
     }, [availableSpareParts, isLoadingSpareParts, form]);
 
     const initializeFromListing = useCallback(async (data: Listing) => {
-        setMode('edit'); setListingId(String(data.id || (data as any)._id || "")); setCurrentStep(2);
+        setMode('edit'); setListingId(String(data.id || (data as { _id?: string })._id || "")); setCurrentStep(2);
         if (setOriginalAdStatus && data.status) setOriginalAdStatus(data.status);
         clearCategoryDependents();
         const categoryId = data.categoryId || data.category;
         setValue("categoryId", categoryId); setValue("category", categoryId); setValue("brand", typeof data.brandName === "string" ? data.brandName : ""); setValue("brandId", data.brandId || "");
         setValue("model", typeof data.modelName === "string" ? data.modelName : ""); setValue("modelId", data.modelId || "");
         setValue("title", data.title || ""); setValue("description", data.description || ""); setValue("price", Number(data.price) || 0); setValue("screenSize", data.screenSize || "");
-        if (categoryId) { const p: Promise<any>[] = [loadBrandsForCategory(categoryId), loadSparePartsForCategory(categoryId)]; if (data.brandId) p.push(loadModelsForBrand(data.brandId, categoryId)); await Promise.all(p); }
-        if (data.location) setValue("location", { city: data.location.city, state: data.location.state, display: data.location.display, coordinates: data.location.coordinates, locationId: (data.location.locationId as string) || (data.location as any).id || undefined });
+        if (categoryId) { const p: Promise<unknown>[] = [loadBrandsForCategory(categoryId), loadSparePartsForCategory(categoryId)]; if (data.brandId) p.push(loadModelsForBrand(data.brandId, categoryId)); await Promise.all(p); }
+        if (data.location) setValue("location", { city: data.location.city, state: data.location.state, display: data.location.display, coordinates: data.location.coordinates, locationId: (data.location.locationId as string) || (data.location as { id?: string }).id || undefined });
         if (Array.isArray(data.images)) { const mappedIds = data.images.map((url: string) => ({ id: crypto.randomUUID(), preview: url, isRemote: true })); setListingImages(mappedIds); setValue("images", mappedIds.map((i) => i.preview)); }
         setIsLoading(false);
     }, [clearCategoryDependents, setValue, loadBrandsForCategory, loadSparePartsForCategory, loadModelsForBrand, setListingImages]);
 
-    const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); (imagesHook as any).setListingImages([]); setSubmittedAd(null); }, [form, imagesHook]);
-    const { generateDescription, isGeneratingAI, isAiAvailable, aiCache } = usePostAdAiGeneration(form as any, categoryMap, availableSpareParts, setFormError);
-    const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form as any, availableSpareParts);
-    const { nextStep, prevStep } = usePostAdStepNavigation({ form: form as any, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger });
+    const resetToCreateMode = useCallback(() => { setMode('create'); setListingId(undefined); setCurrentStep(1); form.reset(); imagesHook.setListingImages([]); setSubmittedAd(null); }, [form, imagesHook]);
+    const { generateDescription, isGeneratingAI, isAiAvailable, aiCache } = usePostAdAiGeneration(form, categoryMap, availableSpareParts, setFormError);
+    const { toggleAllSpareParts, toggleSparePart } = usePostAdSparePartSelection(form, availableSpareParts);
+    const { nextStep, prevStep } = usePostAdStepNavigation({ form, currentStep, setCurrentStep, setStepValidationAttempts, requiresScreenSize, categoryFilters: categorySchema?.filters ?? [], trigger });
     const { submitAd, isSubmitting } = usePostAdSubmissionFlow({
-        form: form as any,
+        form,
         listingImages,
         setListingImages: imagesHook.setListingImages,
         isEditMode,

@@ -14,7 +14,7 @@ export function useProfileWizardController<TFormShape extends FieldValues>(
     const { legacyFormData, setLegacyFormData } = useBusinessWizardBridge({ 
         formData: formData as TFormShape, 
         errors: errors as FieldErrors<TFormShape>, 
-        setValue: (setValue as any) 
+        setValue: setValue as UseFormReturn<TFormShape>["setValue"] 
     });
 
     const handleNext = async () => {

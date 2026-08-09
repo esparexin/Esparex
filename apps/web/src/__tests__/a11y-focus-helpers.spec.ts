@@ -15,10 +15,11 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
         const mockQuerySelector = vi.fn().mockReturnValue(mockTarget);
         const mockDoc = { querySelector: mockQuerySelector };
 
-        const originalDoc = (globalThis as any).document;
-        const originalWin = (globalThis as any).window;
-        (globalThis as any).document = mockDoc;
-        (globalThis as any).window = {};
+        const g = globalThis as Record<string, unknown>;
+        const originalDoc = g.document;
+        const originalWin = g.window;
+        g.document = mockDoc;
+        g.window = {};
 
         try {
             const found = scrollToFirstError();
@@ -29,8 +30,8 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
             expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
             expect(mockTarget.focus).toHaveBeenCalledWith({ preventScroll: true });
         } finally {
-            (globalThis as any).document = originalDoc;
-            (globalThis as any).window = originalWin;
+            g.document = originalDoc;
+            g.window = originalWin;
         }
     });
 
@@ -40,12 +41,13 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
             focus: vi.fn(),
         };
         const mockQuerySelector = vi.fn().mockReturnValue(mockTarget);
-        const mockContainer = { querySelector: mockQuerySelector } as any;
+        const mockContainer = ({ querySelector: mockQuerySelector } as Partial<HTMLElement>) as HTMLElement;
 
-        const originalDoc = (globalThis as any).document;
-        const originalWin = (globalThis as any).window;
-        (globalThis as any).document = {};
-        (globalThis as any).window = {};
+        const g = globalThis as Record<string, unknown>;
+        const originalDoc = g.document;
+        const originalWin = g.window;
+        g.document = {};
+        g.window = {};
         const containerRef = { current: mockContainer };
 
         try {
@@ -54,8 +56,8 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
             expect(mockQuerySelector).toHaveBeenCalled();
             expect(mockTarget.scrollIntoView).toHaveBeenCalled();
         } finally {
-            (globalThis as any).document = originalDoc;
-            (globalThis as any).window = originalWin;
+            g.document = originalDoc;
+            g.window = originalWin;
         }
     });
 });

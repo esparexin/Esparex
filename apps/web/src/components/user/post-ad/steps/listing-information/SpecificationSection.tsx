@@ -24,7 +24,7 @@ export function SpecificationSection() {
 
     const updateAttribute = useCallback((id: string, value: unknown) => {
         const current = form.getValues("attributes") as Record<string, unknown> | undefined;
-        setValue("attributes", { ...(current ?? {}), [id]: value } as any, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        setValue("attributes", { ...(current ?? {}), [id]: value } as Record<string, unknown>, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
     }, [form, setValue]);
 
     const dynamicAttributeFilters = getVisibleAttributeFilters(categorySchema, attributes);

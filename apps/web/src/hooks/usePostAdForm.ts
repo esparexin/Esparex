@@ -26,7 +26,7 @@ export function usePostAdForm(isEditMode: boolean = false) {
             title: "",
             description: "",
             images: [],
-            price: undefined as any,
+            price: undefined,
             isFree: false,
             location: { city: "" } as PostAdFormData["location"],
             spareParts: [],

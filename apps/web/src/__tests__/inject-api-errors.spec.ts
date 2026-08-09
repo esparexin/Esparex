@@ -6,9 +6,7 @@ import { ErrorCategory, ErrorCode, ErrorSeverity, EsparexError } from "@/lib/err
 
 describe("injectApiErrors", () => {
     it("injects field errors from nested APIError details payloads", () => {
-        const form = {
-            setError: vi.fn(),
-        } as any;
+        const form = { setError: vi.fn() };
 
         const injected = injectApiErrors(
             form,
@@ -33,9 +31,7 @@ describe("injectApiErrors", () => {
     });
 
     it("injects field errors from EsparexError context details", () => {
-        const form = {
-            setError: vi.fn(),
-        } as any;
+        const form = { setError: vi.fn() };
 
         const injected = injectApiErrors(
             form,

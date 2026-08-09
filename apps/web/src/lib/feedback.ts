@@ -66,7 +66,13 @@ export const notify = {
     }
 };
 
+declare global {
+    interface Window {
+        __esparex_notify?: typeof notify;
+    }
+}
+
 if (typeof window !== "undefined") {
-    (window as any).__esparex_notify = notify;
+    window.__esparex_notify = notify;
 }
 

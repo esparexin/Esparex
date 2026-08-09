@@ -80,7 +80,7 @@ export function useBusinessWizardBridge<TFieldValues extends FieldValues>({
     } as StepData;
 
     const setLegacyFormData: Dispatch<SetStateAction<StepData>> = (updater) => {
-        const next = typeof updater === "function" ? updater(formData as any) : updater;
+        const next = typeof updater === "function" ? updater(legacyFormData) : updater;
         Object.entries(next).forEach(([key, value]) => {
             if (NON_FORM_FIELDS.has(key)) {
                 return;

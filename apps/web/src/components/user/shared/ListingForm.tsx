@@ -164,7 +164,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
         return <ListingModalLoading />;
     }
 
-    const catalogError = getFirstFormErrorMessage(errors[config.catalogFieldName] as any);
+    const catalogError = getFirstFormErrorMessage(errors[config.catalogFieldName]);
 
     return (
         <GenericPostForm
@@ -178,7 +178,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
                 </div>
             )}
 
-            <Field label="1. Select Category" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.categoryId as any)}>
+            <Field label="1. Select Category" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.categoryId)}>
                 <CategorySelectorGrid
                     categories={dynamicCategories}
                     selectedCategoryId={categoryId}
@@ -240,7 +240,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             )}
 
             {categoryId && (
-                <Field label="3. Brand / Manufacturer (Optional)" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.brandId as any)}>
+                <Field label="3. Brand / Manufacturer (Optional)" labelClassName="text-sm font-medium" error={getFirstFormErrorMessage(errors.brandId)}>
                     <BrandSearchSelect
                         brands={availableBrands}
                         brandMap={brandMap}
@@ -255,7 +255,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             {categoryId && (
                 <ListingTitleField
                     label={config.titleProps.label}
-                    error={getFirstFormErrorMessage(errors.title as any)}
+                    error={getFirstFormErrorMessage(errors.title)}
                     registerProps={register("title")}
                     placeholder={config.titleProps.placeholder}
                     valueLength={titleVal.length}
@@ -270,7 +270,7 @@ export function ListingForm({ config, editId }: { config: ListingFormConfig; edi
             {categoryId && (
                 <ListingDescriptionField
                     label={config.descriptionProps.label || "Description"}
-                    error={getFirstFormErrorMessage(errors.description as any)}
+                    error={getFirstFormErrorMessage(errors.description)}
                     registerProps={register("description")}
                     placeholder={config.descriptionProps.placeholder}
                     valueLength={descVal.length}

@@ -6,13 +6,15 @@ import { vi } from "vitest";
 describe("Notification Pipeline Runtime Instrumentation", () => {
     beforeAll(() => {
         // Mock window object for node environment testing of feedback.ts
+        const g = globalThis as Record<string, unknown>;
         if (typeof window === "undefined") {
-            (global as any).window = {};
+            g.window = {};
         }
     });
 
     afterAll(() => {
-        delete (global as any).window;
+        const g = globalThis as Record<string, unknown>;
+        delete g.window;
     });
 
     it("1. Singleton Identity Verification — notify and popupEvents use exact same popupBus instance", () => {

@@ -33,7 +33,7 @@ export const serviceFormConfig: ListingFormConfig = {
         categoryId: "",
         brandId: "",
         serviceTypeIds: [],
-        price: undefined as any,
+        price: undefined,
         description: "",
     },
 };

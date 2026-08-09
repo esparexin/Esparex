@@ -26,8 +26,8 @@ const PopupContext = createContext<PopupContextValue | null>(null);
 export function PopupProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
-      (window as any).__esparex_notify = notify;
-      (window as any).__esparex_emitPopup = emitPopupEvent;
+      window.__esparex_notify = notify;
+      window.__esparex_emitPopup = emitPopupEvent;
     }
   }, []);
 
