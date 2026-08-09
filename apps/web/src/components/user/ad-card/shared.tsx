@@ -216,18 +216,15 @@ const BADGE_BASE =
 /* -------------------------------------------------------------------------- */
 
 export function isSpotlightAd(ad: AdCardData): boolean {
-  const adRecord = toAdRecord(ad);
-  const spotlightExp = adRecord.spotlightExpiresAt ? new Date(String(adRecord.spotlightExpiresAt)).getTime() : 0;
+  const r = toAdRecord(ad);
+  const exp = r.spotlightExpiresAt ? new Date(String(r.spotlightExpiresAt)).getTime() : 0;
   return Boolean(
-    ad.isSpotlight === true ||
-    adRecord.isSpotlight === true ||
-    adRecord.spotlight === true ||
-    adRecord.planType === 'SPOTLIGHT' ||
-    adRecord.promotionType === 'SPOTLIGHT' ||
-    adRecord.promotionType === 'SPOTLIGHT_CAT' ||
-    (spotlightExp > 0 && spotlightExp > Date.now())
+    ad.isSpotlight || r.isSpotlight || r.spotlight ||
+    r.planType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT_CAT' ||
+    (exp > 0 && exp > Date.now())
   );
 }
+
 
 export function getPlanBadge(
   ad: AdCardData,
@@ -243,10 +240,7 @@ export function getPlanBadge(
   if (isSpotlightAd(ad)) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
         aria-label="Spotlight listing"
       >
         <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
@@ -255,13 +249,11 @@ export function getPlanBadge(
     );
   }
 
+
   if (isFeatured) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-purple-600 to-indigo-600 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-purple-600 to-indigo-600 text-white", merged)}
         aria-label="Featured listing"
       >
         <Crown className="h-2.5 w-2.5" aria-hidden="true" />
@@ -273,10 +265,7 @@ export function getPlanBadge(
   if (isPremium) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-amber-400 to-yellow-600 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-amber-400 to-yellow-600 text-white", merged)}
         aria-label="Premium listing"
       >
         <Star className="h-2.5 w-2.5" aria-hidden="true" />
@@ -288,10 +277,7 @@ export function getPlanBadge(
   if (isBoosted) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-sky-600 to-blue-700 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", merged)}
         aria-label="Boosted listing"
       >
         <Zap className="h-2.5 w-2.5" aria-hidden="true" />

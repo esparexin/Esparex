@@ -1,6 +1,8 @@
 const mockGetOwnerListings = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
+const mockRunSweep = jest.fn().mockResolvedValue(undefined);
+const mockGetListingStatusCounts = jest.fn();
 const mockLogger = {
     error: jest.fn(),
     warn: jest.fn(),
@@ -19,6 +21,17 @@ jest.mock('@esparex/core/models/Ad', () => ({
 
 jest.mock('@esparex/core/services/ad/AdAggregationService', () => ({
     getOwnerListings: mockGetOwnerListings,
+}));
+
+jest.mock('@esparex/core/services/ad/AdMetricsService', () => ({
+    getSellerListingStats: jest.fn().mockResolvedValue({}),
+    getListingStatusCountsForSeller: (...args: unknown[]) => mockGetListingStatusCounts(...args),
+}));
+
+jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
+    ListingExpiryService: {
+        runSweep: (...args: unknown[]) => mockRunSweep(...args),
+    },
 }));
 
 jest.mock('../../utils/respond', () => ({
@@ -43,46 +56,19 @@ describe('stats.controller getMyListingStatusCounts', () => {
     });
 
     it('returns status counts correctly aggregated', async () => {
-        mockAggregate.mockResolvedValue([
-            { _id: 'live', count: 2 },
-            { _id: 'active', count: 1 },
-            { _id: 'pending', count: 3 },
-            { _id: 'expired', count: 1 },
-            { _id: 'rejected', count: 1 },
-        ]);
+        const mockCounts = { live: 3, pending: 3, expired: 1, total: 7 };
+        mockGetListingStatusCounts.mockResolvedValue(mockCounts);
 
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
+            query: {},
         } as unknown as Request;
         const res = {} as unknown as Response;
 
         await getMyListingStatusCounts(req, res);
 
-        expect(mockAggregate).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                {
-                    $match: expect.objectContaining({
-                        isDeleted: { $ne: true },
-                    }),
-                },
-                {
-                    $group: {
-                        _id: '$status',
-                        count: { $sum: 1 },
-                    },
-                },
-            ])
-        );
-
-        expect(mockSendSuccessResponse).toHaveBeenCalledWith(
-            res,
-            {
-                live: 3,   // 2 live + 1 active (no deactivated in mock data)
-                pending: 3,
-                expired: 1, // 1 expired only (rejected not counted, sold not in mock)
-                total: 7,
-            }
-        );
+        expect(mockGetListingStatusCounts).toHaveBeenCalledWith('65f0a1b2c3d4e5f6a7b8c9d1', undefined);
+        expect(mockSendSuccessResponse).toHaveBeenCalledWith(res, mockCounts);
     });
 
     it('returns 401 if user is not authenticated', async () => {
@@ -96,12 +82,13 @@ describe('stats.controller getMyListingStatusCounts', () => {
         expect(mockSendErrorResponse).toHaveBeenCalledWith(req, res, 401, 'Unauthorized');
     });
 
-    it('returns 500 if aggregate fails', async () => {
+    it('returns 500 if service fails', async () => {
         const error = new Error('Aggregation failed');
-        mockAggregate.mockRejectedValue(error);
+        mockGetListingStatusCounts.mockRejectedValue(error);
 
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
+            query: {},
         } as unknown as Request;
         const res = {} as unknown as Response;
 

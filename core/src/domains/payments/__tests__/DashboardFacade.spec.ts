@@ -12,6 +12,7 @@ describe('DashboardFacade', () => {
       },
       userWallet: {
         userId: 'user_456',
+        monthlyFreeAdsTotal: 10,
         monthlyFreeAdsUsed: 3,
         adCredits: 15,
         spotlightCredits: 2,

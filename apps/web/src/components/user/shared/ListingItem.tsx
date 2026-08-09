@@ -215,26 +215,19 @@ export function ListingItem({
                     <div className="flex items-center flex-nowrap gap-1 text-tiny text-slate-500 leading-normal min-w-0 overflow-hidden">
                         <span className="shrink-0">👁 {totalViews}</span>
 
-                        {showExpiry && (
-                            <>
-                                <span className="opacity-30 shrink-0">•</span>
-                                {(() => {
-                                    const isPastExpiry = expiresAt ? new Date(expiresAt).getTime() <= Date.now() : false;
-                                    return (
-                                        <span className={cn("font-medium shrink-0 flex items-center gap-0.5", isPastExpiry ? "text-red-600" : "text-amber-700")}>
-                                            <Clock className="h-2.5 w-2.5 shrink-0" />
-                                            <span className="truncate">
-                                                {isPastExpiry ? (
-                                                    <>Expired <RelativeTimeText value={expiresAt!} addSuffix={false} /> ago</>
-                                                ) : (
-                                                    <><RelativeTimeText value={expiresAt!} addSuffix={false} /> left</>
-                                                )}
-                                            </span>
-                                        </span>
-                                    );
-                                })()}
-                            </>
-                        )}
+                        {showExpiry && (() => {
+                            const past = expiresAt ? new Date(expiresAt).getTime() <= Date.now() : false;
+                            return (
+                                <>
+                                    <span className="opacity-30 shrink-0">•</span>
+                                    <span className={cn("font-medium shrink-0 flex items-center gap-0.5", past ? "text-red-600" : "text-amber-700")}>
+                                        <Clock className="h-2.5 w-2.5 shrink-0" />
+                                        <span className="truncate">{past ? <>Expired <RelativeTimeText value={expiresAt!} addSuffix={false} /> ago</> : <><RelativeTimeText value={expiresAt!} addSuffix={false} /> left</>}</span>
+                                    </span>
+                                </>
+                            );
+                        })()}
+
 
                         {showCreated && (
                             <>
@@ -406,25 +399,18 @@ export function ListingItem({
                             <Sparkles className="h-3 w-3 text-amber-500 fill-amber-400" />
                             Spotlight
                         </span>
-                    ) : (
-                        onBoost && (status === "live" || status === "active") && (
-                            <button
-                                type="button"
-                                onClick={onBoost}
-                                aria-label="Promote listing"
-                                title="Promote / Boost Ad"
-                                className={cn(
-                                    "h-7 w-7 flex items-center justify-center shrink-0",
-                                    "rounded-md border border-amber-300 bg-amber-50 text-amber-700",
-                                    "hover:bg-amber-100 hover:border-amber-400",
-                                    "transition-colors shadow-2xs cursor-pointer",
-                                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1",
-                                )}
-                            >
-                                <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
-                            </button>
-                        )
+                    ) : onBoost && (status === "live" || status === "active") && (
+                        <button
+                            type="button"
+                            onClick={onBoost}
+                            aria-label="Promote listing"
+                            title="Promote / Boost Ad"
+                            className={cn("h-7 w-7 flex items-center justify-center shrink-0 rounded-md border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1")}
+                        >
+                            <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
+                        </button>
                     )}
+
                     {showEdit ? (
                         <Link
                             href={editHref}
