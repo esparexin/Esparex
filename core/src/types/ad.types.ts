@@ -52,4 +52,5 @@ export interface AdContext {
     duplicateBypassReason?: string;
     fraudRisk?: 'allow' | 'flag' | 'captcha' | 'moderation' | 'block';
     fraudScore?: number;
+    business?: Record<string, unknown> | null;
 }

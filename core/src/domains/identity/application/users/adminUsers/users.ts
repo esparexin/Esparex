@@ -21,7 +21,7 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
     const userIds = users.map((u) => u._id);
     const adCounts = userIds.length > 0 ? await Ad.aggregate<{ _id: unknown; totalAdsPosted: number }>([{ $match: { sellerId: { $in: userIds }, isDeleted: { $ne: true } } }, { $group: { _id: '$sellerId', totalAdsPosted: { $sum: 1 } } }]) : [];
     const adsByUserId = new Map(adCounts.map((e) => [String(e._id), Number(e.totalAdsPosted) || 0]));
-    const data = users.map((u) => { const p = normalizeAdminManagedUser(u.toObject ? u.toObject() as any : { ...(u as any) }); p.totalAdsPosted = adsByUserId.get(String(u._id)) || 0; return p; });
+    const data = users.map((u) => { const p = normalizeAdminManagedUser(u); p.totalAdsPosted = adsByUserId.get(String(u._id)) || 0; return p; });
     return { data, total };
 };
 
@@ -56,6 +56,6 @@ export const createAdminUser = async (data: Record<string, unknown>, actorId: st
     const userData: Record<string, unknown> = { name, mobile, role: Role.USER, email, isVerified: !!isVerified, isPhoneVerified: !!isVerified, isEmailVerified: !!isVerified && !!email, status: USER_STATUS.LIVE, createdBy: actorId };
     if (password?.trim()) userData.password = await hashPassword(password);
     const newUser = await User.create(userData);
-    const uo = normalizeAdminManagedUser(newUser.toObject ? newUser.toObject() as any : { ...(newUser as any) }); delete uo.password;
+    const uo = normalizeAdminManagedUser(newUser); delete uo.password;
     await logFn('CREATE_USER', 'User', String(uo._id), { name, mobile, role: Role.USER }); return uo;
 };

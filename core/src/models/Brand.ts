@@ -67,13 +67,11 @@ const BrandSchema = new Schema<IBrand>({
 // Apply soft-delete plugin (adds isDeleted, deletedAt fields + auto-filter pre-hooks + softDelete()/restore() methods)
 BrandSchema.plugin(softDeletePlugin);
 
-BrandSchema.pre('validate', function () {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
-  const mutableDoc = this as any;
-  applyCatalogGovernanceDefaults(mutableDoc);
+BrandSchema.pre('validate', function (this: IBrand) {
+  applyCatalogGovernanceDefaults(this);
 
-  if (!mutableDoc.approvalStatus) {
-    mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+  if (!this.approvalStatus) {
+    this.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
   }
 });
 

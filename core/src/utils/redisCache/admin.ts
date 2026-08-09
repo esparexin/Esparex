@@ -9,6 +9,10 @@ import {
     CACHE_NAMESPACES, parseInfoNumberMetric, parseInfoStringMetric, getDefaultTtlForKey,
 } from './constants';
 
+declare global {
+    var __redisHighMemoryPressure: boolean | undefined;
+}
+
 let lastRedisConfigWarningSignature: string | null = null;
 
 const getHitRateStatus = () => {
@@ -28,9 +32,9 @@ const checkMemoryHealth = async () => {
         const max = parseInfoNumberMetric(info, 'maxmemory') ?? 0;
         const maxMemoryPolicy = parseInfoStringMetric(info, 'maxmemory_policy') || 'unknown';
         if (max > 0) {
-            (globalThis as any).__redisHighMemoryPressure = (used / max) > REDIS_MEMORY_PRESSURE_THRESHOLD;
+            globalThis.__redisHighMemoryPressure = (used / max) > REDIS_MEMORY_PRESSURE_THRESHOLD;
         } else {
-            (globalThis as any).__redisHighMemoryPressure = false;
+            globalThis.__redisHighMemoryPressure = false;
         }
         if (process.env.NODE_ENV === 'production') {
             const warnings: string[] = [];
@@ -147,7 +151,7 @@ export const getCacheStats = async () => {
         redisConfig: { maxMemoryBytes, maxMemoryPolicy, evictionPolicyRecommended: RECOMMENDED_REDIS_EVICTION_POLICY, isRecommendedPolicy: maxMemoryPolicy === RECOMMENDED_REDIS_EVICTION_POLICY },
         metrics: { ...cacheMetrics, memoryUsedMB: Number((memoryUsedBytes / (1024 * 1024)).toFixed(2)), totalKeys, ttlAudit, lastUpdated: new Date() },
         healthStatus: getHitRateStatus(),
-        memoryPressureStatus: (globalThis as any).__redisHighMemoryPressure ? 'critical' : 'normal',
+        memoryPressureStatus: globalThis.__redisHighMemoryPressure ? 'critical' : 'normal',
     };
 };
 

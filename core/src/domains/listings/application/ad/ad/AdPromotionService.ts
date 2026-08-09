@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { AppError } from '../../../../../utils/AppError';
 import logger from '../../../../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
@@ -65,6 +66,7 @@ export const promoteAdLogic = async (
     }
 
     await getListingUnitOfWork().executeTransaction(async (session) => {
+        const clientSession = session as ClientSession;
         if (!isAdmin) {
             const promotionCost = Math.abs(Math.floor(days));
             if (promotionCost === 0) throw new AppError('Promotion cost cannot be zero', 400, 'INVALID_PROMOTION_COST');
@@ -76,7 +78,7 @@ export const promoteAdLogic = async (
                     amount: promotionCost,
                     reason: `Ad promotion - ${days} days`,
                     metadata: { adId: id, type, days },
-                    session: session as any
+                    session: clientSession
                 });
             } catch (error) {
                 throw new AppError(
@@ -90,7 +92,7 @@ export const promoteAdLogic = async (
             await Boost.updateOne(
                 { entityId: ad.id, isActive: true },
                 { $set: { endsAt } },
-                { session: session as any }
+                { session: clientSession }
             );
         } else {
             await Boost.create([{
@@ -100,7 +102,7 @@ export const promoteAdLogic = async (
                 startsAt,
                 endsAt,
                 isActive: true
-            }], { session: session as any });
+            }], { session: clientSession });
         }
 
         await getListingRepository().updateOne(id, {
@@ -112,7 +114,7 @@ export const promoteAdLogic = async (
             $unset: {
                 spotlightWarningSentAt: 1
             }
-        } as any, session as any);
+        }, clientSession);
     });
 
     setImmediate(() => {

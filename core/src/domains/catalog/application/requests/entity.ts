@@ -2,10 +2,10 @@ import { CATALOG_APPROVAL_STATUS } from '@esparex/contracts';
 import { CATALOG_STATUS } from '@esparex/contracts';
 import { scoreModeratorTrust } from '../services/CatalogSearchGovernanceService';
 
-export const setEntityField = (entity: Record<string, unknown>, field: string, value: unknown): void => {
+export const setEntityField = (entity: unknown, field: string, value: unknown): void => {
     const maybeDocument = entity as Record<string, unknown> & { set?: (path: string, val: unknown) => void };
     if (typeof maybeDocument.set === 'function') { maybeDocument.set(field, value); return; }
-    Reflect.set(entity, field, value);
+    Reflect.set(entity as object, field, value);
 };
 
 export const ensureCatalogActivationFlags = (entity: {
@@ -13,11 +13,11 @@ export const ensureCatalogActivationFlags = (entity: {
     rejectionReason?: string | null; needsReview?: boolean;
 }): boolean => {
     let changed = false;
-    if (entity.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED) { setEntityField(entity as any, 'approvalStatus', CATALOG_APPROVAL_STATUS.APPROVED); changed = true; }
-    if (entity.isActive !== true) { setEntityField(entity as any, 'isActive', true); changed = true; }
-    if (entity.status !== CATALOG_STATUS.ACTIVE) { setEntityField(entity as any, 'status', CATALOG_STATUS.ACTIVE); changed = true; }
-    if (entity.rejectionReason) { setEntityField(entity as any, 'rejectionReason', undefined); changed = true; }
-    if (typeof entity.needsReview === 'boolean' && entity.needsReview) { setEntityField(entity as any, 'needsReview', false); changed = true; }
+    if (entity.approvalStatus !== CATALOG_APPROVAL_STATUS.APPROVED) { setEntityField(entity, 'approvalStatus', CATALOG_APPROVAL_STATUS.APPROVED); changed = true; }
+    if (entity.isActive !== true) { setEntityField(entity, 'isActive', true); changed = true; }
+    if (entity.status !== CATALOG_STATUS.ACTIVE) { setEntityField(entity, 'status', CATALOG_STATUS.ACTIVE); changed = true; }
+    if (entity.rejectionReason) { setEntityField(entity, 'rejectionReason', undefined); changed = true; }
+    if (typeof entity.needsReview === 'boolean' && entity.needsReview) { setEntityField(entity, 'needsReview', false); changed = true; }
     return changed;
 };
 
@@ -55,15 +55,20 @@ export const applyMarketplaceTrustMetadata = (entity: Record<string, unknown>, m
     });
 };
 
-export const ensureEntityActiveAndTrusted = async (entity: any, request: { requestCount?: number; categoryId: unknown }, session: any, trustParams: { createdCanonicalEntity?: boolean; duplicateResolution?: boolean }): Promise<void> => {
+export const ensureEntityActiveAndTrusted = async (
+    entity: { categoryIds?: unknown[]; save: (...args: any[]) => Promise<any>; approvalStatus?: string; isActive?: boolean; status?: string; rejectionReason?: string | null; needsReview?: boolean },
+    request: { requestCount?: number; categoryId: unknown },
+    session: unknown,
+    trustParams: { createdCanonicalEntity?: boolean; duplicateResolution?: boolean }
+): Promise<void> => {
     let needsSave = ensureCatalogActivationFlags(entity);
-    if (!hasObjectId(entity.categoryIds, request.categoryId as any)) { entity.categoryIds = [...(entity.categoryIds ?? []), request.categoryId]; needsSave = true; }
+    if (!hasObjectId(entity.categoryIds, request.categoryId)) { entity.categoryIds = [...(entity.categoryIds ?? []), request.categoryId]; needsSave = true; }
     applyMarketplaceTrustMetadata(entity, buildApprovalTrustMetadata({ requestCount: request.requestCount, ...trustParams }));
     needsSave = true;
     if (needsSave) await entity.save({ session });
 };
 
-const hasObjectId = (items: unknown, target: any): boolean => {
+const hasObjectId = (items: unknown, target: unknown): boolean => {
     if (!Array.isArray(items)) return false;
     const targetValue = String(target);
     return items.some((item) => String(item) === targetValue);

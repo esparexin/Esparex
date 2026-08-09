@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { type Listing } from '../../../../domains/listings';
 import { getListingRepository, getListingUnitOfWork } from '../../../../composition/listings';
 import logger from '../../../../utils/logger';
@@ -47,13 +48,14 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
         const listingType = (data.listingType as string) || LISTING_TYPE.AD;
 
         await getListingUnitOfWork().executeTransaction(async (session) => {
+            const clientSession = session as ClientSession;
             // 1. Atomic Slot Deduction
             if (context.actor === 'USER' && !context.allowQuotaBypass) {
                 const slotResult = await ListingSubmissionPolicy.reserveSlot({
                     userId: context.sellerId,
                     listingType: listingType as ListingTypeValue,
                     listingId: adId,
-                    session: session as any,
+                    session: clientSession,
                     actor: 'user',
                 });
                 if (slotResult.source === 'idempotency_hit') {
@@ -93,7 +95,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload,
                 context.sellerId,
                 payload.imageHashes,
-                session as any
+                clientSession
             );
 
             if (duplicateCheck.isDuplicate) {
@@ -124,7 +126,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                     reason: duplicateCheck.reason,
                     duplicateFingerprint: fingerprint,
                     details: { checkResult: duplicateCheck }
-                }, session as any);
+                }, clientSession);
 
                 const { createDuplicateError } = await import('./AdValidationService');
                 throw createDuplicateError(duplicateCheck.reason, duplicateCheck.matchedAdId);
@@ -166,7 +168,7 @@ export const createAd = async (data: Record<string, unknown>, context: AdOrchest
                 payload.expiresAt = undefined;
             }
 
-            const createdListing = await getListingRepository().insert(payload as any, session);
+            const createdListing = await getListingRepository().insert(payload, session);
             createdAd = createdListing;
 
             // 8. Final Approval (Only if actor is ADMIN and not held for review)

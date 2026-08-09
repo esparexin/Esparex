@@ -84,13 +84,11 @@ const SparePartSchema = new Schema<ISparePart>(
 import softDeletePlugin from '../utils/softDeletePlugin';
 SparePartSchema.plugin(softDeletePlugin);
 
-SparePartSchema.pre('validate', function () {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
-    const mutableDoc = this as any;
-    applyCatalogGovernanceDefaults(mutableDoc);
+SparePartSchema.pre('validate', function (this: ISparePart) {
+    applyCatalogGovernanceDefaults(this);
     
-    if (!mutableDoc.approvalStatus) {
-        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    if (!this.approvalStatus) {
+        this.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
     }
 });
 

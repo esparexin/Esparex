@@ -5,7 +5,7 @@ import { isSuperAdminRole } from '../../roles/roleNormalization';
 export const isLastActiveSuperAdmin = async (adminId: string): Promise<boolean> => {
     const [targetAdmin, superAdminCount] = await Promise.all([
         Admin.findById(adminId).select('role status isDeleted').lean(),
-        Admin.countDocuments({ role: { $in: [Role.SUPER_ADMIN, 'superAdmin', 'superadmin'] }, status: USER_STATUS.LIVE, isDeleted: { $ne: true } } as any),
+        Admin.countDocuments({ role: Role.SUPER_ADMIN, status: USER_STATUS.LIVE, isDeleted: { $ne: true } }),
     ]);
     if (!targetAdmin) return false;
     const a = targetAdmin as { role?: string; status?: string };

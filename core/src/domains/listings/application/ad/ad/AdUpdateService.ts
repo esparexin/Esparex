@@ -91,7 +91,7 @@ export const updateAdLogic = async (
             let slugRetries = 0;
             while (slugRetries < 3) {
                 try {
-                    const updated = await getListingRepository().updateOne(adId, payload as any, session);
+                    const updated = await getListingRepository().updateOne(adId, payload, session);
                     updatedAd = updated;
                     break;
                 } catch (error: unknown) {
@@ -193,14 +193,15 @@ export const updateAdLogic = async (
                     for (const url of removedImagesCache) {
                         await deleteFromS3Url(url).catch(e => logger.error(`Failed to delete orphaned image: ${url}`, e));
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
                     logger.error('Failed to execute orphan image cleanup task', err);
                 }
             })();
         }
 
-        if (typeof (updatedAd as any).toObject === 'function') {
-            return (updatedAd as any).toObject();
+        const uObj = updatedAd as { toObject?: () => Record<string, unknown> };
+        if (typeof uObj.toObject === 'function') {
+            return uObj.toObject();
         }
         return updatedAd as Record<string, unknown>;
     } catch (error) {

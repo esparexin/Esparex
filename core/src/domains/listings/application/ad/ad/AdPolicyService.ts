@@ -53,7 +53,7 @@ export const validateSellerTypeThreshold = async (
         const activeCount = await getListingRepository().count({
             sellerId,
             listingType: LISTING_TYPE.SPARE_PART,
-            status: { $in: [LISTING_STATUS.LIVE, 'pending'] } as any,
+            status: { $in: [LISTING_STATUS.LIVE, 'pending'] },
             isDeleted: false
         });
 

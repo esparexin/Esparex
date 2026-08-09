@@ -6,8 +6,8 @@
  */
 
 import mongoose from 'mongoose';
+import type { ListingFilter, ListingUpdate } from '../../ports/ListingRepositoryPort';
 import { getListingRepository } from '../../../../composition/listings';
-import { ListingFilter } from '../../../../domains/listings';
 import logger from '../../../../utils/logger';
 import { touchLocationAnalytics } from '../../../../services/location/LocationAnalyticsService';
 import { recordAdAnalyticsEvent } from '../../../../services/TrendingService';
@@ -49,7 +49,7 @@ export const incrementAdView = async (
  * Higher-order increment by a generic filter (e.g. slug).
  */
 export const incrementAdViewByFilter = async (filter: Record<string, unknown>) =>
-    getListingRepository().updateMany(filter as ListingFilter, { $inc: { 'views.total': 1 } } as any);
+    getListingRepository().updateMany(filter as ListingFilter, { $inc: { 'views.total': 1 } } as ListingUpdate);
 
 /**
  * Enterprise view increment with unique tracking support.
@@ -69,7 +69,7 @@ export const incrementAdViewWithUniqueness = async (
             (update.$inc as Record<string, number>)['views.unique'] = 1;
         }
 
-        const result = await getListingRepository().updateOneByFilter(filter as ListingFilter, update as any);
+        const result = await getListingRepository().updateOneByFilter(filter as ListingFilter, update as ListingUpdate);
         
         if (result) {
             const adId = result.id;

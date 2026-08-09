@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { SparePart, SparePartRepositoryPort } from '../../..';
 import SparePartMongoose from '../../../../../models/SparePart';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';
@@ -35,14 +36,14 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
         const safeId = typeof id === 'string' ? id : String(id);
         const query = SparePartMongoose.findById(safeId).lean<DbSparePart | null>();
         if (includeDeleted) query.setOptions({ withDeleted: true });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
     async exists(id: string, tx?: unknown): Promise<boolean> {
         const query = SparePartMongoose.findById(id).select('_id').lean();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc !== null;
     }
@@ -53,19 +54,21 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
             sparePartOrFilters.push({ brandId: { $in: brandIds } });
         }
         const query = SparePartMongoose.find({ $or: sparePartOrFilters }).lean<DbSparePart[]>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const docs = await query.exec();
         return docs.map(doc => this.toDomain(doc));
     }
 
-    async create(data: Partial<SparePart> | any, tx?: unknown): Promise<SparePart> {
-        const docs = await SparePartMongoose.create([data], { session: tx as any });
-        return this.toDomain(docs[0] as DbSparePart);
+    async create(data: Omit<SparePart, 'id'>, tx?: unknown): Promise<SparePart> {
+        const payload = { ...data, categoryIds: data.categoryIds ? [...data.categoryIds] : undefined };
+        const docs = await SparePartMongoose.create([payload], { session: tx as ClientSession });
+        const doc = docs[0];
+        return this.toDomain(doc.toObject() as DbSparePart);
     }
 
-    async update(id: string, data: Partial<SparePart> | any, tx?: unknown): Promise<SparePart | null> {
+    async update(id: string, data: Partial<SparePart>, tx?: unknown): Promise<SparePart | null> {
         const query = SparePartMongoose.findByIdAndUpdate(id, data, { new: true }).lean<DbSparePart | null>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
@@ -73,7 +76,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
     async softDelete(id: string, tx?: unknown): Promise<boolean> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = SparePartMongoose.findByIdAndUpdate(id, update, { new: true });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return !!res;
     }
@@ -81,7 +84,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
     async softDeleteMany(sparePartIds: string[], tx?: unknown): Promise<number> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = SparePartMongoose.updateMany({ _id: { $in: sparePartIds } }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }
@@ -89,7 +92,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
     async softDeleteByBrandId(brandId: string, tx?: unknown): Promise<number> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = SparePartMongoose.updateMany({ brandId }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }
@@ -97,7 +100,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
     async softDeleteByModelIds(modelIds: string[], tx?: unknown): Promise<number> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = SparePartMongoose.updateMany({ modelId: { $in: modelIds } }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }
@@ -107,7 +110,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
             { _id: sparePartId },
             { $set: { categoryIds } }
         );
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount > 0;
     }
@@ -117,7 +120,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
             { modelId },
             { $set: { modelId: null, isActive: false } }
         );
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }

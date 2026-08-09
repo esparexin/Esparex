@@ -23,11 +23,12 @@ export const buildUserStatusFilter = (status?: string) => {
     return normalizedStatus ?? status;
 };
 
-export const normalizeAdminManagedUser = <T extends Record<string, unknown>>(input: T): T => {
-    const p: Record<string, unknown> = typeof (input as any).toObject === 'function' ? (input as any).toObject() : { ...input };
+export const normalizeAdminManagedUser = (input: unknown): Record<string, unknown> => {
+    const rawObj = (input && typeof input === 'object') ? (input as { toObject?: () => Record<string, unknown> }) : {};
+    const p: Record<string, unknown> = typeof rawObj.toObject === 'function' ? rawObj.toObject() : { ...rawObj };
     const ns = normalizeUserStatus(p.status as string | undefined);
     if (ns) p.status = ns;
-    return p as T;
+    return p;
 };
 
 export { ACTIVE_USER_STATUS_QUERY };

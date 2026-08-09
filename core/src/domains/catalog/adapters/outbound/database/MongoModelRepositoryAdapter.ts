@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { Model, ModelRepositoryPort } from '../../..';
 import ModelMongoose from '../../../../../models/Model';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';
@@ -33,14 +34,14 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
         const safeId = typeof id === 'string' ? id : String(id);
         const query = ModelMongoose.findById(safeId).lean<DbModel | null>();
         if (includeDeleted) query.setOptions({ withDeleted: true });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
     async exists(id: string, tx?: unknown): Promise<boolean> {
         const query = ModelMongoose.findById(id).select('_id').lean();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc !== null;
     }
@@ -51,26 +52,28 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
             modelOrFilters.push({ brandId: { $in: brandIds } });
         }
         const query = ModelMongoose.find({ $or: modelOrFilters }).lean<DbModel[]>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const docs = await query.exec();
         return docs.map(doc => this.toDomain(doc));
     }
 
     async findByBrandId(brandId: string, tx?: unknown): Promise<Model[]> {
         const query = ModelMongoose.find({ brandId }).lean<DbModel[]>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const docs = await query.exec();
         return docs.map(doc => this.toDomain(doc));
     }
 
-    async create(data: Partial<Model> | any, tx?: unknown): Promise<Model> {
-        const docs = await ModelMongoose.create([data], { session: tx as any });
-        return this.toDomain(docs[0] as DbModel);
+    async create(data: Omit<Model, 'id'>, tx?: unknown): Promise<Model> {
+        const payload = { ...data, categoryIds: data.categoryIds ? [...data.categoryIds] : undefined };
+        const docs = await ModelMongoose.create([payload], { session: tx as ClientSession });
+        const doc = docs[0];
+        return this.toDomain(doc.toObject() as DbModel);
     }
 
-    async update(id: string, data: Partial<Model> | any, tx?: unknown): Promise<Model | null> {
+    async update(id: string, data: Partial<Model>, tx?: unknown): Promise<Model | null> {
         const query = ModelMongoose.findByIdAndUpdate(id, data, { new: true }).lean<DbModel | null>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
@@ -78,7 +81,7 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
     async softDelete(id: string, tx?: unknown): Promise<boolean> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = ModelMongoose.findByIdAndUpdate(id, update, { new: true });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return !!res;
     }
@@ -86,7 +89,7 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
     async softDeleteMany(modelIds: string[], tx?: unknown): Promise<number> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = ModelMongoose.updateMany({ _id: { $in: modelIds } }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }
@@ -94,7 +97,7 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
     async softDeleteByBrandId(brandId: string, tx?: unknown): Promise<number> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = ModelMongoose.updateMany({ brandId }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }
@@ -104,7 +107,7 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
             { _id: modelId },
             { $set: { categoryIds: categoryIds } }
         );
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount > 0;
     }

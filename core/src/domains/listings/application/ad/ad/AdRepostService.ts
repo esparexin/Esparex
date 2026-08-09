@@ -1,3 +1,5 @@
+import type { ClientSession } from 'mongoose';
+import type { ListingUpdate } from '../../../ports/ListingRepositoryPort';
 import { AppError } from '../../../../../utils/AppError';
 import logger from '../../../../../utils/logger';
 import { getListingRepository, getListingsCache, getListingUnitOfWork } from '../../../../../composition/listings';
@@ -23,10 +25,11 @@ export const repostAdLogic = async (
 
     try {
         await getListingUnitOfWork().executeTransaction(async (session) => {
+            const clientSession = session as ClientSession;
             const ad = await getListingRepository().findOne({
                 ids: [id],
                 sellerId: userId,
-                isDeleted: false as any
+                isDeleted: false
             });
 
             if (!ad) {
@@ -46,7 +49,7 @@ export const repostAdLogic = async (
                 userId,
                 listingType: (ad.listingType as ListingTypeValue),
                 listingId: id,
-                session: session as any,
+                session: clientSession,
                 actor: 'user'
             });
 
@@ -73,7 +76,7 @@ export const repostAdLogic = async (
                     moderationReason: 'Reposted by seller for moderation review'
                 }
             };
-            await getListingRepository().updateOne(id, patchDoc as any, session);
+            await getListingRepository().updateOne(id, patchDoc as ListingUpdate, session);
 
             const transitioned = await mutateStatus({
                 domain: 'ad',
@@ -96,7 +99,7 @@ export const repostAdLogic = async (
                         },
                     },
                 },
-                session: session as any,
+                session,
             });
             updatedAd = transitioned;
 

@@ -57,14 +57,14 @@ describe('ImageModerationOrchestrator (PR 5 — 3-Stage Pipeline Composition)', 
             registerFingerprint: jest.fn(),
             getCachedCount: jest.fn(),
             clearCache: jest.fn(),
-        } as any<EarlyExitCostControlPipeline>;
+        } as any;
 
         mockStage2FailoverManager = {
             executeWithFailover: jest.fn(),
             registerProvider: jest.fn(),
             getProviderHealthStatuses: jest.fn(),
             getProviderCount: jest.fn(),
-        } as any<ProviderFailoverManager>;
+        } as any;
 
         mockStage3Processor = {
             name: 'MockOCRProcessor',

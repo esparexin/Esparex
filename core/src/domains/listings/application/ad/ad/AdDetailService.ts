@@ -76,7 +76,7 @@ export const getAnyAdById = async (
     const id = new mongoose.Types.ObjectId(adId);
 
     try {
-        const ad = await getListingRepository().findOne({ ids: [adId], isDeleted: { $in: [true, false] } as any });
+        const ad = await getListingRepository().findOne({ ids: [adId], isDeleted: { $in: [true, false] } });
         if (!ad) return null;
 
         const User = (await import('../../../../../models/User')).default;
@@ -86,7 +86,7 @@ export const getAnyAdById = async (
         if (!adRecord) return null;
 
         // Perform Split-DB hydration for catalog references
-        await hydrateAdMetadata([adRecord as any]);
+        await hydrateAdMetadata([adRecord as Record<string, unknown>]);
 
         // Use DTO/interface for ad
         const rawResult: unknown = { ...adRecord };
@@ -127,7 +127,7 @@ export const getListingDetailById = async (adId: string) => {
     const seller = await User.findById(ad.sellerId).select('name avatar trustScore isVerified status mobileVisibility role').lean();
     const adRecord = { ...ad, sellerId: seller ? seller : ad.sellerId };
 
-    await hydrateAdMetadata([adRecord as any]);
+    await hydrateAdMetadata([adRecord as Record<string, unknown>]);
 
     const rawDetail: unknown = adRecord;
     const detail = rawDetail as Record<string, unknown> & {
@@ -328,7 +328,7 @@ export const getAdSuggestions = async (q: string, limit = 10): Promise<string[]>
     const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(escaped, 'i');
     const docs = await getListingRepository().findWithLimit(
-        { title: { $regex: regex } as any, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } as any },
+        { title: { $regex: regex }, status: LISTING_STATUS.LIVE, isDeleted: { $ne: true } },
         undefined,
         limit
     );
@@ -350,8 +350,8 @@ export const getAdsByStatus = async (
     const { page, limit } = pagination;
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
-        getListingRepository().findWithLimit({ status, isDeleted: { $ne: true } as any }, { createdAt: 1 }, limit, skip),
-        getListingRepository().count({ status, isDeleted: { $ne: true } as any })
+        getListingRepository().findWithLimit({ status, isDeleted: { $ne: true } }, { createdAt: 1 }, limit, skip),
+        getListingRepository().count({ status, isDeleted: { $ne: true } })
     ]);
     const rawData: unknown = data;
     return { data: rawData as Record<string, unknown>[], total };

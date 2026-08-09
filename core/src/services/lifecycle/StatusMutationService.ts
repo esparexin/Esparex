@@ -1,4 +1,5 @@
 import mongoose, { ClientSession } from 'mongoose';
+import type { ListingUpdate } from '../../domains/listings/ports/ListingRepositoryPort';
 import { pLimit } from '../../utils/pLimit';
 import { 
     validateTransition as validateLifecycleTransition, 
@@ -208,7 +209,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                 }
             }
             
-            await doc.save({ session: activeSession as any });
+            await doc.save({ session: activeSession as ClientSession });
 
             // 5. Record Unified Status History
             await createHistoryRecord({ domain, entityId, fromStatus, toStatus, actor, reason, metadata, session: activeSession });
@@ -216,10 +217,10 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
             return (typeof doc.toObject === 'function' ? doc.toObject() : doc) as Record<string, unknown>;
         };
 
-        const executeListingOperations = async (activeSession: any) => {
+        const executeListingOperations = async (activeSession: unknown) => {
             const { getListingRepository } = await import('../../composition/listings');
             const repo = getListingRepository();
-            const listing = await repo.findOne({ ids: [entityId.toString()], isDeleted: { $in: [true, false] } as any, session: activeSession });
+            const listing = await repo.findOne({ ids: [entityId.toString()], isDeleted: { $in: [true, false] }, session: activeSession });
             
             if (!listing) {
                 throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
@@ -256,11 +257,11 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                 }
             }
 
-            const updated = await repo.updateOne(entityId.toString(), updateDoc as any, activeSession);
+            const updated = await repo.updateOne(entityId.toString(), updateDoc as ListingUpdate, activeSession);
 
             await createHistoryRecord({ domain, entityId, fromStatus, toStatus, actor, reason, metadata, session: activeSession });
 
-            return updated as any;
+            return updated as Record<string, unknown>;
         };
 
         if (externalSession) {

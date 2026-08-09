@@ -9,14 +9,17 @@ import { toObjectId } from './idUtils';
  * NOTE: The implementation below produces [root...parent, self] order.
  */
 export const buildHierarchyPath = (
-    selfId: mongoose.Types.ObjectId,
-    parent?: { _id: mongoose.Types.ObjectId; path?: mongoose.Types.ObjectId[] } | null
+    selfId: mongoose.Types.ObjectId | string,
+    parent?: { _id?: unknown; path?: unknown[] } | null
 ): mongoose.Types.ObjectId[] => {
-    const chain = Array.isArray(parent?.path) && parent.path.length > 0
-        ? [...parent.path, selfId]
-        : parent?._id
-            ? [parent._id, selfId]
-            : [selfId];
+    const parentPath = Array.isArray(parent?.path) ? parent.path.map(p => toObjectId(p)).filter(Boolean) as mongoose.Types.ObjectId[] : [];
+    const parentId = parent?._id ? toObjectId(parent._id) : null;
+    const selfObjId = toObjectId(selfId) || new mongoose.Types.ObjectId();
+    const chain = parentPath.length > 0
+        ? [...parentPath, selfObjId]
+        : parentId
+            ? [parentId, selfObjId]
+            : [selfObjId];
 
     const deduped: mongoose.Types.ObjectId[] = [];
     const seen = new Set<string>();

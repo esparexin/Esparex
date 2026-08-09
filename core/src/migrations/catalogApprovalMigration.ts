@@ -1,3 +1,4 @@
+type FilterQuery<T = unknown> = Record<string, unknown>;
 import { CATALOG_APPROVAL_STATUS } from '@esparex/shared';
 import Category from '../models/Category';
 import Brand from '../models/Brand';
@@ -21,7 +22,7 @@ export interface MigrationStats {
  * on catalog collections with `CATALOG_APPROVAL_STATUS.APPROVED`.
  */
 export async function runCatalogApprovalStatusMigration(): Promise<MigrationStats> {
-    const missingFilter = {
+    const missingFilter: FilterQuery<unknown> = {
         $or: [
             { approvalStatus: { $exists: false } },
             { approvalStatus: null },
@@ -33,12 +34,12 @@ export async function runCatalogApprovalStatusMigration(): Promise<MigrationStat
     };
 
     const [catRes, brandRes, modelRes, spareRes, serviceRes, screenRes] = await Promise.all([
-        Category.updateMany(missingFilter as any, updatePayload),
-        Brand.updateMany(missingFilter as any, updatePayload),
-        Model.updateMany(missingFilter as any, updatePayload),
-        SparePart.updateMany(missingFilter as any, updatePayload),
-        ServiceType.updateMany(missingFilter as any, updatePayload),
-        ScreenSize.updateMany(missingFilter as any, updatePayload),
+        Category.updateMany(missingFilter, updatePayload),
+        Brand.updateMany(missingFilter, updatePayload),
+        Model.updateMany(missingFilter, updatePayload),
+        SparePart.updateMany(missingFilter, updatePayload),
+        ServiceType.updateMany(missingFilter, updatePayload),
+        ScreenSize.updateMany(missingFilter, updatePayload),
     ]);
 
     const stats: MigrationStats = {
