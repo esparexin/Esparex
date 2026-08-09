@@ -2,20 +2,24 @@ import React, { useState } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { AppInput, AppButton, AppText } from '@esparex/mobile-ui';
 import { AuthLayout } from '../layouts/AuthLayout';
+import { useAuth } from '../../../providers/AuthProvider';
 import { navigate } from '../../../navigation/navigationRef';
 import { ROUTES } from '../../../navigation/routes';
 
 export const OTPScreen = () => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const handleVerify = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await login({ otp: code });
+    } catch (e) {
+      console.error(e);
+    } finally {
       setLoading(false);
-      // Simulating successful verification
-      // State transition should be handled by AuthProvider in a real app
-    }, 1000);
+    }
   };
 
   return (

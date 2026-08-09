@@ -15,9 +15,7 @@ export const LoginScreen = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      // In a real app, you would pass credentials to authService.login
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Simulate successful login which will trigger navigation state change
+      await login({ email, password });
     } catch (e) {
       console.error(e);
     } finally {
