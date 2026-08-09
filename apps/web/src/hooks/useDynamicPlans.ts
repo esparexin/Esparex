@@ -74,6 +74,7 @@ export function getPlanEntitlementFeatures(p: {
 export function useDynamicPlans(activeTab: string, user: User | null) {
     const [dynamicPlans, setDynamicPlans] = useState<ProfilePlan[]>([]);
     const [loadingPlans, setLoadingPlans] = useState(false);
+    const [isError, setIsError] = useState(false);
 
     // eslint-disable-next-line react-hooks/preserve-manual-memoization
     const fetchDynamicPlans = useCallback(async () => {
@@ -106,6 +107,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
             setDynamicPlans(mapped);
         } catch (error) {
             logger.error("Error fetching dynamic plans:", error);
+            setIsError(true);
             setDynamicPlans([]);
         } finally {
             setLoadingPlans(false);
@@ -114,6 +116,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
 
     useEffect(() => {
         if (activeTab === 'plans') {
+            setIsError(false);
             const timeoutId = setTimeout(() => {
                 void fetchDynamicPlans();
             }, 0);
@@ -125,6 +128,7 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
     return {
         dynamicPlans,
         loadingPlans,
+        isError,
         fetchDynamicPlans
     };
 }

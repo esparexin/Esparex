@@ -92,7 +92,7 @@ export function ProfileSettingsSidebar({
     enabled: activeTab === "mylistings" && !!user,
   });
 
-  const { dynamicPlans } = useDynamicPlans(activeTab, user);
+  const { dynamicPlans, isError: plansError } = useDynamicPlans(activeTab, user);
     const { 
       businessData, 
       businessStats, 
@@ -266,7 +266,7 @@ export function ProfileSettingsSidebar({
         />
       );
       case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
-      case "plans": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
+      case "plans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
       case "business": return (
         // Layout constraint: Forms require a narrower max-width (xl) for readability and UX
         <div className="max-w-xl mx-auto w-full px-2 sm:px-0">

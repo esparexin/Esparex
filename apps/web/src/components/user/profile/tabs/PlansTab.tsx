@@ -47,6 +47,7 @@ const SUB_TABS: SubTabConfig[] = [
 interface PlansTabProps {
     dynamicPlans: PlanCard[];
     currentPlan: string;
+    isError?: boolean;
     setSelectedPlan: (id: string) => void;
     setShowPlanDialog: (show: boolean) => void;
     formatCurrency: (amount: number) => string;
@@ -192,6 +193,7 @@ function PlanCardView({
 export function PlansTab({
     dynamicPlans,
     currentPlan,
+    isError = false,
     setSelectedPlan,
     setShowPlanDialog,
     formatCurrency,
@@ -273,6 +275,8 @@ export function PlansTab({
 
     return (
         <div className="space-y-4">
+            {/* Error banner: shown when plan fetch fails */}
+            {isError && <div role="alert" className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><span aria-hidden="true">⚠️</span><span>Unable to load plans. Please refresh the page or try again later.</span></div>}
             {/* Top Persistent My Benefits Overview Card */}
             <MyBenefitsOverviewCard />
 
