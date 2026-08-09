@@ -71,7 +71,7 @@ export const ActiveSubscriptionCard: React.FC<ActiveSubscriptionCardProps> = ({
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs sm:text-xs text-muted-foreground mt-1">
             <span>
-              Monthly Plan • Resets on 1st of every month
+              30-Day Plan Validity • Resets on 1st of every month
             </span>
           </div>
         </div>

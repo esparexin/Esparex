@@ -57,7 +57,7 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
                     {promo.type.replace('_', ' ')} BOOST
                   </span>
                   <span className="text-2xs text-muted-foreground">
-                    Applied {new Date(promo.startsAt).toLocaleDateString()} • Valid until {new Date(promo.endsAt).toLocaleDateString()}
+                    Applied {new Date(promo.startsAt).toLocaleDateString()} • 7-Day Boost Duration • Valid until {new Date(promo.endsAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>

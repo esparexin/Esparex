@@ -70,13 +70,15 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
 
               <div className="flex items-center justify-between text-2xs text-muted-foreground">
                 <span>Granted: <strong className="text-foreground">{pack.totalGranted}</strong> • Used: <strong className="text-foreground">{pack.consumed}</strong></span>
-                <span>
+                <span className="font-semibold text-primary">
                   {pack.expiresAt ? (
-                    <span className={isExpiringSoon ? 'text-amber-500 font-medium' : ''}>
-                      Expires {new Date(pack.expiresAt).toLocaleDateString()}
+                    <span className={isExpiringSoon ? 'text-amber-500' : ''}>
+                      Valid until {new Date(pack.expiresAt).toLocaleDateString()}
                     </span>
                   ) : (
-                    <span className="text-emerald-500 font-medium">Never expires</span>
+                    <span>
+                      30 Days Plan Validity
+                    </span>
                   )}
                 </span>
               </div>
