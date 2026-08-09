@@ -26,4 +26,4 @@ export const AD_DISPLAY_STATUSES = [
 ] as const;
 
 export type AdDisplayStatus = typeof AD_DISPLAY_STATUSES[number];
-export const AD_DISPLAY_STATUS_VALUES = AD_DISPLAY_STATUSES as unknown as [AdDisplayStatus, ...AdDisplayStatus[]];
+export const AD_DISPLAY_STATUS_VALUES = [...AD_DISPLAY_STATUSES] as [AdDisplayStatus, ...AdDisplayStatus[]];

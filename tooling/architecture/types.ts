@@ -5,7 +5,7 @@
  * Imported by checks, orchestrators, metrics, registry, and reporters.
  */
 
-export type Severity = 'critical' | 'high' | 'medium' | 'low';
+export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
 // ---------------------------------------------------------------------------
 // Check system

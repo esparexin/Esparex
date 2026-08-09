@@ -117,7 +117,7 @@ export function collectMetrics(
             id: 'total_domains',
             name: 'Total Domains',
             value: totalDomains,
-            severity: 'info' as unknown as Severity,
+            severity: 'info',
             trend: computeTrend(totalDomains, history, 'domains'),
         },
         {
