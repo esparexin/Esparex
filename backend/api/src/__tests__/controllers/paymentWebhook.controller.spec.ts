@@ -1,5 +1,5 @@
 /**
- * PaymentWebhookService — Unit Tests
+ * paymentWebhook.controller.spec.ts — Unit Tests
  * 
  * Strategy:
  *   The webhook controller is the entry point for Razorpay callbacks. We test 
@@ -49,7 +49,7 @@ const mockRes = () => {
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
-describe('PaymentWebhookService — paymentWebhook Controller', () => {
+describe('paymentWebhook Controller', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
