@@ -57,6 +57,8 @@ export function PlanPurchaseDialog({
 
     const handleConfirm = async () => {
         try {
+            // Dismiss dialog first to release Radix body scroll locks before Razorpay launches
+            onOpenChange(false);
             await startPlanCheckout({
                 planId: plan.id,
                 amount: plan.price,
@@ -68,15 +70,16 @@ export function PlanPurchaseDialog({
                 onCreditPending: () => {
                     notify.info("Payment received. Credits will appear after verification shortly.");
                     onConfirm?.();
-                    onOpenChange(false);
                 },
                 onPaymentVerified: async () => {
                     notify.success("Plan purchased successfully!");
                     onConfirm?.();
-                    onOpenChange(false);
                 },
                 onPaymentFailed: (reason: string) => {
                     notify.error(`Payment failed: ${reason}`);
+                },
+                onDismiss: () => {
+                    notify.info("Payment cancelled.");
                 },
             });
         } catch (error) {
