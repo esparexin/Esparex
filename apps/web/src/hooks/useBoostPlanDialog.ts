@@ -149,7 +149,7 @@ export function useBoostPlanDialog({
       await startPlanCheckout({
         planId: selectedPlan.id,
         amount: selectedPlan.price,
-        description: `${formatPlanName(selectedPlan.name, activeCategory)} (${selectedPlan.durationDays} days)`,
+        description: `${formatPlanName(selectedPlan.name)} (${selectedPlan.durationDays} days)`,
         onCreditPending: () => {
           notify.info("Payment received. Promotion will apply shortly.");
         },

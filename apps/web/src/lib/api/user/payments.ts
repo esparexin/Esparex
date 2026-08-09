@@ -1,4 +1,4 @@
-import apiClient from "@/lib/api/client";
+import { apiClient } from "@/lib/api/client";
 import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 
 export const downloadInvoice = async (transactionId: string): Promise<void> => {
@@ -8,10 +8,9 @@ export const downloadInvoice = async (transactionId: string): Promise<void> => {
 
 export const downloadInvoiceFile = async (transactionId: string): Promise<void> => {
     try {
-        const response = await apiClient.get<Blob>(`/payment/invoice/${transactionId}?download=true`, {
-            responseType: 'blob'
+        const blob = await apiClient.get<Blob>(`/payment/invoice/${transactionId}?download=true`, {
+            responseType: 'blob',
         });
-        const blob = response.data;
         const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = blobUrl;

@@ -86,7 +86,7 @@ export function CatalogPlanCard({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  const formattedName = formatPlanName(plan.name, activeCategory);
+  const formattedName = formatPlanName(plan.name);
   return (
     <div
       onClick={onSelect}
