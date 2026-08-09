@@ -72,7 +72,7 @@
     "guard:duplicate-code": "jscpd --config .jscpd.json",
     "guard:circular": "madge --circular --extensions ts,tsx core/src backend/api/src apps/web/src apps/admin/src apps/mobile/src packages/mobile-ui/src",
     "guard:dependencies": "depcruise --config .dependency-cruiser.js core backend/api apps/web/src apps/admin/src apps/mobile/src packages/mobile-ui/src",
-    "guard:dead-code": "knip --no-config-hints --error-code 1",
+    "guard:dead-code": "knip --no-config-hints",
     "guard:knip": "knip --no-config-hints",
     "guard:type-casts": "node scripts/guard-type-cast-baseline.js",
     "guard:pr-quality": "node scripts/guard-pr-quality.js",
