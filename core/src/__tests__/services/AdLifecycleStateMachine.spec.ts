@@ -16,7 +16,8 @@ describe('State Machine Transition Governance (SSOT)', () => {
         it('should reject illegal transitions for Ad lifecycle', () => {
             expect(canTransitionAdStatus(LISTING_STATUS.DRAFT, LISTING_STATUS.SOLD)).toBe(false);
             expect(canTransitionAdStatus(LISTING_STATUS.REJECTED, LISTING_STATUS.SOLD)).toBe(false);
-            expect(canTransitionAdStatus(LISTING_STATUS.EXPIRED, LISTING_STATUS.PENDING)).toBe(false);
+            expect(canTransitionAdStatus(LISTING_STATUS.SOLD, LISTING_STATUS.LIVE)).toBe(false);
+            expect(canTransitionAdStatus(LISTING_STATUS.DELETED, LISTING_STATUS.LIVE)).toBe(false);
         });
 
         it('should allow self-transition (identity)', () => {
