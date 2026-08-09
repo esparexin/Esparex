@@ -47,6 +47,9 @@ export const getRazorpayRuntimeConfig = async (): Promise<RazorpayRuntimeConfig>
 
 export const getRazorpayClient = async () => {
     const { keyId, keySecret } = await getRazorpayRuntimeConfig();
+    if (!keyId || !keySecret) {
+        throw new Error(`Razorpay credentials missing. keyId=${keyId ? 'SET' : 'MISSING'}, keySecret=${keySecret ? 'SET' : 'MISSING'}. Check RAZORPAY_KEY_ID in backend/.env`);
+    }
     return new Razorpay({
         key_id: keyId,
         key_secret: keySecret,

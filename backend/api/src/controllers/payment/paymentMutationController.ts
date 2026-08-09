@@ -169,7 +169,15 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
 
     } catch (error: unknown) {
         const err = error as Error;
-        logger.error('Payment Order Error:', err);
-        sendErrorResponse(req, res, 500, 'Failed to initiate payment');
+        logger.error('[Payment Order Error]', {
+            message: err.message,
+            stack: err.stack,
+            planId: req.body?.planId,
+            userId: req.user ? (req.user as { _id?: unknown })._id : undefined
+        });
+        const errorMessage = env.NODE_ENV === 'development' && err.message
+            ? `Failed to initiate payment: ${err.message}`
+            : 'Failed to initiate payment';
+        sendErrorResponse(req, res, 500, errorMessage);
     }
 };
