@@ -36,9 +36,10 @@ interface PlanPurchaseDialogProps {
 }
 
 const planTypeToWalletField = (type: string) => {
-    if (type === "Spotlight") return "spotlightCredits" as const;
-    if (type === "More Ads") return "adCredits" as const;
-    return "smartAlertSlots" as const;
+    const t = (type || "").toUpperCase();
+    if (t.includes("SPOTLIGHT")) return "spotlightCredits" as const;
+    if (t.includes("ALERT")) return "smartAlertSlots" as const;
+    return "adCredits" as const;
 };
 
 export function PlanPurchaseDialog({

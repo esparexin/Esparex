@@ -114,8 +114,8 @@ export function usePlanCheckout() {
               waitForCredit.field,
               baseline,
               waitForCredit.minimumDelta ?? 1,
-              waitForCredit.timeoutMs,
-              waitForCredit.intervalMs
+              waitForCredit.timeoutMs ?? 15000,
+              waitForCredit.intervalMs ?? 1500
             );
             if (!wallet) {
               onCreditPending?.();
