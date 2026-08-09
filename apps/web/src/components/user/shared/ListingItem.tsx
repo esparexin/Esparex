@@ -394,7 +394,7 @@ export function ListingItem({
 
                 {/* ── Row B: Direct Action Shortcut (✨ Spotlight / ⚡ Boost + ✏️ Edit) ── */}
                 <div className="flex items-center gap-1.5 justify-end w-full">
-                    {isSpotlight ? (
+                    {isSpotlight && isActive ? (
                         <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-300/80 text-2xs font-bold px-2 py-1 rounded-md shadow-2xs shrink-0">
                             <Sparkles className="h-3 w-3 text-amber-500 fill-amber-400" />
                             Spotlight

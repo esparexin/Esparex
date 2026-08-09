@@ -276,7 +276,7 @@ export function MyListingsTab({
                     onActivate={() => { setAdToActivate(listing); setIsActivateOpen(true); }}
                     onRenew={() => handleRepostAd(listing.id)}
                     onBoost={() => { setBoostAd(listing); setIsBoostOpen(true); }}
-                    isSpotlight={Boolean(listing.isSpotlight) || (listing.spotlightExpiresAt ? new Date(String(listing.spotlightExpiresAt)).getTime() > Date.now() : false)}
+                    isSpotlight={((listing.status as string) === "live" || (listing.status as string) === "active") && (Boolean(listing.isSpotlight) || (listing.spotlightExpiresAt ? new Date(String(listing.spotlightExpiresAt)).getTime() > Date.now() : false))}
                     isBoosted={Boolean(listing.isBoosted)}
                 />
             )

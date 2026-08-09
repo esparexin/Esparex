@@ -217,6 +217,10 @@ const BADGE_BASE =
 
 export function isSpotlightAd(ad: AdCardData): boolean {
   const r = toAdRecord(ad);
+  const status = typeof r.status === "string" ? r.status.toLowerCase() : "";
+  if (status && status !== "live" && status !== "active") {
+    return false;
+  }
   const exp = r.spotlightExpiresAt ? new Date(String(r.spotlightExpiresAt)).getTime() : 0;
   return Boolean(
     ad.isSpotlight || r.isSpotlight || r.spotlight ||
