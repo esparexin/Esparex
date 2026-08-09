@@ -9,6 +9,11 @@ jest.mock('@esparex/core/models/Ad', () => ({
 }));
 
 jest.mock('@esparex/core/services/ad/AdMetricsService');
+jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
+    ListingExpiryService: {
+        runSweep: jest.fn().mockResolvedValue(undefined),
+    },
+}));
 jest.mock('../../utils/controllerUtils');
 jest.mock('../../utils/respond', () => ({
     sendSuccessResponse: jest.fn((res, data) => res.status(200).json({ success: true, data })),

@@ -28,7 +28,6 @@ import { type ListingStatsResponse } from "@/lib/api/user/listings";
 import { useDynamicPlans } from "@/hooks/useDynamicPlans";
 import { useBusiness } from "@/hooks/useBusiness";
 import { useSmartAlerts } from "@/hooks/useSmartAlerts";
-import { usePurchases } from "@/hooks/usePurchases";
 import { useChatUnreadCount } from "@/hooks/useChatUnreadCount";
 import { formatPrice, formatDate } from "@/lib/formatters";
 import { isApprovedBusiness } from "@/guards/businessGuards";
@@ -38,7 +37,6 @@ import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 // Dialogs
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
-import { PlanPurchaseDialog } from "./profile/dialogs/PlanPurchaseDialog";
 
 // Modular Tab Components
 
@@ -49,9 +47,7 @@ import { PlansTab } from "./profile/tabs/PlansTab";
 import { SettingsTab } from "./profile/tabs/SettingsTab";
 import { SmartAlertsTab } from "./profile/tabs/SmartAlertsTab";
 import { BusinessTab } from "./profile/tabs/BusinessTab";
-import { PurchasesTab } from "./profile/tabs/PurchasesTab";
 import { MyListingsTab } from "./profile/tabs/MyListingsTab";
-import { SavedAds } from "./SavedAds";
 import { AccountMessagesWorkspace } from "@/components/chat/AccountMessagesWorkspace";
 import { AccountHeader } from "./AccountHeader";
 import { AccountNavItemList } from "./AccountNavItemList";
@@ -124,7 +120,6 @@ export function ProfileSettingsSidebar({
     handleCreateAlert,
     resetAlertForm,
   } = useSmartAlerts(activeTab === "smartalerts");
-  const { purchaseHistory, loading: loadingPurchased } = usePurchases(activeTab === "purchases");
   const chatUnreadCount = useChatUnreadCount(user?.id ?? null, !!user);
 
     const {
@@ -135,8 +130,8 @@ export function ProfileSettingsSidebar({
         deleteAccountErrors,
         deleteAccountGlobalError,
         handleDeleteAccount,
-        showPlanDialog, setShowPlanDialog,
-        selectedPlan, setSelectedPlan,
+        setShowPlanDialog,
+        setSelectedPlan,
     } = useProfileSettings({ user, onLogout });
 
   useEffect(() => {
@@ -265,8 +260,8 @@ export function ProfileSettingsSidebar({
           initialConversation={initialConversation}
         />
       );
-      case "saved": return <SavedAds navigateTo={(page, adId) => navigateTo(page as UserPage, adId)} />;
-      case "plans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
+      case "plans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="OVERVIEW" />;
+      case "buyplans": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="BUY_PLANS" />;
       case "business": return (
         // Layout constraint: Forms require a narrower max-width (xl) for readability and UX
         <div className="max-w-xl mx-auto w-full px-2 sm:px-0">
@@ -325,7 +320,7 @@ export function ProfileSettingsSidebar({
           />
         </div>
       );
-      case "purchases": return <PurchasesTab purchaseHistory={purchaseHistory} formatDate={formatDate} formatCurrency={formatPrice} setActiveTab={setActiveTabFromChild} loading={loadingPurchased} />;
+      case "purchases": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="INVOICES" />;
       default: return null;
     }
   };
@@ -411,8 +406,8 @@ export function ProfileSettingsSidebar({
         deleteAccountErrors={deleteAccountErrors}
         deleteAccountGlobalError={deleteAccountGlobalError}
       />
-      <PlanPurchaseDialog open={showPlanDialog} onOpenChange={setShowPlanDialog} selectedPlan={selectedPlan} plans={dynamicPlans} formatCurrency={formatPrice} onConfirm={() => setShowPlanDialog(false)} />
     </div>
   );
+
 
 }

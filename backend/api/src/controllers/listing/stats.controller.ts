@@ -6,6 +6,8 @@ import { LISTING_TYPE } from "@esparex/contracts";
 import * as AdAggregationService from '@esparex/core/services/ad/AdAggregationService';
 import * as AdMetricsService from '@esparex/core/services/ad/AdMetricsService';
 
+import { ListingExpiryService } from '@esparex/core/services/lifecycle/ListingExpiryService';
+
 /**
  * GET /api/v1/listings/mine/stats
  */
@@ -16,6 +18,7 @@ export const getMyListingStats = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 401, 'Unauthorized');
         }
 
+        await ListingExpiryService.runSweep();
         const counts = await AdMetricsService.getSellerListingStats(userId);
         return sendSuccessResponse(res, counts);
     } catch (error) {
@@ -31,6 +34,8 @@ export const getMyListings = async (req: Request, res: Response) => {
     try {
         const userId = req.user?._id;
         if (!userId) return sendErrorResponse(req, res, 401, 'Unauthorized');
+
+        await ListingExpiryService.runSweep();
 
         const { type, status, page = 1, limit = 20 } = req.query;
         const { getStatusMatchCriteria } = await import('@esparex/core/utils/statusQueryMapper');
@@ -103,6 +108,7 @@ export const getMyListingStatusCounts = async (req: Request, res: Response) => {
 
         const { listingType } = (req.query || {});
         
+        await ListingExpiryService.runSweep();
         const counts = await AdMetricsService.getListingStatusCountsForSeller(
             userId, 
             listingType ? String(listingType) : undefined

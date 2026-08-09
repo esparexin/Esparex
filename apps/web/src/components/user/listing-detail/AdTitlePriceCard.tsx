@@ -1,26 +1,28 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatPrice, formatStableNumber } from "@/lib/formatters";
+import { formatPrice } from "@/lib/formatters";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { type Ad } from "@/schemas/ad.schema";
-import { Shield, CheckCircle, MapPin, Clock, Eye, Briefcase, CircuitBoard, Wrench } from "@/icons/IconRegistry";
+import { Shield, CheckCircle, MapPin, Clock, Briefcase, CircuitBoard, Wrench } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 
 interface AdTitlePriceCardProps {
     ad: Ad;
     categoryLabel: string;
-    viewCount: number | undefined;
+    viewCount?: number;
     variant?: "mobile" | "desktop";
 }
 
 export function AdTitlePriceCard({
     ad,
     categoryLabel,
-    viewCount,
+    viewCount: _viewCount,
 }: AdTitlePriceCardProps) {
     const locationLabel = resolveListingLocationLabel(ad.location, "full");
     const isService = ad.listingType === "service";
     const isSparePart = ad.listingType === "spare_part";
+    const isActiveSpotlight = Boolean(ad.isSpotlight);
+    const isActiveBoosted = Boolean(ad.isBoosted) && !isActiveSpotlight;
 
     return (
         <Card className="bg-card text-card-foreground rounded-2xl border border-border shadow-xs overflow-hidden">
@@ -41,9 +43,11 @@ export function AdTitlePriceCard({
                         ) : null}
 
                         {/* Category Badge */}
-                        <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-border text-muted-foreground rounded-lg bg-muted/60 px-2.5 py-0.5 text-2xs">
-                            {categoryLabel}
-                        </Badge>
+                        {categoryLabel && categoryLabel !== "Category" && (
+                            <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-border text-muted-foreground rounded-lg bg-muted/60 px-2.5 py-0.5 text-2xs">
+                                {categoryLabel}
+                            </Badge>
+                        )}
 
                         {/* On-Site Service Badge */}
                         {isService && ad.onsiteService !== undefined && (
@@ -63,12 +67,17 @@ export function AdTitlePriceCard({
                             </Badge>
                         )}
 
-                        {ad.isSpotlight && (
-                            <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-blue-600 text-white rounded-lg md:rounded-full border-none shadow-sm">
-                                Spotlight
+                        {isActiveSpotlight && (
+                            <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-amber-500 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
+                                ✨ Spotlight
                             </Badge>
                         )}
-                        {ad.isFeatured && !ad.isSpotlight && (
+                        {isActiveBoosted && (
+                            <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-blue-600 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
+                                ⚡ Top Ad
+                            </Badge>
+                        )}
+                        {ad.isFeatured && !ad.isSpotlight && !ad.isBoosted && (
                             <Badge className="bg-yellow-500 flex-shrink-0 text-xs text-white rounded-lg border-none">
                                 Featured
                             </Badge>
@@ -91,7 +100,7 @@ export function AdTitlePriceCard({
                     </div>
                 )}
 
-                <h1 className="text-lg md:text-2xl font-bold text-foreground leading-snug md:leading-tight">
+                <h1 className="text-base md:text-xl font-bold text-foreground leading-snug md:leading-tight">
                     {ad.title || "Ad Title"}
                 </h1>
 
@@ -101,13 +110,13 @@ export function AdTitlePriceCard({
                             {isService ? "Contact for Quote" : "Free"}
                         </span>
                     ) : (
-                        <span className="text-3xl font-black text-foreground tracking-tight">
+                        <span className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
                             {formatPrice(ad.price)}
                         </span>
                     )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-xs text-foreground-subtle border-t border-border pt-3 md:pt-5">
+                <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-xs text-foreground-subtle border-t border-border pt-3 md:pt-4">
                     <div className="flex flex-col md:gap-1">
                         <span className="hidden md:block text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Location</span>
                         <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
@@ -120,21 +129,6 @@ export function AdTitlePriceCard({
                         <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
                             <Clock className="h-3 w-3 text-foreground-subtle flex-shrink-0" />
                             <span className="truncate">{ad.time}</span>
-                        </div>
-                    </div>
-                    {viewCount !== undefined && viewCount > 0 && (
-                        <div className="flex flex-col md:gap-1 text-xs">
-                            <span className="hidden md:block text-2xs uppercase font-bold text-foreground-subtle tracking-wider">Views</span>
-                            <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
-                                <Eye className="h-3 w-3 text-foreground-subtle flex-shrink-0" />
-                                <span className="truncate">{formatStableNumber(viewCount)} views</span>
-                            </div>
-                        </div>
-                    )}
-                    <div className="flex flex-col md:gap-1">
-                        <span className="hidden md:block text-2xs uppercase font-bold text-foreground-subtle tracking-wider">ID</span>
-                        <div className="flex items-center gap-1.5 text-foreground-tertiary font-medium">
-                            <span className="truncate font-bold">#{ad.id}</span>
                         </div>
                     </div>
                 </div>

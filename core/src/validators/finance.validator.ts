@@ -60,6 +60,12 @@ export const createPaymentOrderSchema = z.object({
     planId: objectIdSchema
 }).strict();
 
+export const verifyPaymentSchema = z.object({
+    razorpay_payment_id: z.string().trim().min(1),
+    razorpay_order_id: z.string().trim().min(1),
+    razorpay_signature: z.string().trim().min(1),
+}).strict();
+
 const adminTransactionQuerySchemaBase = z.object({
     page: z.coerce.number().int().min(1).optional(),
     limit: z.coerce.number().int().min(1).max(100).optional(),

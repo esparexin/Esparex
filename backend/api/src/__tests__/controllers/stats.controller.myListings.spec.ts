@@ -1,6 +1,7 @@
 const mockGetOwnerListings = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
+const mockRunSweep = jest.fn().mockResolvedValue(undefined);
 const mockLogger = {
     error: jest.fn(),
     warn: jest.fn(),
@@ -10,6 +11,16 @@ const mockLogger = {
 
 jest.mock('@esparex/core/services/ad/AdAggregationService', () => ({
     getOwnerListings: mockGetOwnerListings,
+}));
+
+jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
+    ListingExpiryService: {
+        runSweep: (...args: unknown[]) => mockRunSweep(...args),
+    },
+}));
+
+jest.mock('@esparex/core/utils/statusQueryMapper', () => ({
+    getStatusMatchCriteria: jest.fn((s: string) => ({ $in: [s] })),
 }));
 
 jest.mock('../../utils/respond', () => ({

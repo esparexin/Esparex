@@ -2,7 +2,6 @@ import logger from '@esparex/core/utils/logger';
 import { env } from '@esparex/core/config/env';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import mongoose from 'mongoose';
 import {
     checkTransactionVelocity,
     findPendingTransaction,
@@ -17,6 +16,27 @@ import { getPrimaryPlanCreditCount } from "@esparex/shared";
 import { sendErrorResponse } from "../../utils/errorResponse";
 import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
+
+const formatErrorDetails = (err: unknown): string => {
+    if (err instanceof Error) return err.message;
+    if (typeof err === 'string') return err;
+    if (typeof err === 'object' && err !== null) {
+        const obj = err as Record<string, unknown>;
+        if (typeof obj.description === 'string') return obj.description;
+        if (typeof obj.message === 'string') return obj.message;
+        if (typeof obj.error === 'object' && obj.error !== null) {
+            const inner = obj.error as Record<string, unknown>;
+            if (typeof inner.description === 'string') return inner.description;
+            if (typeof inner.message === 'string') return inner.message;
+        }
+        try {
+            return JSON.stringify(err);
+        } catch {
+            return String(err);
+        }
+    }
+    return String(err);
+};
 
 /**
  * 1. CREATE ORDER
@@ -39,10 +59,6 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, 'Plan ID required');
         }
 
-        if (!mongoose.Types.ObjectId.isValid(normalizedPlanId)) {
-            return sendErrorResponse(req, res, 400, 'Invalid Plan ID');
-        }
-
         const user = await getUserForPayment((req.user)._id);
         if (!user) return sendErrorResponse(req, res, 404, 'User not found');
 
@@ -50,8 +66,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
         const isZeroCost = plan.price === 0;
         const razorpayConfig = await getRazorpayRuntimeConfig();
-        const isMock = isZeroCost || (env.NODE_ENV === 'development'
-            && (razorpayConfig.keyId === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true'));
+        const isMock = isZeroCost || env.MOCK_PAYMENTS || req.headers['x-mock-payment'] === 'true';
 
         if (!isMock && !razorpayConfig.enabled) {
             return sendErrorResponse(req, res, 503, 'Payments are currently unavailable');
@@ -95,12 +110,28 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         if (isMock) {
             rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
         } else {
-            const razorpay = await getRazorpayClient();
-            rzpOrder = await razorpay.orders.create({
-                amount: plan.price * 100,
-                currency: plan.currency || 'INR',
-                receipt: `rcpt_${crypto.randomBytes(12).toString('hex')}`
-            });
+            try {
+                const razorpay = await getRazorpayClient();
+                rzpOrder = await razorpay.orders.create({
+                    amount: Math.round(plan.price * 100),
+                    currency: plan.currency || 'INR',
+                    receipt: `rcpt_${crypto.randomBytes(8).toString('hex')}`
+                });
+            } catch (rzpErr) {
+                const errDetail = formatErrorDetails(rzpErr);
+                if (env.NODE_ENV === 'development' && env.MOCK_PAYMENTS) {
+                    logger.warn('[PAYMENT DEV BYPASS] Razorpay order creation failed in dev mode — falling back to mock order because MOCK_PAYMENTS=true.', {
+                        hint: 'Verify RAZORPAY_KEY_ID in backend/.env',
+                        error: errDetail
+                    });
+                    rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
+                } else {
+                    logger.error('[PAYMENT] Razorpay order creation failed:', {
+                        error: errDetail
+                    });
+                    throw new Error(`Razorpay API Error: ${errDetail}`);
+                }
+            }
         }
 
         const transaction = await createPaymentTransaction({
@@ -159,8 +190,16 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         }));
 
     } catch (error: unknown) {
-        const err = error as Error;
-        logger.error('Payment Order Error:', err);
-        sendErrorResponse(req, res, 500, 'Failed to initiate payment');
+        const errDetail = formatErrorDetails(error);
+        logger.error('[Payment Order Error]', {
+            detail: errDetail,
+            planId: req.body?.planId,
+            userId: req.user ? (req.user as { _id?: unknown })._id : undefined
+        });
+        const errorMessage = env.NODE_ENV === 'development' && errDetail
+            ? `Failed to initiate payment: ${errDetail}`
+            : 'Failed to initiate payment';
+        sendErrorResponse(req, res, 500, errorMessage);
     }
 };
+

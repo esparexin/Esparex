@@ -24,27 +24,48 @@ export interface ApplySpotlightParams {
 
 export class PromotionService {
     /**
-     * Applies a Boost promotion to a listing using 1 boostCredit from the user's wallet.
+     * Applies a Boost promotion to a listing using 1 credit from Entitlement ledger or UserWallet.
      */
     static async applyBoost(params: ApplyBoostParams): Promise<IBoost> {
-        const { userId, listingId, entityType = 'ad', durationDays = 7 } = params;
+        const { userId, listingId, entityType = 'ad', durationDays = 30 } = params;
 
         if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(listingId)) {
             throw new AppError('Invalid user or listing ID', 400, 'INVALID_ID');
         }
 
+        const userObjId = new mongoose.Types.ObjectId(userId);
+        const idFilter = { $in: [userObjId, userId] };
+
         const session = await mongoose.startSession();
         session.startTransaction();
 
         try {
-            const wallet = await UserWallet.findOne({ userId: new mongoose.Types.ObjectId(userId) }).session(session);
-            if (!wallet || (wallet.boostCredits || 0) < 1) {
-                throw new AppError('Insufficient boost credits', 400, 'INSUFFICIENT_BOOST_CREDITS');
-            }
+            const entitlement = await (await import('../../../models/Entitlement')).default.findOne({
+                userId: idFilter,
+                type: 'PUSH_TO_TOP',
+                status: 'ACTIVE',
+                remaining: { $gt: 0 },
+            }).session(session);
 
-            // Deduct 1 boost credit
-            wallet.boostCredits = (wallet.boostCredits || 0) - 1;
-            await wallet.save({ session });
+            const wallet = await UserWallet.findOne({ userId: idFilter }).session(session);
+
+            if (entitlement) {
+                entitlement.consumed = (entitlement.consumed || 0) + 1;
+                entitlement.remaining = Math.max(0, entitlement.remaining - 1);
+                if (entitlement.remaining === 0) {
+                    entitlement.status = 'EXHAUSTED';
+                }
+                await entitlement.save({ session });
+                if (wallet) {
+                    wallet.boostCredits = Math.max(0, (wallet.boostCredits || 0) - 1);
+                    await wallet.save({ session });
+                }
+            } else if (wallet && (wallet.boostCredits || 0) > 0) {
+                wallet.boostCredits = (wallet.boostCredits || 0) - 1;
+                await wallet.save({ session });
+            } else {
+                throw new AppError('Insufficient Top Ad credits', 400, 'INSUFFICIENT_TOP_AD_CREDITS');
+            }
 
             const startsAt = new Date();
             const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
@@ -58,9 +79,25 @@ export class PromotionService {
                 isActive: true,
             }], { session });
 
+            // Synchronize Ad document fields & bump recency timestamp
+            const AdModel = (await import('../../../models/Ad')).default;
+            const now = new Date();
+            await AdModel.updateOne(
+                { _id: new mongoose.Types.ObjectId(listingId) },
+                { 
+                    $set: { 
+                        isBoosted: true, 
+                        boostExpiresAt: endsAt,
+                        createdAt: now, 
+                        updatedAt: now 
+                    } 
+                },
+                { session }
+            );
+
             // Immutable Audit Log
             await CreditTransaction.create([{
-                userId: new mongoose.Types.ObjectId(userId),
+                userId: userObjId,
                 listingId: new mongoose.Types.ObjectId(listingId),
                 creditPool: 'PURCHASED',
                 amount: 1,
@@ -72,6 +109,18 @@ export class PromotionService {
             await session.commitTransaction();
             session.endSession();
 
+            try {
+                const { invalidateAdFeedCaches, invalidatePublicAdCache } = await import('../../../utils/redisCache');
+                const { DashboardFacade } = await import('./DashboardFacade');
+                await Promise.all([
+                    invalidateAdFeedCaches().catch(() => {}),
+                    invalidatePublicAdCache(listingId).catch(() => {}),
+                    DashboardFacade.invalidateCache(userId).catch(() => {}),
+                ]);
+            } catch {
+                // Non-blocking cache fallback
+            }
+
             logger.info('[PROMOTION_SERVICE] Boost applied successfully', { userId, listingId, durationDays });
             return boost;
         } catch (error) {
@@ -82,23 +131,44 @@ export class PromotionService {
     }
 
     /**
-     * Applies a Spotlight promotion to a listing using 1 spotlightCredit from the user's wallet.
+     * Applies a Spotlight promotion to a listing using 1 spotlightCredit from Entitlement ledger or UserWallet.
      */
     static async applySpotlight(params: ApplySpotlightParams): Promise<IBoost> {
-        const { userId, listingId, entityType = 'ad', spotlightType = 'spotlight_hp', durationDays = 7 } = params;
+        const { userId, listingId, entityType = 'ad', spotlightType = 'spotlight_hp', durationDays = 30 } = params;
 
         if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(listingId)) {
             throw new AppError('Invalid user or listing ID', 400, 'INVALID_ID');
         }
 
-        const wallet = await UserWallet.findOne({ userId: new mongoose.Types.ObjectId(userId) });
-        if (!wallet || (wallet.spotlightCredits || 0) < 1) {
+        const userObjId = new mongoose.Types.ObjectId(userId);
+        const idFilter = { $in: [userObjId, userId] };
+
+        const entitlement = await (await import('../../../models/Entitlement')).default.findOne({
+            userId: idFilter,
+            type: { $in: ['SPOTLIGHT_CAT', 'SPOTLIGHT_HP'] },
+            status: 'ACTIVE',
+            remaining: { $gt: 0 },
+        });
+
+        const wallet = await UserWallet.findOne({ userId: idFilter });
+
+        if (entitlement) {
+            entitlement.consumed = (entitlement.consumed || 0) + 1;
+            entitlement.remaining = Math.max(0, entitlement.remaining - 1);
+            if (entitlement.remaining === 0) {
+                entitlement.status = 'EXHAUSTED';
+            }
+            await entitlement.save();
+            if (wallet) {
+                wallet.spotlightCredits = Math.max(0, (wallet.spotlightCredits || 0) - 1);
+                await wallet.save();
+            }
+        } else if (wallet && (wallet.spotlightCredits || 0) > 0) {
+            wallet.spotlightCredits = (wallet.spotlightCredits || 0) - 1;
+            await wallet.save();
+        } else {
             throw new AppError('Insufficient spotlight credits', 400, 'INSUFFICIENT_SPOTLIGHT_CREDITS');
         }
-
-        // Deduct 1 spotlight credit
-        wallet.spotlightCredits = (wallet.spotlightCredits || 0) - 1;
-        await wallet.save();
 
         const startsAt = new Date();
         const endsAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
@@ -112,9 +182,29 @@ export class PromotionService {
             isActive: true,
         });
 
+        // Synchronize Ad document fields for search ranking aggregation & frontend badges
+        const AdModel = (await import('../../../models/Ad')).default;
+        await AdModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(listingId) },
+            { $set: { isSpotlight: true, spotlightExpiresAt: endsAt } }
+        );
+
+        // Invalidate feed and detail caches so fresh DTO with isSpotlight: true renders immediately
+        try {
+            const { invalidateAdFeedCaches, invalidatePublicAdCache } = await import('../../../utils/redisCache');
+            const { DashboardFacade } = await import('./DashboardFacade');
+            await Promise.all([
+                invalidateAdFeedCaches().catch(() => {}),
+                invalidatePublicAdCache(listingId).catch(() => {}),
+                DashboardFacade.invalidateCache(userId).catch(() => {}),
+            ]);
+        } catch {
+            // Non-blocking cache fallback
+        }
+
         // Immutable Audit Log
         await CreditTransaction.create({
-            userId: new mongoose.Types.ObjectId(userId),
+            userId: userObjId,
             listingId: new mongoose.Types.ObjectId(listingId),
             creditPool: 'PURCHASED',
             amount: 1,

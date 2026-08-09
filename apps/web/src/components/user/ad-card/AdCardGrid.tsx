@@ -7,6 +7,7 @@ import { cn } from "@/components/ui/utils";
 import {
   type AdCardData,
   useAdCardBase,
+  isSpotlightAd,
 } from "./shared";
 
 interface AdCardGridProps {
@@ -29,17 +30,11 @@ function areAdCardGridPropsEqual(
 ): boolean {
   return (
     prevProps.ad.id === nextProps.ad.id &&
-    prevProps.ad.price === nextProps.ad.price &&
-    prevProps.ad.title === nextProps.ad.title &&
-    prevProps.ad.isSpotlight === nextProps.ad.isSpotlight &&
-    (prevProps.ad as Record<string, unknown>).isFeatured === (nextProps.ad as Record<string, unknown>).isFeatured &&
-    (prevProps.ad as Record<string, unknown>).isPremium === (nextProps.ad as Record<string, unknown>).isPremium &&
-    (prevProps.ad as Record<string, unknown>).isBoosted === (nextProps.ad as Record<string, unknown>).isBoosted &&
     prevProps.isSaved === nextProps.isSaved &&
-    prevProps.priority === nextProps.priority &&
-    prevProps.href === nextProps.href &&
-    prevProps.showBusinessBadge === nextProps.showBusinessBadge &&
-    prevProps.className === nextProps.className
+    isSpotlightAd(prevProps.ad) === isSpotlightAd(nextProps.ad) &&
+    prevProps.ad.title === nextProps.ad.title &&
+    prevProps.ad.price === nextProps.ad.price &&
+    prevProps.ad.image === nextProps.ad.image
   );
 }
 
@@ -54,11 +49,7 @@ export const AdCardGrid = memo(function AdCardGrid({
   className,
 }: AdCardGridProps) {
   const { adRecord, href: resolvedHref, imageUrl, adId, useDeclarativeLink, handleCardClick } =
-    useAdCardBase({
-      ad,
-      href,
-      onClick,
-    });
+    useAdCardBase({ ad, href, onClick });
 
   const isBusiness = Boolean(adRecord.isBusiness);
 
@@ -71,8 +62,8 @@ export const AdCardGrid = memo(function AdCardGrid({
       className={cn(
         "duration-300 border-border bg-white shadow-premium rounded-2xl",
         "hover:shadow-premium-hover hover:-translate-y-1.5",
-        ad.isSpotlight &&
-          "ring-2 ring-amber-400/30 shadow-[0_8px_30px_rgba(245,158,11,0.15)]",
+        isSpotlightAd(ad) &&
+          "ring-2 ring-amber-400/50 shadow-[0_8px_30px_rgba(245,158,11,0.2)]",
         className
       )}
     >

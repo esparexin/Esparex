@@ -74,9 +74,7 @@
     "@tanstack/react-virtual",
     "eslint-plugin-react",
     "eslint-plugin-react-hooks",
-    // False positive: consumed in packages/ui/src/data-display/Badge.tsx
     "class-variance-authority",
-    // False positives: used throughout apps/mobile/src — knip mis-attributes mobile workspace deps
     "expo-status-bar",
     "react-native-svg",
     "@esparex/design-tokens",
@@ -85,7 +83,6 @@
     "expo-system-ui",
     "expo-constants",
     "lucide-react-native",
-    // False positives: devDeps used by Expo/Babel build toolchain, not directly imported
     "@babel/core",
     "@commitlint/cli",
     "husky",
@@ -147,11 +144,8 @@
     "scripts/**",
     "eslint.config.mjs",
     "tooling/**",
-    // backend/api/scripts use relative paths (../src/config/db) and are standalone migration runners
     "backend/api/scripts/**",
-    // mobile-ui test files use describe/it without exports — not consumable modules
     "packages/mobile-ui/src/**/__tests__/**",
-    // mobile build config — loaded by Metro/Babel CLI, not imported
     "apps/mobile/babel.config.js"
   ]
 }

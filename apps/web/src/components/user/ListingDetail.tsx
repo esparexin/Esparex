@@ -124,6 +124,7 @@ export function ListingDetail({
 
   useViewTracking(ad?.id, isOwner, queryClient);
   const isPendingOwner = Boolean(isOwner && ad?.status === "pending");
+  const isActiveSpotlight = Boolean(ad?.isSpotlight);
 
   const getSellerDisplayName = () => {
     if (!ad) return "Seller";
@@ -212,10 +213,12 @@ export function ListingDetail({
 
                     <ListingDescriptionCard ad={ad} />
 
-                    <ListingRelatedBusinessesSection
-                      ad={ad}
-                      navigateTo={navigateTo}
-                    />
+                    {!isOwner && (
+                      <ListingRelatedBusinessesSection
+                        ad={ad}
+                        navigateTo={navigateTo}
+                      />
+                    )}
                   </div>
 
                   <ListingDetailSidebar
@@ -244,6 +247,7 @@ export function ListingDetail({
 
             <ListingBottomActions
               variant={getActionBarVariant(isOwner, adStatus.isSold, ad.status)}
+              isSpotlight={isActiveSpotlight}
               onEditClick={handleEdit}
               onDeleteClick={handleDeleteClick}
               onMarkSoldClick={() => handleMarkSoldClick()}

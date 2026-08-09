@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 
-import { createPurchaseOrder } from "@/lib/api/user/plans";
+import { createPurchaseOrder, verifyPurchaseOrder } from "@/lib/api/user/plans";
 import { getWalletSummary, type WalletSummary } from "@/lib/api/user/users";
-import { loadRazorpay, type RazorpayOptions } from "@/lib/payments/razorpay";
+import { loadRazorpay, type RazorpayOptions, type RazorpayHandlerResponse } from "@/lib/payments/razorpay";
 import { waitForWalletCredit } from "@/lib/payments/waitForWalletCredit";
 import logger from "@/lib/logger";
+import { mapErrorToMessage } from "@/lib/errorMapper";
 
 type WalletCreditField = keyof Pick<
   WalletSummary,
@@ -22,6 +23,7 @@ type WaitForCreditConfig = {
 
 type RazorpayPaymentFailedResponse = {
   error?: {
+    code?: string;
     description?: string;
     reason?: string;
   };
@@ -66,8 +68,11 @@ export function usePlanCheckout() {
       const baselineWallet = waitForCredit ? await getWalletSummary() : null;
       const order = await createPurchaseOrder(planId);
 
-      // If order is zero-cost (amount === 0) or mock order, complete checkout immediately
-      if (amount === 0 || (typeof order.orderId === "string" && order.orderId.startsWith("order_mock_"))) {
+      // If order is zero-cost (amount === 0) or explicit mock mode enabled, complete checkout immediately
+      const isMockOrder = typeof order.orderId === "string" && order.orderId.startsWith("order_mock_");
+      const allowMockBypass = process.env.NEXT_PUBLIC_MOCK_PAYMENTS === "true";
+
+      if (amount === 0 || (isMockOrder && allowMockBypass)) {
         await onPaymentVerified();
         setIsProcessing(false);
         return;
@@ -91,15 +96,27 @@ export function usePlanCheckout() {
           email: order.userEmail,
           contact: order.userPhone,
         },
-        handler: async () => {
+        handler: async (response: RazorpayHandlerResponse) => {
+          try {
+            if (response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature) {
+              await verifyPurchaseOrder({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              });
+            }
+          } catch (verifyError) {
+            logger.error("Client signature verification failed", verifyError);
+          }
+
           if (waitForCredit) {
             const baseline = baselineWallet?.[waitForCredit.field] ?? 0;
             const wallet = await waitForWalletCredit(
               waitForCredit.field,
               baseline,
               waitForCredit.minimumDelta ?? 1,
-              waitForCredit.timeoutMs,
-              waitForCredit.intervalMs
+              waitForCredit.timeoutMs ?? 15000,
+              waitForCredit.intervalMs ?? 1500
             );
             if (!wallet) {
               onCreditPending?.();
@@ -122,15 +139,31 @@ export function usePlanCheckout() {
       const razorpay = new window.Razorpay(options);
       razorpay.on?.("payment.failed", (response: unknown) => {
         const errorDetail = isPaymentFailedResponse(response) ? response.error : undefined;
-        logger.error("Payment failed", errorDetail);
-        const reason = errorDetail?.description || errorDetail?.reason || "Payment was declined or failed to process.";
-        onPaymentFailed?.(reason);
+        logger.error("Payment failed detail", errorDetail);
+
+        const userFriendlyReason = (() => {
+          const code = (errorDetail?.code || "").toUpperCase();
+          const desc = (errorDetail?.description || errorDetail?.reason || "").toLowerCase();
+          if (code.includes("RATE_LIMIT") || desc.includes("too many") || desc.includes("rate limit")) {
+            return "Too many payment attempts were detected. Please wait a short time and try again.";
+          }
+          if (desc.includes("cancelled") || desc.includes("closed")) {
+            return "Payment process was closed without completing.";
+          }
+          if (desc.includes("declined") || desc.includes("insufficient")) {
+            return "Payment couldn't be processed. Please check your payment details or try a different method.";
+          }
+          return "Payment couldn't be started right now. Please try again in a few moments.";
+        })();
+
+        onPaymentFailed?.(userFriendlyReason);
         setIsProcessing(false);
       });
       razorpay.open();
     } catch (error) {
-      logger.error("Checkout initialization failed", error);
-      onPaymentFailed?.("Failed to initialize payment gateway. Please try again later.");
+      logger.error("Checkout initialization failed detail", error);
+      const userMessage = mapErrorToMessage(error, "Payment couldn't be started right now. Please try again in a few moments.");
+      onPaymentFailed?.(userMessage);
       setIsProcessing(false);
       throw error;
     }

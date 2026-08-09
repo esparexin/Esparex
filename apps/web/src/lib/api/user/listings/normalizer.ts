@@ -295,6 +295,26 @@ export function normalizeListing(data: unknown): Listing {
     const decodedBrandName = validated.brandName ? decodeHtmlEntities(validated.brandName) : undefined;
     const decodedModelName = validated.modelName ? decodeHtmlEntities(validated.modelName) : undefined;
 
+    const rawRecord = compatible as Record<string, unknown>;
+    const spotlightExpiresAt = rawRecord?.spotlightExpiresAt ?? (validated as Record<string, unknown>)?.spotlightExpiresAt;
+    const nowMs = Date.now();
+    const spotlightExpMs = spotlightExpiresAt ? new Date(String(spotlightExpiresAt)).getTime() : 0;
+    const isSpotlight = Boolean(
+        rawRecord?.isSpotlight === true ||
+        rawRecord?.spotlight === true ||
+        (validated as Record<string, unknown>)?.isSpotlight === true ||
+        (spotlightExpMs > 0 && spotlightExpMs > nowMs)
+    );
+
+    const boostExpiresAt = rawRecord?.boostExpiresAt ?? (validated as Record<string, unknown>)?.boostExpiresAt;
+    const boostExpMs = boostExpiresAt ? new Date(String(boostExpiresAt)).getTime() : 0;
+    const isBoosted = Boolean(
+        rawRecord?.isBoosted === true ||
+        rawRecord?.boosted === true ||
+        (validated as Record<string, unknown>)?.isBoosted === true ||
+        (boostExpMs > 0 && boostExpMs > nowMs)
+    );
+
     return {
         ...validated,
         title: decodedTitle,
@@ -315,6 +335,10 @@ export function normalizeListing(data: unknown): Listing {
         sellerId: extractId(validated.sellerId) || '',
         views,
         location: (location || { city: "" }) as Listing['location'],
+        isSpotlight,
+        spotlightExpiresAt,
+        isBoosted,
+        boostExpiresAt,
     } as Listing;
 }
 
