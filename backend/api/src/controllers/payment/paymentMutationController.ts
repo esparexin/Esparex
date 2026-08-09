@@ -17,6 +17,27 @@ import { sendErrorResponse } from "../../utils/errorResponse";
 import { buildMockOrder, getRazorpayClient, getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
 
+const formatErrorDetails = (err: unknown): string => {
+    if (err instanceof Error) return err.message;
+    if (typeof err === 'string') return err;
+    if (typeof err === 'object' && err !== null) {
+        const obj = err as Record<string, unknown>;
+        if (typeof obj.description === 'string') return obj.description;
+        if (typeof obj.message === 'string') return obj.message;
+        if (typeof obj.error === 'object' && obj.error !== null) {
+            const inner = obj.error as Record<string, unknown>;
+            if (typeof inner.description === 'string') return inner.description;
+            if (typeof inner.message === 'string') return inner.message;
+        }
+        try {
+            return JSON.stringify(err);
+        } catch {
+            return String(err);
+        }
+    }
+    return String(err);
+};
+
 /**
  * 1. CREATE ORDER
  * Initiates valid transaction sequence using Razorpay SDK.
@@ -92,22 +113,23 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
             try {
                 const razorpay = await getRazorpayClient();
                 rzpOrder = await razorpay.orders.create({
-                    amount: plan.price * 100,
+                    amount: Math.round(plan.price * 100),
                     currency: plan.currency || 'INR',
-                    receipt: `rcpt_${crypto.randomBytes(12).toString('hex')}`
+                    receipt: `rcpt_${crypto.randomBytes(8).toString('hex')}`
                 });
             } catch (rzpErr) {
+                const errDetail = formatErrorDetails(rzpErr);
                 if (env.NODE_ENV === 'development' && env.MOCK_PAYMENTS) {
                     logger.warn('[PAYMENT DEV BYPASS] Razorpay order creation failed in dev mode — falling back to mock order because MOCK_PAYMENTS=true.', {
                         hint: 'Verify RAZORPAY_KEY_ID in backend/.env',
-                        error: rzpErr instanceof Error ? rzpErr.message : String(rzpErr)
+                        error: errDetail
                     });
                     rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
                 } else {
                     logger.error('[PAYMENT] Razorpay order creation failed:', {
-                        error: rzpErr instanceof Error ? rzpErr.message : String(rzpErr)
+                        error: errDetail
                     });
-                    throw rzpErr;
+                    throw new Error(`Razorpay API Error: ${errDetail}`);
                 }
             }
         }
@@ -168,16 +190,16 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         }));
 
     } catch (error: unknown) {
-        const err = error as Error;
+        const errDetail = formatErrorDetails(error);
         logger.error('[Payment Order Error]', {
-            message: err.message,
-            stack: err.stack,
+            detail: errDetail,
             planId: req.body?.planId,
             userId: req.user ? (req.user as { _id?: unknown })._id : undefined
         });
-        const errorMessage = env.NODE_ENV === 'development' && err.message
-            ? `Failed to initiate payment: ${err.message}`
+        const errorMessage = env.NODE_ENV === 'development' && errDetail
+            ? `Failed to initiate payment: ${errDetail}`
             : 'Failed to initiate payment';
         sendErrorResponse(req, res, 500, errorMessage);
     }
 };
+
