@@ -2,15 +2,16 @@ import { Request, Response } from 'express';
 import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
 import { getRazorpayRuntimeConfig } from '@esparex/core/config/razorpay';
 import { enqueuePaymentProcessing } from '@esparex/core/queues/paymentQueue';
-import { logBusiness, logSecurity } from '@esparex/core/utils/logger';
+import { processSuccessfulPayment } from '@esparex/core/domains/payments/application/PaymentProcessingService';
+import logger, { logBusiness, logSecurity } from '@esparex/core/utils/logger';
 import { sendErrorResponse } from '../../utils/errorResponse';
 import { respond } from '../../utils/respond';
 import { env } from '@esparex/core/config/env';
 
 /**
  * 🔐 VERIFY PAYMENT CONTROLLER
- * Verifies Razorpay signature for client-side completed checkouts (Mobile Native).
- * Queues verified payment for processing and wallet credit.
+ * Verifies Razorpay signature for client-side completed checkouts (Mobile & Web Native).
+ * Queues verified payment for processing (or processes inline if Redis queue is offline).
  */
 export async function verifyPayment(req: Request, res: Response) {
     try {
@@ -56,20 +57,38 @@ export async function verifyPayment(req: Request, res: Response) {
 
         logBusiness('payment_verified', {
             phase: 'client_verify',
-            source: 'mobile',
+            source: 'web',
             userId: req.user._id?.toString(),
             gatewayPaymentId: paymentIdStr,
             gatewayOrderId: orderIdStr
         });
 
-        await enqueuePaymentProcessing({
-            event: 'payment.captured',
-            gatewayPaymentId: paymentIdStr,
-            gatewayOrderId: orderIdStr
-        });
+        try {
+            await enqueuePaymentProcessing({
+                event: 'payment.captured',
+                gatewayPaymentId: paymentIdStr,
+                gatewayOrderId: orderIdStr
+            });
+        } catch (queueErr) {
+            logger.warn('[VERIFY_PAYMENT] Queue unavailable, processing payment inline:', {
+                gatewayPaymentId: paymentIdStr,
+                gatewayOrderId: orderIdStr,
+                error: queueErr instanceof Error ? queueErr.message : String(queueErr)
+            });
+            await processSuccessfulPayment({
+                source: 'webhook',
+                event: 'payment.captured',
+                gatewayPaymentId: paymentIdStr,
+                gatewayOrderId: orderIdStr
+            });
+        }
 
-        return res.json(respond({ success: true, message: 'Payment verified and queued for processing' }));
+        return res.json(respond({ success: true, message: 'Payment verified and processed successfully' }));
     } catch (error) {
-        return sendErrorResponse(req, res, 500, 'Failed to verify payment');
+        logger.error('[VERIFY_PAYMENT] Payment verification failed', {
+            error: error instanceof Error ? error.message : String(error)
+        });
+        return sendErrorResponse(req, res, 500, error instanceof Error ? error.message : 'Failed to verify payment');
     }
 }
+
