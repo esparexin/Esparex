@@ -341,7 +341,8 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
 
     async insert(listing: ListingUpdate, session?: unknown): Promise<Listing> {
         const docs = await AdModel.create([listing as Record<string, unknown>], { session: session as any });
-        return toDomain(docs[0] as unknown as DbListing);
+        const rawDoc: unknown = docs[0];
+        return toDomain(rawDoc as DbListing);
     }
 
     async updateOne(id: string, update: ListingUpdate, session?: unknown): Promise<Listing | null> {

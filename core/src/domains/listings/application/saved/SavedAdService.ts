@@ -41,7 +41,7 @@ export const getSavedAds = async (userId: string, page: number, limit: number) =
     const rawAds: HydratedAd[] = listings.map((l) => ({
         ...l,
         _id: new mongoose.Types.ObjectId(l.id),
-    } as unknown as HydratedAd));
+    } as HydratedAd));
 
     await hydrateAdMetadata(rawAds);
 

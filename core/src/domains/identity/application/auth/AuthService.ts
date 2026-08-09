@@ -478,7 +478,8 @@ export class AuthService {
         }
 
         const token = generateToken({ id: user._id, role: user.role, tokenVersion: user.tokenVersion ?? 0 });
-        const serializedUser = serializeDoc(user) as unknown as Record<string, unknown>;
+        const rawUser: unknown = serializeDoc(user);
+        const serializedUser = rawUser as Record<string, unknown>;
 
         return {
             success: true,

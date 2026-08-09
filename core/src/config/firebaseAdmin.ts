@@ -47,6 +47,7 @@ if (!hasFirebaseServiceAccountJson && !disableForTest) {
     logger.warn('Firebase Admin disabled: FIREBASE_SERVICE_ACCOUNT_JSON is not set.');
 }
 
-const firebaseAdmin = shouldDisableFirebase ? (mockAdmin as unknown as typeof admin) : admin;
+const rawMockAdmin: unknown = mockAdmin;
+const firebaseAdmin = shouldDisableFirebase ? (rawMockAdmin as typeof admin) : admin;
 
 export default firebaseAdmin;

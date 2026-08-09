@@ -205,7 +205,7 @@ export const adminLogin = async (req: Request, res: Response) => {
         }
 
         const isMatch = admin.password ? await comparePassword(password, admin.password) : false;
-        const adminRecord = admin as unknown as
+        const adminRecord = admin as
             (typeof admin & { twoFactorEnabled?: boolean; twoFactorSecret?: string });
         if (!isMatch) {
             logger.warn('Admin login failed: Password mismatch', { email, ip: req.ip });

@@ -104,7 +104,8 @@ export const getRevenueSummary = async (startDate?: string, endDate?: string) =>
     const categoryBreakdown: Record<string, CategoryBreakdownEntry> = {};
 
     records.forEach(r => {
-        const rec = r as unknown as Record<string, unknown>;
+        const rawRecord: unknown = r;
+        const rec = rawRecord as Record<string, unknown>;
         const breakdown = rec.categoryBreakdown || rec.byCategory;
         if (breakdown && typeof breakdown === 'object') {
             const entries = breakdown instanceof Map ? Array.from(breakdown.entries()) : Object.entries(breakdown);

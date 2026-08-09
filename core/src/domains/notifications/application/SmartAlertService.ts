@@ -391,7 +391,8 @@ export type SmartAlertQuery = Promise<SmartAlertDocument[]> & {
     limit: (n: number) => SmartAlertQuery;
 };
 
-export const SmartAlertModel = SmartAlert as unknown as {
+const rawSmartAlertModel: unknown = SmartAlert;
+export const SmartAlertModel = rawSmartAlertModel as { 
     countDocuments: (query: Record<string, unknown>) => Promise<number>;
     create: (payload: Record<string, unknown>) => Promise<SmartAlertDocument>;
     find: (query: Record<string, unknown>) => SmartAlertQuery;

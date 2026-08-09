@@ -140,7 +140,7 @@ export const getAds = async (
     const data = results.map(ad => {
         const serializedAd = serializeDoc(ad);
         if (serializedAd.location) serializedAd.location = normalizeLocationResponse(serializedAd.location);
-        return normalizeAdImagesForResponse(serializedAd as unknown as Record<string, unknown>);
+        return normalizeAdImagesForResponse(serializedAd as Record<string, unknown>);
     });
     const hasLocationContext = Boolean(hasGeo || effectiveFilters.locationId || effectiveFilters.location || effectiveFilters.district || effectiveFilters.state || effectiveFilters.country || effectiveFilters.level);
     if (hasLocationContext && !options.disableLocationIntelligence) {

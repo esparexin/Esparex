@@ -199,7 +199,7 @@ export async function handleCatalogCreate<T extends Document>(
             data.slug = slugify(data.name as string, { lower: true, strict: true }) + '-' + nanoid(6);
         }
 
-        const item = await model.create(data as unknown as Partial<T>);
+        const item = await model.create(data as Partial<T>);
 
         if (options.postOp) void options.postOp(item as T);
 
@@ -260,7 +260,7 @@ export async function handleCatalogUpdate<T extends Document>(
 
         const item = options.updateOp
             ? await options.updateOp(id, data, existing)
-            : await model.findByIdAndUpdate(id, data as unknown as Partial<T>, { new: true });
+            : await model.findByIdAndUpdate(id, data as Partial<T>, { new: true });
         
         if (options.postOp) void options.postOp(item as T);
 

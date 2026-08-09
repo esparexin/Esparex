@@ -48,7 +48,7 @@ const isRedisNotReadyError = (error: unknown): boolean => {
 };
 
 const waitForRedisReady = async (timeoutMs: number): Promise<boolean> => {
-    const status = (redisClient as unknown as { status?: string }).status;
+    const status = (redisClient as { status?: string }).status;
     if (status === 'ready') return true;
     if (redisReadyWaitInFlight) return redisReadyWaitInFlight;
     redisReadyWaitInFlight = new Promise<boolean>((resolve) => {
@@ -60,14 +60,14 @@ const waitForRedisReady = async (timeoutMs: number): Promise<boolean> => {
         const onError = () => undefined;
         const onEnd = () => cleanup(false);
         redisClient.on('ready', onReady); redisClient.on('error', onError); redisClient.on('end', onEnd);
-        if ((redisClient as unknown as { status?: string }).status === 'ready') cleanup(true);
+        if ((redisClient as { status?: string }).status === 'ready') cleanup(true);
     });
     return redisReadyWaitInFlight;
 };
 
 const sendRedisCommandWithReadyRetry = async (...args: string[]): Promise<RedisReply> => {
-    try { return await (redisClient as unknown as RedisCallable).call(...args); }
-    catch (error) { if (!isRedisNotReadyError(error)) throw error; const r = await waitForRedisReady(REDIS_READY_WAIT_MS); if (!r) throw error; return (redisClient as unknown as RedisCallable).call(...args); }
+    try { return await (redisClient as RedisCallable).call(...args); }
+    catch (error) { if (!isRedisNotReadyError(error)) throw error; const r = await waitForRedisReady(REDIS_READY_WAIT_MS); if (!r) throw error; return (redisClient as RedisCallable).call(...args); }
 };
 
 const formatCountdown = (seconds: number): string => {

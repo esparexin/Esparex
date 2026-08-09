@@ -97,7 +97,7 @@ export const ingestLocation = async (payload: {
         void session.endSession();
 
         if (created) {
-            const createdDoc = created as unknown as { toObject(): LocationInputObject };
+            const createdDoc = created as { toObject(): LocationInputObject };
             return mapToLocationResponse(buildNormalizedFromLocationDoc(createdDoc.toObject()));
         }
         throw new AppError('Failed to create location document', 500, 'LOCATION_CREATE_FAILED');

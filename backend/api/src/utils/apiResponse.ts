@@ -26,7 +26,7 @@ export class ApiResponse {
      * Standard success response
      */
     static sendSuccess<T>(res: Response, data: T, message?: string, statusCode = 200) {
-        const req = (res as unknown as { req: Request }).req;
+        const req = (res as { req: Request }).req;
         const payload: ApiResponseEnvelope<T> = {
             success: true,
             data: serializeDoc(data),
@@ -74,7 +74,7 @@ export class ApiResponse {
      * Standard paginated response
      */
     static sendPaginated<T>(res: Response, items: T[], total: number, page: number, limit: number) {
-        const req = (res as unknown as { req: Request }).req;
+        const req = (res as { req: Request }).req;
         const payload: ApiResponseEnvelope<{ items: T[] }> = {
             success: true,
             data: {

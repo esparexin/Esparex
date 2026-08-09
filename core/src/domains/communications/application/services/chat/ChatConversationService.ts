@@ -61,7 +61,7 @@ export async function listConversations(
 
     return {
         convs: convs.map((conversation) => toConversationDto(
-            conversation as unknown as PopulatedConv,
+            conversation as PopulatedConv,
             userId
         )),
         nextCursor,
@@ -75,7 +75,7 @@ export async function getConversationForUser(conversationId: string, userId: str
         throw Object.assign(new Error('Conversation not found'), { status: 404 });
     }
 
-    return toConversationDto(conv as unknown as PopulatedConv, userId);
+    return toConversationDto(conv as PopulatedConv, userId);
 }
 
 export async function blockConversation(conversationId: string, userId: string) {

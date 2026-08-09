@@ -28,7 +28,7 @@ export const adminCreateListing = async (actorId: string, body: unknown, logFn: 
         actor: 'ADMIN', authUserId: actorId, sellerId: actorId, allowQuotaBypass: true,
     });
     if (!ad) throw new AppError('Failed to create listing', 500);
-    const createdAdId = ((ad as unknown as { _id?: unknown })._id ?? '').toString();
+    const createdAdId = ((ad as { _id?: unknown })._id ?? '').toString();
     if (!createdAdId) throw new AppError('Created listing id is missing', 500);
 
     await logFn('CREATE_LISTING', 'Ad', createdAdId, { ...payload, allowDuplicateBypass, duplicateBypassReason: allowDuplicateBypass ? duplicateBypassReason : undefined });

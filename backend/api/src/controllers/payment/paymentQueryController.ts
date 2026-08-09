@@ -100,7 +100,7 @@ export const getInvoice = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 404, 'Invoice not found');
         }
 
-        const user = transaction.userId as unknown as InvoiceUser;
+        const user = transaction.userId as InvoiceUser;
         const reqUserRole = normalizeRole(req.user?.role);
         const isReqUserAdmin = reqUserRole === Role.ADMIN || reqUserRole === Role.SUPER_ADMIN;
 

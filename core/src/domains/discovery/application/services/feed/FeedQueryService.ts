@@ -68,7 +68,7 @@ export const buildHomeFeed = async (
         baseFilter.categoryId = resolvedCategoryId;
     }
 
-    const visibilityFilter = buildPublicAdFilter() as unknown as Partial<ListingFilter>;
+    const visibilityFilter = buildPublicAdFilter() as Partial<ListingFilter>;
     Object.assign(baseFilter, visibilityFilter);
 
     if (cursor) {

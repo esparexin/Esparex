@@ -123,12 +123,14 @@ mongoose.plugin((schema) => {
 
     // Aggregations
     schema.pre('aggregate', function () {
-        const ctx = this as unknown as MongooseHookContext;
+        const rawCtx: unknown = this;
+        const ctx = rawCtx as MongooseHookContext;
         ctx._startTime = Date.now();
     });
 
     schema.post('aggregate', function () {
-        const ctx = this as unknown as MongooseHookContext;
+        const rawCtx: unknown = this;
+        const ctx = rawCtx as MongooseHookContext;
         if (ctx._startTime) {
             const time = Date.now() - ctx._startTime;
             const modelName = ctx._model?.modelName || 'Unknown';

@@ -65,7 +65,7 @@ export class MongoModelRepositoryAdapter implements ModelRepositoryPort {
 
     async create(data: Partial<Model> | any, tx?: unknown): Promise<Model> {
         const docs = await ModelMongoose.create([data], { session: tx as any });
-        return this.toDomain(docs[0] as unknown as DbModel);
+        return this.toDomain(docs[0] as DbModel);
     }
 
     async update(id: string, data: Partial<Model> | any, tx?: unknown): Promise<Model | null> {

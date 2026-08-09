@@ -84,7 +84,7 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
 
     async create(data: Partial<Category> | any, tx?: unknown): Promise<Category> {
         const docs = await CategoryModel.create([data], { session: tx as any });
-        return this.toDomain(docs[0] as unknown as DbCategory);
+        return this.toDomain(docs[0] as DbCategory);
     }
 
     async update(id: string, data: Partial<Category> | any, tx?: unknown): Promise<Category | null> {

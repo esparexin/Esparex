@@ -87,7 +87,7 @@ router.get("/:id/phone", validateObjectId, extractUser, searchLimiter, engagemen
 
 // PATCH /api/v1/listings/:id/edit
 // Strict edit with ownership validation (Standardized)
-router.patch("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
+router.patch("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as ZodTypeAny), editListingController.editListing);
 
 // PATCH /api/v1/listings/:id/sold
 // SSOT: Required terminal state transition

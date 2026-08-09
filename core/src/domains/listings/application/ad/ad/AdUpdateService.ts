@@ -60,7 +60,7 @@ export const updateAdLogic = async (
             );
 
             const untypedPayload = payload as Record<string, unknown>;
-            const untypedAd = ad as unknown as Record<string, unknown>;
+            const untypedAd = ad as Record<string, unknown>;
 
             let sensitiveChange = false;
             if (context.actor === 'USER') {
@@ -138,7 +138,7 @@ export const updateAdLogic = async (
                         },
                     },
                     session,
-                })) as unknown as Listing | null;
+                })) as Listing | null;
             }
         };
 
@@ -202,7 +202,7 @@ export const updateAdLogic = async (
         if (typeof (updatedAd as any).toObject === 'function') {
             return (updatedAd as any).toObject();
         }
-        return updatedAd as unknown as Record<string, unknown>;
+        return updatedAd as Record<string, unknown>;
     } catch (error) {
         logger.error('Failed to update ad', {
             error: error instanceof Error ? error.message : String(error),

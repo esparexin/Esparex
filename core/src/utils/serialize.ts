@@ -33,7 +33,7 @@ export function serializeDoc<T>(doc: T): T {
     }
 
     if (Array.isArray(doc)) {
-        return (doc as unknown[]).map((item) => serializeDoc(item)) as unknown as T;
+        return (doc as unknown[]).map((item) => serializeDoc(item)) as T;
     }
 
     if (doc instanceof Date) {
@@ -44,7 +44,7 @@ export function serializeDoc<T>(doc: T): T {
         return doc.toString() as T;
     }
 
-    const docWithObject = doc as unknown as Partial<ToObjectCapable>;
+    const docWithObject = doc as Partial<ToObjectCapable>;
     const obj: unknown = (typeof docWithObject.toObject === 'function')
         ? docWithObject.toObject({ virtuals: true, versionKey: false })
         : (doc);

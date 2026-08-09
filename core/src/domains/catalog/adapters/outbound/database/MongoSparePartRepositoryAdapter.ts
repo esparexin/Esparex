@@ -60,7 +60,7 @@ export class MongoSparePartRepositoryAdapter implements SparePartRepositoryPort 
 
     async create(data: Partial<SparePart> | any, tx?: unknown): Promise<SparePart> {
         const docs = await SparePartMongoose.create([data], { session: tx as any });
-        return this.toDomain(docs[0] as unknown as DbSparePart);
+        return this.toDomain(docs[0] as DbSparePart);
     }
 
     async update(id: string, data: Partial<SparePart> | any, tx?: unknown): Promise<SparePart | null> {

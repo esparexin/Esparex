@@ -90,7 +90,8 @@ export const getAnyAdById = async (
         await hydrateAdMetadata([adRecord as any]);
 
         // Use DTO/interface for ad
-        const result = { ...adRecord } as unknown as Partial<IAd> & Record<string, unknown>;
+        const rawResult: unknown = { ...adRecord };
+        const result = rawResult as Partial<IAd> & Record<string, unknown>;
         delete result.password;
         delete result.otp;
         delete result.otpExpiry;
@@ -129,7 +130,8 @@ export const getListingDetailById = async (adId: string) => {
 
     await hydrateAdMetadata([adRecord as any]);
 
-    const detail = adRecord as unknown as Record<string, unknown> & {
+    const rawDetail: unknown = adRecord;
+    const detail = rawDetail as Record<string, unknown> & {
         categoryId?: unknown;
         brandId?: unknown;
         modelId?: unknown;
@@ -147,7 +149,8 @@ export const getListingDetailById = async (adId: string) => {
             .lean();
 
         if (business) {
-            const businessRecord = business as unknown as Record<string, unknown> & {
+            const rawBusiness: unknown = business;
+            const businessRecord = rawBusiness as Record<string, unknown> & {
                 name?: string;
                 businessTypes?: string[];
                 location?: { city?: string; state?: string } | null;
@@ -351,7 +354,8 @@ export const getAdsByStatus = async (
         getListingRepository().findWithLimit({ status, isDeleted: { $ne: true } as any }, { createdAt: 1 }, limit, skip),
         getListingRepository().count({ status, isDeleted: { $ne: true } as any })
     ]);
-    return { data: data as unknown as Record<string, unknown>[], total };
+    const rawData: unknown = data;
+    return { data: rawData as Record<string, unknown>[], total };
 };
 
 // ─────────────────────────────────────────────────

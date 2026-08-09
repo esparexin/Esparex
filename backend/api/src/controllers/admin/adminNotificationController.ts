@@ -98,7 +98,7 @@ async function dispatchToAudience(params: {
 
 export async function sendNotification(req: Request, res: Response) {
     try {
-        const currentUser = req.user as unknown as IUser;
+        const currentUser = req.user as IUser;
         const { title, body, targetType, targetValue, userIds, actionUrl, sendAt } = req.body as {
             title: string;
             body: string;
@@ -251,7 +251,7 @@ export async function getHistory(req: Request, res: Response) {
             targetValue: log.targetValue,
             userIds: log.userIds,
             actionUrl: log.actionUrl,
-            sentBy: (log as unknown as { sentBy?: mongoose.Types.ObjectId | Record<string, unknown> }).sentBy ?? null,
+            sentBy: (log as { sentBy?: mongoose.Types.ObjectId | Record<string, unknown> }).sentBy ?? null,
             successCount: log.successCount,
             skippedCount: log.skippedCount ?? 0,
             failureCount: log.failureCount,
@@ -268,7 +268,7 @@ export async function getHistory(req: Request, res: Response) {
             targetValue: job.targetValue,
             userIds: job.userIds,
             actionUrl: job.actionUrl,
-            sentBy: (job as unknown as { sentBy?: mongoose.Types.ObjectId | Record<string, unknown> }).sentBy ?? null,
+            sentBy: (job as { sentBy?: mongoose.Types.ObjectId | Record<string, unknown> }).sentBy ?? null,
             successCount: 0,
             skippedCount: 0,
             failureCount: 0,
