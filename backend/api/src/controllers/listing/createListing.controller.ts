@@ -79,7 +79,7 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
  */
 export const getPresignedUploadUrl = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { fileName, fileType, folder } = req.body as { fileName?: string; fileType?: string; folder?: string };
+        const { fileType, folder } = req.body as { fileType?: string; folder?: string };
         if (!fileType) {
             const { sendErrorResponse } = await import("../../utils/errorResponse");
             return sendErrorResponse(req, res, 400, 'fileType is required for upload presign.');

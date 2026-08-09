@@ -287,7 +287,7 @@ app.get('/metrics', async (_req, res) => {
         const { register } = await import('@esparex/core/utils/metrics');
         res.setHeader('Content-Type', register.contentType);
         res.send(await register.metrics());
-    } catch (error) {
+    } catch {
         res.status(500).send('# Metrics error\n');
     }
 });

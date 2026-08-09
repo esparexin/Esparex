@@ -16,8 +16,8 @@ export const LoginScreen = () => {
     setLoading(true);
     try {
       await login({ email, password });
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // Login errors are handled via AuthProvider state/toast
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ export const LoginScreen = () => {
           accessibilityLabel="Don't have an account? Sign up"
         >
           <AppText variant="body" className="text-slate-500">
-            Don't have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Sign up</AppText>
+            Don&apos;t have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Sign up</AppText>
           </AppText>
         </TouchableOpacity>
       }

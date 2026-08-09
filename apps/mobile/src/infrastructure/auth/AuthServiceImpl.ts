@@ -68,7 +68,7 @@ export class AuthServiceImpl implements IAuthService {
       } else {
         await this.apiClient.post('/v1/auth/logout');
       }
-    } catch (e) {
+    } catch {
       // Ignore network errors on logout, we still want to clear the local session
     } finally {
       await this.tokenStorage.clearTokens();

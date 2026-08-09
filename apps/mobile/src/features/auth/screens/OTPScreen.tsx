@@ -15,8 +15,8 @@ export const OTPScreen = () => {
     setLoading(true);
     try {
       await login({ otp: code });
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // OTP verification errors handled via AuthProvider
     } finally {
       setLoading(false);
     }

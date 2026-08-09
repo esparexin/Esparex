@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
 import Ad from '../../models/Ad';
-import { mutateStatus } from '../lifecycle/StatusMutationService';
+import { mutateStatus, mutateStatuses } from '../lifecycle/StatusMutationService';
 import { BUSINESS_STATUS, LIFECYCLE_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/contracts';
 
@@ -106,10 +106,19 @@ export const deactivateBusiness = async (userId: string) => {
     });
 
     // Cascade status deactivation to listings owned by this business (SSOT: F09)
-    await Ad.updateMany(
-        { sellerId: new mongoose.Types.ObjectId(userId), status: { $ne: LIFECYCLE_STATUS.DEACTIVATED } },
-        { $set: { status: LIFECYCLE_STATUS.DEACTIVATED } }
-    );
+    const userAds = await Ad.find({
+        sellerId: new mongoose.Types.ObjectId(userId),
+        status: { $ne: LIFECYCLE_STATUS.DEACTIVATED }
+    }).select('_id');
+    if (userAds.length > 0) {
+        await mutateStatuses(userAds.map(ad => ({
+            domain: 'ad',
+            entityId: ad._id.toString(),
+            toStatus: LIFECYCLE_STATUS.DEACTIVATED,
+            actor: { type: ACTOR_TYPE.USER, id: userId },
+            reason: 'Cascaded business deactivation'
+        })));
+    }
 
     return result;
 };

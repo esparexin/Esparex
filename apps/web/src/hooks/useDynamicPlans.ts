@@ -116,8 +116,8 @@ export function useDynamicPlans(activeTab: string, user: User | null) {
 
     useEffect(() => {
         if (activeTab === 'plans') {
-            setIsError(false);
             const timeoutId = setTimeout(() => {
+                setIsError(false);
                 void fetchDynamicPlans();
             }, 0);
             return () => clearTimeout(timeoutId);
