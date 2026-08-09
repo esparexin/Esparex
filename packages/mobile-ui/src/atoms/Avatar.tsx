@@ -43,14 +43,14 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   if (src) {
     return (
-      <View className={baseContainer} {...(props as any)}>
-        <Image source={{ uri: src }} className="w-full h-full" {...({} as any)} />
+      <View className={baseContainer} {...props}>
+        <Image source={{ uri: src }} className="w-full h-full" />
       </View>
     );
   }
 
   return (
-    <View className={baseContainer} {...(props as any)}>
+    <View className={baseContainer} {...props}>
       <AppText className={`${textStyles} font-semibold text-slate-600 dark:text-slate-300 uppercase`}>
         {fallback ? fallback.substring(0, 2) : '?'}
       </AppText>

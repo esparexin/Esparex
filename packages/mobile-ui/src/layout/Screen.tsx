@@ -25,7 +25,7 @@ export const Screen: React.FC<ScreenProps> = ({
     <SafeAreaView 
       edges={edges}
       className={`flex-1 ${backgroundColor} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       <StatusBar style={statusBarStyle} />
       {children}

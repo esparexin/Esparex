@@ -18,14 +18,14 @@ const variantStyles: Record<TextVariant, string> = {
 
 export const Text = React.forwardRef<HTMLElement, TextProps>(
   ({ as: Component = "p", variant = "body", className, children, ...props }, ref) => {
-    return (
-      <Component
-        ref={ref as any}
-        className={cn(variantStyles[variant], className)}
-        {...props}
-      >
-        {children}
-      </Component>
+    return React.createElement(
+      Component,
+      {
+        ref,
+        className: cn(variantStyles[variant], className),
+        ...props,
+      },
+      children
     );
   }
 );

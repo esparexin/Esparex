@@ -73,6 +73,6 @@ export const AppText: React.FC<AppTextProps> = ({
   ].filter(Boolean).join(' ');
 
   return (
-    <RNText className={classes} style={style} {...(props as any)} />
+    <RNText className={classes} style={style} {...props} />
   );
 };
