@@ -881,6 +881,7 @@ export default Entitlement;
 1. **Strict Mock Payment Gating**: Silent auto-fulfillment of mock orders (`order_mock_*`) is strictly prohibited unless `MOCK_PAYMENTS=true` (backend) and `NEXT_PUBLIC_MOCK_PAYMENTS=true` (frontend) are explicitly configured in `.env`.
 2. **No Silent Error Swallowing**: Controller catch blocks MUST extract human-readable error descriptions from third-party SDK error objects (e.g. Razorpay SDK exceptions) and surface diagnostic details when `NODE_ENV === 'development'`.
 3. **Key Resolution Precedence**: `.env` variables (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) MUST take strict priority over seed values stored in database `SystemConfig`.
+4. **Client Signature Verification Obligation**: All client-side checkout hooks (`usePlanCheckout.ts`) MUST submit third-party gateway response signatures (`razorpay_payment_id`, `razorpay_order_id`, `razorpay_signature`) to `POST /api/v1/payments/verify` immediately upon checkout completion to guarantee atomic transaction state transitions (`INITIATED` -> `SUCCESS`) regardless of webhook latency or local dev environments.
 
 ---
 
