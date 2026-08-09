@@ -80,8 +80,8 @@ describe('admin chat routes authentication & contract', () => {
     });
 
     it('mounts canonical list, mute, and export routes', () => {
-        const stack = (adminChatRoutes as unknown as { stack?: Array<{ route?: { path?: string } }> }).stack ?? [];
-        const paths = stack.map((layer) => layer.route?.path).filter(Boolean);
+        const stack = (adminChatRoutes as any).stack ?? [];
+        const paths = stack.map((layer: any) => layer.route?.path).filter(Boolean);
 
         expect(paths).toContain('/list');
         expect(paths).toContain('/:id');

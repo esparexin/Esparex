@@ -17,9 +17,9 @@ describe("validateContactSubmission", () => {
                 category: "support",
                 message: "I need help with a listing issue that is blocking my account access.",
             },
-        } as unknown as Request;
-        const res = createMockRes() as unknown as Response;
-        const next = jest.fn() as unknown as NextFunction;
+        } as any;
+        const res = createMockRes() as any;
+        const next = jest.fn() as any;
 
         validateContactSubmission(req, res, next);
 
@@ -37,9 +37,9 @@ describe("validateContactSubmission", () => {
                 phone: "9876543210",
                 message: "I need help with a listing issue that is blocking my account access.",
             },
-        } as unknown as Request;
-        const res = createMockRes() as unknown as Response;
-        const next = jest.fn() as unknown as NextFunction;
+        } as any;
+        const res = createMockRes() as any;
+        const next = jest.fn() as any;
 
         validateContactSubmission(req, res, next);
 

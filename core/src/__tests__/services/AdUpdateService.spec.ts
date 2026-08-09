@@ -109,7 +109,7 @@ import * as StatusMutationService from '../../services/lifecycle/StatusMutationS
 import { updateAdLogic } from '../../domains/listings/application/ad/ad/AdUpdateService';
 import { getListingRepository } from '@esparex/core/composition/listings';
 
-const mockedAdModel = Ad as unknown as { findById: jest.Mock; findByIdAndUpdate: jest.Mock };
+const mockedAdModel = Ad as any;
 const mockRepo = getListingRepository() as jest.Mocked<ReturnType<typeof getListingRepository>>;
 
 describe('AdUpdateService', () => {

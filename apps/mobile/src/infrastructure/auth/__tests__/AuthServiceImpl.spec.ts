@@ -10,7 +10,7 @@ describe('AuthServiceImpl', () => {
   beforeEach(() => {
     mockApiClient = {
       post: jest.fn(),
-    } as unknown as jest.Mocked<AxiosInstance>; // Cannot construct full AxiosInstance mock without casting or immense boilerplate
+    } as any<AxiosInstance>; // Cannot construct full AxiosInstance mock without casting or immense boilerplate
 
     mockTokenStorage = {
       setTokens: jest.fn(),

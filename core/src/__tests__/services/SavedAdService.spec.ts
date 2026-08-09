@@ -37,16 +37,8 @@ import SavedAd from "../../models/SavedAd";
 import Ad from "../../models/Ad";
 import { saveAd, unsaveAd } from "../../services/SavedAdService";
 
-const mockSavedAd = SavedAd as unknown as {
-    aggregate: jest.Mock;
-    create: jest.Mock;
-    findOneAndDelete: jest.Mock;
-};
-const mockAd = Ad as unknown as {
-    findById: jest.Mock;
-    findByIdAndUpdate: jest.Mock;
-    findOneAndUpdate: jest.Mock;
-};
+const mockSavedAd = SavedAd as any;
+const mockAd = Ad as any;
 
 describe("SavedAdService", () => {
     beforeEach(() => jest.clearAllMocks());

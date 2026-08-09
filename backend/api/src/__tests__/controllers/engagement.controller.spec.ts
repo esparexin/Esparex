@@ -77,7 +77,7 @@ const makeViewReq = (idOrSlug: string, userAgent = 'TestAgent/1.0'): Request => 
     headers: { 'user-agent': userAgent },
     ip: '127.0.0.1',
     socket: { remoteAddress: '127.0.0.1' },
-} as unknown as Request);
+} as any);
 
 const makePhoneReq = (overrides: Partial<{
     user: unknown;
@@ -91,7 +91,7 @@ const makePhoneReq = (overrides: Partial<{
     ip: '203.0.113.5',
     socket: { remoteAddress: '203.0.113.5' },
     ...overrides,
-} as unknown as Request);
+} as any);
 
 const makeRes = (): Response => {
     const res = {} as Response;

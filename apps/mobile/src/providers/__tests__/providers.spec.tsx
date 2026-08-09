@@ -114,32 +114,32 @@ describe('AppProvider', () => {
 
   const mockServices: IServices = {
     authService: mockAuthService,
-    userService: { getProfile: jest.fn() } as unknown as UserService,
+    userService: { getProfile: jest.fn() } as any,
     listingService: mockListingService,
-    postAdService: { submit: jest.fn() } as unknown as PostAdService,
-    categoryService: { getCategories: jest.fn() } as unknown as any,
-    chatService: { getConversations: jest.fn() } as unknown as any,
-    notificationService: { getNotifications: jest.fn() } as unknown as any,
+    postAdService: { submit: jest.fn() } as any,
+    categoryService: { getCategories: jest.fn() } as any,
+    chatService: { getConversations: jest.fn() } as any,
+    notificationService: { getNotifications: jest.fn() } as any,
     pushNotificationService: {
       requestPermission: jest.fn(),
       getExpoPushToken: jest.fn(),
       registerForPushNotifications: jest.fn(),
-    } as unknown as any,
+    } as any,
     pushNotificationEventService: {
       configureNotificationHandler: jest.fn(),
       addNotificationReceivedListener: jest.fn().mockReturnValue(() => {}),
       addNotificationResponseReceivedListener: jest.fn().mockReturnValue(() => {}),
       setBadgeCount: jest.fn().mockResolvedValue(true),
       getBadgeCount: jest.fn().mockResolvedValue(0),
-    } as unknown as any,
+    } as any,
     pushTokenRegistrationService: {
       registerPushToken: jest.fn().mockResolvedValue(true),
       unregisterPushToken: jest.fn().mockResolvedValue(true),
-    } as unknown as any,
+    } as any,
     imagePicker: { pick: jest.fn() },
-    businessService: { getMyBusiness: jest.fn() } as unknown as any,
-    paymentService: { getPlans: jest.fn() } as unknown as any,
-    smartAlertService: { getSmartAlerts: jest.fn() } as unknown as any,
+    businessService: { getMyBusiness: jest.fn() } as any,
+    paymentService: { getPlans: jest.fn() } as any,
+    smartAlertService: { getSmartAlerts: jest.fn() } as any,
   };
 
 

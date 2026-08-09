@@ -21,7 +21,7 @@ describe('ApiPushTokenRegistrationService', () => {
 
     apiClient = {
       post: jest.fn(),
-    } as unknown as jest.Mocked<AxiosInstance>;
+    } as any<AxiosInstance>;
 
     service = new ApiPushTokenRegistrationService(pushNotificationService, apiClient);
   });

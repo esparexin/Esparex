@@ -62,8 +62,8 @@ describe('stats.controller getMyListingStatusCounts', () => {
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
             query: {},
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListingStatusCounts(req, res);
 
@@ -74,8 +74,8 @@ describe('stats.controller getMyListingStatusCounts', () => {
     it('returns 401 if user is not authenticated', async () => {
         const req = {
             user: undefined,
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListingStatusCounts(req, res);
 
@@ -89,8 +89,8 @@ describe('stats.controller getMyListingStatusCounts', () => {
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
             query: {},
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListingStatusCounts(req, res);
 
@@ -108,8 +108,8 @@ describe('stats.controller getMyTabListings', () => {
         const req = {
             user: undefined,
             query: { tab: 'live' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyTabListings(req, res);
 
@@ -122,8 +122,8 @@ describe('stats.controller getMyTabListings', () => {
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
             query: { tab: 'live', page: '1', limit: '10' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyTabListings(req, res);
 
@@ -144,8 +144,8 @@ describe('stats.controller getMyTabListings', () => {
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
             query: { tab: 'pending' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyTabListings(req, res);
 
@@ -164,8 +164,8 @@ describe('stats.controller getMyTabListings', () => {
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
             query: { tab: 'expired' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyTabListings(req, res);
 
@@ -185,8 +185,8 @@ describe('stats.controller getMyTabListings', () => {
         const req = {
             user: { _id: '65f0a1b2c3d4e5f6a7b8c9d1' },
             query: { tab: 'live' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyTabListings(req, res);
 

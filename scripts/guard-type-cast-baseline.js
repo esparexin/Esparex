@@ -11,7 +11,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const BASELINE = 375; // Established baseline (will ratchet down to 0 in final phase)
+const BASELINE = 0; // Strict Zero Baseline: zero double assertions allowed repository-wide
 
 function run() {
   try {

@@ -73,7 +73,7 @@ describe('NotificationDeliveryWorker', () => {
         // with our mocks and captures the constructor call.
         jest.isolateModules(() => {
             const { Worker: IsolatedWorker } = require('bullmq');
-            const IsolatedWorkerMock = IsolatedWorker as unknown as jest.Mock;
+            const IsolatedWorkerMock = IsolatedWorker as any;
             
             const mockWorkerInstance = {
                 on: jest.fn(),

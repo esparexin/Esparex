@@ -7,12 +7,12 @@ describe("Notification Pipeline Runtime Instrumentation", () => {
     beforeAll(() => {
         // Mock window object for node environment testing of feedback.ts
         if (typeof window === "undefined") {
-            (global as unknown as { window: unknown }).window = {};
+            (global as any).window = {};
         }
     });
 
     afterAll(() => {
-        delete (global as unknown as { window?: unknown }).window;
+        delete (global as any).window;
     });
 
     it("1. Singleton Identity Verification — notify and popupEvents use exact same popupBus instance", () => {

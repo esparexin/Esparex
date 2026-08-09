@@ -70,7 +70,7 @@ describe('paymentWebhook Controller', () => {
                     }
                 }
             }
-        } as unknown as Request;
+        } as any;
         const res = mockRes();
 
         await paymentWebhook(req, res);
@@ -105,7 +105,7 @@ describe('paymentWebhook Controller', () => {
                     }
                 }
             }
-        } as unknown as Request;
+        } as any;
         const res = mockRes();
 
         await paymentWebhook(req, res);
@@ -125,7 +125,7 @@ describe('paymentWebhook Controller', () => {
                 event: 'payment.failed',
                 payload: { payment: { entity: { id: 'pay_fail' } } }
             }
-        } as unknown as Request;
+        } as any;
         const res = mockRes();
 
         await paymentWebhook(req, res);
@@ -138,7 +138,7 @@ describe('paymentWebhook Controller', () => {
         const req = {
             headers: { 'x-razorpay-signature': 'valid_sig' },
             body: {} // Empty body
-        } as unknown as Request;
+        } as any;
         const res = mockRes();
 
         await paymentWebhook(req, res);
@@ -150,7 +150,7 @@ describe('paymentWebhook Controller', () => {
         const req = {
             headers: {}, // Missing signature
             body: { event: 'payment.captured', payload: { payment: { entity: {} } } }
-        } as unknown as Request;
+        } as any;
         const res = mockRes();
 
         await paymentWebhook(req, res);
@@ -165,7 +165,7 @@ describe('paymentWebhook Controller', () => {
                 event: 'payment.captured',
                 payload: { payment: { entity: { id: 'pay_err' } } }
             }
-        } as unknown as Request;
+        } as any;
         const res = mockRes();
         mockEnqueue.mockRejectedValue(new Error('QUEUE_DOWN'));
 

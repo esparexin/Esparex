@@ -20,10 +20,7 @@ import {
 
 const mockedGetWallet = getWallet as jest.Mock;
 const mockedGetAdPostingBalance = getAdPostingBalance as jest.Mock;
-const mockedTransactionModel = TransactionModel as unknown as {
-    find: jest.Mock;
-    countDocuments: jest.Mock;
-};
+const mockedTransactionModel = TransactionModel as any;
 
 beforeEach(() => {
     jest.clearAllMocks();

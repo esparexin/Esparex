@@ -28,7 +28,7 @@ class MockModelAdapter<TInput = string, TOutput = Record<string, number>>
         if (!this.loaded) {
             throw new Error(`Model ${this.modelId} is not initialized.`);
         }
-        return { score: 0.95 } as unknown as TOutput;
+        return { score: 0.95 } as any;
     }
 
     isLoaded(): boolean {

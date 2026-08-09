@@ -41,7 +41,7 @@ describe('Push Token Controllers (PR 2A Backend Test Hardening)', () => {
       const req = {
         user: { _id: 'user-123' },
         body: { token: 'ExponentPushToken[xyz123456789]', platform: 'ios' },
-      } as unknown as Request;
+      } as any;
       const res = makeMockRes();
 
       await registerToken(req, res);
@@ -63,7 +63,7 @@ describe('Push Token Controllers (PR 2A Backend Test Hardening)', () => {
       const req = {
         user: { _id: 'user-456' },
         body: { token: 'ExponentPushToken[xyz123456789]' },
-      } as unknown as Request;
+      } as any;
       const res = makeMockRes();
 
       await registerToken(req, res);
@@ -78,7 +78,7 @@ describe('Push Token Controllers (PR 2A Backend Test Hardening)', () => {
     it('returns 401 Unauthorized if user is missing from request', async () => {
       const req = {
         body: { token: 'ExponentPushToken[xyz123456789]' },
-      } as unknown as Request;
+      } as any;
       const res = makeMockRes();
 
       await registerToken(req, res);
@@ -93,7 +93,7 @@ describe('Push Token Controllers (PR 2A Backend Test Hardening)', () => {
       const req = {
         user: { _id: 'user-123' },
         body: { token: 'ExponentPushToken[xyz123456789]' },
-      } as unknown as Request;
+      } as any;
       const res = makeMockRes();
 
       await registerToken(req, res);

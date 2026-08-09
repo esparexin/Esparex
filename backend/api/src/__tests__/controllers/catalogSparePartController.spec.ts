@@ -63,7 +63,7 @@ describe("catalogSparePartController Category Filtering & Caching", () => {
             status: jest.fn().mockReturnThis(),
             end: jest.fn(),
             req: null
-        } as unknown as Response;
+        } as any;
 
         // Mock find and countDocuments
         SparePartModel.find = jest.fn().mockReturnValue(mockQuery);
@@ -78,7 +78,7 @@ describe("catalogSparePartController Category Filtering & Caching", () => {
             headers: {},
             ip: "127.0.0.1",
             query: categoryId ? { categoryId } : {}
-        } as unknown as Request;
+        } as any;
     };
 
     describe("With Redis Caching Disabled", () => {

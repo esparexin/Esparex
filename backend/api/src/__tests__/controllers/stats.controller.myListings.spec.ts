@@ -54,8 +54,8 @@ describe('stats.controller getMyListings', () => {
         const req = {
             user: { _id: 'seller-1' },
             query: { type: 'ad', status: 'live', page: '2', limit: '5' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListings(req, res);
 
@@ -90,8 +90,8 @@ describe('stats.controller getMyListings', () => {
         const req = {
             user: { _id: 'seller-9', toString: () => 'seller-9' },
             query: { type: 'ad', status: 'live' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListings(req, res);
 

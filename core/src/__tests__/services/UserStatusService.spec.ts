@@ -38,9 +38,9 @@ import { updateUserStatus } from "../../domains/identity/application/users/UserS
 const VALID_USER_OID = '64a1f2e3b4c5d6e7f8a9b0c2';
 
 describe("userStatusService audit integration", () => {
-    const mockUserFindByIdAndUpdate = (User as unknown as { findByIdAndUpdate: jest.Mock }).findByIdAndUpdate;
-    const mockAdUpdateMany = (Ad as unknown as { updateMany: jest.Mock }).updateMany;
-    const mockAlertUpdateMany = (SmartAlert as unknown as { updateMany: jest.Mock }).updateMany;
+    const mockUserFindByIdAndUpdate = (User as any).findByIdAndUpdate;
+    const mockAdUpdateMany = (Ad as any).updateMany;
+    const mockAlertUpdateMany = (SmartAlert as any).updateMany;
     let mockLogFn: jest.Mock;
 
     beforeEach(() => {

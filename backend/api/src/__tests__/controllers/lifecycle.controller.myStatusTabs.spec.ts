@@ -54,7 +54,7 @@ const makeReq = (overrides: Partial<{ user: unknown; body: Record<string, unknow
         // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
         listing: { id: LISTING_ID, _id: LISTING_ID, status: 'expired', isSold: false, listingType: 'ad' },
         ...overrides,
-    } as unknown as Request);
+    } as any);
 
 describe('lifecycle.controller — markListingStatusSold', () => {
     beforeEach(() => {

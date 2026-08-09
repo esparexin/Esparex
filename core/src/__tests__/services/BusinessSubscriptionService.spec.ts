@@ -41,13 +41,8 @@ import {
 } from '../../services/business/BusinessSubscriptionService';
 import { syncPriorityScore } from '../../services/business/BusinessPlanSyncService';
 
-const mockPlan = Plan as unknown as { findOne: jest.Mock };
-const mockUserPlan = UserPlan as unknown as {
-    findOneAndUpdate: jest.Mock;
-    findOne: jest.Mock;
-    find: jest.Mock;
-    updateMany: jest.Mock;
-};
+const mockPlan = Plan as any;
+const mockUserPlan = UserPlan as any;
 const mockSyncPriorityScore = syncPriorityScore as jest.Mock;
 
 describe('BusinessSubscriptionService', () => {

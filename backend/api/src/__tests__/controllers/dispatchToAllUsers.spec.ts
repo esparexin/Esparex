@@ -42,10 +42,10 @@ import { createAdminNotificationTargetCursor } from "@esparex/core/services/noti
 import type { Request, Response } from "express";
 import { sendNotification } from "../../controllers/admin/adminNotificationController";
 
-const mockedNotificationLog = NotificationLog as unknown as { create: jest.Mock };
-const mockedDispatcher = NotificationDispatcher as unknown as { bulkDispatch: jest.Mock };
-const mockedIntent = NotificationIntent as unknown as { fromAdminBroadcast: jest.Mock };
-const mockedTargetCursor = createAdminNotificationTargetCursor as unknown as jest.Mock;
+const mockedNotificationLog = NotificationLog as any;
+const mockedDispatcher = NotificationDispatcher as any;
+const mockedIntent = NotificationIntent as any;
+const mockedTargetCursor = (createAdminNotificationTargetCursor as unknown) as jest.Mock;
 
 const makeReq = (body: Record<string, unknown> = {}) =>
     ({
@@ -60,13 +60,13 @@ const makeReq = (body: Record<string, unknown> = {}) =>
         originalUrl: "/api/v1/admin/notifications/send",
         method: "POST",
         path: "/api/v1/admin/notifications/send",
-    }) as unknown as Request;
+    }) as any;
 
 const makeRes = () =>
     ({
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-    }) as unknown as Response;
+    }) as any;
 
 function makeCursor(users: Array<{ _id: string }>) {
     return {

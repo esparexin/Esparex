@@ -40,9 +40,9 @@ import { calculateUserPlan } from '../../domains/payments/application/PlanServic
 import { syncPriorityScore } from '../../services/business/BusinessPlanSyncService';
 
 
-const mockPlan = Plan as unknown as { findOne: jest.Mock };
-const mockUserPlan = UserPlan as unknown as { find: jest.Mock };
-const mockAd = Ad as unknown as { updateMany: jest.Mock };
+const mockPlan = Plan as any;
+const mockUserPlan = UserPlan as any;
+const mockAd = Ad as any;
 const mockCalculateUserPlan = calculateUserPlan as jest.Mock;
 
 describe('BusinessPlanSyncService', () => {

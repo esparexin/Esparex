@@ -2,7 +2,6 @@
  * Admin Chat API — uses adminFetch (cookie-based admin JWT + CSRF)
  */
 import { adminFetch } from './adminClient';
-import { CHAT_STATUS } from "@esparex/contracts";
 
 export interface AdminConvSummary {
   id: string;

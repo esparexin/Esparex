@@ -15,10 +15,10 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
         const mockQuerySelector = vi.fn().mockReturnValue(mockTarget);
         const mockDoc = { querySelector: mockQuerySelector };
 
-        const originalDoc = (globalThis as unknown as { document: unknown }).document;
-        const originalWin = (globalThis as unknown as { window: unknown }).window;
-        (globalThis as unknown as { document: unknown }).document = mockDoc;
-        (globalThis as unknown as { window: unknown }).window = {};
+        const originalDoc = (globalThis as any).document;
+        const originalWin = (globalThis as any).window;
+        (globalThis as any).document = mockDoc;
+        (globalThis as any).window = {};
 
         try {
             const found = scrollToFirstError();
@@ -29,8 +29,8 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
             expect(mockTarget.scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
             expect(mockTarget.focus).toHaveBeenCalledWith({ preventScroll: true });
         } finally {
-            (globalThis as unknown as { document: unknown }).document = originalDoc;
-            (globalThis as unknown as { window: unknown }).window = originalWin;
+            (globalThis as any).document = originalDoc;
+            (globalThis as any).window = originalWin;
         }
     });
 
@@ -40,12 +40,12 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
             focus: vi.fn(),
         };
         const mockQuerySelector = vi.fn().mockReturnValue(mockTarget);
-        const mockContainer = { querySelector: mockQuerySelector } as unknown as HTMLElement;
+        const mockContainer = { querySelector: mockQuerySelector } as any;
 
-        const originalDoc = (globalThis as unknown as { document: unknown }).document;
-        const originalWin = (globalThis as unknown as { window: unknown }).window;
-        (globalThis as unknown as { document: unknown }).document = {};
-        (globalThis as unknown as { window: unknown }).window = {};
+        const originalDoc = (globalThis as any).document;
+        const originalWin = (globalThis as any).window;
+        (globalThis as any).document = {};
+        (globalThis as any).window = {};
         const containerRef = { current: mockContainer };
 
         try {
@@ -54,8 +54,8 @@ describe("Accessibility & Form Focus Helpers Specifications", () => {
             expect(mockQuerySelector).toHaveBeenCalled();
             expect(mockTarget.scrollIntoView).toHaveBeenCalled();
         } finally {
-            (globalThis as unknown as { document: unknown }).document = originalDoc;
-            (globalThis as unknown as { window: unknown }).window = originalWin;
+            (globalThis as any).document = originalDoc;
+            (globalThis as any).window = originalWin;
         }
     });
 });

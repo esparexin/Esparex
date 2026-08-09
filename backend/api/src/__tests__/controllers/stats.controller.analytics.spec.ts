@@ -39,11 +39,11 @@ describe('stats.controller - Analytics & Stats', () => {
 
             const req = {
                 user: { _id: userId, toString: () => userId }
-            } as unknown as Request;
+            } as any;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
-            } as unknown as Response;
+            } as any;
 
             await statsController.getMyListingStats(req, res);
 
@@ -55,11 +55,11 @@ describe('stats.controller - Analytics & Stats', () => {
         });
 
         it('returns 401 if user is not in request', async () => {
-            const req = {} as unknown as Request;
+            const req = {} as any;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
-            } as unknown as Response;
+            } as any;
 
             await statsController.getMyListingStats(req, res);
 
@@ -74,11 +74,11 @@ describe('stats.controller - Analytics & Stats', () => {
 
             const req = {
                 user: { _id: 'user-123' }
-            } as unknown as Request;
+            } as any;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
-            } as unknown as Response;
+            } as any;
 
             await statsController.getMyListingStats(req, res);
 
@@ -95,11 +95,11 @@ describe('stats.controller - Analytics & Stats', () => {
                 views: { total: 100, unique: 80 }
             };
 
-            const req = { params: { id: 'listing-456' }, listing: mockListing } as unknown as Request;
+            const req = { params: { id: 'listing-456' }, listing: mockListing } as any;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
-            } as unknown as Response;
+            } as any;
 
             await statsController.getListingAnalytics(req, res);
 
@@ -118,11 +118,11 @@ describe('stats.controller - Analytics & Stats', () => {
                 get listing() {
                     throw new Error('Verification failed');
                 }
-            } as unknown as Request;
+            } as any;
             const res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn().mockReturnThis()
-            } as unknown as Response;
+            } as any;
 
             await statsController.getListingAnalytics(req, res);
 

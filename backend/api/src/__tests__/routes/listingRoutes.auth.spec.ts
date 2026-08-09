@@ -82,7 +82,7 @@ describe("listing routes precedence", () => {
     });
 
     it("mounts the canonical phone reveal route", () => {
-        const stack = (listingRoutes as unknown as { stack?: Array<{ route?: { path?: string } }> }).stack ?? [];
-        expect(stack.some((layer) => layer.route?.path === "/:id/phone")).toBe(true);
+        const stack = (listingRoutes as any).stack ?? [];
+        expect(stack.some((layer: any) => layer.route?.path === "/:id/phone")).toBe(true);
     });
 });

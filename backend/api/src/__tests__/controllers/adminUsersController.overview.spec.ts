@@ -31,7 +31,7 @@ const createMockRes = (req?: Partial<Request>) => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-    } as unknown as Response;
+    } as any;
     if (req) res.req = req as Request;
     return res;
 };
@@ -39,12 +39,12 @@ const createMockRes = (req?: Partial<Request>) => {
 const mockMetricsChain = (payload: unknown) => {
     const lean = jest.fn().mockResolvedValue(payload);
     const sort = jest.fn().mockReturnValue({ lean });
-    const findOne = (AdminMetrics as unknown as { findOne: jest.Mock }).findOne;
+    const findOne = (AdminMetrics as any).findOne;
     findOne.mockReturnValue({ sort });
 };
 
 describe("adminUsersController.getUserManagementOverview", () => {
-    const mockUser = User as unknown as { countDocuments: jest.Mock };
+    const mockUser = User as any;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -60,7 +60,7 @@ describe("adminUsersController.getUserManagementOverview", () => {
             .mockResolvedValueOnce(6) // activeUsers (live fallback)
             .mockResolvedValueOnce(5); // verifiedUsers (live fallback)
 
-        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as unknown as Request;
+        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as any;
         const res = createMockRes(req);
 
         await adminUsersController.getUserManagementOverview(req, res);
@@ -97,7 +97,7 @@ describe("adminUsersController.getUserManagementOverview", () => {
             .mockResolvedValueOnce(2) // suspendedUsers
             .mockResolvedValueOnce(3); // bannedUsers
 
-        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as unknown as Request;
+        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as any;
         const res = createMockRes(req);
 
         await adminUsersController.getUserManagementOverview(req, res);

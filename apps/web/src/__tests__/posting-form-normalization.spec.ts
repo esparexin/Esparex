@@ -129,7 +129,7 @@ describe("postingFormNormalization", () => {
                 state: "Karnataka",
                 locationId: CATEGORY_ID,
             },
-        } as unknown as Parameters<typeof buildPostAdEditPayload>[0];
+        } as any;
 
         expect(buildPostAdEditPayload(payload, true)).not.toHaveProperty("location");
         expect(buildPostAdEditPayload(payload, false)).toHaveProperty("location");

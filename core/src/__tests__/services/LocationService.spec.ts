@@ -68,16 +68,9 @@ import { lookupLocationByPincode } from "../../services/location/LocationSearchS
 import { normalizeLocation } from "../../services/location/LocationNormalizer";
 import { reverseGeocode } from "../../services/location/ReverseGeocodeService";
 
-const mockLocationModel = Location as unknown as {
-    findOne: jest.Mock;
-    find: jest.Mock;
-    findById: jest.Mock;
-    aggregate: jest.Mock;
-};
+const mockLocationModel = Location as any;
 
-const mockAdminBoundary = AdminBoundary as unknown as {
-    find: jest.Mock;
-};
+const mockAdminBoundary = AdminBoundary as any;
 
 const mockFindOneResult = (value: unknown) => {
     const chain = {
@@ -472,8 +465,7 @@ describe("locationService regression", () => {
                     isActive: true,
                     verificationStatus: "pending",
                 }),
-            } as unknown as ReturnType<typeof mockLocationModel.findOne>
-        );
+            } as any);
 
         await expect(
             normalizeLocation(
