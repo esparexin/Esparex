@@ -45,8 +45,7 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
         if (!plan || !plan.active) return sendErrorResponse(req, res, 404, 'Invalid or inactive plan');
         const isZeroCost = plan.price === 0;
         const razorpayConfig = await getRazorpayRuntimeConfig();
-        const isMock = isZeroCost || (env.NODE_ENV === 'development'
-            && (razorpayConfig.keyId === 'rzp_test_placeholder' || req.headers['x-mock-payment'] === 'true'));
+        const isMock = isZeroCost || env.MOCK_PAYMENTS || req.headers['x-mock-payment'] === 'true';
 
         if (!isMock && !razorpayConfig.enabled) {
             return sendErrorResponse(req, res, 503, 'Payments are currently unavailable');
@@ -99,7 +98,10 @@ export const createPaymentOrder = async (req: Request, res: Response) => {
                 });
             } catch (rzpErr) {
                 if (env.NODE_ENV === 'development') {
-                    logger.warn('Razorpay order creation failed in development mode. Falling back to mock order.', rzpErr);
+                    logger.warn('[PAYMENT DEV BYPASS] Razorpay order creation failed in dev mode — falling back to mock order.', {
+                        hint: 'Verify RAZORPAY_KEY_ID in backend/.env or set MOCK_PAYMENTS=true',
+                        error: rzpErr instanceof Error ? rzpErr.message : String(rzpErr)
+                    });
                     rzpOrder = buildMockOrder(plan.price * 100, plan.currency || 'INR');
                 } else {
                     throw rzpErr;

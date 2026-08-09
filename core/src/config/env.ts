@@ -95,6 +95,7 @@ const envSchema = z.object({
     RAZORPAY_KEY_ID: z.string().optional(),
     RAZORPAY_KEY_SECRET: z.string().optional(),
     RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
+    MOCK_PAYMENTS: z.string().transform(val => val === 'true').default('false'),
 
     // 10. Notifications & Firebase
     FIREBASE_PROJECT_ID: z.string().optional(),

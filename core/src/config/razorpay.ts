@@ -10,8 +10,8 @@ export type InvoiceUser = {
     mobile?: string;
 };
 
-const DEFAULT_RAZORPAY_KEY_ID = env.RAZORPAY_KEY_ID || 'rzp_test_placeholder';
-const DEFAULT_RAZORPAY_KEY_SECRET = env.RAZORPAY_KEY_SECRET || 'secret_placeholder';
+const DEFAULT_RAZORPAY_KEY_ID = env.RAZORPAY_KEY_ID || '';
+const DEFAULT_RAZORPAY_KEY_SECRET = env.RAZORPAY_KEY_SECRET || '';
 
 export type RazorpayRuntimeConfig = {
     enabled: boolean;
