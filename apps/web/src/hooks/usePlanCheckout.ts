@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 
-import { createPurchaseOrder } from "@/lib/api/user/plans";
+import { createPurchaseOrder, verifyPurchaseOrder } from "@/lib/api/user/plans";
 import { getWalletSummary, type WalletSummary } from "@/lib/api/user/users";
-import { loadRazorpay, type RazorpayOptions } from "@/lib/payments/razorpay";
+import { loadRazorpay, type RazorpayOptions, type RazorpayHandlerResponse } from "@/lib/payments/razorpay";
 import { waitForWalletCredit } from "@/lib/payments/waitForWalletCredit";
 import logger from "@/lib/logger";
 import { mapErrorToMessage } from "@/lib/errorMapper";
@@ -95,7 +95,19 @@ export function usePlanCheckout() {
           email: order.userEmail,
           contact: order.userPhone,
         },
-        handler: async () => {
+        handler: async (response: RazorpayHandlerResponse) => {
+          try {
+            if (response?.razorpay_payment_id && response?.razorpay_order_id && response?.razorpay_signature) {
+              await verifyPurchaseOrder({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              });
+            }
+          } catch (verifyError) {
+            logger.error("Client signature verification failed", verifyError);
+          }
+
           if (waitForCredit) {
             const baseline = baselineWallet?.[waitForCredit.field] ?? 0;
             const wallet = await waitForWalletCredit(

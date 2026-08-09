@@ -68,3 +68,37 @@ export async function createPurchaseOrder(
         throw e;
     }
 }
+
+/**
+ * Verify completed Razorpay payment signature
+ */
+export interface VerifyPaymentInput {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+}
+
+export interface VerifyPaymentResult {
+    success: boolean;
+    message: string;
+}
+
+export async function verifyPurchaseOrder(
+    input: VerifyPaymentInput
+): Promise<VerifyPaymentResult> {
+    if (!input.razorpay_payment_id || !input.razorpay_order_id || !input.razorpay_signature) {
+        throw new Error("Missing required payment verification fields");
+    }
+
+    try {
+        const { data: result } = await toApiResult<VerifyPaymentResult>(
+            apiClient.post(API_ROUTES.USER.PAYMENT_VERIFY, input)
+        );
+
+        return result ?? { success: true, message: "Payment verified successfully" };
+    } catch (e) {
+        logger.error("Failed to verify payment signature", e);
+        throw e;
+    }
+}
+
