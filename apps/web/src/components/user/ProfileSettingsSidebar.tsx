@@ -37,7 +37,6 @@ import { buildPublicBrowseRoute } from "@/lib/publicBrowseRoutes";
 
 // Dialogs
 import { DeleteAccountDialog } from "./profile/dialogs/DeleteAccountDialog";
-import { PlanPurchaseDialog } from "./profile/dialogs/PlanPurchaseDialog";
 
 // Modular Tab Components
 
@@ -321,7 +320,7 @@ export function ProfileSettingsSidebar({
           />
         </div>
       );
-      case "purchases": return <PlansTab dynamicPlans={dynamicPlans} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} />;
+      case "purchases": return <PlansTab dynamicPlans={dynamicPlans} isError={plansError} currentPlan={user?.plan || "Free"} setSelectedPlan={(id) => setSelectedPlan(id)} setShowPlanDialog={setShowPlanDialog} formatCurrency={formatPrice} initialTab="INVOICES" />;
       default: return null;
     }
   };
@@ -407,8 +406,8 @@ export function ProfileSettingsSidebar({
         deleteAccountErrors={deleteAccountErrors}
         deleteAccountGlobalError={deleteAccountGlobalError}
       />
-      <PlanPurchaseDialog open={showPlanDialog} onOpenChange={setShowPlanDialog} selectedPlan={selectedPlan} plans={dynamicPlans} formatCurrency={formatPrice} onConfirm={() => setShowPlanDialog(false)} />
     </div>
   );
+
 
 }
