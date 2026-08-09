@@ -11,12 +11,12 @@ const { execSync } = require('child_process');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const BASELINE = 375; // Established baseline: 375 instances monorepo-wide
+const BASELINE = 375; // Established baseline (will ratchet down to 0 in final phase)
 
 function run() {
   try {
     const raw = execSync(
-      "git grep -n 'as unknown as' -- 'apps/**' 'backend/**' 'core/**' 'packages/**' 'shared/**' || true",
+      "git grep -n -E 'as unknown as|as any as|as never as' -- 'apps/**' 'backend/**' 'core/**' 'packages/**' 'shared/**' || true",
       { cwd: ROOT, encoding: 'utf8' }
     );
     const lines = raw.trim().split('\n').filter(Boolean);
