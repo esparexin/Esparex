@@ -20,7 +20,6 @@ build
 # Production
 /build
 dist
-!packages/design-tokens/dist/css-variables.css
 
 # Misc
 .DS_Store
