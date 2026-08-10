@@ -187,12 +187,12 @@ export function ListingItem({
                 {/* Title */}
                 {detailHref ? (
                     <Link href={detailHref} className="min-w-0 hover:text-blue-600 transition-colors">
-                        <h3 className="text-caption md:text-small font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
+                        <h3 className="text-caption md:text-small font-semibold text-slate-900 leading-normal line-clamp-1">
                             {title}
                         </h3>
                     </Link>
                 ) : (
-                    <h3 className="text-caption md:text-small font-normal md:font-semibold text-slate-800 leading-normal line-clamp-1">
+                    <h3 className="text-caption md:text-small font-semibold text-slate-900 leading-normal line-clamp-1">
                         {title}
                     </h3>
                 )}
@@ -200,7 +200,7 @@ export function ListingItem({
                 {/* Price */}
                 <p className={cn(
                     "text-small font-semibold md:text-h4 md:font-bold leading-normal",
-                    priceClassName || "text-emerald-600",
+                    priceClassName || "text-emerald-700 font-bold",
                 )}>
                     {priceLabel}
                 </p>
@@ -405,7 +405,7 @@ export function ListingItem({
                             onClick={onBoost}
                             aria-label="Promote listing"
                             title="Promote / Boost Ad"
-                            className={cn("h-7 w-7 flex items-center justify-center shrink-0 rounded-md border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1")}
+                            className={cn("h-8 w-8 md:h-7 md:w-7 flex items-center justify-center shrink-0 rounded-md border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-400 transition-colors shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-1")}
                         >
                             <Zap className="h-3.5 w-3.5 text-amber-500 fill-amber-400 shrink-0" />
                         </button>
@@ -416,7 +416,7 @@ export function ListingItem({
                             href={editHref}
                             aria-label="Edit listing"
                             className={cn(
-                                "h-7 w-7 flex items-center justify-center shrink-0",
+                                "h-8 w-8 md:h-7 md:w-7 flex items-center justify-center shrink-0",
                                 "rounded-md border border-slate-200 text-slate-500",
                                 "hover:text-slate-800 hover:bg-slate-100 hover:border-slate-300",
                                 "transition-colors",
