@@ -178,8 +178,8 @@ export function Header({
           <Image
             src="/icons/logo.png"
             alt="Esparex Logo"
-            width={440}
-            height={102}
+            width={450}
+            height={110}
             style={{ height: "36px", width: "auto" }}
           />
         </button>
@@ -366,8 +366,8 @@ export function Header({
             <Image
               src="/icons/logo.png"
               alt="Esparex"
-              width={440}
-              height={102}
+              width={450}
+              height={110}
               style={{ height: "28px", width: "auto" }}
             />
           </button>
