@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Search, Compass, MapPinOff } from '@esparex/ui';
+import { Card, Home, Search, Compass, MapPinOff } from '@esparex/ui';
 
 
 export const metadata = {
@@ -22,8 +22,8 @@ export default function NotFound() {
             <div className="absolute top-1/4 -right-4 w-56 sm:w-72 h-56 sm:h-72 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-700 pointer-events-none" />
 
             <div className="max-w-md sm:max-w-lg w-full relative z-10">
-                {/* Glassmorphic Compact Card */}
-                <div className="bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-[0_12px_24px_-6px_rgba(0,0,0,0.06)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center">
+                {/* Glassmorphic Status Card */}
+                <Card className="bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-[0_12px_24px_-6px_rgba(0,0,0,0.06)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 text-center">
 
                     {/* Compact Badge + Illustration */}
                     <div className="flex flex-col items-center gap-2 mb-3 sm:mb-4">
@@ -101,7 +101,7 @@ export default function NotFound() {
                             Home Feed
                         </Link>
                     </div>
-                </div>
+                </Card>
             </div>
         </main>
     );

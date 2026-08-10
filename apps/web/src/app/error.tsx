@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Home, RefreshCcw, Mail } from '@esparex/ui';
+import { Card, AlertTriangle, Home, RefreshCcw, Mail } from '@esparex/ui';
 
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import logger from "@/lib/logger";
@@ -26,7 +26,7 @@ export default function Error({
     return (
         <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 min-h-[calc(100vh-12rem)] w-full">
             <div className="w-full max-w-md transition-all">
-                <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 text-center shadow-xl backdrop-blur-xl sm:p-8">
+                <Card className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 text-center shadow-xl backdrop-blur-xl sm:p-8">
                     {/* Compact Icon */}
                     <div className="mb-5 flex justify-center">
                         <div className="relative">
@@ -96,8 +96,9 @@ export default function Error({
                             <span>Contact Support</span>
                         </Link>
                     </div>
-                </div>
+                </Card>
             </div>
         </div>
     );
 }
+
