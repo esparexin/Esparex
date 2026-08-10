@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Search, X } from "@esparex/ui";
+import { PageShell, Search, X } from "@esparex/ui";
 import { AdminGlobalSearch } from "./AdminGlobalSearch";
 
 const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
@@ -36,30 +36,20 @@ export function AdminPageShell({
     const [floatingSearchOpen, setFloatingSearchOpen] = useState(false);
 
     return (
-        <div className={cn("flex flex-col gap-4", className)}>
-            <header className="shrink-0 space-y-4">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="flex-1">
-                        {isNested ? (
-                            <h2 className="text-h3 font-bold tracking-tight text-foreground">{title}</h2>
-                        ) : (
-                            <h1 className="text-h1 font-bold tracking-tight text-foreground">{title}</h1>
-                        )}
-                        {!isCompact && description && (
-                            <p className={cn("mt-1 text-body text-foreground-tertiary", isNested && "text-foreground-subtle")}>{description}</p>
-                        )}
-                    </div>
-                    {!isCompact && !isNested && (
-                        <div className="hidden flex-1 md:block max-w-xl mx-4">
-                            <AdminGlobalSearch />
-                        </div>
-                    )}
-                    {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
-                </div>
-                {tabs}
-                {filters}
-            </header>
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <>
+            <PageShell
+                title={title}
+                description={description}
+                headerVariant={headerVariant}
+                headerActions={actions}
+                search={<AdminGlobalSearch />}
+                tabs={tabs}
+                filters={filters}
+                className={className}
+                isNested={isNested}
+            >
+                {children}
+            </PageShell>
 
             {/* Floating Global Search Overlay */}
             {floatingSearchOpen && (
@@ -100,6 +90,7 @@ export function AdminPageShell({
             >
                 <Search size={20} />
             </button>
-        </div>
+        </>
     );
 }
+

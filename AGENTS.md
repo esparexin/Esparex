@@ -954,6 +954,21 @@ Before any commit command is executed, run and confirm:
 - [ ] `npm test -w <target-package>` → **PASS** (100% green tests)
 - [ ] `npm run repo:gate` → **PASS** (18/18 quality gates passed)
 
+---
+
+## 18. ESPAREX FRONTEND LAYOUT & SURFACE ARCHITECTURE GOVERNANCE (EFAS v1.0.0)
+
+### 18.1 Mandatory Rules
+1. **Single Responsibility Hierarchy**:
+   `PageShell (Layout)` $\rightarrow$ `PageLayout (Grid)` $\rightarrow$ `Container (Bounds)` $\rightarrow$ `Section (Grouping)` $\rightarrow$ `Card (Surface)` $\rightarrow$ `Content (Data)`.
+2. **Prohibited Surface misuse**:
+   - Card MUST NOT be used as a full-page wrapper or form wrapper.
+   - Ad-hoc card-like `div` containers with raw border/shadow utility strings are strictly forbidden. Use `@esparex/ui` `<Card>` for surfaces or `<Container>` + `<Section>` for layout bounds.
+3. **SSOT Imports**:
+   - Web surfaces MUST consume `@esparex/ui` (`Card`, `PageShell`, `Container`, `Section`).
+   - Mobile surfaces MUST consume `@esparex/mobile-ui` (`Card`, `Screen`, `Container`). Redundant explicit background/border prop overrides are forbidden.
+
+
 
 
 

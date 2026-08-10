@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Card } from "@esparex/ui";
 import { WifiOff, Home } from "lucide-react";
 import { OfflineReloadButton } from "@/components/common/OfflineReloadButton";
 
@@ -17,7 +18,7 @@ export default function OfflinePage() {
             <style>{`
                 svg { max-width: 32px !important; max-height: 32px !important; flex-shrink: 0 !important; }
             `}</style>
-            <div
+            <Card
                 className="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-xl p-8 sm:p-10 text-center transition-all"
                 style={{ maxWidth: "480px" }}
             >
@@ -57,7 +58,8 @@ export default function OfflinePage() {
                         <span>Go to homepage</span>
                     </Link>
                 </div>
-            </div>
+            </Card>
         </main>
     );
 }
+

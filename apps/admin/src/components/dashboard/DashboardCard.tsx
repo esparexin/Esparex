@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideIcon } from "@esparex/ui";
+import { Card, CardContent, type LucideIcon } from "@esparex/ui";
 import Link from "next/link";
 
 interface DashboardCardProps {
@@ -26,26 +26,28 @@ export function DashboardCard({
     href
 }: DashboardCardProps) {
     const content = (
-        <div className={`bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow ${className}`}>
-            <div className="flex items-start justify-between mb-4">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                    <Icon size={24} />
+        <Card className={`bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow ${className}`}>
+            <CardContent className="p-0 space-y-4">
+                <div className="flex items-start justify-between">
+                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <Icon size={24} />
+                    </div>
+                    {trend && (
+                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${trend.isUp ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+                            }`}>
+                            {trend.isUp ? "+" : "-"}{trend.value}%
+                        </span>
+                    )}
                 </div>
-                {trend && (
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${trend.isUp ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                        }`}>
-                        {trend.isUp ? "+" : "-"}{trend.value}%
-                    </span>
-                )}
-            </div>
-            <div>
-                <p className="text-sm font-medium text-foreground-tertiary mb-1">{title}</p>
-                <h3 className="text-2xl font-bold text-foreground tracking-tight">{value}</h3>
-                {description && (
-                    <p className="mt-2 text-xs text-foreground-subtle font-medium italic">{description}</p>
-                )}
-            </div>
-        </div>
+                <div>
+                    <p className="text-sm font-medium text-foreground-tertiary mb-1">{title}</p>
+                    <h3 className="text-2xl font-bold text-foreground tracking-tight">{value}</h3>
+                    {description && (
+                        <p className="mt-2 text-xs text-foreground-subtle font-medium italic">{description}</p>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
     );
 
     if (href) {
@@ -58,3 +60,4 @@ export function DashboardCard({
 
     return content;
 }
+
