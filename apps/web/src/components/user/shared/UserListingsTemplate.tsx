@@ -114,13 +114,17 @@ export function UserListingsTemplate<TStatus extends string, TItem>({
                 {/* Segmented Control Status Tabs */}
                 <div
                     className="grid gap-0.5 bg-slate-100/90 p-0.5 rounded-lg h-8 max-w-xs"
+                    role="tablist"
+                    aria-label="Filter listings by status"
                     style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}
                 >
                     {statusTabs.map((status) => (
                         <button
                             key={status}
+                            role="tab"
+                            aria-selected={selectedStatus === status}
                             onClick={() => onStatusChange(status)}
-                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 ${selectedStatus === status
+                            className={`h-7 flex items-center justify-center rounded-md text-tiny font-semibold whitespace-nowrap transition-all px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${selectedStatus === status
                                 ? "bg-white text-slate-900 shadow-sm"
                                 : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/40"
                                 }`}
