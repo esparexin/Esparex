@@ -16,11 +16,12 @@ export const ensureRoleAssignmentAllowed = (actorRole: string | undefined, targe
 export const buildUserStatusFilter = (status?: string) => {
     if (!status || status === 'all') return undefined;
     const normalizedStatus = normalizeUserStatus(status);
-    const rawStatus = typeof status === 'string' ? status.toLowerCase() : '';
+    const rawStatus = typeof status === 'string' ? status.trim().toLowerCase() : '';
     if (rawStatus === USER_STATUS.LIVE || rawStatus === USER_STATUS.ACTIVE) {
         return { $in: [USER_STATUS.ACTIVE, USER_STATUS.LIVE] };
     }
-    return normalizedStatus ?? status;
+    const finalStatus = normalizedStatus ?? (rawStatus ? String(rawStatus) : undefined);
+    return finalStatus ? { $eq: finalStatus } : undefined;
 };
 
 export const normalizeAdminManagedUser = (input: unknown): Record<string, unknown> => {
