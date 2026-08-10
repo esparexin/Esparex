@@ -49,13 +49,16 @@ export class MongoChatRepositoryAdapter implements ChatRepositoryPort {
         });
     }
     public async listConversations(userId: string, before?: string, view: 'active' | 'archived' = 'active'): Promise<any[]> {
-        const query: Record<string, unknown> = { $or: [{ buyerId: userId }, { sellerId: userId }] };
-        query.deletedFor = view === 'archived' ? userId : { $ne: userId };
+        const userObjId = new Types.ObjectId(userId);
+        const query: Record<string, unknown> = { $or: [{ buyerId: userObjId }, { sellerId: userObjId }] };
+        query.deletedFor = view === 'archived' ? userObjId : { $ne: userObjId };
         if (before) query.lastMessageAt = { $lt: new Date(before) };
         return await Conversation.find(query).sort({ lastMessageAt: -1 }).limit(PAGE_SIZE_INBOX).populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked').populate('buyerId', 'name avatar').populate('sellerId', 'name avatar').lean();
     }
     public async getPopulatedConversation(conversationId: string, userId: string): Promise<any> {
-        return await Conversation.findOne({ _id: conversationId, $or: [{ buyerId: userId }, { sellerId: userId }] }).populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked').populate('buyerId', 'name avatar').populate('sellerId', 'name avatar').lean();
+        const convObjId = new Types.ObjectId(conversationId);
+        const userObjId = new Types.ObjectId(userId);
+        return await Conversation.findOne({ _id: convObjId, $or: [{ buyerId: userObjId }, { sellerId: userObjId }] }).populate('adId', 'title images price status listingType seoSlug isDeleted isChatLocked').populate('buyerId', 'name avatar').populate('sellerId', 'name avatar').lean();
     }
     public async blockConversation(conversationId: string, userId: string): Promise<void> {
         await Conversation.updateOne({ _id: conversationId }, { $set: { isBlocked: true, blockedBy: new Types.ObjectId(userId) } });
@@ -64,7 +67,9 @@ export class MongoChatRepositoryAdapter implements ChatRepositoryPort {
         await Conversation.updateOne({ _id: conversationId }, { $addToSet: { deletedFor: new Types.ObjectId(userId) } });
     }
     public async findMessages(conversationId: string, userId: string, before?: string, after?: string): Promise<{ msgs: any[], nextCursor?: string }> {
-        const baseFilter: Record<string, unknown> = { conversationId, deletedFor: { $ne: new Types.ObjectId(userId) } };
+        const convObjId = new Types.ObjectId(conversationId);
+        const userObjId = new Types.ObjectId(userId);
+        const baseFilter: Record<string, unknown> = { conversationId: convObjId, deletedFor: { $ne: userObjId } };
         if (after) {
             const msgs = await ChatMessage.find({ ...baseFilter, createdAt: { $gt: new Date(after) } }).sort({ createdAt: 1 }).lean();
             return { msgs, nextCursor: undefined };

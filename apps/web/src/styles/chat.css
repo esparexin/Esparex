@@ -1408,10 +1408,12 @@
 .chat-list__search-icon {
   position: absolute;
   left: 1.75rem;
-  top: 52%;
+  top: 50%;
   transform: translateY(-50%);
-  width: 1rem;
-  height: 1rem;
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
   color: #94a3b8;
   pointer-events: none;
 }
