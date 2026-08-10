@@ -93,7 +93,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
     const renderBrandBlock = () => (
         <div className="text-left">
             <Link href="/" className="inline-block">
-                <Image src="/icons/logo.png" alt="Esparex" width={484} height={118} style={{ height: '32px', width: 'auto' }} />
+                <Image src="/icons/logo.png" alt="Esparex" width={470} height={112} style={{ height: '32px', width: 'auto' }} />
             </Link>
         </div>
     );

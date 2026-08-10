@@ -82,7 +82,7 @@ export function MobileNavDrawer({
             ) : (
               <div className="space-y-4">
                 <div>
-                  <Image src="/icons/logo.png" alt="Esparex" width={484} height={118} style={{ height: '32px', width: 'auto' }} className="mb-3" />
+                  <Image src="/icons/logo.png" alt="Esparex" width={470} height={112} style={{ height: '32px', width: 'auto' }} className="mb-3" />
                   <h2 className="text-lg font-bold text-white">Welcome to Esparex</h2>
                   <p className="text-xs text-foreground-subtle mt-0.5">Buy & sell mobile spares</p>
                 </div>
