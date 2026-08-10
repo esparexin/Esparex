@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import { sendErrorResponse } from "../utils/errorResponse";
 import { isValidGeoPoint, DANGEROUS_HTML_PATTERNS, SQL_INJECTION_PATTERNS } from "@esparex/shared";
+import { stripMongoOperators } from '@esparex/core/utils/mongoQueryValidator';
 import { z } from 'zod';
 
 /**
@@ -375,6 +376,7 @@ export const validateSmartAlert = (req: Request, res: Response, next: NextFuncti
  * Prevents invalid queries from reaching the database.
  */
 export const validateSearchParams = (req: Request, res: Response, next: NextFunction) => {
+    req.query = stripMongoOperators(req.query) as Record<string, any>;
     const { q, search, category, categoryId, minPrice, maxPrice, sort, location, locationId, level } = req.query;
     const reject = (message: string) => sendErrorResponse(req, res, 400, message);
 
