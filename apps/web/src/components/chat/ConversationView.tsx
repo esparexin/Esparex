@@ -130,19 +130,54 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     },
   });
 
-  // Auto-scroll message container to bottom on NEW messages or typing updates
-  // (Uses internal container scrollTop to avoid triggering outer window/page scrolling)
+  const AUTO_SCROLL_THRESHOLD = 120;
+  const prevScrollHeightRef = useRef<number>(0);
+  const userSentRef = useRef<boolean>(false);
+
+  const handleLoadMore = async () => {
+    if (messagesContainerRef.current) {
+      prevScrollHeightRef.current = messagesContainerRef.current.scrollHeight;
+    }
+    await loadMore();
+  };
+
+  // Restore scroll position after earlier messages are loaded into DOM
   useEffect(() => {
-    if (!isLoadingMore && messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    if (!isLoadingMore && prevScrollHeightRef.current > 0 && messagesContainerRef.current) {
+      const newScrollHeight = messagesContainerRef.current.scrollHeight;
+      const heightDelta = newScrollHeight - prevScrollHeightRef.current;
+      messagesContainerRef.current.scrollTop = heightDelta;
+      prevScrollHeightRef.current = 0;
+    }
+  }, [messages.length, isLoadingMore]);
+
+  // Smart auto-scroll message container to bottom on NEW messages or typing updates
+  // (Only scrolls if user is near bottom within AUTO_SCROLL_THRESHOLD or sent a message)
+  useEffect(() => {
+    if (isLoadingMore || prevScrollHeightRef.current > 0 || !messagesContainerRef.current) {
+      return;
+    }
+    const container = messagesContainerRef.current;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const isNearBottom = distanceFromBottom <= AUTO_SCROLL_THRESHOLD;
+
+    if (isNearBottom || userSentRef.current) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+      userSentRef.current = false;
     }
   }, [messages.length, isLoadingMore, isOtherTyping]);
 
   const handleSend = async (text: string) => {
+    userSentRef.current = true;
     const didSend = await sendMessage(text);
     if (didSend) {
       setQuickReplyText('');
       sendTyping(counterpartyUserId, false);
+    } else {
+      userSentRef.current = false;
     }
     return didSend;
   };
@@ -246,7 +281,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
           <div className="conv-messages__load-more">
             <button
               onClick={() => {
-                void loadMore();
+                void handleLoadMore();
               }}
               className="conv-messages__load-btn"
               disabled={isLoadingMore}

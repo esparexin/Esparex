@@ -3,6 +3,12 @@
    Mobile-first, no overlapping, keyboard-aware layout
    ========================================================================== */
 
+:root {
+  --chat-header-height: 64px;
+  --chat-composer-height: 72px;
+  --mobile-safe-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
 /* --------------------------------------------------------------------------
    Layout: Chat Inbox Page
    -------------------------------------------------------------------------- */
@@ -13,7 +19,7 @@
   height: 100%;
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 0 env(safe-area-inset-bottom);
+  padding: 0 0 var(--mobile-safe-bottom);
 }
 
 .chat-inbox-page__header {
@@ -488,9 +494,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.375rem 0.875rem;
+  margin: 0.25rem 0.75rem 0;
+  border-radius: 8px;
   background: #fffbeb;
-  border-bottom: 1px solid #fde68a;
+  border: 1px solid #fde68a;
   flex-shrink: 0;
 }
 
@@ -504,7 +512,7 @@
   border: none;
   cursor: pointer;
   color: #92400e;
-  font-size: 1rem;
+  font-size: 0.875rem;
   padding: 0 0.25rem;
   flex-shrink: 0;
 }
@@ -642,8 +650,10 @@
 
 .chat-bubble__text {
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .chat-bubble__attachments {
@@ -794,7 +804,7 @@
   flex-shrink: 0;
   background: #fff;
   border-top: 1px solid #e5e7eb;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: var(--mobile-safe-bottom, max(16px, env(safe-area-inset-bottom)));
 }
 
 /* ── Quick Replies ───────────────────────────────────────────────────────── */
