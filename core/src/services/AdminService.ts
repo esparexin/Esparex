@@ -90,11 +90,11 @@ export const getAuditLogs = async (
     limit: number
 ) => {
     const query: Record<string, unknown> & { $and?: unknown[] } = {};
-    if (filters.action) query.action = filters.action;
-    if (filters.targetType) query.targetType = filters.targetType;
-    if (filters.adminId) query.adminId = filters.adminId;
-    if (filters.requestId) query['metadata.requestId'] = filters.requestId;
-    if (filters.correlationId) query['metadata.correlationId'] = filters.correlationId;
+    if (filters.action) query.action = { $eq: String(filters.action) };
+    if (filters.targetType) query.targetType = { $eq: String(filters.targetType) };
+    if (filters.adminId) query.adminId = { $eq: String(filters.adminId) };
+    if (filters.requestId) query['metadata.requestId'] = { $eq: String(filters.requestId) };
+    if (filters.correlationId) query['metadata.correlationId'] = { $eq: String(filters.correlationId) };
 
     const normalizedQuery = typeof filters.q === 'string' ? filters.q.trim() : '';
     if (normalizedQuery) {

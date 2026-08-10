@@ -8,15 +8,24 @@ import type { AdminLogFn } from '../../../../../services/AdminListingsService';
 import type { UserFilters } from './types';
 import { ACTIVE_USER_STATUS_QUERY, buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';
 
+import { escapeRegExp } from '../../../../../utils/stringUtils';
+
 export const getUsers = async (filters: UserFilters = {}, pagination: { skip: number; limit: number }) => {
     const { search, status, role, isVerified } = filters;
     const { skip, limit } = pagination;
     const query: Record<string, unknown> = { status: { $ne: USER_STATUS.DELETED }, userType: 'marketplace' };
-    if (search) query.$or = [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }, { mobile: { $regex: search, $options: 'i' } }];
+    if (search) {
+        const safeSearch = escapeRegExp(String(search).trim());
+        query.$or = [
+            { name: { $regex: safeSearch, $options: 'i' } },
+            { email: { $regex: safeSearch, $options: 'i' } },
+            { mobile: { $regex: safeSearch, $options: 'i' } },
+        ];
+    }
     const sq = buildUserStatusFilter(status);
     if (sq) query.status = sq;
-    if (role && role !== 'all') query.role = role;
-    if (isVerified !== undefined) query.isVerified = isVerified;
+    if (role && role !== 'all') query.role = { $eq: String(role) };
+    if (isVerified !== undefined) query.isVerified = { $eq: !!isVerified };
     const [users, total] = await Promise.all([User.find(query).select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit), User.countDocuments(query)]);
     const userIds = users.map((u) => u._id);
     const adCounts = userIds.length > 0 ? await Ad.aggregate<{ _id: unknown; totalAdsPosted: number }>([{ $match: { sellerId: { $in: userIds }, isDeleted: { $ne: true } } }, { $group: { _id: '$sellerId', totalAdsPosted: { $sum: 1 } } }]) : [];
