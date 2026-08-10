@@ -88,7 +88,7 @@ export function AccountMessagesWorkspace({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-140px)] min-h-[560px] bg-card md:rounded-xl md:border md:border-border md:shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[calc(100dvh-var(--chat-header-height,64px))] md:h-[calc(100dvh-140px)] bg-card md:rounded-xl md:border md:border-border md:shadow-sm overflow-hidden">
       {/* Workspace Header (Hidden on Mobile to eliminate duplicate header) */}
       <div className="hidden md:flex border-b border-slate-200/80 px-5 py-3.5 items-center justify-between bg-white shrink-0">
         <div>
