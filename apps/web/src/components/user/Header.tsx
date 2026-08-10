@@ -180,7 +180,7 @@ export function Header({
             alt="Esparex Logo"
             width={512}
             height={206}
-            style={{ height: "40px", width: "auto" }}
+            style={{ height: "44px", width: "auto" }}
           />
         </button>
 
@@ -368,7 +368,7 @@ export function Header({
               alt="Esparex"
               width={512}
               height={206}
-              style={{ height: "26px", width: "auto" }}
+              style={{ height: "32px", width: "auto" }}
             />
           </button>
 
