@@ -178,9 +178,10 @@ export function Header({
           <Image
             src="/icons/logo.png"
             alt="Esparex Logo"
-            width={512}
-            height={206}
-            style={{ height: "40px", width: "auto" }}
+            width={495}
+            height={112}
+            unoptimized
+            style={{ height: "36px", width: "auto" }}
           />
         </button>
 
@@ -359,16 +360,17 @@ export function Header({
         <div className="h-11 bg-muted/90 border-b border-border flex items-center px-4">
           <button
             type="button"
-            className="flex items-center gap-2 mr-3 h-10"
+            className="flex items-center gap-2 mr-3"
             onClick={() => navigateTo("home")}
             aria-label="Go to homepage"
           >
             <Image
               src="/icons/logo.png"
               alt="Esparex"
-              width={512}
-              height={206}
-              style={{ height: "26px", width: "auto" }}
+              width={495}
+              height={112}
+              unoptimized
+              style={{ height: "28px", width: "auto" }}
             />
           </button>
 
