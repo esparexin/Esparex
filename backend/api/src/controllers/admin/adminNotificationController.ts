@@ -17,31 +17,9 @@ import { logAdminAction } from "../../utils/adminLogger";
 import { NotificationDispatcher } from "@esparex/core/services/notification/NotificationDispatcher";
 import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import { type IUser } from "@esparex/core/models/User";
-import { respond } from "../../utils/respond";
+import { escapeRegExp } from "@esparex/core/utils/stringUtils";
 
 const BATCH_SIZE = 500;
-
-type AdminNotificationTargetType = "all" | "topic" | "users";
-
-type HistoryRecord = {
-    id: string;
-    title: string;
-    body: string;
-    type: string;
-    targetType: AdminNotificationTargetType;
-    targetValue?: string;
-    userIds?: Array<string | mongoose.Types.ObjectId>;
-    actionUrl?: string;
-    sentBy: mongoose.Types.ObjectId | Record<string, unknown> | null;
-    successCount: number;
-    skippedCount: number;
-    failureCount: number;
-    status: "sent" | "failed" | "scheduled";
-    createdAt: Date;
-    sendAt?: Date;
-};
-
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 async function dispatchToAudience(params: {
     audienceId: string;
@@ -197,7 +175,7 @@ export async function getHistory(req: Request, res: Response) {
         const historyStatus = status ?? "all";
         const mergeWindow = skip + limit;
         const searchTerm = q?.trim();
-        const searchRegex = searchTerm ? new RegExp(escapeRegex(searchTerm), "i") : null;
+        const searchRegex = searchTerm ? new RegExp(escapeRegExp(searchTerm), "i") : null;
 
         const logMatch: {
             targetType?: AdminNotificationTargetType;
