@@ -172,7 +172,7 @@ export function Header({
       className="sticky top-0 z-50 w-full border-b glass shadow-premium pt-[env(safe-area-inset-top)] md:pt-0 relative"
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
-      <div className="hidden md:flex max-w-7xl mx-auto px-4 h-[72px] items-center gap-6">
+      <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
         {/* Logo */}
         <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Image
@@ -180,7 +180,7 @@ export function Header({
             alt="Esparex Logo"
             width={462}
             height={112}
-            style={{ height: "42px", width: "auto" }}
+            style={{ height: "36px", width: "auto" }}
           />
         </button>
 
@@ -356,7 +356,7 @@ export function Header({
       {/* ── MOBILE HEADER INNER (< MD) ───────────────────────────────────────────────────────────── */}
       <div className="md:hidden">
         {/* Top Location Bar */}
-        <div className="h-12 bg-muted/90 border-b border-border flex items-center px-4">
+        <div className="h-11 bg-muted/90 border-b border-border flex items-center px-4">
           <button
             type="button"
             className="flex items-center gap-2 mr-3 h-10"
@@ -368,7 +368,7 @@ export function Header({
               alt="Esparex"
               width={462}
               height={112}
-              style={{ height: "32px", width: "auto" }}
+              style={{ height: "28px", width: "auto" }}
             />
           </button>
 
