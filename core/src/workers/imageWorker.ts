@@ -13,10 +13,13 @@ import { TraceContext } from '@esparex/shared';
 import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabilityContext';
 
 // Use a strict concurrency of 2 to avoid memory overloads when processing 10MB raw JPEGs natively.
-const createNoopWorker = <T>() => ({
-    on: () => undefined,
-    close: async () => undefined,
-} as unknown as Worker<T>);
+const createNoopWorker = <T>(): Worker<T> => {
+    const dummy: unknown = {
+        on: () => undefined,
+        close: async () => undefined,
+    };
+    return dummy as Worker<T>;
+};
 
 export const imageOptimizationWorker = shouldDisableQueueConnection
     ? createNoopWorker()

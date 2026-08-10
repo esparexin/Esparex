@@ -13,7 +13,7 @@ export const typography = {
     'small': ['0.8125rem', { lineHeight: '1.5', letterSpacing: '0' }],      // 13px
     'caption': ['0.75rem', { lineHeight: '1.4', letterSpacing: '0' }],      // 12px
     'tiny': ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0' }],       // 11px
-  },
+  } as const,
   fontWeights: {
     normal: '400',
     medium: '500',

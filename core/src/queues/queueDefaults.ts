@@ -29,16 +29,19 @@ export const queueWorkerBackoffStrategy = (
     maxDelayMs = 60_000
 ): number => Math.min(baseDelayMs * Math.pow(2, Math.max(0, attemptsMade - 1)), maxDelayMs);
 
-export const createNoopQueue = <T>() => ({
-    add: async () => null,
-    close: async () => undefined,
-    on: () => undefined,
-    getJobCounts: async () => ({
-        waiting: 0,
-        active: 0,
-        delayed: 0,
-        failed: 0,
-        completed: 0,
-    }),
-    getJob: async () => null,
-} as unknown as Queue<T>);
+export const createNoopQueue = <T>(): Queue<T> => {
+    const dummy: unknown = {
+        add: async () => null,
+        close: async () => undefined,
+        on: () => undefined,
+        getJobCounts: async () => ({
+            waiting: 0,
+            active: 0,
+            delayed: 0,
+            failed: 0,
+            completed: 0,
+        }),
+        getJob: async () => null,
+    };
+    return dummy as Queue<T>;
+};

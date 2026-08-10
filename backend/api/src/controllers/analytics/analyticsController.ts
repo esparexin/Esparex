@@ -14,7 +14,8 @@ interface PostAdEvent {
 export const logPostAdEvent = async (req: Request, res: Response) => {
   try {
     const { event, step, field, source, metadata } = req.body as PostAdEvent;
-    const userId = String((req.user as unknown as Record<string, unknown>)?._id ?? "");
+    const rawUser: unknown = req.user;
+    const userId = String((rawUser as Record<string, unknown>)?._id ?? "");
 
     if (!event || typeof event !== "string") {
       sendErrorResponse(req, res, 400, "Event name is required");

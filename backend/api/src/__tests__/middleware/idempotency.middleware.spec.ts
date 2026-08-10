@@ -17,11 +17,7 @@ type MockResponse = Response & {
     payload?: unknown;
 };
 
-const mockedIdempotencyModel = IdempotencyRequest as unknown as {
-    findOne: jest.Mock;
-    findOneAndUpdate: jest.Mock;
-    updateOne: jest.Mock;
-};
+const mockedIdempotencyModel = IdempotencyRequest as any;
 
 const stableStringify = (value: unknown): string => {
     if (value === undefined || typeof value !== 'object') return JSON.stringify(value);
@@ -66,11 +62,11 @@ const makeRes = (): MockResponse => {
     res.status = jest.fn((code: number) => {
         res.statusCode = code;
         return res;
-    }) as unknown as Response['status'];
+    }) as any;
     res.json = jest.fn((payload: unknown) => {
         res.payload = payload;
         return res;
-    }) as unknown as Response['json'];
+    }) as any;
     return res;
 };
 

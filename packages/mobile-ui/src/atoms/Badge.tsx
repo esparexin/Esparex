@@ -44,7 +44,7 @@ export const Badge: React.FC<BadgeProps> = ({
   return (
     <View 
       className={`rounded-full border flex-row items-center justify-center self-start ${getVariantStyles()} ${sizeStyles} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       <AppText className={`${getTextColor()} ${textSize} font-medium tracking-wide uppercase`}>
         {label}

@@ -102,7 +102,7 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 ServiceTypeSchema.plugin(softDeletePlugin);
 
 ServiceTypeSchema.pre('validate', function () {
-    const mutableDoc = this as unknown as Record<string, unknown>;
+    const mutableDoc = this as Record<string, unknown>;
     applyCatalogNamingDefaults(mutableDoc as Parameters<typeof applyCatalogNamingDefaults>[0]);
     applyCatalogLifecycleFields(mutableDoc, CATALOG_APPROVAL_STATUS.APPROVED);
     mutableDoc.name = mutableDoc.displayName;

@@ -37,7 +37,7 @@ export const Card: React.FC<CardProps> = ({
   return (
     <View 
       className={`rounded-xl overflow-hidden p-4 ${getVariantStyles()} ${getElevationStyles()} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       {children}
     </View>

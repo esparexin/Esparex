@@ -39,9 +39,7 @@ import { buildAdSortStage } from '../../domains/listings/application/ad/ad/AdSea
 import { getAdCounts } from '../../domains/listings/application/ad/ad/AdMetricsService';
 import { buildPublicAdFilter } from '../../utils/FeedVisibilityGuard';
 
-const mockedAdModel = Ad as unknown as {
-    countDocuments: jest.Mock;
-};
+const mockedAdModel = Ad as any;
 
 describe('getAdCounts', () => {
     beforeEach(() => {
@@ -70,7 +68,7 @@ describe('getAdCounts', () => {
             total: 0,
         });
         expect(mockedAdModel.countDocuments).toHaveBeenCalledTimes(7);
-        mockedAdModel.countDocuments.mock.calls.forEach(([filter]) => {
+        mockedAdModel.countDocuments.mock.calls.forEach(([filter]: any) => {
             expect((filter as Record<string, unknown>).sellerId).toBeUndefined();
         });
     });
@@ -100,12 +98,12 @@ describe('getAdCounts', () => {
 
         expect(mockedAdModel.countDocuments).toHaveBeenCalledTimes(7);
 
-        const calls = mockedAdModel.countDocuments.mock.calls.map(([filter]) => filter as Record<string, unknown>);
-        const statuses = calls.slice(0, 6).map((call) => call.status);
+        const calls = mockedAdModel.countDocuments.mock.calls.map(([filter]: any) => filter as Record<string, unknown>);
+        const statuses = calls.slice(0, 6).map((call: any) => call.status);
         expect(statuses).toEqual(['live', 'pending', 'sold', 'rejected', 'expired', 'deactivated']);
         expect(calls[6]?.status).toBeUndefined();
 
-        calls.forEach((call) => {
+        calls.forEach((call: any) => {
             expect(call).toMatchObject({
                 isDeleted: { $ne: true },
             });

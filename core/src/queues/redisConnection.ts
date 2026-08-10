@@ -16,7 +16,7 @@ export const redisConnection = shouldDisableQueueConnection
 export const isQueueConnectionAvailable = (): boolean => {
     if (shouldDisableQueueConnection) return false;
 
-    const status = (redisConnection as unknown as { status?: string }).status;
+    const status = (redisConnection as { status?: string }).status;
 
     return status === 'ready' || status === 'connect';
 };

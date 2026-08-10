@@ -83,7 +83,7 @@ export class FeedDecisionEngine {
         const fetchBatch = async (matchStage: ListingFilter, stageName: FallbackStage, radius: number = 0, isRadius: boolean = false) => {
             if (mergedAds.length >= limitNeeded) return;
 
-            const visibilityFilter = buildPublicAdFilter() as unknown as Partial<ListingFilter>;
+            const visibilityFilter = buildPublicAdFilter() as Partial<ListingFilter>;
             const filter: ListingFilter = {
                 ...matchStage,
                 ...visibilityFilter,

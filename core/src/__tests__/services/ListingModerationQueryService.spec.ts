@@ -12,10 +12,7 @@ import { getModerationCounts, MODERATION_STATUSES } from '../../services/Listing
 import { HIDDEN_MODERATION_STATUSES } from '../../utils/FeedVisibilityGuard';
 import { getLiveStatusCriteria } from '../../utils/statusQueryMapper';
 
-const mockedAdModel = Ad as unknown as {
-    aggregate: jest.Mock;
-    countDocuments: jest.Mock;
-};
+const mockedAdModel = Ad as any;
 
 describe('getModerationCounts', () => {
     beforeEach(() => {

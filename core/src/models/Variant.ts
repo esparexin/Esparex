@@ -65,19 +65,16 @@ const VariantSchema = new Schema<IVariant>(
 VariantSchema.plugin(softDeletePlugin);
 VariantSchema.plugin(installSafeSoftDeleteQuery);
 
-VariantSchema.pre('validate', function () {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
-    const mutableDoc = this as any;
-    
-    if (!mutableDoc.canonicalName && mutableDoc.displayName) {
-        mutableDoc.canonicalName = mutableDoc.displayName;
+VariantSchema.pre('validate', function (this: IVariant) {
+    if (!this.canonicalName && this.displayName) {
+        this.canonicalName = this.displayName;
     }
     
-    if (!mutableDoc.approvalStatus) {
-        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    if (!this.approvalStatus) {
+        this.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
     }
 
-    mutableDoc.name = mutableDoc.displayName;
+    this.name = this.displayName;
 });
 
 VariantSchema.index({ modelId: 1 }, { name: 'idx_variant_modelId' });

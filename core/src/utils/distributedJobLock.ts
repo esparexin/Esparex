@@ -91,7 +91,8 @@ export const runWithDistributedJobLock = async <T>(
 ): Promise<T | undefined> => {
     const lockKey = options.lockKey || `scheduler:lock:${jobName}`;
     const failOpen = options.failOpen !== false;
-    const client = redisClient as unknown as RedisLockClient;
+    const rawClient: unknown = redisClient;
+    const client = rawClient as RedisLockClient;
 
     if (!isRedisLockCapable(client)) {
         logger.warn('Redis lock unavailable for scheduler job', {

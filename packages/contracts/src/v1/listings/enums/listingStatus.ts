@@ -24,4 +24,4 @@ export const LISTING_DISPLAY_STATUSES = [
 export type ListingDisplayStatus = typeof LISTING_DISPLAY_STATUSES[number];
 
 export const LISTING_STATUS_VALUES = Object.values(LISTING_STATUS) as [ListingStatus, ...ListingStatus[]];
-export const LISTING_DISPLAY_STATUS_VALUES = LISTING_DISPLAY_STATUSES as unknown as [ListingDisplayStatus, ...ListingDisplayStatus[]];
+export const LISTING_DISPLAY_STATUS_VALUES = [...LISTING_DISPLAY_STATUSES] as [ListingDisplayStatus, ...ListingDisplayStatus[]];

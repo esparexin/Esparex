@@ -41,9 +41,10 @@ export const registerBusiness = async (req: Request, res: Response) => {
 
         const business = await businessCoreService.registerBusiness(verifiedPayload, authUser._id.toString());
 
+        const rawBiz: unknown = serializeBusinessForOwner(business);
         const response = respond<ApiResponse<Business>>({
             success: true,
-            data: serializeBusinessForOwner(business) as unknown as Business,
+            data: rawBiz as Business,
             message: 'Business application submitted successfully. Pending approval.'
         });
 
@@ -127,9 +128,10 @@ export const updateBusiness = async (req: Request, res: Response) => {
 
         const updated = await businessCoreService.updateBusinessById(id, filteredUpdates);
 
+        const rawUpdatedBiz: unknown = serializeBusinessForOwner(updated);
         const response = respond<ApiResponse<Business>>({
             success: true,
-            data: serializeBusinessForOwner(updated) as unknown as Business
+            data: rawUpdatedBiz as Business
         });
 
         res.json(response);

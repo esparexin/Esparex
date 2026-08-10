@@ -129,7 +129,37 @@ for (const filePath of allFiles) {
         });
       }
     }
+
+    // Rule 4: Zero-Capacitor & Legacy Mobile Wrapper Prevention Gate
+    if (/@capacitor\b|@ionic\b|cordova\b/i.test(line)) {
+      violations.push({
+        file: relPath,
+        line: lineNum,
+        rule: "Capacitor, Ionic, or Cordova legacy packages are strictly forbidden. Use Expo SDK 52 / React Native primitives.",
+        code: line.trim(),
+      });
+    }
   });
+}
+
+// Global Repository Capacitor Artifact Prevention Check
+const forbiddenCapacitorFiles = [
+  "apps/mobile/capacitor.config.ts",
+  "apps/mobile/capacitor.config.json",
+  "capacitor.config.ts",
+  "capacitor.config.json"
+];
+
+for (const relFile of forbiddenCapacitorFiles) {
+  const fullCheckPath = path.join(repoRoot, relFile);
+  if (fs.existsSync(fullCheckPath)) {
+    violations.push({
+      file: relFile,
+      line: 1,
+      rule: "Capacitor configuration file detected. Capacitor architecture is deprecated and prohibited.",
+      code: "capacitor.config.*",
+    });
+  }
 }
 
 if (violations.length > 0) {
@@ -140,6 +170,7 @@ if (violations.length > 0) {
   }
   process.exit(1);
 } else {
-  console.log("✅ Mobile Architecture Guard: All mobile layer boundaries clean.");
+  console.log("✅ Mobile Architecture Guard: All mobile layer boundaries and zero-Capacitor gates clean.");
   process.exit(0);
 }
+

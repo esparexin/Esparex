@@ -15,8 +15,8 @@ export class ListingExpiryService {
     static async runSweep(now: Date = new Date()): Promise<ListingExpirySweepResult> {
         const expiringListings = await getListingRepository().find({
             status: LISTING_STATUS.LIVE,
-            expiresAt: { $lte: now } as any,
-            isDeleted: false as any,
+            expiresAt: { $lte: now },
+            isDeleted: false,
         });
 
         if (expiringListings.length === 0) {

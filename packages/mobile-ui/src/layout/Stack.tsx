@@ -61,7 +61,7 @@ export const Stack: React.FC<StackProps> = ({
   return (
     <View 
       className={`${base} ${gapClass} ${alignClass} ${justifyClass} ${wrapClass} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       {children}
     </View>

@@ -131,13 +131,11 @@ ModelSchema.index({ brandId: 1, categoryIds: 1 }, { name: 'model_brand_categoryI
 import softDeletePlugin from '../utils/softDeletePlugin';
 ModelSchema.plugin(softDeletePlugin);
 
-ModelSchema.pre('validate', function () {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
-    const mutableDoc = this as any;
-    applyCatalogGovernanceDefaults(mutableDoc);
+ModelSchema.pre('validate', function (this: IModel) {
+    applyCatalogGovernanceDefaults(this);
 
-    if (!mutableDoc.approvalStatus) {
-        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    if (!this.approvalStatus) {
+        this.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
     }
 });
 

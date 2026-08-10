@@ -3,11 +3,11 @@ import { AppError } from '../../../../../utils/AppError';
 import { dispatchTemplatedNotification } from '../../../../notifications/application/NotificationService';
 import Ad from '../../../../../models/Ad';
 import type { AdminLogFn } from './types';
+import type { AdminLogTargetType } from '../../../../../utils/adminLogger';
 import {
     adminApproveListing, adminRejectListing, adminDeactivateListing,
     adminExpireListing, adminExtendListing,
 } from './mutations';
-import { validateListingId } from './helpers';
 
 const ADMIN_BULK_CONCURRENCY = 5;
 
@@ -22,14 +22,14 @@ const executeAdminListingsBulkOperation = async <T>(
         limit(async () => {
             try {
                 const updated = await actionFn(id);
-                return { id, success: true as const, listing: (updated as any)?.listing || updated };
+                return { id, success: true as const, listing: (updated as { listing?: unknown })?.listing || updated };
             } catch (error) {
-                return { id, success: false as const, message: error instanceof Error ? error.message : String(error), statusCode: (error as any).statusCode || 500 };
+                return { id, success: false as const, message: error instanceof Error ? error.message : String(error), statusCode: (error as { statusCode?: number }).statusCode || 500 };
             }
         })
     );
     const results = await Promise.all(tasks);
-    const response: any = { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length };
+    const response: Record<string, unknown> = { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length };
     if (includeResults) response.results = results;
     return response;
 };
@@ -85,8 +85,8 @@ const executeBulkWarningOperation = async (
     config: {
         validate?: (ad: AdDocument) => string | null;
         notificationTemplate: string;
-        getNotificationData: (ad: AdDocument) => Record<string, any>;
-        getNotificationOptions: (ad: AdDocument) => Record<string, any>;
+        getNotificationData: (ad: AdDocument) => Record<string, unknown>;
+        getNotificationOptions: (ad: AdDocument) => Record<string, unknown>;
         updateSet: Record<string, unknown>;
         updateInc: Record<string, number>;
         logDomain: string;
@@ -118,7 +118,7 @@ const executeBulkWarningOperation = async (
                 ad.sellerId.toString(),
                 'SYSTEM',
                 config.notificationTemplate,
-                config.getNotificationData(ad),
+                config.getNotificationData(ad) as Record<string, string | number | undefined>,
                 config.getNotificationOptions(ad)
             );
             
@@ -129,7 +129,7 @@ const executeBulkWarningOperation = async (
                 }
             });
             
-            await logFn('expiry_warning_resent', config.logDomain as any, id, config.getLogData(actorId));
+            await logFn('expiry_warning_resent', config.logDomain as AdminLogTargetType, id, config.getLogData(actorId));
             results.push({ id, success: true });
         } catch (error) {
             results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) });

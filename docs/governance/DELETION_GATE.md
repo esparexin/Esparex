@@ -99,7 +99,7 @@ The file is **not**:
 * Build configuration (webpack, tsconfig, vite, etc.)
 * CI/CD configuration (GitHub Actions, CircleCI, etc.)
 * Environment configuration (.env, .env.example, etc.)
-* Mobile platform configuration (Android, iOS, Cordova, Capacitor)
+* Mobile platform configuration (Android, iOS, Expo)
 * Deployment configuration (Docker, K8s, etc.)
 * Code generation input (OpenAPI specs, GraphQL schemas, etc.)
 * Linter/formatter configuration (ESLint, Prettier, etc.)

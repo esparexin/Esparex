@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import {
     Category,
     CategoryRepositoryPort,
@@ -47,7 +48,7 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     async findById(id: string, tx?: unknown): Promise<Category | null> {
         const safeId = typeof id === 'string' ? id : String(id);
         const query = CategoryModel.findById(safeId).lean<DbCategory | null>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
@@ -55,14 +56,14 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     async findBySlug(slug: string, tx?: unknown): Promise<Category | null> {
         const safeSlug = typeof slug === 'string' ? slug : String(slug ?? '');
         const query = CategoryModel.findOne({ slug: safeSlug }).lean<DbCategory | null>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
     async exists(id: string, tx?: unknown): Promise<boolean> {
         const query = CategoryModel.findById(id).select('_id').lean();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc !== null;
     }
@@ -77,19 +78,21 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
             filter._id = { $in: categoryIds };
         }
         const query = CategoryModel.find(filter).select('_id').lean();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const docs = await query.exec();
         return docs.map(doc => String(doc._id));
     }
 
-    async create(data: Partial<Category> | any, tx?: unknown): Promise<Category> {
-        const docs = await CategoryModel.create([data], { session: tx as any });
-        return this.toDomain(docs[0] as unknown as DbCategory);
+    async create(data: Omit<Category, 'id'>, tx?: unknown): Promise<Category> {
+        const payload: Record<string, unknown> = { ...data };
+        const docs = await CategoryModel.create([payload], { session: tx as ClientSession });
+        const doc: any = docs[0];
+        return this.toDomain(doc.toObject() as DbCategory);
     }
 
-    async update(id: string, data: Partial<Category> | any, tx?: unknown): Promise<Category | null> {
+    async update(id: string, data: Partial<Category>, tx?: unknown): Promise<Category | null> {
         const query = CategoryModel.findByIdAndUpdate(id, data, { new: true }).lean<DbCategory | null>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
@@ -97,7 +100,7 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
     async softDelete(id: string, tx?: unknown): Promise<boolean> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = CategoryModel.updateOne({ _id: id }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount > 0;
     }
@@ -108,7 +111,7 @@ export class MongoCategoryRepositoryAdapter implements CategoryRepositoryPort {
             isDeleted: { $ne: true },
             approvalStatus: CATALOG_APPROVAL_STATUS.APPROVED
         }).lean<DbCategory[]>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const docs = await query.exec();
         return docs.map(doc => this.toDomain(doc));
     }

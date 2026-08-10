@@ -152,7 +152,7 @@ export const recordTransaction = async ({
         }
     };
 
-    const records = await Transaction.create([transactionPayload] as unknown as Record<string, unknown>[], { session });
+    const records = await Transaction.create([transactionPayload] as Record<string, unknown>[], { session });
     return records[0];
 };
 
@@ -309,7 +309,8 @@ export const consumeCredit = async ({
 };
 
 // ── Typed model wrappers for controller shared files ─────────────────────────
-export const WalletModel = UserWallet as unknown as {
+const rawWalletModel: unknown = UserWallet;
+export const WalletModel = rawWalletModel as { 
     findOne: (query: Record<string, unknown>) => {
         lean: () => Promise<Record<string, unknown> | null>;
     };
@@ -329,7 +330,8 @@ interface QueryChain {
     lean: () => Promise<Record<string, unknown>[]>;
 }
 
-export const TransactionModel = Transaction as unknown as {
+const rawTransactionModel: unknown = Transaction;
+export const TransactionModel = rawTransactionModel as { 
     find: (query: Record<string, unknown>) => QueryChain;
     countDocuments: (query: Record<string, unknown>) => Promise<number>;
 };

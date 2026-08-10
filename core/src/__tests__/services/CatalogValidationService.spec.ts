@@ -7,23 +7,23 @@ describe('CatalogValidationService Mock-Based Testing', () => {
         findBySlug: jest.fn(),
         exists: jest.fn(),
         resolveActiveCategoryIds: jest.fn(),
-    } as unknown as jest.Mocked<CategoryRepositoryPort>;
+    } as any;
 
     const mockBrandRepository = {
         findById: jest.fn(),
         findByNameAndCategory: jest.fn(),
         exists: jest.fn(),
-    } as unknown as jest.Mocked<BrandRepositoryPort>;
+    } as any;
 
     const mockModelRepository = {
         findById: jest.fn(),
         exists: jest.fn(),
-    } as unknown as jest.Mocked<ModelRepositoryPort>;
+    } as any;
 
     const mockSparePartRepository = {
         findById: jest.fn(),
         exists: jest.fn(),
-    } as unknown as jest.Mocked<SparePartRepositoryPort>;
+    } as any;
 
     const service = new CatalogValidationService(
         mockCategoryRepository, 

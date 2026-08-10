@@ -40,7 +40,7 @@ const createMockConfigDoc = (initial: MutableRecord = {}) => {
 };
 
 describe("systemConfigService.updateSystemConfigSections", () => {
-    const mockModel = SystemConfig as unknown as { findOne: jest.Mock };
+    const mockModel = SystemConfig as any;
     const mockEnsureSystemConfig = ensureSystemConfig as jest.Mock;
     const mockInvalidateCache = invalidateSystemConfigCache as jest.Mock;
 
@@ -179,7 +179,7 @@ describe("systemConfigService.updateSystemConfigSections", () => {
         const serialized =
             readConfig && typeof (readConfig as { toJSON?: () => Record<string, unknown> }).toJSON === "function"
                 ? (readConfig as { toJSON: () => Record<string, unknown> }).toJSON()
-                : (readConfig as unknown as Record<string, unknown>);
+                : (readConfig as any);
 
         expect(serialized.security).toEqual(
             expect.objectContaining({

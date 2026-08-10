@@ -21,10 +21,7 @@ const createMockRes = (req?: Record<string, unknown>) => ({
 });
 
 describe("adminApiKeyController", () => {
-    const mockApiKeyService = apiKeyService as unknown as {
-        createApiKey: jest.Mock;
-        revokeApiKey: jest.Mock;
-    };
+    const mockApiKeyService = apiKeyService as any;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -49,8 +46,8 @@ describe("adminApiKeyController", () => {
             body: { name: "Ops Integration", scopes: ["ads:read"] },
             user: { _id: "65f0a1b2c3d4e5f607182930" },
             originalUrl: "/api/v1/admin/api-keys",
-        } as unknown as Request;
-        const res = createMockRes(req as unknown as Record<string, unknown>) as unknown as Response;
+        } as any;
+        const res = createMockRes(req as any) as any;
 
         await apiKeyController.createApiKey(req, res);
 
@@ -82,8 +79,8 @@ describe("adminApiKeyController", () => {
             params: { id: "65f0a1b2c3d4e5f607182930" },
             user: { _id: "65f0a1b2c3d4e5f607182931" },
             originalUrl: "/api/v1/admin/api-keys/65f0a1b2c3d4e5f607182930/revoke",
-        } as unknown as Request;
-        const res = createMockRes(req as unknown as Record<string, unknown>) as unknown as Response;
+        } as any;
+        const res = createMockRes(req as any) as any;
 
         await apiKeyController.revokeApiKey(req, res);
 

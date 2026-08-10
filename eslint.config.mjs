@@ -63,6 +63,7 @@ export default tseslint.config(
         { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
       ],
       "esparex/no-status-mutation-outside-status-mutation-service": "error",
+      "esparex/no-unsafe-cast": "error",
       "no-console": "warn",
       "no-undef": "error",
       "no-restricted-imports": [

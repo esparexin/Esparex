@@ -80,13 +80,13 @@ describe("chat routes auth contract", () => {
     });
 
     it("mounts the canonical single-conversation route", () => {
-        const stack = (chatRoutes as unknown as { stack?: Array<{ route?: { path?: string } }> }).stack ?? [];
-        expect(stack.some((layer) => layer.route?.path === "/:id")).toBe(true);
+        const stack = (chatRoutes as any).stack ?? [];
+        expect(stack.some((layer: any) => layer.route?.path === "/:id")).toBe(true);
     });
 
     it("does not mount legacy admin moderation aliases under /api/v1/chat", () => {
-        const stack = (chatRoutes as unknown as { stack?: Array<{ route?: { path?: string } }> }).stack ?? [];
-        expect(stack.some((layer) => layer.route?.path === "/admin/list")).toBe(false);
-        expect(stack.some((layer) => layer.route?.path === "/admin/:id")).toBe(false);
+        const stack = (chatRoutes as any).stack ?? [];
+        expect(stack.some((layer: any) => layer.route?.path === "/admin/list")).toBe(false);
+        expect(stack.some((layer: any) => layer.route?.path === "/admin/:id")).toBe(false);
     });
 });

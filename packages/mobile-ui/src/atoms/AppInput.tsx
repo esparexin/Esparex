@@ -29,14 +29,14 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
     : 'border-slate-300 dark:border-slate-700 focus:border-brand-500 dark:focus:border-brand-400';
 
   return (
-    <View className={`w-full ${containerClassName}`} {...({} as any)}>
+    <View className={`w-full ${containerClassName}`}>
       {label && (
         <AppText variant="label" className="mb-2 text-slate-700 dark:text-slate-300">
           {label}
         </AppText>
       )}
-      <View className={`${containerBase} ${borderState}`} {...({} as any)}>
-        {leftIcon && <View className="mr-2" {...({} as any)}>{leftIcon}</View>}
+      <View className={`${containerBase} ${borderState}`}>
+        {leftIcon && <View className="mr-2">{leftIcon}</View>}
         <TextInput
           ref={ref}
           className={`${baseInput} ${className}`}
@@ -44,13 +44,13 @@ export const AppInput = forwardRef<TextInput, AppInputProps>(({
           accessibilityRole="text"
           accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
           accessibilityState={{
-            invalid: hasError,
+            disabled: props.editable === false,
             ...(props.accessibilityState || {}),
           }}
           accessibilityHint={props.accessibilityHint || error}
-          {...(props as any)}
+          {...props}
         />
-        {rightIcon && <View className="ml-2" {...({} as any)}>{rightIcon}</View>}
+        {rightIcon && <View className="ml-2">{rightIcon}</View>}
       </View>
       {error && (
         <AppText variant="caption" color="error" className="mt-1" accessibilityLiveRegion="polite">

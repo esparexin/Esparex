@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { Brand, BrandRepositoryPort } from '../../..';
 import BrandModel from '../../../../../models/Brand';
 import { CatalogApprovalStatusValue } from '@esparex/contracts';
@@ -29,7 +30,7 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
         const safeId = typeof id === 'string' ? id : String(id);
         const query = BrandModel.findById(safeId).lean<DbBrand | null>();
         if (includeDeleted) query.setOptions({ withDeleted: true });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
@@ -40,21 +41,21 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
             canonicalName,
             categoryIds: categoryId
         }).lean<DbBrand | null>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc ? this.toDomain(doc) : null;
     }
 
     async findByCategory(categoryId: string, tx?: unknown): Promise<Brand[]> {
         const query = BrandModel.find({ categoryIds: categoryId }).lean<DbBrand[]>();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const docs = await query.exec();
         return docs.map(doc => this.toDomain(doc));
     }
 
     async exists(id: string, tx?: unknown): Promise<boolean> {
         const query = BrandModel.findById(id).select('_id').lean();
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const doc = await query.exec();
         return doc !== null;
     }
@@ -64,7 +65,7 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
             { _id: brandId },
             { $set: { categoryIds: categoryIds } }
         );
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount > 0;
     }
@@ -72,7 +73,7 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
     async softDelete(brandId: string, tx?: unknown): Promise<boolean> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = BrandModel.findByIdAndUpdate(brandId, update, { new: true });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return !!res;
     }
@@ -80,7 +81,7 @@ export class MongoBrandRepositoryAdapter implements BrandRepositoryPort {
     async softDeleteMany(brandIds: string[], tx?: unknown): Promise<number> {
         const update = { isDeleted: true, isActive: false, deletedAt: new Date() };
         const query = BrandModel.updateMany({ _id: { $in: brandIds } }, { $set: update });
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }

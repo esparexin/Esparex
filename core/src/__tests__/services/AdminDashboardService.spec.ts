@@ -69,12 +69,12 @@ import RevenueAnalytics from "../../models/RevenueAnalytics";
 import CatalogRequest from "../../models/CatalogRequest";
 import { getDashboardCardStats } from "../../services/AdminDashboardService";
 
-const mockAd = Ad as unknown as { aggregate: jest.Mock; countDocuments: jest.Mock };
-const mockUser = User as unknown as { countDocuments: jest.Mock };
-const mockReport = Report as unknown as { countDocuments: jest.Mock };
-const mockBusiness = Business as unknown as { countDocuments: jest.Mock };
-const mockRevenue = RevenueAnalytics as unknown as { aggregate: jest.Mock };
-const mockCatalogRequest = CatalogRequest as unknown as { aggregate: jest.Mock };
+const mockAd = Ad as any;
+const mockUser = User as any;
+const mockReport = Report as any;
+const mockBusiness = Business as any;
+const mockRevenue = RevenueAnalytics as any;
+const mockCatalogRequest = CatalogRequest as any;
 
 describe("AdminDashboardService", () => {
     beforeEach(() => jest.clearAllMocks());

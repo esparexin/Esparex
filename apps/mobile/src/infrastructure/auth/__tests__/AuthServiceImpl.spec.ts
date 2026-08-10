@@ -3,14 +3,14 @@ import { ITokenStorage } from '../ITokenStorage';
 import { AxiosInstance } from 'axios';
 
 describe('AuthServiceImpl', () => {
-  let mockApiClient: jest.Mocked<AxiosInstance>;
+  let mockApiClient: { post: jest.Mock };
   let mockTokenStorage: jest.Mocked<ITokenStorage>;
   let authService: AuthServiceImpl;
 
   beforeEach(() => {
     mockApiClient = {
       post: jest.fn(),
-    } as unknown as jest.Mocked<AxiosInstance>; // Cannot construct full AxiosInstance mock without casting or immense boilerplate
+    };
 
     mockTokenStorage = {
       setTokens: jest.fn(),
@@ -20,7 +20,7 @@ describe('AuthServiceImpl', () => {
       isAvailable: jest.fn(),
     };
 
-    authService = new AuthServiceImpl(mockApiClient, mockTokenStorage);
+    authService = new AuthServiceImpl(mockApiClient as any, mockTokenStorage);
   });
 
   describe('login()', () => {

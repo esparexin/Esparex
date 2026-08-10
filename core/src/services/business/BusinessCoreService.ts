@@ -271,7 +271,10 @@ export const getBusinessListings = async (sellerId: string, listingType: string)
         status: LISTING_STATUS.LIVE,
         isDeleted: { $ne: true },
     }).sort({ createdAt: -1 }).lean();
-    return listings.map((l) => normalizeAdImagesForResponse(l as unknown as Record<string, unknown>));
+    return listings.map((l) => {
+        const rawItem: unknown = l;
+        return normalizeAdImagesForResponse(rawItem as Record<string, unknown>);
+    });
 };
 
 export const getBusinessStats = async (userId: string) => {

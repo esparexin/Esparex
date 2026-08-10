@@ -78,7 +78,7 @@ export const getUserById = async (req: Request, res: Response) => {
         if (!user) {
             return sendAdminError(req, res, 'User not found', 404);
         }
-        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user as unknown as Record<string, unknown>));
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user));
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }
@@ -154,7 +154,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
             reason
         });
 
-        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user as unknown as Record<string, unknown>), `User status updated to ${status}`);
+        sendSuccessResponse(res, adminUsersService.normalizeAdminManagedUser(user), `User status updated to ${status}`);
     } catch (error: unknown) {
         sendAdminError(req, res, error);
     }

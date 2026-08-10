@@ -232,7 +232,7 @@ export const updateSmartAlertMutation = async ({
     body: Record<string, unknown>;
 }): Promise<SmartAlertDocument> => {
     return UnifiedMutationEngine.execute<SmartAlertDocument>({
-        model: SmartAlertModel as unknown as import('mongoose').Model<SmartAlertDocument>,
+        model: SmartAlertModel as import('mongoose').Model<SmartAlertDocument>,
         entityId: alertId,
         context: {
             actor: 'USER',

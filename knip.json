@@ -98,7 +98,7 @@
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/mobile": {
-      "entry": ["App.tsx", "index.js", "capacitor.config.ts"],
+      "entry": ["App.tsx", "index.js"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "backend/api": {

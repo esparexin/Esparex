@@ -129,12 +129,16 @@ const fallbackError = (error: unknown): EsparexError => {
 
 export const createApiErrorResult = (error: unknown) => {
   const normalized = fallbackError(error);
+  const responseStatus =
+    typeof error === "object" && error !== null && "response" in error
+      ? (error as { response?: { status?: number } }).response?.status
+      : undefined;
+
   return {
     data: null,
     error: normalized,
     statusCode:
-      (normalized.context as { statusCode?: number } | undefined)?.statusCode ??
-      (normalized as unknown as { response?: { status?: number } })?.response?.status,
+      (normalized.context as { statusCode?: number } | undefined)?.statusCode ?? responseStatus,
   };
 };
 

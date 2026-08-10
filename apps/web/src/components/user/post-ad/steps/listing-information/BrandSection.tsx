@@ -32,7 +32,7 @@ export function BrandSection() {
     return (
         <section className="flex flex-col gap-2" aria-labelledby="brand-heading">
             <h2 id="brand-heading" className="sr-only">Brand</h2>
-            <FieldRoot<any>
+            <FieldRoot
                 name="brand"
                 render={() => (
                     <div className="flex flex-col gap-1.5">
@@ -40,7 +40,7 @@ export function BrandSection() {
                         <FieldControl animateOnError>
                             <BrandSearchSelect 
                                 brands={availableBrands} 
-                                brandMap={brandMap as any} 
+                                brandMap={brandMap} 
                                 categoryId={categoryId} 
                                 value={brandNameValue} 
                                 onChange={(_id, name) => onBrandChange(name, _id)}

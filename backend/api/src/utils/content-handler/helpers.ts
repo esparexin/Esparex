@@ -17,13 +17,13 @@ export const ensureAdminCatalogModel = <T extends Document>(model: Model<T>): Mo
 };
 
 export const readAdminCatalogPage = async (params: {
-    model: Model<Document>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean;
+    model: Model<any>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean;
 }) => {
     const adminModel = ensureAdminCatalogModel(params.model);
     const adminQuery = castCatalogQueryIds(params.query) as Record<string, unknown>;
     const findQuery = adminModel.find(adminQuery).skip(params.skip).limit(params.limit).sort(params.sort);
     if (params.includeDeleted) findQuery.setOptions({ withDeleted: true });
-    if (params.populate) (findQuery as any).populate(params.populate);
+    if (params.populate) (findQuery as { populate: (p: unknown) => unknown }).populate(params.populate);
     if (params.select) findQuery.select(params.select);
     const countQuery = adminModel.countDocuments(adminQuery);
     if (params.includeDeleted) countQuery.setOptions({ withDeleted: true });
@@ -31,10 +31,10 @@ export const readAdminCatalogPage = async (params: {
 };
 
 export const tryAdminCatalogReadSwitch = async <T extends Document>(params: {
-    req: Request; model: Model<T>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean; transformResponse?: (items: unknown[]) => unknown | Promise<unknown>; userItems: unknown[]; userTotal: number;
+    req: Request; model: Model<any>; query: Record<string, unknown>; sort: Record<string, 1 | -1>; skip: number; limit: number; populate?: unknown; select?: string; includeDeleted?: boolean; transformResponse?: (items: unknown[]) => unknown | Promise<unknown>; userItems: unknown[]; userTotal: number;
 }): Promise<{ items: unknown[]; total: number } | null> => {
     try {
-        const [adminItems, adminTotal] = await readAdminCatalogPage({ model: params.model as any, query: params.query, sort: params.sort, skip: params.skip, limit: params.limit, populate: params.populate, select: params.select, includeDeleted: params.includeDeleted });
+        const [adminItems, adminTotal] = await readAdminCatalogPage({ model: params.model, query: params.query, sort: params.sort, skip: params.skip, limit: params.limit, populate: params.populate, select: params.select, includeDeleted: params.includeDeleted });
         const rai = params.transformResponse ? await params.transformResponse(adminItems as unknown[]) : adminItems as unknown[];
         if (!Array.isArray(rai)) return null;
         const diff = summarizeCatalogReadDiff(params.userItems as Record<string, unknown>[], rai as Record<string, unknown>[]);

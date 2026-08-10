@@ -48,6 +48,7 @@ export interface PreparedPayload {
     publishedAt?: Date;
     status?: string;
     moderationStatus?: string;
+    [key: string]: unknown;
     moderationReason?: string;
     expiresAt?: Date;
     fraudScore?: number;
@@ -244,8 +245,8 @@ export class AdCreationService {
 
         // 🛡️ GOVERNANCE: Business account & location validation and locking
         if (listingType === LISTING_TYPE.SERVICE) {
-            const business = (source.business ?? (context as any).business);
-            if (!partial && (!business || !isBusinessPublishedStatus(business.status))) {
+            const business = (source.business ?? context.business) as Record<string, unknown> | undefined;
+            if (!partial && (!business || !isBusinessPublishedStatus(String(business.status ?? '')))) {
                 throw new AppError('Approved Business Account Required', 403, 'BUSINESS_APPROVAL_REQUIRED');
             }
 
@@ -439,7 +440,7 @@ export class AdCreationService {
                     };
                 }
             }
-            payload.listingQualityScore = calculateServiceQuality(merged, (source.business ?? (context as any).business));
+            payload.listingQualityScore = calculateServiceQuality(merged, (source.business ?? context.business ?? undefined) as Record<string, unknown> | undefined);
         } else {
             payload.listingQualityScore = computeListingQualityScore(payload);
         }

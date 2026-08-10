@@ -1,3 +1,4 @@
+import type { AdminLogFn } from '../../utils/adminLogger';
 import Business from '../../models/Business';
 import Ad from '../../models/Ad';
 import { GOVERNANCE, MS_IN_DAY } from '../../config/constants';
@@ -79,19 +80,21 @@ export const cascadeExpireBusinessListings = async (businessId: unknown, actor: 
     return listings.length;
 };
 
-export const approveAdminBusiness = async (id: string, actorId: string, logFn: any) => {
-    const business = await businessLifecycleService.approveBusiness(id, actorId) as any;
+export const approveAdminBusiness = async (id: string, actorId: string, logFn: AdminLogFn) => {
+    const business = await businessLifecycleService.approveBusiness(id, actorId);
     if (!business) throw new AppError('Business not found', 404);
     await logFn('APPROVE_BUSINESS', 'Business', id, { expiresAt: business.expiresAt });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
     const { recalculateTrustScore } = await import('../TrustService');
     const { assignDefaultPlan } = await import('../business/BusinessSubscriptionService');
 
-    await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_APPROVED', { name: business.name }, { businessId: business._id.toString(), status: BUSINESS_STATUS.LIVE });
+    const userIdStr = String(business.userId ?? '');
+    const businessIdStr = String(business._id ?? '');
+    await dispatchTemplatedNotification(userIdStr, 'BUSINESS_STATUS', 'BUSINESS_APPROVED', { name: String(business.name ?? '') }, { businessId: businessIdStr, status: String(BUSINESS_STATUS.LIVE) });
     
     // Assign default business plan dynamically (wrapped so errors don't block approval)
     try {
-        await assignDefaultPlan(business.userId.toString());
+        await assignDefaultPlan(userIdStr);
     } catch (planErr) {
         logger.error('Failed to assign default business plan on approval', {
             businessId: id,
@@ -100,18 +103,20 @@ export const approveAdminBusiness = async (id: string, actorId: string, logFn: a
         });
     }
 
-    setImmediate(() => void recalculateTrustScore(business.userId).catch(() => {}));
+    setImmediate(() => void recalculateTrustScore(userIdStr).catch(() => {}));
     return business;
 };
 
 
-export const rejectAdminBusiness = async (id: string, reason: string, actorId: string, logFn: any) => {
+export const rejectAdminBusiness = async (id: string, reason: string, actorId: string, logFn: AdminLogFn) => {
     if (!reason) throw new AppError('Rejection reason is required', 400);
-    const business = await businessLifecycleService.rejectBusiness(id, reason, actorId) as any;
+    const business = await businessLifecycleService.rejectBusiness(id, reason, actorId);
     if (!business) throw new AppError('Business not found', 404);
     await logFn('REJECT_BUSINESS', 'Business', id, { reason });
     const { dispatchTemplatedNotification } = await import('../../domains/notifications/application/NotificationService');
-    await dispatchTemplatedNotification(business.userId.toString(), 'BUSINESS_STATUS', 'BUSINESS_REJECTED', { name: business.name, reason }, { businessId: business._id.toString(), status: BUSINESS_STATUS.REJECTED });
+    const userIdStr = String(business.userId ?? '');
+    const businessIdStr = String(business._id ?? '');
+    await dispatchTemplatedNotification(userIdStr, 'BUSINESS_STATUS', 'BUSINESS_REJECTED', { name: String(business.name ?? ''), reason }, { businessId: businessIdStr, status: String(BUSINESS_STATUS.REJECTED) });
     await cascadeExpireBusinessListings(business._id, { type: ACTOR_TYPE.ADMIN, id: actorId }, `Cascaded from business rejection: ${reason}`);
     return business;
 };

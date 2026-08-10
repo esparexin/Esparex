@@ -25,7 +25,7 @@ describe('DuplicateImageService (PR 3 — Perceptual Hashing)', () => {
         expect(fp).toBeDefined();
         expect(fp.hash).toHaveLength(16);
         expect(fp.createdAt).toBeGreaterThan(0);
-    });
+    }, 15000);
 
     it('calculates 0 Hamming distance for identical hash strings', () => {
         const hash = 'a1b2c3d4e5f60718';

@@ -104,11 +104,11 @@ import { USER_STATUS } from '@esparex/contracts';
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 
 const mockAxios = axios as jest.Mocked<typeof axios>;
-const mockUserModel = User as unknown as { findOne: jest.Mock; create: jest.Mock };
-const mockOtpModel = Otp as unknown as { findOne: jest.Mock; create: jest.Mock; deleteMany: jest.Mock; deleteOne: jest.Mock };
-const mockPlanModel = Plan as unknown as { findOne: jest.Mock };
-const mockUserPlanModel = UserPlan as unknown as { findOneAndUpdate: jest.Mock };
-const mockBusinessModel = Business as unknown as { findOne: jest.Mock };
+const mockUserModel = User as any;
+const mockOtpModel = Otp as any;
+const mockPlanModel = Plan as any;
+const mockUserPlanModel = UserPlan as any;
+const mockBusinessModel = Business as any;
 const mockGenerateToken = generateToken as jest.Mock;
 const mockVerifyOtpHash = verifyOtpHash as jest.Mock;
 

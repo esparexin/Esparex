@@ -67,13 +67,8 @@ const mockedResolveMasterDataIds = resolveMasterDataIds as jest.Mock;
 const mockedResolveServiceTypes = resolveServiceTypes as jest.Mock;
 const mockedGetCategorySelectionMode = getCategorySelectionMode as jest.Mock;
 const mockedValidateServiceCategoryCapability = validateServiceCategoryCapability as jest.Mock;
-const mockedAdOrchestrator = AdOrchestrator as unknown as {
-    createAd: jest.Mock;
-};
-const mockedListingMutationService = ListingMutationService as unknown as {
-    processIncomingImages: jest.Mock;
-    cleanupRemovedImages: jest.Mock;
-};
+const mockedAdOrchestrator = AdOrchestrator as any;
+const mockedListingMutationService = ListingMutationService as any;
 
 const makeUser = () => ({
     _id: new mongoose.Types.ObjectId(),

@@ -15,7 +15,7 @@ export const authLoginLimiter = createLimiter({ windowMs: 60 * 1000, max: 5, key
 export const authRegisterLimiter = createLimiter({ windowMs: 60 * 1000, max: 5, keyPrefix: 'auth:register:', keyGenerator: (req) => buildHybridRateLimitKey(req) });
 export const adPostLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: 10, keyPrefix: 'ads:post:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : undefined; return buildHybridRateLimitKey(req, uid); } });
 export const reportLimiter = createLimiter({ windowMs: 60 * 60 * 1000, max: 5, keyPrefix: 'reports:', keyGenerator: (req) => buildHybridRateLimitKey(req) });
-export const adminLimiter = createLimiter({ windowMs: 60 * 1000, max: env.ADMIN_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 200), keyPrefix: 'admin:user:', keyGenerator: (req) => { const a = req.admin as any; const id = a?.id ?? a?._id?.toString?.(); return id || req.ip || 'unknown'; } });
+export const adminLimiter = createLimiter({ windowMs: 60 * 1000, max: env.ADMIN_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 200), keyPrefix: 'admin:user:', keyGenerator: (req) => { const a = req.admin as { id?: string; _id?: { toString?: () => string } } | undefined; const id = a?.id ?? a?._id?.toString?.(); return id || req.ip || 'unknown'; } });
 export const adminMutationLimiter = createLimiter({ windowMs: 5 * 60 * 1000, max: env.ADMIN_MUTATION_RATE_LIMIT_MAX ?? (env.NODE_ENV === 'development' ? 300 : 100), keyPrefix: 'admin:mutation:', keyGenerator: (req) => { const uid = req.user?._id ? String(req.user._id) : ''; return uid || req.ip || 'unknown'; } });
 export const searchLimiter = createLimiter({ windowMs: 1 * 60 * 1000, max: 100, keyPrefix: 'search:' });
 export const phoneRevealLimiter = [

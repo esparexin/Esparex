@@ -44,17 +44,13 @@ const createMockRes = (req?: Partial<Request>) => {
     const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-    } as unknown as Response;
+    } as any;
     if (req) res.req = req as Request;
     return res;
 };
 
 describe("adminUsersController.updateAdmin", () => {
-    const mockAdmin = Admin as unknown as {
-        findById: jest.Mock;
-        countDocuments: jest.Mock;
-        findByIdAndUpdate: jest.Mock;
-    };
+    const mockAdmin = Admin as any;
     const mockUpdateAdminById = updateAdminById as jest.Mock;
 
     beforeEach(() => {
@@ -67,7 +63,7 @@ describe("adminUsersController.updateAdmin", () => {
             body: { role: "moderator" },
             user: { _id: { toString: () => VALID_ADMIN_OID }, role: "super_admin" },
             originalUrl: `/api/v1/admin/admin-users/${VALID_ADMIN_OID}`,
-        } as unknown as Request;
+        } as any;
         const res = createMockRes(req);
 
         mockUpdateAdminById.mockResolvedValue({ _id: VALID_ADMIN_OID, role: "moderator" });

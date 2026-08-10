@@ -13,39 +13,49 @@ export function slugifyCatalogValue(value: string): string {
         .replace(/^-+|-+$/g, '');
 }
 
-export function applyCatalogGovernanceDefaults(doc: Record<string, unknown>): void {
-    const displayName = typeof doc.displayName === 'string' && doc.displayName.trim()
-        ? doc.displayName.trim()
-        : typeof doc.name === 'string'
-            ? doc.name.trim()
+export function applyCatalogGovernanceDefaults(doc: {
+    name?: string;
+    displayName?: string;
+    canonicalName?: string;
+    slug?: string;
+    approvalStatus?: string;
+    status?: string;
+    isActive?: boolean;
+    set?: (path: string, val: unknown) => void;
+} | Record<string, unknown>): void {
+    const raw = doc as Record<string, unknown>;
+    const displayName = typeof raw.displayName === 'string' && raw.displayName.trim()
+        ? raw.displayName.trim()
+        : typeof raw.name === 'string'
+            ? raw.name.trim()
             : '';
 
     if (displayName) {
         assertCleanCatalogText('name', displayName);
-        doc.name = displayName;
-        doc.displayName = displayName;
+        raw.name = displayName;
+        raw.displayName = displayName;
     }
 
-    if (typeof doc.canonicalName === 'string' && doc.canonicalName.trim()) {
-        assertCleanCatalogText('canonicalName', doc.canonicalName);
-        doc.canonicalName = normalizeCatalogCanonicalName(doc.canonicalName);
+    if (typeof raw.canonicalName === 'string' && raw.canonicalName.trim()) {
+        assertCleanCatalogText('canonicalName', raw.canonicalName);
+        raw.canonicalName = normalizeCatalogCanonicalName(raw.canonicalName);
     } else if (displayName) {
-        doc.canonicalName = normalizeCatalogCanonicalName(displayName);
+        raw.canonicalName = normalizeCatalogCanonicalName(displayName);
     }
 
-    if (typeof doc.slug === 'string' && doc.slug.trim()) {
-        assertCleanCatalogText('slug', doc.slug);
-        doc.slug = slugifyCatalogValue(doc.slug);
+    if (typeof raw.slug === 'string' && raw.slug.trim()) {
+        assertCleanCatalogText('slug', raw.slug);
+        raw.slug = slugifyCatalogValue(raw.slug);
     } else if (displayName) {
-        doc.slug = slugifyCatalogValue(displayName);
+        raw.slug = slugifyCatalogValue(displayName);
     }
 
-    if (!doc.status) {
-        doc.status = CATALOG_STATUS.LIVE;
+    if (!raw.status) {
+        raw.status = CATALOG_STATUS.LIVE;
     }
 
     for (const field of ['name', 'displayName', 'canonicalName', 'slug']) {
-        if (doc[field] === '') {
+        if (raw[field] === '') {
             throw new Error(`${field} cannot be empty`);
         }
     }

@@ -211,7 +211,7 @@ export const getListings = async (req: Request, res: Response, next: NextFunctio
 
         res.json(respond<PaginatedResponse<Ad>>({
             success: true,
-            data: result.data as unknown as Ad[],
+            data: result.data as Ad[],
             pagination
         }));
     } catch (error: unknown) {
@@ -278,7 +278,7 @@ export const getNearbyListings = async (req: Request, res: Response, next: NextF
 
         return res.json(respond<PaginatedResponse<Ad>>({
             success: true,
-            data: result.data as unknown as Ad[],
+            data: result.data as Ad[],
             pagination
         }));
     } catch (error: unknown) {

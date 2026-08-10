@@ -49,7 +49,7 @@ export const updateAdTransactional = async (options: {
                 toStatus: optionalStatusTransition.toStatus,
                 actor: { type: context.actor === 'ADMIN' ? 'admin' : 'user', id: context.authUserId, ip: '', userAgent: '' },
                 reason: optionalStatusTransition.reason,
-                session: session as any
+                session
             });
         }
     });
@@ -105,7 +105,7 @@ export const extendListingExpiry = async (
                 reason: 'Expiry extended by admin',
             },
         },
-    } as any);
+    });
 };
 
 export const findOwnedService = async (
@@ -118,5 +118,5 @@ export const findOwnedService = async (
     if (fetchFull) {
         return getListingRepository().findOne({ ids: [id], listingType: listingType as ListingTypeValue, sellerId });
     }
-    return getListingRepository().findOne({ ids: [id], listingType: listingType as ListingTypeValue, sellerId, isDeleted: { $ne: true } } as any);
+    return getListingRepository().findOne({ ids: [id], listingType: listingType as ListingTypeValue, sellerId, isDeleted: { $ne: true } });
 };

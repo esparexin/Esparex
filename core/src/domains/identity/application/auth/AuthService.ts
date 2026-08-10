@@ -430,16 +430,14 @@ export class AuthService {
                     const validityDays = freePlan.durationDays && freePlan.durationDays >= 30 ? freePlan.durationDays : 30;
                     const expiryDate = new Date(now.getTime() + validityDays * 86400000);
                     await UserPlan.findOneAndUpdate(
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- User/Plan are Mongoose Documents; _id is accessible at runtime
-                        { userId: (user as any)._id, planId: (freePlan as any)._id },
+                        { userId: user._id, planId: freePlan._id },
                         { $set: { startDate: now, endDate: expiryDate, status: 'active' } },
                         { upsert: true, new: true, setDefaultsOnInsert: true }
                     );
                 }
 
                 await UserWallet.findOneAndUpdate(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- User is Mongoose Document
-                    { userId: (user as any)._id },
+                    { userId: user._id },
                     { $setOnInsert: { adCredits: 0, boostCredits: 0, monthlyFreeAdsUsed: 0, spotlightCredits: 0, smartAlertSlots: 2, lastMonthlyReset: now } },
                     { upsert: true, new: true, setDefaultsOnInsert: true }
                 );
@@ -478,7 +476,8 @@ export class AuthService {
         }
 
         const token = generateToken({ id: user._id, role: user.role, tokenVersion: user.tokenVersion ?? 0 });
-        const serializedUser = serializeDoc(user) as unknown as Record<string, unknown>;
+        const rawUser: unknown = serializeDoc(user);
+        const serializedUser = rawUser as Record<string, unknown>;
 
         return {
             success: true,

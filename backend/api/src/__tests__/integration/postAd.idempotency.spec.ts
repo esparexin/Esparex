@@ -27,11 +27,7 @@ type StoredIdempotency = {
     expiresAt: Date;
 };
 
-const mockedIdempotencyModel = IdempotencyRequest as unknown as {
-    findOne: jest.Mock;
-    findOneAndUpdate: jest.Mock;
-    updateOne: jest.Mock;
-};
+const mockedIdempotencyModel = IdempotencyRequest as any;
 
 describe('POST /api/v1/ads idempotency integration', () => {
     const userId = new mongoose.Types.ObjectId();

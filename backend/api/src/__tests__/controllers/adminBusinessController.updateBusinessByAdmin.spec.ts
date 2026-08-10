@@ -108,11 +108,7 @@ const createMockRes = (req?: Record<string, unknown>) => {
 };
 
 describe("adminBusinessController.updateBusinessByAdmin", () => {
-    const mockAdminBusinessService = adminBusinessService as unknown as {
-        findBusinessForAdmin: jest.Mock;
-        updateAdminBusiness: jest.Mock;
-        updateAdminBusinessFields: jest.Mock;
-    };
+    const mockAdminBusinessService = adminBusinessService as any;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -139,8 +135,8 @@ describe("adminBusinessController.updateBusinessByAdmin", () => {
             },
             user: { id: "admin_1" },
             originalUrl: "/api/v1/admin/businesses/65f0a1b2c3d4e5f607182930",
-        } as unknown as Request;
-        const res = createMockRes(req as unknown as Record<string, unknown>) as unknown as Response;
+        } as any;
+        const res = createMockRes(req as any) as any;
 
         await adminBusinessController.updateBusinessByAdmin(req, res);
 

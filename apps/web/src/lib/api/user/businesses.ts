@@ -65,15 +65,16 @@ const joinLocationParts = (...parts: unknown[]): string | undefined => {
 };
 
 export function normalizeBusiness(
-    apiBusiness: ApiBusiness | null | undefined
+    apiBusiness: ApiBusiness | null | undefined | Record<string, unknown>
 ): Business | null {
     if (!apiBusiness) return null;
 
     // Use shared normalization (handles coordinates & display logic)
     // We pass apiBusiness.location which has the raw structure
+    const rawLocationVal: unknown = apiBusiness.location;
     const rawLocation =
         apiBusiness.location && typeof apiBusiness.location === "object"
-            ? (apiBusiness.location as unknown as Record<string, unknown>)
+            ? (rawLocationVal as Record<string, unknown>)
             : {};
     const normalizedLoc = normalizeLocation(rawLocation);
 
@@ -406,8 +407,10 @@ export const getBusinessListings = async (
     }
 };
 
-export const getBusinessServices = (id: string, options?: BusinessRequestOptions): Promise<Service[]> => 
-    getBusinessListings(id, 'service', options) as unknown as Promise<Service[]>;
+export const getBusinessServices = (id: string, options?: BusinessRequestOptions): Promise<Service[]> => {
+    const rawListings: unknown = getBusinessListings(id, 'service', options);
+    return rawListings as Promise<Service[]>;
+};
 
 export const getBusinessAds = (id: string, options?: BusinessRequestOptions): Promise<Ad[]> => 
     getBusinessListings(id, 'ad', options);

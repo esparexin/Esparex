@@ -44,7 +44,7 @@
 - [ ] **Utility/Schema Threshold**: All utilities and DTO schemas are ≤150–200 lines.
 
 ### Type Safety & Security Audit
-- [ ] **Zero Unjustified `any` / Casts**: 0 new `as unknown as` assertions introduced without architect rationale (`npm run guard:type-casts`).
+- [ ] **Zero Unsafe Type Assertions**: Zero `as unknown as` / chained assertions repository-wide (`npm run guard:type-casts`).
 - [ ] **Zero Log Exposure**: No `console.log` or unhandled exceptions left in production paths.
 - [ ] **Input Sanitization**: All API parameters sanitized & validated against `@esparex/contracts`.
 

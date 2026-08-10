@@ -249,7 +249,7 @@ export const adminGetLocationAnalyticsData = async (reqQuery: Record<string, unk
     const topCityMap = new Map<string, { _id: string; city: string; state: string; adsCount: number }>();
     const adsByStateMap = new Map<string, { _id: string; count: number }>();
 
-    for (const entry of adsByLocationAgg as any[]) {
+    for (const entry of adsByLocationAgg as Array<{ _id: unknown; adsCount?: number }>) {
         const location = analyticsLocationMap.get(String(entry._id));
         if (!location) continue;
 

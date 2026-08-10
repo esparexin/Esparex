@@ -10,9 +10,7 @@ import {
   syncConversationAvailabilityForListing,
 } from '../../services/ChatAvailabilityService';
 
-const mockedConversation = Conversation as unknown as {
-  updateMany: jest.Mock;
-};
+const mockedConversation = Conversation as any;
 
 describe('ChatAvailabilityService', () => {
   beforeEach(() => {

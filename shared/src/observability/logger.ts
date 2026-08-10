@@ -21,7 +21,7 @@ class UniversalLogger implements Logger {
 
             if (value.stack) serialized.stack = value.stack;
 
-            for (const [key, nestedValue] of Object.entries(value as unknown as Record<string, unknown>)) {
+            for (const [key, nestedValue] of Object.entries(value as Error & Record<string, unknown>)) {
                 if (!(key in serialized)) {
                     serialized[key] = this.serializeValue(nestedValue, seen);
                 }

@@ -13,6 +13,7 @@ describe('PaymentService', () => {
       openNativeCheckout: jest.fn(),
       getWalletSummary: jest.fn(),
       getTransactionHistory: jest.fn(),
+      getPlansWalletDashboard: jest.fn(),
     };
     service = new PaymentService(mockRepository);
   });

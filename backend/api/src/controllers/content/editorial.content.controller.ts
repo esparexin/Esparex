@@ -45,7 +45,7 @@ export const updateContentBySlug = async (req: Request, res: Response) => {
         const { title, content, items, metadata } = req.body as {
             title?: string; content?: string; items?: unknown[]; metadata?: Record<string, unknown>;
         };
-        const adminDoc = req.admin as unknown as { id?: string; _id?: { toString(): string } | string } | undefined;
+        const adminDoc = req.admin as { id?: string; _id?: { toString(): string } | string } | undefined;
         const adminId = adminDoc?.id ?? adminDoc?._id?.toString();
 
         const updatedContent = await upsertContentBySlug(slug, { title, content, items, metadata, updatedBy: adminId });

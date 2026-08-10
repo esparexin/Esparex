@@ -20,10 +20,13 @@ import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabi
  * This worker is the SINGLE consumer of notification.match.queue.
  * adWorker must NOT register a handler for these job names.
  */
-const createNoopWorker = <T>() => ({
-    on: () => undefined,
-    close: async () => undefined,
-} as unknown as Worker<T>);
+const createNoopWorker = <T>(): Worker<T> => {
+    const dummy: unknown = {
+        on: () => undefined,
+        close: async () => undefined,
+    };
+    return dummy as Worker<T>;
+};
 
 export const notificationMatchWorker = shouldDisableQueueConnection
     ? createNoopWorker()

@@ -47,4 +47,9 @@ export class PaymentService {
   async getTransactionHistory(): Promise<PaymentTransaction[]> {
     return this.paymentRepository.getTransactionHistory();
   }
+
+  async getPlansWalletDashboard() {
+    return this.paymentRepository.getPlansWalletDashboard();
+  }
 }
+

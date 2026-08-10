@@ -112,25 +112,22 @@ CategorySchema.index(
 import softDeletePlugin from '../utils/softDeletePlugin';
 CategorySchema.plugin(softDeletePlugin);
 
-CategorySchema.pre('validate', function () {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Mongoose Document lacks index signature; cast is safe within pre-validate scope
-    const mutableDoc = this as any;
-
-    const normalizedDisplayName = (mutableDoc.displayName || mutableDoc.name || '').trim();
+CategorySchema.pre('validate', function (this: ICategory) {
+    const normalizedDisplayName = (this.displayName || this.name || '').trim();
     if (normalizedDisplayName) {
-        mutableDoc.displayName = normalizedDisplayName;
-        mutableDoc.name = normalizedDisplayName;
+        this.displayName = normalizedDisplayName;
+        this.name = normalizedDisplayName;
     }
 
-    if (typeof mutableDoc.canonicalName === 'string') {
-        mutableDoc.canonicalName = mutableDoc.canonicalName.trim();
+    if (typeof this.canonicalName === 'string') {
+        this.canonicalName = this.canonicalName.trim();
     }
-    if (!mutableDoc.canonicalName && normalizedDisplayName) {
-        mutableDoc.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
+    if (!this.canonicalName && normalizedDisplayName) {
+        this.canonicalName = normalizedDisplayName.toLowerCase().replace(/\s+/g, ' ');
     }
 
-    if (!mutableDoc.approvalStatus) {
-        mutableDoc.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
+    if (!this.approvalStatus) {
+        this.approvalStatus = CATALOG_APPROVAL_STATUS.APPROVED;
     }
 });
 

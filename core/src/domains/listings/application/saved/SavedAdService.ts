@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import SavedAd from '../../../../models/SavedAd';
+import type { ListingUpdate } from '../../ports/ListingRepositoryPort';
 import { getListingRepository } from '../../../../composition/listings';
 import { hydrateAdMetadata, type HydratedAd } from '../ad/ad/AdAggregationService';
 import { sanitizePersistedImageUrls } from '../../../../utils/s3';
@@ -41,7 +42,7 @@ export const getSavedAds = async (userId: string, page: number, limit: number) =
     const rawAds: HydratedAd[] = listings.map((l) => ({
         ...l,
         _id: new mongoose.Types.ObjectId(l.id),
-    } as unknown as HydratedAd));
+    } as HydratedAd));
 
     await hydrateAdMetadata(rawAds);
 
@@ -83,7 +84,7 @@ export const saveAd = async (userId: string, adId: string) => {
 
     await SavedAd.create({ userId, adId });
     void recordAdAnalyticsEvent(adId, 'favorite');
-    void getListingRepository().updateOne(adId, { $inc: { 'views.favorites': 1 } } as any);
+    void getListingRepository().updateOne(adId, { $inc: { 'views.favorites': 1 } } as ListingUpdate);
     return true;
 };
 
@@ -92,7 +93,7 @@ export const unsaveAd = async (userId: string, adId: string) => {
     if (deleted) {
         void getListingRepository().updateMany(
             { ids: [adId], favoritesGreaterThan: 0 },
-            { $inc: { 'views.favorites': -1 } } as any
+            { $inc: { 'views.favorites': -1 } } as ListingUpdate
         );
     }
 };

@@ -14,16 +14,16 @@ Esparex uses npm workspaces to manage code dependencies across layers:
 * **`apps/` (UI Layer):** 
   - `web/`: Next.js web application (main marketplace and listings portal).
   - `admin/`: Next.js admin dashboard (operations, moderation, category management).
-  - `mobile/`: Capacitor/React Native shell wrapper.
+  - `mobile/`: Expo SDK 52 / React Native cross-platform application.
 * **`backend/` (Delivery Layer):**
   - `api/`: Express REST API gateway. Coordinates endpoint routing and requests validation.
 * **`core/` (Domain Logic & Persistence Layer):**
   - Contains bounded contexts (`core/src/domains/`), database adapters (`core/src/adapters/`), and composition DI setup (`core/src/composition/`).
 * **`packages/` (Leaf and Utility Libraries):**
   - `contracts/`: Zod schemas, DTOs, events, and API contracts. (SSOT leaf package).
-  - `kernel/`: Core DDD primitives (Result, Entity, ValueObject).
-  - `observability/`: Tracing, audit logs, Sentry, OpenTelemetry metrics.
-  - `config/`, `logger/`, `validation/`, `testing/`, `platform/`, `feature-flags/`.
+  - `design-tokens/`: Platform design tokens and CSS variable generators. (SSOT design package).
+  - `ui/`: Shared Web/Admin UI primitives and components.
+  - `mobile-ui/`: Shared React Native UI component primitives.
 * **`shared/` (Utility Layer):**
   - Core-independent, runtime-agnostic utilities (date math, location distances).
 * **`docs/` (Documentation Hub):**

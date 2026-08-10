@@ -19,7 +19,7 @@ export const ScrollScreen: React.FC<ScrollScreenProps> = ({
         showsVerticalScrollIndicator={false}
         className="flex-1"
         contentContainerClassName={`grow p-4 ${contentContainerClassName}`}
-        {...(scrollViewProps as any)}
+        {...scrollViewProps}
       >
         {children}
       </ScrollView>

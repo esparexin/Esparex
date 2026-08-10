@@ -5,7 +5,7 @@ describe('publicCacheControl Middleware', () => {
     it('sets public Cache-Control headers for GET requests with default max-age (300, 3600)', () => {
         const req = { method: 'GET' } as Request;
         const setHeaderSpy = jest.fn();
-        const res = { setHeader: setHeaderSpy } as unknown as Response;
+        const res = { setHeader: setHeaderSpy } as any;
         const next = jest.fn() as NextFunction;
 
         const middleware = publicCacheControl();
@@ -21,7 +21,7 @@ describe('publicCacheControl Middleware', () => {
     it('customizes maxAge and staleWhileRevalidate parameters', () => {
         const req = { method: 'GET' } as Request;
         const setHeaderSpy = jest.fn();
-        const res = { setHeader: setHeaderSpy } as unknown as Response;
+        const res = { setHeader: setHeaderSpy } as any;
         const next = jest.fn() as NextFunction;
 
         const middleware = publicCacheControl(600, 7200);
@@ -37,7 +37,7 @@ describe('publicCacheControl Middleware', () => {
     it('does not apply Cache-Control headers for non-GET requests', () => {
         const req = { method: 'POST' } as Request;
         const setHeaderSpy = jest.fn();
-        const res = { setHeader: setHeaderSpy } as unknown as Response;
+        const res = { setHeader: setHeaderSpy } as any;
         const next = jest.fn() as NextFunction;
 
         const middleware = publicCacheControl();

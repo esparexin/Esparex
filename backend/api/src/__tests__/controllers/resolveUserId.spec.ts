@@ -52,8 +52,8 @@ describe('resolveUserId (via getUserProfileById)', () => {
     beforeEach(() => jest.clearAllMocks());
 
     it('returns 400 and does NOT call the service when :id is empty', async () => {
-        const req = makeReq('') as unknown as Request;
-        const res = makeRes() as unknown as Response;
+        const req = makeReq('') as any;
+        const res = makeRes() as any;
         const next = makeNext();
 
         await getUserProfileById(req, res, next);
@@ -65,8 +65,8 @@ describe('resolveUserId (via getUserProfileById)', () => {
     it('calls the service with the resolved userId when :id is present', async () => {
         mockedService.mockResolvedValueOnce({ userId: 'abc', displayName: 'Alice' });
 
-        const req = makeReq('abc') as unknown as Request;
-        const res = makeRes() as unknown as Response;
+        const req = makeReq('abc') as any;
+        const res = makeRes() as any;
         const next = makeNext();
 
         await getUserProfileById(req, res, next);
@@ -77,8 +77,8 @@ describe('resolveUserId (via getUserProfileById)', () => {
     it('returns 404 when service returns null profile', async () => {
         mockedService.mockResolvedValueOnce(null);
 
-        const req = makeReq('user-xyz') as unknown as Request;
-        const res = makeRes() as unknown as Response;
+        const req = makeReq('user-xyz') as any;
+        const res = makeRes() as any;
         const next = makeNext();
 
         await getUserProfileById(req, res, next);
@@ -90,8 +90,8 @@ describe('resolveUserId (via getUserProfileById)', () => {
         const fakeProfile = { userId: 'user-xyz', displayName: 'Bob' };
         mockedService.mockResolvedValueOnce(fakeProfile);
 
-        const req = makeReq('user-xyz') as unknown as Request;
-        const res = makeRes() as unknown as Response;
+        const req = makeReq('user-xyz') as any;
+        const res = makeRes() as any;
         const next = makeNext();
 
         await getUserProfileById(req, res, next);
@@ -105,8 +105,8 @@ describe('resolveUserId (via getUserProfileById)', () => {
         const boom = new Error('DB error');
         mockedService.mockRejectedValueOnce(boom);
 
-        const req = makeReq('user-xyz') as unknown as Request;
-        const res = makeRes() as unknown as Response;
+        const req = makeReq('user-xyz') as any;
+        const res = makeRes() as any;
         const next = makeNext();
 
         await getUserProfileById(req, res, next);

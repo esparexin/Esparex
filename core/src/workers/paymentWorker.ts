@@ -8,10 +8,13 @@ import { queueWorkerBackoffStrategy } from '../queues/queueDefaults';
 import { TraceContext } from '@esparex/shared';
 import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabilityContext';
 
-const createNoopWorker = <T>() => ({
-    on: () => undefined,
-    close: async () => undefined,
-} as unknown as Worker<T>);
+const createNoopWorker = <T>(): Worker<T> => {
+    const dummy: unknown = {
+        on: () => undefined,
+        close: async () => undefined,
+    };
+    return dummy as Worker<T>;
+};
 
 export const paymentWorker = shouldDisableQueueConnection
     ? createNoopWorker<PaymentQueueJobData>()

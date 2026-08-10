@@ -12,7 +12,7 @@ import {
     purgeExpiredReadNotifications,
 } from "../../services/notification/NotificationRetentionService";
 
-const mockedNotification = Notification as unknown as { deleteMany: jest.Mock };
+const mockedNotification = Notification as any;
 
 describe("NotificationRetentionService", () => {
     beforeEach(() => {

@@ -40,7 +40,6 @@ export const ImageCarousel = ({ images }: ImageCarouselProps) => {
         renderItem={({ item }) => (
           <Image
             source={{ uri: item }}
-            // eslint-disable-next-line react-native/no-inline-styles
             style={{ width, height: '100%' }} // Exception: width is a runtime prop (dynamic measurement)
             contentFit="cover"
             cachePolicy="memory-disk"

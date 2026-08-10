@@ -23,10 +23,10 @@ export const findLocationById = async (id: string | undefined): Promise<Hydrated
     const cached = (await LocationCacheService.get(id)) as HydratedDocument<ILocation> | null;
     if (cached) return cached;
 
-    const location = await locationRepository.findById(id) as unknown as HydratedDocument<ILocation> | null;
+    const location = await locationRepository.findById(id) as HydratedDocument<ILocation> | null;
     if (location) {
-        // Run as side effect to avoid blocking response
-        LocationCacheService.set(id, (location.toObject ? location.toObject() : location) as unknown as Record<string, unknown>).catch(() => {});
+        const docToCache: unknown = location.toObject ? location.toObject() : location;
+        LocationCacheService.set(id, docToCache as Record<string, unknown>).catch(() => {});
     }
     return location;
 };
@@ -40,7 +40,7 @@ export const findLocationByIdLean = async <T>(id: string | undefined, select: st
     if (cached) {
         // If select is provided, we might need to filter. 
         // For simplicity, if cached, we return the cached doc as is if it satisfies the requirement.
-        return cached as unknown as T;
+        return cached as T;
     }
 
     const location = await locationRepository.findById(id).select(select).lean<T | null>();

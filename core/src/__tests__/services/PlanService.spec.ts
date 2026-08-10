@@ -49,7 +49,7 @@ import Ad from '../../models/Ad';
 import { calculateUserPlan } from '../../domains/payments';
 import { checkPostLimit } from '../../domains/payments/application/PlanService';
 
-const mockedAd = Ad as unknown as { countDocuments: jest.Mock };
+const mockedAd = Ad as any;
 const mockedCalculateUserPlan = calculateUserPlan as jest.Mock;
 
 beforeEach(() => {

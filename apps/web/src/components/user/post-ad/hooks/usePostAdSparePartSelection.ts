@@ -14,7 +14,7 @@ export function usePostAdSparePartSelection(
                 .map((part) => normalizeOptionalObjectId(part.id))
                 .filter((partId): partId is string => Boolean(partId));
             const distinct = Array.from(new Set(ids));
-            form.setValue("spareParts", distinct as never, {
+            form.setValue("spareParts", distinct as string[], {
                 shouldValidate: true,
                 shouldDirty: true,
                 shouldTouch: true,
@@ -22,7 +22,7 @@ export function usePostAdSparePartSelection(
             return;
         }
 
-        form.setValue("spareParts", [] as never, {
+        form.setValue("spareParts", [], {
             shouldValidate: true,
             shouldDirty: true,
             shouldTouch: true,
@@ -38,7 +38,7 @@ export function usePostAdSparePartSelection(
             ? currentParts.filter((id) => id !== normalizedPartId)
             : [...currentParts, normalizedPartId];
 
-        form.setValue("spareParts", next as never, {
+        form.setValue("spareParts", next as string[], {
             shouldValidate: true,
             shouldDirty: true,
             shouldTouch: true,

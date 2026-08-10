@@ -46,10 +46,7 @@ import {
     isLastActiveSuperAdmin,
 } from "../../services/AdminUsersService";
 
-const mockAdmin = Admin as unknown as {
-    findById: jest.Mock;
-    countDocuments: jest.Mock;
-};
+const mockAdmin = Admin as any;
 
 describe("AdminUsersService", () => {
     beforeEach(() => jest.clearAllMocks());
@@ -62,7 +59,7 @@ describe("AdminUsersService", () => {
                 // 'live' is the legacy user status — normalizeUserStatus maps it to canonical 'active'
                 toObject: () => ({ status: "live", name: "Alice" }),
             };
-            const result = normalizeAdminManagedUser(doc as unknown as Record<string, unknown>);
+            const result = normalizeAdminManagedUser(doc as any);
             expect(result.status).toBe("active");
             expect(result.name).toBe("Alice");
         });

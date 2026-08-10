@@ -28,19 +28,19 @@ export class MongoUserRepositoryAdapter implements UserRepositoryPort {
         const safeId = typeof userId === 'string' ? userId : String(userId ?? '');
         await User.findByIdAndUpdate(safeId, { $pull: { fcmTokens: { token: String(token ?? '') } } });
     }
-    public async getUserById(userId: string): Promise<any> {
+    public async getUserById(userId: string): Promise<Record<string, unknown> | null> {
         const safeId = typeof userId === 'string' ? userId : String(userId);
-        const user = await User.findById(safeId).lean() as any;
-        if (user && user.role) user.role = normalizeRole(user.role);
+        const user = (await User.findById(safeId).lean()) as Record<string, unknown> | null;
+        if (user && user.role) user.role = normalizeRole(user.role as string);
         return user;
     }
-    public async getUserWithBusiness(userId: string): Promise<{ user: any; business: any }> {
+    public async getUserWithBusiness(userId: string): Promise<{ user: Record<string, unknown> | null; business: Record<string, unknown> | null }> {
         const safeId = typeof userId === 'string' ? userId : String(userId);
         const [user, business] = await Promise.all([
-            User.findById(safeId).select('-password -salt').lean() as any,
-            Business.findOne({ userId: String(userId) }).lean(),
+            User.findById(safeId).select('-password -salt').lean() as Promise<Record<string, unknown> | null>,
+            Business.findOne({ userId: String(userId) }).lean() as Promise<Record<string, unknown> | null>,
         ]);
-        if (user && user.role) user.role = normalizeRole(user.role);
+        if (user && user.role) user.role = normalizeRole(user.role as string);
         return { user, business };
     }
     public async getUserPhoneVerification(userId: string): Promise<any> {

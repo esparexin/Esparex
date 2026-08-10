@@ -64,7 +64,7 @@ export const applyModelHierarchyPayload = async (payload: Record<string, unknown
         parentModelId: payload.parentModelId === null ? null : toOptionalString(payload.parentModelId) ?? payload.parentModelId,
         variantOfModelId: payload.variantOfModelId === null ? null : toOptionalString(payload.variantOfModelId) ?? payload.variantOfModelId,
     };
-    return validateModelHierarchyMutation(normalizedPayload, { existingModel: options.existingModel as any });
+    return validateModelHierarchyMutation(normalizedPayload, { existingModel: options.existingModel as Record<string, unknown> });
 };
 
 export const logModelDuplicateCandidates = async (req: Request, payload: Record<string, unknown>, options: { excludeId?: string } = {}) => {
@@ -72,7 +72,8 @@ export const logModelDuplicateCandidates = async (req: Request, payload: Record<
     const brandId = toOptionalString(payload.brandId);
     if (!name || !brandId) return;
     const candidates = await getBrandModelsForDuplicateCheck(brandId, options.excludeId);
-    const dupes = detectDuplicateCandidates(name, candidates as unknown as Record<string, unknown>[]);
+    const rawCandidates: unknown = candidates;
+    const dupes = detectDuplicateCandidates(name, rawCandidates as Record<string, unknown>[]);
     if (dupes.length > 0) logger.warn('[CatalogSearch] Potential model duplicate candidates detected', { requestPath: req.originalUrl || req.path, candidateCount: dupes.length, input: name, candidates: dupes });
 };
 

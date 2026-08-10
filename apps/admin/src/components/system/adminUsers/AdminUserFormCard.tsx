@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { z } from "zod";
 import type { LucideIcon } from "@esparex/ui";
 import { USER_STATUS, Role } from "@esparex/contracts";
 import type {
@@ -116,7 +117,7 @@ export function AdminUserFormCard(props: AdminUserFormCardProps) {
         reset,
         formState: { errors },
     } = useForm<AdminUserFormValues>({
-        resolver: zodResolver(validationSchema as never) as Resolver<AdminUserFormValues>,
+        resolver: zodResolver(validationSchema as z.ZodType<AdminUserFormValues>) as Resolver<AdminUserFormValues>,
         defaultValues: normalizedValues,
     });
 

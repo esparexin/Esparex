@@ -96,7 +96,7 @@ export const sendNotification = async (userId: string, title: string, body: stri
             tokens
         };
 
-        const messaging = admin.messaging() as unknown as MessagingService;
+        const messaging = admin.messaging() as MessagingService;
         const sendMulticast = messaging.sendMulticast || messaging.sendEachForMulticast;
         if (!sendMulticast) {
             logger.warn('FCM multicast method unavailable; skipping push notification');
