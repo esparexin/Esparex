@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
+import { useChatAutoScroll } from '@/hooks/useChatAutoScroll';
 import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 import { buildChatInboxRoute, resolveChatInboxView, resolveChatReturnTo } from '@/lib/chatUiRoutes';
 import { MessageBubble } from './MessageBubble';
@@ -11,40 +12,15 @@ import { ChatInput } from './ChatInput';
 import { QuickReplies } from './QuickReplies';
 import { ChatReadOnly } from './ChatReadOnly';
 import { ChatActionsMenu } from './ChatActionsMenu';
+import { SafetyTips } from './SafetyTips';
+import { DateSeparator } from './DateSeparator';
 import type { IConversationDTO } from "@esparex/contracts";
-import { formatAppDate, formatStableNumber } from '@/lib/formatters';
+import { formatStableNumber } from '@/lib/formatters';
 
 interface ConversationViewProps {
   conversation: IConversationDTO;
   currentUserId: string;
   embedded?: boolean;
-}
-
-function SafetyTips({ onDismiss }: { onDismiss: () => void }) {
-  return (
-    <div className="safety-banner" role="note">
-      <p className="safety-banner__text">
-        🛡️ <strong>Stay safe:</strong> Never share bank details or send money before meeting in person.
-      </p>
-      <button className="safety-banner__close" onClick={onDismiss} aria-label="Dismiss safety tips">
-        ✕
-      </button>
-    </div>
-  );
-}
-
-function DateSeparator({ date }: { date: string }) {
-  const label = formatAppDate(date, {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: undefined,
-  });
-  return (
-    <div className="date-separator" role="separator" aria-label={label}>
-      <span>{label}</span>
-    </div>
-  );
 }
 
 export function ConversationView({ conversation, currentUserId, embedded = false }: ConversationViewProps) {
@@ -130,54 +106,21 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     },
   });
 
-  const AUTO_SCROLL_THRESHOLD = 120;
-  const prevScrollHeightRef = useRef<number>(0);
-  const userSentRef = useRef<boolean>(false);
-
-  const handleLoadMore = async () => {
-    if (messagesContainerRef.current) {
-      prevScrollHeightRef.current = messagesContainerRef.current.scrollHeight;
-    }
-    await loadMore();
-  };
-
-  // Restore scroll position after earlier messages are loaded into DOM
-  useEffect(() => {
-    if (!isLoadingMore && prevScrollHeightRef.current > 0 && messagesContainerRef.current) {
-      const newScrollHeight = messagesContainerRef.current.scrollHeight;
-      const heightDelta = newScrollHeight - prevScrollHeightRef.current;
-      messagesContainerRef.current.scrollTop = heightDelta;
-      prevScrollHeightRef.current = 0;
-    }
-  }, [messages.length, isLoadingMore]);
-
-  // Smart auto-scroll message container to bottom on NEW messages or typing updates
-  // (Only scrolls if user is near bottom within AUTO_SCROLL_THRESHOLD or sent a message)
-  useEffect(() => {
-    if (isLoadingMore || prevScrollHeightRef.current > 0 || !messagesContainerRef.current) {
-      return;
-    }
-    const container = messagesContainerRef.current;
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-    const isNearBottom = distanceFromBottom <= AUTO_SCROLL_THRESHOLD;
-
-    if (isNearBottom || userSentRef.current) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth',
-      });
-      userSentRef.current = false;
-    }
-  }, [messages.length, isLoadingMore, isOtherTyping]);
+  const { handleLoadMore, markUserSent, clearUserSent } = useChatAutoScroll({
+    messagesContainerRef,
+    messageCount: messages.length,
+    isLoadingMore,
+    isOtherTyping,
+  });
 
   const handleSend = async (text: string) => {
-    userSentRef.current = true;
+    markUserSent();
     const didSend = await sendMessage(text);
     if (didSend) {
       setQuickReplyText('');
       sendTyping(counterpartyUserId, false);
     } else {
-      userSentRef.current = false;
+      clearUserSent();
     }
     return didSend;
   };
@@ -281,7 +224,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
           <div className="conv-messages__load-more">
             <button
               onClick={() => {
-                void handleLoadMore();
+                void handleLoadMore(loadMore);
               }}
               className="conv-messages__load-btn"
               disabled={isLoadingMore}
