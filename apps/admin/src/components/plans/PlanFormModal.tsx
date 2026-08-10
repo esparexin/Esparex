@@ -234,7 +234,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
         const errorKeys = Object.keys(fieldErrors) as (keyof PlanFormValues)[];
         if (errorKeys.length > 0) {
             const firstField = errorKeys[0];
-            setFocus(firstField as any);
+            if (firstField) setFocus(firstField);
         }
     };
 

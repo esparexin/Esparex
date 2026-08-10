@@ -116,9 +116,9 @@ export const resolveCatalogRequestsForSubmission = async (params: {
     modelId?: string;
     pendingModelRequestId?: string;
 }> => {
-    let resolvedBrandId = params.brandId;
+    const resolvedBrandId = params.brandId;
     let pendingBrandRequestId: string | undefined;
-    let resolvedModelId = params.modelId;
+    const resolvedModelId = params.modelId;
     let pendingModelRequestId: string | undefined;
 
     // Handle proposed custom brand

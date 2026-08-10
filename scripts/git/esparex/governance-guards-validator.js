@@ -11,7 +11,9 @@ let baseline = { baselines: {} };
 if (fs.existsSync(BASELINE_PATH)) {
   try {
     baseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf-8'));
-  } catch {}
+  } catch {
+    // ignore corrupted or missing baseline
+  }
 }
 
 const GUARDS = [

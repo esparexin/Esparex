@@ -53,7 +53,7 @@ export default function BusinessesView() {
 
     const columns = buildColumns({ onView: businessList.setSelectedBusiness, onEdit: businessList.setModifyTarget, onDelete: businessList.setDeleteTarget, toggleSelect, toggleSelectAll, selectedIds, allCount: businesses.length, setSuspendTarget, handleActivate });
 
-    const overviewCards = [{ label: "All", value: overview.total, color: "text-foreground-secondary" }, { label: "Live", value: overview.live, color: "text-emerald-600" }, { label: "Pending", value: overview.pending, color: "text-amber-600" }, { label: "Expiring (3d)", value: (overview as any).expiringIn3Days ?? 0, color: "text-rose-600" }, { label: "Suspended", value: overview.suspended, color: "text-red-600" }];
+    const overviewCards = [{ label: "All", value: overview.total, color: "text-foreground-secondary" }, { label: "Live", value: overview.live, color: "text-emerald-600" }, { label: "Pending", value: overview.pending, color: "text-amber-600" }, { label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, color: "text-rose-600" }, { label: "Suspended", value: overview.suspended, color: "text-red-600" }];
 
     const tabs = ["live", "suspended", "pending", "deleted", "all"].map((s) => ({ label: s === "live" ? "Live" : s.charAt(0).toUpperCase() + s.slice(1), href: buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { status: s, page: null })), count: s === "live" ? overview.live : s === "suspended" ? overview.suspended : s === "pending" ? overview.pending : s === "deleted" ? overview.deleted : overview.total }));
 

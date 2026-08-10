@@ -1,20 +1,10 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, Query, Aggregate, PipelineStage } from 'mongoose';
 
 export interface ISoftDeleteDocument extends Document {
     isDeleted: boolean;
     deletedAt?: Date;
     softDelete(): Promise<this>;
     restore(): Promise<this>;
-}
-
-interface SoftDeleteQueryContext {
-    getOptions: () => { withDeleted?: boolean };
-    where: (filter: Record<string, unknown>) => void;
-}
-
-interface SoftDeleteAggregateContext {
-    options?: { withDeleted?: boolean };
-    pipeline: () => Record<string, unknown>[];
 }
 
 const softDeletePlugin = (schema: Schema) => {
@@ -25,55 +15,45 @@ const softDeletePlugin = (schema: Schema) => {
     });
 
     // Strategy: Filter out isDeleted: true by default in common query methods
-    const queryMethods = [
-        'find',
-        'findOne',
-        'findOneAndUpdate',
-        'updateOne',
-        'updateMany',
-        'countDocuments'
-    ];
+    const applyQueryFilter = function (this: Query<unknown, unknown>) {
+        const options = (this.getOptions ? this.getOptions() : {}) as { withDeleted?: boolean };
+        if (options?.withDeleted) {
+            return;
+        }
 
-    queryMethods.forEach((method) => {
-        schema.pre(method as never, function (this: SoftDeleteQueryContext, next?: (err?: Error) => void) {
-            // Check if we explicitly want to include deleted items
-            const options = this.getOptions();
-            if (options && options.withDeleted) {
-                return next ? next() : Promise.resolve();
-            }
+        // Apply filter
+        this.where({ isDeleted: { $ne: true } });
+    };
 
-            // Apply filter
-            this.where({ isDeleted: { $ne: true } });
-
-            if (next) next();
-        });
-    });
+    schema.pre<Query<unknown, unknown>>('find', applyQueryFilter);
+    schema.pre<Query<unknown, unknown>>('findOne', applyQueryFilter);
+    schema.pre<Query<unknown, unknown>>('findOneAndUpdate', applyQueryFilter);
+    schema.pre<Query<unknown, unknown>>('updateOne', applyQueryFilter);
+    schema.pre<Query<unknown, unknown>>('updateMany', applyQueryFilter);
+    schema.pre<Query<unknown, unknown>>('countDocuments', applyQueryFilter);
 
     // Special handling for aggregate to filter at the beginning of the pipeline
-    schema.pre('aggregate' as never, function (this: SoftDeleteAggregateContext, next?: (err?: Error) => void) {
-        const options = this.options || {};
+    schema.pre<Aggregate<unknown>>('aggregate', function () {
+        const options = (this.options || {}) as { withDeleted?: boolean };
         if (options.withDeleted) {
-            return next ? next() : Promise.resolve();
+            return;
         }
 
         const pipeline = this.pipeline();
         const softDeleteFilter = { isDeleted: { $ne: true } };
-        const firstStage = pipeline[0];
+        const firstStage = pipeline[0] as { $geoNear?: { query?: Record<string, unknown> }; $search?: unknown; $vectorSearch?: unknown; $match?: { $text?: unknown } } | undefined;
 
         // Preserve operators that must remain first in pipeline.
-        const geoNearStage = firstStage?.$geoNear as { query?: Record<string, unknown> } | undefined;
-        if (geoNearStage) {
-            geoNearStage.query = geoNearStage.query
-                ? { $and: [geoNearStage.query, softDeleteFilter] }
+        if (firstStage?.$geoNear) {
+            firstStage.$geoNear.query = firstStage.$geoNear.query
+                ? { $and: [firstStage.$geoNear.query, softDeleteFilter] }
                 : softDeleteFilter;
-        } else if (firstStage?.$search || firstStage?.$vectorSearch || (firstStage?.$match as Record<string, unknown>)?.$text) {
+        } else if (firstStage?.$search || firstStage?.$vectorSearch || firstStage?.$match?.$text) {
             // Atlas search/vector search or native text search must be first stage.
-            pipeline.splice(1, 0, { $match: softDeleteFilter });
+            pipeline.splice(1, 0, { $match: softDeleteFilter } as PipelineStage);
         } else {
-            pipeline.unshift({ $match: softDeleteFilter });
+            pipeline.unshift({ $match: softDeleteFilter } as PipelineStage);
         }
-
-        if (next) next();
     });
 
     // Soft Delete Instance Method

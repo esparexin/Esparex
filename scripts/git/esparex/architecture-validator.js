@@ -13,7 +13,9 @@ function run(val) {
   if (fs.existsSync(REGISTRY_PATH)) {
     try {
       ownershipRegistry = JSON.parse(fs.readFileSync(REGISTRY_PATH, 'utf-8')).ownership;
-    } catch (e) {}
+    } catch {
+      // ignore corrupted or missing registry
+    }
   }
 
   const SEARCH_DIRS = ['apps', 'packages', 'core', 'backend'];

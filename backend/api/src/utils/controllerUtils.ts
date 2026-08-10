@@ -4,7 +4,7 @@ import { sendErrorResponse } from './errorResponse';
 import { getSingleParam } from './requestParams';
 import { getListingRepository } from '@esparex/core/composition/listings';
 import { ListingFilter } from '@esparex/core/domains/listings';
-import { LISTING_TYPE, type ListingTypeValue } from '@esparex/contracts';
+import type { ListingTypeValue } from '@esparex/contracts';
 
 /**
  * Shared Controller Helpers

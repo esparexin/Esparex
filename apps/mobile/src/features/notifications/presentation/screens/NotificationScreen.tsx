@@ -149,7 +149,7 @@ export const NotificationScreen = () => {
                   No Notifications
                 </AppText>
                 <AppText variant="caption" className="text-slate-500 text-center">
-                  You're all caught up! Updates regarding your ads, chats, and account will appear here.
+                  You&apos;re all caught up! Updates regarding your ads, chats, and account will appear here.
                 </AppText>
               </View>
             ) : null

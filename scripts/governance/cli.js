@@ -21,7 +21,7 @@ switch (command) {
     generateLedger();
     buildManifest();
     break;
-  case 'check':
+  case 'check': {
     validateSchema();
     validateReferences();
     validateDag();
@@ -35,6 +35,7 @@ switch (command) {
     }
     console.log('Governance ledger snapshot check passed.');
     break;
+  }
   case 'graph':
     console.log('DAG visualization not yet implemented.');
     break;
