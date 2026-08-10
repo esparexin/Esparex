@@ -5,6 +5,12 @@ import logger from '@esparex/core/utils/logger';
 import { sendErrorResponse } from "../utils/errorResponse";
 import { env } from '@esparex/core/config/env';
 
+/**
+ * 🛡️ Fast-Reject In-Memory Replay Cache (Secondary Protection)
+ * Captures recent webhook event IDs to reject immediate duplicates prior to queue enqueue.
+ * Note: Primary durable idempotency is provided by BullMQ Redis job slot (`payment:${gatewayPaymentId}`, 24h TTL)
+ * and database-level atomic `tx.applied` transaction guards in `PaymentProcessingService`.
+ */
 const processedWebhookEvents = new Set<string>();
 
 /**

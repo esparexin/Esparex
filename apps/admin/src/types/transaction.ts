@@ -1,11 +1,11 @@
-import { PAYMENT_STATUS } from "@esparex/contracts";
+import { PAYMENT_STATUS, PaymentStatusValue } from "@esparex/contracts";
 
 export interface Transaction {
     id: string;
     userId: string | { _id: string; firstName?: string; lastName?: string; email?: string; name?: string; mobile?: string };
     amount: number;
     currency: string;
-    status: 'INITIATED' | 'SUCCESS' | 'FAILED';
+    status: PaymentStatusValue;
     description?: string;
     gatewayPaymentId?: string;
     gatewayOrderId?: string;
