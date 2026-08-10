@@ -12,6 +12,7 @@ import { getUserTransactions, getTransactionWithUser } from '@esparex/core/domai
 import { getActivePlans } from '@esparex/core/domains/payments/application/PlanService';
 import { getInvoiceByIdOrTransaction } from '@esparex/core/domains/payments/application/InvoiceService';
 import { DashboardFacade } from '@esparex/core/domains/payments/application/DashboardFacade';
+import { validateRedirectUrl } from '@esparex/core/utils/redirectValidator';
 
 /**
  * 3. GET PLANS
@@ -89,7 +90,7 @@ export const getInvoice = async (req: Request, res: Response) => {
             }
 
             if (invoice.pdfUrl) {
-                return res.redirect(invoice.pdfUrl);
+                return res.redirect(validateRedirectUrl(invoice.pdfUrl));
             }
         }
 
