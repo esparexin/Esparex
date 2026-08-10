@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Sparkles, Crown, Star, Zap } from "@/icons/IconRegistry";
+import { Sparkles, Zap } from "@/icons/IconRegistry";
 import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
@@ -234,63 +234,21 @@ export function getPlanBadge(
   ad: AdCardData,
   className?: string
 ): ReactNode | null {
-  const adRecord = toAdRecord(ad);
-  const isBoosted = adRecord.isBoosted === true;
-  const isFeatured = adRecord.isFeatured === true;
-  const isPremium = adRecord.isPremium === true;
+  if (!isSpotlightAd(ad)) {
+    return null;
+  }
 
   const merged = cn(BADGE_BASE, className);
 
-  if (isSpotlightAd(ad)) {
-    return (
-      <Badge
-        className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
-        aria-label="Spotlight listing"
-      >
-        <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
-        Spotlight
-      </Badge>
-    );
-  }
-
-
-  if (isFeatured) {
-    return (
-      <Badge
-        className={cn("bg-gradient-to-r from-purple-600 to-indigo-600 text-white", merged)}
-        aria-label="Featured listing"
-      >
-        <Crown className="h-2.5 w-2.5" aria-hidden="true" />
-        Featured
-      </Badge>
-    );
-  }
-
-  if (isPremium) {
-    return (
-      <Badge
-        className={cn("bg-gradient-to-r from-amber-400 to-yellow-600 text-white", merged)}
-        aria-label="Premium listing"
-      >
-        <Star className="h-2.5 w-2.5" aria-hidden="true" />
-        Premium
-      </Badge>
-    );
-  }
-
-  if (isBoosted) {
-    return (
-      <Badge
-        className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", merged)}
-        aria-label="Boosted listing"
-      >
-        <Zap className="h-2.5 w-2.5" aria-hidden="true" />
-        Boosted
-      </Badge>
-    );
-  }
-
-  return null;
+  return (
+    <Badge
+      className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
+      aria-label="Spotlight listing"
+    >
+      <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
+      Spotlight
+    </Badge>
+  );
 }
 
 /* -------------------------------------------------------------------------- */

@@ -22,7 +22,6 @@ export function AdTitlePriceCard({
     const isService = ad.listingType === "service";
     const isSparePart = ad.listingType === "spare_part";
     const isActiveSpotlight = Boolean(ad.isSpotlight);
-    const isActiveBoosted = Boolean(ad.isBoosted) && !isActiveSpotlight;
 
     return (
         <Card className="bg-card text-card-foreground rounded-2xl border border-border shadow-xs overflow-hidden">
@@ -70,11 +69,6 @@ export function AdTitlePriceCard({
                         {isActiveSpotlight && (
                             <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-amber-500 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
                                 ✨ Spotlight
-                            </Badge>
-                        )}
-                        {isActiveBoosted && (
-                            <Badge className="flex-shrink-0 text-xs md:text-2xs font-bold px-2.5 py-0.5 bg-blue-600 text-white rounded-lg md:rounded-full border-none shadow-sm flex items-center gap-1">
-                                ⚡ Top Ad
                             </Badge>
                         )}
                         {ad.isFeatured && !ad.isSpotlight && !ad.isBoosted && (

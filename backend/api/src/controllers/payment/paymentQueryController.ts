@@ -129,8 +129,6 @@ export const getInvoice = async (req: Request, res: Response) => {
                 path.resolve(process.cwd(), 'apps/web/public/icons/logo.png'),
                 path.resolve(__dirname, '../../../../apps/web/public/icons/logo.png'),
                 path.resolve(__dirname, '../../../apps/web/public/icons/logo.png'),
-                path.resolve(__dirname, '../../../../logo/app logo and favicon.png'),
-                path.resolve(process.cwd(), 'logo/app logo and favicon.png'),
             ];
             for (const lp of logoPaths) {
                 if (fs.existsSync(lp)) {
