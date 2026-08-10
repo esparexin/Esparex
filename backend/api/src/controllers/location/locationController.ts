@@ -27,6 +27,8 @@ import {
 } from '@esparex/core/services/location/ReverseGeocodeService';
 import { formatLocationResponse as formatCanonicalLocationResponse, type LocationResponseLike } from '@esparex/core/lib/location/formatLocation';
 
+import { validateOutboundUrl, isPrivateIpAddress } from '@esparex/core/utils/ssrfGuard';
+
 /* -------------------------------------------------------------------------- */
 /* LOCATION CONFIG & UTILS                                                    */
 /* -------------------------------------------------------------------------- */
@@ -100,18 +102,18 @@ export const searchLocations = async (req: Request, res: Response) => {
             return res.json(respond({ success: true, data: [] }));
         }
 
-        const rawQ = Array.isArray(req.query.q) ? req.query.q[0] : req.query.q;
-        const q = typeof rawQ === "string" ? rawQ.trim() : "";
-        const minChars = Math.max(1, Math.min(2, config.autoCompleteMinChars || 2));
+        const query = Array.isArray(req.query.q) ? req.query.q[0] : req.query.q;
+        if (typeof query !== 'string' || !query.trim()) {
+            return res.json(respond({ success: true, data: [] }));
+        }
 
-        if (q.length < minChars) return res.json(respond({ success: true, data: [] }));
+        const trimmed = query.trim();
+        if (trimmed.length < config.autoCompleteMinChars) {
+            return res.json(respond({ success: true, data: [] }));
+        }
 
-        const cacheKey = CACHE_KEYS.searchCity(q.toLowerCase());
-        const cached = await getCache(cacheKey);
-        if (cached) return res.json(respond({ success: true, data: cached }));
-
-        const response = await searchLocationsService(q);
-        const locationIds = response
+        const results = await searchLocationsService(trimmed);
+        const locationIds = results
             .map((item: { id?: string }) => item.id)
             .filter((value): value is string => typeof value === 'string' && value.length > 0);
 
@@ -119,10 +121,18 @@ export const searchLocations = async (req: Request, res: Response) => {
             logger.warn('Failed to update location analytics', { error: error instanceof Error ? error.message : String(error) });
         });
 
-        if (response.length > 0) {
-            await setCache(cacheKey, response, CACHE_TTLS.CITY_SEARCH);
+        const cacheKey = CACHE_KEYS.searchCity(trimmed.toLowerCase());
+        const cached = await getCache<LocationLike[]>(cacheKey);
+        if (cached) {
+            return res.json(respond({ success: true, data: cached }));
         }
-        return res.json(respond({ success: true, data: response }));
+
+        const formatted = results.map(formatCanonicalLocationResponse);
+        if (formatted.length > 0) {
+            await setCache(cacheKey, formatted, CACHE_TTLS.CITY_SEARCH);
+        }
+
+        return res.json(respond({ success: true, data: formatted }));
     } catch (error: unknown) {
         logger.error('searchLocations error', { error: error instanceof Error ? error.message : String(error) });
         return sendErrorResponse(req, res, 500, "Failed to search locations");
@@ -131,24 +141,28 @@ export const searchLocations = async (req: Request, res: Response) => {
 
 export const lookupPincode = async (req: Request, res: Response) => {
     try {
-        const rawPincode = Array.isArray(req.params.pincode) ? req.params.pincode[0] : req.params.pincode;
-        const pincode = typeof rawPincode === "string" ? rawPincode.trim() : "";
-
-        if (!/^\d{6}$/.test(pincode)) {
-            return sendErrorResponse(req, res, 400, "Valid 6-digit pincode is required");
+        const pincode = Array.isArray(req.query.pincode) ? req.query.pincode[0] : req.query.pincode;
+        if (typeof pincode !== 'string' || !pincode.trim()) {
+            return sendErrorResponse(req, res, 400, "Pincode is required");
         }
 
-        const cacheKey = `location:pincode:${pincode}`;
-        const cached = await getCache(cacheKey);
+        const trimmed = pincode.trim();
+        if (!/^\d{6}$/.test(trimmed)) {
+            return sendErrorResponse(req, res, 400, "Pincode must be exactly 6 digits");
+        }
+
+        const cacheKey = `location:pincode:${trimmed}`;
+        const cached = await getCache<LocationLike>(cacheKey);
         if (cached) {
             return res.json(respond({ success: true, data: cached }));
         }
 
-        const location = await lookupLocationByPincodeService(pincode);
-        if (!location) {
-            return sendErrorResponse(req, res, 404, "Pincode not found");
+        const match = await lookupLocationByPincodeService(trimmed);
+        if (!match) {
+            return res.json(respond({ success: false, data: null }));
         }
 
+        const location = formatCanonicalLocationResponse(match);
         await setCache(cacheKey, location, CACHE_TTLS.CITY_SEARCH);
         return res.json(respond({ success: true, data: location }));
     } catch (error: unknown) {
@@ -207,9 +221,7 @@ export const ipLocate = async (req: Request, res: Response) => {
         const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
         const isLocalhost = ip === '::1' || ip === '127.0.0.1' || ip === 'localhost';
 
-        // Localhost: IP geolocation is not possible — return null so the
-        // frontend falls through to GPS or the manual selection prompt.
-        if (isLocalhost) {
+        if (isLocalhost || isPrivateIpAddress(ip)) {
             return res.json(respond({ success: true, data: null }));
         }
 
@@ -219,14 +231,27 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
-        const url = apiKey ? `https://ipapi.co/${ip}/json/?key=${apiKey}` : `https://ipapi.co/${ip}/json/`;
+        const safeIp = encodeURIComponent(ip);
+        const baseUrl = new URL(`https://ipapi.co/${safeIp}/json/`);
+        if (apiKey) {
+            baseUrl.searchParams.set('key', apiKey);
+        }
+
+        const outboundCheck = validateOutboundUrl(baseUrl.toString());
+
+        if (!outboundCheck.valid || !outboundCheck.url) {
+            logger.warn('IP geolocation request blocked by SSRF guard', { url: baseUrl.toString(), reason: outboundCheck.reason });
+            return res.json(respond({ success: false, data: null }));
+        }
+
+        const targetUrlString = outboundCheck.url.href;
 
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
 
         let data: Record<string, unknown>;
         try {
-            const response = await fetch(url, {
+            const response = await fetch(targetUrlString, {
                 headers: { Accept: 'application/json', 'User-Agent': 'Esparex/1.0' },
                 signal: controller.signal,
             });

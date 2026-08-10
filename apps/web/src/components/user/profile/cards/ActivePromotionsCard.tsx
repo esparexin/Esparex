@@ -53,7 +53,7 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
               <div>
                 <div className="font-bold text-foreground">{promo.entityTitle || 'Boosted Listing'}</div>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+                  <span className="px-2 py-0.5 rounded text-tiny font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 uppercase tracking-wide">
                     {promo.type.replace('_', ' ')} BOOST
                   </span>
                   <span className="text-2xs text-muted-foreground">

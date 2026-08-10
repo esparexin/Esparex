@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { isValidObjectId } from '@esparex/core/utils/idUtils';
 import { Request, Response, NextFunction } from 'express';
 import { sendErrorResponse } from "../utils/errorResponse";
 
@@ -57,7 +57,7 @@ function validateInternal(req: Request, res: Response, next: NextFunction, param
         return;
     }
 
-    if (!Types.ObjectId.isValid(rawId)) {
+    if (!isValidObjectId(rawId)) {
         return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
             details: {
                 message: `Parameter '${param}' must be a valid ObjectId`,
@@ -99,7 +99,7 @@ export function validateObjectIds(...params: string[]) {
                 continue;
             }
 
-            if (!Types.ObjectId.isValid(rawId)) {
+            if (!isValidObjectId(rawId)) {
                 errors.push(`Invalid ObjectId format for parameter: ${param}`);
             }
         }
@@ -136,7 +136,7 @@ export function validateBodyObjectId(field: string) {
             return next();
         }
 
-        if (!Types.ObjectId.isValid(id as string)) {
+        if (!isValidObjectId(id as string)) {
             return sendErrorResponse(req, res, 400, 'Invalid ID Format', {
                 details: {
                     message: `Field '${field}' must be a valid ObjectId`,

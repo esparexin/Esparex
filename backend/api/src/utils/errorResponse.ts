@@ -94,7 +94,8 @@ export function sendCatalogError(
     }
 
     if (isMongoError(error)) {
-        return sendErrorResponse(req, res, 400, 'Database operation failed', { mongoError: (error as Error).message });
+        const details = process.env.NODE_ENV === 'development' ? { mongoError: (error as Error).message } : undefined;
+        return sendErrorResponse(req, res, 400, 'Database operation failed', details);
     }
 
     const message = typeof error === 'string' 

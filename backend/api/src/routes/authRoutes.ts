@@ -1,4 +1,8 @@
 
+/**
+ * 🛡️ AUTHENTICATION ROUTES (SSOT)
+ * All authentication actions strictly enforce POST body payloads to prevent secret leakage in GET query strings.
+ */
 import express from 'express';
 import { AuthController } from '../controllers/auth';
 import { protect } from '../middleware/authMiddleware';

@@ -78,7 +78,7 @@ export const CreditLedgerHistoryCard: React.FC = () => {
                     </td>
                     <td className="py-2.5 px-3">
                       <span
-                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-tiny font-bold ${
                           isDebit
                             ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                             : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'

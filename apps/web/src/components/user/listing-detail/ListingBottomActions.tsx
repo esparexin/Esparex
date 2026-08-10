@@ -19,7 +19,7 @@ import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 function SpotlightOrBoostButton({ isSpotlight, onPromoteClick }: { isSpotlight: boolean; onPromoteClick?: () => void }) {
   if (isSpotlight) {
     return (
-      <div className="flex flex-col items-center justify-center gap-0.5 h-11 px-1 text-[11px] font-bold rounded-xl bg-amber-50 border border-amber-200 text-amber-800 select-none">
+      <div className="flex flex-col items-center justify-center gap-0.5 h-11 px-1 text-tiny font-bold rounded-xl bg-amber-50 border border-amber-200 text-amber-800 select-none">
         <Sparkles className="h-4 w-4 text-amber-600 fill-amber-500" />
         Spotlight
       </div>
