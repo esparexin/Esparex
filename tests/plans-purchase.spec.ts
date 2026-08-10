@@ -193,12 +193,18 @@ test.describe('Plans & Wallet Hub — 15-Point Release Gate E2E Regression Suite
     await expect(boostedAdTitle).toBeVisible();
 
     // Verify 0 uncaught console errors (Gate 12 & 14)
+    // Filter out known CI-environment network noise:
+    // - Chromium: "Access to XMLHttpRequest ... has been blocked by CORS policy"
+    // - Firefox:  "[JavaScript Error: "Cross-Origin Request Blocked: ..."]"
+    // These occur because the CI runner has no mock for api.esparex.in (real domain).
     const filteredErrors = consoleErrors.filter(
       (e) =>
         !e.includes('Download the React DevTools') &&
         !e.includes('Preflight') &&
         !e.includes('Failed to load resource') &&
         !e.includes('Access-Control-Allow-Origin') &&
+        !e.includes('Cross-Origin Request Blocked') &&
+        !e.includes('Same Origin Policy') &&
         !e.includes('status of 500')
     );
     expect(filteredErrors).toHaveLength(0);
