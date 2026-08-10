@@ -107,7 +107,7 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                     </div>
 
                     <h2 className="text-xl font-bold text-foreground mb-2">
-                        Something went wrong
+                        Listing Setup Unable to Load
                     </h2>
 
                     <p className="text-foreground-tertiary mb-8">
