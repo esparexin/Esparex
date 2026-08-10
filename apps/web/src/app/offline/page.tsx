@@ -14,6 +14,9 @@ export default function OfflinePage() {
             className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
             style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}
         >
+            <style>{`
+                svg { max-width: 32px !important; max-height: 32px !important; flex-shrink: 0 !important; }
+            `}</style>
             <div
                 className="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-xl p-8 sm:p-10 text-center transition-all"
                 style={{ maxWidth: "480px" }}
