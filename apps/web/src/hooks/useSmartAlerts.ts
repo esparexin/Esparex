@@ -320,7 +320,7 @@ export function useSmartAlerts(enabled = true) {
             resetAlertForm();
             notify.success(editingAlertId ? "Alert updated successfully." : "Alert created successfully.");
         } else {
-            setSmartAlertGlobalError(result.error || "Something went wrong. Please try again.");
+            setSmartAlertGlobalError(result.error || "Unable to save smart alert. Please refresh and try again.");
         }
         setIsMutating(false);
     };

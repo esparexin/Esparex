@@ -20,6 +20,7 @@ import { useSearchParams } from "next/navigation";
 import { getBrands } from "@/lib/api/brands";
 import { getModels } from "@/lib/api/models";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
+import { showAdminPopup } from "@/lib/popup/popupEvents";
 
 const REQUEST_STATUS_VALUES = new Set(["all", "pending", "approved", "rejected", "duplicate", "resolved"]);
 
@@ -105,7 +106,11 @@ export default function CatalogRequestsTab() {
                     setSearchResults(parsed.items.map((item) => ({ id: item.id, name: item.name })));
                 }
             } catch (e) {
-                console.error(e);
+                showAdminPopup({
+                    type: "error",
+                    title: "Search Failed",
+                    message: e instanceof Error ? e.message : "Unable to complete catalog search.",
+                });
             } finally {
                 setSearching(false);
             }
@@ -161,7 +166,11 @@ export default function CatalogRequestsTab() {
             setSelectedIds([]);
             setBulkRejectOpen(false);
         } catch (e) {
-            console.error(e);
+            showAdminPopup({
+                type: "error",
+                title: "Bulk Reject Failed",
+                message: e instanceof Error ? e.message : "Unable to reject selected requests.",
+            });
         } finally {
             setIsBulkRejecting(false);
         }
@@ -175,7 +184,11 @@ export default function CatalogRequestsTab() {
             setSelectedIds([]);
             setBulkDuplicateOpen(false);
         } catch (e) {
-            console.error(e);
+            showAdminPopup({
+                type: "error",
+                title: "Mark Duplicate Failed",
+                message: e instanceof Error ? e.message : "Unable to mark selected requests as duplicate.",
+            });
         } finally {
             setIsBulkDuplicating(false);
         }
