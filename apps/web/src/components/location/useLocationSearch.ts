@@ -187,7 +187,8 @@ export function useLocationSearch({
         setSuccessFeedback("✓ Current location updated");
         
         // Pass it up to the caller to handle local state (e.g. Post-Ad forms)
-        onApplySelection(detectedLocation as unknown as Location, "gps");
+        const rawLoc: unknown = detectedLocation;
+        onApplySelection(rawLoc as Location, "gps");
         
         setTimeout(() => {
             setSuccessFeedback(null);

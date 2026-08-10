@@ -9,7 +9,7 @@ jest.mock('react-native', () => ({
 
 describe('ApiPushTokenRegistrationService', () => {
   let pushNotificationService: jest.Mocked<IPushNotificationService>;
-  let apiClient: jest.Mocked<AxiosInstance>;
+  let apiClient: { post: jest.Mock };
   let service: ApiPushTokenRegistrationService;
 
   beforeEach(() => {
@@ -21,9 +21,9 @@ describe('ApiPushTokenRegistrationService', () => {
 
     apiClient = {
       post: jest.fn(),
-    } as unknown as jest.Mocked<AxiosInstance>;
+    };
 
-    service = new ApiPushTokenRegistrationService(pushNotificationService, apiClient);
+    service = new ApiPushTokenRegistrationService(pushNotificationService, apiClient as any);
   });
 
   describe('registerPushToken', () => {

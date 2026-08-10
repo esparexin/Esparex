@@ -27,9 +27,9 @@ export const Section: React.FC<SectionProps> = ({
   return (
     <View 
       className={`${spacingClass} w-full ${className}`}
-      {...(props as any)}
+      {...props}
     >
-      {title && <View className="mb-3" {...({} as any)}>{title}</View>}
+      {title && <View className="mb-3">{title}</View>}
       {children}
     </View>
   );

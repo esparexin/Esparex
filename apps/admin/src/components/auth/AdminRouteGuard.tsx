@@ -21,7 +21,7 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
   }, [admin, loading, error, pathname, router]);
 
   if (loading) {
-    return <div style={{ padding: 24 }}>Loading admin session...</div>;
+    return <div className="p-6 text-sm text-foreground-secondary">Loading admin session...</div>;
   }
 
 

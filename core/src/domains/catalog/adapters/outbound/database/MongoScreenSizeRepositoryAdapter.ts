@@ -1,3 +1,4 @@
+import type { ClientSession } from 'mongoose';
 import { ScreenSizeBulkDeleteCriteria, ScreenSizeRepositoryPort } from '../../..';
 import ScreenSizeMongoose from '../../../../../models/ScreenSize';
 
@@ -15,7 +16,7 @@ export class MongoScreenSizeRepositoryAdapter implements ScreenSizeRepositoryPor
             { $or: orFilters },
             { $set: update }
         );
-        if (tx) query.session(tx as any);
+        if (tx) query.session(tx as ClientSession);
         const res = await query.exec();
         return res.modifiedCount;
     }

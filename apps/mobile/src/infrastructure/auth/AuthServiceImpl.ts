@@ -14,13 +14,11 @@ export class AuthServiceImpl implements IAuthService {
   }
 
   async login(payload: unknown): Promise<AuthResult> {
-    const response = await this.apiClient.post('/auth/login', payload);
-    
-    // Ensure we handle cases where the token might not be returned immediately,
-    // though the contract implies it will be in the response body.
-    const accessToken = response.data?.accessToken;
-    const refreshToken = response.data?.refreshToken;
-    const userId = response.data?.userId || 'unknown-user';
+    const response = await this.apiClient.post('/v1/auth/login', payload);
+    const data = response.data?.data || response.data;
+    const accessToken = data?.accessToken || response.data?.accessToken;
+    const refreshToken = data?.refreshToken || response.data?.refreshToken;
+    const userId = data?.userId || data?.user?._id || 'unknown-user';
 
     if (accessToken && refreshToken) {
       await this.tokenStorage.setTokens(accessToken, refreshToken);
@@ -30,7 +28,34 @@ export class AuthServiceImpl implements IAuthService {
       await this.pushTokenRegistrationService.registerPushToken();
     }
 
-    // Map backend DTO to Domain AuthResult
+    return {
+      userId,
+    };
+  }
+
+  async sendOtp(mobile: string): Promise<{ success: boolean; message?: string }> {
+    const response = await this.apiClient.post('/v1/auth/send-otp', { mobile });
+    return {
+      success: response.data?.success ?? true,
+      message: response.data?.message || 'OTP sent successfully'
+    };
+  }
+
+  async verifyOtp(mobile: string, otp: string): Promise<AuthResult> {
+    const response = await this.apiClient.post('/v1/auth/verify-otp', { mobile, otp });
+    const data = response.data?.data || response.data;
+    const accessToken = data?.accessToken || response.data?.accessToken;
+    const refreshToken = data?.refreshToken || response.data?.refreshToken;
+    const userId = data?.userId || data?.user?._id || 'unknown-user';
+
+    if (accessToken && refreshToken) {
+      await this.tokenStorage.setTokens(accessToken, refreshToken);
+    }
+
+    if (this.pushTokenRegistrationService) {
+      await this.pushTokenRegistrationService.registerPushToken();
+    }
+
     return {
       userId,
     };
@@ -41,9 +66,9 @@ export class AuthServiceImpl implements IAuthService {
       if (this.pushTokenRegistrationService) {
         await this.pushTokenRegistrationService.unregisterPushToken();
       } else {
-        await this.apiClient.post('/auth/logout');
+        await this.apiClient.post('/v1/auth/logout');
       }
-    } catch (e) {
+    } catch {
       // Ignore network errors on logout, we still want to clear the local session
     } finally {
       await this.tokenStorage.clearTokens();
@@ -58,7 +83,7 @@ export class AuthServiceImpl implements IAuthService {
     }
 
     try {
-      const response = await this.apiClient.post('/auth/refresh', {
+      const response = await this.apiClient.post('/v1/auth/refresh', {
         refreshToken: tokens.refreshToken,
       });
 

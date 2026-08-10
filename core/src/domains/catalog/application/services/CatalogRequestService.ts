@@ -50,7 +50,7 @@ export const findOrCreateCatalogRequest = async (payload: CatalogRequestPayload)
         requestedByUsers: [payload.requestedBy],
         requestCount: 1,
         status: 'pending',
-    } as unknown as Record<string, unknown>);
+    } as Record<string, unknown>);
 
     return { request: createdRequest, isNew: true };
 };
@@ -116,9 +116,9 @@ export const resolveCatalogRequestsForSubmission = async (params: {
     modelId?: string;
     pendingModelRequestId?: string;
 }> => {
-    let resolvedBrandId = params.brandId;
+    const resolvedBrandId = params.brandId;
     let pendingBrandRequestId: string | undefined;
-    let resolvedModelId = params.modelId;
+    const resolvedModelId = params.modelId;
     let pendingModelRequestId: string | undefined;
 
     // Handle proposed custom brand

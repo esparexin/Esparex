@@ -1,3 +1,4 @@
+/* global jest */
 module.exports = {
   open: jest.fn().mockImplementation((options) => {
     return Promise.resolve({

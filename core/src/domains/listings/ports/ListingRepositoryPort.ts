@@ -68,14 +68,15 @@ export interface ListingFilter {
     _id?: string | { $ne: string } | unknown;
     sellerId?: string | { $ne: string };
     listingType?: ListingTypeValue;
-    status?: AdStatusValue | { $in: AdStatusValue[] };
+    status?: AdStatusValue | string | { $in: (AdStatusValue | string)[] };
     categoryId?: string;
     brandId?: string;
     modelId?: string;
+    title?: string | { $regex: RegExp | string; $options?: string };
     price?: { $gte: number; $lte: number } | number;
     imageHashes?: { $in: string[] };
     duplicateFingerprint?: string;
-    isDeleted?: boolean | { $ne: boolean };
+    isDeleted?: boolean | { $ne: boolean } | { $in: boolean[] };
     isSold?: boolean;
     ids?: readonly string[];
     idsNotIn?: readonly string[];
@@ -98,11 +99,11 @@ export interface ListingFilter {
 }
 
 export interface ListingUpdate {
-    status?: AdStatusValue;
+    status?: AdStatusValue | string;
     title?: string;
     description?: string;
     price?: number;
-    location?: ListingLocation;
+    location?: ListingLocation | Record<string, unknown>;
     categoryId?: string;
     brandId?: string;
     modelId?: string;

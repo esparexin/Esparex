@@ -12,7 +12,7 @@ import {
 } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Crown, AlertCircle } from "@/components/ui/icons";
+import { Crown, AlertCircle } from "@/icons/IconRegistry";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
 import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
@@ -36,9 +36,10 @@ interface PlanPurchaseDialogProps {
 }
 
 const planTypeToWalletField = (type: string) => {
-    if (type === "Spotlight") return "spotlightCredits" as const;
-    if (type === "More Ads") return "adCredits" as const;
-    return "smartAlertSlots" as const;
+    const t = (type || "").toUpperCase();
+    if (t.includes("SPOTLIGHT")) return "spotlightCredits" as const;
+    if (t.includes("ALERT")) return "smartAlertSlots" as const;
+    return "adCredits" as const;
 };
 
 export function PlanPurchaseDialog({
@@ -57,6 +58,8 @@ export function PlanPurchaseDialog({
 
     const handleConfirm = async () => {
         try {
+            // Dismiss dialog first to release Radix body scroll locks before Razorpay launches
+            onOpenChange(false);
             await startPlanCheckout({
                 planId: plan.id,
                 amount: plan.price,
@@ -68,20 +71,24 @@ export function PlanPurchaseDialog({
                 onCreditPending: () => {
                     notify.info("Payment received. Credits will appear after verification shortly.");
                     onConfirm?.();
-                    onOpenChange(false);
                 },
                 onPaymentVerified: async () => {
                     notify.success("Plan purchased successfully!");
                     onConfirm?.();
-                    onOpenChange(false);
+                    if (typeof window !== "undefined") {
+                        window.location.href = "/account/wallet";
+                    }
                 },
                 onPaymentFailed: (reason: string) => {
-                    notify.error(`Payment failed: ${reason}`);
+                    notify.error(reason);
+                },
+                onDismiss: () => {
+                    notify.info("Payment process was closed.");
                 },
             });
         } catch (error) {
             logger.error("Plan purchase failed", error);
-            notify.error("Failed to start payment. Please try again.");
+            notify.error("Payment couldn't be started right now. Please try again in a few moments.");
         }
     };
 

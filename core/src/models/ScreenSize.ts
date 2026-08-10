@@ -95,7 +95,7 @@ import softDeletePlugin from '../utils/softDeletePlugin';
 ScreenSizeSchema.plugin(softDeletePlugin);
 
 ScreenSizeSchema.pre('validate', function () {
-    const mutableDoc = this as unknown as Record<string, unknown>;
+    const mutableDoc = this as Record<string, unknown>;
     if (typeof mutableDoc.name !== 'string' && typeof mutableDoc.size === 'string') {
         mutableDoc.name = `${mutableDoc.size} Screen Size`;
     }

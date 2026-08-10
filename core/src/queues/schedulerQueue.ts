@@ -20,7 +20,8 @@ export type SchedulerJobName =
     | 'home_feed_warmup'
     | 'quality_score_backfill_job'
     | 'proactive_expiry_warning'
-    | 'expire_smart_alerts';
+    | 'expire_smart_alerts'
+    | 'expire_entitlements';
 
 type SchedulerProcessor = (job: Job<TraceableJobData>) => Promise<unknown>;
 
@@ -45,6 +46,7 @@ const schedulerRepeatCrons: Record<SchedulerJobName, string> = {
     quality_score_backfill_job: '*/5 * * * *',
     proactive_expiry_warning: '30 8 * * *',
     expire_smart_alerts: '15 0 * * *',
+    expire_entitlements: '20 0 * * *',
 };
 
 const schedulerDefaultJobOptions = withQueueDefaults({

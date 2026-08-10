@@ -1,1 +1,1 @@
-export * from "./application/services/TrustService";
+export * from './application/services/TrustService';

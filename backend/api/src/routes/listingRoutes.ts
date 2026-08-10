@@ -49,6 +49,10 @@ router.get("/", publicCacheControl(300, 3600), extractUser, searchLimiter, getLi
 // Unified creation entry point
 router.post("/", protect, mutationLimiter, idempotencyMiddleware, requireVerifiedBusinessForServiceParts, createListingController.createListing);
 
+// POST /api/v1/listings/upload-presign
+// Generate presigned S3 upload URL for listing media
+router.post("/upload-presign", protect, mutationLimiter, createListingController.getPresignedUploadUrl);
+
 
 
 // GET /api/v1/listings/mine/stats
@@ -83,7 +87,7 @@ router.get("/:id/phone", validateObjectId, extractUser, searchLimiter, engagemen
 
 // PATCH /api/v1/listings/:id/edit
 // Strict edit with ownership validation (Standardized)
-router.patch("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as unknown as ZodTypeAny), editListingController.editListing);
+router.patch("/:id/edit", protect, validateObjectId, requireListingOwner, requireVerifiedBusinessForServiceParts, mutationLimiter, validateRequest(updateAdSchema as ZodTypeAny), editListingController.editListing);
 
 // PATCH /api/v1/listings/:id/sold
 // SSOT: Required terminal state transition

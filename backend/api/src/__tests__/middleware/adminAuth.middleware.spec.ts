@@ -34,12 +34,12 @@ const createMockRes = () => {
         json: jest.fn().mockReturnThis(),
         cookie: jest.fn(),
         clearCookie: jest.fn(),
-    } as unknown as Response;
+    } as any;
     return res;
 };
 
 describe("adminAuth middleware", () => {
-    const mockFindById = (Admin as unknown as { findById: jest.Mock }).findById;
+    const mockFindById = (Admin as any).findById;
     const mockVerifyAdminToken = verifyAdminToken as jest.Mock;
     const mockValidateAdminSession = validateAdminSession as jest.Mock;
 
@@ -48,7 +48,7 @@ describe("adminAuth middleware", () => {
     });
 
     it("returns 401 when token is missing", async () => {
-        const req = { cookies: {}, originalUrl: "/api/v1/admin/users" } as unknown as Request;
+        const req = { cookies: {}, originalUrl: "/api/v1/admin/users" } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -59,7 +59,7 @@ describe("adminAuth middleware", () => {
     });
 
     it("returns 401 when session is revoked/missing", async () => {
-        const req = { cookies: { admin_token: "jwt_token" }, originalUrl: "/api/v1/admin/users" } as unknown as Request;
+        const req = { cookies: { admin_token: "jwt_token" }, originalUrl: "/api/v1/admin/users" } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -79,7 +79,7 @@ describe("adminAuth middleware", () => {
     });
 
     it("passes when token, session, and admin are valid", async () => {
-        const req = { cookies: { admin_token: "jwt_token" }, originalUrl: "/api/v1/admin/users" } as unknown as Request;
+        const req = { cookies: { admin_token: "jwt_token" }, originalUrl: "/api/v1/admin/users" } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -115,7 +115,7 @@ describe("adminAuth middleware", () => {
         const req = {
             user: { role: "admin", permissions: [] },
             originalUrl: "/api/v1/admin/users",
-        } as unknown as Request;
+        } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -129,7 +129,7 @@ describe("adminAuth middleware", () => {
         const req = {
             user: { role: "moderator", permissions: [] },
             originalUrl: "/api/v1/admin/chat/list",
-        } as unknown as Request;
+        } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -143,7 +143,7 @@ describe("adminAuth middleware", () => {
         const req = {
             user: { role: "superAdmin", permissions: [] },
             originalUrl: "/api/v1/admin/catalog/brands/123",
-        } as unknown as Request;
+        } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -157,7 +157,7 @@ describe("adminAuth middleware", () => {
         const req = {
             user: { role: "moderator", permissions: ["catalog:write"] },
             originalUrl: "/api/v1/admin/catalog/brands/123",
-        } as unknown as Request;
+        } as any;
         const res = createMockRes();
         const next = jest.fn();
 
@@ -171,7 +171,7 @@ describe("adminAuth middleware", () => {
         const req = {
             user: { role: "user", permissions: [] },
             originalUrl: "/api/v1/admin/catalog/brands/123",
-        } as unknown as Request;
+        } as any;
         const res = createMockRes();
         const next = jest.fn();
 

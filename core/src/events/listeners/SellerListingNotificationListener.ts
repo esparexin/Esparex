@@ -27,10 +27,25 @@ async function getSellerEmail(listingId: string): Promise<{ email: string; name:
     }
 }
 
+const processedEvents = new Set<string>();
+
+function tryReserveSlot(key: string): boolean {
+    if (processedEvents.has(key)) return false;
+    processedEvents.add(key);
+    if (processedEvents.size > 2000) {
+        const first = processedEvents.values().next().value;
+        if (first !== undefined) processedEvents.delete(first);
+    }
+    return true;
+}
+
 export const registerSellerListingNotificationListener = () => {
     // Approval
     lifecycleEvents.on('listing.approved', async (payload) => {
         try {
+            const dedupeKey = `seller_approved:${payload.listingId}`;
+            if (!tryReserveSlot(dedupeKey)) return;
+
             const info = await getSellerEmail(payload.listingId);
             if (!info) return;
             const typeLabel = LISTING_TYPE_LABEL[info.listingType] || 'Listing';
@@ -54,6 +69,9 @@ export const registerSellerListingNotificationListener = () => {
     // Rejection
     lifecycleEvents.on('listing.rejected', async (payload) => {
         try {
+            const dedupeKey = `seller_rejected:${payload.listingId}`;
+            if (!tryReserveSlot(dedupeKey)) return;
+
             const info = await getSellerEmail(payload.listingId);
             if (!info) return;
             const typeLabel = LISTING_TYPE_LABEL[payload.listingType] || LISTING_TYPE_LABEL[info.listingType] || 'Listing';

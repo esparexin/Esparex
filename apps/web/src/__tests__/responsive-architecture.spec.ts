@@ -1,27 +1,27 @@
 import { describe, it, expect } from "vitest";
+import { ListingDescriptionCard } from "../components/user/listing-detail/ListingDescriptionCard";
+import { AdTitlePriceCard } from "../components/user/listing-detail/AdTitlePriceCard";
+import { SearchResultsHeader } from "../components/search/SearchResultsHeader";
+import { BusinessProfileWizard } from "../components/user/business-registration/BusinessProfileWizard";
 
 describe("SSOT Responsive Architecture Governance", () => {
-    it("verifies single responsive component architecture for ListingDescriptionCard", async () => {
-        const mod = await import("../components/user/listing-detail/ListingDescriptionCard");
-        expect(mod.ListingDescriptionCard).toBeDefined();
-        expect(typeof mod.ListingDescriptionCard).toBe("function");
+    it("verifies single responsive component architecture for ListingDescriptionCard", () => {
+        expect(ListingDescriptionCard).toBeDefined();
+        expect(typeof ListingDescriptionCard).toBe("function");
     });
 
-    it("verifies single responsive component architecture for AdTitlePriceCard", async () => {
-        const mod = await import("../components/user/listing-detail/AdTitlePriceCard");
-        expect(mod.AdTitlePriceCard).toBeDefined();
-        expect(typeof mod.AdTitlePriceCard).toBe("function");
+    it("verifies single responsive component architecture for AdTitlePriceCard", () => {
+        expect(AdTitlePriceCard).toBeDefined();
+        expect(typeof AdTitlePriceCard).toBe("function");
     });
 
-    it("verifies single responsive component architecture for SearchResultsHeader", async () => {
-        const mod = await import("../components/search/SearchResultsHeader");
-        expect(mod.SearchResultsHeader).toBeDefined();
-        expect(typeof mod.SearchResultsHeader).toBe("function");
+    it("verifies single responsive component architecture for SearchResultsHeader", () => {
+        expect(SearchResultsHeader).toBeDefined();
+        expect(typeof SearchResultsHeader).toBe("function");
     });
 
-    it("verifies single responsive component architecture for BusinessProfileWizard", async () => {
-        const mod = await import("../components/user/business-registration/BusinessProfileWizard");
-        expect(mod.BusinessProfileWizard).toBeDefined();
-        expect(typeof mod.BusinessProfileWizard).toBe("function");
+    it("verifies single responsive component architecture for BusinessProfileWizard", () => {
+        expect(BusinessProfileWizard).toBeDefined();
+        expect(typeof BusinessProfileWizard).toBe("function");
     });
 });

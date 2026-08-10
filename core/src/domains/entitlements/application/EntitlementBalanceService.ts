@@ -25,11 +25,17 @@ export interface ResolvedBalances {
 export async function resolveBalances(userId: string): Promise<ResolvedBalances> {
     const userObjId = new Types.ObjectId(userId);
 
-    const entitlements = await Entitlement.find({
-        userId: userObjId,
-        status: 'ACTIVE',
-        remaining: { $gt: 0 },
-    }).lean();
+    const idFilter = { $in: [userObjId, userId] };
+
+    const [entitlements, wallet, userPlan] = await Promise.all([
+        Entitlement.find({
+            userId: idFilter,
+            status: 'ACTIVE',
+            remaining: { $gt: 0 },
+        }).lean(),
+        UserWallet.findOne({ userId: idFilter }).lean(),
+        UserPlan.findOne({ userId: idFilter, status: 'active' }).lean(),
+    ]);
 
     const adCredits = entitlements
         .filter((e) => e.type === 'AD_POSTING' && e.sourceType === 'PURCHASED_PACK')
@@ -47,10 +53,8 @@ export async function resolveBalances(userId: string): Promise<ResolvedBalances>
         .filter((e) => e.type === 'SMART_ALERT_SLOT')
         .reduce((sum, e) => sum + Number(e.remaining ?? 0), 0);
 
-    const wallet = await UserWallet.findOne({ userId: userObjId }).lean();
     const monthlyFreeAdsUsed = Number(wallet?.monthlyFreeAdsUsed ?? 0);
 
-    const userPlan = await UserPlan.findOne({ userId: userObjId, status: 'active' }).lean();
     let activePlanName: string | null = null;
     if (userPlan?.planId) {
         const planDetails = await Plan.findById(userPlan.planId).lean();

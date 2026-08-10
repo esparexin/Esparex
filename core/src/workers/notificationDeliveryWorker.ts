@@ -17,10 +17,13 @@ import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabi
  *  1. Execute the final delivery of notifications (DB, WebSocket, FCM).
  *  2. Provide retry logic for failed push attempts.
  */
-const createNoopWorker = <T>() => ({
-    on: () => undefined,
-    close: async () => undefined,
-} as unknown as Worker<T>);
+const createNoopWorker = <T>(): Worker<T> => {
+    const dummy: unknown = {
+        on: () => undefined,
+        close: async () => undefined,
+    };
+    return dummy as Worker<T>;
+};
 
 export const notificationDeliveryProcessor = async (job: any) => {
     const traceId = (job.data as { _trace?: { requestId?: string } } | undefined)?._trace?.requestId || `job-${String(job.id || 'unknown')}`;

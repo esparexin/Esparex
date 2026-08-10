@@ -15,9 +15,9 @@ const IG = new Set(['page','limit','q','search','includeDeleted','sort','order',
 
 export async function handlePaginatedContent<T extends Document>(req: Request, res: Response, model: Model<T>, options: ContentOptions = {}) {
     try {
-        const user = (req as any).user;
-        const role = normalizeRole(user?.role);
-        const isAdmin = Boolean((req as any).admin) || role === Role.ADMIN || role === Role.SUPER_ADMIN;
+        const user = (req as { user?: { role?: unknown } }).user;
+        const role = normalizeRole(user?.role as string | undefined);
+        const isAdmin = Boolean((req as { admin?: unknown }).admin) || role === Role.ADMIN || role === Role.SUPER_ADMIN;
         const isUrlAdmin = req.originalUrl.includes('/admin');
         const { searchFields = ['name'], defaultSort = { name: 1 }, publicQuery = { isActive: true }, adminQuery = {}, populate, select, transformResponse, queryParams } = options;
         const eq = (queryParams || req.query) as Record<string, unknown>;
@@ -29,7 +29,7 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
         if (isCM) {
             const sq = Object.keys(eq).sort().map(k => `${k}=${encodeURIComponent(String(eq[k]))}`).join('&');
             ck = `catalog:list:${model.modelName.toLowerCase()}:${isUrlAdmin ? 'admin' : 'public'}:${uACR ? 'admin-read' : 'user-read'}:${req.path}?${sq}`;
-            const cp = await getCache<any>(ck);
+            const cp = await getCache<Record<string, unknown>>(ck);
             if (cp) {
                 const etag = `W/"${Buffer.from(JSON.stringify(cp)).toString('base64').substring(0, 24)}"`;
                 res.setHeader('ETag', etag);
@@ -48,11 +48,12 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
             const q: Record<string, unknown> = { ...adminQuery };
             if (!incDel && !('isDeleted' in q)) q.isDeleted = { $ne: true };
             if (search && searchFields.length > 0) q.$or = buildRegexSearchClauses(search, searchFields);
+            const paths = (model.schema as { paths?: Record<string, unknown> })?.paths;
             Object.entries(eq).forEach(([k, v]) => {
                 if (IG.has(k) || !AF.has(k) || v === 'all' || v === '' || v === undefined) return;
                 let tk = k;
-                if (k === 'categoryId' && (model.schema as any)?.paths && 'categoryIds' in (model.schema as any).paths) tk = 'categoryIds';
-                if (k === 'variantModelId' && (model.schema as any)?.paths && 'variantOfModelId' in (model.schema as any).paths) tk = 'variantOfModelId';
+                if (k === 'categoryId' && paths && 'categoryIds' in paths) tk = 'categoryIds';
+                if (k === 'variantModelId' && paths && 'variantOfModelId' in paths) tk = 'variantOfModelId';
                 if (q[tk] !== undefined) return;
                 if (tk === 'status' && v === 'deleted' && q.isDeleted === true) return;
                 let tv = v;
@@ -61,11 +62,11 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
             });
             const asrt = Array.isArray(eq.sort) ? eq.sort[0] : eq.sort;
             const aSort = parseSortQuery(asrt, { createdAt: -1 });
-            const ats = search && uACS ? await tryAtlasCatalogSearch({ model: model as any, query: q, search, searchFields, skip, limit }) : null;
+            const ats = search && uACS ? await tryAtlasCatalogSearch({ model, query: q, search, searchFields, skip, limit }) : null;
             const efq = ats?.ids.length ? { ...q, _id: { $in: ats.ids } } : q;
             const fq = model.find(efq).skip(ats ? 0 : skip).limit(limit).sort(ats ? {} : aSort);
             if (incDel) fq.setOptions({ withDeleted: true });
-            if (populate) (fq as any).populate(populate);
+            if (populate) (fq as { populate: (p: unknown) => unknown }).populate(populate);
             if (select) fq.select(select);
             const cq = model.countDocuments(q);
             if (incDel) cq.setOptions({ withDeleted: true });
@@ -74,7 +75,7 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
             const rk = search && Array.isArray(ri) ? rankCatalogSearchResults(ri, search, searchFields, ats?.scores, { autocomplete: limit <= 50, collapseVariants: limit <= 50 }) : ri;
             if (search) recordCatalogSearchTelemetry({ search, latencyMs: Date.now() - st, resultCount: Array.isArray(rk) ? rk.length : 0, autocomplete: limit <= 50 });
             if (uACR && Array.isArray(rk)) {
-                const ar = await tryAdminCatalogReadSwitch({ req, model: model as any, query: q, sort: aSort, skip, limit, populate, select, includeDeleted: incDel, transformResponse, userItems: rk, userTotal: total });
+                const ar = await tryAdminCatalogReadSwitch({ req, model, query: q, sort: aSort, skip, limit, populate, select, includeDeleted: incDel, transformResponse, userItems: rk, userTotal: total });
                 if (ar) { const p = { items: ar.items, total: ar.total, page, limit }; if (ck) await setCache(ck, p, CACHE_TTLS.CATEGORIES); return sendPaginatedResponse(res, ar.items, ar.total, page, limit); }
             }
             if (!uACR && Array.isArray(rk)) void runCatalogShadowRead({ modelName: model.modelName, query: q, sort: aSort, skip, limit, userRows: rk as Record<string, unknown>[], requestPath: req.originalUrl || req.path, requestMethod: req.method });
@@ -97,17 +98,17 @@ export async function handlePaginatedContent<T extends Document>(req: Request, r
         const q: Record<string, unknown> = { ...publicQuery };
         if (search && searchFields.length > 0) q.$or = buildRegexSearchClauses(search, searchFields);
         if (typeof eq.listingType === 'string' && LISTING_TYPE_VALUES.includes(eq.listingType as ListingTypeValue)) q.listingType = eq.listingType;
-        const ats = search && uACS ? await tryAtlasCatalogSearch({ model: model as any, query: q, search, searchFields, skip: (page - 1) * limit, limit }) : null;
+        const ats = search && uACS ? await tryAtlasCatalogSearch({ model, query: q, search, searchFields, skip: (page - 1) * limit, limit }) : null;
         const efq = ats?.ids.length ? { ...q, _id: { $in: ats.ids } } : q;
         const fq = model.find(efq).skip(ats ? 0 : (page - 1) * limit).limit(limit).sort(ats ? {} : sort);
-        if (populate) (fq as any).populate(populate);
+        if (populate) (fq as { populate: (p: unknown) => unknown }).populate(populate);
         if (select) fq.select(select);
         const [items, total] = await Promise.all([fq, model.countDocuments(q)]);
         const ri = transformResponse ? await transformResponse(items as unknown[]) : items;
         const rk = search && Array.isArray(ri) ? rankCatalogSearchResults(ri, search, searchFields, ats?.scores, { autocomplete: limit <= 50, collapseVariants: limit <= 50 }) : ri;
         if (search) recordCatalogSearchTelemetry({ search, latencyMs: Date.now() - st2, resultCount: Array.isArray(rk) ? rk.length : 0, autocomplete: limit <= 50 });
         if (uACR && Array.isArray(rk)) {
-            const ar = await tryAdminCatalogReadSwitch({ req, model: model as any, query: q, sort, skip: (page - 1) * limit, limit, populate, select, transformResponse, userItems: rk, userTotal: total });
+            const ar = await tryAdminCatalogReadSwitch({ req, model, query: q, sort, skip: (page - 1) * limit, limit, populate, select, transformResponse, userItems: rk, userTotal: total });
             if (ar) { const p = { items: ar.items, total: ar.total }; if (ck) await setCache(ck, p, CACHE_TTLS.CATEGORIES); return sendSuccessResponse(res, p); }
         }
         if (!uACR && Array.isArray(rk)) void runCatalogShadowRead({ modelName: model.modelName, query: q, sort, skip: (page - 1) * limit, limit, userRows: rk as Record<string, unknown>[], requestPath: req.originalUrl || req.path, requestMethod: req.method });

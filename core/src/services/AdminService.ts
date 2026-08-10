@@ -90,11 +90,11 @@ export const getAuditLogs = async (
     limit: number
 ) => {
     const query: Record<string, unknown> & { $and?: unknown[] } = {};
-    if (filters.action) query.action = filters.action;
-    if (filters.targetType) query.targetType = filters.targetType;
-    if (filters.adminId) query.adminId = filters.adminId;
-    if (filters.requestId) query['metadata.requestId'] = filters.requestId;
-    if (filters.correlationId) query['metadata.correlationId'] = filters.correlationId;
+    if (filters.action) query.action = { $eq: String(filters.action) };
+    if (filters.targetType) query.targetType = { $eq: String(filters.targetType) };
+    if (filters.adminId) query.adminId = { $eq: String(filters.adminId) };
+    if (filters.requestId) query['metadata.requestId'] = { $eq: String(filters.requestId) };
+    if (filters.correlationId) query['metadata.correlationId'] = { $eq: String(filters.correlationId) };
 
     const normalizedQuery = typeof filters.q === 'string' ? filters.q.trim() : '';
     if (normalizedQuery) {
@@ -168,10 +168,12 @@ export const updateAdminLastLogin = async (id: string | { toString(): string }) 
 };
 
 export const getAdminProfileById = async (adminId: unknown) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- lean() type is nominal; role normalization requires mutable indexable shape
-    const admin = await Admin.findById(adminId).lean() as any;
+    const admin = await Admin.findById(adminId as string | Types.ObjectId).lean<IAdmin>();
     if (admin && admin.role) {
-        admin.role = normalizeRole(admin.role);
+        return {
+            ...admin,
+            role: normalizeRole(admin.role),
+        };
     }
     return admin;
 };

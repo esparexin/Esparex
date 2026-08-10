@@ -17,7 +17,7 @@ export const Divider: React.FC<DividerProps> = ({
   return (
     <View 
       className={`${baseStyle} ${orientationStyle} ${className}`}
-      {...(props as any)}
+      {...props}
     />
   );
 };

@@ -3,7 +3,7 @@ import inject from 'light-my-request';
 
 jest.mock('../../middleware/adminAuth', () => ({
     requireAdmin: (req: express.Request, _res: express.Response, next: express.NextFunction) => {
-        req.admin = { _id: '65fa29c9d2c1f2e165fa29cb' } as never;
+        (req as { admin?: unknown }).admin = { _id: '65fa29c9d2c1f2e165fa29cb' };
         next();
     },
     requirePermission: () => (req: express.Request, _res: express.Response, next: express.NextFunction) => next(),

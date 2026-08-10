@@ -67,7 +67,7 @@ function extractFieldErrors(payload: unknown): BackendFieldError[] {
  * showing a generic popup since the field itself is highlighted).
  */
 export function injectApiErrors<T extends Record<string, unknown>>(
-  form: UseFormReturn<T>,
+  form: Pick<UseFormReturn<T>, "setError">,
   error: unknown,
 ): boolean {
   const details = extractFieldErrors(extractDetailsPayload(error));

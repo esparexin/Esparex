@@ -20,7 +20,6 @@ build
 # Production
 /build
 dist
-!packages/design-tokens/dist/css-variables.css
 
 # Misc
 .DS_Store
@@ -56,8 +55,6 @@ yarn-error.log*
 backend/.env
 backend/.env.*
 backend/src/config/.env
-frontend/.env.local
-frontend/.env.test
 apps/admin/.env.local
 apps/admin/.env.*
 !apps/admin/.env.local.example
@@ -81,12 +78,6 @@ firebase-messaging-sw.js
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
-frontend/android/.gradle/
-frontend/android/local.properties
-frontend/android/captures/
-frontend/ios/App/App.xcworkspace/xcuserdata/
-frontend/ios/App/App.xcodeproj/xcuserdata/
-frontend/ios/App/DerivedData/
 
 # MongoDB
 data/
@@ -123,7 +114,6 @@ Thumbs.db
 # Submodules
 Esparex-next/
 node_modules
-frontend/.unimportedrc.json
 
 # Temporary audit files
 duplicates_report.txt
@@ -132,7 +122,6 @@ duplicates_report.txt
 
 # Temporary output files
 backend/error_output.txt
-frontend/typecheck_errors.txt
 *_response.json
 walkthrough_*.md
 home_ads_*.json
@@ -144,14 +133,12 @@ last*.json
 .claude/
 .jscpd-report/
 test-results/
-frontend/test-results/
 audit-reports/
 
 # Keep only example/template env files — never real values
 # *.env.example and *.env.*.example are intentionally tracked
 
 # Temporary build scripts
-frontend/android/app/new*.sh
 backend/lint_output*.txt
 scratch/
 
@@ -213,3 +200,9 @@ tech-debt-insights.md
 
 .agents/skills/
 .scratch/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

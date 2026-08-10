@@ -84,9 +84,9 @@ export async function hydrateAdMetadata(ads: HydratedAd[]): Promise<HydratedAd[]
     ads.forEach(ad => {
         const catId = extractId(ad.categoryId || ad.category); if (catId) { ad.categoryId = catId; const cat = categoryMap.get(catId); if (cat?.name) ad.categoryName = cat.name; } delete ad.category;
         const bId = extractId(ad.brandId || ad.brand); if (bId) { ad.brandId = bId; const brand = brandMap.get(bId); if (brand?.name) ad.brandName = brand.name; }
-        if (typeof ad.brand === 'object' && ad.brand !== null && !ad.brandName) { const b = ad.brand as any; if (b.name) ad.brandName = b.name; }
+        if (typeof ad.brand === 'object' && ad.brand !== null && !ad.brandName) { const b = ad.brand as { name?: string }; if (b.name) ad.brandName = b.name; }
         const mId = extractId(ad.modelId || ad.model); if (mId) { ad.modelId = mId; const model = modelMap.get(mId); if (model?.name) ad.modelName = model.name; }
-        if (typeof ad.model === 'object' && ad.model !== null && !ad.modelName) { const m = ad.model as any; if (m.name) ad.modelName = m.name; }
+        if (typeof ad.model === 'object' && ad.model !== null && !ad.modelName) { const m = ad.model as { name?: string }; if (m.name) ad.modelName = m.name; }
         const spId = extractId(ad.sparePartId || ad.sparePart); if (spId) ad.sparePart = sparePartMap.get(spId);
         if (Array.isArray(ad.sparePartIds)) ad.spareParts = ad.sparePartIds.map((id) => { const sid = extractId(id); return sid ? sparePartMap.get(sid) : null; }).filter(Boolean) as MetadataEntity[];
         if (Array.isArray(ad.serviceTypeIds)) ad.serviceTypes = ad.serviceTypeIds.map((id) => { const sid = extractId(id); return sid ? serviceTypeMap.get(sid) : null; }).filter(Boolean) as MetadataEntity[];

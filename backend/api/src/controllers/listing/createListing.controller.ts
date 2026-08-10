@@ -74,4 +74,28 @@ export const createListing = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+/**
+ * POST /api/v1/listings/upload-presign
+ */
+export const getPresignedUploadUrl = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { fileType, folder } = req.body as { fileType?: string; folder?: string };
+        if (!fileType) {
+            const { sendErrorResponse } = await import("../../utils/errorResponse");
+            return sendErrorResponse(req, res, 400, 'fileType is required for upload presign.');
+        }
+
+        const { generatePresignedUploadUrl } = await import('@esparex/core/utils/s3');
+        const user = req.user as AuthUser;
+        const uploadFolder = folder || 'listings';
+        const fileExtension = fileType.split('/')[1] || 'jpg';
+        const key = `${uploadFolder}/${user._id.toString()}/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExtension}`;
+
+        const result = await generatePresignedUploadUrl(key, fileType);
+        return sendSuccessResponse(res, result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 

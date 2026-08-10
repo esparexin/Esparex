@@ -103,7 +103,8 @@ export const adminCreateLocation = async (createBody: AdminCreateLocationBody) =
     const existing = await findDuplicateLocation(displayName, normalizedCountry, finalLevel, parentLocation?._id);
     if (existing) throw new AppError('Location already exists in this state.', 400);
     const locationId = generateLocationId();
-    const location = await createLocationRecord({ _id: locationId, name: displayName, country: normalizedCountry, coordinates: coords, level: finalLevel, parentId: parentLocation?._id || null, path: buildHierarchyPath(locationId, parentLocation as any), slug, isActive: isActive !== undefined ? isActive : true, priority: 0 });
+    const parentNode = parentLocation ? { _id: parentLocation._id, path: Array.isArray(parentLocation.path) ? parentLocation.path : undefined } : undefined;
+    const location = await createLocationRecord({ _id: locationId, name: displayName, country: normalizedCountry, coordinates: coords, level: finalLevel, parentId: parentLocation?._id || null, path: buildHierarchyPath(locationId, parentNode), slug, isActive: isActive !== undefined ? isActive : true, priority: 0 });
     await invalidateLocationStateCache();
     const [response] = await hydrateLocationResponses([location.toObject()]);
     return response;
@@ -121,7 +122,7 @@ export const adminUpdateLocation = async (id: string, updateBody: AdminUpdateLoc
     const parentIdFromBody = updateBody.parentId;
     const hasParentMutation = parentIdFromBody !== undefined;
     if (hasParentMutation) {
-        if (parentIdFromBody === undefined || parentIdFromBody === '') { location.parentId = undefined as any; }
+        if (parentIdFromBody === undefined || parentIdFromBody === '') { location.parentId = undefined; }
         else { const pid = resolveStringField(parentIdFromBody); if (!pid || !/^[a-f\d]{24}$/i.test(pid)) throw new AppError('Invalid parentId.', 400); const pe = await locationExists(pid); if (!pe) throw new AppError('Parent location not found.', 404); location.parentId = new mongoose.Types.ObjectId(pid); }
     }
     if (latitude !== undefined && longitude !== undefined) {

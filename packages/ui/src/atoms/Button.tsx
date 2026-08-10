@@ -11,8 +11,8 @@ const variants = {
   default: "bg-primary text-primary-foreground font-semibold hover:bg-primary/90",
   primary: "bg-primary text-primary-foreground font-semibold hover:bg-primary/90",
   secondary: "bg-muted text-foreground font-medium hover:bg-muted/80",
-  outline: "border border-border bg-background font-medium hover:bg-muted",
-  ghost: "hover:bg-muted font-medium",
+  outline: "border border-border bg-background text-foreground font-medium hover:bg-muted hover:text-foreground",
+  ghost: "text-foreground hover:bg-muted hover:text-foreground font-medium",
   destructive: "bg-destructive text-destructive-foreground font-semibold hover:bg-destructive/90",
   link: "text-primary font-medium underline-offset-4 hover:underline",
 };

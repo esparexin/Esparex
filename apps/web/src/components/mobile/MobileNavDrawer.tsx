@@ -59,7 +59,7 @@ export function MobileNavDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="left" inert={!isOpen ? ("" as unknown as boolean) : undefined} className="w-[82%] max-w-[300px] p-0 border-r-0 bg-card text-card-foreground shadow-2xl transform-gpu">
+      <SheetContent side="left" inert={!isOpen || undefined} className="w-[82%] max-w-[300px] p-0 border-r-0 bg-card text-card-foreground shadow-2xl transform-gpu">
         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <SheetDescription className="sr-only">Access site navigation</SheetDescription>
 

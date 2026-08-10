@@ -126,17 +126,17 @@ export const registerBusiness = async (data: BusinessPayload, userId: string) =>
     }
 
     if (business) {
-        business = await Business.findByIdAndUpdate(business._id, safePayload, { new: true });
+        business = await Business.findByIdAndUpdate(business._id, { $set: safePayload }, { new: true });
     } else {
         business = await Business.create(safePayload);
     }
 
-    await User.findByIdAndUpdate(userId, { businessId: business?._id });
+    await User.findByIdAndUpdate(userId, { $set: { businessId: business?._id } });
     return business;
 };
 
 export const getBusinessByUserId = async (userId: string) => {
-    return await Business.findOne({ userId, isDeleted: false });
+    return await Business.findOne({ userId: { $eq: userId }, isDeleted: false });
 };
 
 export const getBusinessById = async (id: string) => {
@@ -266,19 +266,22 @@ export const updateBusinessById = async (id: string, data: BusinessPayload) => {
 
 export const getBusinessListings = async (sellerId: string, listingType: string) => {
     const listings = await Ad.find({
-        sellerId,
-        listingType: listingType as ListingTypeValue,
-        status: LISTING_STATUS.LIVE,
+        sellerId: { $eq: sellerId },
+        listingType: { $eq: listingType as ListingTypeValue },
+        status: { $eq: LISTING_STATUS.LIVE },
         isDeleted: { $ne: true },
     }).sort({ createdAt: -1 }).lean();
-    return listings.map((l) => normalizeAdImagesForResponse(l as unknown as Record<string, unknown>));
+    return listings.map((l) => {
+        const rawItem: unknown = l;
+        return normalizeAdImagesForResponse(rawItem as Record<string, unknown>);
+    });
 };
 
 export const getBusinessStats = async (userId: string) => {
     const [totalServices, approvedServices, pendingServices] = await Promise.all([
-        Ad.countDocuments({ sellerId: userId, listingType: 'service' }),
-        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: LISTING_STATUS.LIVE }),
-        Ad.countDocuments({ sellerId: userId, listingType: 'service', status: LISTING_STATUS.PENDING }),
+        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' } }),
+        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' }, status: { $eq: LISTING_STATUS.LIVE } }),
+        Ad.countDocuments({ sellerId: { $eq: userId }, listingType: { $eq: 'service' }, status: { $eq: LISTING_STATUS.PENDING } }),
     ]);
     return { totalServices, approvedServices, pendingServices, views: 0 };
 };

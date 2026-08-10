@@ -38,27 +38,15 @@ import Ad from '../../models/Ad';
 import { User } from '../../models/User';
 import { adminListConversations } from '../../domains/communications/application/services/chat/ChatAdminService';
 
-const mockedConversation = Conversation as unknown as {
-  find: jest.Mock;
-  countDocuments: jest.Mock;
-};
+const mockedConversation = Conversation as any;
 
-const mockedChatMessage = ChatMessage as unknown as {
-  distinct: jest.Mock;
-};
+const mockedChatMessage = ChatMessage as any;
 
-const mockedChatReport = ChatReport as unknown as {
-  distinct: jest.Mock;
-};
+const mockedChatReport = ChatReport as any;
 
-const mockedAd = Ad as unknown as {
-  find: jest.Mock;
-  distinct: jest.Mock;
-};
+const mockedAd = Ad as any;
 
-const mockedUser = User as unknown as {
-  find: jest.Mock;
-};
+const mockedUser = User as any;
 
 function createLeanChain<T>(result: T) {
   return {

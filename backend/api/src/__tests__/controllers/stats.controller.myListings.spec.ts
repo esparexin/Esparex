@@ -1,6 +1,7 @@
 const mockGetOwnerListings = jest.fn();
 const mockSendSuccessResponse = jest.fn();
 const mockSendErrorResponse = jest.fn();
+const mockRunSweep = jest.fn().mockResolvedValue(undefined);
 const mockLogger = {
     error: jest.fn(),
     warn: jest.fn(),
@@ -10,6 +11,16 @@ const mockLogger = {
 
 jest.mock('@esparex/core/services/ad/AdAggregationService', () => ({
     getOwnerListings: mockGetOwnerListings,
+}));
+
+jest.mock('@esparex/core/services/lifecycle/ListingExpiryService', () => ({
+    ListingExpiryService: {
+        runSweep: (...args: unknown[]) => mockRunSweep(...args),
+    },
+}));
+
+jest.mock('@esparex/core/utils/statusQueryMapper', () => ({
+    getStatusMatchCriteria: jest.fn((s: string) => ({ $in: [s] })),
 }));
 
 jest.mock('../../utils/respond', () => ({
@@ -43,8 +54,8 @@ describe('stats.controller getMyListings', () => {
         const req = {
             user: { _id: 'seller-1' },
             query: { type: 'ad', status: 'live', page: '2', limit: '5' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListings(req, res);
 
@@ -79,8 +90,8 @@ describe('stats.controller getMyListings', () => {
         const req = {
             user: { _id: 'seller-9', toString: () => 'seller-9' },
             query: { type: 'ad', status: 'live' },
-        } as unknown as Request;
-        const res = {} as unknown as Response;
+        } as any;
+        const res = {} as any;
 
         await getMyListings(req, res);
 

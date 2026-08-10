@@ -57,9 +57,10 @@ export const AppButton: React.FC<AppButtonProps> = ({
       case 'secondary':
         return 'text-slate-900 dark:text-slate-100';
       case 'destructive':
+        return 'text-white';
       case 'primary':
       default:
-        return 'text-white';
+        return 'text-white dark:text-slate-950';
     }
   };
 
@@ -80,15 +81,15 @@ export const AppButton: React.FC<AppButtonProps> = ({
         ...(props.accessibilityState || {}),
       }}
       hitSlop={computedHitSlop}
-      {...(props as any)}
+      {...props}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'outline' || variant === 'ghost' ? '#0284c7' : '#fff'} />
       ) : (
         <>
-          {leftIcon && <View className="mr-2" {...({} as any)}>{leftIcon}</View>}
+          {leftIcon && <View className="mr-2">{leftIcon}</View>}
           {label ? <AppText className={textStyle}>{label}</AppText> : children}
-          {rightIcon && <View className="ml-2" {...({} as any)}>{rightIcon}</View>}
+          {rightIcon && <View className="ml-2">{rightIcon}</View>}
         </>
       )}
     </TouchableOpacity>

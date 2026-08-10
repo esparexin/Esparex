@@ -3,14 +3,14 @@ import { ITokenStorage } from '../ITokenStorage';
 import { AxiosInstance } from 'axios';
 
 describe('AuthServiceImpl', () => {
-  let mockApiClient: jest.Mocked<AxiosInstance>;
+  let mockApiClient: { post: jest.Mock };
   let mockTokenStorage: jest.Mocked<ITokenStorage>;
   let authService: AuthServiceImpl;
 
   beforeEach(() => {
     mockApiClient = {
       post: jest.fn(),
-    } as unknown as jest.Mocked<AxiosInstance>; // Cannot construct full AxiosInstance mock without casting or immense boilerplate
+    };
 
     mockTokenStorage = {
       setTokens: jest.fn(),
@@ -20,7 +20,7 @@ describe('AuthServiceImpl', () => {
       isAvailable: jest.fn(),
     };
 
-    authService = new AuthServiceImpl(mockApiClient, mockTokenStorage);
+    authService = new AuthServiceImpl(mockApiClient as any, mockTokenStorage);
   });
 
   describe('login()', () => {
@@ -35,7 +35,7 @@ describe('AuthServiceImpl', () => {
 
       const result = await authService.login({ email: 'test@example.com', password: 'password' });
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/login', { email: 'test@example.com', password: 'password' });
+      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/login', { email: 'test@example.com', password: 'password' });
       expect(mockTokenStorage.setTokens).toHaveBeenCalledWith('test-access', 'test-refresh');
       expect(result).toEqual({ userId: 'user-123' });
     });
@@ -60,7 +60,7 @@ describe('AuthServiceImpl', () => {
 
       await authService.logout();
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
+      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/logout');
       expect(mockTokenStorage.clearTokens).toHaveBeenCalled();
     });
 
@@ -69,7 +69,7 @@ describe('AuthServiceImpl', () => {
 
       await authService.logout();
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
+      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/logout');
       expect(mockTokenStorage.clearTokens).toHaveBeenCalled();
     });
   });
@@ -91,7 +91,7 @@ describe('AuthServiceImpl', () => {
       const newAccessToken = await authService.executeTokenRefresh();
 
       expect(mockTokenStorage.getTokens).toHaveBeenCalled();
-      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/refresh', {
+      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/refresh', {
         refreshToken: 'old-refresh'
       });
       expect(mockTokenStorage.setTokens).toHaveBeenCalledWith('new-access', 'new-refresh');

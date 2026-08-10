@@ -17,7 +17,7 @@ Fix causes, not symptoms. When resolving test failures, type errors, or runtime 
 Every responsibility, validation schema, or interface must have exactly one authoritative owner. Duplicate validation rules, constants, or types are forbidden. Contracts (`@esparex/contracts`) act as the absolute platform-wide SSOT for DTOs.
 
 ## 5. Mobile First
-Every feature, modal, and flow must be designed and verified to work seamlessly on mobile browsers and within mobile Capacitor wraps. Desktop layouts are secondary.
+Every feature, modal, and flow must be designed and verified to work seamlessly on mobile browsers and within the React Native mobile application. Desktop layouts are secondary.
 
 ## 6. Accessibility (WCAG AA)
 We target a minimum compliance level of WCAG AA across both `apps/web` and `apps/admin`. High contrast, clean screen reader hierarchies, and clear keyboard focus indicators must be standard.

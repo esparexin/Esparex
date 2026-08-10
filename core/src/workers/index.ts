@@ -308,18 +308,18 @@ const registerWorkerDiagnostics = (
 export const startWorkers = () => {
     logger.info('Starting background workers...');
 
-    registerWorkerDiagnostics('AdWorker', 'ad-events', adWorker as unknown as import('bullmq').Worker);
-    registerWorkerDiagnostics('NotificationDeliveryWorker', 'notification.delivery.queue', notificationDeliveryWorker as unknown as import('bullmq').Worker);
-    registerWorkerDiagnostics('NotificationMatchWorker', 'notification.match.queue', notificationMatchWorker as unknown as import('bullmq').Worker);
-    registerWorkerDiagnostics('PaymentWorker', 'payment-events', paymentWorker as unknown as import('bullmq').Worker);
-    registerWorkerDiagnostics('ImageOptimizationWorker', 'image-optimization-events', imageOptimizationWorker as unknown as import('bullmq').Worker);
+    registerWorkerDiagnostics('AdWorker', 'ad-events', adWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker);
+    registerWorkerDiagnostics('NotificationDeliveryWorker', 'notification.delivery.queue', notificationDeliveryWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker);
+    registerWorkerDiagnostics('NotificationMatchWorker', 'notification.match.queue', notificationMatchWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker);
+    registerWorkerDiagnostics('PaymentWorker', 'payment-events', paymentWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker);
+    registerWorkerDiagnostics('ImageOptimizationWorker', 'image-optimization-events', imageOptimizationWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker);
 
     const workers: Array<{ name: string; queueName: string; worker: import('bullmq').Worker }> = [
-        { name: 'AdWorker', queueName: 'ad-events', worker: adWorker as unknown as import('bullmq').Worker },
-        { name: 'NotificationDeliveryWorker', queueName: 'notification.delivery.queue', worker: notificationDeliveryWorker as unknown as import('bullmq').Worker },
-        { name: 'NotificationMatchWorker', queueName: 'notification.match.queue', worker: notificationMatchWorker as unknown as import('bullmq').Worker },
-        { name: 'PaymentWorker', queueName: 'payment-events', worker: paymentWorker as unknown as import('bullmq').Worker },
-        { name: 'ImageOptimizationWorker', queueName: 'image-optimization-events', worker: imageOptimizationWorker as unknown as import('bullmq').Worker },
+        { name: 'AdWorker', queueName: 'ad-events', worker: adWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker },
+        { name: 'NotificationDeliveryWorker', queueName: 'notification.delivery.queue', worker: notificationDeliveryWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker },
+        { name: 'NotificationMatchWorker', queueName: 'notification.match.queue', worker: notificationMatchWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker },
+        { name: 'PaymentWorker', queueName: 'payment-events', worker: paymentWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker },
+        { name: 'ImageOptimizationWorker', queueName: 'image-optimization-events', worker: imageOptimizationWorker as Partial<import('bullmq').Worker> as import('bullmq').Worker },
     ];
 
     adWorker.on('ready', () => {
@@ -341,7 +341,7 @@ export const startWorkers = () => {
         logger.info("ImageOptimizationWorker is fully running and listening to 'image-optimization-events'.");
     });
 
-    if (!shouldDisableQueueConnection && typeof (redisConnection as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on === 'function') {
+    if (!shouldDisableQueueConnection && typeof (redisConnection as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on === 'function') {
         redisConnection.on('ready', () => {
             for (const entry of workers) {
                 void (async () => {

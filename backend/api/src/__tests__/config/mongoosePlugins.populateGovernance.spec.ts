@@ -39,7 +39,7 @@ describe('Populate governance guard', () => {
             const { default: Ad } = await import('@esparex/core/models/Ad');
             const { default: SparePart } = await import('@esparex/core/models/SparePart');
             const { default: ServiceType } = await import('@esparex/core/models/ServiceType');
-            const adConnectionModels = (Ad as unknown as { db: { models: Record<string, unknown> } }).db.models;
+            const adConnectionModels = (Ad as any).db.models;
             delete adConnectionModels.SparePart;
             delete adConnectionModels.ServiceType;
 

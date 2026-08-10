@@ -15,3 +15,10 @@ declare module 'heic2any' {
   function heic2any(options: HeicConvertOptions): Promise<Blob | Blob[]>;
   export = heic2any;
 }
+
+declare global {
+  interface Window {
+    __esparex_notify?: unknown;
+    __esparex_emitPopup?: unknown;
+  }
+}

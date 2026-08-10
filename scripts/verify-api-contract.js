@@ -24,7 +24,10 @@ function resolveFirstExistingFile(candidates) {
 
 function parseArgs() {
   const scopeArg = process.argv.find((arg) => arg.startsWith("--scope="));
-  const scope = scopeArg ? scopeArg.split("=")[1] : "both";
+  let scope = scopeArg ? scopeArg.split("=")[1] : "both";
+  if (scope === "all") {
+    scope = "both";
+  }
   if (!["user", "admin", "both"].includes(scope)) {
     throw new Error(`Invalid --scope value: ${scope}`);
   }

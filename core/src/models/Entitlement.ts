@@ -1,5 +1,6 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 import type { EntitlementType, EntitlementSourceType, EntitlementStatus } from '@esparex/contracts';
+import { getUserConnection } from '../config/db';
 
 export interface IEntitlement extends Document {
     userId: mongoose.Types.ObjectId;
@@ -22,7 +23,6 @@ const EntitlementSchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
-            index: true,
         },
         type: {
             type: String,
@@ -31,7 +31,7 @@ const EntitlementSchema: Schema = new Schema(
         },
         sourceType: {
             type: String,
-            enum: ['FREE_ALLOWANCE', 'PURCHASED_PACK', 'SUBSCRIPTION_TIER', 'PROMO_CAMPAIGN', 'REFERRAL'],
+            enum: ['FREE_ALLOWANCE', 'PURCHASED_PACK', 'SPOTLIGHT_PACK', 'TOP_AD_PACK', 'SUBSCRIPTION_TIER', 'PROMO_CAMPAIGN', 'REFERRAL'],
             required: true,
         },
         sourceId: {
@@ -68,7 +68,6 @@ const EntitlementSchema: Schema = new Schema(
             enum: ['PENDING', 'ACTIVE', 'EXHAUSTED', 'EXPIRED', 'SUSPENDED', 'CANCELLED'],
             required: true,
             default: 'ACTIVE',
-            index: true,
         },
     },
     {
@@ -76,8 +75,12 @@ const EntitlementSchema: Schema = new Schema(
     }
 );
 
-// Compound Index for fast entitlement resolution
-EntitlementSchema.index({ userId: 1, status: 1, type: 1 });
-EntitlementSchema.index({ userId: 1, expiresAt: 1 });
+// Compound Indexes for fast entitlement resolution (Explicitly Named per Governance rules)
+EntitlementSchema.index({ userId: 1, status: 1, type: 1 }, { name: 'idx_entitlement_userId_status_type' });
+EntitlementSchema.index({ userId: 1, expiresAt: 1 }, { name: 'idx_entitlement_userId_expiresAt' });
 
-export default mongoose.models.Entitlement || mongoose.model<IEntitlement>('Entitlement', EntitlementSchema);
+const connection = getUserConnection();
+const Entitlement: Model<IEntitlement> = (connection.models.Entitlement as Model<IEntitlement>) ||
+    connection.model<IEntitlement>('Entitlement', EntitlementSchema);
+
+export default Entitlement;

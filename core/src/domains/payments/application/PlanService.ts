@@ -504,7 +504,8 @@ export const checkPostLimit = async (
 };
 
 // ── Typed model wrappers for controller shared files ─────────────────────────
-export const PlanModel = Plan as unknown as {
+const rawPlanModel: unknown = Plan;
+export const PlanModel = rawPlanModel as { 
     create: (payload: Record<string, unknown>) => Promise<Record<string, unknown> | Record<string, unknown>[]>;
     findByIdAndUpdate: (id: string, payload: Record<string, unknown>, options: { new: boolean }) => Promise<unknown>;
     find: (query: Record<string, unknown>) => {
@@ -515,7 +516,8 @@ export const PlanModel = Plan as unknown as {
     findOne: (query: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
 };
 
-export const UserPlanModel = UserPlan as unknown as {
+const rawUserPlanModel: unknown = UserPlan;
+export const UserPlanModel = rawUserPlanModel as { 
     find: (query: Record<string, unknown>) => {
         lean: () => Promise<Array<{ planId: unknown }>>;
     } & PromiseLike<unknown>;

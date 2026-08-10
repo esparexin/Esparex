@@ -11,10 +11,13 @@ import { clearReliabilityContext, setReliabilityContext } from '../utils/reliabi
  * Smart Alert matching has been relocated to notificationMatchWorker.ts.
  */
  
-const createNoopWorker = <T>() => ({
-    on: () => undefined,
-    close: async () => undefined,
-} as unknown as Worker<T>);
+const createNoopWorker = <T>(): Worker<T> => {
+    const dummy: unknown = {
+        on: () => undefined,
+        close: async () => undefined,
+    };
+    return dummy as Worker<T>;
+};
 
 export const adWorker = shouldDisableQueueConnection
     ? createNoopWorker()

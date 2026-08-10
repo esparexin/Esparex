@@ -393,7 +393,7 @@ Every UI-related pull request must include confirmation that:
 Every pull request merged into Esparex MUST satisfy the non-negotiable Feature Definition of Done:
 
 - [ ] **Feature Implementation**: Functional requirements fully satisfied according to SSOT contracts.
-- [ ] **Automated Testing**: Unit tests (`npm test`), integration tests, and contract compatibility checks pass with 100% green status.
+- [ ] **Automated Testing**: Unit tests (`npm test`), integration tests, contract compatibility checks, and Playwright E2E suites (`tests/plans-purchase.spec.ts`) pass with 100% green status.
 - [ ] **Type Safety & Build**: Monorepo type-check (`npm run type-check`) and production build (`npm run build`) pass cleanly with exit code `0`.
 - [ ] **Multi-Platform Verification**: Verified on Web (Desktop & Mobile viewports) and Mobile (Expo iOS & Android exports).
 - [ ] **Accessibility Audit**: WCAG 2.2 AA compliant, visible focus rings, keyboard navigable, screen reader compatible (`accessibilityRole`/`accessibilityLabel`).
@@ -402,6 +402,7 @@ Every pull request merged into Esparex MUST satisfy the non-negotiable Feature D
 - [ ] **Zero Suppression Policy**: 0 `no-color-literals` and 0 `no-inline-styles` suppressions added.
 - [ ] **Contract Stability**: No breaking changes to public contracts in `@esparex/contracts` unless approved by ADR.
 - [ ] **Feature Flags & Telemetry**: Feature flags documented/retired and telemetry events wired for new user flows.
+- [ ] **Release Gate 16 (Operational Resilience & Disaster Recovery)**: Verified backend timeout recovery, MongoDB reconnect resilience, payment queue idempotency, and clean fallback error handling.
 - [ ] **Release Notes & EA Ledger**: `engineering-action-register.md` updated and `release-notes.md` updated for user-facing changes.
 
 ---
@@ -854,4 +855,42 @@ No pull request containing platform capabilities or integrations may be merged u
 - [ ] **iOS Native Verified:** Verified native iOS device/simulator behavior with native permission handling.
 - [ ] **Android Native Verified:** Verified native Android device/emulator behavior with native back button and permission handling.
 - [ ] **Parity Verification:** Business logic, validation rules, and API DTO contracts are 100% identical across all 5 platforms.
+
+---
+
+## 4. Mongoose Dual-Connection Model Binding Governance Rule (Mandatory)
+
+Every Mongoose schema & model defined inside `core/src/models/` MUST be bound via Esparex's multi-tenant connection helpers (`getUserConnection()` or `getAdminConnection()`). 
+
+Direct exports using default `mongoose.model()` are strictly forbidden:
+
+```ts
+// ❌ PROHIBITED: Bypasses connection pool and queries disconnected default Mongoose instance
+export default mongoose.models.Entitlement || mongoose.model<IEntitlement>('Entitlement', EntitlementSchema);
+
+// ✅ MANDATORY: Binds model to tenant user connection pool
+const connection = getUserConnection();
+const Entitlement: Model<IEntitlement> = (connection.models.Entitlement as Model<IEntitlement>) ||
+    connection.model<IEntitlement>('Entitlement', EntitlementSchema);
+export default Entitlement;
+```
+
+---
+
+## 5. Payment Gateway & Checkout Governance Rule (Mandatory)
+
+1. **Strict Mock Payment Gating**: Silent auto-fulfillment of mock orders (`order_mock_*`) is strictly prohibited unless `MOCK_PAYMENTS=true` (backend) and `NEXT_PUBLIC_MOCK_PAYMENTS=true` (frontend) are explicitly configured in `.env`.
+2. **No Silent Error Swallowing**: Controller catch blocks MUST extract human-readable error descriptions from third-party SDK error objects (e.g. Razorpay SDK exceptions) and surface diagnostic details when `NODE_ENV === 'development'`.
+3. **Key Resolution Precedence**: `.env` variables (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) MUST take strict priority over seed values stored in database `SystemConfig`.
+4. **Client Signature Verification Obligation**: All client-side checkout hooks (`usePlanCheckout.ts`) MUST submit third-party gateway response signatures (`razorpay_payment_id`, `razorpay_order_id`, `razorpay_signature`) to `POST /api/v1/payments/verify` immediately upon checkout completion to guarantee atomic transaction state transitions (`INITIATED` -> `SUCCESS`) regardless of webhook latency or local dev environments.
+
+---
+
+## 6. Documentation Hygiene & Anti-Sprawl Governance Rule (Mandatory)
+
+1. **5 Master SSOT Pillars Only**: All architecture standards, API contracts, domain logic rules, and action registers MUST be maintained exclusively within the 5 Authoritative SSOT Pillars (`AGENTS.md`, `PLATFORM_ARCHITECTURE.md`, `REPOSITORY-GOVERNANCE.md`, `engineering-action-register.md`, `packages/ui/GOVERNANCE.md`).
+2. **Strict Ban on Ad-hoc Documentation Files**: Creating ad-hoc, temporary, volume-based, or timestamped `.md` files in feature sub-folders, `audit-reports/`, or `docs/reports/` is strictly forbidden.
+3. **Continuous Documentation Auditing**: Periodic repository hygiene audits must remove unreferenced, zombie, orphan, or duplicate markdown files after confirming zero code dependencies.
+
+
 

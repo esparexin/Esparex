@@ -8,7 +8,7 @@ export class MongoAdminBoundaryRepositoryAdapter implements AdminBoundaryReposit
     }
 
     public countBoundaries(query: Record<string, unknown>): Query<number, IAdminBoundary> {
-        return AdminBoundary.countDocuments(query) as unknown as Query<number, IAdminBoundary>;
+        return AdminBoundary.countDocuments(query) as Query<number, IAdminBoundary>;
     }
 
     public async upsertBoundary(

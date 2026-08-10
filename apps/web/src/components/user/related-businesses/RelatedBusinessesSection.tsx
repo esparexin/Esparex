@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useRef } from "react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ChevronLeft, ChevronRight, MapPin, RefreshCcw, Wrench } from "@/icons/IconRegistry";
 
 import { getBusinesses, type Business } from "@/lib/api/user/businesses";
 import type { UserPage } from "@/lib/routeUtils";
-import { ROUTES } from "@/lib/logic/routes";
 import {
   DEFAULT_IMAGE_PLACEHOLDER,
   toSafeImageSrc,
@@ -25,7 +25,7 @@ import { SafeImage } from "@/components/ui/SafeImage";
 
 interface RelatedBusinessesSectionProps {
   context: RelatedBusinessesDiscoveryContext;
-  navigateTo: (
+  navigateTo?: (
     page: UserPage,
     adId?: string | number,
     category?: string,
@@ -72,7 +72,7 @@ const formatDistance = (distanceKm?: number) => {
 
 export function RelatedBusinessesSection({
   context,
-  navigateTo,
+  navigateTo: _navigateTo,
 }: RelatedBusinessesSectionProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
   const normalizedContext = useMemo(
@@ -109,73 +109,63 @@ export function RelatedBusinessesSection({
     const activeServicesCount = business.activeServicesCount || 0;
     const locationLabel = resolveListingLocationLabel(business.location, "full") || "Nearby";
     const imageSrc = toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER);
+    const businessIdentifier = (business.slug || business.id || "").toString().trim();
+    const businessHref = businessIdentifier ? `/business/${encodeURIComponent(businessIdentifier)}` : "/account/business";
 
     return (
-      <Card
-        key={business.id}
-        className="w-72 flex-shrink-0 border border-slate-200/70 shadow-2xs rounded-2xl bg-white p-3 space-y-2.5"
-      >
-        <div className="flex items-start gap-3">
-          <div className="relative size-14 shrink-0 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
-            <SafeImage
-              src={imageSrc}
-              alt={business.name}
-              fill
-              unoptimized
-              className="object-cover"
-              sizes="56px"
-            />
+      <Link key={business.id} href={businessHref} className="block shrink-0 group">
+        <Card className="w-56 md:w-60 shrink-0 border border-border shadow-2xs rounded-xl bg-card p-2.5 md:p-3 space-y-2 group-hover:border-primary/40 transition-colors">
+          <div className="flex items-start gap-2.5">
+            <div className="relative size-11 md:size-12 shrink-0 rounded-lg overflow-hidden bg-muted/50 border border-border">
+              <SafeImage
+                src={imageSrc}
+                alt={business.name}
+                fill
+                unoptimized
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                sizes="48px"
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                <h3 className="line-clamp-1 text-xs font-bold text-foreground group-hover:text-primary transition-colors flex-1">
+                  {business.name}
+                </h3>
+                {business.status === "live" && (
+                  <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-2xs font-semibold border-none">
+                    Verified
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-1 text-tiny text-muted-foreground mt-0.5">
+                <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/70" />
+                <span className="truncate">{locationLabel}</span>
+                {distanceLabel ? <span className="shrink-0">· {distanceLabel}</span> : null}
+              </div>
+            </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1">
-              <h3 className="line-clamp-1 text-xs font-bold text-slate-900 flex-1">
-                {business.name}
-              </h3>
-              {business.status === "live" && (
-                <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-2xs font-semibold border-none">
-                  Verified
+          <div className="flex items-center justify-between gap-2 pt-0.5">
+            <div className="flex flex-wrap gap-1">
+              {matchingServicesCount > 0 ? (
+                <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-2xs font-medium text-blue-700 border-none">
+                  {matchingServicesCount} matching
                 </Badge>
-              )}
+              ) : activeServicesCount > 0 ? (
+                <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-2xs font-medium text-slate-600 border-none">
+                  {activeServicesCount} live
+                </Badge>
+              ) : null}
             </div>
-            <div className="flex items-center gap-1 text-tiny text-slate-500 mt-0.5">
-              <MapPin className="h-3 w-3 shrink-0 text-slate-400" />
-              <span className="truncate">{locationLabel}</span>
-              {distanceLabel ? <span className="shrink-0">· {distanceLabel}</span> : null}
-            </div>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between gap-2 pt-0.5">
-          <div className="flex flex-wrap gap-1">
-            {matchingServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-2xs font-medium text-blue-700 border-none">
-                {matchingServicesCount} matching
-              </Badge>
-            ) : activeServicesCount > 0 ? (
-              <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-2xs font-medium text-slate-600 border-none">
-                {activeServicesCount} live
-              </Badge>
-            ) : null}
-            {typeof business.trustScore === "number" ? (
-              <Badge variant="secondary" className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-2xs font-medium text-emerald-700 border-none">
-                Trust {business.trustScore}
-              </Badge>
-            ) : null}
+            <span className="inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-semibold text-2xs shrink-0 transition-colors">
+              <Wrench className="mr-1 h-3 w-3" />
+              View
+            </span>
           </div>
-
-          <Button
-            size="sm"
-            className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-none shrink-0"
-            onClick={() => {
-              navigateTo(ROUTES.PUBLIC_PROFILE, undefined, undefined, business.slug || business.id);
-            }}
-          >
-            <Wrench className="mr-1.5 h-3 w-3" />
-            View
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      </Link>
     );
   };
 

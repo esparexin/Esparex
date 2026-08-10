@@ -27,7 +27,7 @@ export const Container: React.FC<ContainerProps> = ({
   return (
     <View 
       className={`${maxWidthClass} ${paddingClass} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       {children}
     </View>

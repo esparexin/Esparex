@@ -49,19 +49,21 @@ function normalizePath(filePath) {
 }
 
 // Create a lookup map for the baseline
-// Key: filePath + ruleId
+// Key: filePath + ruleId + line (per-occurrence granularity)
+// This prevents a baselined file+rule pair from masking NEW violations
+// of the same rule added on different lines in the same file.
 const baselineMap = new Set();
 baseline.forEach(file => {
     const relPath = normalizePath(file.filePath);
     file.messages.forEach(msg => {
-        baselineMap.add(`${relPath}:${msg.ruleId}`);
+        baselineMap.add(`${relPath}:${msg.ruleId}:${msg.line}`);
     });
 });
 
 ciResults.forEach(file => {
     const relPath = normalizePath(file.filePath);
     file.messages.forEach(msg => {
-        const key = `${relPath}:${msg.ruleId}`;
+        const key = `${relPath}:${msg.ruleId}:${msg.line}`;
         
         const isCritical = CRITICAL_RULES.includes(msg.ruleId);
         const isNew = !baselineMap.has(key);

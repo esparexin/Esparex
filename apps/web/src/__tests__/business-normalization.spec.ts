@@ -32,7 +32,7 @@ describe("normalizeBusiness", () => {
             isVerified: false,
             verified: false,
             createdAt: new Date().toISOString(),
-        } as unknown as Parameters<typeof normalizeBusiness>[0]);
+        } as Parameters<typeof normalizeBusiness>[0]);
 
         expect(business).not.toBeNull();
         expect(business?.sellerId).toBe("507f1f77bcf86cd799439012");
@@ -49,7 +49,7 @@ describe("normalizeBusiness", () => {
     });
 
     it("does not hydrate legacy owner or phone aliases into canonical fields", () => {
-        const business = normalizeBusiness({
+        const rawLegacyBusiness: Record<string, unknown> = {
             id: "507f1f77bcf86cd799439011",
             userId: "507f1f77bcf86cd799439012",
             ownerId: "507f1f77bcf86cd799439013",
@@ -63,7 +63,8 @@ describe("normalizeBusiness", () => {
             trustScore: 50,
             isVerified: false,
             createdAt: new Date().toISOString(),
-        } as unknown as Parameters<typeof normalizeBusiness>[0]);
+        };
+        const business = normalizeBusiness(rawLegacyBusiness);
 
         expect(business).not.toBeNull();
         expect(business?.sellerId).toBe("");

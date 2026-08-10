@@ -71,7 +71,7 @@ const makeReq = (overrides: Partial<{
     headers: {},
     ip: '127.0.0.1',
     ...overrides,
-} as unknown as Request);
+} as any);
 
 const makeRes = (): Response => {
     const res = {} as Response;

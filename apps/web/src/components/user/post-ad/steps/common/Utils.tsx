@@ -22,8 +22,8 @@ export function useStepFieldError(stepNumber: number) {
 
         const meta = getNestedFieldMeta(errors, path);
         if (typeof meta === "string") return meta;
-        if (meta && typeof meta === "object" && "message" in meta && typeof (meta as any).message === "string") {
-            return (meta as any).message;
+        if (meta && typeof meta === "object" && "message" in meta && typeof (meta as { message?: string }).message === "string") {
+            return (meta as { message: string }).message;
         }
         return getFirstFormErrorMessage(meta);
     }, [hasAttemptedStepValidation, hasAttemptedSubmit, touchedFields, errors]);

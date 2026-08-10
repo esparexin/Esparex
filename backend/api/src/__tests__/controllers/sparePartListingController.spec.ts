@@ -29,11 +29,11 @@ describe("getListings.controller spare-part discovery", () => {
                 limit: "20",
                 listingType: "spare_part"
             },
-        } as unknown as Request;
+        } as any;
 
         const res = {
             json: jest.fn(),
-        } as unknown as Response;
+        } as any;
 
         const next = jest.fn();
 

@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import logger, { logBusiness } from "../utils/logger";
 import { Transaction } from "../models/Transaction";
 import { processSuccessfulPayment, recoverPendingPayment } from "../domains/payments/application/PaymentProcessingService";
@@ -8,7 +9,8 @@ import { processSuccessfulPayment, recoverPendingPayment } from "../domains/paym
  * 2. Recovers INITIATED transactions older than 10 minutes in case the webhook was missed.
  */
 export async function reconcilePayments(): Promise<void> {
-    logger.info("Starting Payment Reconciliation");
+    const reconciliationRunId = crypto.randomUUID();
+    logger.info("Starting Payment Reconciliation", { reconciliationRunId });
 
     const unappliedTransactions = await Transaction.find({
         status: "SUCCESS",
@@ -25,11 +27,13 @@ export async function reconcilePayments(): Promise<void> {
 
             logBusiness("payment_verified", {
                 phase: "reconcile_success_status",
+                reconciliationRunId,
                 transactionId: tx._id.toString(),
                 result: result.result
             });
         } catch (error) {
             logger.error("Failed to reconcile successful unapplied transaction", {
+                reconciliationRunId,
                 transactionId: tx._id.toString(),
                 error: error instanceof Error ? error.message : String(error)
             });
@@ -48,12 +52,14 @@ export async function reconcilePayments(): Promise<void> {
             const result = await recoverPendingPayment(tx);
             logBusiness("payment_verified", {
                 phase: "recovery_pending_status",
+                reconciliationRunId,
                 transactionId: tx._id.toString(),
                 result: result.result,
                 reason: result.reason
             });
         } catch (error) {
             logger.error("Failed to recover pending transaction", {
+                reconciliationRunId,
                 transactionId: tx._id.toString(),
                 gatewayOrderId: tx.gatewayOrderId,
                 error: error instanceof Error ? error.message : String(error)
@@ -62,6 +68,7 @@ export async function reconcilePayments(): Promise<void> {
     }
 
     logger.info("Payment Reconciliation completed", {
+        reconciliationRunId,
         unappliedTransactions: unappliedTransactions.length,
         staleInitiatedTransactions: staleInitiatedTransactions.length
     });

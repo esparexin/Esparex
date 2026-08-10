@@ -18,7 +18,6 @@ export const KeyboardScreen: React.FC<KeyboardScreenProps> = ({
       className="flex-1"
       behavior={behavior} 
       keyboardVerticalOffset={keyboardVerticalOffset}
-      {...({} as any)}
     >
       <ScrollScreen {...props}>
         {children}

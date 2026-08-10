@@ -68,9 +68,10 @@ export function ListingDetailSidebar({
         businessProfileSurface: "business-card",
         visitorChatSurface: "sticky-mobile-inline-desktop",
     } as const;
+    const isActiveSpotlight = Boolean(ad.isSpotlight);
 
     return (
-        <div className="space-y-3 md:space-y-4 p-4 md:p-0">
+        <div className="space-y-4">
             <AdTitlePriceCard
                 ad={ad}
                 categoryLabel={categoryLabel}
@@ -96,11 +97,12 @@ export function ListingDetailSidebar({
                 />
             ) : null}
 
-            <AdSafetyTips />
+            {!isOwner && <AdSafetyTips adId={ad.id} />}
 
             {isOwner && (
                 <AdOwnerActions
                     isSold={adStatus.isSold}
+                    isSpotlight={isActiveSpotlight}
                     isChatLocked={adStatus.isChatLocked}
                     status={ad.status}
                     onEdit={onEdit}

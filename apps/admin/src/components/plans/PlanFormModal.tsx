@@ -7,7 +7,6 @@ import { X, CreditCard, Zap, BellRing, Package, AlertCircle } from "@esparex/ui"
 import { createPlan, updatePlan } from "@/lib/api/plans";
 import { AdminApiError } from "@/lib/api/adminClient";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
-import { API_KEY_STATUS } from "@esparex/contracts";
 import { Plan } from "@esparex/contracts";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 
@@ -234,7 +233,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
         const errorKeys = Object.keys(fieldErrors) as (keyof PlanFormValues)[];
         if (errorKeys.length > 0) {
             const firstField = errorKeys[0];
-            setFocus(firstField as any);
+            if (firstField) setFocus(firstField);
         }
     };
 

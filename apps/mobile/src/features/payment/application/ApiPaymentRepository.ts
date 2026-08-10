@@ -1,5 +1,5 @@
 import RazorpayCheckout from 'react-native-razorpay';
-import { Plan } from '@esparex/contracts';
+import { Plan, PlansWalletV1DTO } from '@esparex/contracts';
 import { apiClient } from '../../../infrastructure/api/apiClient';
 import { PaymentOrder } from '../domain/PaymentOrder';
 import { WalletSummary } from '../domain/WalletSummary';
@@ -18,8 +18,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
   async createPaymentOrder(planId: string): Promise<PaymentOrder> {
     const payload = CreatePaymentOrderMapper.toPayload(planId);
     const response = await apiClient.post<{ data: PaymentOrder }>('/v1/payments/orders', payload);
-    const resData = response.data;
-    return resData?.data || (resData as unknown as PaymentOrder);
+    return response.data.data;
   }
 
   async verifyPayment(input: VerifyPaymentInput): Promise<void> {
@@ -30,7 +29,8 @@ export class ApiPaymentRepository implements IPaymentRepository {
         razorpay_signature: input.razorpaySignature,
       });
     } catch (error: any) {
-      // If server operates in webhook-only mode (404 for verify endpoint), don't fail client
+      // 🛡️ Webhook-Only Fallback: If backend verify endpoint returns 404 (e.g. server running in webhook-only mode),
+      // client payment is confirmed asynchronously via gateway webhook to prevent blocking native UI checkout.
       if (error?.response?.status === 404) {
         return;
       }
@@ -77,15 +77,11 @@ export class ApiPaymentRepository implements IPaymentRepository {
 
   async getWalletSummary(): Promise<WalletSummary> {
     const response = await apiClient.get<{ data: WalletSummary }>('/v1/payments/credits/wallet');
-    const resData = response.data;
-    return (
-      resData?.data ||
-      (resData as unknown as WalletSummary) || {
-        adCredits: 0,
-        spotlightCredits: 0,
-        smartAlertSlots: 0,
-      }
-    );
+    return response.data?.data ?? {
+      adCredits: 0,
+      spotlightCredits: 0,
+      smartAlertSlots: 0,
+    };
   }
 
   async getTransactionHistory(): Promise<PaymentTransaction[]> {
@@ -94,4 +90,17 @@ export class ApiPaymentRepository implements IPaymentRepository {
     if (Array.isArray(resData)) return resData;
     return resData?.data || [];
   }
+
+  async getPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
+    try {
+      const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/v1/payments/account/plans-wallet');
+      if (res.data?.data) {
+        return res.data.data;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
 }
+

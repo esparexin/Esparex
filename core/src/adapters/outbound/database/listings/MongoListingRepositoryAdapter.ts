@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { type ClientSession } from 'mongoose';
 import AdModel from '../../../../models/Ad';
 import { LISTING_STATUS, LISTING_TYPE, SERVICE_STATUS, INVENTORY_STATUS } from '@esparex/contracts';
 
@@ -229,7 +229,7 @@ function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
 }
 
 async function resolveMongoQuery<T>(q: unknown): Promise<T> {
-    let curr = q as any;
+    let curr: any = q;
     if (curr && typeof curr.select === 'function') curr = curr.select();
     if (curr && typeof curr.lean === 'function') curr = curr.lean();
     if (curr && typeof curr.exec === 'function') curr = await curr.exec();
@@ -306,7 +306,7 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
         }
         if (skip !== undefined) q = q.skip(skip);
         if (limit !== undefined) q = q.limit(limit);
-        if (filter.session) q = q.session(filter.session as any);
+        if (filter.session) q = q.session(filter.session as ClientSession);
 
         const docs = await q.lean<DbListing[]>();
         return (docs || []).map(toDomain);
@@ -325,10 +325,10 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
     }
 
     async findWithLimit(filter: ListingFilter, sort?: Record<string, 1 | -1>, limit?: number, skip?: number): Promise<readonly Listing[]> {
-        const q = AdModel.find(buildMongoFilter(filter)).select(PUBLIC_LISTING_PROJECTION);
-        if (sort && typeof (q as any)?.sort === 'function') (q as any).sort(sort);
-        if (skip !== undefined && typeof (q as any)?.skip === 'function') (q as any).skip(skip);
-        if (limit !== undefined && typeof (q as any)?.limit === 'function') (q as any).limit(limit);
+        let q = AdModel.find(buildMongoFilter(filter)).select(PUBLIC_LISTING_PROJECTION);
+        if (sort) q = q.sort(sort);
+        if (skip !== undefined) q = q.skip(skip);
+        if (limit !== undefined) q = q.limit(limit);
         const rawDocs = await resolveMongoQuery<DbListing[]>(q);
         const docs = Array.isArray(rawDocs) ? rawDocs : [];
         return docs.map(toDomain);
@@ -340,14 +340,15 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
     }
 
     async insert(listing: ListingUpdate, session?: unknown): Promise<Listing> {
-        const docs = await AdModel.create([listing as Record<string, unknown>], { session: session as any });
-        return toDomain(docs[0] as unknown as DbListing);
+        const docs = await AdModel.create([listing as Record<string, unknown>], { session: session as ClientSession });
+        const rawDoc: unknown = docs[0];
+        return toDomain(rawDoc as DbListing);
     }
 
     async updateOne(id: string, update: ListingUpdate, session?: unknown): Promise<Listing | null> {
         const safeId = typeof id === 'string' && mongoose.Types.ObjectId.isValid(id) ? new mongoose.Types.ObjectId(id) : String(id);
         const updateDoc = Object.keys(update).some(k => k.startsWith('$')) ? update : { $set: update };
-        const query = AdModel.findByIdAndUpdate(safeId, updateDoc, { new: true, runValidators: true, session: session as any });
+        const query = AdModel.findByIdAndUpdate(safeId, updateDoc, { new: true, runValidators: true, session: session as ClientSession });
         const doc = await resolveMongoQuery<DbListing | null>(query);
         return doc ? toDomain(doc) : null;
     }
@@ -355,10 +356,11 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
     async updateOneByFilter(filter: ListingFilter, update: ListingUpdate, session?: unknown): Promise<Listing | null> {
         const updateDoc = Object.keys(update).some(k => k.startsWith('$')) ? update : { $set: update };
         const filterDoc = buildMongoFilter(filter);
+        const targetId = (filterDoc._id as { $in?: unknown[] } | undefined)?.$in?.[0] ?? filterDoc._id;
         const query = AdModel.findOneAndUpdate(
-            filterDoc._id ? { ...filterDoc, _id: (filterDoc._id as any).$in?.[0] ?? filterDoc._id } : filterDoc,
+            filterDoc._id ? { ...filterDoc, _id: targetId } : filterDoc,
             updateDoc,
-            { new: true, runValidators: true, session: session as any }
+            { new: true, runValidators: true, session: session as ClientSession }
         );
         const doc = await resolveMongoQuery<DbListing | null>(query);
         return doc ? toDomain(doc) : null;
@@ -369,16 +371,17 @@ export class MongoListingRepositoryAdapter implements ListingRepositoryPort {
         const filterDoc = buildMongoFilter(filter);
         if (typeof AdModel.updateMany === 'function') {
             const result = await resolveMongoQuery<{ modifiedCount?: number } | null>(
-                AdModel.updateMany(filterDoc, updateDoc).session(session as any)
+                AdModel.updateMany(filterDoc, updateDoc).session(session as ClientSession)
             );
             return result?.modifiedCount ?? 0;
         }
         if (typeof AdModel.findOneAndUpdate === 'function') {
+            const targetId = (filterDoc._id as { $in?: unknown[] } | undefined)?.$in?.[0] ?? filterDoc._id;
             await resolveMongoQuery(
                 AdModel.findOneAndUpdate(
-                    filterDoc._id ? { ...filterDoc, _id: (filterDoc._id as any).$in?.[0] ?? filterDoc._id } : filterDoc,
+                    filterDoc._id ? { ...filterDoc, _id: targetId } : filterDoc,
                     updateDoc,
-                    { runValidators: true, session: session as any }
+                    { runValidators: true, session: session as ClientSession }
                 )
             );
             return 1;

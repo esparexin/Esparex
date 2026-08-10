@@ -215,6 +215,21 @@ const BADGE_BASE =
 /* Promotion badge (image overlay — top-left)                                 */
 /* -------------------------------------------------------------------------- */
 
+export function isSpotlightAd(ad: AdCardData): boolean {
+  const r = toAdRecord(ad);
+  const status = typeof r.status === "string" ? r.status.toLowerCase() : "";
+  if (status && status !== "live" && status !== "active") {
+    return false;
+  }
+  const exp = r.spotlightExpiresAt ? new Date(String(r.spotlightExpiresAt)).getTime() : 0;
+  return Boolean(
+    ad.isSpotlight || r.isSpotlight || r.spotlight ||
+    r.planType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT' || r.promotionType === 'SPOTLIGHT_CAT' ||
+    (exp > 0 && exp > Date.now())
+  );
+}
+
+
 export function getPlanBadge(
   ad: AdCardData,
   className?: string
@@ -226,13 +241,10 @@ export function getPlanBadge(
 
   const merged = cn(BADGE_BASE, className);
 
-  if (ad.isSpotlight) {
+  if (isSpotlightAd(ad)) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-amber-500 to-orange-500 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-sm border border-amber-300/40", merged)}
         aria-label="Spotlight listing"
       >
         <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
@@ -241,13 +253,11 @@ export function getPlanBadge(
     );
   }
 
+
   if (isFeatured) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-purple-600 to-indigo-600 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-purple-600 to-indigo-600 text-white", merged)}
         aria-label="Featured listing"
       >
         <Crown className="h-2.5 w-2.5" aria-hidden="true" />
@@ -259,10 +269,7 @@ export function getPlanBadge(
   if (isPremium) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-amber-400 to-yellow-600 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-amber-400 to-yellow-600 text-white", merged)}
         aria-label="Premium listing"
       >
         <Star className="h-2.5 w-2.5" aria-hidden="true" />
@@ -274,10 +281,7 @@ export function getPlanBadge(
   if (isBoosted) {
     return (
       <Badge
-        className={cn(
-          "bg-gradient-to-r from-sky-600 to-blue-700 text-white",
-          merged
-        )}
+        className={cn("bg-gradient-to-r from-sky-600 to-blue-700 text-white", merged)}
         aria-label="Boosted listing"
       >
         <Zap className="h-2.5 w-2.5" aria-hidden="true" />

@@ -76,7 +76,7 @@ export async function syncPriorityScore(
             $or: [{ endDate: { $gte: now } }, { endDate: null }],
         })
             .populate('planId')
-            .lean() as unknown as UserPlanWithPlanId[];
+            .lean() as UserPlanWithPlanId[];
 
         const planDocs = activePlans
             .map((up) => up.planId)

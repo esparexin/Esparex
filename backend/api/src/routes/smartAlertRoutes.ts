@@ -19,7 +19,7 @@ router.post(
     '/',
     protect,
     mutationLimiter,
-    validateRequest(SmartAlertCreateSchema as unknown as ZodTypeAny),
+    validateRequest(SmartAlertCreateSchema as ZodTypeAny),
     smartAlertController.createSmartAlert
 );
 
@@ -31,7 +31,7 @@ router.post(
     '/saved-searches',
     protect,
     mutationLimiter,
-    validateRequest(SavedSearchCreateSchema as unknown as ZodTypeAny),
+    validateRequest(SavedSearchCreateSchema as ZodTypeAny),
     smartAlertController.createSavedSearchEntry
 );
 
@@ -50,7 +50,7 @@ router.patch(
     protect,
     mutationLimiter,
     validateObjectId,
-    validateRequest(SmartAlertUpdateSchema as unknown as ZodTypeAny),
+    validateRequest(SmartAlertUpdateSchema as ZodTypeAny),
     smartAlertController.updateSmartAlert
 );
 
@@ -62,7 +62,7 @@ router.put(
     protect,
     mutationLimiter,
     validateObjectId,
-    validateRequest(SmartAlertUpdateSchema as unknown as ZodTypeAny),
+    validateRequest(SmartAlertUpdateSchema as ZodTypeAny),
     smartAlertController.updateSmartAlert
 );
 

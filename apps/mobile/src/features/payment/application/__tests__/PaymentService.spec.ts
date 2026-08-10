@@ -13,6 +13,7 @@ describe('PaymentService', () => {
       openNativeCheckout: jest.fn(),
       getWalletSummary: jest.fn(),
       getTransactionHistory: jest.fn(),
+      getPlansWalletDashboard: jest.fn(),
     };
     service = new PaymentService(mockRepository);
   });
@@ -69,7 +70,7 @@ describe('PaymentService', () => {
     expect(checkout).toEqual({
       razorpay_payment_id: 'zero_cost_ord_free',
       razorpay_order_id: 'ord_free',
-      razorpay_signature: 'auto_verified',
+      razorpay_signature: '',
     });
   });
 });

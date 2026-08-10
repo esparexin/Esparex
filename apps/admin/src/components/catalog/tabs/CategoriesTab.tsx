@@ -116,13 +116,15 @@ export default function CategoriesTab() {
                     const payload: Record<string, unknown> = { ...data };
                     delete payload._editingSlug;
                     delete payload._editingId;
-                    return handleCreate(payload as unknown as Parameters<typeof handleCreate>[0]);
+                    const rawPayload: unknown = payload;
+                    return handleCreate(rawPayload as Parameters<typeof handleCreate>[0]);
                 }}
                 handleUpdate={(id, data) => {
                     const payload: Record<string, unknown> = { ...data };
                     delete payload._editingSlug;
                     delete payload._editingId;
-                    return handleUpdate(id, payload as unknown as Parameters<typeof handleUpdate>[1]);
+                    const rawPayload: unknown = payload;
+                    return handleUpdate(id, rawPayload as Parameters<typeof handleUpdate>[1]);
                 }}
                 defaultFormData={{
                     name: "",

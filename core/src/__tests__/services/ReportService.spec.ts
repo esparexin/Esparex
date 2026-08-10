@@ -69,18 +69,14 @@ describe("ReportService", () => {
 
     describe("findReportForUpdate", () => {
         it("returns null when report not found", async () => {
-            const mockReport = mockReportRaw as unknown as {
-                findById: jest.Mock;
-            };
+            const mockReport = mockReportRaw as any;
             mockReport.findById.mockResolvedValue(null);
             const result = await findReportForUpdate("nonexistent_id");
             expect(result).toBeNull();
         });
 
         it("returns the report document when found", async () => {
-            const mockReport = mockReportRaw as unknown as {
-                findById: jest.Mock;
-            };
+            const mockReport = mockReportRaw as any;
             const fakeReport = { _id: "r1", status: "open" };
             mockReport.findById.mockResolvedValue(fakeReport);
             const result = await findReportForUpdate("r1");
@@ -117,9 +113,7 @@ describe("ReportService", () => {
 
     describe("countActiveReports", () => {
         it("delegates to Report.countDocuments with the correct active statuses", async () => {
-            const mockReport = mockReportRaw as unknown as {
-                countDocuments: jest.Mock;
-            };
+            const mockReport = mockReportRaw as any;
             mockReport.countDocuments.mockResolvedValue(3);
             const adId = new mongoose.Types.ObjectId();
             const count = await countActiveReports("ad", adId);

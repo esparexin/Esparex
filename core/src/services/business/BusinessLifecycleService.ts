@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import Business from '../../models/Business';
 import User from '../../models/User';
-import { mutateStatus } from '../lifecycle/StatusMutationService';
-import { BUSINESS_STATUS } from '@esparex/contracts';
+import Ad from '../../models/Ad';
+import { mutateStatus, mutateStatuses } from '../lifecycle/StatusMutationService';
+import { BUSINESS_STATUS, LIFECYCLE_STATUS } from '@esparex/contracts';
 import { ACTOR_TYPE, type ActorTypeValue } from '@esparex/contracts';
 
 
@@ -69,7 +70,8 @@ export const withdrawBusiness = async (userId: string) => {
     const business = await Business.findOne({ userId, status: BUSINESS_STATUS.PENDING });
     if (!business) return null;
 
-    await (business as unknown as { softDelete(): Promise<void> }).softDelete();
+    const rawBusiness: unknown = business;
+    await (rawBusiness as { softDelete(): Promise<void> }).softDelete();
 
     await User.findByIdAndUpdate(userId, {
         $unset: { businessId: 1 }
@@ -82,7 +84,8 @@ export const softDeleteBusiness = async (id: string) => {
     const business = await Business.findById(id);
     if (!business) return null;
 
-    await (business as unknown as { softDelete(): Promise<void> }).softDelete();
+    const rawBusiness: unknown = business;
+    await (rawBusiness as { softDelete(): Promise<void> }).softDelete();
 
     await User.findByIdAndUpdate(business.userId, {
         $unset: { businessId: 1 },
@@ -96,13 +99,30 @@ export const deactivateBusiness = async (userId: string) => {
     const business = await Business.findOne({ userId, status: BUSINESS_STATUS.LIVE });
     if (!business) return null;
 
-    return await mutateStatus({
+    const result = await mutateStatus({
         domain: 'business',
         entityId: business._id.toString(),
         toStatus: BUSINESS_STATUS.DEACTIVATED,
         actor: { type: ACTOR_TYPE.USER, id: userId },
         reason: 'User-initiated business deactivation'
     });
+
+    // Cascade status deactivation to listings owned by this business (SSOT: F09)
+    const userAds = await Ad.find({
+        sellerId: new mongoose.Types.ObjectId(userId),
+        status: { $ne: LIFECYCLE_STATUS.DEACTIVATED }
+    }).select('_id');
+    if (userAds.length > 0) {
+        await mutateStatuses(userAds.map(ad => ({
+            domain: 'ad',
+            entityId: ad._id.toString(),
+            toStatus: LIFECYCLE_STATUS.DEACTIVATED,
+            actor: { type: ACTOR_TYPE.USER, id: userId },
+            reason: 'Cascaded business deactivation'
+        })));
+    }
+
+    return result;
 };
 
 export const reactivateBusiness = async (userId: string) => {

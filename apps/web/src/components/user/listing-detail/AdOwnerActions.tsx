@@ -1,27 +1,28 @@
 import { Button } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp } from "@/icons/IconRegistry";
+import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp, Sparkles } from "@/icons/IconRegistry";
 
 interface AdOwnerActionsProps {
     isSold: boolean;
+    isSpotlight?: boolean;
     isChatLocked?: boolean;
     status?: string;
     onEdit: () => void;
     onDelete: () => void;
     onMarkSold: () => void;
     onPromote: () => void;
-    onViewAnalytics: () => void;
+    onViewAnalytics?: () => void;
 }
 
 export function AdOwnerActions({
     isSold,
+    isSpotlight = false,
     isChatLocked,
     status,
     onEdit,
     onDelete,
     onMarkSold,
     onPromote,
-    onViewAnalytics,
 }: AdOwnerActionsProps) {
     const isPending = status === "pending";
     const isActive = status === "live";
@@ -98,7 +99,12 @@ export function AdOwnerActions({
                     </div>
                 )}
 
-                {isActive && (
+                {isActive && isSpotlight ? (
+                    <div className="w-full gap-2 px-3 py-2.5 rounded-xl text-sm font-bold bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-start select-none">
+                        <Sparkles className="h-4 w-4 text-amber-600 fill-amber-500 shrink-0" />
+                        ✨ Spotlight Applied
+                    </div>
+                ) : isActive ? (
                     <Button
                         onClick={onPromote}
                         disabled={isSold}
@@ -107,18 +113,7 @@ export function AdOwnerActions({
                         <TrendingUp className="h-4 w-4" />
                         Promote Listing
                     </Button>
-                )}
-
-                {(isActive || isSold || showViewOnlyState) && (
-                    <Button
-                        onClick={onViewAnalytics}
-                        variant="outline"
-                        className="w-full gap-2 justify-start text-sm h-11"
-                    >
-                        <TrendingUp className="h-4 w-4" />
-                        View Analytics
-                    </Button>
-                )}
+                ) : null}
             </CardContent>
         </Card>
     );

@@ -81,7 +81,7 @@ const makeReq = (overrides: Partial<{
     // Transitional compatibility during Listings migration. Remove _id once all controllers consume domain Listing.
     listing: { id: LISTING_ID, _id: LISTING_ID, status: 'draft', listingType: 'ad' },
     ...overrides,
-} as unknown as Request);
+} as any);
 
 const makeRes = (): Response => {
     const res = {} as Response;

@@ -125,10 +125,10 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
     return (
         <>
-        <Card className="rounded-none md:rounded-[2.5rem] overflow-hidden border-none shadow-none md:shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white md:p-2">
+        <Card className="rounded-2xl border border-border shadow-xs bg-card overflow-hidden p-1.5 md:p-2">
             <CardContent className="p-0">
                 <div
-                    className="relative aspect-[4/3] md:aspect-[16/10] bg-slate-100 rounded-none md:rounded-[2rem] overflow-hidden group/main cursor-pointer"
+                    className="relative w-full h-[220px] sm:h-[260px] md:h-[290px] bg-slate-950/90 rounded-xl overflow-hidden group/main cursor-pointer flex items-center justify-center"
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                     onClick={openLightbox}
@@ -143,30 +143,30 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                         fill
                         sizes={MARKETPLACE_CARD_FILL_SIZES}
                         priority
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover/main:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover/main:scale-105"
                     />
 
                     {/* Share and Favorite Buttons */}
                     {showActionButtons && (
-                        <div className="absolute top-3 right-3 md:top-4 md:right-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute top-2.5 right-2.5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
                             <Button
                                 size="icon"
                                 variant="secondary"
-                                className="h-11 w-11 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-lg border-none transition-all active:scale-90"
+                                className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
                                 onClick={onShare}
                                 aria-label="Share this ad"
                             >
-                                <Share2 className="h-4 w-4 text-foreground-tertiary" />
+                                <Share2 className="h-3.5 w-3.5 text-foreground-tertiary" />
                             </Button>
                             <Button
                                 size="icon"
                                 variant="secondary"
-                                className="h-11 w-11 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-lg border-none transition-all active:scale-90"
+                                className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
                                 onClick={onFavorite}
                                 aria-label="Add to favorites"
                             >
                                 <Heart
-                                    className={`h-4 w-4 ${isFavorited ? "fill-red-500 text-red-500" : "text-foreground-tertiary"}`}
+                                    className={`h-3.5 w-3.5 ${isFavorited ? "fill-red-500 text-red-500" : "text-foreground-tertiary"}`}
                                 />
                             </Button>
                         </div>
@@ -174,7 +174,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
                     {/* Image counter pill */}
                     {safeImages.length > 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
+                        <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm text-white text-2xs font-semibold px-2.5 py-0.5 rounded-full">
                             {currentImageIndex + 1} / {safeImages.length}
                         </div>
                     )}
@@ -185,20 +185,20 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                             <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-lg border-none md:opacity-0 md:group-hover/main:opacity-100 transition-all active:scale-90"
+                                className="absolute left-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none md:opacity-0 md:group-hover/main:opacity-100 transition-all active:scale-90"
                                 onClick={(e) => { e.stopPropagation(); prevImage(); }}
                                 aria-label="Previous image"
                             >
-                                <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-foreground-tertiary" />
+                                <ChevronLeft className="h-4 w-4 text-foreground-tertiary" />
                             </Button>
                             <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-lg border-none md:opacity-0 md:group-hover/main:opacity-100 transition-all active:scale-90"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none md:opacity-0 md:group-hover/main:opacity-100 transition-all active:scale-90"
                                 onClick={(e) => { e.stopPropagation(); nextImage(); }}
                                 aria-label="Next image"
                             >
-                                <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-foreground-tertiary" />
+                                <ChevronRight className="h-4 w-4 text-foreground-tertiary" />
                             </Button>
                         </>
                     )}
@@ -206,17 +206,17 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
                 {/* Thumbnail Carousel */}
                 {safeImages.length > 1 && (
-                    <div className="px-3 py-3 md:px-4 md:py-4 bg-transparent">
-                        <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1 scrollbar-hide">
+                    <div className="px-1.5 pt-1.5 pb-0.5 bg-transparent">
+                        <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
                             {safeImages.map((image: string, index: number) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentImageIndex(index)}
                                     aria-label={`View photo ${index + 1} of ${safeImages.length}`}
-                                    className={`flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl overflow-hidden border-2 transition-all duration-200 relative ${
+                                    className={`flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 relative ${
                                         index === currentImageIndex
-                                            ? "border-green-500 ring-2 ring-green-100 scale-95"
-                                            : "border-transparent hover:border-slate-300 opacity-50 hover:opacity-100"
+                                            ? "border-primary ring-2 ring-primary/20 scale-95"
+                                            : "border-transparent hover:border-border opacity-70 hover:opacity-100"
                                     }`}
                                 >
                                     <SafeImage
@@ -227,7 +227,7 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
                                         className="object-cover"
                                     />
                                     {index === currentImageIndex && (
-                                        <div className="absolute inset-0 bg-green-500/5" />
+                                        <div className="absolute inset-0 bg-primary/5" />
                                     )}
                                 </button>
                             ))}

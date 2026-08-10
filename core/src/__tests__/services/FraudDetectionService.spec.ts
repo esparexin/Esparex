@@ -42,9 +42,9 @@ import FraudScore from '../../models/FraudScore';
 
 // ── Typed Mocks ──────────────────────────────────────────────────────────────
 
-const mockUserModel = User as unknown as { findById: jest.Mock };
-const mockFraudSignalModel = FraudSignal as unknown as { distinct: jest.Mock; create: jest.Mock };
-const mockFraudScoreModel = FraudScore as unknown as { findOneAndUpdate: jest.Mock };
+const mockUserModel = User as any;
+const mockFraudSignalModel = FraudSignal as any;
+const mockFraudScoreModel = FraudScore as any;
 
 // ── Shared Fixtures ──────────────────────────────────────────────────────────
 
@@ -136,7 +136,7 @@ describe('FraudDetectionService.analyzeFraudRisk', () => {
     // BRANCH: Multi-Accounting (IP/Device)
     // =========================================================================
     it('should flag risk when multiple accounts are detected on same IP', async () => {
-        mockFraudSignalModel.distinct.mockImplementation((field) => {
+        mockFraudSignalModel.distinct.mockImplementation((field: any) => {
             if (field === 'userId') return Promise.resolve(['u1', 'u2', 'u3']); // 3 accounts
             return Promise.resolve([]);
         });
@@ -149,7 +149,7 @@ describe('FraudDetectionService.analyzeFraudRisk', () => {
     });
 
     it('should flag risk when multiple accounts are detected on same Device', async () => {
-        mockFraudSignalModel.distinct.mockImplementation((field) => {
+        mockFraudSignalModel.distinct.mockImplementation((field: any) => {
             if (field === 'userId') return Promise.resolve(['u1', 'u2', 'u3']); // 3 accounts
             return Promise.resolve([]);
         });

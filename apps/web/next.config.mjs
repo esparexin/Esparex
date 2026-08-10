@@ -111,7 +111,7 @@ const dynamicApiConnectSources = (() => {
 })();
 
 const connectSrc = [
-    'esparex://*', 'capacitor://*', 'http://10.0.2.2:*',
+    'esparex://*', 'http://10.0.2.2:*',
     "'self'",
     'http://localhost:*',
     'http://127.0.0.1:*',
@@ -127,19 +127,29 @@ const connectSrc = [
     'https://*.s3.ap-south-1.amazonaws.com',
     'https://s3.ap-south-1.amazonaws.com',
     'https://esparexdev.s3.ap-south-1.amazonaws.com', // Explicitly add known bucket
+    'https://vercel.live',
+    'wss://vercel.live',
+    'https://*.vercel.live',
+    'wss://*.vercel.live',
+    'https://api.razorpay.com',
+    'https://lumberjack.razorpay.com',
+    'https://*.razorpay.com',
     ...dynamicApiConnectSources,
 ].join(' '); // Forced update for CSP
 
 const scriptSrc = [
-    'esparex://*', 'capacitor://*', 'http://localhost:*', 'http://localhost',
+    'esparex://*', 'http://localhost:*', 'http://localhost',
     "'self'",
     "'unsafe-inline'",
     ...(process.env.NODE_ENV === 'development' ? ["'unsafe-eval'"] : []),
     'https://maps.googleapis.com',
     'https://maps.gstatic.com',
+    'https://vercel.live',
+    'https://*.vercel.live',
+    'https://checkout.razorpay.com',
+    'https://*.razorpay.com',
 ].join(' ');
 
-/** @type {import('next').NextConfig} */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -200,14 +210,14 @@ const nextConfig = {
                             "default-src 'self'",
                             `script-src ${scriptSrc}`,
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-                            "img-src 'self' data: blob: https: http://localhost:* https://maps.googleapis.com https://maps.gstatic.com https://images.unsplash.com",
+                            "img-src 'self' data: blob: https: http://localhost:* https://maps.googleapis.com https://maps.gstatic.com https://images.unsplash.com https://cdn.razorpay.com https://*.razorpay.com",
                             "font-src 'self' data: https://fonts.gstatic.com",
                             "worker-src 'self' blob:",
 
                             `connect-src ${connectSrc}`,
 
                             "frame-ancestors 'self'",
-                            "frame-src 'self' https://www.openstreetmap.org",
+                            "frame-src 'self' https://www.openstreetmap.org https://vercel.live https://*.vercel.live https://api.razorpay.com https://checkout.razorpay.com https://*.razorpay.com",
                             "base-uri 'self'",
                             "form-action 'self'"
                         ].join('; ')

@@ -267,46 +267,24 @@ export const processAdForAlerts = async (adId: string | Types.ObjectId) => {
                 adId: ad.id,
                 alertId: { $in: matchIds }
             } as Record<string, unknown>).distinct('alertId');
-
-
             const filteredMatches = matches.filter(m => !alreadyDelivered.some(id => id.toString() === m._id.toString()));
+            if (filteredMatches.length === 0) return;
 
-            if (filteredMatches.length === 0) {
-                logger.debug('[AlertMatch] All matching alerts already delivered for this ad via idempotency guard', { adId: ad.id });
-                return;
-            }
-
-            // --- BATCH PROCESSING: Prevent event loop blocking ---
             const BATCH_SIZE = 100;
             for (let i = 0; i < filteredMatches.length; i += BATCH_SIZE) {
                 const batch = filteredMatches.slice(i, i + BATCH_SIZE);
-
-                // Extract loop arrays to decouple background execution out of the active batch window.
                 const { NotificationIntent } = await import('../../../domain/NotificationIntent');
                 const { NotificationDispatcher } = await import('./NotificationDispatcher');
 
                 const intents = batch.map(match => {
-                    const channels = Array.isArray(match.notificationChannels) && match.notificationChannels.length > 0
-                        ? match.notificationChannels
-                        : ['push', 'in-app']; 
-
-                    return NotificationIntent.fromSmartAlert(
-                        match.userId.toString(),
-                        match.name,
-                        ad.id,
-                        match._id.toString(),
-                        channels
-                    );
+                    const channels = Array.isArray(match.notificationChannels) && match.notificationChannels.length > 0 ? match.notificationChannels : ['push', 'in-app']; 
+                    return NotificationIntent.fromSmartAlert(match.userId.toString(), match.name, ad.id, match._id.toString(), channels);
                 });
 
-                // Note: shadowDispatch currently disabled to trigger FCM push logic actively for Phase-2 verification
-                // To rollout silently, set { shadowDispatch: true }
                 await NotificationDispatcher.bulkDispatch(intents, { shadowDispatch: false });
-
-                logger.info('[AlertMatch] Processed batch of smart alert NotificationIntents via Dispatcher', {
-                    count: batch.length,
-                    totalRemaining: filteredMatches.length - (i + batch.length)
-                });
+                const records = batch.map(m => ({ alertId: m._id, userId: m.userId, adId: ad.id, deliveredAt: new Date() }));
+                await AlertDeliveryLog.insertMany(records, { ordered: false }).catch((err: Error) => logger.warn('[SmartAlert] Duplicate delivery log ignored', { error: err.message }));
+                logger.info('[AlertMatch] Processed batch of smart alert NotificationIntents via Dispatcher', { count: batch.length, totalRemaining: filteredMatches.length - (i + batch.length) });
             }
         }
 
@@ -413,7 +391,8 @@ export type SmartAlertQuery = Promise<SmartAlertDocument[]> & {
     limit: (n: number) => SmartAlertQuery;
 };
 
-export const SmartAlertModel = SmartAlert as unknown as {
+const rawSmartAlertModel: unknown = SmartAlert;
+export const SmartAlertModel = rawSmartAlertModel as { 
     countDocuments: (query: Record<string, unknown>) => Promise<number>;
     create: (payload: Record<string, unknown>) => Promise<SmartAlertDocument>;
     find: (query: Record<string, unknown>) => SmartAlertQuery;

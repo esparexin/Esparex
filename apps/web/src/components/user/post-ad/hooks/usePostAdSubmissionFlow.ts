@@ -65,7 +65,8 @@ export function usePostAdSubmissionFlow({
 
     const submitAdApiCall = useCallback((payload: PostAdFormData, options?: { idempotencyKey?: string }): Promise<Listing> => {
         trackPostAdEvent({ event: "publish_clicked", metadata: { isEditMode } });
-        const listingData = payload as unknown as Partial<Listing>;
+        const rawPayload: unknown = payload;
+        const listingData = rawPayload as Partial<Listing>;
         const result = (isEditMode && editAdId)
             ? updateAdListing(editAdId, buildEditAdPayload(payload) as Partial<Listing>)
             : createAdListing(listingData, options);

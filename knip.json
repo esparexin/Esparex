@@ -1,14 +1,15 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "rules": {
-    "files": "warn",
-    "dependencies": "warn",
+    "files": "error",
+    "dependencies": "error",
     "devDependencies": "warn",
     "unlisted": "warn",
     "exports": "warn",
     "types": "warn",
     "duplicates": "warn"
   },
+  "ignoreBinaries": ["eslint", "tsc"],
   "ignoreDependencies": [
     "@radix-ui/*",
     "@react-google-maps/api",
@@ -62,15 +63,38 @@
     "date-fns",
     "postcss",
     "tailwindcss",
-    "autoprefixer"
+    "autoprefixer",
+    "ts-node",
+    "tsx",
+    "jest",
+    "vitest",
+    "clsx",
+    "tailwind-merge",
+    "vaul",
+    "@tanstack/react-virtual",
+    "eslint-plugin-react",
+    "eslint-plugin-react-hooks",
+    "class-variance-authority",
+    "expo-status-bar",
+    "react-native-svg",
+    "@esparex/design-tokens",
+    "@esparex/shared",
+    "expo-updates",
+    "expo-system-ui",
+    "expo-constants",
+    "lucide-react-native",
+    "@babel/core",
+    "@commitlint/cli",
+    "husky",
+    "babel-preset-expo"
   ],
   "workspaces": {
     "apps/admin": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/web": {
-      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs"],
+      "entry": ["src/app/**/page.tsx", "src/app/**/layout.tsx", "src/middleware.ts", "next.config.mjs", "tailwind.config.ts", "postcss.config.mjs"],
       "project": ["src/**/*.{ts,tsx}"]
     },
     "apps/mobile": {
@@ -78,11 +102,18 @@
       "project": ["src/**/*.{ts,tsx}"]
     },
     "backend/api": {
-      "entry": ["src/index.ts", "src/cron/**/*.ts"],
+      "entry": ["src/index.ts", "src/cron/**/*.ts", "src/smoke.ts"],
       "project": ["src/**/*.ts"]
     },
     "core": {
-      "entry": ["src/index.ts", "src/services/**/*.ts", "src/utils/**/*.ts"],
+      "entry": [
+        "src/index.ts",
+        "src/services/**/*.ts",
+        "src/utils/**/*.ts",
+        "src/domains/**/index.ts",
+        "src/domains/**/ports/*.ts",
+        "src/scripts/**/*.ts"
+      ],
       "project": ["src/**/*.ts"]
     },
     "shared": {
@@ -109,6 +140,12 @@
     "**/*.snap",
     "**/.eslintcache",
     "**/storybook-static/**",
-    "**/public/build/**"
+    "**/public/build/**",
+    "scripts/**",
+    "eslint.config.mjs",
+    "tooling/**",
+    "backend/api/scripts/**",
+    "packages/mobile-ui/src/**/__tests__/**",
+    "apps/mobile/babel.config.js"
   ]
 }

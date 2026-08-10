@@ -26,10 +26,6 @@ const targets = {
     'core/dist',
     'core/tsconfig.tsbuildinfo'
   ],
-  '--kernel': [
-    'packages/kernel/dist',
-    'packages/kernel/tsconfig.tsbuildinfo'
-  ],
   '--ui': [
     'packages/ui/dist',
     'packages/ui/tsconfig.tsbuildinfo'
@@ -40,6 +36,11 @@ const targets = {
   ],
   '--mobile-ui': [
     'packages/mobile-ui/tsconfig.tsbuildinfo'
+  ],
+  '--mobile': [
+    'apps/mobile/.expo',
+    'apps/mobile/dist',
+    'apps/mobile/tsconfig.tsbuildinfo'
   ]
 };
 

@@ -18,7 +18,7 @@ export const ERROR_MESSAGES: Record<ErrorType, string> = {
     timeout: "Search is taking longer than usual. Please try again.",
     server: "Our servers are busy. Please try again in a moment.",
     not_found: "No locations found. Try a different search.",
-    unknown: "Something went wrong. Please try again.",
+    unknown: "Unable to resolve location. Please select your location manually.",
 };
 
 export const normalizeGeoPoint = (coords: unknown): { type: "Point"; coordinates: [number, number] } | undefined => {

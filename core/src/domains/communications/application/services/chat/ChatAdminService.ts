@@ -107,7 +107,10 @@ export async function adminListConversations(
             .populate('sellerId', 'name mobile')
             .populate('adId', 'title status isDeleted isChatLocked')
             .lean()
-            .then((conversations) => conversations as unknown as PopulatedConv[]),
+            .then((conversations) => {
+                const rawConvsList: unknown = conversations;
+                return rawConvsList as PopulatedConv[];
+            }),
         Conversation.countDocuments(query),
     ]);
 

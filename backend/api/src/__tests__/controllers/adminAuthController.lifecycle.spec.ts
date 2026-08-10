@@ -93,7 +93,7 @@ const createMockRes = (
         cookie: jest.fn(),
 
         clearCookie: jest.fn(),
-    } as unknown as Response;
+    } as any;
 
     if (req) {
         res.req = req as Request;
@@ -106,10 +106,7 @@ describe(
     "admin auth lifecycle regressions",
     () => {
         const mockAdmin =
-            Admin as unknown as {
-                findOne: jest.Mock;
-                updateOne: jest.Mock;
-            };
+            Admin as any;
 
         const mockRevokeAdminSessionsForAdmin =
             revokeAdminSessionsForAdmin as jest.Mock;
@@ -216,7 +213,7 @@ describe(
 
                     originalUrl:
                         "/api/v1/admin/login",
-                } as unknown as Request;
+                } as any;
 
                 const res =
                     createMockRes(req);
@@ -311,7 +308,7 @@ describe(
                         password:
                             "NewSecurePassword123!",
                     },
-                } as unknown as Request;
+                } as any;
 
                 const res =
                     createMockRes(req);

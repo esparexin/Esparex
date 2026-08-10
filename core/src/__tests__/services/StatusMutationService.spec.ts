@@ -125,7 +125,7 @@ import Ad from "../../models/Ad";
 import { mutateStatusesBulk } from "../../services/lifecycle/StatusMutationService";
 import { validateTransition } from "../../services/lifecycle/LifecycleGuard";
 
-const mockAd = Ad as unknown as { findById: jest.Mock; find: jest.Mock };
+const mockAd = Ad as any;
 const mockValidate = validateTransition as jest.Mock;
 
 describe("StatusMutationService", () => {

@@ -29,7 +29,7 @@ const modelSelect = '_id name displayName canonicalName slug brandId parentModel
 
 export async function validateModelHierarchyMutation(
     payload: ModelHierarchyMutationPayload,
-    options: { existingModel?: ModelHierarchyDoc | null; modelId?: string | null; session?: mongoose.ClientSession | null } = {}
+    options: { existingModel?: ModelHierarchyDoc | Record<string, unknown> | null; modelId?: string | null; session?: mongoose.ClientSession | null } = {}
 ): Promise<Record<string, unknown>> {
     const mutable = payload as Record<string, unknown>;
     const existing = options.existingModel ?? null;
@@ -76,11 +76,13 @@ export async function validateModelHierarchyMutation(
         mutable.hierarchyPath = [];
     }
 
+    const toStr = (v: unknown): string | undefined => typeof v === 'string' ? v : undefined;
     const lineageCandidate: ModelHierarchyDoc = {
-        _id: currentId, name: typeof mutable.name === 'string' ? mutable.name : existing?.name,
-        displayName: typeof mutable.displayName === 'string' ? mutable.displayName : existing?.displayName,
-        canonicalName: typeof mutable.canonicalName === 'string' ? mutable.canonicalName : existing?.canonicalName,
-        slug: typeof mutable.slug === 'string' ? mutable.slug : existing?.slug,
+        _id: currentId,
+        name: toStr(mutable.name) ?? toStr(existing?.name),
+        displayName: toStr(mutable.displayName) ?? toStr(existing?.displayName),
+        canonicalName: toStr(mutable.canonicalName) ?? toStr(existing?.canonicalName),
+        slug: toStr(mutable.slug) ?? toStr(existing?.slug),
         brandId: nextBrandId, parentModelId: mutable.parentModelId, variantOfModelId: mutable.variantOfModelId,
     };
     const lineageKeyParts = getLineageKey(lineageCandidate).split('|');

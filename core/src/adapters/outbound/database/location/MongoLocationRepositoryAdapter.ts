@@ -19,11 +19,11 @@ export class MongoLocationRepositoryAdapter implements LocationRepositoryPort {
     }
 
     public countDocuments(query: Record<string, unknown>): Query<number, ILocation> {
-        return Location.countDocuments(query) as unknown as Query<number, ILocation>;
+        return Location.countDocuments(query) as Query<number, ILocation>;
     }
 
     public estimatedDocumentCount(): Query<number, ILocation> {
-        return Location.estimatedDocumentCount() as unknown as Query<number, ILocation>;
+        return Location.estimatedDocumentCount() as Query<number, ILocation>;
     }
 
     public async exists(query: Record<string, unknown>): Promise<{ _id: unknown } | null> {
@@ -31,11 +31,11 @@ export class MongoLocationRepositoryAdapter implements LocationRepositoryPort {
     }
 
     public async createLocation(data: Partial<ILocation>): Promise<ILocation> {
-        return Location.create(data) as unknown as Promise<ILocation>;
+        return Location.create(data) as Promise<ILocation>;
     }
 
     public async createManyLocations(data: Partial<ILocation>[]): Promise<ILocation[]> {
-        return Location.create(data) as unknown as Promise<ILocation[]>;
+        return Location.create(data) as Promise<ILocation[]>;
     }
 
     public async bulkWriteLocations(ops: unknown[]): Promise<unknown> {

@@ -75,7 +75,7 @@ const collectPlansFromConnection = async (
                 oldName,
                 newName,
                 keys,
-                createOptions: buildCreateOptionsFromExisting(oldSpec as unknown as Record<string, unknown>),
+                createOptions: buildCreateOptionsFromExisting(oldSpec as Record<string, unknown>),
                 collection,
             });
         }
@@ -86,7 +86,7 @@ const collectPlansFromConnection = async (
 
 const applyPlan = async (plan: RenamePlan) => {
     await plan.collection.dropIndex(plan.oldName);
-    await plan.collection.createIndex(plan.keys as unknown as IndexSpecification, { ...plan.createOptions, name: plan.newName });
+    await plan.collection.createIndex(plan.keys as IndexSpecification, { ...plan.createOptions, name: plan.newName });
 };
 
 const closeConnections = async () => {
@@ -106,9 +106,9 @@ const main = async () => {
 
     const [userPlans, adminPlans] = await Promise.all([
          
-        collectPlansFromConnection('user', userConn.models as unknown as Parameters<typeof collectPlansFromConnection>[1]),
+        collectPlansFromConnection('user', userConn.models as Parameters<typeof collectPlansFromConnection>[1]),
          
-        collectPlansFromConnection('admin', adminConn.models as unknown as Parameters<typeof collectPlansFromConnection>[1]),
+        collectPlansFromConnection('admin', adminConn.models as Parameters<typeof collectPlansFromConnection>[1]),
     ]);
 
     const plans = [...userPlans, ...adminPlans];

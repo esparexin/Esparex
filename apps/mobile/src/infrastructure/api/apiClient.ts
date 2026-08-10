@@ -39,7 +39,35 @@ axiosRetry(apiClient, {
   },
 });
 
-// Request Interceptor: Attach Tokens and Correlation ID
+let cachedCsrfToken: string | null = null;
+let csrfFetchPromise: Promise<string | null> | null = null;
+
+export const fetchCsrfToken = async (): Promise<string | null> => {
+  if (cachedCsrfToken) return cachedCsrfToken;
+  if (csrfFetchPromise) return csrfFetchPromise;
+
+  csrfFetchPromise = (async () => {
+    try {
+      const response = await axios.get<{ csrfToken?: string; data?: { csrfToken?: string } }>(
+        `${BASE_URL}/v1/csrf-token`,
+        { withCredentials: true }
+      );
+      const token = response.data?.csrfToken || response.data?.data?.csrfToken || null;
+      if (token) {
+        cachedCsrfToken = token;
+      }
+      return cachedCsrfToken;
+    } catch {
+      return null;
+    } finally {
+      csrfFetchPromise = null;
+    }
+  })();
+
+  return csrfFetchPromise;
+};
+
+// Request Interceptor: Attach Tokens, CSRF, and Correlation ID
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     // 1. Generate and attach UUID v4 Correlation ID per request
@@ -50,6 +78,18 @@ apiClient.interceptors.request.use(
     const token = await TokenProvider.getAccessToken();
     if (token) {
       config.headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    // 3. Attach CSRF token on mutation HTTP methods
+    const method = (config.method || 'get').toLowerCase();
+    if (['post', 'put', 'patch', 'delete'].includes(method)) {
+      let csrfToken = cachedCsrfToken;
+      if (!csrfToken && !config.url?.includes('csrf-token')) {
+        csrfToken = await fetchCsrfToken();
+      }
+      if (csrfToken) {
+        config.headers.set('X-CSRF-Token', csrfToken);
+      }
     }
 
     return config;

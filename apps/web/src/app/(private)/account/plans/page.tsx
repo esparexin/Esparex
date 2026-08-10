@@ -1,5 +1,5 @@
 import { AccountPageShell } from "../_shell/AccountPageShell";
 
 export default function AccountPlansPage() {
-    return <AccountPageShell tab="plans" />;
+    return <AccountPageShell tab="buyplans" />;
 }

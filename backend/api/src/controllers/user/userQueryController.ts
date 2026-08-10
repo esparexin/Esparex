@@ -45,7 +45,7 @@ export const getMe = async (
 
     const safeUser = sanitizeUser(user);
     const safeBusiness = business
-      ? (serializeDoc(business) as unknown as Record<string, unknown>)
+      ? (serializeDoc(business) as Record<string, unknown>)
       : null;
 
     const businessStatus = getBusinessStatus(

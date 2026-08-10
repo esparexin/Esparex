@@ -39,12 +39,12 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const sizeStyles = size === 'sm' ? 'px-2 py-0.5' : 'px-2.5 py-1';
-  const textSize = size === 'sm' ? 'text-[10px]' : 'text-xs';
+  const textSize = size === 'sm' ? 'text-tiny' : 'text-caption';
 
   return (
     <View 
       className={`rounded-full border flex-row items-center justify-center self-start ${getVariantStyles()} ${sizeStyles} ${className}`}
-      {...(props as any)}
+      {...props}
     >
       <AppText className={`${getTextColor()} ${textSize} font-medium tracking-wide uppercase`}>
         {label}

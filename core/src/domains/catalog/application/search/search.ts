@@ -1,4 +1,4 @@
-import type { Document, Model } from 'mongoose';
+import type { Model } from 'mongoose';
 import logger from '../../../../utils/logger';
 import { escapeRegExp } from '../../../../utils/stringUtils';
 import type { AtlasCatalogSearchResult, SeoCrawlDecision } from './types';
@@ -53,7 +53,7 @@ export function buildRegexSearchClauses(search: string, searchFields: string[]):
 }
 
 export async function tryAtlasCatalogSearch(params: {
-    model: Model<Document>;
+    model: Model<any>;
     query: Record<string, unknown>;
     search: string;
     searchFields: string[];

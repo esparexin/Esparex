@@ -51,12 +51,7 @@ const mockedPlanFind = PlanModel.find as jest.Mock;
 const mockedConsumeCredit = consumeCredit as jest.Mock;
 const mockedCredit = credit as jest.Mock;
 const mockedWalletFindOne = WalletModel.findOne as jest.Mock;
-const mockedSmartAlertModel = SmartAlertModel as unknown as {
-    countDocuments: jest.Mock;
-    create: jest.Mock;
-    findById: jest.Mock;
-    findByIdAndDelete: jest.Mock;
-};
+const mockedSmartAlertModel = SmartAlertModel as any;
 const mockedResolveMasterDataIds = resolveMasterDataIds as jest.Mock;
 const mockedNormalizeCoordinates = normalizeCoordinates as jest.Mock;
 const mockedNormalizeLocation = normalizeLocation as jest.Mock;

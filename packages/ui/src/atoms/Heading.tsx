@@ -22,14 +22,14 @@ export const Heading = React.forwardRef<HTMLHeadingElement, HeadingProps>(
   ({ as, variant = "h2", className, children, ...props }, ref) => {
     const Component = as ?? (variant === "display" ? "h1" : variant);
 
-    return (
-      <Component
-        ref={ref as any}
-        className={cn(variantStyles[variant], className)}
-        {...props}
-      >
-        {children}
-      </Component>
+    return React.createElement(
+      Component,
+      {
+        ref,
+        className: cn(variantStyles[variant], className),
+        ...props,
+      },
+      children
     );
   }
 );

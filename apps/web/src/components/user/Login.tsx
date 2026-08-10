@@ -53,34 +53,34 @@ export function Login({ onLoginSuccess, onBack, mode = "modal" }: LoginProps) {
   return (
     <Card
       className={cn(
-        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-slate-200/70 sm:shadow-lg rounded-none sm:rounded-2xl bg-transparent sm:bg-white",
+        "w-full max-w-sm mx-auto border-0 shadow-none sm:border-border sm:shadow-lg rounded-none sm:rounded-2xl bg-transparent sm:bg-card",
         isModal && "sm:border-0 sm:shadow-none"
       )}
     >
-      <CardHeader className="relative space-y-2 text-center pt-2 sm:pt-6 pb-2 sm:pb-3">
-        <div className="mx-auto mb-2 sm:mb-3 w-fit">
-          <div className="h-16 w-16 sm:h-28 sm:w-28 rounded-2xl sm:rounded-3xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2.5 sm:p-4 shadow-sm">
+      <CardHeader className="relative space-y-1.5 text-center p-0 mb-3 sm:mb-4">
+        <div className="mx-auto mb-1.5 sm:mb-2 w-fit">
+          <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-emerald-50/80 border border-emerald-200/60 flex items-center justify-center p-2.5 shadow-xs">
             <Image
               src="/images/recycle-icon.png"
               alt="Esparex Recycle Logo"
-              width={72}
-              height={72}
+              width={48}
+              height={48}
               className="w-full h-full object-contain"
             />
           </div>
         </div>
         <div>
-          <CardTitle className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          <CardTitle className="text-lg sm:text-xl font-extrabold tracking-tight text-foreground">
             {step === "enterMobile" ? "Welcome to Esparex" : "Verify OTP"}
           </CardTitle>
-          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+          <p className="mt-0.5 text-xs text-muted-foreground font-medium">
             {step === "enterMobile"
               ? "Login to buy & sell mobile spares"
               : "Enter the code sent to your mobile"}
           </p>
         </div>
       </CardHeader>
-      <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-4">
+      <CardContent className="p-0 space-y-3 sm:space-y-4">
         <LoginForm flow={flow} onBack={onBack} />
       </CardContent>
     </Card>
@@ -193,26 +193,26 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         <form
           key="step-enter-mobile"
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
+          className="space-y-3.5 animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
         >
           <FieldRoot<LoginValues, "mobile">
             name="mobile"
             render={({ field }) => (
-              <div className="space-y-2">
-                <FieldLabel className="text-xs sm:text-sm font-semibold text-slate-700">
+              <div className="space-y-1.5">
+                <FieldLabel className="text-xs font-semibold text-foreground-secondary">
                   Mobile Number
                 </FieldLabel>
                 <FieldControl animateOnError>
                   <InputGroup>
-                    <InputPrefix className="text-sm font-bold text-slate-600 pointer-events-none pl-3.5">
+                    <InputPrefix className="text-sm font-bold text-foreground-tertiary pointer-events-none pl-3.5">
                       +91
                     </InputPrefix>
                     <Input
                       placeholder="9876543210"
                       maxLength={10}
                       className={cn(
-                        "pl-12 pr-4 h-11 tracking-wider font-semibold text-slate-900 border-slate-200 rounded-xl focus-visible:border-blue-500 focus-visible:ring-blue-500/20",
-                        isValidMobile && "border-blue-500 ring-2 ring-blue-500/10"
+                        "pl-12 pr-4 h-11 tracking-wider font-semibold text-foreground border-border rounded-xl focus-visible:border-primary focus-visible:ring-primary/20",
+                        isValidMobile && "border-primary ring-2 ring-primary/10"
                       )}
                       autoComplete="tel"
                       inputMode="numeric"
@@ -232,19 +232,19 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           />
 
           {authError?.type === "generic" && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-2.5">
               <UiFormError message={authError.message} className="mt-0 text-xs text-red-600" />
             </div>
           )}
 
           {authError?.type === "blocked" && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-center">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-center">
               <p className="text-xs font-semibold text-red-700">{authError.message}</p>
             </div>
           )}
 
           {!backendReady && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 space-y-1">
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 space-y-0.5">
               <p className="text-xs font-semibold text-amber-900 flex items-center gap-2">
                 <Loader2 className="animate-spin h-3.5 w-3.5 text-amber-600" />
                 Waking up server...
@@ -258,6 +258,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           <div className="transition-transform active:scale-[0.985]">
             <Button
               type="submit"
+              variant="primary"
               disabled={
                 isSendingOTP ||
                 !isValidMobile ||
@@ -265,7 +266,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
                 Boolean(getMobileLockInfo(mobileValue)?.remainingSeconds) ||
                 !backendReady
               }
-              className="w-full h-11 sm:h-12 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-600/20 transition-all disabled:opacity-50"
+              className="w-full h-11 rounded-xl font-bold text-sm shadow-md shadow-primary/20 transition-all disabled:opacity-50"
             >
               {isSendingOTP && <Loader2 className="animate-spin mr-2" size={18} />}
               {!backendReady ? "Connecting…" : isSendRateLimited ? `Send OTP (${formatSeconds(rateLimitRemainingSeconds)})` : "Send OTP"}
@@ -277,7 +278,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
               type="button"
               variant="ghost"
               onClick={onBack}
-              className="w-full h-10 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl"
+              className="w-full h-9 text-xs font-semibold text-foreground-secondary hover:text-foreground hover:bg-muted rounded-xl"
             >
               <ArrowLeft size={14} className="mr-1.5" />
               Back
@@ -295,9 +296,10 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-3 animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
       >
-        <div className="py-2.5 px-3.5 bg-slate-50 rounded-xl border border-slate-200/80 shadow-xs">
+        {/* Streamlined Status & Recipient Info Bar */}
+        <div className="py-2 px-3 bg-slate-50 rounded-xl border border-slate-200/80 shadow-2xs space-y-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs text-slate-700 font-medium">
+            <p className="text-xs text-slate-700 font-medium truncate">
               OTP sent to <span className="font-bold text-slate-900">+91 {mobileValue}</span>
             </p>
             <Button
@@ -307,20 +309,17 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
               onClick={handleEditMobile}
               disabled={isSendingOTP}
               aria-label="Edit mobile number"
-              className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full shrink-0"
+              className="h-6 w-6 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full shrink-0"
             >
-              <Pencil size={13} />
+              <Pencil size={12} />
             </Button>
           </div>
-        </div>
-
-        {existingUserName && step === "enterOtp" && (
-          <div className="text-center py-2 px-3 bg-green-50 rounded-xl border border-green-200">
-            <p className="text-xs text-green-800 font-medium">
+          {existingUserName && step === "enterOtp" && (
+            <p className="text-xs text-emerald-700 font-semibold border-t border-slate-200/60 pt-1">
               Welcome back, <span className="font-bold">{existingUserName}</span>!
             </p>
-          </div>
-        )}
+          )}
+        </div>
 
         {authError?.type === "blocked" && (
           <div className="text-center py-2 px-3 bg-red-50 rounded-xl border border-red-200">
@@ -329,15 +328,12 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         )}
 
         {step === "locked" && (
-          <div className="text-center p-3 bg-amber-50 rounded-xl border border-amber-300 space-y-1">
+          <div className="text-center p-2.5 bg-amber-50 rounded-xl border border-amber-300 space-y-0.5">
             <p className="text-xs font-bold text-amber-900">
               Too many incorrect OTP attempts.
             </p>
             <p className="text-xs text-amber-800">
-              Your account is temporarily locked for security. When the timer expires, request a new OTP to continue.
-            </p>
-            <p className="text-xs font-bold text-amber-900 pt-0.5">
-              Try again in {formatSeconds(lockRemainingSeconds)}
+              Account locked. Try again in {formatSeconds(lockRemainingSeconds)}
             </p>
           </div>
         )}
@@ -346,12 +342,6 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           <div className="text-center py-2 px-3 bg-red-50 rounded-xl border border-red-200">
             <p className="text-xs text-red-700 font-semibold">{otpRateLimitMessage}</p>
           </div>
-        )}
-
-        {resendRemainingSeconds > 0 && !isLocked && (
-          <p className="text-center text-tiny font-medium text-slate-500">
-            Resend available in {formatSeconds(resendRemainingSeconds)}
-          </p>
         )}
 
         {step === "enterNameAndOtp" && (
@@ -395,12 +385,17 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           animateOnError
         />
 
-        <div className="flex flex-col items-center mt-1 mb-2">
+        {/* Inline Resend & Error Area */}
+        <div className="flex flex-col items-center gap-1 my-1">
           {otpErrorMessage && (
-            <UiFormError message={otpErrorMessage} className="text-center text-xs text-destructive m-0 mb-2" />
+            <UiFormError message={otpErrorMessage} className="text-center text-xs text-destructive m-0" />
           )}
-          
-          {canResend && (
+
+          {resendRemainingSeconds > 0 && !isLocked ? (
+            <p className="text-center text-xs text-slate-500 font-medium">
+              Resend available in <span className="font-semibold text-slate-700">{formatSeconds(resendRemainingSeconds)}</span>
+            </p>
+          ) : canResend ? (
             <Button
               type="button"
               variant="link"
@@ -411,12 +406,13 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
               {isSendingOTP && <Loader2 className="animate-spin mr-1.5" size={13} />}
               {isSendRateLimited ? `Resend OTP in ${formatSeconds(rateLimitRemainingSeconds)}` : "Resend OTP"}
             </Button>
-          )}
+          ) : null}
         </div>
 
         <div className="transition-transform active:scale-[0.985]">
           <Button
             type="submit"
+            variant="primary"
             disabled={
               isVerifying ||
               isBlocked ||
@@ -425,7 +421,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
               !isOtpComplete ||
               (requiresName && !nameValue.trim())
             }
-            className="mt-2 w-full h-11 sm:h-12 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-bold text-sm shadow-md shadow-brand-600/20 transition-all disabled:opacity-50"
+            className="w-full h-11 rounded-xl font-bold text-sm shadow-md shadow-primary/20 transition-all disabled:opacity-50"
           >
             {isVerifying && <Loader2 className="animate-spin mr-2" size={18} />}
             Verify OTP

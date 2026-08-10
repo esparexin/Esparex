@@ -18,12 +18,12 @@ export class PaymentService {
   async processCheckout(planId: string) {
     const order = await this.paymentRepository.createPaymentOrder(planId);
 
-    // Auto-fulfilled zero-cost / mock order
+    // Auto-fulfilled zero-cost / mock order — backend already processed it in createPaymentOrder
     if (order.status === 'SUCCESS' || order.amount === 0) {
       return {
         razorpay_payment_id: `zero_cost_${order.orderId}`,
         razorpay_order_id: order.orderId,
-        razorpay_signature: 'auto_verified',
+        razorpay_signature: '',
       };
     }
 
@@ -47,4 +47,9 @@ export class PaymentService {
   async getTransactionHistory(): Promise<PaymentTransaction[]> {
     return this.paymentRepository.getTransactionHistory();
   }
+
+  async getPlansWalletDashboard() {
+    return this.paymentRepository.getPlansWalletDashboard();
+  }
 }
+

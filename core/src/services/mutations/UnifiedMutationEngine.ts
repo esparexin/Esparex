@@ -74,7 +74,7 @@ export class UnifiedMutationEngine {
                     for (const field of config.sensitiveFields) {
                         if (safePayload[field] !== undefined) {
                             const newValue = JSON.stringify(safePayload[field]);
-                            const oldValue = JSON.stringify((entity as unknown as Record<string, unknown>)[field]);
+                            const oldValue = JSON.stringify((entity as Record<string, unknown>)[field]);
                             if (newValue !== oldValue) {
                                 hasSensitiveChange = true;
                                 break;
@@ -89,8 +89,9 @@ export class UnifiedMutationEngine {
                 // 7. Sensitive Change Triggers
                 if (hasSensitiveChange) {
                     if (config.trackReviewVersion) {
-                        const currentVersion = (entity as unknown as { reviewVersion?: number }).reviewVersion || 0;
-                        (entity as unknown as { reviewVersion: number }).reviewVersion = currentVersion + 1;
+                        const currentVersion = (entity as { reviewVersion?: number }).reviewVersion || 0;
+                        const targetEntity: unknown = entity;
+                        (targetEntity as { reviewVersion: number }).reviewVersion = currentVersion + 1;
                     }
                     if (hooks?.onSensitiveChange) {
                         await hooks.onSensitiveChange(entity, session);

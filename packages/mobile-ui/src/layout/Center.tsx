@@ -13,7 +13,7 @@ export const Center: React.FC<CenterProps> = ({
   return (
     <View 
       className={`items-center justify-center ${className}`}
-      {...(props as any)}
+      {...props}
     >
       {children}
     </View>

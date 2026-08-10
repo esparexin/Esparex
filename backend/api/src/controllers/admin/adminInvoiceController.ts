@@ -307,7 +307,8 @@ export const getPrintableInvoice = async (req: Request, res: Response) => {
         if (!invoiceDoc) {
             return sendAdminError(req, res, 'Invoice not found', 404);
         }
-        const inv = invoiceDoc as unknown as Record<string, unknown> & {
+        const rawInvoiceDoc: unknown = invoiceDoc;
+        const inv = rawInvoiceDoc as Record<string, unknown> & {
             invoiceNumber: string;
             issuedAt: string | Date;
             userId?: { name?: string; email?: string; mobile?: string };

@@ -15,11 +15,9 @@ export const LoginScreen = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      // In a real app, you would pass credentials to authService.login
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // Simulate successful login which will trigger navigation state change
-    } catch (e) {
-      console.error(e);
+      await login({ email, password });
+    } catch {
+      // Login errors are handled via AuthProvider state/toast
     } finally {
       setLoading(false);
     }
@@ -36,7 +34,7 @@ export const LoginScreen = () => {
           accessibilityLabel="Don't have an account? Sign up"
         >
           <AppText variant="body" className="text-slate-500">
-            Don't have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Sign up</AppText>
+            Don&apos;t have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Sign up</AppText>
           </AppText>
         </TouchableOpacity>
       }

@@ -70,9 +70,10 @@ export const getBusinesses = async (req: Request, res: Response) => {
         });
         const sanitizedBusinesses = businesses.map((business) => sanitizeBusinessForPublic(business));
 
+        const rawSanitized: unknown = sanitizedBusinesses;
         const response = respond<ApiResponse<Business[]>>({
             success: true,
-            data: sanitizedBusinesses as unknown as Business[]
+            data: rawSanitized as Business[]
         });
 
         res.json(response);
@@ -102,9 +103,10 @@ export const getBusinessById = async (req: Request, res: Response) => {
             ? sanitizeBusinessForPublic(business)
             : (isAdmin ? serializeBusinessForAdmin(business) : serializeBusinessForOwner(business));
 
+        const rawPayload: unknown = payload;
         const response = respond<ApiResponse<Business>>({
             success: true,
-            data: payload as unknown as Business
+            data: rawPayload as Business
         });
 
         res.json(response);

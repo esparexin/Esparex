@@ -48,8 +48,20 @@ const validateRedisUrl = (urlValue: string): void => {
     }
 };
 
+const getSentinelOptions = () => {
+    const sentinelMaster = process.env.REDIS_SENTINEL_MASTER;
+    const sentinelHosts = process.env.REDIS_SENTINEL_HOSTS;
+    if (!sentinelMaster || !sentinelHosts) return {};
+    const sentinels = sentinelHosts.split(',').map(h => {
+        const [host, port] = h.trim().split(':');
+        return { host, port: Number(port) || 26379 };
+    });
+    return { name: sentinelMaster, sentinels };
+};
+
 const baseRoleOptions = (role: RedisClientRole): RedisOptions => ({
     ...redisConnectionOptions,
+    ...getSentinelOptions(),
     maxRetriesPerRequest: role === 'app' && env.NODE_ENV !== 'production' ? 0 : null,
     enableOfflineQueue: role === 'pub' || role === 'sub',
     enableReadyCheck: true,
@@ -131,36 +143,39 @@ const attachRoleTelemetry = (role: RedisClientRole, client: Redis): Redis => {
     return client;
 };
 
-const createNoopRedisClient = (): Redis => ({
-    call: () => Promise.resolve(null),
-    get: () => Promise.resolve(null),
-    mget: (...keys: string[]) => Promise.resolve(keys.map(() => null)),
-    set: () => Promise.resolve('OK'),
-    setex: () => Promise.resolve('OK'),
-    del: () => Promise.resolve(0),
-    exists: () => Promise.resolve(0),
-    keys: () => Promise.resolve([]),
-    scan: () => Promise.resolve(['0', []]),
-    ttl: () => Promise.resolve(-2),
-    ping: () => Promise.resolve('PONG'),
-    incr: () => Promise.resolve(0),
-    expire: () => Promise.resolve(0),
-    eval: () => Promise.resolve(0),
-    dbsize: () => Promise.resolve(0),
-    info: () => Promise.resolve(''),
-    pipeline: () => {
-        const chain = {
-            set: () => chain,
-            exec: async () => ([]),
-        };
-        return chain;
-    },
-    quit: () => Promise.resolve('OK'),
-    disconnect: () => undefined,
-    status: 'end',
-    on: () => undefined,
-    off: () => undefined,
-} as unknown as Redis);
+const createNoopRedisClient = (): Redis => {
+    const dummy: unknown = {
+        call: () => Promise.resolve(null),
+        get: () => Promise.resolve(null),
+        mget: (...keys: string[]) => Promise.resolve(keys.map(() => null)),
+        set: () => Promise.resolve('OK'),
+        setex: () => Promise.resolve('OK'),
+        del: () => Promise.resolve(0),
+        exists: () => Promise.resolve(0),
+        keys: () => Promise.resolve([]),
+        scan: () => Promise.resolve(['0', []]),
+        ttl: () => Promise.resolve(-2),
+        ping: () => Promise.resolve('PONG'),
+        incr: () => Promise.resolve(0),
+        expire: () => Promise.resolve(0),
+        eval: () => Promise.resolve(0),
+        dbsize: () => Promise.resolve(0),
+        info: () => Promise.resolve(''),
+        pipeline: () => {
+            const chain = {
+                set: () => chain,
+                exec: async () => ([]),
+            };
+            return chain;
+        },
+        quit: () => Promise.resolve('OK'),
+        disconnect: () => undefined,
+        status: 'end',
+        on: () => undefined,
+        off: () => undefined,
+    };
+    return dummy as Redis;
+};
 
 const createRedisClient = (role: RedisClientRole): Redis => {
     if (shouldDisableRedis) return createNoopRedisClient();
@@ -198,7 +213,7 @@ if (env.NODE_ENV === 'production') {
 
 const redis = getOrCreateRoleClient('app');
 
-const getRedisStatus = (): string => (redis as unknown as { status?: string }).status ?? 'unknown';
+const getRedisStatus = (): string => (redis as { status?: string }).status ?? 'unknown';
 
 export const waitForRedisReady = async (
     options: {
@@ -300,9 +315,9 @@ export const getRedisOperationalObservabilityReport = (): {
     runtimeWarnings: string[];
     timestamp: string;
 } => {
-    const appStatus = (getOrCreateRoleClient('app') as unknown as { status?: string }).status;
-    const queueStatus = (getOrCreateRoleClient('bull') as unknown as { status?: string }).status;
-    const subStatus = (getOrCreateRoleClient('sub') as unknown as { status?: string }).status;
+    const appStatus = (getOrCreateRoleClient('app') as { status?: string }).status;
+    const queueStatus = (getOrCreateRoleClient('bull') as { status?: string }).status;
+    const subStatus = (getOrCreateRoleClient('sub') as { status?: string }).status;
     const isReady = (status?: string): boolean => status === 'ready' || status === 'connect';
     const runtimeWarnings: string[] = [];
 

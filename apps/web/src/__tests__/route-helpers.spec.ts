@@ -158,6 +158,15 @@ describe("route helpers", () => {
 
         expect(
             buildPublicListingDetailRoute({
+                listingType: "ad",
+                id: "6a034c6a8da329b5cd86e804",
+                seoSlug: "premium-brand-device--excellent-condition-with-spares-rH_hgLhq",
+                title: "Premium Brand Device - Excellent Condition with Spares",
+            })
+        ).toBe("/ads/premium-brand-device--excellent-condition-with-spares-rH_hgLhq-6a034c6a8da329b5cd86e804");
+
+        expect(
+            buildPublicListingDetailRoute({
                 listingType: "service",
                 id: "svc-123",
                 seoSlug: "board-repair",

@@ -15,11 +15,7 @@ import {
 
 import mockPageContentRaw from "../../models/PageContent";
 
-const mockPageContent = mockPageContentRaw as unknown as {
-    findOne: jest.Mock;
-    findOneAndUpdate: jest.Mock;
-    find: jest.Mock;
-};
+const mockPageContent = mockPageContentRaw as any;
 
 describe("PageContentService", () => {
     beforeEach(() => jest.clearAllMocks());

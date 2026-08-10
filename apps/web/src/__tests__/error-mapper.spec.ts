@@ -52,7 +52,9 @@ describe("mapErrorToMessage", () => {
 
     it("maps HTTP 429 status to rate limit message", () => {
         const err = { status: 429 };
-        expect(mapErrorToMessage(err)).toBe("Too many requests. Please try again later");
+        expect(mapErrorToMessage(err)).toBe(
+            "You're trying too quickly. Please wait a moment before trying again."
+        );
     });
 
     it("returns fallback for unrecognised errors without leaking raw message", () => {

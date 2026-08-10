@@ -1,55 +1,18 @@
-# Contributing & Development Workflow
+# Contributing to Esparex Platform
 
-This document outlines the Git branching strategy and engineering quality standards for the Esparex repository.
+Thank you for contributing to the Esparex Platform monorepo! To maintain enterprise software quality and SSOT architecture across all packages, please follow these guidelines.
 
----
+## Development Workflow & Rules
 
-## 1. Git Branching Strategy
+1. **Branch Naming**: All branches must follow `feat/issue-{N}-{description}`, `fix/issue-{N}-{description}`, or `chore/issue-{N}-{description}`.
+2. **Single Responsibility PRs**: Each Pull Request must address a single problem category. Cross-cutting refactors or unapproved contract changes are prohibited.
+3. **Repository Discovery First**: Search existing packages (`@esparex/contracts`, `@esparex/ui`, `@esparex/shared`) before writing new utility functions, schemas, or components.
+4. **Mandatory Quality Gates**:
+   Before submitting a Pull Request, ensure all quality gates pass locally:
+   ```bash
+   npm run type-check && npm run build && npm test && npm run contract:api && npm run repo:gate
+   ```
 
-```text
-main      → Production Target (Protected Release Branch)
-develop   → Integration / Staging Branch (Canonical Source of Truth)
-feat/*    → Feature Development
-fix/*     → Bug & Defect Remediation
-chore/*   → Governance, Tooling & Configuration
-hotfix/*  → Emergency Production Fixes (PR → main + develop)
-```
+## Pull Request Checklist
 
-### Flow Rules
-
-1. **All feature & bugfix branches originate from `develop`.**
-2. **All PRs target `develop` by default.**
-3. `main` is updated strictly via reviewed release PRs from `develop`.
-4. Direct commits to `main` are strictly forbidden.
-
----
-
-## 2. Pre-Change Verification Checklist
-
-Before starting work on any feature or fix:
-
-```bash
-git fetch origin
-git checkout develop
-git pull origin develop
-git checkout -b feat/issue-N-description
-```
-
----
-
-## 3. Quality & Verification Gates
-
-Every Pull Request must pass the following verification gates before merge:
-
-- **Type Check:** `npm run type-check` (0 errors across all workspaces)
-- **Monorepo Build:** `npm run build` (0 build failures)
-- **Automated Tests:** `npm test` (100% green status)
-- **Accessibility:** WCAG 2.2 AA keyboard navigation & ARIA compliance (per `AGENTS.md`)
-
----
-
-## 4. Environment Configuration
-
-- **Local:** Managed via `.env.local` files in package/app directories.
-- **Backend Services:** `render.yaml` (Render deployment schema). Secrets injected via dashboard (`sync: false`).
-- **Frontend Applications:** Vercel deployment dashboards.
+Refer to `.github/PULL_REQUEST_TEMPLATE.md` when submitting Pull Requests. Ensure all items in the checklist are verified.

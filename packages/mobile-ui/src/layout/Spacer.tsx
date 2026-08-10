@@ -16,7 +16,7 @@ export const Spacer: React.FC<SpacerProps> = ({
   style,
   ...props
 }) => {
-  let combinedStyle: any = typeof style === 'object' ? { ...style } : [style];
+  const combinedStyle: Record<string, unknown> = typeof style === 'object' && style ? { ...(style as Record<string, unknown>) } : {};
   
   if (flex) {
     combinedStyle.flex = typeof flex === 'number' ? flex : 1;
@@ -34,7 +34,7 @@ export const Spacer: React.FC<SpacerProps> = ({
     <View 
       style={combinedStyle}
       className={className}
-      {...(props as any)}
+      {...props}
     />
   );
 };

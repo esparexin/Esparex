@@ -126,6 +126,7 @@ export const USER_ROUTES = {
   PURCHASE_HISTORY: "payments/history",
   PAYMENT_PLANS: "payments/plans",
   PAYMENT_ORDERS: "payments/orders",
+  PAYMENT_VERIFY: "payments/verify",
   INVOICE_DETAIL: (id: string) => `payments/invoice/${id}`,
 
   // Categories

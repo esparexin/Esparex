@@ -81,5 +81,5 @@ export * from './hooks';
 // STATE MACHINES
 export * from './stateMachines';
 
-
-
+// ENTITLEMENT REGISTRY
+export * from './entitlements/entitlementRegistry';

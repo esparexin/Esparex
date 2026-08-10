@@ -11,15 +11,15 @@ test.describe("Native Notification Infrastructure E2E Verification", () => {
         await page.waitForSelector("body");
         
         await page.waitForFunction(
-            () => typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_emitPopup !== "undefined" ||
-                  typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_notify !== "undefined",
+            () => typeof window.__esparex_emitPopup !== "undefined" ||
+                  typeof window.__esparex_notify !== "undefined",
             { timeout: 20000 }
         );
 
         // Execute popupBus.show directly via window.__esparex_emitPopup
         await page.evaluate(() => {
-            const emitPopup = (window as unknown as { __esparex_emitPopup?: (popup: { type: string; title: string; message: string }) => void }).__esparex_emitPopup;
-            const notify = (window as unknown as { __esparex_notify?: { success: (msg: string) => void } }).__esparex_notify;
+            const emitPopup = window.__esparex_emitPopup;
+            const notify = window.__esparex_notify;
             
             if (emitPopup) {
                 emitPopup({
@@ -65,15 +65,14 @@ test.describe("Native Notification Infrastructure E2E Verification", () => {
         await page.goto("/", { waitUntil: "domcontentloaded" });
         await page.waitForSelector("body");
         await page.waitForFunction(
-            () => typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_emitPopup !== "undefined" ||
-                  typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_notify !== "undefined",
+            () => typeof window.__esparex_emitPopup !== "undefined" ||
+                  typeof window.__esparex_notify !== "undefined",
             { timeout: 20000 }
         );
 
         // Emit notification
         await page.evaluate(() => {
-            const emitPopup = (window as unknown as { __esparex_emitPopup?: (popup: { type: string; title: string; message: string }) => void }).__esparex_emitPopup;
-            emitPopup?.({
+            window.__esparex_emitPopup?.({
                 type: "info",
                 title: "Info",
                 message: "Route Survival Test",
@@ -97,15 +96,14 @@ test.describe("Native Notification Infrastructure E2E Verification", () => {
         await page.goto("/", { waitUntil: "domcontentloaded" });
         await page.waitForSelector("body");
         await page.waitForFunction(
-            () => typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_emitPopup !== "undefined" ||
-                  typeof (window as unknown as { __esparex_emitPopup?: unknown; __esparex_notify?: unknown }).__esparex_notify !== "undefined",
+            () => typeof window.__esparex_emitPopup !== "undefined" ||
+                  typeof window.__esparex_notify !== "undefined",
             { timeout: 20000 }
         );
 
         // Emit persistent error popup
         await page.evaluate(() => {
-            const emitPopup = (window as unknown as { __esparex_emitPopup?: (popup: { type: string; title: string; message: string }) => void }).__esparex_emitPopup;
-            emitPopup?.({
+            window.__esparex_emitPopup?.({
                 type: "error",
                 title: "Request Failed",
                 message: "Critical Error Action Required",

@@ -11,7 +11,9 @@ let baseline = { baselines: {} };
 if (fs.existsSync(BASELINE_PATH)) {
   try {
     baseline = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf-8'));
-  } catch {}
+  } catch {
+    // ignore corrupted or missing baseline
+  }
 }
 
 const GUARDS = [
@@ -24,6 +26,7 @@ const GUARDS = [
   { name: 'Component API Boundary', cmd: 'node scripts/enforce-component-api-boundary.js', baselineKey: 'componentBoundaryViolations' },
   { name: 'Compatibility Markers Baseline', cmd: 'node scripts/enforce-compatibility-markers-baseline.js', baselineKey: 'compatibilityViolations' },
   { name: 'Generated Artifacts', cmd: 'node scripts/guard-generated-artifacts.js', baselineKey: 'artifactViolations' },
+  { name: 'API Contract Parity', cmd: 'node scripts/verify-api-contract.js --scope=all', baselineKey: 'apiContractViolations' },
 ];
 
 function run(val) {

@@ -154,9 +154,16 @@ export const expireOutdatedAds = async (): Promise<number> => {
 };
 
 export const expireBoosts = async (): Promise<number> => {
+    const now = new Date();
     const count = await getListingRepository().updateMany(
-        { isSpotlight: true, spotlightExpiresAt: { $lt: new Date() } },
-        { isSpotlight: false }
+        { isSpotlight: true, spotlightExpiresAt: { $lt: now } },
+        { isSpotlight: false, spotlightExpiresAt: null }
+    );
+
+    const BoostModel = (await import('../../models/Boost')).default;
+    await BoostModel.updateMany(
+        { isActive: true, endsAt: { $lt: now } },
+        { $set: { isActive: false } }
     );
     
     if (count > 0) {

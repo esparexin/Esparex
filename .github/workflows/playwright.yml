@@ -1,0 +1,48 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_APP_ENV: local
+      NEXT_PUBLIC_PROD_RISK_OVERRIDE: "false"
+      SKIP_ENV_VALIDATION: "true"
+      NEXT_PUBLIC_API_URL: https://api.esparex.in/api/v1
+      NEXT_PUBLIC_APP_URL: https://esparex.in
+      NEXT_PUBLIC_FIREBASE_API_KEY: placeholder
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: placeholder.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: placeholder
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: placeholder.appspot.com
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+      NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
+      NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Build Web Application
+      run: |
+        npm run build -w @esparex/contracts
+        npm run build -w @esparex/shared
+        npm run build -w @esparex/apps-web
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Start Web Application & Run Playwright tests
+      run: |
+        npm run start -w @esparex/apps-web &
+        npx wait-on http://localhost:3000 --timeout 60000
+        npx playwright test
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
