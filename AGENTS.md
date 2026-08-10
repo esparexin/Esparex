@@ -892,5 +892,68 @@ export default Entitlement;
 2. **Strict Ban on Ad-hoc Documentation Files**: Creating ad-hoc, temporary, volume-based, or timestamped `.md` files in feature sub-folders, `audit-reports/`, or `docs/reports/` is strictly forbidden.
 3. **Continuous Documentation Auditing**: Periodic repository hygiene audits must remove unreferenced, zombie, orphan, or duplicate markdown files after confirming zero code dependencies.
 
+---
+
+## 7. MANDATORY PRE-COMMIT CODE QUALITY & CLEAN CODE GOVERNANCE STANDARD (SSOT & SOP)
+
+> **CORE OPERATING PRINCIPLE**:  
+> Code quality, modularity, and repository hygiene audits MUST be performed BEFORE committing. Every code change must satisfy the `clean-code` and `code-quality` skills, pass pre-commit quality gates (`npm run guard:pr-quality`), and leave the repository cleaner than it was before.
+
+### 1. Mandatory Pre-Commit Workflow Protocol (8 Sequential Steps)
+
+Every developer and AI agent MUST execute these 8 steps sequentially before staging or committing changes:
+
+1. **Phase 0 Discovery & Repository Audit (`clean-code` skill)**:
+   - Verify live local repository state (`git status`).
+   - Audit target files, imports, exports, and dependency chains.
+   - Calculate existing component line counts (`wc -l`).
+
+2. **Modularization Pre-Check (`code-quality` skill)**:
+   - Check file size thresholds (Component ≤ 250, Hook ≤ 200, Service ≤ 300, Utility ≤ 150).
+   - Baseline ratchet: Modified files cannot grow beyond `baseline + 5 lines`.
+   - If adding logic will exceed the threshold, **extract sub-modules BEFORE editing**.
+
+3. **Anti-Duplication & SSOT Search**:
+   - Search the monorepo (`grep_search` / `list_dir`) for existing components, hooks, formatters, and DTOs.
+   - Reuse or extend existing SSOT abstractions. Never introduce duplicate zombie files.
+
+4. **Dead Code & Hygiene Sweep**:
+   - Remove unused imports, dead logic, commented-out code, and temporary debugging console logs.
+
+5. **Local Pre-Commit Quality Verification**:
+   - Run `npm run guard:pr-quality` locally before running `git commit`.
+
+6. **Static Analysis & Type Verification**:
+   - Run `npm run type-check` across all packages (0 errors required).
+
+7. **Automated Unit & Integration Testing**:
+   - Run test suites (`npm test`) for affected packages (100% green status required).
+
+8. **Repository Integrity Gate**:
+   - Run `npm run repo:gate` to verify all 18 repository quality gates (100% Health Score).
+
+---
+
+### 2. File Size & Modularization Ratchet Matrix
+
+| File Type | Max Allowed (New Files) | Ratchet Limit (Modified Files) | Action If Exceeded |
+| --- | :---: | :---: | --- |
+| **Component (`*.tsx`)** | `250 lines` | `Baseline + 5 lines` | Extract sub-components / hooks |
+| **Hook (`use*.ts`)** | `200 lines` | `Baseline + 5 lines` | Extract sub-hooks / utilities |
+| **Service (`*Service.ts`)** | `300 lines` | `Baseline + 5 lines` | Extract sub-services / domain logic |
+| **Utility / Helper (`*.ts`)** | `150 lines` | `Baseline + 5 lines` | Split helper modules |
+| **Controller (`*Controller.ts`)** | `200 lines` | `Baseline + 5 lines` | Split controllers |
+
+---
+
+### 3. Pre-Commit Verification Gate Command Checklist
+
+Before any commit command is executed, run and confirm:
+- [ ] `npm run guard:pr-quality` → **PASS** (Zero file size or ratchet violations)
+- [ ] `npm run type-check` → **PASS** (Zero TypeScript errors)
+- [ ] `npm test -w <target-package>` → **PASS** (100% green tests)
+- [ ] `npm run repo:gate` → **PASS** (18/18 quality gates passed)
+
+
 
 
