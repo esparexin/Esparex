@@ -2,13 +2,13 @@ import { apiClient } from "@/lib/api/client";
 import { resolveRuntimeApiBaseUrl } from "@/lib/api/runtimeApiBase";
 
 export const downloadInvoice = async (transactionId: string): Promise<void> => {
-    const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payment/invoice/${transactionId}`;
+    const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}`;
     window.open(invoiceUrl, "_blank", "noopener,noreferrer");
 };
 
 export const downloadInvoiceFile = async (transactionId: string): Promise<void> => {
     try {
-        const blob = await apiClient.get<Blob>(`/payment/invoice/${transactionId}?download=true`, {
+        const blob = await apiClient.get<Blob>(`/payments/invoice/${transactionId}?download=true`, {
             responseType: 'blob',
         });
         const blobUrl = window.URL.createObjectURL(blob);
@@ -20,7 +20,7 @@ export const downloadInvoiceFile = async (transactionId: string): Promise<void> 
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
     } catch {
-        const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payment/invoice/${transactionId}?download=true`;
+        const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}?download=true`;
         window.open(invoiceUrl, "_blank", "noopener,noreferrer");
     }
 };

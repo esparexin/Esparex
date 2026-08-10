@@ -22,6 +22,7 @@ import { runQualityScoreBackfill } from '../workers/QualityScoreBackfillWorker';
 import { runCleanupReadNotificationsJob } from '../jobs/cleanupReadNotifications.job';
 import { runExpiryWarningJob } from '../jobs/expiryWarning.job';
 import { runExpireSmartAlertsJob } from '../jobs/expireSmartAlerts.job';
+import { runExpireEntitlementsJob } from '../jobs/expireEntitlements.job';
 
 const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     expire_ads_job: runExpireAdsJob,
@@ -40,6 +41,7 @@ const schedulerProcessors: Record<SchedulerJobName, () => Promise<unknown>> = {
     quality_score_backfill_job: runQualityScoreBackfill,
     proactive_expiry_warning: runExpiryWarningJob,
     expire_smart_alerts: runExpireSmartAlertsJob,
+    expire_entitlements: runExpireEntitlementsJob,
 };
 
 /**

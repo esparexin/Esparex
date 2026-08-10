@@ -443,13 +443,7 @@ app.use('/api/v1/smart-alerts', smartAlertRoutes);
 app.use('/api/v1/businesses', businessRoutes);
 app.use('/api/v1/invoices', invoiceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
-app.use('/api/v1/payment', paymentRoutes);
 app.use('/api/v1', entitlementRoutes);
-
-// Canonical SSOT Route Mapping: /api/v1/account/plans-wallet
-import * as paymentController from './controllers/payment';
-import { protect } from './middleware/authMiddleware';
-app.get('/api/v1/account/plans-wallet', protect, paymentController.getPlansWalletDashboard);
 
 // Communication & Feedback
 app.use('/api/v1/contacts', contactRoutes);

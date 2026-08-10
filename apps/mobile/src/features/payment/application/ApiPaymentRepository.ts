@@ -29,7 +29,8 @@ export class ApiPaymentRepository implements IPaymentRepository {
         razorpay_signature: input.razorpaySignature,
       });
     } catch (error: any) {
-      // If server operates in webhook-only mode (404 for verify endpoint), don't fail client
+      // 🛡️ Webhook-Only Fallback: If backend verify endpoint returns 404 (e.g. server running in webhook-only mode),
+      // client payment is confirmed asynchronously via gateway webhook to prevent blocking native UI checkout.
       if (error?.response?.status === 404) {
         return;
       }
