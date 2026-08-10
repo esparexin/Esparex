@@ -231,20 +231,27 @@ export const ipLocate = async (req: Request, res: Response) => {
             return res.json(respond({ success: false, data: null }));
         }
 
-        const rawUrl = apiKey ? `https://ipapi.co/${ip}/json/?key=${apiKey}` : `https://ipapi.co/${ip}/json/`;
-        const outboundCheck = validateOutboundUrl(rawUrl);
+        const safeIp = encodeURIComponent(ip);
+        const baseUrl = new URL(`https://ipapi.co/${safeIp}/json/`);
+        if (apiKey) {
+            baseUrl.searchParams.set('key', apiKey);
+        }
+
+        const outboundCheck = validateOutboundUrl(baseUrl.toString());
 
         if (!outboundCheck.valid || !outboundCheck.url) {
-            logger.warn('IP geolocation request blocked by SSRF guard', { url: rawUrl, reason: outboundCheck.reason });
+            logger.warn('IP geolocation request blocked by SSRF guard', { url: baseUrl.toString(), reason: outboundCheck.reason });
             return res.json(respond({ success: false, data: null }));
         }
+
+        const targetUrlString = outboundCheck.url.href;
 
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
 
         let data: Record<string, unknown>;
         try {
-            const response = await fetch(outboundCheck.url.toString(), {
+            const response = await fetch(targetUrlString, {
                 headers: { Accept: 'application/json', 'User-Agent': 'Esparex/1.0' },
                 signal: controller.signal,
             });
