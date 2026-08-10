@@ -34,6 +34,7 @@ function run(val) {
             path.join(pkgDir, 'src', relDist, 'index.tsx'),
             path.join(pkgDir, `${relDist}.ts`),
             path.join(pkgDir, 'dist', `${relDist}.js`),
+            path.join(pkgDir, 'scripts', 'generate-css.ts'),
             path.join(pkgDir, targetImport)
           ];
           const exists = possibleSrc.some(p => fs.existsSync(p));
