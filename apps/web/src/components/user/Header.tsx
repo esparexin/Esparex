@@ -178,7 +178,7 @@ export function Header({
           <Image
             src="/icons/logo.png"
             alt="Esparex Logo"
-            width={470}
+            width={495}
             height={112}
             style={{ height: "36px", width: "auto" }}
           />
@@ -366,7 +366,7 @@ export function Header({
             <Image
               src="/icons/logo.png"
               alt="Esparex"
-              width={470}
+              width={495}
               height={112}
               style={{ height: "28px", width: "auto" }}
             />
