@@ -6,8 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { X, CreditCard, Zap, BellRing, Package, AlertCircle } from "@esparex/ui";
 import { createPlan, updatePlan } from "@/lib/api/plans";
 import { AdminApiError } from "@/lib/api/adminClient";
-import { showAdminPopup } from "@/lib/popup/popupEvents";
-import { API_KEY_STATUS } from "@esparex/contracts";
 import { Plan } from "@esparex/contracts";
 import { planFormSchema, type PlanFormValues } from "./planForm.schema";
 

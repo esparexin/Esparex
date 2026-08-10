@@ -1,5 +1,5 @@
 import RazorpayCheckout from 'react-native-razorpay';
-import { Plan } from '@esparex/contracts';
+import { Plan, PlansWalletV1DTO } from '@esparex/contracts';
 import { apiClient } from '../../../infrastructure/api/apiClient';
 import { PaymentOrder } from '../domain/PaymentOrder';
 import { WalletSummary } from '../domain/WalletSummary';
@@ -89,4 +89,17 @@ export class ApiPaymentRepository implements IPaymentRepository {
     if (Array.isArray(resData)) return resData;
     return resData?.data || [];
   }
+
+  async getPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
+    try {
+      const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/v1/payments/account/plans-wallet');
+      if (res.data?.data) {
+        return res.data.data;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
 }
+
