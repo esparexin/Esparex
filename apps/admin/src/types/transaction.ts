@@ -1,4 +1,4 @@
-import { PAYMENT_STATUS, PaymentStatusValue } from "@esparex/contracts";
+import type { PaymentStatusValue } from "@esparex/contracts";
 
 export interface Transaction {
     id: string;
