@@ -112,17 +112,25 @@ export const searchLocations = async (req: Request, res: Response) => {
             return res.json(respond({ success: true, data: [] }));
         }
 
-        touchLocationSearchAnalytics(trimmed);
+        const results = await searchLocationsService(trimmed);
+        const locationIds = results
+            .map((item: { id?: string }) => item.id)
+            .filter((value): value is string => typeof value === 'string' && value.length > 0);
 
-        const cacheKey = `${CACHE_KEYS.CITY_SEARCH}:${trimmed.toLowerCase()}`;
+        void touchLocationSearchAnalytics(locationIds).catch((error: unknown) => {
+            logger.warn('Failed to update location analytics', { error: error instanceof Error ? error.message : String(error) });
+        });
+
+        const cacheKey = CACHE_KEYS.searchCity(trimmed.toLowerCase());
         const cached = await getCache<LocationLike[]>(cacheKey);
         if (cached) {
             return res.json(respond({ success: true, data: cached }));
         }
 
-        const results = await searchLocationsService(trimmed);
         const formatted = results.map(formatCanonicalLocationResponse);
-        await setCache(cacheKey, formatted, CACHE_TTLS.CITY_SEARCH);
+        if (formatted.length > 0) {
+            await setCache(cacheKey, formatted, CACHE_TTLS.CITY_SEARCH);
+        }
 
         return res.json(respond({ success: true, data: formatted }));
     } catch (error: unknown) {
@@ -143,7 +151,7 @@ export const lookupPincode = async (req: Request, res: Response) => {
             return sendErrorResponse(req, res, 400, "Pincode must be exactly 6 digits");
         }
 
-        const cacheKey = `${CACHE_KEYS.CITY_SEARCH}:pincode:${trimmed}`;
+        const cacheKey = `location:pincode:${trimmed}`;
         const cached = await getCache<LocationLike>(cacheKey);
         if (cached) {
             return res.json(respond({ success: true, data: cached }));

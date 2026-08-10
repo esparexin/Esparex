@@ -207,7 +207,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   >
                     <span>{catType}</span>
                     <span
-                      className={`px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-extrabold ${
+                      className={`px-1.5 py-0.2 rounded-full text-tiny font-extrabold ${
                         isSelected
                           ? 'bg-primary-foreground/20 text-primary-foreground'
                           : 'bg-muted text-muted-foreground'
@@ -235,14 +235,14 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                     }`}
                   >
                     {plan.popular && !isCurrent && (
-                      <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 font-extrabold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-bl-md shadow-2xs">
+                      <div className="absolute top-0 right-0 bg-amber-500 text-amber-950 font-extrabold text-tiny uppercase tracking-wider px-2 py-0.5 rounded-bl-md shadow-2xs">
                         Popular
                       </div>
                     )}
 
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        <span className="text-tiny font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                           {plan.type}
                         </span>
                         {isCurrent && (

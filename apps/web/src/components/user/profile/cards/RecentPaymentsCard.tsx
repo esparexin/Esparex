@@ -66,7 +66,7 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                 </td>
                 <td className="py-2.5 px-3">
                   <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
+                    className={`inline-flex items-center px-2 py-0.5 rounded text-tiny font-bold ${
                       pay.status === 'SUCCESS'
                         ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                         : pay.status === 'FAILED'
@@ -95,11 +95,11 @@ export const RecentPaymentsCard: React.FC<RecentPaymentsCardProps> = ({ payments
                         title="Download Invoice PDF"
                       >
                         <Download className="w-3.5 h-3.5 shrink-0" />
-                        <span className="text-[11px] font-semibold">PDF</span>
+                        <span className="text-tiny font-semibold">PDF</span>
                       </button>
                     </div>
                   ) : (
-                    <span className="text-[11px] text-muted-foreground/60 font-medium select-none">
+                    <span className="text-tiny text-muted-foreground/60 font-medium select-none">
                       No Invoice
                     </span>
                   )}

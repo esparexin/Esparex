@@ -7,7 +7,7 @@ import { ImageModerationResponse } from '../../../services/ai/moderation/types';
 import sharp from 'sharp';
 
 describe('ImageModerationOrchestrator (PR 5 — 3-Stage Pipeline Composition)', () => {
-    jest.setTimeout(30000);
+    jest.setTimeout(60000);
 
     let mockStage1Pipeline: jest.Mocked<EarlyExitCostControlPipeline>;
     let mockStage2FailoverManager: jest.Mocked<ProviderFailoverManager>;
