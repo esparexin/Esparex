@@ -194,7 +194,7 @@ export function ListingDetail({
           <div className="bg-white pb-8">
             <div className="w-full px-3 md:px-6 lg:px-8 md:py-6">
               <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-start">
+                <div className="flex flex-col lg:grid lg:grid-cols-12 lg:grid-rows-[min-content_auto] gap-6 lg:gap-8 items-start">
                   {/* Gallery & Pending Status: Mobile order-1, Desktop Left Col (Top) */}
                   <div className="order-1 lg:col-span-7 xl:col-span-8 w-full space-y-6">
                     <AdImageCarousel
