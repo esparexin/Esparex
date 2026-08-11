@@ -102,11 +102,10 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                 ref={sidebarRef}
                 className={cn(
                     "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
-                    isMobileOpen ? "translate-x-0 w-[var(--sidebar-expanded)]" : "-translate-x-full w-[var(--sidebar-expanded)]",
+                    isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full w-64",
                     "lg:relative lg:z-20 lg:h-full lg:shrink-0 lg:translate-x-0",
-                    isMinified ? "lg:w-[var(--sidebar-minified)]" : "lg:w-[var(--sidebar-expanded)]"
+                    isMinified ? "lg:w-16" : "lg:w-64"
                 )}
-                style={{ width: isMinified ? "var(--sidebar-minified)" : "var(--sidebar-width)" }}
             >
                 <div className={cn("flex h-14 shrink-0 items-center border-b border-slate-800 px-4", isMinified ? "lg:justify-center justify-between" : "justify-between")}>
                     <div className="flex items-center gap-3 overflow-hidden">
