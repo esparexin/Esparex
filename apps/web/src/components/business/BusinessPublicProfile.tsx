@@ -20,7 +20,7 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@esparex/ui";
+import { Button, Container } from "@esparex/ui";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
@@ -162,7 +162,7 @@ export function BusinessPublicProfile({
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-3 sm:space-y-4 p-2.5 sm:p-6">
+    <Container variant="lg" className="space-y-4 py-4 sm:py-6">
       {/* Business Header Card */}
       <Card className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs bg-white">
         {/* Cover Banner */}
@@ -417,6 +417,6 @@ export function BusinessPublicProfile({
           </Card>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

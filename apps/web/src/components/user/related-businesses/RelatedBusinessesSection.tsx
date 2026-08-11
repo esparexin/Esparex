@@ -1,30 +1,23 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ChevronLeft, ChevronRight, MapPin, RefreshCcw, Wrench } from "@/icons/IconRegistry";
+import { AlertCircle, ChevronLeft, ChevronRight, RefreshCcw } from "@/icons/IconRegistry";
 
-import { getBusinesses, type Business } from "@/lib/api/user/businesses";
+import { getBusinesses } from "@/lib/api/user/businesses";
 import type { UserPage } from "@/lib/routeUtils";
-import {
-  DEFAULT_IMAGE_PLACEHOLDER,
-  toSafeImageSrc,
-} from "@/lib/image/imageUrl";
 import {
   type RelatedBusinessesDiscoveryContext,
   normalizeRelatedBusinessesDiscoveryContext,
 } from "@/lib/listings/listingDiscoveryContext";
-import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@esparex/ui";
 import { queryKeys } from "@/hooks/queries/queryKeys";
-
-import { SafeImage } from "@/components/ui/SafeImage";
+import { RelatedBusinessCard } from "./RelatedBusinessCard";
+import { RelatedBusinessSidebar } from "./RelatedBusinessSidebar";
 
 interface RelatedBusinessesSectionProps {
   context: RelatedBusinessesDiscoveryContext;
+  variant?: "default" | "sidebar";
   navigateTo?: (
     page: UserPage,
     adId?: string | number,
@@ -72,6 +65,7 @@ const formatDistance = (distanceKm?: number) => {
 
 export function RelatedBusinessesSection({
   context,
+  variant = "default",
   navigateTo: _navigateTo,
 }: RelatedBusinessesSectionProps) {
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -97,77 +91,26 @@ export function RelatedBusinessesSection({
 
   const scrollCarousel = (direction: "left" | "right") => {
     if (!carouselRef.current) return;
+    const scrollAmount = 320;
     carouselRef.current.scrollBy({
-      left: direction === "left" ? -320 : 320,
+      left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
     });
   };
 
-  const renderCard = (business: Business) => {
-    const distanceLabel = formatDistance(business.distanceKm);
-    const matchingServicesCount = business.matchingServicesCount || 0;
-    const activeServicesCount = business.activeServicesCount || 0;
-    const locationLabel = resolveListingLocationLabel(business.location, "full") || "Nearby";
-    const imageSrc = toSafeImageSrc(business.coverImage || business.images?.[0], DEFAULT_IMAGE_PLACEHOLDER);
-    const businessIdentifier = (business.slug || business.id || "").toString().trim();
-    const businessHref = businessIdentifier ? `/business/${encodeURIComponent(businessIdentifier)}` : "/account/business";
-
+  if (variant === "sidebar") {
     return (
-      <Link key={business.id} href={businessHref} className="block shrink-0 group">
-        <Card className="w-56 md:w-60 shrink-0 border border-border shadow-2xs rounded-xl bg-card p-2.5 md:p-3 space-y-2 group-hover:border-primary/40 transition-colors">
-          <div className="flex items-start gap-2.5">
-            <div className="relative size-11 md:size-12 shrink-0 rounded-lg overflow-hidden bg-muted/50 border border-border">
-              <SafeImage
-                src={imageSrc}
-                alt={business.name}
-                fill
-                unoptimized
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                sizes="48px"
-              />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <h3 className="line-clamp-1 text-xs font-bold text-foreground group-hover:text-primary transition-colors flex-1">
-                  {business.name}
-                </h3>
-                {business.status === "live" && (
-                  <Badge className="shrink-0 rounded-full bg-blue-50 text-blue-700 px-1.5 py-0.5 text-2xs font-semibold border-none">
-                    Verified
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-1 text-tiny text-muted-foreground mt-0.5">
-                <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/70" />
-                <span className="truncate">{locationLabel}</span>
-                {distanceLabel ? <span className="shrink-0">· {distanceLabel}</span> : null}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-2 pt-0.5">
-            <div className="flex flex-wrap gap-1">
-              {matchingServicesCount > 0 ? (
-                <Badge variant="secondary" className="rounded-md bg-blue-50 px-1.5 py-0.5 text-2xs font-medium text-blue-700 border-none">
-                  {matchingServicesCount} matching
-                </Badge>
-              ) : activeServicesCount > 0 ? (
-                <Badge variant="secondary" className="rounded-md bg-slate-100 px-1.5 py-0.5 text-2xs font-medium text-slate-600 border-none">
-                  {activeServicesCount} live
-                </Badge>
-              ) : null}
-            </div>
-
-            <span className="inline-flex items-center justify-center h-7 px-2.5 rounded-md bg-blue-600 group-hover:bg-blue-700 text-white font-semibold text-2xs shrink-0 transition-colors">
-              <Wrench className="mr-1 h-3 w-3" />
-              View
-            </span>
-          </div>
-        </Card>
-      </Link>
+      <RelatedBusinessSidebar
+        businesses={businesses}
+        isLoading={isLoading}
+        isError={isError}
+        title={sectionCopy.title}
+        description={sectionCopy.description}
+        emptyCopy={sectionCopy.empty}
+        formatDistance={formatDistance}
+      />
     );
-  };
+  }
 
   return (
     <section id="nearby-repair-services" className="mt-4 md:mt-6 px-3.5 md:px-0">
@@ -248,7 +191,13 @@ export function RelatedBusinessesSection({
           className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {businesses.map(renderCard)}
+          {businesses.map((business) => (
+            <RelatedBusinessCard
+              key={business.id}
+              business={business}
+              distanceLabel={formatDistance(business.distanceKm)}
+            />
+          ))}
         </div>
       ) : null}
     </section>

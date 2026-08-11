@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { PageSection } from "@/components/layout";
 import {
     Button,
     AlertDialog,
@@ -41,32 +41,33 @@ function StatusCard({
     cardClass, iconBgClass, Icon, titleClass, title, description, businessName, businessNameAppended, children, actions
 }: StatusCardProps) {
     return (
-        <Card className={`bg-gradient-to-br ${cardClass}`}>
-            <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                    <div className={`h-10 w-10 rounded-full flex items-center justify-center ${iconBgClass}`}>
+        <PageSection
+            variant="bordered"
+            className={`bg-gradient-to-br ${cardClass}`}
+            title={
+                <div className="flex items-center gap-2.5">
+                    <div className={`h-9 w-9 rounded-full flex items-center justify-center ${iconBgClass} shrink-0`}>
                         <Icon className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                        <CardTitle className={`text-lg ${titleClass || ''}`}>{title}</CardTitle>
-                        <CardDescription>{description}</CardDescription>
+                        <span className={`text-base sm:text-lg font-bold ${titleClass || ''}`}>{title}</span>
                     </div>
                 </div>
-            </CardHeader>
-            <CardContent>
-                <div className="bg-white rounded-lg p-4 mb-4">
-                    <p className="font-medium mb-1">Business Name:</p>
-                    <p className={`text-sm text-muted-foreground ${businessNameAppended ? 'mb-3' : ''}`}>
-                        {businessName}
-                    </p>
-                    {businessNameAppended}
-                </div>
-                {children}
-                <div className="flex flex-col sm:flex-row gap-2">
-                    {actions}
-                </div>
-            </CardContent>
-        </Card>
+            }
+            subtitle={description}
+        >
+            <div className="bg-white rounded-xl p-4 border border-slate-100 mb-4">
+                <p className="font-medium text-xs text-slate-500 uppercase tracking-wider mb-1">Business Name:</p>
+                <p className={`text-base font-bold text-slate-900 ${businessNameAppended ? 'mb-3' : ''}`}>
+                    {businessName}
+                </p>
+                {businessNameAppended}
+            </div>
+            {children}
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                {actions}
+            </div>
+        </PageSection>
     );
 }
 
