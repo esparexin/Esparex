@@ -42,7 +42,7 @@ export async function createModel(data: CreateModelDTO) {
 
 export async function updateModel(id: string, data: UpdateModelDTO) {
     return adminFetch<Model>(`${ADMIN_ROUTES.MODELS}/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         body: data
     });
 }

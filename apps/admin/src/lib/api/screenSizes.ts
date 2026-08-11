@@ -24,7 +24,7 @@ export async function createScreenSize(data: ScreenSizeMutationPayload) {
 
 export async function updateScreenSize(id: string, data: ScreenSizeMutationPayload) {
     return adminFetch<Record<string, unknown>>(ADMIN_ROUTES.SCREEN_SIZE_BY_ID(id), {
-        method: "PUT",
+        method: "PATCH",
         body: data
     });
 }

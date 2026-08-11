@@ -33,7 +33,7 @@ export async function createServiceType(data: ServiceTypeMutationPayload) {
 
 export async function updateServiceType(id: string, data: ServiceTypeMutationPayload) {
     return adminFetch<ServiceTypeDTO>(ADMIN_ROUTES.SERVICE_TYPE_BY_ID(id), {
-        method: "PUT",
+        method: "PATCH",
         body: data,
     });
 }
