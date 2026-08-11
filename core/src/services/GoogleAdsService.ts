@@ -1,6 +1,10 @@
 import GoogleAdPlacement from "../models/GoogleAdPlacement";
 import { GOOGLE_AD_STATUS, type GoogleAdPlacementDTO } from "@esparex/contracts";
 import { AppError } from "../utils/AppError";
+import { getCache, setCache, delCache } from "../utils/redisCache";
+
+const PUBLIC_ADS_CACHE_KEY = "sys:google_ads:active_placements";
+const PUBLIC_ADS_CACHE_TTL = 300; // 5 minutes
 
 export const serializeGoogleAdPlacement = (doc: any): GoogleAdPlacementDTO => {
     return {
@@ -62,6 +66,11 @@ export const getAdminGoogleAdPlacements = async (params: {
 };
 
 export const getPublicActiveGoogleAdPlacements = async () => {
+    const cached = await getCache<GoogleAdPlacementDTO[]>(PUBLIC_ADS_CACHE_KEY);
+    if (cached) {
+        return cached;
+    }
+
     const now = new Date();
     const query = {
         status: GOOGLE_AD_STATUS.ACTIVE,
@@ -83,7 +92,9 @@ export const getPublicActiveGoogleAdPlacements = async () => {
     };
 
     const items = await GoogleAdPlacement.find(query).sort({ priority: -1 });
-    return items.map(serializeGoogleAdPlacement);
+    const serialized = items.map(serializeGoogleAdPlacement);
+    await setCache(PUBLIC_ADS_CACHE_KEY, JSON.stringify(serialized), PUBLIC_ADS_CACHE_TTL);
+    return serialized;
 };
 
 export const createGoogleAdPlacement = async (data: Partial<GoogleAdPlacementDTO>) => {
@@ -98,6 +109,7 @@ export const createGoogleAdPlacement = async (data: Partial<GoogleAdPlacementDTO
     });
 
     await placement.save();
+    await delCache(PUBLIC_ADS_CACHE_KEY);
     return serializeGoogleAdPlacement(placement);
 };
 
@@ -120,6 +132,7 @@ export const updateGoogleAdPlacement = async (id: string, data: Partial<GoogleAd
 
     Object.assign(placement, data);
     await placement.save();
+    await delCache(PUBLIC_ADS_CACHE_KEY);
     return serializeGoogleAdPlacement(placement);
 };
 
@@ -131,6 +144,7 @@ export const mutateGoogleAdPlacementStatus = async (id: string, status: string) 
 
     placement.status = status;
     await placement.save();
+    await delCache(PUBLIC_ADS_CACHE_KEY);
     return serializeGoogleAdPlacement(placement);
 };
 
@@ -142,5 +156,6 @@ export const deleteGoogleAdPlacement = async (id: string) => {
 
     placement.isDeleted = true;
     await placement.save();
+    await delCache(PUBLIC_ADS_CACHE_KEY);
     return true;
 };
