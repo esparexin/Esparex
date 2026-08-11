@@ -1,5 +1,4 @@
 import {
-    CHAT_STATUS,
     LIFECYCLE_STATUS,
     USER_STATUS,
     type User,
@@ -48,9 +47,9 @@ export function isManagedUserActive(status?: User["status"]) {
 export function normalizeUserManagementStatusFilter(
     value: string | null | undefined
 ): UserManagementStatusFilter {
-    if (value === CHAT_STATUS.ACTIVE) return USER_STATUS.LIVE;
-    if (value === CHAT_STATUS.BLOCKED) return USER_STATUS.BANNED;
-    if (value === USER_STATUS.LIVE || value === USER_STATUS.SUSPENDED || value === USER_STATUS.BANNED) return value;
+    if (value === "active" || value === USER_STATUS.LIVE) return USER_STATUS.LIVE;
+    if (value === "blocked" || value === USER_STATUS.BANNED) return USER_STATUS.BANNED;
+    if (value === USER_STATUS.SUSPENDED) return USER_STATUS.SUSPENDED;
     return "all";
 }
 
@@ -66,7 +65,7 @@ export function getUserStatusPresentation(status?: User["status"]) {
         case USER_STATUS.SUSPENDED:
             return { status: LIFECYCLE_STATUS.PENDING, label: "Suspended" };
         case USER_STATUS.BANNED:
-            return { status: CHAT_STATUS.BLOCKED, label: "Banned" };
+            return { status: LIFECYCLE_STATUS.BANNED, label: "Banned" };
         case "deleted":
             return { status: LIFECYCLE_STATUS.DEACTIVATED, label: "Deleted" };
         case USER_STATUS.INACTIVE:

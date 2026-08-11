@@ -1,7 +1,7 @@
 import { USER_STATUS, Role } from '@esparex/contracts';
 import { normalizeUserStatus } from '@esparex/shared';
 
-const ACTIVE_USER_STATUS_QUERY = USER_STATUS.ACTIVE;
+const ACTIVE_USER_STATUS_QUERY = { $in: [USER_STATUS.ACTIVE, USER_STATUS.LIVE] };
 const ADMIN_ROLE_RANK: Record<string, number> = { [Role.MODERATOR]: 40, [Role.ADMIN]: 70, [Role.SUPER_ADMIN]: 100 };
 export const ALLOWED_ADMIN_ROLES = new Set([Role.SUPER_ADMIN, Role.ADMIN, Role.MODERATOR]);
 
