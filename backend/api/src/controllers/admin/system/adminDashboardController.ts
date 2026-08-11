@@ -8,7 +8,6 @@ import { scanKeysByPattern } from '@esparex/core/utils/redisCache';
 import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
 import {
     getDashboardOverviewStats,
-    getDashboardCardStats,
     getRecentAdminLogs,
     getContactSubmissionsPaginated,
     updateContactSubmissionById,

@@ -11,12 +11,13 @@ import type { TrendPoint } from "@/components/dashboard/TrendsChart";
 import { Users, CheckCircle, Clock, TrendingUp, AlertCircle, Building2, DollarSign, Wrench, Package } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
-import { fetchAdminAdSummary, fetchAdminServiceSummary, fetchAdminSparePartSummary } from "@/lib/api/moderation";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
 import { ADMIN_UI_ROUTES } from "@/lib/adminUiRoutes";
 import { fetchAuditLogs } from "@/lib/api/auditLogs";
 import type { FinanceStats } from "@/types/transaction";
 import type { AdminLog } from "@/types/audit";
+
+import type { AdminDashboardStatsDTO, CatalogHealthMetricsDTO } from "@esparex/contracts";
 
 const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").then((m) => m.TrendsChart), {
   ssr: false,
@@ -27,30 +28,9 @@ const TrendsChart = dynamic(() => import("@/components/dashboard/TrendsChart").t
   ),
 });
 
-interface CatalogHealthMetrics {
-  pendingRequests: number;
-  averageResolutionHours: number;
-  mergedRequests: number;
-}
-
-type DashboardStats = {
-  totalUsers: number;
-  activeUsers: number;
-  suspendedUsers: number;
-  verifiedUsers: number;
-};
-
-type DashboardOverview = DashboardStats & {
-  bannedUsers?: number;
-};
-
-type BusinessOverview = {
-  pending?: number;
-};
-
 export default function DashboardPage() {
   const { admin } = useAdminAuth();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<{ totalUsers: number; activeUsers: number; suspendedUsers: number; verifiedUsers: number } | null>(null);
   const [financeStats, setFinanceStats] = useState<FinanceStats | null>(null);
   const [trends, setTrends] = useState<TrendPoint[]>([]);
   const [moderationCounts, setModerationCounts] = useState({
@@ -64,7 +44,7 @@ export default function DashboardPage() {
   const [pendingSpareParts, setPendingSpareParts] = useState(0);
   const [reportCount, setReportCount] = useState(0);
   const [pendingBusinessCount, setPendingBusinessCount] = useState(0);
-  const [catalogHealth, setCatalogHealth] = useState<CatalogHealthMetrics | null>(null);
+  const [catalogHealth, setCatalogHealth] = useState<CatalogHealthMetricsDTO | null>(null);
   const [liveLogs, setLiveLogs] = useState<AdminLog[]>([]);
   const [error, setError] = useState("");
 
@@ -88,41 +68,38 @@ export default function DashboardPage() {
       }
     };
 
-    // Panel Group 1: Moderation counts
+    // Panel Group 1: Unified System Overview Stats & Catalog Health
     void safeSettle(
-      () => Promise.all([fetchAdminAdSummary(), fetchAdminServiceSummary(), fetchAdminSparePartSummary()]),
-      ([moderationSummary, serviceSummary, sparePartSummary]) => {
-        setModerationCounts(moderationSummary);
-        setPendingServices(serviceSummary.pending);
-        setPendingSpareParts(sparePartSummary.pending);
-      },
-      "moderation data"
-    );
-
-    // Panel Group 2: User & Business overview
-    void safeSettle(
-      () => Promise.all([
-        adminFetch<DashboardOverview>(ADMIN_ROUTES.USER_OVERVIEW),
-        adminFetch<BusinessOverview>(ADMIN_ROUTES.BUSINESS_OVERVIEW),
-        adminFetch<Record<string, unknown>>(`${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({ status: "open", page: "1", limit: "1" }).toString()}`),
-      ]),
-      ([userOverview, businessOverviewPayload, reportPayload]) => {
-        const overviewData = parseAdminResponse<never, DashboardOverview>(userOverview).data || {} as DashboardOverview;
-        const reportPagination = parseAdminResponse<Record<string, unknown>>(reportPayload).pagination;
-        const businessOverview = parseAdminResponse<never, BusinessOverview>(businessOverviewPayload).data || {};
+      () => adminFetch<AdminDashboardStatsDTO>(ADMIN_ROUTES.STATS),
+      (statsPayload) => {
+        const statsData = parseAdminResponse<never, AdminDashboardStatsDTO>(statsPayload).data || ({} as AdminDashboardStatsDTO);
         setStats({
-          totalUsers: Number(overviewData.totalUsers || 0),
-          activeUsers: Number(overviewData.activeUsers || 0),
-          suspendedUsers: Number(overviewData.suspendedUsers || 0),
-          verifiedUsers: Number(overviewData.verifiedUsers || 0),
+          totalUsers: Number(statsData.totalUsers || 0),
+          activeUsers: Number(statsData.activeAds || 0),
+          suspendedUsers: Number(statsData.pendingAds || 0),
+          verifiedUsers: Number(statsData.activeServices || 0),
         });
-        setReportCount(Number(reportPagination?.total || 0));
-        setPendingBusinessCount(Number(businessOverview.pending || 0));
+        setModerationCounts({
+          total: Number(statsData.totalAds || 0),
+          pending: Number(statsData.pendingAds || 0),
+          live: Number(statsData.activeAds || 0),
+          rejected: 0,
+          expired: 0
+        });
+        setPendingServices(Number(statsData.pendingServices || 0));
+        setPendingSpareParts(Number(statsData.pendingSpareParts || 0));
+        if (statsData.notifications) {
+          setReportCount(Number(statsData.notifications.reportedAds || 0));
+          setPendingBusinessCount(Number(statsData.notifications.pendingBusinesses || 0));
+        }
+        if (statsData.catalogHealth) {
+          setCatalogHealth(statsData.catalogHealth);
+        }
       },
-      "user overview"
+      "system overview stats"
     );
 
-    // Panel Group 3: Finance & trends
+    // Panel Group 2: Finance & trends
     void safeSettle(
       () => Promise.all([
         adminFetch<FinanceStats>(ADMIN_ROUTES.FINANCE_STATS),
@@ -139,17 +116,7 @@ export default function DashboardPage() {
       "finance data"
     );
 
-    // Panel Group 4: Catalog health & dashboard stats
-    void safeSettle(
-      () => adminFetch<Record<string, unknown>>(ADMIN_ROUTES.DASHBOARD_STATS),
-      (dashboardStatsPayload) => {
-        const dashboardStats = parseAdminResponse<never, { catalogHealth?: CatalogHealthMetrics }>(dashboardStatsPayload).data;
-        if (dashboardStats?.catalogHealth) setCatalogHealth(dashboardStats.catalogHealth);
-      },
-      "catalog health"
-    );
-
-    // Panel Group 5: Live audit logs
+    // Panel Group 3: Live audit logs
     void safeSettle(
       () => fetchAuditLogs({ q: "", action: "all", page: 1, limit: 5 }),
       (auditPayload) => setLiveLogs(auditPayload.items),
@@ -161,10 +128,11 @@ export default function DashboardPage() {
 
   const calculateGrowth = () => {
     if (trends.length < 2) return null;
-    const latest = trends[trends.length - 1]?.amt || 0;
-    const previous = trends[trends.length - 2]?.amt || 0;
+    const latest = trends[trends.length - 1]?.amt ?? trends[trends.length - 1]?.ads ?? 0;
+    const previous = trends[trends.length - 2]?.amt ?? trends[trends.length - 2]?.ads ?? 0;
     if (previous === 0) return latest > 0 ? 100 : 0;
-    return ((latest - previous) / previous) * 100;
+    const rate = ((latest - previous) / previous) * 100;
+    return Number.isFinite(rate) ? rate : 0;
   };
 
   const growth = calculateGrowth();
