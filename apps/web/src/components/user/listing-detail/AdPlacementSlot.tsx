@@ -11,14 +11,18 @@ interface AdPlacementSlotProps {
 }
 
 export function AdPlacementSlot({
-    slotId = "default-listing-ad",
+    slotId,
     variant = "banner",
     className = "",
 }: AdPlacementSlotProps) {
     const adRef = useRef<HTMLDivElement>(null);
 
+    const clientPublisherId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID?.trim();
+    const effectiveSlotId = slotId || process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT_ID?.trim();
+
     useEffect(() => {
-        // Attempt to push AdSense ad if window.adsbygoogle is available
+        if (!clientPublisherId || !effectiveSlotId) return;
+
         try {
             if (typeof window !== "undefined" && (window as any).adsbygoogle) {
                 ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
@@ -26,9 +30,10 @@ export function AdPlacementSlot({
         } catch {
             // Safe fallback if AdSense script is blocked or missing
         }
-    }, []);
+    }, [clientPublisherId, effectiveSlotId]);
 
     const isBanner = variant === "banner";
+    const hasValidAdSenseConfig = Boolean(clientPublisherId && effectiveSlotId);
 
     return (
         <div
@@ -48,24 +53,26 @@ export function AdPlacementSlot({
                     isBanner ? "min-h-[90px] py-4 px-6" : "min-h-[250px] p-6"
                 }`}
             >
-                {/* Fallback Display Banner (Replaced automatically when AdSense script runs) */}
-                <div className="flex flex-col items-center justify-center gap-1.5 text-center">
-                    <p className="text-xs font-semibold text-slate-600">
-                        Promote your products or services here
-                    </p>
-                    <p className="text-2xs text-slate-400">
-                        Targeted reach across local device buyers and repair professionals
-                    </p>
-                </div>
-
-                <ins
-                    className="adsbygoogle"
-                    style={{ display: "block" }}
-                    data-ad-client="ca-pub-esparex"
-                    data-ad-slot={slotId}
-                    data-ad-format={isBanner ? "horizontal" : "auto"}
-                    data-full-width-responsive="true"
-                />
+                {hasValidAdSenseConfig ? (
+                    <ins
+                        className="adsbygoogle"
+                        style={{ display: "block" }}
+                        data-ad-client={clientPublisherId}
+                        data-ad-slot={effectiveSlotId}
+                        data-ad-format={isBanner ? "horizontal" : "auto"}
+                        data-full-width-responsive="true"
+                    />
+                ) : (
+                    /* Fallback Display Banner (Rendered when AdSense env config is missing or script disabled) */
+                    <div className="flex flex-col items-center justify-center gap-1.5 text-center">
+                        <p className="text-xs font-semibold text-slate-600">
+                            Promote your products or services here
+                        </p>
+                        <p className="text-2xs text-slate-400">
+                            Targeted reach across local device buyers and repair professionals
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
