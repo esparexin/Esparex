@@ -153,16 +153,16 @@ export default function DashboardPage() {
           </div>
         ) : null
       }
-      className="h-full overflow-y-auto pr-1"
+      className="h-full overflow-y-auto px-4 lg:px-6 py-4"
     >
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-5">
         {/* Section 1: Operational Queues */}
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-2">
           <div>
-            <h2 className="text-base font-bold text-foreground">Operational Queues</h2>
-            <p className="text-xs text-foreground-tertiary">Action required across moderation & approval queues</p>
+            <h2 className="text-sm font-bold text-foreground">Operational Queues</h2>
+            <p className="text-tiny text-foreground-tertiary">Action required across moderation & approval queues</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <DashboardCard
               title="Pending Ads"
               value={moderationCounts.pending}
@@ -210,12 +210,12 @@ export default function DashboardPage() {
         </section>
 
         {/* Section 2: Directory & Platform Overview */}
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-2">
           <div>
-            <h2 className="text-base font-bold text-foreground">Directory & Users</h2>
-            <p className="text-xs text-foreground-tertiary">Platform account status and active inventory</p>
+            <h2 className="text-sm font-bold text-foreground">Directory & Users</h2>
+            <p className="text-tiny text-foreground-tertiary">Platform account status and active inventory</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <DashboardCard
               title="Live Ads"
               value={moderationCounts.live}
@@ -248,15 +248,15 @@ export default function DashboardPage() {
         </section>
 
         {/* Section 3: Revenue, Trends & Live Activity */}
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-3">
           <div>
-            <h2 className="text-base font-bold text-foreground">Financials & Activity</h2>
-            <p className="text-xs text-foreground-tertiary">Revenue growth signals and real-time audit log</p>
+            <h2 className="text-sm font-bold text-foreground">Financials & Activity</h2>
+            <p className="text-tiny text-foreground-tertiary">Revenue growth signals and real-time audit log</p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 flex flex-col gap-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DashboardCard
                   title="Total Revenue"
                   value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}
@@ -276,19 +276,19 @@ export default function DashboardPage() {
               <TrendsChart data={trends} title="Growth Trends" />
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-              <h3 className="text-base font-bold text-foreground mb-4">Live Activity</h3>
+            <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-bold text-foreground mb-3">Live Activity</h3>
               {error ? (
-                <p className="text-red-500 text-sm italic">{error}</p>
+                <p className="text-red-500 text-xs italic">{error}</p>
               ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2.5">
                   {liveLogs.length > 0 ? liveLogs.map((log) => (
-                    <div key={log.id} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
-                      <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-foreground-subtle shrink-0">
-                        <Users size={16} />
+                    <div key={log.id} className="flex items-center gap-2.5 pb-2.5 border-b border-slate-50 last:border-0 last:pb-0">
+                      <div className="w-7 h-7 rounded bg-slate-100 flex items-center justify-center text-foreground-subtle shrink-0">
+                        <Users size={14} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
+                        <p className="text-xs font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
                         <p className="text-tiny text-foreground-subtle font-medium truncate">
                           {log.adminId && typeof log.adminId === 'object' 
                             ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
