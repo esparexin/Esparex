@@ -157,6 +157,11 @@ export const ADMIN_ROUTES = {
   SUPPORT_CONTACT: "/support/contact",
   SUPPORT_CONTACT_STATUS: (id: string) => `/support/contact/${id}/status`,
 
+  // Google Ads
+  GOOGLE_ADS_PLACEMENTS: "/google-ads/placements",
+  GOOGLE_ADS_PLACEMENT_BY_ID: (id: string) => `/google-ads/placements/${id}`,
+  GOOGLE_ADS_PLACEMENT_STATUS: (id: string) => `/google-ads/placements/${id}/status`,
+
   // Other
   IMPORT_BULK: "/import/bulk",
 

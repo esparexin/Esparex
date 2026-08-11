@@ -32,7 +32,8 @@ export type AdminModuleKey =
     | "masterData"
     | "partsCatalog"
     | "locations"
-    | "catalogRequests";
+    | "catalogRequests"
+    | "googleAds";
 
 export type AdminModuleItem = {
     key: AdminModuleKey;
@@ -146,6 +147,15 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         roles: ["admin", "superAdmin"],
         aliases: ["/finance", "/plans", "/business-plans", "/invoices", "/revenue"],
 
+    },
+    {
+        key: "googleAds",
+        label: "Google Ads",
+        icon: Tag,
+        href: "/google-ads",
+        roles: ["admin", "superAdmin"],
+        section: "Management",
+        aliases: ["/google-ads"],
     },
     {
         key: "administration",

@@ -6,7 +6,7 @@ export type AdminLogTargetType =
     | 'Service' | 'SparePart' | 'SparePartListing' | 'Location' | 'ModerationRule' | 'Config'
     | 'Notification' | 'ScheduledNotification' | 'Report' | 'Contact' | 'Transaction' | 'Invoice'
     | 'ServiceType' | 'ScreenSize' | 'Admin' | 'Keyword' | 'Geofence' | 'Conversation' | 'ApiKey'
-    | 'SmartAlert' | 'ExpiryWarning' | 'SpotlightPromotion';
+    | 'SmartAlert' | 'ExpiryWarning' | 'SpotlightPromotion' | 'GoogleAdPlacement';
 
 /**
  * Shared signature for transport-free admin logging.

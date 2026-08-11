@@ -21,6 +21,7 @@ import * as adminLocations from '../controllers/admin/adminLocationController';
 import * as adminSystemConfig from '../controllers/admin/systemConfigController';
 import * as adminImportContent from '../controllers/admin/content/import.content.controller';
 import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsController';
+import * as adminGoogleAds from '../controllers/admin/adminGoogleAdsController';
 
 const router = express.Router();
 
@@ -191,7 +192,11 @@ router.get('/smart-alerts/logs', adminSmartAlerts.getSmartAlertLogs);
 router.delete('/smart-alerts/:id', requirePermission('ads:write'), adminSmartAlerts.deleteSmartAlertById);
 router.post('/smart-alerts/bulk/resend-warnings', requirePermission('ads:write'), adminSmartAlerts.adminBulkResendAlertWarnings);
 
-// Add these to respective sections if needed, but I'll add them near their bulk operations
-// For clarity, I'll place them exactly where the other bulk operations are.
+// Google Ads
+router.get('/google-ads/placements', adminGoogleAds.getGoogleAdPlacements);
+router.post('/google-ads/placements', requirePermission('system:config'), adminGoogleAds.createAdPlacement);
+router.patch('/google-ads/placements/:id', requirePermission('system:config'), adminGoogleAds.updateAdPlacement);
+router.patch('/google-ads/placements/:id/status', requirePermission('system:config'), adminGoogleAds.mutateAdPlacementStatus);
+router.delete('/google-ads/placements/:id', requirePermission('system:config'), adminGoogleAds.removeAdPlacement);
 
 export default router;
