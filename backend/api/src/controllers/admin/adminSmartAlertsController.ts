@@ -67,7 +67,7 @@ export async function deleteSmartAlertById(req: Request, res: Response) {
         
         const result = await deleteSmartAlertMutation({
             alertId: id,
-            admin: req.user as any,
+            admin: req.admin ? { id: req.admin._id?.toString(), _id: req.admin._id?.toString() } : (req.user ? { id: req.user.id, _id: req.user._id?.toString() } : undefined),
         });
 
         await logFn('delete', 'SmartAlert', id, { reason: 'Admin deletion' });

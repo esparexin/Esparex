@@ -10,10 +10,11 @@ import { z } from "zod";
 export const getAiConfig = async (req: Request, res: Response) => {
     try {
         const doc = await getSystemConfigDoc();
-        const dbAi = doc?.ai || ({} as any);
+        const capabilities = doc?.ai?.capabilities;
+        const providers = doc?.ai?.providers;
 
         const responseData = {
-            capabilities: dbAi.capabilities || {
+            capabilities: capabilities || {
                 post_ad_title: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.7, maxTokens: 200 },
                 post_ad_description: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.7, maxTokens: 1000 },
                 device_identification: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.2, maxTokens: 300 },
@@ -22,28 +23,28 @@ export const getAiConfig = async (req: Request, res: Response) => {
             },
             providers: {
                 gemini: {
-                    enabled: dbAi.providers?.gemini?.enabled ?? true,
-                    apiKeyMasked: maskApiKey(dbAi.providers?.gemini?.apiKeyEncrypted || process.env.GEMINI_API_KEY || ""),
-                    hasKey: Boolean(dbAi.providers?.gemini?.apiKeyEncrypted || process.env.GEMINI_API_KEY),
-                    defaultModel: dbAi.providers?.gemini?.defaultModel || "gemini-2.5-flash",
+                    enabled: providers?.gemini?.enabled ?? true,
+                    apiKeyMasked: maskApiKey(providers?.gemini?.apiKeyEncrypted || process.env.GEMINI_API_KEY || ""),
+                    hasKey: Boolean(providers?.gemini?.apiKeyEncrypted || process.env.GEMINI_API_KEY),
+                    defaultModel: providers?.gemini?.defaultModel || "gemini-2.5-flash",
                 },
                 openai: {
-                    enabled: dbAi.providers?.openai?.enabled ?? false,
-                    apiKeyMasked: maskApiKey(dbAi.providers?.openai?.apiKeyEncrypted || process.env.OPENAI_API_KEY || ""),
-                    hasKey: Boolean(dbAi.providers?.openai?.apiKeyEncrypted || process.env.OPENAI_API_KEY),
-                    defaultModel: dbAi.providers?.openai?.defaultModel || "gpt-4o-mini",
+                    enabled: providers?.openai?.enabled ?? false,
+                    apiKeyMasked: maskApiKey(providers?.openai?.apiKeyEncrypted || process.env.OPENAI_API_KEY || ""),
+                    hasKey: Boolean(providers?.openai?.apiKeyEncrypted || process.env.OPENAI_API_KEY),
+                    defaultModel: providers?.openai?.defaultModel || "gpt-4o-mini",
                 },
                 claude: {
-                    enabled: dbAi.providers?.claude?.enabled ?? false,
-                    apiKeyMasked: maskApiKey(dbAi.providers?.claude?.apiKeyEncrypted || process.env.CLAUDE_API_KEY || ""),
-                    hasKey: Boolean(dbAi.providers?.claude?.apiKeyEncrypted || process.env.CLAUDE_API_KEY),
-                    defaultModel: dbAi.providers?.claude?.defaultModel || "claude-3-5-haiku-20241022",
+                    enabled: providers?.claude?.enabled ?? false,
+                    apiKeyMasked: maskApiKey(providers?.claude?.apiKeyEncrypted || process.env.CLAUDE_API_KEY || ""),
+                    hasKey: Boolean(providers?.claude?.apiKeyEncrypted || process.env.CLAUDE_API_KEY),
+                    defaultModel: providers?.claude?.defaultModel || "claude-3-5-haiku-20241022",
                 },
                 deepseek: {
-                    enabled: dbAi.providers?.deepseek?.enabled ?? false,
-                    apiKeyMasked: maskApiKey(dbAi.providers?.deepseek?.apiKeyEncrypted || process.env.DEEPSEEK_API_KEY || ""),
-                    hasKey: Boolean(dbAi.providers?.deepseek?.apiKeyEncrypted || process.env.DEEPSEEK_API_KEY),
-                    defaultModel: dbAi.providers?.deepseek?.defaultModel || "deepseek-chat",
+                    enabled: providers?.deepseek?.enabled ?? false,
+                    apiKeyMasked: maskApiKey(providers?.deepseek?.apiKeyEncrypted || process.env.DEEPSEEK_API_KEY || ""),
+                    hasKey: Boolean(providers?.deepseek?.apiKeyEncrypted || process.env.DEEPSEEK_API_KEY),
+                    defaultModel: providers?.deepseek?.defaultModel || "deepseek-chat",
                 },
             },
         };
@@ -140,7 +141,7 @@ export const testAiProvider = async (req: Request, res: Response) => {
         const t0 = Date.now();
         const provider = AIProviderFactory.create(providerName);
         let prompt = "";
-        let schema = z.object({}) as any;
+        let schema: z.ZodTypeAny;
 
         if (capability === "device_identification") {
             prompt = identifyDevicePromptV1(`${brand} ${model}`);

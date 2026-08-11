@@ -1,16 +1,16 @@
-import { AD_PLACEMENT_LOCATION } from "@esparex/contracts";
+import { AD_PLACEMENT_LOCATION, type AdPlacementLocationValue } from "@esparex/contracts";
 
 interface AdPlacementLocationSelectProps {
-    value: string;
+    value: AdPlacementLocationValue;
     isCreating: boolean;
-    onChange: (nextLoc: string) => void;
+    onChange: (nextLoc: AdPlacementLocationValue) => void;
 }
 
 export function AdPlacementLocationSelect({ value, isCreating, onChange }: AdPlacementLocationSelectProps) {
     return (
         <select
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => onChange(e.target.value as AdPlacementLocationValue)}
             className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
             aria-label="Ad Placement Location"
         >

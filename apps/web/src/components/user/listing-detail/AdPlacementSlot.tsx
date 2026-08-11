@@ -27,8 +27,9 @@ export function AdPlacementSlot({
         if (!clientPublisherId || !effectiveSlotId) return;
 
         try {
-            if (typeof window !== "undefined" && (window as any).adsbygoogle) {
-                ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+            if (typeof window !== "undefined") {
+                const ads = (window.adsbygoogle = window.adsbygoogle || []);
+                ads.push({});
             }
         } catch {
             // Safe fallback if AdSense script is blocked or missing
