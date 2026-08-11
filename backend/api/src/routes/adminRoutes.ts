@@ -23,6 +23,7 @@ import * as adminImportContent from '../controllers/admin/content/import.content
 import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsController';
 import * as adminGoogleAds from '../controllers/admin/adminGoogleAdsController';
 import * as adminAiConfig from '../controllers/admin/adminAiConfigController';
+import * as adminMonetization from '../controllers/admin/adminMonetizationController';
 
 const router = express.Router();
 
@@ -202,5 +203,13 @@ router.post('/google-ads/placements', requirePermission('system:config'), adminG
 router.patch('/google-ads/placements/:id', requirePermission('system:config'), adminGoogleAds.updateAdPlacement);
 router.patch('/google-ads/placements/:id/status', requirePermission('system:config'), adminGoogleAds.mutateAdPlacementStatus);
 router.delete('/google-ads/placements/:id', requirePermission('system:config'), adminGoogleAds.removeAdPlacement);
+
+// Monetization & Advertising Campaign Management
+router.get('/monetization/campaigns', adminMonetization.getCampaigns);
+router.post('/monetization/campaigns', requirePermission('system:config'), adminMonetization.createCampaign);
+router.patch('/monetization/campaigns/:id', requirePermission('system:config'), adminMonetization.updateCampaign);
+router.delete('/monetization/campaigns/:id', requirePermission('system:config'), adminMonetization.deleteCampaign);
+router.get('/monetization/config', adminMonetization.getMonetizationConfig);
+router.patch('/monetization/config', requirePermission('system:config'), adminMonetization.updateMonetizationConfig);
 
 export default router;
