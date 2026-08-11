@@ -31,7 +31,7 @@ import {
     CatalogSelectFilter,
     CatalogRejectSuggestionForm,
     CatalogSearchInput,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 
 import { Brand } from "@esparex/contracts";

@@ -2,7 +2,7 @@
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { CategoryAssignmentField } from "@/components/catalog/CategoryAssignmentField";
-import { CatalogTextInputField } from "@/components/catalog/CatalogUiPrimitives";
+import { CatalogTextInputField } from "@/components/catalog/primitives";
 
 type CategoryOption = {
     id: string;

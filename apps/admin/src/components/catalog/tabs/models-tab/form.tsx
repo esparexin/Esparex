@@ -5,8 +5,7 @@ import { Model, Brand } from "@esparex/contracts";
 import type { ModelFormData } from "./types";
 import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
-import { CatalogSelectField } from "@/components/catalog/CatalogUiPrimitives";
-import { CatalogArchivedCategoryNotice } from "@/components/catalog/CatalogUiPrimitives";
+import { CatalogSelectField, CatalogArchivedCategoryNotice } from "@/components/catalog/primitives";
 import { getEntityCategoryIds } from "@/components/catalog/catalogDomainUtils";
 
 export function ModelsFormRenderer({ formData, setFormData, brands, categoryOptions, archivedCategoryCount }: {

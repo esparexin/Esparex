@@ -21,7 +21,7 @@ import {
     CatalogSelectFilter,
     CatalogTextInputField,
     CatalogSearchInput,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { toCategoryOptions } from "@/components/catalog/catalogDomainUtils";
 import type { ScreenSizeMutationPayload } from "@/lib/api/screenSizes";
 

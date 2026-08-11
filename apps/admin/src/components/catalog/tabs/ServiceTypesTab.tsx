@@ -13,7 +13,7 @@ import {
     CatalogActiveStatusFilter,
     CatalogSelectFilter,
     CatalogSearchInput,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { CatalogDeleteModal } from "@/components/catalog/CatalogDeleteModal";
 import { useCatalogTabState } from "@/hooks/useCatalogTabState";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
