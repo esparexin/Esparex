@@ -53,9 +53,15 @@ export default function BusinessesView() {
 
     const columns = buildColumns({ onView: businessList.setSelectedBusiness, onEdit: businessList.setModifyTarget, onDelete: businessList.setDeleteTarget, toggleSelect, toggleSelectAll, selectedIds, allCount: businesses.length, setSuspendTarget, handleActivate });
 
-    const overviewCards = [{ label: "All", value: overview.total, color: "text-foreground-secondary" }, { label: "Live", value: overview.live, color: "text-emerald-600" }, { label: "Pending", value: overview.pending, color: "text-amber-600" }, { label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, color: "text-rose-600" }, { label: "Suspended", value: overview.suspended, color: "text-red-600" }];
+    const statusParam = searchParams.get("status") || "all";
 
-    const tabs = ["live", "suspended", "pending", "deleted", "all"].map((s) => ({ label: s === "live" ? "Live" : s.charAt(0).toUpperCase() + s.slice(1), href: buildUrlWithSearchParams(pathname, updateSearchParams(searchParams, { status: s, page: null })), count: s === "live" ? overview.live : s === "suspended" ? overview.suspended : s === "pending" ? overview.pending : s === "deleted" ? overview.deleted : overview.total }));
+    const overviewCards = [
+        { label: "All", value: overview.total, status: "all", color: "text-foreground-secondary" },
+        { label: "Live", value: overview.live, status: "live", color: "text-emerald-600" },
+        { label: "Pending", value: overview.pending, status: "pending", color: "text-amber-600" },
+        { label: "Expiring (3d)", value: (overview as { expiringIn3Days?: number }).expiringIn3Days ?? 0, status: "expiring", color: "text-rose-600" },
+        { label: "Suspended", value: overview.suspended, status: "suspended", color: "text-red-600" },
+    ];
 
     const bulkActions = (
         <div className="flex items-center gap-2">
@@ -77,14 +83,28 @@ export default function BusinessesView() {
         <AdminPageShell title="Business Master" description="Manage all business accounts" headerVariant="compact">
             <div className="space-y-6">
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                    {overviewCards.map(({ label, value, color }) => (
-                        <div key={label} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center gap-3 shadow-sm">
-                            <ChartBar size={16} className="text-foreground-subtle" />
-                            <div><div className={`text-lg font-bold ${color}`}>{value}</div><div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider">{label}</div></div>
-                        </div>
-                    ))}
+                    {overviewCards.map(({ label, value, status, color }) => {
+                        const isActive = statusParam === status || (status === "all" && !statusParam);
+                        return (
+                            <button
+                                type="button"
+                                key={label}
+                                onClick={() => replaceQueryState({ status: status === "all" ? null : status, page: null })}
+                                className={`rounded-xl border p-3 flex items-center gap-3 shadow-xs text-left transition-all cursor-pointer ${
+                                    isActive
+                                        ? "bg-sky-50/60 border-sky-300 ring-2 ring-sky-500/20 shadow-sm"
+                                        : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                                }`}
+                            >
+                                <ChartBar size={16} className={isActive ? "text-sky-600" : "text-foreground-subtle"} />
+                                <div>
+                                    <div className={`text-lg font-bold ${color}`}>{value}</div>
+                                    <div className="text-tiny text-foreground-subtle font-semibold uppercase tracking-wider">{label}</div>
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
-                <AdminModuleTabs tabs={tabs} />
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
                         <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} />

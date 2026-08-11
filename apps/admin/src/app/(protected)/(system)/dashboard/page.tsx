@@ -188,135 +188,157 @@ export default function DashboardPage() {
       className="h-full overflow-y-auto pr-1"
     >
       <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-6">
-        <DashboardCard
-          title="Pending Ads"
-          value={moderationCounts.pending}
-          icon={Clock}
-          className="border-amber-100 bg-amber-50/5"
-          href={ADMIN_UI_ROUTES.ads({ status: "pending" })}
-        />
-        <DashboardCard
-          title="Live Ads"
-          value={moderationCounts.live}
-          icon={CheckCircle}
-          className="border-emerald-100 bg-emerald-50/5"
-          href={ADMIN_UI_ROUTES.ads({ status: "live" })}
-        />
-        <DashboardCard
-          title="Reported Ads"
-          value={reportCount}
-          icon={AlertCircle}
-          className="border-red-100 bg-red-50/5"
-          href={ADMIN_UI_ROUTES.reports({ status: "open" })}
-        />
-        <DashboardCard
-          title="Pending Businesses"
-          value={pendingBusinessCount}
-          icon={Building2}
-          className="border-violet-100 bg-violet-50/5"
-          href={ADMIN_UI_ROUTES.businesses({ status: "pending" })}
-        />
-        <DashboardCard
-          title="Total Users"
-          value={stats?.totalUsers || 0}
-          icon={Users}
-          href={ADMIN_UI_ROUTES.users()}
-        />
-        <DashboardCard
-          title="Suspended Users"
-          value={stats?.suspendedUsers || 0}
-          icon={AlertCircle}
-          className="border-amber-100 bg-amber-50/5"
-          href={ADMIN_UI_ROUTES.users({ status: "suspended" })}
-        />
-        <DashboardCard
-          title="Total Revenue"
-          value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}
-          icon={DollarSign}
-          className="border-sky-100 bg-sky-50/5"
-          href={ADMIN_UI_ROUTES.finance()}
-        />
-      </div>
+        {/* Section 1: Operational Queues */}
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold text-foreground">Operational Queues</h2>
+            <p className="text-xs text-foreground-tertiary">Action required across moderation & approval queues</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <DashboardCard
+              title="Pending Ads"
+              value={moderationCounts.pending}
+              icon={Clock}
+              variant="warning"
+              href={ADMIN_UI_ROUTES.ads({ status: "pending" })}
+            />
+            <DashboardCard
+              title="Reported Ads"
+              value={reportCount}
+              icon={AlertCircle}
+              variant="danger"
+              href={ADMIN_UI_ROUTES.reports({ status: "open" })}
+            />
+            <DashboardCard
+              title="Pending Businesses"
+              value={pendingBusinessCount}
+              icon={Building2}
+              variant="warning"
+              href={ADMIN_UI_ROUTES.businesses({ status: "pending" })}
+            />
+            <DashboardCard
+              title="Pending Services"
+              value={pendingServices}
+              icon={Wrench}
+              variant="warning"
+              href={ADMIN_UI_ROUTES.services({ status: "pending" })}
+            />
+            <DashboardCard
+              title="Pending Spare Parts"
+              value={pendingSpareParts}
+              icon={Package}
+              variant="warning"
+              href={ADMIN_UI_ROUTES.spareParts({ status: "pending" })}
+            />
+            <DashboardCard
+              title="Catalog Requests"
+              value={catalogHealth?.pendingRequests ?? 0}
+              icon={Clock}
+              variant="info"
+              description="Awaiting review"
+              href={ADMIN_UI_ROUTES.catalogRequests({ status: 'pending' })}
+            />
+          </div>
+        </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DashboardCard
-          title="Pending Services"
-          value={pendingServices}
-          icon={Wrench}
-          className="border-indigo-100 bg-indigo-50/5"
-          href={ADMIN_UI_ROUTES.services({ status: "pending" })}
-        />
-        <DashboardCard
-          title="Pending Spare Parts"
-          value={pendingSpareParts}
-          icon={Package}
-          className="border-teal-100 bg-teal-50/5"
-          href={ADMIN_UI_ROUTES.spareParts({ status: "pending" })}
-        />
-      </div>
+        {/* Section 2: Directory & Platform Overview */}
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-base font-bold text-foreground">Directory & Users</h2>
+            <p className="text-xs text-foreground-tertiary">Platform account status and active inventory</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <DashboardCard
+              title="Live Ads"
+              value={moderationCounts.live}
+              icon={CheckCircle}
+              variant="success"
+              href={ADMIN_UI_ROUTES.ads({ status: "live" })}
+            />
+            <DashboardCard
+              title="Total Users"
+              value={stats?.totalUsers || 0}
+              icon={Users}
+              variant="info"
+              href={ADMIN_UI_ROUTES.users()}
+            />
+            <DashboardCard
+              title="Suspended Users"
+              value={stats?.suspendedUsers || 0}
+              icon={AlertCircle}
+              variant="warning"
+              href={ADMIN_UI_ROUTES.users({ status: "suspended" })}
+            />
+            <DashboardCard
+              title="Avg Turnaround"
+              value={`${catalogHealth?.averageResolutionHours ?? 0} hrs`}
+              icon={TrendingUp}
+              variant="info"
+              description="Resolution speed"
+            />
+          </div>
+        </section>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <DashboardCard
-          title="Pending Requests"
-          value={catalogHealth?.pendingRequests ?? 0}
-          icon={Clock}
-          className="border-amber-100 bg-amber-50/5"
-          description="Catalog suggestions awaiting review"
-          href={ADMIN_UI_ROUTES.catalogRequests({ status: 'pending' })}
-        />
-        <DashboardCard
-          title="Avg Resolution (hrs)"
-          value={catalogHealth?.averageResolutionHours ?? 0}
-          icon={TrendingUp}
-          className="border-sky-100 bg-sky-50/5"
-          description="Average turnaround for requests"
-        />
-        <DashboardCard
-          title="Merged Requests"
-          value={catalogHealth?.mergedRequests ?? 0}
-          icon={CheckCircle}
-          className="border-slate-100 bg-slate-50/5"
-          description="Requests successfully merged"
-          href={ADMIN_UI_ROUTES.catalogRequests({ status: 'merged' })}
-        />
-      </div>
+        {/* Section 3: Revenue, Trends & Live Activity */}
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-base font-bold text-foreground">Financials & Activity</h2>
+            <p className="text-xs text-foreground-tertiary">Revenue growth signals and real-time audit log</p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DashboardCard
+                  title="Total Revenue"
+                  value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}
+                  icon={DollarSign}
+                  variant="success"
+                  href={ADMIN_UI_ROUTES.finance()}
+                />
+                <DashboardCard
+                  title="Merged Requests"
+                  value={catalogHealth?.mergedRequests ?? 0}
+                  icon={CheckCircle}
+                  variant="success"
+                  description="Successfully merged"
+                  href={ADMIN_UI_ROUTES.catalogRequests({ status: 'merged' })}
+                />
+              </div>
+              <TrendsChart data={trends} title="Growth Trends" />
+            </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <TrendsChart data={trends} title="Growth Trends" />
-        </div>
-
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-foreground mb-4">Live Activity</h2>
-          {error ? (
-            <p className="text-red-500 text-sm italic">{error}</p>
-          ) : (
-            <div className="space-y-4">
-              {liveLogs.length > 0 ? liveLogs.map((log) => (
-                <div key={log.id} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
-                  <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-foreground-subtle">
-                    <Users size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
-                    <p className="text-tiny text-foreground-subtle font-medium">
-                      {log.adminId && typeof log.adminId === 'object' 
-                        ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
-                        : 'System'} • {log.targetType}
-                    </p>
-                  </div>
-                  <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-tighter">
-                    {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h3 className="text-base font-bold text-foreground mb-4">Live Activity</h3>
+              {error ? (
+                <p className="text-red-500 text-sm italic">{error}</p>
+              ) : (
+                <div className="space-y-4">
+                  {liveLogs.length > 0 ? liveLogs.map((log) => (
+                    <div key={log.id} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
+                      <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-foreground-subtle shrink-0">
+                        <Users size={16} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{log.action.replace(/_/g, ' ')}</p>
+                        <p className="text-tiny text-foreground-subtle font-medium truncate">
+                          {log.adminId && typeof log.adminId === 'object' 
+                            ? `${log.adminId.firstName} ${log.adminId.lastName || ''}` 
+                            : 'System'} • {log.targetType}
+                        </p>
+                      </div>
+                      <span className="text-tiny font-bold text-foreground-subtle uppercase tracking-tighter shrink-0">
+                        {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  )) : (
+                    <p className="text-xs text-foreground-subtle italic">No recent activity detected.</p>
+                  )}
                 </div>
-              )) : (
-                <p className="text-xs text-foreground-subtle italic">No recent activity detected.</p>
               )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </section>
       </div>
     </AdminPageShell>
   );
