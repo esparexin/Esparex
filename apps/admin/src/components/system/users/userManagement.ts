@@ -14,7 +14,7 @@ export type ManagedUser = User & {
 
 export type UserManagementStatusFilter =
     | "all"
-    | typeof USER_STATUS.LIVE
+    | typeof USER_STATUS.ACTIVE
     | typeof USER_STATUS.SUSPENDED
     | typeof USER_STATUS.BANNED;
 
@@ -47,8 +47,8 @@ export function isManagedUserActive(status?: User["status"]) {
 export function normalizeUserManagementStatusFilter(
     value: string | null | undefined
 ): UserManagementStatusFilter {
-    if (value === "active" || value === USER_STATUS.LIVE) return USER_STATUS.LIVE;
-    if (value === "blocked" || value === USER_STATUS.BANNED) return USER_STATUS.BANNED;
+    if (value === USER_STATUS.ACTIVE || value === USER_STATUS.LIVE) return USER_STATUS.ACTIVE;
+    if (value === USER_STATUS.BANNED) return USER_STATUS.BANNED;
     if (value === USER_STATUS.SUSPENDED) return USER_STATUS.SUSPENDED;
     return "all";
 }

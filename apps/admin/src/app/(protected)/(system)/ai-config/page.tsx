@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Cpu, ShieldCheck, Key, Save, CheckCircle, ChevronDown, ChevronUp } from "@esparex/ui";
+import { Cpu, ShieldCheck, Key, Save, CheckCircle, ChevronDown, ChevronUp, Stack, Grid } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AICapabilityRoutingTable, PROVIDER_MODELS } from "@/components/system/ai/AICapabilityRoutingTable";
 import { AITestingConsole } from "@/components/system/ai/AITestingConsole";
@@ -122,9 +122,9 @@ export default function AIConfigPage() {
                 </button>
             }
         >
-            <div className="space-y-6">
+            <Stack direction="col" gap="lg">
                 {/* KPI Header Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Grid cols={3} gap="sm">
                     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
                             <ShieldCheck size={22} />
@@ -154,10 +154,10 @@ export default function AIConfigPage() {
                             <p className="text-sm font-bold text-slate-900 font-mono">OpenAI (GPT-4o-mini)</p>
                         </div>
                     </div>
-                </div>
+                </Grid>
 
                 {/* Provider API Keys & Settings Accordion */}
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col gap-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                             <Key className="text-slate-700" size={20} />
@@ -168,7 +168,7 @@ export default function AIConfigPage() {
                         </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <Stack direction="col" gap="sm">
                         {[
                             { id: "gemini", name: "Google Gemini", input: geminiKeyInput, setInput: setGeminiKeyInput, models: PROVIDER_MODELS.gemini, defaultM: "gemini-2.5-flash" },
                             { id: "openai", name: "OpenAI", input: openAiKeyInput, setInput: setOpenAiKeyInput, models: PROVIDER_MODELS.openai, defaultM: "gpt-4o-mini" },
@@ -219,8 +219,8 @@ export default function AIConfigPage() {
 
                                     {/* Accordion Collapsible Content Body */}
                                     {isExpanded && (
-                                        <div className="p-4 border-t border-slate-200/80 space-y-4 bg-slate-50/60">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Stack direction="col" gap="md" className="p-4 border-t border-slate-200/80 bg-slate-50/60">
+                                            <Grid cols={2} gap="sm">
                                                 <div>
                                                     <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">
                                                         API Key (Masked: {provData.apiKeyMasked || "••••••••"})
@@ -248,13 +248,13 @@ export default function AIConfigPage() {
                                                         ))}
                                                     </select>
                                                 </div>
-                                            </div>
-                                        </div>
+                                            </Grid>
+                                        </Stack>
                                     )}
                                 </div>
                             );
                         })}
-                    </div>
+                    </Stack>
                 </div>
 
                 {/* Capability Routing Table */}
@@ -265,7 +265,7 @@ export default function AIConfigPage() {
 
                 {/* AI Testing Console Sandbox */}
                 <AITestingConsole />
-            </div>
+            </Stack>
         </AdminPageShell>
     );
 }

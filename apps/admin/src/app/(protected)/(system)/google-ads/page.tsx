@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, ShieldCheck, CheckCircle } from "@esparex/ui";
+import { Plus, ShieldCheck, CheckCircle, Stack } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { GoogleAdsTable } from "@/components/google-ads/GoogleAdsTable";
 import { GoogleAdModal } from "@/components/google-ads/GoogleAdModal";
@@ -145,7 +145,7 @@ export default function GoogleAdsPage() {
                 </button>
             }
         >
-            <div className="space-y-4">
+            <Stack direction="col" gap="md">
                 {/* Master Config & Publisher Banner */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 shadow-xs gap-3">
                     <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export default function GoogleAdsPage() {
                     onSave={handleSave}
                     editingPlacement={editingPlacement}
                 />
-            </div>
+            </Stack>
         </AdminPageShell>
     );
 }

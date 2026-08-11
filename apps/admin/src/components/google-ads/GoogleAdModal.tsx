@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Tag } from "@esparex/ui";
+import { X, Tag, Stack, Grid } from "@esparex/ui";
 import {
     AD_PLACEMENT_LOCATION,
     AD_FORMAT,
@@ -98,7 +98,7 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <Stack direction="col" gap="md" className="p-6 max-h-[80vh] overflow-y-auto" asChild><form onSubmit={handleSubmit}>
                     <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                             Placement Name
@@ -113,7 +113,7 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <Grid cols={2} gap="sm">
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                 Placement Key
@@ -140,9 +140,9 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:border-sky-500 focus:outline-none"
                             />
                         </div>
-                    </div>
+                    </Grid>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <Grid cols={2} gap="sm">
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                 Location
@@ -175,7 +175,7 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                                 <option value={AD_FORMAT.FLUID_NATIVE}>Fluid Native (In-Feed)</option>
                             </select>
                         </div>
-                    </div>
+                    </Grid>
 
                     <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
@@ -196,7 +196,7 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2">
+                    <Grid cols={2} gap="sm" className="pt-2">
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                 Status
@@ -206,9 +206,9 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                                 onChange={(e) => setStatus(e.target.value)}
                                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
                             >
-                                <option value="active">Active</option>
-                                <option value="paused">Paused</option>
-                                <option value="scheduled">Scheduled</option>
+                                <option value={GOOGLE_AD_STATUS.ACTIVE}>Active</option>
+                                <option value={GOOGLE_AD_STATUS.PAUSED}>Paused</option>
+                                <option value={GOOGLE_AD_STATUS.SCHEDULED}>Scheduled</option>
                             </select>
                         </div>
                         <div>
@@ -220,11 +220,11 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                                 onChange={(e) => setFallbackStrategy(e.target.value)}
                                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
                             >
-                                <option value="collapse">Collapse Container</option>
-                                <option value="internal_promo">Internal Promo Banner</option>
+                                <option value={AD_FALLBACK_STRATEGY.COLLAPSE}>Collapse Container</option>
+                                <option value={AD_FALLBACK_STRATEGY.INTERNAL_PROMO}>Internal Promo Banner</option>
                             </select>
                         </div>
-                    </div>
+                    </Grid>
 
                     <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                         <button
@@ -242,7 +242,7 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                             {submitting ? "Saving..." : editingPlacement ? "Update Placement" : "Create Placement"}
                         </button>
                     </div>
-                </form>
+                </form></Stack>
             </div>
         </div>
     );

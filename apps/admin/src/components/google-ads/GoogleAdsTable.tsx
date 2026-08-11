@@ -1,7 +1,7 @@
 "use client";
 
 import { Edit, Trash2, Tag, CheckCircle, AlertCircle, Monitor, Smartphone, Tablet } from "@esparex/ui";
-import type { GoogleAdPlacementDTO } from "@esparex/contracts";
+import { GOOGLE_AD_STATUS, type GoogleAdPlacementDTO } from "@esparex/contracts";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 
 interface GoogleAdsTableProps {
@@ -71,7 +71,7 @@ export function GoogleAdsTable({
         {
             header: "Status",
             cell: (row) => {
-                const isActive = row.status === "active";
+                const isActive = row.status === GOOGLE_AD_STATUS.ACTIVE;
                 return (
                     <button
                         type="button"

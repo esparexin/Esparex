@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Play, Clock, Zap, FileText, CheckCircle } from "@esparex/ui";
-import { adminFetch } from "@/lib/api/adminClient";
-import { ADMIN_ROUTES } from "@/lib/api/routes";
+import { runAiCapabilityTest, type AiTestResult, type AiTestUsage } from "@/lib/api/aiTestApi";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 
 export function AITestingConsole() {
@@ -13,19 +12,16 @@ export function AITestingConsole() {
     const [model, setModel] = useState("iPhone 15 Pro Max");
     const [condition, setCondition] = useState("Like New");
     const [running, setRunning] = useState(false);
-    const [testResult, setTestResult] = useState<any>(null);
+    const [testResult, setTestResult] = useState<AiTestResult | null>(null);
 
     const handleRunTest = async () => {
         setRunning(true);
         setTestResult(null);
         try {
-            const response = await adminFetch<any>(ADMIN_ROUTES.SYSTEM_AI_TEST, {
-                method: "POST",
-                body: JSON.stringify({ providerName, capability, brand, model, condition }),
-            });
-            if (response?.data) {
-                setTestResult(response.data);
-                showAdminPopup({ type: "success", title: "Test Complete", message: `Generated in ${response.data.latencyMs}ms` });
+            const result = await runAiCapabilityTest({ providerName, capability, brand, model, condition });
+            if (result) {
+                setTestResult(result);
+                showAdminPopup({ type: "success", title: "Test Complete", message: `Generated in ${result.latencyMs}ms` });
             }
         } catch (err: unknown) {
             showAdminPopup({ type: "error", title: "Test Failed", message: err instanceof Error ? err.message : "AI test failed" });
@@ -35,7 +31,7 @@ export function AITestingConsole() {
     };
 
     return (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs flex flex-col gap-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
@@ -115,13 +111,13 @@ export function AITestingConsole() {
                 <div className="space-y-3 pt-2 border-t border-slate-100">
                     <div className="flex items-center gap-3 text-xs">
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 font-bold text-emerald-700 border border-emerald-200">
-                            <CheckCircle size={12} /> {testResult.provider} ({testResult.model})
+                            <CheckCircle size={12} /> {String(testResult.provider ?? "")} ({String(testResult.model ?? "")})
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2.5 py-1 font-bold text-sky-700 border border-sky-200">
                             <Clock size={12} /> Latency: {testResult.latencyMs} ms
                         </span>
                         <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-1 font-bold text-purple-700 border border-purple-200">
-                            <FileText size={12} /> Tokens: {testResult.usage?.totalTokens} ({testResult.usage?.promptTokens} in / {testResult.usage?.completionTokens} out)
+                            <FileText size={12} /> Tokens: {(testResult.usage as AiTestUsage)?.totalTokens} ({(testResult.usage as AiTestUsage)?.promptTokens} in / {(testResult.usage as AiTestUsage)?.completionTokens} out)
                         </span>
                     </div>
 
@@ -129,7 +125,7 @@ export function AITestingConsole() {
                         <div>
                             <p className="text-xs font-bold text-slate-700 mb-1">Constructed Prompt Payload</p>
                             <pre className="rounded-xl bg-slate-900 p-3 text-tiny text-emerald-400 font-mono overflow-x-auto max-h-48 leading-relaxed">
-                                {testResult.rawPrompt}
+                                {String(testResult.rawPrompt ?? "")}
                             </pre>
                         </div>
                         <div>
