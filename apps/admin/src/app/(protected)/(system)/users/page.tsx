@@ -27,18 +27,14 @@ import {
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useClientUsers } from "@/hooks/useClientUsers";
 
+import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";
+
 const USER_STATUS_OPTIONS = [
     { value: "all", label: "All Status" },
     { value: "live", label: "Active" },
     { value: "suspended", label: "Suspended" },
     { value: "banned", label: "Banned" },
 ];
-
-const USER_ROLE_COLORS: Record<string, string> = {
-    superAdmin: "bg-purple-100 text-purple-700",
-    admin: "bg-blue-100 text-blue-700",
-    business: "bg-amber-100 text-amber-700",
-};
 
 export default function UsersPage() {
     const pathname = usePathname();
@@ -188,15 +184,7 @@ export default function UsersPage() {
         },
         {
             header: "Role",
-            cell: (user) => (
-                <span
-                    className={`rounded px-2 py-1 text-tiny font-bold uppercase tracking-wider ${
-                        USER_ROLE_COLORS[user.role] ?? "bg-slate-100 text-foreground-secondary"
-                    }`}
-                >
-                    {user.role}
-                </span>
-            )
+            cell: (user) => <AdminUserRoleBadge role={user.role} />
         },
         {
             header: "Status",
