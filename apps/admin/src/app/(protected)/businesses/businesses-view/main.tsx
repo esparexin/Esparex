@@ -16,6 +16,16 @@ const BUSINESS_MASTER_STATUSES = new Set(["live", "suspended", "pending", "delet
 
 const mapOverview = (data: Record<string, unknown>) => ({ total: Number(data.total || 0), pending: Number(data.pending || 0), live: Number(data.live || data.approved || 0), suspended: Number(data.suspended || 0), deleted: Number(data.deleted || 0) });
 
+const COLOR_VARIANTS: Record<string, string> = {
+    emerald: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200",
+    red: "bg-red-50 text-red-700 hover:bg-red-100 border-red-200",
+    slate: "bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200",
+    amber: "bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-200",
+    blue: "bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-200",
+    indigo: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200",
+    rose: "bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-200",
+};
+
 export default function BusinessesView() {
     const router = useRouter();
     const pathname = usePathname();
@@ -71,7 +81,7 @@ export default function BusinessesView() {
               { label: "Renew", color: "blue", icon: CalendarClock, handler: () => { void handleBulkRenew(Array.from(selectedIds)); setSelectedIds(new Set()); } },
               { label: "Resend Warnings", color: "indigo", icon: History, handler: () => { void handleBulkResendWarnings(Array.from(selectedIds)); setSelectedIds(new Set()); } },
             ].map(({ label, color, icon: Icon, handler }) => (
-                <button key={label} onClick={handler} className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-${color}-50 text-${color}-700 hover:bg-${color}-100 rounded-lg text-xs font-bold transition-colors border border-${color}-200`}>
+                <button key={label} onClick={handler} className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${COLOR_VARIANTS[color] || "bg-slate-50 text-slate-700 border-slate-200"}`}>
                     <Icon size={14} /> {label}
                 </button>
             ))}
@@ -80,7 +90,7 @@ export default function BusinessesView() {
 
     return (
         <AdminPageShell title="Business Master" description="Manage all business accounts" headerVariant="compact">
-            <div className="space-y-6">
+            <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                     {overviewCards.map(({ label, value, status, color }) => {
                         const isActive = statusParam === status || (status === "all" && !statusParam);
@@ -91,7 +101,7 @@ export default function BusinessesView() {
                                 onClick={() => replaceQueryState({ status: status === "all" ? null : status, page: null })}
                                 className={`rounded-xl border p-3 flex items-center gap-3 shadow-xs text-left transition-all cursor-pointer ${
                                     isActive
-                                        ? "bg-sky-50/60 border-sky-300 ring-2 ring-sky-500/20 shadow-sm"
+                                        ? "bg-sky-50/60 border-sky-300 ring-2 ring-sky-500/20 shadow-xs"
                                         : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
                                 }`}
                             >
@@ -106,15 +116,15 @@ export default function BusinessesView() {
                 </div>
                 <BusinessSearchToolbar search={search} onSearchChange={(v) => replaceQueryState({ q: v, page: null })} placeholder="Search by name, mobile, email..." summary={<>{pagination.total} results</>} wrap searchClassName="relative flex-1 min-w-[200px] max-w-sm"
                     extraFilters={
-                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} />
+                        <><input type="text" placeholder="Filter by location ID..." className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all w-52" value={locationIdFilter} onChange={(e) => replaceQueryState({ locationId: e.target.value, page: null })} aria-label="Filter by location ID" />
                         <div className="flex items-center gap-2">
                             {[
-                                { key: "expiringIn3Days", raw: rawExpiringIn3Days, label: "Expiring (3d)", c1: "rose", c2: "rose" },
-                                { key: "warningSent", raw: rawWarningSent, label: "Warning Sent", c1: "emerald", c2: "emerald" },
-                                { key: "warningNotSent", raw: rawWarningNotSent, label: "No Warning", c1: "amber", c2: "amber" },
+                                { key: "expiringIn3Days", raw: rawExpiringIn3Days, label: "Expiring (3d)", c1: "rose" },
+                                { key: "warningSent", raw: rawWarningSent, label: "Warning Sent", c1: "emerald" },
+                                { key: "warningNotSent", raw: rawWarningNotSent, label: "No Warning", c1: "amber" },
                             ].map(({ key, raw, label, c1 }) => (
                                 <button key={key} onClick={() => replaceQueryState({ [key]: raw === "true" ? null : "true", page: null, ...(key !== "expiringIn3Days" ? { [key === "warningSent" ? "warningNotSent" : "warningSent"]: null } : {}) })}
-                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${raw === "true" ? `bg-${c1}-50 border-${c1}-200 text-${c1}-700 shadow-sm` : "bg-white border-slate-200 text-foreground-secondary hover:bg-slate-50"}`}>
+                                    className={`px-3 py-2 border rounded-lg text-xs font-bold transition-all ${raw === "true" ? `${COLOR_VARIANTS[c1]} shadow-xs` : "bg-white border-slate-200 text-foreground-secondary hover:bg-slate-50"}`}>
                                     {label}
                                 </button>
                             ))}
@@ -123,11 +133,11 @@ export default function BusinessesView() {
                 <BusinessListTable data={businesses} columns={columns} isLoading={loading} page={page} setPage={(np) => replaceQueryState({ page: np > 1 ? np : null })} pagination={pagination} onRowClick={(b) => businessList.setSelectedBusiness(b)} emptyMessage={error || "No businesses found."} selectedCount={selectedIds.size} bulkActions={bulkActions} />
             </div>
             {bulkRejectReason && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-label="Bulk reject reason modal">
                     <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-6 space-y-4">
                         <div className="flex items-center gap-3 text-red-600"><XCircle size={24} /><h3 className="text-lg font-bold">Bulk Reject Reason</h3></div>
                         <p className="text-sm text-foreground-tertiary">Please provide a reason for rejecting the {selectedIds.size} selected businesses.</p>
-                        <textarea id="brr" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all min-h-[100px]" placeholder="Reason for rejection..." />
+                        <textarea id="brr" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all min-h-[100px]" placeholder="Reason for rejection..." aria-label="Reason for rejection" />
                         <div className="flex gap-3 pt-2">
                             <button onClick={() => setBulkRejectReason(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-foreground-secondary hover:bg-slate-50 transition-colors">Cancel</button>
                             <button onClick={async () => { const r = (document.getElementById("brr") as HTMLTextAreaElement).value; if (!r.trim()) return; await handleBulkReject(Array.from(selectedIds), r); setBulkRejectReason(false); setSelectedIds(new Set()); }} className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-sm font-bold text-white hover:bg-red-700 transition-colors">Confirm Reject</button>
