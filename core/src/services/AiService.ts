@@ -122,7 +122,19 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
         const provider = AIProviderFactory.create(config.provider);
 
         if (type === 'identify') {
-            const prompt = identifyDevicePromptV1(contextText);
+            const rawText = typeof contextText === 'string' ? contextText : '';
+            const cacheKey = `sys:ai:identify_cache:${Buffer.from(rawText.trim().toLowerCase()).toString('base64').slice(0, 48)}`;
+            const cachedResult = await getCache<Record<string, unknown>>(cacheKey);
+            if (cachedResult) {
+                logger.info('[AiService] identify cache hit', {
+                    type,
+                    contextText: rawText,
+                    totalMs: Date.now() - t0,
+                });
+                return { ok: true, data: cachedResult };
+            }
+
+            const prompt = identifyDevicePromptV1(rawText);
             const schema = z.object({
                 brand: z.string(),
                 model: z.string(),
@@ -140,6 +152,8 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
                 totalMs,
                 usage: result.usage,
             });
+
+            await setCache(cacheKey, JSON.stringify(result.data), 1800);
             
             return { ok: true, data: result.data as Record<string, unknown> };
         }

@@ -7,7 +7,7 @@ export const getAiConfig = async () => {
 
     return {
         provider: env.AI_PROVIDER || 'gemini',
-        geminiModel: dbAiConfig?.seo?.model || process.env.GEMINI_MODEL || 'gemini-2.5-pro',
+        geminiModel: dbAiConfig?.seo?.model || process.env.GEMINI_MODEL || 'gemini-2.5-flash',
         geminiApiKey: env.GEMINI_API_KEY || '',
         openAiApiKey: dbAiConfig?.seo?.openaiApiKey || process.env.OPENAI_API_KEY || '',
         temperature: dbAiConfig?.seo?.temperature ?? (Number(process.env.GEMINI_TEMPERATURE) || 0.7),
