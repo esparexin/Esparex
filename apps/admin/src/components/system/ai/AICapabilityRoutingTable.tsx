@@ -3,11 +3,23 @@
 import { useState } from "react";
 import { Cpu, ChevronDown, ChevronUp, Sparkles } from "@esparex/ui";
 
-interface CapabilityConfig {
+export interface CapabilityConfig {
     provider: string;
     model: string;
     temperature: number;
     maxTokens: number;
+}
+
+export interface ProviderConfig {
+    enabled: boolean;
+    apiKeyMasked?: string;
+    hasKey?: boolean;
+    defaultModel?: string;
+}
+
+export interface AiConfigData {
+    capabilities?: Record<string, CapabilityConfig>;
+    providers?: Record<string, ProviderConfig>;
 }
 
 interface AICapabilityRoutingTableProps {

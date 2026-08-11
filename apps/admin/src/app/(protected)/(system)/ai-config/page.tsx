@@ -3,15 +3,21 @@
 import { useEffect, useState, useCallback } from "react";
 import { Cpu, ShieldCheck, Key, Save, CheckCircle, ChevronDown, ChevronUp, Stack, Grid } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { AICapabilityRoutingTable, PROVIDER_MODELS } from "@/components/system/ai/AICapabilityRoutingTable";
+import {
+    AICapabilityRoutingTable,
+    PROVIDER_MODELS,
+    type CapabilityConfig,
+    type ProviderConfig,
+    type AiConfigData,
+} from "@/components/system/ai/AICapabilityRoutingTable";
 import { AITestingConsole } from "@/components/system/ai/AITestingConsole";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { showAdminPopup } from "@/lib/popup/popupEvents";
 
 export default function AIConfigPage() {
-    const [capabilities, setCapabilities] = useState<any>({});
-    const [providers, setProviders] = useState<any>({});
+    const [capabilities, setCapabilities] = useState<Record<string, CapabilityConfig>>({});
+    const [providers, setProviders] = useState<Record<string, ProviderConfig>>({});
     const [expandedProvider, setExpandedProvider] = useState<string | null>("gemini");
     const [geminiKeyInput, setGeminiKeyInput] = useState("");
     const [openAiKeyInput, setOpenAiKeyInput] = useState("");
@@ -23,7 +29,7 @@ export default function AIConfigPage() {
     const fetchConfig = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await adminFetch<any>(ADMIN_ROUTES.SYSTEM_AI_CONFIG);
+            const response = await adminFetch<AiConfigData>(ADMIN_ROUTES.SYSTEM_AI_CONFIG);
             if (response?.data) {
                 setCapabilities(response.data.capabilities || {});
                 setProviders(response.data.providers || {});
@@ -39,21 +45,34 @@ export default function AIConfigPage() {
         fetchConfig();
     }, [fetchConfig]);
 
-    const handleCapabilityChange = (key: string, field: string, value: string | number) => {
-        setCapabilities((prev: any) => ({
-            ...prev,
-            [key]: {
-                ...prev[key],
-                [field]: value,
-            },
-        }));
+    const handleCapabilityChange = (key: string, field: keyof CapabilityConfig, value: string | number) => {
+        setCapabilities((prev) => {
+            const current: CapabilityConfig = prev[key] || {
+                provider: "gemini",
+                model: "gemini-2.5-flash",
+                temperature: 0.7,
+                maxTokens: 200,
+            };
+            return {
+                ...prev,
+                [key]: {
+                    ...current,
+                    [field]: value,
+                },
+            };
+        });
     };
 
-    const handleProviderChange = (providerKey: string, field: string, value: any) => {
-        setProviders((prev: any) => ({
+    const handleProviderChange = (
+        providerKey: string,
+        field: keyof ProviderConfig,
+        value: boolean | string
+    ) => {
+        setProviders((prev) => ({
             ...prev,
             [providerKey]: {
                 ...prev[providerKey],
+                enabled: prev[providerKey]?.enabled ?? false,
                 [field]: value,
             },
         }));
@@ -62,7 +81,7 @@ export default function AIConfigPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const payload: any = {
+            const payload = {
                 capabilities,
                 providers: {
                     gemini: {
@@ -176,7 +195,7 @@ export default function AIConfigPage() {
                             { id: "deepseek", name: "DeepSeek AI", input: deepseekKeyInput, setInput: setDeepseekKeyInput, models: PROVIDER_MODELS.deepseek, defaultM: "deepseek-chat" },
                         ].map((prov) => {
                             const isExpanded = expandedProvider === prov.id;
-                            const provData = providers[prov.id] || {};
+                            const provData: ProviderConfig = providers[prov.id] || { enabled: prov.id === "gemini" };
 
                             return (
                                 <div
