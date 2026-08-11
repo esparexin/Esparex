@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Bell, LogOut, ShieldCheck, Menu } from "@esparex/ui";
 
+import Image from "next/image";
+
 interface AdminHeaderProps {
     onMobileMenuClick?: () => void;
 }
@@ -34,6 +36,13 @@ export function AdminHeader({ onMobileMenuClick }: AdminHeaderProps = {}) {
                     >
                         <Menu size={20} />
                     </button>
+                    <Image
+                        src="/icons/logo.png"
+                        alt="Esparex Logo"
+                        width={100}
+                        height={26}
+                        className="h-6 w-auto object-contain lg:hidden"
+                    />
                     <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-tiny font-semibold uppercase tracking-[0.14em] text-sky-700">
                         <ShieldCheck size={13} />
                         <span>Admin Console</span>
