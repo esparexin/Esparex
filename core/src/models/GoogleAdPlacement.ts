@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import { Schema, Document, Model } from "mongoose";
+import { getAdminConnection } from "../config/db";
 import {
     AD_PLACEMENT_LOCATION,
     AD_FORMAT,
@@ -75,10 +76,9 @@ const GoogleAdPlacementSchema = new Schema<IGoogleAdPlacement>(
     }
 );
 
-GoogleAdPlacementSchema.index({ location: 1, status: 1, isDeleted: 1 });
-
+const connection = getAdminConnection();
 const GoogleAdPlacement: Model<IGoogleAdPlacement> =
-    mongoose.models.GoogleAdPlacement ||
-    mongoose.model<IGoogleAdPlacement>("GoogleAdPlacement", GoogleAdPlacementSchema);
+    (connection.models.GoogleAdPlacement as Model<IGoogleAdPlacement> | undefined) ||
+    connection.model<IGoogleAdPlacement>("GoogleAdPlacement", GoogleAdPlacementSchema);
 
 export default GoogleAdPlacement;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Cpu, ShieldCheck, Key, Save, CheckCircle, AlertCircle } from "@esparex/ui";
+import { Cpu, ShieldCheck, Key, Save, CheckCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AICapabilityRoutingTable } from "@/components/system/ai/AICapabilityRoutingTable";
 import { AITestingConsole } from "@/components/system/ai/AITestingConsole";

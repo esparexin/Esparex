@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { getSystemConfigDoc } from "@esparex/core/utils/systemConfigHelper";
-import SystemConfig from "@esparex/core/models/SystemConfig";
 import { encryptApiKey, maskApiKey } from "@esparex/core/utils/aiEncryption";
 import { AIProviderFactory } from "@esparex/core/services/ai/AIProviderFactory";
 import { generateListingPromptV1, identifyDevicePromptV1 } from "@esparex/core/prompts/listings/v1";
