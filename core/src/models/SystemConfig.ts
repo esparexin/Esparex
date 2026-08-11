@@ -31,6 +31,19 @@ export interface ISystemConfig extends Document {
             temperature?: number;
             maxTokens?: number;
         };
+        capabilities?: {
+            post_ad_title?: { provider: string; model: string; temperature: number; maxTokens: number };
+            post_ad_description?: { provider: string; model: string; temperature: number; maxTokens: number };
+            device_identification?: { provider: string; model: string; temperature: number; maxTokens: number };
+            content_moderation?: { provider: string; model: string; temperature: number; maxTokens: number };
+            spam_detection?: { provider: string; model: string; temperature: number; maxTokens: number };
+        };
+        providers?: {
+            gemini?: { enabled: boolean; apiKeyEncrypted?: string; defaultModel: string };
+            openai?: { enabled: boolean; apiKeyEncrypted?: string; defaultModel: string };
+            claude?: { enabled: boolean; apiKeyEncrypted?: string; defaultModel: string };
+            deepseek?: { enabled: boolean; apiKeyEncrypted?: string; defaultModel: string };
+        };
     };
     platform: {
         maintenance: {
@@ -181,6 +194,60 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             temperature: { type: Number, default: 0.7 },
             maxTokens: { type: Number, default: 500 }
         },
+        capabilities: {
+            post_ad_title: {
+                provider: { type: String, default: 'gemini' },
+                model: { type: String, default: 'gemini-2.5-flash' },
+                temperature: { type: Number, default: 0.7 },
+                maxTokens: { type: Number, default: 200 }
+            },
+            post_ad_description: {
+                provider: { type: String, default: 'gemini' },
+                model: { type: String, default: 'gemini-2.5-flash' },
+                temperature: { type: Number, default: 0.7 },
+                maxTokens: { type: Number, default: 1000 }
+            },
+            device_identification: {
+                provider: { type: String, default: 'gemini' },
+                model: { type: String, default: 'gemini-2.5-flash' },
+                temperature: { type: Number, default: 0.2 },
+                maxTokens: { type: Number, default: 300 }
+            },
+            content_moderation: {
+                provider: { type: String, default: 'gemini' },
+                model: { type: String, default: 'gemini-2.5-flash' },
+                temperature: { type: Number, default: 0.1 },
+                maxTokens: { type: Number, default: 200 }
+            },
+            spam_detection: {
+                provider: { type: String, default: 'gemini' },
+                model: { type: String, default: 'gemini-2.5-flash' },
+                temperature: { type: Number, default: 0.1 },
+                maxTokens: { type: Number, default: 200 }
+            }
+        },
+        providers: {
+            gemini: {
+                enabled: { type: Boolean, default: true },
+                apiKeyEncrypted: { type: String },
+                defaultModel: { type: String, default: 'gemini-2.5-flash' }
+            },
+            openai: {
+                enabled: { type: Boolean, default: false },
+                apiKeyEncrypted: { type: String },
+                defaultModel: { type: String, default: 'gpt-4o-mini' }
+            },
+            claude: {
+                enabled: { type: Boolean, default: false },
+                apiKeyEncrypted: { type: String },
+                defaultModel: { type: String, default: 'claude-3-5-haiku-20241022' }
+            },
+            deepseek: {
+                enabled: { type: Boolean, default: false },
+                apiKeyEncrypted: { type: String },
+                defaultModel: { type: String, default: 'deepseek-chat' }
+            }
+        }
     },
     security: {
         twoFactor: {
