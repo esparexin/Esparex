@@ -3,7 +3,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import { Model, Brand } from "@esparex/contracts";
 import type { ModelFormData } from "./types";
-import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import { CatalogSelectField, CatalogArchivedCategoryNotice } from "@/components/catalog/primitives";
 import { getEntityCategoryIds } from "@/components/catalog/catalogDomainUtils";

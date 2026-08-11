@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Wrench, AlertTriangle, Loader2 } from "@esparex/ui";
+import { Wrench } from "@esparex/ui";
 import { CatalogBoundNameCategoryFields } from "@/components/catalog/CatalogNameCategoryFields";
 import {
     CatalogActiveCheckboxField,
@@ -20,7 +19,6 @@ import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminServiceTypes, type ServiceType } from "@/hooks/useAdminServiceTypes";
 import { categorySupportsServices, useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
 import type { ServiceTypeMutationPayload } from "@/lib/api/serviceTypes";

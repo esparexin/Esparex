@@ -9,7 +9,7 @@ import ContactSubmission from '../../../../models/ContactSubmission';
 import Location from '../../../../models/Location';
 import LocationAnalytics from '../../../../models/LocationAnalytics';
 import AdminLog from '../../../../models/AdminLog';
-import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS } from '@esparex/contracts';
+import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS, type CatalogHealthMetricsDTO } from '@esparex/contracts';
 import { AdminDashboardRepositoryPort } from '../../../../domains/admin';
 import Category from '../../../../models/Category';
 import Brand from '../../../../models/Brand';
@@ -18,12 +18,12 @@ import ServiceType from '../../../../models/ServiceType';
 import ScreenSize from '../../../../models/ScreenSize';
 import logger from '../../../../utils/logger';
 
-const CATALOG_REQUEST_PENDING_STATUS = 'pending' as CatalogRequestStatusValue;
+const CATALOG_REQUEST_PENDING_STATUS: CatalogRequestStatusValue = 'pending';
 const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged', 'resolved'];
-const CATALOG_REQUEST_MERGED_STATUS = 'merged' as CatalogRequestStatusValue;
+const CATALOG_REQUEST_MERGED_STATUS: CatalogRequestStatusValue = 'merged';
 
 export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepositoryPort {
-    public async getCatalogHealthMetrics(): Promise<any> {
+    public async getCatalogHealthMetrics(): Promise<CatalogHealthMetricsDTO> {
         const [counts, resolutionAgg] = await Promise.all([
             CatalogRequest.aggregate([{ $match: { status: { $in: [CATALOG_REQUEST_PENDING_STATUS] } } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
             CatalogRequest.aggregate([

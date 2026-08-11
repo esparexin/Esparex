@@ -10,7 +10,6 @@ import { useAssignableCategories } from "@/hooks/useAssignableCategories";
 import { adminModelSchema } from "@/schemas/admin.schemas";
 import { normalizeObjectIdLike } from "@/lib/utils/idUtils";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
-import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { deriveCatalogLifecycleStatus, getEntityCategoryIds, hasCategoryOverlap, resolveModalAssignableCategoryState, toCategoryOptions, validateRequiredCategoryIds } from "@/components/catalog/catalogDomainUtils";
 import { CatalogCategoryTags, CatalogEntityCell, CatalogEditDeleteActions, CatalogActiveToggleButton, CatalogActionsRow, CatalogActionIconButton, CatalogSearchInput, CatalogAsyncComboboxFilter } from "@/components/catalog/primitives";
