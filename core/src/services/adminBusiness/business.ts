@@ -32,7 +32,7 @@ export const getBusinessOverview = async () => {
                     expiringSoon: [
                         {
                             $match: {
-                                status: { $in: publishedBusinessStatusQuery },
+                                status: publishedBusinessStatusQuery,
                                 expiresAt: { $lte: thirtyDaysFromNow, $gte: now },
                                 isDeleted: { $ne: true }
                             }
@@ -42,7 +42,7 @@ export const getBusinessOverview = async () => {
                     expiringIn3Days: [
                         {
                             $match: {
-                                status: { $in: publishedBusinessStatusQuery },
+                                status: publishedBusinessStatusQuery,
                                 expiresAt: { $lte: threeDaysFromNow, $gte: now },
                                 isDeleted: { $ne: true }
                             }
