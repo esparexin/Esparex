@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Cpu, ShieldCheck, Key, Save, CheckCircle } from "@esparex/ui";
+import { Cpu, ShieldCheck, Key, Save, CheckCircle, ChevronDown, ChevronUp } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AICapabilityRoutingTable, PROVIDER_MODELS } from "@/components/system/ai/AICapabilityRoutingTable";
 import { AITestingConsole } from "@/components/system/ai/AITestingConsole";
@@ -12,6 +12,7 @@ import { showAdminPopup } from "@/lib/popup/popupEvents";
 export default function AIConfigPage() {
     const [capabilities, setCapabilities] = useState<any>({});
     const [providers, setProviders] = useState<any>({});
+    const [expandedProvider, setExpandedProvider] = useState<string | null>("gemini");
     const [geminiKeyInput, setGeminiKeyInput] = useState("");
     const [openAiKeyInput, setOpenAiKeyInput] = useState("");
     const [claudeKeyInput, setClaudeKeyInput] = useState("");
@@ -155,220 +156,104 @@ export default function AIConfigPage() {
                     </div>
                 </div>
 
-                {/* Provider API Keys & Settings */}
+                {/* Provider API Keys & Settings Accordion */}
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-                    <div className="flex items-center gap-2.5">
-                        <Key className="text-slate-700" size={20} />
-                        <div>
-                            <h3 className="text-sm font-bold text-slate-900">AI Provider Accounts & API Keys</h3>
-                            <p className="text-xs text-slate-500">Configure provider state, default models, and encrypted API credentials</p>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                            <Key className="text-slate-700" size={20} />
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-900">AI Provider Accounts & API Keys</h3>
+                                <p className="text-xs text-slate-500">Configure provider state, default models, and encrypted API credentials (Single Key Operational Guarantee)</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Google Gemini Card */}
-                        <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm text-slate-900">Google Gemini</span>
-                                    {providers.gemini?.hasKey && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-bold text-emerald-700">
-                                            <CheckCircle size={10} /> Key Configured
-                                        </span>
+                    <div className="space-y-3">
+                        {[
+                            { id: "gemini", name: "Google Gemini", input: geminiKeyInput, setInput: setGeminiKeyInput, models: PROVIDER_MODELS.gemini, defaultM: "gemini-2.5-flash" },
+                            { id: "openai", name: "OpenAI", input: openAiKeyInput, setInput: setOpenAiKeyInput, models: PROVIDER_MODELS.openai, defaultM: "gpt-4o-mini" },
+                            { id: "claude", name: "Anthropic Claude", input: claudeKeyInput, setInput: setClaudeKeyInput, models: PROVIDER_MODELS.claude, defaultM: "claude-3-5-haiku-20241022" },
+                            { id: "deepseek", name: "DeepSeek AI", input: deepseekKeyInput, setInput: setDeepseekKeyInput, models: PROVIDER_MODELS.deepseek, defaultM: "deepseek-chat" },
+                        ].map((prov) => {
+                            const isExpanded = expandedProvider === prov.id;
+                            const provData = providers[prov.id] || {};
+
+                            return (
+                                <div
+                                    key={prov.id}
+                                    className="rounded-xl border border-slate-200 bg-slate-50/50 overflow-hidden transition-all shadow-2xs"
+                                >
+                                    {/* Accordion Header */}
+                                    <div
+                                        onClick={() => setExpandedProvider(isExpanded ? null : prov.id)}
+                                        className="flex items-center justify-between p-4 bg-white hover:bg-slate-50/80 cursor-pointer transition-colors select-none"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <span className="font-bold text-sm text-slate-900">{prov.name}</span>
+                                            {provData.hasKey && (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-tiny font-bold text-emerald-700 border border-emerald-200">
+                                                    <CheckCircle size={10} /> Key Configured
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-4">
+                                            <label
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={provData.enabled ?? (prov.id === "gemini")}
+                                                    onChange={(e) => handleProviderChange(prov.id, "enabled", e.target.checked)}
+                                                    className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+                                                />
+                                                Enabled
+                                            </label>
+
+                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                                                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Accordion Collapsible Content Body */}
+                                    {isExpanded && (
+                                        <div className="p-4 border-t border-slate-200/80 space-y-4 bg-slate-50/60">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">
+                                                        API Key (Masked: {provData.apiKeyMasked || "••••••••"})
+                                                    </label>
+                                                    <input
+                                                        type="password"
+                                                        placeholder="Enter new key to override..."
+                                                        value={prov.input}
+                                                        onChange={(e) => prov.setInput(e.target.value)}
+                                                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
+                                                    <select
+                                                        value={provData.defaultModel || prov.defaultM}
+                                                        onChange={(e) => handleProviderChange(prov.id, "defaultModel", e.target.value)}
+                                                        className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
+                                                    >
+                                                        {prov.models.map((m) => (
+                                                            <option key={m.value} value={m.value}>
+                                                                {m.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
-                                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={providers.gemini?.enabled ?? true}
-                                        onChange={(e) => handleProviderChange("gemini", "enabled", e.target.checked)}
-                                        className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                                    />
-                                    Enabled
-                                </label>
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">
-                                    API Key (Masked: {providers.gemini?.apiKeyMasked || "••••••••"})
-                                </label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter new key to override..."
-                                    value={geminiKeyInput}
-                                    onChange={(e) => setGeminiKeyInput(e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <select
-                                    value={providers.gemini?.defaultModel || "gemini-2.5-flash"}
-                                    onChange={(e) => handleProviderChange("gemini", "defaultModel", e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                >
-                                    {PROVIDER_MODELS.gemini.map((m) => (
-                                        <option key={m.value} value={m.value}>
-                                            {m.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* OpenAI Card */}
-                        <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm text-slate-900">OpenAI</span>
-                                    {providers.openai?.hasKey && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-bold text-emerald-700">
-                                            <CheckCircle size={10} /> Key Configured
-                                        </span>
-                                    )}
-                                </div>
-                                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={providers.openai?.enabled ?? false}
-                                        onChange={(e) => handleProviderChange("openai", "enabled", e.target.checked)}
-                                        className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                                    />
-                                    Enabled
-                                </label>
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">
-                                    API Key (Masked: {providers.openai?.apiKeyMasked || "••••••••"})
-                                </label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter new key to override..."
-                                    value={openAiKeyInput}
-                                    onChange={(e) => setOpenAiKeyInput(e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <select
-                                    value={providers.openai?.defaultModel || "gpt-4o-mini"}
-                                    onChange={(e) => handleProviderChange("openai", "defaultModel", e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                >
-                                    {PROVIDER_MODELS.openai.map((m) => (
-                                        <option key={m.value} value={m.value}>
-                                            {m.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Anthropic Claude Card */}
-                        <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm text-slate-900">Anthropic Claude</span>
-                                    {providers.claude?.hasKey && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-bold text-emerald-700">
-                                            <CheckCircle size={10} /> Key Configured
-                                        </span>
-                                    )}
-                                </div>
-                                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={providers.claude?.enabled ?? false}
-                                        onChange={(e) => handleProviderChange("claude", "enabled", e.target.checked)}
-                                        className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                                    />
-                                    Enabled
-                                </label>
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">
-                                    API Key (Masked: {providers.claude?.apiKeyMasked || "••••••••"})
-                                </label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter new key to override..."
-                                    value={claudeKeyInput}
-                                    onChange={(e) => setClaudeKeyInput(e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <select
-                                    value={providers.claude?.defaultModel || "claude-3-5-haiku-20241022"}
-                                    onChange={(e) => handleProviderChange("claude", "defaultModel", e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                >
-                                    {PROVIDER_MODELS.claude.map((m) => (
-                                        <option key={m.value} value={m.value}>
-                                            {m.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* DeepSeek AI Card */}
-                        <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm text-slate-900">DeepSeek AI</span>
-                                    {providers.deepseek?.hasKey && (
-                                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-tiny font-bold text-emerald-700">
-                                            <CheckCircle size={10} /> Key Configured
-                                        </span>
-                                    )}
-                                </div>
-                                <label className="flex items-center gap-1.5 text-xs font-bold text-slate-700 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={providers.deepseek?.enabled ?? false}
-                                        onChange={(e) => handleProviderChange("deepseek", "enabled", e.target.checked)}
-                                        className="rounded border-slate-300 text-sky-600 focus:ring-sky-500"
-                                    />
-                                    Enabled
-                                </label>
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">
-                                    API Key (Masked: {providers.deepseek?.apiKeyMasked || "••••••••"})
-                                </label>
-                                <input
-                                    type="password"
-                                    placeholder="Enter new key to override..."
-                                    value={deepseekKeyInput}
-                                    onChange={(e) => setDeepseekKeyInput(e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <select
-                                    value={providers.deepseek?.defaultModel || "deepseek-chat"}
-                                    onChange={(e) => handleProviderChange("deepseek", "defaultModel", e.target.value)}
-                                    className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                >
-                                    {PROVIDER_MODELS.deepseek.map((m) => (
-                                        <option key={m.value} value={m.value}>
-                                            {m.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+                            );
+                        })}
                     </div>
                 </div>
 
