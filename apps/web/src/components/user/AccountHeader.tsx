@@ -56,6 +56,7 @@ export function AccountHeader({
               <ChevronLeft className="h-6 w-6" />
             </Button>
           )}
+          {/* ui-guard-ignore: multiple-h1 Responsive sibling — mobile-only h1, hidden md:block counterpart below */}
           <h1 className="account-page-title text-sm font-semibold text-slate-800 truncate">
             {mobileTitle}
           </h1>
@@ -75,6 +76,7 @@ export function AccountHeader({
             <SettingsIcon className="h-6 w-6 text-white" />
           </div>
           <div>
+            {/* ui-guard-ignore: multiple-h1 Responsive sibling — desktop-only h1 inside hidden md:block wrapper */}
             <h1 className="account-page-title">{ACCOUNT_COPY.title}</h1>
             <p className="account-body-text mt-0.5">{ACCOUNT_COPY.subtitle}</p>
           </div>
