@@ -1,5 +1,6 @@
 import { AIProvider } from './AIProvider';
 import { GeminiProvider } from './providers/GeminiProvider';
+import { OpenAIProvider } from './providers/OpenAIProvider';
 
 export class UnsupportedProviderError extends Error {
     constructor(provider: string) {
@@ -13,6 +14,8 @@ export class AIProviderFactory {
         switch (providerName.toLowerCase()) {
             case 'gemini':
                 return new GeminiProvider();
+            case 'openai':
+                return new OpenAIProvider();
             default:
                 throw new UnsupportedProviderError(providerName);
         }
