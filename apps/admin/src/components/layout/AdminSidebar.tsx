@@ -49,10 +49,14 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
             if (window.innerWidth >= 1024) {
                 setIsMobileOpen(false);
             }
+            if (window.innerWidth >= 1024 && window.innerWidth < 1280) {
+                setIsMinified(true);
+            }
         };
+        handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [setIsMobileOpen]);
+    }, [setIsMobileOpen, setIsMinified]);
 
     const sidebarRef = useRef<HTMLElement>(null);
 

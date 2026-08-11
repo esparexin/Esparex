@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChartBar, CheckCircle2, XCircle, PowerOff, History, CalendarClock } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { BusinessSuspendModal } from "@/components/business/BusinessSuspendModal";
-import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { useAdminBusinessList } from "@/hooks/useAdminBusinessList";
 import { Business } from "@esparex/contracts";
 import { buildUrlWithSearchParams, normalizeSearchParamValue, parsePositiveIntParam, updateSearchParams } from "@/lib/urlSearchParams";
