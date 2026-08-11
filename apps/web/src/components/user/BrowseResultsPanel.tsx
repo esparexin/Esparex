@@ -5,7 +5,7 @@ import { RefreshCw } from "@/icons/IconRegistry";
 
 import type { SortOption } from "@/components/search/SearchResultsHeader";
 import { SearchResultsHeader } from "@/components/search/SearchResultsHeader";
-import { Button } from "@esparex/ui";
+import { Button, cn } from "@esparex/ui";
 import { BrowseGridSkeleton } from "./BrowseGridSkeleton";
 import { BrowseEmptyState } from "./BrowseEmptyState";
 import { BrowseBreadcrumb } from "./BrowseBreadcrumb";
@@ -108,17 +108,21 @@ export function BrowseResultsPanel<TItem>({
             <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
               <p className="text-red-600 font-medium mb-3">{error}</p>
               <Button variant="outline" size="sm" onClick={onRetry} className="gap-2">
-                <RefreshCw className="h-4 w-4" /> Try Again
+                <RefreshCw className="h-4 w-4" />
+                Retry
               </Button>
             </div>
           ) : null}
 
-          {loading && items.length === 0 && !error ? <BrowseGridSkeleton /> : null}
+          {loading && items.length === 0 ? (
+            <BrowseGridSkeleton />
+          ) : null}
 
-          {!loading && !error && items.length === 0 ? (
+          {!loading && items.length === 0 && !error ? (
             <BrowseEmptyState
               activeFilterCount={activeFilterCount}
               query={query}
+              categoryName={categoryName}
               onResetFilters={onReset}
             />
           ) : null}
@@ -127,21 +131,19 @@ export function BrowseResultsPanel<TItem>({
             ? shouldUseVirtualizedList && VirtualizedListComponent
               ? <VirtualizedListComponent items={items} view={view} />
               : (
-                <>
-                  {/* Mobile Layout: Fixed to List View */}
-                  <div className="flex flex-col gap-3 lg:hidden">
-                    {items.map((item, index) => (
-                      <Fragment key={getItemKey(item)}>{renderCard(item, "list", index)}</Fragment>
-                    ))}
-                  </div>
-
-                  {/* Desktop Layout: Fixed to 3-Column Grid View */}
-                  <div className="hidden lg:grid lg:grid-cols-3 gap-5">
-                    {items.map((item, index) => (
-                      <Fragment key={getItemKey(item)}>{renderCard(item, "grid", index)}</Fragment>
-                    ))}
-                  </div>
-                </>
+                <div
+                  className={cn(
+                    view === "list"
+                      ? "flex flex-col gap-3"
+                      : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 lg:gap-5"
+                  )}
+                >
+                  {items.map((item, index) => (
+                    <Fragment key={getItemKey(item)}>
+                      {renderCard(item, view, index)}
+                    </Fragment>
+                  ))}
+                </div>
               )
             : null}
 

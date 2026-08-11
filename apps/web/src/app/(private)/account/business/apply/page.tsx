@@ -38,6 +38,7 @@ export default function BusinessApplyPage() {
 
     if (businessError) {
         return (
+            // ui-guard-ignore: nested-container Early-return branch — each Container is mutually exclusive, never nested
             <Container variant="md" className="py-8 sm:py-12">
                 <PageSection
                     variant="bordered"
@@ -55,6 +56,7 @@ export default function BusinessApplyPage() {
     // Require mobile verification before registration
     if (user && !user.isPhoneVerified) {
         return (
+            // ui-guard-ignore: nested-container Early-return branch — mutually exclusive Container, never nested
             <Container variant="md" className="py-8 sm:py-12">
                 <PageSection
                     variant="bordered"
@@ -106,6 +108,7 @@ export default function BusinessApplyPage() {
     // State 1: Approved Business (Informational View)
     if (status === "live" || status === "active") {
         return (
+            // ui-guard-ignore: nested-container Early-return branch — mutually exclusive Container, never nested
             <Container variant="md" className="py-8 sm:py-12 space-y-4">
                 <PageSection
                     variant="bordered"
@@ -144,6 +147,7 @@ export default function BusinessApplyPage() {
     // State 2 & 3: Pending or Rejected Business Application Status
     if (hasExistingBusiness && (status === "pending" || status === "rejected" || status === "suspended")) {
         return (
+            // ui-guard-ignore: nested-container Early-return branch — mutually exclusive Container, never nested
             <Container variant="md" className="py-8 sm:py-12">
                 <BusinessApplicationStatus
                     businessData={businessData}
