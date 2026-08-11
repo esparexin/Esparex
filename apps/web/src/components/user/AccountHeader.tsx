@@ -4,6 +4,7 @@ import React from "react";
 import { ChevronLeft, Settings as SettingsIcon } from "@/icons/IconRegistry";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
 import { ACCOUNT_COPY } from "@/config/copy/account";
+import { Button } from "@esparex/ui";
 
 interface AccountHeaderProps {
   /** Passed when rendering the mobile sticky context — drives tab title and back button */
@@ -44,14 +45,16 @@ export function AccountHeader({
       >
         <div className="flex items-center gap-2 min-w-0">
           {!isMenuTab && onBackToMenu && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={onBackToMenu}
               aria-label="Back to Account Menu"
-              className="flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl text-slate-700 hover:bg-slate-100 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              className="rounded-xl text-slate-700 hover:bg-slate-100 shrink-0"
             >
               <ChevronLeft className="h-6 w-6" />
-            </button>
+            </Button>
           )}
           <h1 className="account-page-title text-sm font-semibold text-slate-800 truncate">
             {mobileTitle}

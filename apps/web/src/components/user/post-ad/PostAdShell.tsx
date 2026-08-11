@@ -7,6 +7,7 @@ import { AlertCircle, RefreshCcw, WifiOff } from "@/icons/IconRegistry";
 import { useBackendStatus } from "@/context/BackendStatusContext";
 import { mapErrorToMessage } from "@/lib/errorMapper";
 import { apiClient } from "@/lib/api/client";
+import { Button } from "@esparex/ui";
 
 /**
  * 🧱 PostAdShell
@@ -74,15 +75,15 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                         cannot post new ads at this time.
                     </p>
 
-                    <button
+                    <Button
                         type="button"
                         onClick={handleOfflineRetry}
                         aria-label="Check connection again"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 text-white font-medium rounded-full hover:bg-amber-700 transition-colors w-full sm:w-auto"
+                        className="gap-2 bg-amber-600 text-white font-medium rounded-full hover:bg-amber-700 w-full sm:w-auto"
                     >
                         <RefreshCcw className="w-4 h-4" aria-hidden="true" />
                         Check Again
-                    </button>
+                    </Button>
                 </div>
             </div>
         );
@@ -117,15 +118,15 @@ export function PostAdShell({ children }: { children: React.ReactNode }) {
                         )}
                     </p>
 
-                    <button
+                    <Button
                         type="button"
                         onClick={handleErrorRetry}
                         aria-label="Retry loading the post ad form"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white font-medium rounded-full hover:bg-slate-800 transition-colors w-full sm:w-auto"
+                        className="gap-2 bg-slate-900 text-white font-medium rounded-full hover:bg-slate-800 w-full sm:w-auto"
                     >
                         <RefreshCcw className="w-4 h-4" aria-hidden="true" />
                         Try Again
-                    </button>
+                    </Button>
                 </div>
             </div>
         );

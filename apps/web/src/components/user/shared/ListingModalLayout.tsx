@@ -2,6 +2,7 @@ import React from "react";
 import { X } from "@/icons/IconRegistry";
 import { cn } from "@/components/ui/utils";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -28,14 +29,16 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                 >
                     <header className="shrink-0 bg-background border-b border-border flex items-center px-4 h-14 sm:px-6">
                         <div className="flex items-center w-full max-w-2xl mx-auto">
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="icon"
                                 onClick={onClose}
                                 aria-label="Close modal"
-                                className="h-9 w-9 -ml-1 rounded-full flex items-center justify-center bg-slate-100/80 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:ring-offset-1"
+                                className="h-9 w-9 -ml-1 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0"
                             >
                                 <X className="w-4 h-4" />
-                            </button>
+                            </Button>
                             <div className="flex-1 flex items-center gap-2.5 ml-2">
                                 <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
                                     {title}
@@ -64,14 +67,16 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
                 <header className="shrink-0 bg-white border-b border-slate-100 flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={onClose}
                         aria-label="Close modal"
-                        className="h-9 w-9 rounded-full flex items-center justify-center bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/20"
+                        className="h-9 w-9 rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 shrink-0"
                     >
                         <X className="w-4.5 h-4.5" />
-                    </button>
+                    </Button>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2.5 min-w-0">
                         <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight truncate">
                             {title}
