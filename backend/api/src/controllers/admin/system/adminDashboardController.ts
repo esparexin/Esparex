@@ -8,7 +8,6 @@ import { scanKeysByPattern } from '@esparex/core/utils/redisCache';
 import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
 import {
     getDashboardOverviewStats,
-    getRecentAdminLogs,
     getContactSubmissionsPaginated,
     updateContactSubmissionById,
     adminGetLocationAnalyticsData,
@@ -73,25 +72,6 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
 export const getAnalytics = async (req: Request, res: Response) => {
     return adminAnalyticsController.getTimeSeriesAnalytics(req, res);
-};
-
-export const getRecentActivity = async (req: Request, res: Response) => {
-    try {
-        const logs = await getRecentAdminLogs(10);
-
-        const activity = logs.map(log => {
-            const admin = (log.adminId || {}) as { firstName?: string; lastName?: string };
-            return {
-                title: log.action.replace(/_/g, ' '),
-                description: `${admin?.firstName || 'Admin'} ${admin?.lastName || ''} - ${log.targetType} ${String(log.targetId || '')}`,
-                time: log.createdAt
-            };
-        });
-
-        sendSuccessResponse(res, activity);
-    } catch (error: unknown) {
-        sendDashboardError(req, res, error);
-    }
 };
 
 export const getContactSubmissions = async (req: Request, res: Response) => {

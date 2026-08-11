@@ -19,9 +19,7 @@ export const ADMIN_ROUTES = {
     SUMMARY: "/analytics/revenue/summary",
     CATEGORIES: "/analytics/revenue/categories",
   },
-  ACTIVITY: "/activity",
   AUDIT_LOGS: "/security/audit",
-  SECURITY_AUDIT: "/security/audit",
 
   // Users
   USERS: "/users",
@@ -29,9 +27,6 @@ export const ADMIN_ROUTES = {
   USER_OVERVIEW: "/user-management/overview",
   USER_STATUS: (id: string) => `/users/${id}/status`,
   USER_VERIFY: (id: string) => `/users/${id}/verify`,
-  // Legacy aliases mapped to canonical admin-users surface
-  ADMINS: "/admin-users",
-  ADMIN_BY_ID: (id: string) => `/admin-users/${id}`,
   ADMIN_USERS: "/admin-users",
   ADMIN_USER_BY_ID: (id: string) => `/admin-users/${id}`,
   ADMIN_USER_DEACTIVATE: (id: string) => `/admin-users/${id}/deactivate`,

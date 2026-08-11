@@ -47,7 +47,7 @@ export async function searchAdminRecords(
             })}`
         ),
         adminFetch<unknown>(
-            `${ADMIN_ROUTES.REPORTED_ADS}?${buildQuery({ q: normalizedSearch, page: "1", limit: normalizedLimit })}`
+            `${ADMIN_ROUTES.REPORTS}?${buildQuery({ q: normalizedSearch, page: "1", limit: normalizedLimit })}`
         ),
         adminFetch<unknown>(
             `${ADMIN_ROUTES.FINANCE_TRANSACTIONS}?${buildQuery({ q: normalizedSearch, page: "1", limit: normalizedLimit })}`

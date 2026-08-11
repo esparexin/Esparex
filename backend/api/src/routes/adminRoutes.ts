@@ -42,7 +42,6 @@ router.get('/dashboard/stats', adminSystem.getDashboardStats);
 router.get('/analytics', adminSystem.getAnalytics);
 router.get('/analytics/revenue/summary', adminAnalytics.getRevenueSummary);
 router.get('/analytics/revenue/categories', adminAnalytics.getRevenueByCategory);
-router.get('/activity', adminSystem.getRecentActivity);
 router.get('/security/audit', requirePermission('system:logs'), adminAudit.getAuditLogs);
 
 // Users and sessions
