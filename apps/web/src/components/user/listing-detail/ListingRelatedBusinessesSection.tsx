@@ -10,11 +10,13 @@ import { RelatedBusinessesSection } from "../related-businesses/RelatedBusinesse
 interface ListingRelatedBusinessesSectionProps {
     ad: Ad;
     navigateTo: AdDetailNavigateFn;
+    variant?: "default" | "sidebar";
 }
 
 export function ListingRelatedBusinessesSection({
     ad,
     navigateTo,
+    variant = "default",
 }: ListingRelatedBusinessesSectionProps) {
     const discoveryContext = useMemo(() => {
         return buildRelatedBusinessesDiscoveryContext(ad);
@@ -24,6 +26,7 @@ export function ListingRelatedBusinessesSection({
         <RelatedBusinessesSection
             navigateTo={navigateTo}
             context={discoveryContext}
+            variant={variant}
         />
     );
 }

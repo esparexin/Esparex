@@ -73,30 +73,29 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                                     href={buildCategoryBrowseRoute(cat)}
                                     aria-label={`Browse ${cat.name}`}
                                     className="
-                                        group flex flex-col items-center justify-center gap-1.5 
-                                        h-[76px] md:h-32 rounded-lg md:rounded-[20px] border border-slate-100 bg-white/95 
-                                        shadow-sm hover:shadow-premium-hover 
-                                        transition-all duration-300 hover:border-slate-200/80 hover:-translate-y-0.5 
-                                        active:scale-[0.98] p-1.5 md:p-4 min-w-0 w-full
+                                        group flex flex-col items-center justify-center gap-2
+                                        py-2.5 md:py-3.5 px-1.5 md:px-2 rounded-2xl hover:bg-slate-100/80
+                                        transition-all duration-200 active:scale-95
+                                        min-w-0 w-full cursor-pointer
                                     "
                                 >
                                     <div
                                         className={cn(
-                                            "flex h-8 w-8 md:h-11 md:w-11 items-center justify-center rounded-lg md:rounded-xl transition-all duration-500",
+                                            "flex h-11 w-11 md:h-14 md:w-14 items-center justify-center rounded-2xl transition-all duration-300 shadow-2xs border border-slate-200/60",
                                             config.bg || "bg-slate-50",
-                                            "group-hover:scale-105"
+                                            "group-hover:scale-105 group-hover:shadow-xs"
                                         )}
                                     >
                                         <Icon
                                             className={cn(
-                                                "h-4 w-4 md:h-6 md:w-6 transition-transform duration-500 group-hover:rotate-6",
+                                                "h-5 w-5 md:h-6 md:w-6 transition-transform duration-300 group-hover:scale-110",
                                                 config.color || "text-slate-500"
                                             )}
                                             aria-hidden="true"
                                             focusable="false"
                                         />
                                     </div>
-                                    <span className="w-full truncate text-tiny md:text-small font-medium text-slate-700 text-center group-hover:text-blue-600 transition-colors">
+                                    <span className="w-full truncate text-tiny md:text-xs font-semibold text-slate-800 text-center group-hover:text-blue-600 transition-colors">
                                         {cat.name}
                                     </span>
                                 </Link>

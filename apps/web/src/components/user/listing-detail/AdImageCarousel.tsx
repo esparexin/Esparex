@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button, Z_INDEX } from "@esparex/ui";
 import { Share2, Heart, ChevronLeft, ChevronRight } from "@/icons/IconRegistry";
 import { DEFAULT_IMAGE_PLACEHOLDER, toSafeImageArray } from "@/lib/image/imageUrl";
@@ -125,117 +124,119 @@ export function AdImageCarousel({ images, title, isFavorited, onFavorite, onShar
 
     return (
         <>
-        <Card className="rounded-2xl border border-border shadow-xs bg-card overflow-hidden p-1.5 md:p-2">
-            <CardContent className="p-0">
-                <div
-                    className="relative w-full h-[220px] sm:h-[260px] md:h-[290px] bg-slate-950/90 rounded-xl overflow-hidden group/main cursor-pointer flex items-center justify-center"
-                    onTouchStart={handleTouchStart}
-                    onTouchEnd={handleTouchEnd}
-                    onClick={openLightbox}
-                    role="button"
-                    aria-label={`View full-size image gallery for ${title}`}
-                    tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openLightbox(e); }}
-                >
-                    <SafeImage
-                        src={safeImages[currentImageIndex]!}
-                        alt={`Listing image ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
-                        fill
-                        sizes={MARKETPLACE_CARD_FILL_SIZES}
-                        priority
-                        className="w-full h-full object-contain transition-transform duration-700 group-hover/main:scale-105"
-                    />
+        <div className="w-full space-y-2.5">
+            <div
+                className="relative w-full aspect-[4/3] sm:aspect-[16/10] max-h-[420px] bg-slate-50 rounded-2xl overflow-hidden group/main cursor-pointer flex items-center justify-center border border-slate-200/80 shadow-2xs"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onClick={openLightbox}
+                role="button"
+                aria-label={`View full-size image gallery for ${title}`}
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") openLightbox(e); }}
+            >
+                <SafeImage
+                    src={safeImages[currentImageIndex]!}
+                    alt={`Listing image ${currentImageIndex + 1} of ${safeImages.length}: ${title}`}
+                    fill
+                    sizes={MARKETPLACE_CARD_FILL_SIZES}
+                    priority
+                    className="w-full h-full object-contain transition-transform duration-500 group-hover/main:scale-[1.02]"
+                />
 
-                    {/* Share and Favorite Buttons */}
-                    {showActionButtons && (
-                        <div className="absolute top-2.5 right-2.5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
-                                onClick={onShare}
-                                aria-label="Share this ad"
-                            >
-                                <Share2 className="h-3.5 w-3.5 text-foreground-tertiary" />
-                            </Button>
-                            <Button
-                                size="icon"
-                                variant="secondary"
-                                className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
-                                onClick={onFavorite}
-                                aria-label="Add to favorites"
-                            >
-                                <Heart
-                                    className={`h-3.5 w-3.5 ${isFavorited ? "fill-red-500 text-red-500" : "text-foreground-tertiary"}`}
-                                />
-                            </Button>
-                        </div>
-                    )}
-
-                    {/* Image counter pill */}
-                    {safeImages.length > 1 && (
-                        <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm text-white text-2xs font-semibold px-2.5 py-0.5 rounded-full">
-                            {currentImageIndex + 1} / {safeImages.length}
-                        </div>
-                    )}
-
-                    {/* Navigation Arrows */}
-                    {safeImages.length > 1 && (
-                        <>
-                            <Button
-                                size="icon"
-                                variant="secondary"
-                                className="absolute left-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none md:opacity-0 md:group-hover/main:opacity-100 transition-all active:scale-90"
-                                onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                                aria-label="Previous image"
-                            >
-                                <ChevronLeft className="h-4 w-4 text-foreground-tertiary" />
-                            </Button>
-                            <Button
-                                size="icon"
-                                variant="secondary"
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none md:opacity-0 md:group-hover/main:opacity-100 transition-all active:scale-90"
-                                onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                                aria-label="Next image"
-                            >
-                                <ChevronRight className="h-4 w-4 text-foreground-tertiary" />
-                            </Button>
-                        </>
-                    )}
-                </div>
-
-                {/* Thumbnail Carousel */}
-                {safeImages.length > 1 && (
-                    <div className="px-1.5 pt-1.5 pb-0.5 bg-transparent">
-                        <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
-                            {safeImages.map((image: string, index: number) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    aria-label={`View photo ${index + 1} of ${safeImages.length}`}
-                                    className={`flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 relative ${
-                                        index === currentImageIndex
-                                            ? "border-primary ring-2 ring-primary/20 scale-95"
-                                            : "border-transparent hover:border-border opacity-70 hover:opacity-100"
-                                    }`}
-                                >
-                                    <SafeImage
-                                        src={image}
-                                        alt={`Thumbnail ${index + 1} of ${safeImages.length} for ${title}`}
-                                        fill
-                                        sizes="80px"
-                                        className="object-cover"
-                                    />
-                                    {index === currentImageIndex && (
-                                        <div className="absolute inset-0 bg-primary/5" />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
+                {/* Share and Favorite Buttons */}
+                {showActionButtons && (
+                    <div className="absolute top-2.5 right-2.5 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
+                            onClick={onShare}
+                            aria-label="Share this ad"
+                        >
+                            <Share2 className="h-3.5 w-3.5 text-foreground-tertiary" />
+                        </Button>
+                        <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-8 w-8 rounded-full bg-white/90 backdrop-blur-md hover:bg-white shadow-md border-none transition-all active:scale-90"
+                            onClick={onFavorite}
+                            aria-label={isFavorited ? "Remove from saved ads" : "Save this ad"}
+                        >
+                            <Heart
+                                className={`h-3.5 w-3.5 transition-colors ${
+                                    isFavorited ? "fill-red-500 text-red-500" : "text-foreground-tertiary"
+                                }`}
+                            />
+                        </Button>
                     </div>
                 )}
-            </CardContent>
-        </Card>
+
+                {/* Image counter pill */}
+                <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md text-white text-2xs px-2.5 py-1 rounded-full font-medium tracking-wide">
+                    {currentImageIndex + 1} / {safeImages.length}
+                </div>
+
+                {/* Navigation Chevrons */}
+                {safeImages.length > 1 && (
+                    <>
+                        <Button
+                            size="icon"
+                            variant="secondary"
+                            className="absolute left-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 backdrop-blur-md hover:bg-white text-foreground-tertiary opacity-0 group-hover/main:opacity-100 transition-all shadow-sm border-none hidden sm:flex"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                prevImage();
+                            }}
+                            aria-label="Previous image"
+                        >
+                            <ChevronLeft className="h-4 w-4 text-foreground-tertiary" />
+                        </Button>
+                        <Button
+                            size="icon"
+                            variant="secondary"
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-white/80 backdrop-blur-md hover:bg-white text-foreground-tertiary opacity-0 group-hover/main:opacity-100 transition-all shadow-sm border-none hidden sm:flex"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                nextImage();
+                            }}
+                            aria-label="Next image"
+                        >
+                            <ChevronRight className="h-4 w-4 text-foreground-tertiary" />
+                        </Button>
+                    </>
+                )}
+            </div>
+
+            {/* Thumbnail Carousel */}
+            {safeImages.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto py-1 scrollbar-hide">
+                    {safeImages.map((image: string, index: number) => (
+                        <button
+                            key={index}
+                            onClick={() => setCurrentImageIndex(index)}
+                            aria-label={`View photo ${index + 1} of ${safeImages.length}`}
+                            className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden border-2 transition-all duration-200 relative ${
+                                index === currentImageIndex
+                                    ? "border-blue-600 ring-2 ring-blue-600/20 scale-95"
+                                    : "border-transparent hover:border-slate-300 opacity-70 hover:opacity-100"
+                            }`}
+                        >
+                            <SafeImage
+                                src={image}
+                                alt={`Thumbnail ${index + 1} of ${safeImages.length} for ${title}`}
+                                fill
+                                sizes="80px"
+                                className="object-cover"
+                            />
+                            {index === currentImageIndex && (
+                                <div className="absolute inset-0 bg-blue-600/5" />
+                            )}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
 
         {/* Lightbox / Fullscreen overlay */}
         {isLightboxOpen && (

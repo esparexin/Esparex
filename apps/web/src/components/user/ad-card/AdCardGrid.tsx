@@ -60,10 +60,10 @@ export const AdCardGrid = memo(function AdCardGrid({
       useDeclarativeLink={useDeclarativeLink}
       handleCardClick={handleCardClick}
       className={cn(
-        "duration-300 border-border bg-white shadow-premium rounded-2xl",
-        "hover:shadow-premium-hover hover:-translate-y-1.5",
+        "duration-200 border border-slate-200/60 bg-white shadow-2xs rounded-2xl",
+        "hover:shadow-xs hover:border-slate-300 hover:-translate-y-0.5 transition-all",
         isSpotlightAd(ad) &&
-          "ring-2 ring-amber-400/50 shadow-[0_8px_30px_rgba(245,158,11,0.2)]",
+          "ring-2 ring-amber-400/50 shadow-xs",
         className
       )}
     >
