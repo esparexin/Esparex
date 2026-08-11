@@ -26,6 +26,7 @@ export function AdsFilterToolbarExtras({
                 value={filters.sort}
                 onChange={(e) => updateFilter("sort", e.target.value as ModerationFilters["sort"])}
                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                aria-label="Sort listings"
             >
                 {SORT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -37,6 +38,7 @@ export function AdsFilterToolbarExtras({
                 onChange={(e) => updateFilter("sellerId", e.target.value)}
                 placeholder="Seller ID"
                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-28"
+                aria-label="Filter by Seller ID"
             />
 
             <input
@@ -44,6 +46,7 @@ export function AdsFilterToolbarExtras({
                 onChange={(e) => updateFilter("locationId", e.target.value)}
                 placeholder="Location ID"
                 className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200 w-32"
+                aria-label="Filter by Location ID"
             />
 
             <input
@@ -68,6 +71,7 @@ export function AdsFilterToolbarExtras({
                     value={filters.expiryWarningStatus}
                     onChange={(e) => updateFilter("expiryWarningStatus", e.target.value as ModerationFilters["expiryWarningStatus"])}
                     className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200 min-w-[110px]"
+                    aria-label="Expiry warning status filter"
                 >
                     <option value="all">Warning: All</option>
                     <option value="sent">Warning Sent</option>
@@ -79,6 +83,7 @@ export function AdsFilterToolbarExtras({
                     onChange={(e) => updateFilter("expiringWithinDays", e.target.value)}
                     placeholder="Exp Days"
                     className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-200 w-24"
+                    aria-label="Expiring within days"
                 />
             </div>
 
@@ -88,6 +93,7 @@ export function AdsFilterToolbarExtras({
                     value={filters.spotlightWarningStatus}
                     onChange={(e) => updateFilter("spotlightWarningStatus", e.target.value as ModerationFilters["spotlightWarningStatus"])}
                     className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sky-200 min-w-[110px]"
+                    aria-label="Spotlight warning status filter"
                 >
                     <option value="all">Spotlight: All</option>
                     <option value="sent">Spotlight Sent</option>
@@ -99,6 +105,7 @@ export function AdsFilterToolbarExtras({
                     onChange={(e) => updateFilter("spotlightExpiringWithinDays", e.target.value)}
                     placeholder="Spot Days"
                     className="rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-200 w-24"
+                    aria-label="Spotlight expiring within days"
                 />
             </div>
 
@@ -112,3 +119,4 @@ export function AdsFilterToolbarExtras({
         </div>
     );
 }
+
