@@ -33,6 +33,18 @@ export const getAiConfig = async (req: Request, res: Response) => {
                     hasKey: Boolean(dbAi.providers?.openai?.apiKeyEncrypted || process.env.OPENAI_API_KEY),
                     defaultModel: dbAi.providers?.openai?.defaultModel || "gpt-4o-mini",
                 },
+                claude: {
+                    enabled: dbAi.providers?.claude?.enabled ?? false,
+                    apiKeyMasked: maskApiKey(dbAi.providers?.claude?.apiKeyEncrypted || process.env.CLAUDE_API_KEY || ""),
+                    hasKey: Boolean(dbAi.providers?.claude?.apiKeyEncrypted || process.env.CLAUDE_API_KEY),
+                    defaultModel: dbAi.providers?.claude?.defaultModel || "claude-3-5-haiku-20241022",
+                },
+                deepseek: {
+                    enabled: dbAi.providers?.deepseek?.enabled ?? false,
+                    apiKeyMasked: maskApiKey(dbAi.providers?.deepseek?.apiKeyEncrypted || process.env.DEEPSEEK_API_KEY || ""),
+                    hasKey: Boolean(dbAi.providers?.deepseek?.apiKeyEncrypted || process.env.DEEPSEEK_API_KEY),
+                    defaultModel: dbAi.providers?.deepseek?.defaultModel || "deepseek-chat",
+                },
             },
         };
 
@@ -75,6 +87,24 @@ export const updateAiConfig = async (req: Request, res: Response) => {
                     apiKeyEncrypted: providers.openai.apiKey
                         ? encryptApiKey(providers.openai.apiKey)
                         : updatedProviders.openai?.apiKeyEncrypted,
+                };
+            }
+            if (providers.claude) {
+                updatedProviders.claude = {
+                    enabled: Boolean(providers.claude.enabled),
+                    defaultModel: providers.claude.defaultModel || "claude-3-5-haiku-20241022",
+                    apiKeyEncrypted: providers.claude.apiKey
+                        ? encryptApiKey(providers.claude.apiKey)
+                        : updatedProviders.claude?.apiKeyEncrypted,
+                };
+            }
+            if (providers.deepseek) {
+                updatedProviders.deepseek = {
+                    enabled: Boolean(providers.deepseek.enabled),
+                    defaultModel: providers.deepseek.defaultModel || "deepseek-chat",
+                    apiKeyEncrypted: providers.deepseek.apiKey
+                        ? encryptApiKey(providers.deepseek.apiKey)
+                        : updatedProviders.deepseek?.apiKeyEncrypted,
                 };
             }
             doc.ai.providers = updatedProviders;

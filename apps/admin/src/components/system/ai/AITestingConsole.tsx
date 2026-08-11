@@ -67,6 +67,8 @@ export function AITestingConsole() {
                     >
                         <option value="gemini">Google Gemini</option>
                         <option value="openai">OpenAI</option>
+                        <option value="claude">Anthropic Claude</option>
+                        <option value="deepseek">DeepSeek AI</option>
                     </select>
                 </div>
                 <div>

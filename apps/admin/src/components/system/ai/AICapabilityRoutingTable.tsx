@@ -63,6 +63,8 @@ export function AICapabilityRoutingTable({ capabilities, onChange }: AICapabilit
                                         >
                                             <option value="gemini">Google Gemini</option>
                                             <option value="openai">OpenAI</option>
+                                            <option value="claude">Anthropic Claude</option>
+                                            <option value="deepseek">DeepSeek AI</option>
                                         </select>
                                     </td>
                                     <td className="px-4 py-3">
