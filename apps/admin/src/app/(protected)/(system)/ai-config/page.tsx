@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Cpu, ShieldCheck, Key, Save, CheckCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
-import { AICapabilityRoutingTable } from "@/components/system/ai/AICapabilityRoutingTable";
+import { AICapabilityRoutingTable, PROVIDER_MODELS } from "@/components/system/ai/AICapabilityRoutingTable";
 import { AITestingConsole } from "@/components/system/ai/AITestingConsole";
 import { adminFetch } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
@@ -203,12 +203,17 @@ export default function AIConfigPage() {
 
                             <div>
                                 <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={providers.gemini?.defaultModel || "gemini-2.5-flash"}
                                     onChange={(e) => handleProviderChange("gemini", "defaultModel", e.target.value)}
                                     className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
+                                >
+                                    {PROVIDER_MODELS.gemini.map((m) => (
+                                        <option key={m.value} value={m.value}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -249,12 +254,17 @@ export default function AIConfigPage() {
 
                             <div>
                                 <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={providers.openai?.defaultModel || "gpt-4o-mini"}
                                     onChange={(e) => handleProviderChange("openai", "defaultModel", e.target.value)}
                                     className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
+                                >
+                                    {PROVIDER_MODELS.openai.map((m) => (
+                                        <option key={m.value} value={m.value}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -295,12 +305,17 @@ export default function AIConfigPage() {
 
                             <div>
                                 <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={providers.claude?.defaultModel || "claude-3-5-haiku-20241022"}
                                     onChange={(e) => handleProviderChange("claude", "defaultModel", e.target.value)}
                                     className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
+                                >
+                                    {PROVIDER_MODELS.claude.map((m) => (
+                                        <option key={m.value} value={m.value}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 
@@ -341,12 +356,17 @@ export default function AIConfigPage() {
 
                             <div>
                                 <label className="block text-tiny font-bold uppercase tracking-wider text-slate-600 mb-1">Default Model</label>
-                                <input
-                                    type="text"
+                                <select
                                     value={providers.deepseek?.defaultModel || "deepseek-chat"}
                                     onChange={(e) => handleProviderChange("deepseek", "defaultModel", e.target.value)}
                                     className="w-full rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-mono bg-white focus:border-sky-500 focus:outline-none"
-                                />
+                                >
+                                    {PROVIDER_MODELS.deepseek.map((m) => (
+                                        <option key={m.value} value={m.value}>
+                                            {m.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                     </div>
