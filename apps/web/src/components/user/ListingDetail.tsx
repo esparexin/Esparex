@@ -17,6 +17,7 @@ import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
+import { AdPlacementSlot } from "./listing-detail/AdPlacementSlot";
 
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
@@ -193,9 +194,9 @@ export function ListingDetail({
 
           <div className="bg-white pb-8">
             <div className="w-full px-3 md:px-6 lg:px-8 md:py-6">
-              <div className="max-w-7xl mx-auto">
+              <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-start">
-                  {/* Left Column: Gallery & Description stacked with clean gap */}
+                  {/* Left Column: Gallery, Description & Ad Placement stacked */}
                   <div className="lg:col-span-7 xl:col-span-8 w-full flex flex-col gap-6">
                     <AdImageCarousel
                       images={images}
@@ -209,6 +210,9 @@ export function ListingDetail({
                     {isPendingOwner && <AdPendingStatusCard />}
 
                     <ListingDescriptionCard ad={ad} />
+
+                    {/* Google AdSense / Sponsor Ad Placement Slot */}
+                    <AdPlacementSlot slotId="listing-detail-bottom" variant="banner" />
                   </div>
 
                   {/* Right Column: Title, Price, Seller, Safety Tips, Actions (Sticky) */}
