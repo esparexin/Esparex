@@ -205,7 +205,7 @@ export default function InvoicesPage() {
       description="Review generated invoices, GST billing records, and downloadable PDFs."
       tabs={<AdminModuleTabs tabs={financeTabs} />}
     >
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-subtle" />

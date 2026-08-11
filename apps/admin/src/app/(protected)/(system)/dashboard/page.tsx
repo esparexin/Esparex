@@ -187,9 +187,9 @@ export default function DashboardPage() {
       }
       className="h-full overflow-y-auto pr-1"
     >
-      <div className="space-y-8">
+      <div className="flex flex-col gap-8">
         {/* Section 1: Operational Queues */}
-        <section className="space-y-3">
+        <section className="flex flex-col gap-3">
           <div>
             <h2 className="text-base font-bold text-foreground">Operational Queues</h2>
             <p className="text-xs text-foreground-tertiary">Action required across moderation & approval queues</p>
@@ -242,7 +242,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Section 2: Directory & Platform Overview */}
-        <section className="space-y-3">
+        <section className="flex flex-col gap-3">
           <div>
             <h2 className="text-base font-bold text-foreground">Directory & Users</h2>
             <p className="text-xs text-foreground-tertiary">Platform account status and active inventory</p>
@@ -280,14 +280,14 @@ export default function DashboardPage() {
         </section>
 
         {/* Section 3: Revenue, Trends & Live Activity */}
-        <section className="space-y-4">
+        <section className="flex flex-col gap-4">
           <div>
             <h2 className="text-base font-bold text-foreground">Financials & Activity</h2>
             <p className="text-xs text-foreground-tertiary">Revenue growth signals and real-time audit log</p>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 flex flex-col gap-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <DashboardCard
                   title="Total Revenue"
@@ -313,7 +313,7 @@ export default function DashboardPage() {
               {error ? (
                 <p className="text-red-500 text-sm italic">{error}</p>
               ) : (
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {liveLogs.length > 0 ? liveLogs.map((log) => (
                     <div key={log.id} className="flex items-center gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
                       <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-foreground-subtle shrink-0">

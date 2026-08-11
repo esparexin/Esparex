@@ -48,7 +48,7 @@ export function MobileRowCard({
             {fields.length > 0 && (
                 <div className="grid grid-cols-2 gap-2 py-3 text-xs">
                     {fields.map((field, idx) => (
-                        <div key={idx} className="space-y-0.5">
+                        <div key={idx} className="flex flex-col gap-0.5">
                             <span className="text-tiny font-medium text-foreground-tertiary uppercase tracking-wider">
                                 {field.label}
                             </span>
