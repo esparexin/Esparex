@@ -73,10 +73,10 @@ const RULES = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
- * Returns true when the current line OR the immediately preceding line contains
- * a ui-guard-ignore annotation for the given ruleId.
- * This supports JSX block comments ({/* ui-guard-ignore: ... *​/}) which always
- * appear on a separate line above the element they suppress.
+ * Returns true when the current line OR the immediately preceding line
+ * contains a ui-guard-ignore annotation for the given ruleId.
+ * Supports JSX block comments and JS line comments placed on the line above
+ * the element being suppressed.
  */
 function isIgnored(line, ruleId, prevLine = "") {
   return (
@@ -148,8 +148,8 @@ function auditFile(filePath) {
   }
 
   // ── Rule: Parallel responsive DOM subtrees ─────────────────────────────────
-  const hasLgHidden = lines.some((l, i) => /className=["'][^"']*lg:hidden/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
-  const hasHiddenLg = lines.some((l, i) => /className=["'][^"']*hidden lg:(?:block|flex|grid)/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
+  const hasLgHidden = lines.some((l) => /className=["'][^"']*lg:hidden/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
+  const hasHiddenLg = lines.some((l) => /className=["'][^"']*hidden lg:(?:block|flex|grid)/.test(l) && !isIgnored(l, RULES.PARALLEL_RESPONSIVE.id));
   if (hasLgHidden && hasHiddenLg) {
     violations.push({
       rule: RULES.PARALLEL_RESPONSIVE,
