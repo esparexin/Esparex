@@ -4,7 +4,6 @@ import {
     AD_FORMAT,
     GOOGLE_AD_STATUS,
     AD_FALLBACK_STRATEGY,
-    type GoogleAdPlacementDTO,
 } from "@esparex/contracts";
 
 export interface IGoogleAdPlacement extends Document {

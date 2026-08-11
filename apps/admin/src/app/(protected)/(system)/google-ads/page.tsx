@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plus, Tag, ShieldCheck, CheckCircle } from "@esparex/ui";
+import { Plus, ShieldCheck, CheckCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { GoogleAdsTable } from "@/components/google-ads/GoogleAdsTable";
 import { GoogleAdModal } from "@/components/google-ads/GoogleAdModal";

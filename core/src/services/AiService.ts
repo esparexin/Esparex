@@ -98,6 +98,7 @@ export const getStatus = async (): Promise<{ available: boolean; reason: string 
 };
 
 export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AIServiceResult> => {
+    const t0 = Date.now();
     const { type, context, image, contextText } = input;
     
     if (type === 'generate' && !context.brand && !context.model) {
@@ -115,6 +116,8 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     }
 
     const config = await getAiConfig();
+    const tConfig = Date.now() - t0;
+
     try {
         const provider = AIProviderFactory.create(config.provider);
 
@@ -127,8 +130,18 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
             });
 
             const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
+            const totalMs = Date.now() - t0;
+            logger.info('[AiService] identify telemetry', {
+                type,
+                provider: result.provider,
+                model: result.model,
+                llmLatencyMs: result.latency,
+                configLookupMs: tConfig,
+                totalMs,
+                usage: result.usage,
+            });
             
-            return { ok: true, data: result as Record<string, unknown> };
+            return { ok: true, data: result.data as Record<string, unknown> };
         }
 
         if (type === 'generate') {
@@ -139,7 +152,18 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
             });
 
             const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
-            return { ok: true, data: result as Record<string, unknown> };
+            const totalMs = Date.now() - t0;
+            logger.info('[AiService] generate telemetry', {
+                type,
+                provider: result.provider,
+                model: result.model,
+                llmLatencyMs: result.latency,
+                configLookupMs: tConfig,
+                totalMs,
+                usage: result.usage,
+            });
+
+            return { ok: true, data: result.data as Record<string, unknown> };
         }
 
         if (type === 'moderate') {
@@ -150,12 +174,23 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
             });
 
             const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
-            return { ok: true, data: result as Record<string, unknown> };
+            const totalMs = Date.now() - t0;
+            logger.info('[AiService] moderate telemetry', {
+                type,
+                provider: result.provider,
+                model: result.model,
+                llmLatencyMs: result.latency,
+                configLookupMs: tConfig,
+                totalMs,
+                usage: result.usage,
+            });
+
+            return { ok: true, data: result.data as Record<string, unknown> };
         }
 
         return toServiceFailure({ ok: false, status: 400, error: 'Invalid AI request type' });
     } catch (error) {
-        logger.error('[AiService] executeAiRequest error', { error });
+        logger.error('[AiService] executeAiRequest error', { error, totalMs: Date.now() - t0 });
         const serviceFailure = mapProviderError(error);
         
         if (serviceFailure.code === AiErrorCode.AI_QUOTA_EXHAUSTED) {

@@ -12,6 +12,19 @@ export interface AIResult {
     cached: boolean;
 }
 
+export interface StructuredAIResult<T> {
+    data: T;
+    provider: string;
+    model: string;
+    usage?: {
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+    };
+    latency: number;
+    cached: boolean;
+}
+
 export interface AIProviderError extends Error {
     code: 'Authentication' | 'RateLimit' | 'Timeout' | 'Validation' | 'ServiceUnavailable' | 'Unknown';
     provider: string;
