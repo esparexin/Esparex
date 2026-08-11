@@ -37,25 +37,19 @@ export function DashboardCard({
 }: DashboardCardProps) {
     const iconStyle = variantStyles[variant] || variantStyles.default;
     const content = (
-        <Card className={`bg-white p-3.5 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow ${className}`}>
-            <CardContent className="p-0 space-y-2">
-                <div className="flex items-center justify-between">
-                    <div className={`p-1.5 rounded-md ${iconStyle}`}>
-                        <Icon size={18} />
+        <Card className={`bg-white px-3 py-2.5 rounded-xl border border-slate-200 shadow-xs hover:shadow-sm transition-all hover:border-slate-300 ${className}`}>
+            <CardContent className="p-0 flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                    <p className="text-tiny font-bold text-foreground-tertiary uppercase tracking-wider truncate mb-0.5">{title}</p>
+                    <div className="flex items-baseline gap-1.5">
+                        <span className="text-base font-bold text-foreground tracking-tight">{value}</span>
+                        {description && (
+                            <span className="text-tiny text-foreground-subtle font-medium italic truncate">{description}</span>
+                        )}
                     </div>
-                    {trend && (
-                        <span className={`text-tiny font-semibold px-1.5 py-0.5 rounded-full ${trend.isUp ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
-                            }`}>
-                            {trend.isUp ? "+" : "-"}{trend.value}%
-                        </span>
-                    )}
                 </div>
-                <div>
-                    <p className="text-xs font-semibold text-foreground-tertiary mb-0.5">{title}</p>
-                    <h3 className="text-lg font-bold text-foreground tracking-tight">{value}</h3>
-                    {description && (
-                        <p className="mt-1 text-tiny text-foreground-subtle font-medium italic">{description}</p>
-                    )}
+                <div className={`p-1.5 rounded-lg shrink-0 ${iconStyle}`}>
+                    <Icon size={16} />
                 </div>
             </CardContent>
         </Card>
