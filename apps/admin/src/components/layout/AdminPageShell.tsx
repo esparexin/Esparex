@@ -19,6 +19,7 @@ type AdminPageShellProps = {
     tabs?: ReactNode;
     filters?: ReactNode;
     actions?: ReactNode;
+    showGlobalSearch?: boolean;
     children: ReactNode;
     className?: string;
     isNested?: boolean;
@@ -31,6 +32,7 @@ export function AdminPageShell({
     tabs,
     filters,
     actions,
+    showGlobalSearch = true,
     children,
     className,
     isNested = false,
@@ -53,7 +55,7 @@ export function AdminPageShell({
                 description={description}
                 headerVariant={headerVariant}
                 headerActions={actions}
-                search={<AdminGlobalSearch />}
+                search={showGlobalSearch ? <AdminGlobalSearch /> : null}
                 tabs={tabs}
                 filters={filters}
                 className={className}

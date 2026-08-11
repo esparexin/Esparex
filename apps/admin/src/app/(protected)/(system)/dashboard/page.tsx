@@ -162,7 +162,7 @@ export default function DashboardPage() {
             <h2 className="text-sm font-bold text-foreground">Operational Queues</h2>
             <p className="text-tiny text-foreground-tertiary">Action required across moderation & approval queues</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-w-4xl">
             <DashboardCard
               title="Pending Ads"
               value={moderationCounts.pending}
@@ -215,7 +215,7 @@ export default function DashboardPage() {
             <h2 className="text-sm font-bold text-foreground">Directory & Users</h2>
             <p className="text-tiny text-foreground-tertiary">Platform account status and active inventory</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl">
             <DashboardCard
               title="Live Ads"
               value={moderationCounts.live}
@@ -256,7 +256,7 @@ export default function DashboardPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 flex flex-col gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-3xl">
                 <DashboardCard
                   title="Total Revenue"
                   value={`₹${(financeStats?.totalRevenue || 0).toLocaleString()}`}

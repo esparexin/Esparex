@@ -207,7 +207,7 @@ export default function FinancePage() {
             }
         >
             <div className="flex flex-col gap-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl">
                     <DashboardCard
                         title="Total Revenue"
                         value={`₹${stats?.totalRevenue.toLocaleString() || '0'}`}

@@ -249,7 +249,7 @@ export default function AdminUsersPage() {
             <AdminModuleTabs tabs={administrationTabs} />
 
             {!isPermissionsView && (
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5 mt-3">
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5 mt-3 max-w-3xl">
                     <div className="rounded-lg border border-purple-200 bg-purple-50/40 px-3 py-2 shadow-sm">
                         <p className="text-tiny font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
                         <p className="mt-0.5 text-lg font-bold text-purple-700">{superAdmins}</p>

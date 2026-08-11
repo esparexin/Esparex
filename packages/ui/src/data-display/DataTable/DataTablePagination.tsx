@@ -14,7 +14,7 @@ export function DataTablePagination({
     currentPage, totalPages, totalItems, startItem, endItem, dataLength, onPageChange
 }: DataTablePaginationProps) {
     return (
-        <div className="bg-white border-t border-slate-100 px-6 py-3 flex items-center justify-between mt-auto">
+        <div className="bg-white border-t border-slate-100 px-6 py-3 flex items-center justify-between">
             <div className="text-xs text-slate-500 font-medium">
                 Showing <span className="text-slate-900 font-bold">{dataLength > 0 ? startItem : 0}</span> to <span className="text-slate-900 font-bold">{dataLength > 0 ? endItem : 0}</span> of <span className="text-slate-900 font-bold">{totalItems}</span> results
             </div>

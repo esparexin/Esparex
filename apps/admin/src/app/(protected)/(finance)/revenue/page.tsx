@@ -63,7 +63,7 @@ export default function RevenuePage() {
           <AlertCircle size={16} /> {error}
         </div>
       ) : null}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 max-w-3xl">
         <DashboardCard
           title="Total Revenue"
           value={loading ? "..." : `₹${stats?.totalRevenue.toLocaleString() || "0"}`}

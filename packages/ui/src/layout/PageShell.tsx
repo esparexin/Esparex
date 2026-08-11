@@ -29,7 +29,7 @@ export function PageShell({
   const isCompact = headerVariant === "compact";
 
   return (
-    <div className={cn("flex flex-col gap-4", className)}>
+    <div className={cn("flex flex-col gap-4 px-4 lg:px-6 pt-3 lg:pt-4", className)}>
       <header className="shrink-0 space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex-1">
