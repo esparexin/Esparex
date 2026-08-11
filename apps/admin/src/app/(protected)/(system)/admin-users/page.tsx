@@ -249,26 +249,26 @@ export default function AdminUsersPage() {
             <AdminModuleTabs tabs={administrationTabs} />
 
             {!isPermissionsView && (
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5 mt-6">
-                    <div className="rounded-xl border border-purple-200 bg-purple-50/40 p-4 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
-                        <p className="mt-2 text-2xl font-bold text-purple-700">{superAdmins}</p>
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5 mt-3">
+                    <div className="rounded-lg border border-purple-200 bg-purple-50/40 px-3 py-2 shadow-sm">
+                        <p className="text-tiny font-semibold uppercase tracking-wide text-purple-700">Super Admins</p>
+                        <p className="mt-0.5 text-lg font-bold text-purple-700">{superAdmins}</p>
                     </div>
-                    <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Admins</p>
-                        <p className="mt-2 text-2xl font-bold text-blue-700">{adminCount}</p>
+                    <div className="rounded-lg border border-blue-200 bg-blue-50/40 px-3 py-2 shadow-sm">
+                        <p className="text-tiny font-semibold uppercase tracking-wide text-blue-700">Admins</p>
+                        <p className="mt-0.5 text-lg font-bold text-blue-700">{adminCount}</p>
                     </div>
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Moderators</p>
-                        <p className="mt-2 text-2xl font-bold text-emerald-700">{moderators}</p>
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2 shadow-sm">
+                        <p className="text-tiny font-semibold uppercase tracking-wide text-emerald-700">Moderators</p>
+                        <p className="mt-0.5 text-lg font-bold text-emerald-700">{moderators}</p>
                     </div>
-                    <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">Support</p>
-                        <p className="mt-2 text-2xl font-bold text-amber-700">{support}</p>
+                    <div className="rounded-lg border border-amber-200 bg-amber-50/40 px-3 py-2 shadow-sm">
+                        <p className="text-tiny font-semibold uppercase tracking-wide text-amber-700">Support</p>
+                        <p className="mt-0.5 text-lg font-bold text-amber-700">{support}</p>
                     </div>
-                    <div className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-4 shadow-sm">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Finance</p>
-                        <p className="mt-2 text-2xl font-bold text-indigo-700">{finance}</p>
+                    <div className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-sm">
+                        <p className="text-tiny font-semibold uppercase tracking-wide text-indigo-700">Finance</p>
+                        <p className="mt-0.5 text-lg font-bold text-indigo-700">{finance}</p>
                     </div>
                 </div>
             )}

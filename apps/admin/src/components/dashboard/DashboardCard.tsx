@@ -52,7 +52,7 @@ export function DashboardCard({
                 </div>
                 <div>
                     <p className="text-xs font-semibold text-foreground-tertiary mb-0.5">{title}</p>
-                    <h3 className="text-xl font-bold text-foreground tracking-tight">{value}</h3>
+                    <h3 className="text-lg font-bold text-foreground tracking-tight">{value}</h3>
                     {description && (
                         <p className="mt-1 text-tiny text-foreground-subtle font-medium italic">{description}</p>
                     )}

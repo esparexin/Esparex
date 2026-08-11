@@ -240,28 +240,28 @@ export default function UsersPage() {
         >
         <div className="relative flex h-full min-h-0 overflow-hidden">
             <div className={`flex min-h-0 flex-1 flex-col overflow-hidden transition-all duration-300 ${selectedUser ? 'pr-[400px]' : ''}`}>
-                <div className="flex min-h-0 flex-1 flex-col gap-6">
+                <div className="flex min-h-0 flex-1 flex-col gap-4 px-4 lg:px-6 pt-3">
 
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
-                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Total Users</p>
-                            <p className="mt-2 text-2xl font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
+                    <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-5">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-tiny font-semibold uppercase tracking-wide text-foreground-tertiary">Total Users</p>
+                            <p className="mt-0.5 text-lg font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Individuals</p>
-                            <p className="mt-2 text-2xl font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-tiny font-semibold uppercase tracking-wide text-emerald-700">Individuals</p>
+                            <p className="mt-0.5 text-lg font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Businesses</p>
-                            <p className="mt-2 text-2xl font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-lg border border-blue-200 bg-blue-50/40 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-tiny font-semibold uppercase tracking-wide text-blue-700">Businesses</p>
+                            <p className="mt-0.5 text-lg font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Verified Businesses</p>
-                            <p className="mt-2 text-2xl font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-lg border border-indigo-200 bg-indigo-50/40 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-tiny font-semibold uppercase tracking-wide text-indigo-700">Verified Businesses</p>
+                            <p className="mt-0.5 text-lg font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Blocked Users</p>
-                            <p className="mt-2 text-2xl font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-lg border border-red-200 bg-red-50/40 px-3 py-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                            <p className="text-tiny font-semibold uppercase tracking-wide text-red-700">Blocked Users</p>
+                            <p className="mt-0.5 text-lg font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
                         </Link>
                     </div>
 
