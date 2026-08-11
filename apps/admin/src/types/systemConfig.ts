@@ -100,6 +100,15 @@ export type SystemConfig = {
       apiKey?: string;
       enabled?: boolean;
     };
+    googleAdsense?: {
+      enabled?: boolean;
+      publisherId?: string;
+      slots?: {
+        listingDetailBottom?: string;
+        homepageHero?: string;
+        searchSidebar?: string;
+      };
+    };
     sms?: {
       provider?: string;
       apiKey?: string;

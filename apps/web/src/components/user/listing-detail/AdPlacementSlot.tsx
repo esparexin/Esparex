@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 
 interface AdPlacementSlotProps {
+    /** AdSense publisher client ID (e.g. ca-pub-XXXXXXXXXXXXXXXX) */
+    publisherId?: string;
     /** AdSense slot ID or custom placement identifier */
     slotId?: string;
     /** Format variant: "banner" (728x90 / responsive horizontal) or "rectangle" (300x250 medium rectangle) */
@@ -11,13 +13,14 @@ interface AdPlacementSlotProps {
 }
 
 export function AdPlacementSlot({
+    publisherId,
     slotId,
     variant = "banner",
     className = "",
 }: AdPlacementSlotProps) {
     const adRef = useRef<HTMLDivElement>(null);
 
-    const clientPublisherId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID?.trim();
+    const clientPublisherId = publisherId || process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID?.trim();
     const effectiveSlotId = slotId || process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT_ID?.trim();
 
     useEffect(() => {

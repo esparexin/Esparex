@@ -93,6 +93,15 @@ const locationSectionSchema = z.object({
 }).strict();
 
 const integrationsSectionSchema = z.object({
+    googleAdsense: z.object({
+        enabled: optionalBoolean,
+        publisherId: optionalString,
+        slots: z.object({
+            listingDetailBottom: optionalString,
+            homepageHero: optionalString,
+            searchSidebar: optionalString,
+        }).strict().optional(),
+    }).strict().optional(),
     payment: z.object({
         razorpay: z.object({
             enabled: optionalBoolean,

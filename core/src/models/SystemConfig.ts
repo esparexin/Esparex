@@ -115,6 +115,15 @@ export interface ISystemConfig extends Document {
             senderId: string;
             rateLimit: number;
         };
+        googleAdsense?: {
+            enabled: boolean;
+            publisherId: string;
+            slots?: {
+                listingDetailBottom?: string;
+                homepageHero?: string;
+                searchSidebar?: string;
+            };
+        };
         payment: {
             razorpay: {
                 enabled: boolean;
@@ -255,6 +264,15 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             apiSecret: { type: String },
             senderId: { type: String },
             rateLimit: { type: Number, default: 5 }
+        },
+        googleAdsense: {
+            enabled: { type: Boolean, default: false },
+            publisherId: { type: String, default: '' },
+            slots: {
+                listingDetailBottom: { type: String, default: '' },
+                homepageHero: { type: String, default: '' },
+                searchSidebar: { type: String, default: '' },
+            }
         },
         payment: {
             razorpay: {
