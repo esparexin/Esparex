@@ -9,6 +9,7 @@ import {
     AD_FALLBACK_STRATEGY,
     type GoogleAdPlacementDTO,
 } from "@esparex/contracts";
+import { AdPlacementLocationSelect } from "./AdPlacementLocationSelect";
 
 interface GoogleAdModalProps {
     isOpen: boolean;
@@ -146,15 +147,16 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
                                 Location
                             </label>
-                            <select
+                            <AdPlacementLocationSelect
                                 value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
-                            >
-                                {Object.values(AD_PLACEMENT_LOCATION).map((loc) => (
-                                    <option key={loc} value={loc}>{loc}</option>
-                                ))}
-                            </select>
+                                isCreating={!editingPlacement}
+                                onChange={(nextLoc) => {
+                                    setLocation(nextLoc);
+                                    if (!editingPlacement) {
+                                        setPlacementKey(nextLoc);
+                                    }
+                                }}
+                            />
                         </div>
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
@@ -165,9 +167,12 @@ export function GoogleAdModal({ isOpen, onClose, onSave, editingPlacement }: Goo
                                 onChange={(e) => setFormat(e.target.value)}
                                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
                             >
-                                {Object.values(AD_FORMAT).map((fmt) => (
-                                    <option key={fmt} value={fmt}>{fmt}</option>
-                                ))}
+                                <option value={AD_FORMAT.LEADERBOARD_728x90}>Leaderboard Banner (728x90)</option>
+                                <option value={AD_FORMAT.RECTANGLE_300x250}>Medium Rectangle (300x250)</option>
+                                <option value={AD_FORMAT.HALF_PAGE_300x600}>Half Page Banner (300x600)</option>
+                                <option value={AD_FORMAT.MOBILE_BANNER_320x50}>Mobile Banner (320x50)</option>
+                                <option value={AD_FORMAT.RESPONSIVE_AUTO}>Responsive Display (Auto-Scale)</option>
+                                <option value={AD_FORMAT.FLUID_NATIVE}>Fluid Native (In-Feed)</option>
                             </select>
                         </div>
                     </div>
