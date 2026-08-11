@@ -22,6 +22,7 @@ import * as adminSystemConfig from '../controllers/admin/systemConfigController'
 import * as adminImportContent from '../controllers/admin/content/import.content.controller';
 import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsController';
 import * as adminGoogleAds from '../controllers/admin/adminGoogleAdsController';
+import * as adminAiConfig from '../controllers/admin/adminAiConfigController';
 
 const router = express.Router();
 
@@ -148,6 +149,9 @@ router.get('/notifications/history', adminNotifications.getHistory);
 router.get('/notifications/recipients', adminNotifications.getRecipients);
 
 router.post('/ai/generate', adminAi.generate);
+router.get('/system/ai-config', requirePermission('system:config'), adminAiConfig.getAiConfig);
+router.patch('/system/ai-config', requirePermission('system:config'), adminAiConfig.updateAiConfig);
+router.post('/system/ai-config/test', requirePermission('system:config'), adminAiConfig.testAiProvider);
 
 router.get('/api-keys', adminApiKeys.getApiKeys);
 router.post('/api-keys', requirePermission('system:config'), adminApiKeys.createApiKey);

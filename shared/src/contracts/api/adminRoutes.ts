@@ -154,6 +154,8 @@ export const ADMIN_ROUTES = {
   SYSTEM_FIX: "/system/fix",
   CACHE_HEALTH: "/cache/health",
   SYSTEM_CONFIG: "/system/config",
+  SYSTEM_AI_CONFIG: "/system/ai-config",
+  SYSTEM_AI_TEST: "/system/ai-config/test",
   SUPPORT_CONTACT: "/support/contact",
   SUPPORT_CONTACT_STATUS: (id: string) => `/support/contact/${id}/status`,
 
