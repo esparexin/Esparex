@@ -17,7 +17,11 @@ import {
     Wallet,
 } from "@esparex/ui";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
-import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
+import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
+import { DataTable } from "@/components/ui/DataTable";
+import { AlertCircle } from "@esparex/ui";
 import {
     buildUrlWithSearchParams,
     normalizeSearchParamValue,
@@ -187,21 +191,10 @@ export default function FinancePage() {
     ];
 
     return (
-        <FinancePageTemplate<Transaction>
+        <AdminPageShell
             title="Finance Management"
             description="Monitor revenue, sales, and transaction audits"
-            data={transactions}
-            columns={columns}
-            isLoading={loading}
-            error={error}
-            emptyMessage="No transaction history found"
-            pagination={{
-                currentPage: page,
-                totalPages: pagination.pages,
-                totalItems: pagination.total,
-                pageSize: pagination.limit,
-                onPageChange: (nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null }),
-            }}
+            tabs={<AdminModuleTabs tabs={financeTabs} />}
             actions={
                 <div className="flex gap-2">
                     <button className="flex items-center gap-2 bg-white border border-slate-200 text-foreground-secondary px-3 py-1.5 rounded-lg font-bold text-sm shadow-sm hover:bg-slate-50 transition-colors">
@@ -212,8 +205,9 @@ export default function FinancePage() {
                     </button>
                 </div>
             }
-            stats={
-                <>
+        >
+            <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-3xl">
                     <DashboardCard
                         title="Total Revenue"
                         value={`₹${stats?.totalRevenue.toLocaleString() || '0'}`}
@@ -240,10 +234,9 @@ export default function FinancePage() {
                         icon={Calendar}
                         description="MTD Earnings"
                     />
-                </>
-            }
-            filters={
-                <>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                     <div className="relative flex-1 w-full text-black">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
                         <input
@@ -267,8 +260,30 @@ export default function FinancePage() {
                             <option value="INITIATED">Initiated</option>
                         </select>
                     </div>
-                </>
-            }
-        />
+                </div>
+
+                {error && (
+                    <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                        <AlertCircle size={18} /> {error}
+                    </div>
+                )}
+
+                <div className="min-h-0 flex-1">
+                    <DataTable
+                        data={transactions}
+                        columns={columns}
+                        isLoading={loading}
+                        emptyMessage="No transaction history found"
+                        pagination={{
+                            currentPage: page,
+                            totalPages: pagination.pages,
+                            totalItems: pagination.total,
+                            pageSize: pagination.limit,
+                            onPageChange: (nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null }),
+                        }}
+                    />
+                </div>
+            </div>
+        </AdminPageShell>
     );
 }

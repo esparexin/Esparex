@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle, Loader2 } from "@esparex/ui";
+import { AlertCircle, CheckCircle2, Eye, ShieldAlert, XCircle } from "@esparex/ui";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+import { AdminActionMenu } from "@/components/layout/AdminActionMenu";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useModerationReports, type ReportQueueItem } from "@/hooks/useModerationReports";
@@ -134,49 +134,44 @@ export default function ReportsPage() {
             {
                 header: "Actions",
                 cell: (item) => (
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                            href={ADMIN_UI_ROUTES.ads({ status: "all", q: item.ad?.title || item.id })}
-                            className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 hover:underline"
-                        >
-                            <Eye size={12} /> Inspect
-                        </Link>
-                        {item.status === "open" || item.status === "pending" ? (
-                            <button
-                                type="button"
-                                disabled={isMutating}
-                                onClick={() => void updateReportStatus(item.reportId, "reviewed")}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-amber-600 hover:underline disabled:opacity-50"
-                            >
-                                <AlertCircle size={12} /> Review
-                            </button>
-                        ) : null}
-                        {item.status !== "resolved" ? (
-                            <button
-                                type="button"
-                                disabled={isMutating}
-                                onClick={() => void updateReportStatus(item.reportId, "resolved")}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline disabled:opacity-50"
-                            >
-                                <CheckCircle2 size={12} /> Resolve
-                            </button>
-                        ) : null}
-                        {item.status !== "dismissed" ? (
-                            <button
-                                type="button"
-                                disabled={isMutating}
-                                onClick={() => void updateReportStatus(item.reportId, "dismissed")}
-                                className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 hover:underline disabled:opacity-50"
-                            >
-                                <XCircle size={12} /> Dismiss
-                            </button>
-                        ) : null}
-                        {isMutating && <Loader2 size={12} className="animate-spin text-foreground-subtle" />}
-                    </div>
+                    <AdminActionMenu
+                        items={[
+                            {
+                                label: "Inspect",
+                                icon: Eye,
+                                onClick: () => router.push(ADMIN_UI_ROUTES.ads({ status: "all", q: item.ad?.title || item.id })),
+                            },
+                            ...(item.status === "open" || item.status === "pending"
+                                ? [{
+                                    label: "Review",
+                                    icon: AlertCircle,
+                                    onClick: () => void updateReportStatus(item.reportId, "reviewed"),
+                                    disabled: isMutating,
+                                  }]
+                                : []),
+                            ...(item.status !== "resolved"
+                                ? [{
+                                    label: "Resolve",
+                                    icon: CheckCircle2,
+                                    onClick: () => void updateReportStatus(item.reportId, "resolved"),
+                                    disabled: isMutating,
+                                  }]
+                                : []),
+                            ...(item.status !== "dismissed"
+                                ? [{
+                                    label: "Dismiss",
+                                    icon: XCircle,
+                                    onClick: () => void updateReportStatus(item.reportId, "dismissed"),
+                                    variant: "danger" as const,
+                                    disabled: isMutating,
+                                  }]
+                                : []),
+                        ]}
+                    />
                 ),
             },
         ],
-        [isMutating, updateReportStatus]
+        [isMutating, router, updateReportStatus]
     );
 
     return (

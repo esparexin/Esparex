@@ -97,23 +97,25 @@ const geoJsonPointSchema = z.object({
         ),
 }).strict();
 
+const nameSchema = sanitizeString(2, 100).refine(
+    (val) => /^[\p{L}\p{N}\s.\-'_,]+$/u.test(val.trim()),
+    "Name contains invalid characters"
+);
+
 /**
  * Register User Schema (OTP-based)
  */
 export const registerUserSchema = z.object({
     mobile: commonSchemas.mobile,
-    name: sanitizeString(2, 100).optional(),
+    name: nameSchema.optional(),
     email: commonSchemas.email.optional(),
 }).strict();
 
 /**
  * Update User Profile Schema
  */
-/**
- * Update User Profile Schema
- */
 const updateUserProfileSchemaBase = z.object({
-    name: sanitizeString(2, 50).optional(),
+    name: nameSchema.optional(),
     email: commonSchemas.email.optional(),
 
     // Profile photo (controller maps profilePhoto to avatar)

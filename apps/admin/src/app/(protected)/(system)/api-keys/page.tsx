@@ -105,7 +105,7 @@ export default function ApiKeysPage() {
             className="h-full overflow-y-auto pr-1"
         >
             <div className="space-y-6">
-                <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="mb-3 flex items-center gap-2 text-foreground">
                         <Plus size={16} />
                         <h2 className="text-base font-semibold">Create API Key</h2>

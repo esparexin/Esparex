@@ -17,6 +17,7 @@ import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
+import { AdPlacementSlot } from "./listing-detail/AdPlacementSlot";
 
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
@@ -193,10 +194,10 @@ export function ListingDetail({
 
           <div className="bg-white pb-8">
             <div className="w-full px-3 md:px-6 lg:px-8 md:py-6">
-              <div className="max-w-7xl mx-auto">
+              <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-start">
-                  {/* Gallery & Pending Status: Mobile order-1, Desktop Left Col (Top) */}
-                  <div className="order-1 lg:col-span-7 xl:col-span-8 w-full space-y-6">
+                  {/* Left Column: Gallery, Description & Ad Placement stacked */}
+                  <div className="lg:col-span-7 xl:col-span-8 w-full flex flex-col gap-6">
                     <AdImageCarousel
                       images={images}
                       title={ad.title}
@@ -207,10 +208,15 @@ export function ListingDetail({
                     />
 
                     {isPendingOwner && <AdPendingStatusCard />}
+
+                    <ListingDescriptionCard ad={ad} />
+
+                    {/* Google AdSense / Sponsor Ad Placement Slot */}
+                    <AdPlacementSlot slotId="listing-detail-bottom" variant="banner" />
                   </div>
 
-                  {/* Title, Price, Seller, Safety Tips, Actions: Mobile order-2, Desktop Right Col (Sticky) */}
-                  <div className="order-2 lg:col-span-5 xl:col-span-4 lg:row-span-2 w-full lg:sticky lg:top-4">
+                  {/* Right Column: Title, Price, Seller, Safety Tips, Actions (Sticky) */}
+                  <div className="lg:col-span-5 xl:col-span-4 w-full lg:sticky lg:top-4 self-start">
                     <ListingDetailSidebar
                       ad={ad}
                       categoryLabel={categoryLabel}
@@ -231,11 +237,6 @@ export function ListingDetail({
                       onViewAnalytics={handleViewAnalytics}
                       onReport={handleReport}
                     />
-                  </div>
-
-                  {/* Description, Specs & Nearby Services: Mobile order-3, Desktop Left Col (Bottom) */}
-                  <div className="order-3 lg:col-span-7 xl:col-span-8 w-full">
-                    <ListingDescriptionCard ad={ad} />
                   </div>
                 </div>
               </div>

@@ -9,7 +9,7 @@ import ContactSubmission from '../../../../models/ContactSubmission';
 import Location from '../../../../models/Location';
 import LocationAnalytics from '../../../../models/LocationAnalytics';
 import AdminLog from '../../../../models/AdminLog';
-import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS } from '@esparex/contracts';
+import { LISTING_STATUS, LISTING_TYPE, BUSINESS_STATUS, CATALOG_STATUS, REPORT_STATUS, USER_STATUS, type CatalogHealthMetricsDTO } from '@esparex/contracts';
 import { AdminDashboardRepositoryPort } from '../../../../domains/admin';
 import Category from '../../../../models/Category';
 import Brand from '../../../../models/Brand';
@@ -18,12 +18,12 @@ import ServiceType from '../../../../models/ServiceType';
 import ScreenSize from '../../../../models/ScreenSize';
 import logger from '../../../../utils/logger';
 
-const CATALOG_REQUEST_PENDING_STATUS = 'pending' as CatalogRequestStatusValue;
+const CATALOG_REQUEST_PENDING_STATUS: CatalogRequestStatusValue = 'pending';
 const CATALOG_REQUEST_RESOLVED_STATUSES: CatalogRequestStatusValue[] = ['approved', 'rejected', 'merged', 'resolved'];
-const CATALOG_REQUEST_MERGED_STATUS = 'merged' as CatalogRequestStatusValue;
+const CATALOG_REQUEST_MERGED_STATUS: CatalogRequestStatusValue = 'merged';
 
 export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepositoryPort {
-    public async getCatalogHealthMetrics(): Promise<any> {
+    public async getCatalogHealthMetrics(): Promise<CatalogHealthMetricsDTO> {
         const [counts, resolutionAgg] = await Promise.all([
             CatalogRequest.aggregate([{ $match: { status: { $in: [CATALOG_REQUEST_PENDING_STATUS] } } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
             CatalogRequest.aggregate([
@@ -44,7 +44,7 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
 
     public async getDashboardOverviewStats(publicAdFilter: any): Promise<any> {
         const [totalUsers, unifiedStats, pendingModels, openReports, pendingBusinesses, totalRevenueAgg, catalogHealth] = await Promise.all([
-            User.countDocuments(),
+            User.countDocuments({ isDeleted: { $ne: true } }),
             Ad.aggregate([
                 {
                     $facet: {
@@ -61,9 +61,9 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
                     }
                 }
             ]),
-            CatalogModel.countDocuments({ status: CATALOG_STATUS.PENDING }),
-            Report.countDocuments({ status: REPORT_STATUS.OPEN }),
-            Business.countDocuments({ status: BUSINESS_STATUS.PENDING }),
+            CatalogModel.countDocuments({ status: CATALOG_STATUS.PENDING, isDeleted: { $ne: true } }),
+            Report.countDocuments({ status: REPORT_STATUS.OPEN, isDeleted: { $ne: true } }),
+            Business.countDocuments({ status: BUSINESS_STATUS.PENDING, isDeleted: { $ne: true } }),
             RevenueAnalytics.aggregate([{ $group: { _id: null, total: { $sum: '$totalRevenue' } } }]),
             this.getCatalogHealthMetrics()
         ]);
@@ -72,16 +72,16 @@ export class MongoAdminDashboardRepositoryAdapter implements AdminDashboardRepos
 
     public async getDashboardCardStats(publicAdFilter: any): Promise<any> {
         const [totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth] = await Promise.all([
-            User.countDocuments(),
+            User.countDocuments({ isDeleted: { $ne: true } }),
             Ad.aggregate([
                 {
                     $facet: {
                         live: [{ $match: { listingType: LISTING_TYPE.AD, ...publicAdFilter } }, { $count: 'count' }],
-                        pending: [{ $match: { listingType: LISTING_TYPE.AD, status: LISTING_STATUS.PENDING } }, { $count: 'count' }]
+                        pending: [{ $match: { listingType: LISTING_TYPE.AD, status: LISTING_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: 'count' }]
                     }
                 }
             ]),
-            Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] } }),
+            Report.countDocuments({ status: { $in: [REPORT_STATUS.OPEN, REPORT_STATUS.PENDING] }, isDeleted: { $ne: true } }),
             Business.countDocuments({ isDeleted: { $ne: true } }),
             RevenueAnalytics.aggregate([{ $group: { _id: null, total: { $sum: '$totalRevenue' } } }]),
             this.getCatalogHealthMetrics()

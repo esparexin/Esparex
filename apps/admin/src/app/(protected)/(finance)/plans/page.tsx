@@ -20,7 +20,11 @@ import {
 } from "@esparex/ui";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
 import { ArchivePlanModal } from "@/components/plans/ArchivePlanModal";
-import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
+import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
+import { DataTable } from "@/components/ui/DataTable";
+import { AlertCircle } from "@esparex/ui";
 import { ConfirmDeactivateDialog } from "@/components/finance/ConfirmDeactivateDialog";
 import {
     buildUrlWithSearchParams,
@@ -278,15 +282,10 @@ export default function PlansPage() {
 
     return (
         <>
-            <FinancePageTemplate<Plan>
+            <AdminPageShell
                 title="Plans & Packages"
                 description="Manage subscription plans, ad packs, and spotlight credits."
-                data={plans}
-                columns={columns}
-                isLoading={loading}
-                error={error || ""}
-                emptyMessage="No plans found matching your criteria"
-                csvFileName="plans.csv"
+                tabs={<AdminModuleTabs tabs={financeTabs} />}
                 actions={
                     <button
                         onClick={() => { setEditPlan(null); setShowModal(true); }}
@@ -295,8 +294,9 @@ export default function PlansPage() {
                         <CreditCard size={18} /> New Plan
                     </button>
                 }
-                filters={
-                    <>
+            >
+                <div className="flex flex-col gap-6">
+                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                         <div className="relative flex-1 w-full text-black">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
                             <input
@@ -322,16 +322,34 @@ export default function PlansPage() {
                                 <option value="SMART_ALERT">Smart Alerts</option>
                             </select>
                         </div>
-                    </>
-                }
-            >
-                <PlanFormModal
-                    open={showModal}
-                    onClose={() => { setShowModal(false); setEditPlan(null); }}
-                    onSaved={() => { void fetchPlans({ q: search, type: typeFilter }); }}
-                    editPlan={editPlan}
-                />
-            </FinancePageTemplate>
+                    </div>
+
+                    {error && (
+                        <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                            <AlertCircle size={18} /> {error}
+                        </div>
+                    )}
+
+                    <div className="min-h-0 flex-1">
+                        <DataTable
+                            data={plans}
+                            columns={columns}
+                            isLoading={loading}
+                            emptyMessage="No plans found matching your criteria"
+                            enableCsvExport
+                            csvFileName="plans.csv"
+                            enableColumnVisibility
+                        />
+                    </div>
+
+                    <PlanFormModal
+                        open={showModal}
+                        onClose={() => { setShowModal(false); setEditPlan(null); }}
+                        onSaved={() => { void fetchPlans({ q: search, type: typeFilter }); }}
+                        editPlan={editPlan}
+                    />
+                </div>
+            </AdminPageShell>
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}

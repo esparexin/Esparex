@@ -65,6 +65,7 @@ import rootRoutes from './routes/rootRoutes';
 import adminRoutes from './routes/adminRoutes';
 import adminCatalogRoutes from './routes/adminCatalogRoutes';
 import adminChatRoutes from './routes/adminChatRoutes';
+import googleAdsRoutes from './routes/googleAdsRoutes';
 
 
 
@@ -435,6 +436,7 @@ app.use('/api/v1/admin/chat', adminChatRoutes);
 app.use('/api/v1/admin/catalog-requests', adminCatalogRequestRoutes);
 app.use('/api/v1/admin/catalog', adminCatalogRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1', googleAdsRoutes);
 
 // Legacy API deprecation layer handled by registerDeprecationRoutes(app)
 

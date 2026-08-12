@@ -36,6 +36,7 @@ export * from "./navigation/DropdownMenu";
 export * from "./navigation/Accordion";
 export * from "./data-display/Card";
 export * from "./data-display/Badge";
+export * from "./data-display/GoogleAdUnit";
 export * from "./feedback/Skeleton";
 export * from "./feedback/EmptyState";
 

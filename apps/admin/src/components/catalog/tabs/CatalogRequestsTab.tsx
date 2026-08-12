@@ -13,7 +13,7 @@ import {
     CatalogSelectFilter,
     CatalogRejectSuggestionForm,
     CatalogSearchInput,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 import { useSearchParams } from "next/navigation";

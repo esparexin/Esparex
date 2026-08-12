@@ -5,6 +5,10 @@
 @tailwind utilities;
 
 :root {
+  --sidebar-width: 16rem;
+  --sidebar-expanded: 16rem;
+  --sidebar-minified: 4rem;
+
   --background: 210 40% 98%;
   --foreground: 222.2 84% 4.9%;
 

@@ -27,18 +27,14 @@ import {
 import { ADMIN_UI_ROUTES, readPositiveIntParam, readStringParam } from "@/lib/adminUiRoutes";
 import { useClientUsers } from "@/hooks/useClientUsers";
 
+import { AdminUserRoleBadge } from "@/components/system/adminUsers/AdminUserRoleBadge";
+
 const USER_STATUS_OPTIONS = [
     { value: "all", label: "All Status" },
     { value: "live", label: "Active" },
     { value: "suspended", label: "Suspended" },
     { value: "banned", label: "Banned" },
 ];
-
-const USER_ROLE_COLORS: Record<string, string> = {
-    superAdmin: "bg-purple-100 text-purple-700",
-    admin: "bg-blue-100 text-blue-700",
-    business: "bg-amber-100 text-amber-700",
-};
 
 export default function UsersPage() {
     const pathname = usePathname();
@@ -64,6 +60,7 @@ export default function UsersPage() {
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const statusFilter = normalizeUserManagementStatusFilter(searchParams.get("status"));
+    const roleFilter = searchParams.get("role") || "all";
     const verifiedFilter =
         searchParams.get("isVerified") === "true" || searchParams.get("isVerified") === "false"
             ? (searchParams.get("isVerified") as "true" | "false")
@@ -77,11 +74,12 @@ export default function UsersPage() {
                 page,
                 q: committedSearch,
                 status: statusFilter,
-                isVerified: verifiedFilter
+                role: roleFilter !== "all" ? roleFilter : undefined,
+                isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined
             });
         }, 300);
         return () => clearTimeout(timer);
-    }, [fetchUsers, committedSearch, page, statusFilter, verifiedFilter]);
+    }, [fetchUsers, committedSearch, page, statusFilter, roleFilter, verifiedFilter]);
 
     useEffect(() => {
         void (async () => {
@@ -92,6 +90,7 @@ export default function UsersPage() {
     useEffect(() => {
         const nextUrl = ADMIN_UI_ROUTES.users({
             status: statusFilter !== "all" ? statusFilter : undefined,
+            role: roleFilter !== "all" ? roleFilter : undefined,
             isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
             q: committedSearch || undefined,
             page: page > 1 ? page : undefined,
@@ -100,7 +99,7 @@ export default function UsersPage() {
         if (nextUrl !== currentUrl) {
             void router.replace(nextUrl, { scroll: false });
         }
-    }, [committedSearch, page, pathname, router, searchParams, statusFilter, verifiedFilter]);
+    }, [committedSearch, page, pathname, router, searchParams, statusFilter, roleFilter, verifiedFilter]);
 
     useEffect(() => {
         const normalizedSearchInput = readStringParam(searchInput);
@@ -111,6 +110,7 @@ export default function UsersPage() {
         const timer = setTimeout(() => {
             const nextUrl = ADMIN_UI_ROUTES.users({
                 status: statusFilter !== "all" ? statusFilter : undefined,
+                role: roleFilter !== "all" ? roleFilter : undefined,
                 isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
                 q: normalizedSearchInput || undefined,
             });
@@ -121,7 +121,7 @@ export default function UsersPage() {
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [committedSearch, pathname, router, searchInput, searchParams, statusFilter, verifiedFilter]);
+    }, [committedSearch, pathname, router, searchInput, searchParams, statusFilter, roleFilter, verifiedFilter]);
 
     // Close dropdown on outside click
     useEffect(() => {
@@ -150,7 +150,7 @@ export default function UsersPage() {
         if (result.success) {
             closeActionModal();
             setSelectedUser(null);
-            void fetchUsers({ page, q: committedSearch, status: statusFilter, isVerified: verifiedFilter });
+            void fetchUsers({ page, q: committedSearch, status: statusFilter, role: roleFilter !== "all" ? roleFilter : undefined, isVerified: verifiedFilter });
         }
     };
 
@@ -188,15 +188,7 @@ export default function UsersPage() {
         },
         {
             header: "Role",
-            cell: (user) => (
-                <span
-                    className={`rounded px-2 py-1 text-tiny font-bold uppercase tracking-wider ${
-                        USER_ROLE_COLORS[user.role] ?? "bg-slate-100 text-foreground-secondary"
-                    }`}
-                >
-                    {user.role}
-                </span>
-            )
+            cell: (user) => <AdminUserRoleBadge role={user.role} />
         },
         {
             header: "Status",
@@ -237,6 +229,7 @@ export default function UsersPage() {
         <AdminPageShell
             title="User Management"
             description="Review, verify and manage platform accounts"
+            showGlobalSearch={false}
             tabs={
                 <AdminModuleTabs
                     tabs={[
@@ -252,28 +245,28 @@ export default function UsersPage() {
         >
         <div className="relative flex h-full min-h-0 overflow-hidden">
             <div className={`flex min-h-0 flex-1 flex-col overflow-hidden transition-all duration-300 ${selectedUser ? 'pr-[400px]' : ''}`}>
-                <div className="flex min-h-0 flex-1 flex-col gap-6">
+                <div className="flex min-h-0 flex-1 flex-col gap-3">
 
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
-                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Total Users</p>
-                            <p className="mt-2 text-2xl font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 max-w-3xl">
+                        <Link href={ADMIN_UI_ROUTES.users()} className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 shadow-2xs transition hover:border-slate-300 hover:shadow-xs">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
+                            <p className="mt-0.5 text-base font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Individuals</p>
-                            <p className="mt-2 text-2xl font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-md border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-emerald-300 hover:shadow-xs">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">Individuals</p>
+                            <p className="mt-0.5 text-base font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Businesses</p>
-                            <p className="mt-2 text-2xl font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-md border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-blue-300 hover:shadow-xs">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-700">Businesses</p>
+                            <p className="mt-0.5 text-base font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-xl border border-indigo-200 bg-indigo-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700">Verified Businesses</p>
-                            <p className="mt-2 text-2xl font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-md border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-indigo-300 hover:shadow-xs">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
+                            <p className="mt-0.5 text-base font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
                         </Link>
-                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Blocked Users</p>
-                            <p className="mt-2 text-2xl font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
+                        <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-md border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-red-300 hover:shadow-xs">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-red-700">Blocked Users</p>
+                            <p className="mt-0.5 text-base font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
                         </Link>
                     </div>
 
@@ -287,6 +280,7 @@ export default function UsersPage() {
                             void router.replace(
                                 ADMIN_UI_ROUTES.users({
                                     status: nextStatus !== "all" ? nextStatus : undefined,
+                                    role: roleFilter !== "all" ? roleFilter : undefined,
                                     isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
                                     q: committedSearch || undefined,
                                 }),
@@ -295,25 +289,48 @@ export default function UsersPage() {
                         }}
                         statusOptions={USER_STATUS_OPTIONS}
                         extraFilters={
-                            <select
-                                className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
-                                value={verifiedFilter}
-                                onChange={(event) => {
-                                    const nextVerified = event.target.value as "all" | "true" | "false";
-                                    void router.replace(
-                                        ADMIN_UI_ROUTES.users({
-                                            status: statusFilter !== "all" ? statusFilter : undefined,
-                                            isVerified: nextVerified !== "all" ? nextVerified : undefined,
-                                            q: committedSearch || undefined,
-                                        }),
-                                        { scroll: false }
-                                    );
-                                }}
-                            >
-                                <option value="all">All Verification</option>
-                                <option value="true">Verified</option>
-                                <option value="false">Unverified</option>
-                            </select>
+                            <>
+                                <select
+                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                    value={roleFilter}
+                                    onChange={(event) => {
+                                        const nextRole = event.target.value;
+                                        void router.replace(
+                                            ADMIN_UI_ROUTES.users({
+                                                status: statusFilter !== "all" ? statusFilter : undefined,
+                                                role: nextRole !== "all" ? nextRole : undefined,
+                                                isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
+                                                q: committedSearch || undefined,
+                                            }),
+                                            { scroll: false }
+                                        );
+                                    }}
+                                >
+                                    <option value="all">All Roles</option>
+                                    <option value="user">Individuals</option>
+                                    <option value="business">Businesses</option>
+                                </select>
+                                <select
+                                    className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                                    value={verifiedFilter}
+                                    onChange={(event) => {
+                                        const nextVerified = event.target.value as "all" | "true" | "false";
+                                        void router.replace(
+                                            ADMIN_UI_ROUTES.users({
+                                                status: statusFilter !== "all" ? statusFilter : undefined,
+                                                role: roleFilter !== "all" ? roleFilter : undefined,
+                                                isVerified: nextVerified !== "all" ? nextVerified : undefined,
+                                                q: committedSearch || undefined,
+                                            }),
+                                            { scroll: false }
+                                        );
+                                    }}
+                                >
+                                    <option value="all">All Verification</option>
+                                    <option value="true">Verified</option>
+                                    <option value="false">Unverified</option>
+                                </select>
+                            </>
                         }
                     />
 
@@ -339,6 +356,7 @@ export default function UsersPage() {
                                     void router.replace(
                                         ADMIN_UI_ROUTES.users({
                                             status: statusFilter !== "all" ? statusFilter : undefined,
+                                            role: roleFilter !== "all" ? roleFilter : undefined,
                                             isVerified: verifiedFilter !== "all" ? verifiedFilter : undefined,
                                             q: committedSearch || undefined,
                                             page: nextPage > 1 ? nextPage : undefined,

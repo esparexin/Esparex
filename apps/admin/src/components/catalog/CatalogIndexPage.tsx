@@ -58,10 +58,11 @@ export function CatalogIndexPage<T extends { id: string | number }>({
 }: CatalogIndexPageProps<T>) {
     return (
         <AdminPageShell
-            title={title}
-            description={description}
+            title={isNested ? "" : title}
+            description={isNested ? "" : description}
             tabs={tabs}
             actions={actions}
+            showGlobalSearch={false}
             className={className}
             isNested={isNested}
         >

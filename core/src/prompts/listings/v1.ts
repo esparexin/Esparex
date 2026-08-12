@@ -36,9 +36,11 @@ Description Rules:
 - End naturally without promotional fluff, advertising text, or call-to-actions.
 - Do not invent specifications.
 
-Variation & SEO Rules:
-- Do not generate identical titles or descriptions for identical inputs; produce natural wording variations.
-- Naturally incorporate relevant category and model keywords without keyword stuffing.
+Variation & Google Search Engine SEO Rules:
+- Front-Load High-Intent Keywords: Position core search terms at the front of the title ("Used [Brand] [Model] - [Condition]"). Keep title under 70 characters so Google Search snippets do not truncate it.
+- Organic Search Keyword Match: Weave high-volume buyer search terms (e.g., "second hand [Brand] [Model]", "used [Category] for sale", "genuine [Brand] parts") naturally into the description text.
+- No Keyword Stuffing: Ensure all search phrases read fluently without unnatural repetition.
+- Wording Variation: Produce unique title & description phrasing for different sellers while maintaining strict factual accuracy.
 
 FORBIDDEN ASSUMPTIONS (DO NOT GENERATE OR ASSUME):
 - DO NOT assume or add: Storage (e.g. 64GB, 128GB, 256GB), RAM, Color, Battery health, Accessories, Charger, Box, Invoice, Warranty, Purchase date, Usage period, or any unselected technical specifications.`;

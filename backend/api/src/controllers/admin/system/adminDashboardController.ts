@@ -8,8 +8,6 @@ import { scanKeysByPattern } from '@esparex/core/utils/redisCache';
 import { buildPublicAdFilter } from '@esparex/core/utils/FeedVisibilityGuard';
 import {
     getDashboardOverviewStats,
-    getDashboardCardStats,
-    getRecentAdminLogs,
     getContactSubmissionsPaginated,
     updateContactSubmissionById,
     adminGetLocationAnalyticsData,
@@ -69,50 +67,11 @@ export const getStats = async (req: Request, res: Response) => {
 };
 
 export const getDashboardStats = async (req: Request, res: Response) => {
-    try {
-        const publicAdFilter = buildPublicAdFilter();
-        const { totalUsers, adStats, totalReports, totalBusinesses, totalRevenueAgg, catalogHealth } =
-            await getDashboardCardStats(publicAdFilter);
-
-        const activeAds = adStats[0].live[0]?.count || 0;
-        const pendingAds = adStats[0].pending[0]?.count || 0;
-
-        const revenue = totalRevenueAgg[0]?.total || 0;
-        sendSuccessResponse(res, {
-            totalUsers,
-            activeAds,
-            pendingAds,
-            totalReports,
-            totalBusinesses,
-            revenue,
-            catalogHealth
-        });
-    } catch (error: unknown) {
-        sendDashboardError(req, res, error);
-    }
+    return getStats(req, res);
 };
 
 export const getAnalytics = async (req: Request, res: Response) => {
     return adminAnalyticsController.getTimeSeriesAnalytics(req, res);
-};
-
-export const getRecentActivity = async (req: Request, res: Response) => {
-    try {
-        const logs = await getRecentAdminLogs(10);
-
-        const activity = logs.map(log => {
-            const admin = (log.adminId || {}) as { firstName?: string; lastName?: string };
-            return {
-                title: log.action.replace(/_/g, ' '),
-                description: `${admin?.firstName || 'Admin'} ${admin?.lastName || ''} - ${log.targetType} ${String(log.targetId || '')}`,
-                time: log.createdAt
-            };
-        });
-
-        sendSuccessResponse(res, activity);
-    } catch (error: unknown) {
-        sendDashboardError(req, res, error);
-    }
 };
 
 export const getContactSubmissions = async (req: Request, res: Response) => {

@@ -16,7 +16,7 @@ import {
     CatalogEntityCell,
     CatalogSearchInput,
     CatalogSelectFilter,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { adminLocationSchema } from "@/schemas/admin.schemas";
 import { locationsTabs } from "@/components/layout/adminModuleTabSets";
 import {

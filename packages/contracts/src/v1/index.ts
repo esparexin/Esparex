@@ -14,3 +14,4 @@ export * from './search';
 export * from './smart-alerts';
 export * from './entitlement';
 export * from './dashboard';
+export * from './googleAds';

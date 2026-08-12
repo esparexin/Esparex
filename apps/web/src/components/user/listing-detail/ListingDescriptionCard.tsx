@@ -20,7 +20,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
         : "Description & Details";
 
     return (
-        <section className="space-y-4 pt-6 pb-6 border-b border-slate-200/80">
+        <section className="space-y-4 pt-2 pb-6 border-b border-slate-200/80">
             <h2 className="font-bold text-foreground text-base md:text-lg flex items-center gap-2">
                 {isService ? (
                     <Briefcase className="size-5 text-emerald-600" />

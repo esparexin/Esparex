@@ -29,7 +29,7 @@ export function AdminRouteGuard({ children }: { children: React.ReactNode }) {
 
   if (error && !admin) {
     return (
-      <div className="p-12 text-center max-w-md mx-auto">
+      <div className="p-8 text-center max-w-md mx-auto">
         <h2 className="text-xl font-bold text-rose-600 dark:text-rose-500 mb-4">Connection Error</h2>
         <p className="text-sm text-muted-foreground mb-6">
           We&apos;re having trouble connecting to the administration server.

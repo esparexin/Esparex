@@ -6,6 +6,7 @@ import type { SmartAlertDeliveryLogDTO } from "@esparex/contracts";
 interface FetchLogsParams {
     page: number;
     limit: number;
+    q?: string;
 }
 
 export interface PaginatedSmartAlertLogs {
@@ -21,11 +22,15 @@ export interface PaginatedSmartAlertLogs {
 export async function fetchSmartAlertLogs({
     page = 1,
     limit = 50,
+    q,
 }: FetchLogsParams): Promise<PaginatedSmartAlertLogs> {
     const query = new URLSearchParams({
         page: String(page),
         limit: String(limit),
     });
+    if (q && q.trim()) {
+        query.set("q", q.trim());
+    }
 
     const response = await adminFetch<unknown>(`${ADMIN_ROUTES.SMART_ALERT_LOGS}?${query.toString()}`);
     const parsed = parseAdminResponse<SmartAlertDeliveryLogDTO>(response);
