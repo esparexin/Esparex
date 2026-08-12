@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, act } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('../../../../../bootstrap', () => ({
@@ -53,10 +53,22 @@ describe('ChatThreadScreen Component', () => {
   ];
 
   beforeEach(() => {
+    jest.useFakeTimers();
     queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0 },
+        mutations: { retry: false, gcTime: 0 },
+      },
     });
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    act(() => {
+      jest.runOnlyPendingTimers();
+    });
+    jest.useRealTimers();
+    queryClient.clear();
   });
 
   const renderScreen = (props = {}) =>
@@ -103,7 +115,10 @@ describe('ChatThreadScreen Component', () => {
     const { getByPlaceholderText, getByLabelText } = renderScreen();
 
     fireEvent.changeText(getByPlaceholderText('Type a message...'), 'Can you deliver by Friday?');
-    fireEvent.press(getByLabelText('Send message'));
+    act(() => {
+      fireEvent.press(getByLabelText('Send message'));
+      jest.runOnlyPendingTimers();
+    });
 
     expect(mockMutate).toHaveBeenCalledWith(
       { conversationId: 'conv-99', text: 'Can you deliver by Friday?' },
