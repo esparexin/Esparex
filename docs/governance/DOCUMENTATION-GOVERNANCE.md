@@ -22,8 +22,17 @@ No two docs define the same rule; conflicts resolve up the hierarchy (handbook <
 
 ## 2. ADR policy (see Audit Manual §10)
 
-- All decisions per table §10.1 mandatory → ADR in `docs/architecture/adr/` with template (Context/Decision/Alternatives/Consequences/Rollback/money).
+- All decisions per table §10.1 mandatory → ADR in the appropriate namespace (see table below) with template (Context/Decision/Alternatives/Consequences/Rollback).
 - Index for ADRs required (F54 currently missing ADR-001..003, index empty — Wave 4 item).
+
+### ADR Namespaces (both are canonical)
+
+| Namespace | Location | Scope |
+| --- | --- | --- |
+| Architecture ADRs | `.agents/decisions/*.md` | Infrastructure, package boundaries, monorepo topology, DDD bounded contexts, policy engine design |
+| Product/UI ADRs | `docs/architecture/adr/*.md` | Design tokens, component decisions, UI patterns, category hierarchy |
+
+When creating an ADR, determine the correct namespace by scope before creating the file.
 
 ## 3. Templates (must exist under the governance library)
 

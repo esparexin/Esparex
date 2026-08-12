@@ -4,6 +4,7 @@ import type {
   AdCampaignItem,
   InContentPlacementId,
   AdProviderType,
+  AdCampaignStatus,
 } from "@esparex/contracts";
 import { PLACEMENT_LABELS } from "./CampaignListTable";
 
@@ -104,7 +105,7 @@ export function CampaignEditModal({
               <label className="block text-xs font-semibold text-slate-700 mb-1">Status</label>
               <select
                 value={campaign.status}
-                onChange={(e) => onChange({ ...campaign, status: e.target.value as any })}
+                onChange={(e) => onChange({ ...campaign, status: e.target.value as AdCampaignStatus })}
                 className="w-full h-9 px-2 rounded-xl border border-slate-200 text-xs text-slate-800"
               >
                 <option value="active">Active</option>
