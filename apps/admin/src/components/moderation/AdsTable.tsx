@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
+import { Checkbox, Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
 import { AdminModerationActions } from "./AdminModerationActions";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";
@@ -81,6 +81,11 @@ export function AdsTable({
 }: AdsTableProps) {
     const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
     const allSelected = data.length > 0 && data.every((item) => selectedSet.has(item.id));
+    const headerCheckedState = allSelected
+        ? true
+        : selectedSet.size > 0
+        ? "indeterminate"
+        : false;
     const presentation = getListingPresentation(listingType);
 
     const renderAction = useCallback((item: ModerationItem) => (
@@ -101,22 +106,18 @@ export function AdsTable({
         if (showCheckboxes) {
             cols.push({
                 header: (
-                    <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={(e) => onToggleSelectAll(e.target.checked)}
-                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
+                    <Checkbox
+                        checked={headerCheckedState}
+                        onCheckedChange={(checked) => onToggleSelectAll(checked === true)}
                         aria-label={`Select all ${presentation.actionEntityLabelPlural}`}
                     />
                 ),
                 id: "select",
                 className: "w-12",
                 cell: (item) => (
-                    <input
-                        type="checkbox"
+                    <Checkbox
                         checked={selectedSet.has(item.id)}
-                        onChange={(e) => onToggleSelect(item.id, e.target.checked)}
-                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
+                        onCheckedChange={(checked) => onToggleSelect(item.id, checked === true)}
                         aria-label={`Select ${presentation.actionEntityLabel} ${item.title}`}
                     />
                 )

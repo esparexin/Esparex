@@ -2,7 +2,7 @@
 
 import { useAdminCatalogRequests } from "@/hooks/useAdminCatalogRequests";
 import { type CatalogRequestItem } from "@/lib/api/catalogRequests";
-import { ClipboardList, CheckCircle, XCircle, Clock, AlertCircle, ExternalLink } from "@esparex/ui";
+import { ClipboardList, CheckCircle, XCircle, Clock, AlertCircle, ExternalLink, Checkbox } from "@esparex/ui";
 import { CatalogPageTemplate } from "@/components/catalog/CatalogPageTemplate";
 import { useState, useEffect } from "react";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
@@ -121,6 +121,7 @@ export default function CatalogRequestsTab() {
     }, [searchQuery, requestType]);
 
     const allSelected = requests.length > 0 && requests.every((item) => selectedIds.includes(item.id));
+    const headerCheckedState = allSelected ? true : selectedIds.length > 0 ? "indeterminate" : false;
     
     const onToggleSelectAll = (checked: boolean) => {
         if (checked) {
@@ -236,21 +237,19 @@ export default function CatalogRequestsTab() {
                 generateColumns={() => [
                     {
                         header: (
-                            <input
-                                type="checkbox"
-                                checked={allSelected}
-                                onChange={(e) => onToggleSelectAll(e.target.checked)}
-                                className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
+                            <Checkbox
+                                checked={headerCheckedState}
+                                onCheckedChange={(checked) => onToggleSelectAll(checked === true)}
+                                aria-label="Select all catalog requests"
                             />
                         ),
                         id: "select",
                         className: "w-12",
                         cell: (req) => (
-                            <input
-                                type="checkbox"
+                            <Checkbox
                                 checked={selectedIds.includes(req.id)}
-                                onChange={(e) => onToggleSelect(req.id, e.target.checked)}
-                                className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20 cursor-pointer"
+                                onCheckedChange={(checked) => onToggleSelect(req.id, checked === true)}
+                                aria-label={`Select request for ${req.requestedName}`}
                             />
                         ),
                     },
