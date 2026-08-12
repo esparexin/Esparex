@@ -1,3 +1,3 @@
 export interface BusinessReadRepositoryPort {
-    findByUserId(userId: string): Promise<any | null>;
+    findByUserId(userId: string): Promise<Record<string, unknown> | null>;
 }

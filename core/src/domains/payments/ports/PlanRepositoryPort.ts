@@ -1,7 +1,7 @@
 export interface PlanRepositoryPort {
-    findPlanById(planId: string, session?: unknown): Promise<any | null>;
-    findPlanByCode(code: string, session?: unknown): Promise<any | null>;
-    findUserPlan(userId: string, session?: unknown): Promise<any | null>;
-    saveUserPlan(userPlan: any, session?: unknown): Promise<any>;
-    findActiveUserPlans(session?: unknown): Promise<any[]>;
+    findPlanById(planId: string, session?: unknown): Promise<Record<string, unknown> | null>;
+    findPlanByCode(code: string, session?: unknown): Promise<Record<string, unknown> | null>;
+    findUserPlan(userId: string, session?: unknown): Promise<Record<string, unknown> | null>;
+    saveUserPlan(userPlan: Record<string, unknown>, session?: unknown): Promise<Record<string, unknown>>;
+    findActiveUserPlans(session?: unknown): Promise<Record<string, unknown>[]>;
 }
