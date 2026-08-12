@@ -23,6 +23,7 @@
 | **Marketplace Experience** | Post Ad 2.0 Wizard | ✅ Beta Ready | `apps/web`, `apps/mobile` |
 | **Marketplace Experience** | Search & Keyword Matching | ✅ Beta Ready | `@esparex/core` AdQueryService |
 | **Finance & Payments** | FEFO Entitlements, Payments & Invoice Engine | ✅ Beta Ready | `@esparex/core`, `backend/api` |
+| **Location & Discovery** | India Geo-Taxonomy, Radius Search & IP Auto-Location | ✅ Beta Ready | `@esparex/core`, `apps/web`, `apps/mobile` |
 | **Platform Reliability** | Express Health Probes | ✅ Beta Ready | `backend/api/src/routes/health.ts` |
 | **Performance** | FlashList Feed Integration | ✅ Beta Ready | `apps/mobile/src/features/listings` |
 | **Security** | CORS & Secure Cookies | ✅ Beta Ready | `backend/api` Middleware |
