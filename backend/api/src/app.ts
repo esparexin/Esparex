@@ -66,6 +66,7 @@ import adminRoutes from './routes/adminRoutes';
 import adminCatalogRoutes from './routes/adminCatalogRoutes';
 import adminChatRoutes from './routes/adminChatRoutes';
 import googleAdsRoutes from './routes/googleAdsRoutes';
+import monetizationRoutes from './routes/monetizationRoutes';
 
 
 
@@ -426,6 +427,7 @@ app.use('/api/v1/smart-alerts', smartAlertRoutes);
 app.use('/api/v1/businesses', businessRoutes);
 app.use('/api/v1/invoices', invoiceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/monetization', monetizationRoutes);
 app.use('/api/v1', entitlementRoutes);
 
 // Communication & Feedback

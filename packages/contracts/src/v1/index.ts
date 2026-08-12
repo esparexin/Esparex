@@ -15,3 +15,4 @@ export * from './smart-alerts';
 export * from './entitlement';
 export * from './dashboard';
 export * from './googleAds';
+export * from './monetization';

@@ -17,7 +17,7 @@ import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
-import { AdPlacementSlot } from "./listing-detail/AdPlacementSlot";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
@@ -211,8 +211,8 @@ export function ListingDetail({
 
                     <ListingDescriptionCard ad={ad} />
 
-                    {/* Google AdSense / Sponsor Ad Placement Slot */}
-                    <AdPlacementSlot slotId="listing-detail-bottom" variant="banner" />
+                    {/* API-driven ad placement — resolves from MonetizationService */}
+                    <AdPlacementSlot placement="listing_detail_below_description" />
                   </div>
 
                   {/* Right Column: Title, Price, Seller, Safety Tips, Actions (Sticky) */}
