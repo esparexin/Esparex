@@ -37,7 +37,8 @@ export function CampaignEditModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 text-xs font-bold"
+            className="p-1 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label="Close dialog"
           >
             ✕
           </button>

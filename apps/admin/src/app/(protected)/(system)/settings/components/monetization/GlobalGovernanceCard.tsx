@@ -49,25 +49,25 @@ export function GlobalGovernanceCard({
           />
         </div>
 
-        <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+        <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/40">
           <div>
-            <span className="text-xs font-bold text-slate-800 block">Publishing to Public Marketplace</span>
-            <span className="text-2xs text-slate-500">Live serving of ads across Web and Mobile frontends</span>
+            <span className="text-xs font-bold text-foreground block">Publishing to Public Marketplace</span>
+            <span className="text-2xs text-muted-foreground">Live serving of ads across Web and Mobile frontends</span>
           </div>
           <input
             type="checkbox"
             checked={config.publishingEnabled}
             onChange={(e) => onChange({ ...config, publishingEnabled: e.target.checked })}
-            className="h-4 w-4 rounded text-blue-600 focus:ring-blue-500"
+            className="h-4 w-4 rounded text-action focus:ring-action"
           />
         </div>
       </Grid>
 
-      <Stack gap="md" className="border-t border-slate-100 pt-4">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600">Google AdSense Integration</h4>
+      <Stack gap="md" className="border-t border-border pt-4">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Google AdSense Integration</h4>
         <Grid cols={2} gap="md">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Publisher ID</label>
+            <label className="block text-xs font-semibold text-foreground mb-1">Publisher ID</label>
             <input
               type="text"
               placeholder="ca-pub-XXXXXXXXXXXXXXXX"
