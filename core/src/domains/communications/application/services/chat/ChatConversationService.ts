@@ -5,7 +5,7 @@ import type { IConversationDTO } from "@esparex/contracts";
 import {
     PAGE_SIZE_INBOX,
     toConversationDto,
-    PopulatedConv
+    toIso
 } from './ChatUtils';
 
 export async function startConversation(
@@ -56,12 +56,12 @@ export async function listConversations(
     const lastConv = convs[convs.length - 1];
     const nextCursor =
         convs.length === PAGE_SIZE_INBOX && lastConv?.lastMessageAt
-            ? lastConv.lastMessageAt.toISOString()
+            ? toIso(lastConv.lastMessageAt)
             : undefined;
 
     return {
         convs: convs.map((conversation) => toConversationDto(
-            conversation as PopulatedConv,
+            conversation,
             userId
         )),
         nextCursor,
@@ -75,7 +75,7 @@ export async function getConversationForUser(conversationId: string, userId: str
         throw Object.assign(new Error('Conversation not found'), { status: 404 });
     }
 
-    return toConversationDto(conv as PopulatedConv, userId);
+    return toConversationDto(conv, userId);
 }
 
 export async function blockConversation(conversationId: string, userId: string) {

@@ -88,42 +88,8 @@ export function buildConversationPreview(text: string, attachments: IChatAttachm
     return snippet ? `${attachmentSummary} · ${snippet}` : attachmentSummary;
 }
 
-export interface PopulatedUser {
-    _id?: unknown;
-    id?: string;
-    name?: string;
-    avatar?: string;
-    mobile?: string;
-}
-
-export interface PopulatedAd {
-    _id?: unknown;
-    id?: string;
-    title?: string;
-    images?: string[];
-    price?: number;
-    listingType?: string;
-    seoSlug?: string;
-    status?: string;
-    isDeleted?: boolean;
-    isChatLocked?: boolean;
-}
-
-export interface PopulatedConv {
-    _id: unknown;
-    buyerId: PopulatedUser | null;
-    sellerId: PopulatedUser | null;
-    adId: PopulatedAd | null;
-    lastMessage?: string | { text?: string } | null;
-    lastMessageAt?: Date | string;
-    isBlocked?: boolean;
-    isAdClosed?: boolean;
-    unreadBuyer?: number;
-    unreadSeller?: number;
-    deletedFor?: unknown[];
-    createdAt?: Date | string;
-    updatedAt?: Date | string;
-}
+import type { PopulatedUser, PopulatedAd, PopulatedConv } from '../../../../chat/ports/ChatRepositoryPort';
+export type { PopulatedUser, PopulatedAd, PopulatedConv };
 
 export function normalizeNestedId(value?: { id?: string; _id?: unknown } | null): string {
     if (!value) return '';

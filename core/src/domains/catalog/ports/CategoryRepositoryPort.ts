@@ -33,8 +33,8 @@ export interface CategoryRepositoryPort {
     findBySlug(slug: string, tx?: unknown): Promise<Category | null>;
     exists(id: string, tx?: unknown): Promise<boolean>;
     resolveActiveCategoryIds(categoryIds?: readonly CategoryId[], tx?: unknown): Promise<readonly CategoryId[]>;
-    create(data: Partial<Category> | any, tx?: unknown): Promise<Category>;
-    update(id: string, data: Partial<Category> | any, tx?: unknown): Promise<Category | null>;
+    create(data: Partial<Category> | Record<string, unknown>, tx?: unknown): Promise<Category>;
+    update(id: string, data: Partial<Category> | Record<string, unknown>, tx?: unknown): Promise<Category | null>;
     softDelete(id: string, tx?: unknown): Promise<boolean>;
     findActive(tx?: unknown): Promise<Category[]>;
 }
