@@ -33,8 +33,8 @@ export function AdPreviewSimulatorModal({
             <button
               type="button"
               onClick={() => setPreviewDevice("desktop")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                previewDevice === "desktop" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500"
+              className={`p-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                previewDevice === "desktop" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
               }`}
               aria-label="Desktop view"
             >
@@ -43,8 +43,8 @@ export function AdPreviewSimulatorModal({
             <button
               type="button"
               onClick={() => setPreviewDevice("tablet")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                previewDevice === "tablet" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500"
+              className={`p-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                previewDevice === "tablet" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
               }`}
               aria-label="Tablet view"
             >
@@ -53,8 +53,8 @@ export function AdPreviewSimulatorModal({
             <button
               type="button"
               onClick={() => setPreviewDevice("mobile")}
-              className={`p-1.5 rounded-lg text-xs font-bold transition-all ${
-                previewDevice === "mobile" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500"
+              className={`p-1.5 rounded-lg text-xs font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                previewDevice === "mobile" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:bg-slate-200/60 hover:text-slate-700"
               }`}
               aria-label="Mobile view"
             >
@@ -89,7 +89,7 @@ export function AdPreviewSimulatorModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           >
             Close Simulator
           </button>
