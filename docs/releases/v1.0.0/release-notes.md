@@ -27,6 +27,7 @@
 | **Finance & Payments** | FEFO Entitlements, Payments & Invoice Engine | ✅ Beta Ready | `@esparex/core`, `backend/api` |
 | **Location & Discovery** | India Geo-Taxonomy, Radius Search & IP Auto-Location | ✅ Beta Ready | `@esparex/core`, `apps/web`, `apps/mobile` |
 | **Admin Governance** | Select, Multi-Select & Checkbox Indeterminate Remediation | ✅ Beta Ready | `packages/ui`, `apps/admin` |
+| **Design System** | Mobile & Shared UI Design Token Remediation | ✅ Beta Ready | `@esparex/design-tokens`, `packages/mobile-ui`, `apps/mobile` |
 | **Platform Reliability** | Express Health Probes | ✅ Beta Ready | `backend/api/src/routes/health.ts` |
 | **Performance** | FlashList Feed Integration | ✅ Beta Ready | `apps/mobile/src/features/listings` |
 | **Security** | CORS & Secure Cookies | ✅ Beta Ready | `backend/api` Middleware |

@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { base, semantic } from '@esparex/design-tokens';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: base.slate[50],
   },
   contentContainer: {
     padding: 16,
@@ -18,19 +19,19 @@ export const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 14,
-    color: '#6B7280',
+    color: base.slate[500],
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: base.white,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: base.slate[200],
   },
   cardHeaderTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#6B7280',
+    color: base.slate[500],
     letterSpacing: 0.5,
     marginBottom: 12,
   },
@@ -44,7 +45,7 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
   },
   categoryBadge: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: semantic.light['info-subtle'],
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
@@ -52,31 +53,31 @@ export const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#0066CC',
+    color: semantic.light.action,
   },
   statusBadge: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: semantic.light['success-subtle'],
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
   },
   expiredBadge: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: base.brand[50],
   },
   statusBadgeText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#10B981',
+    color: semantic.light.success,
   },
   planTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
+    color: base.slate[900],
   },
   daysText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0066CC',
+    color: semantic.light.action,
     marginTop: 4,
   },
   emptySubContainer: {
@@ -85,11 +86,11 @@ export const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
+    color: base.slate[900],
   },
   emptySubtext: {
     fontSize: 12,
-    color: '#6B7280',
+    color: base.slate[500],
   },
   tileGrid: {
     flexDirection: 'row',
@@ -98,26 +99,26 @@ export const styles = StyleSheet.create({
   },
   tile: {
     width: '48%',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: base.slate[50],
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: base.slate[100],
   },
   tileLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#6B7280',
+    color: base.slate[500],
   },
   tileValue: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#111827',
+    color: base.slate[900],
     marginVertical: 4,
   },
   tileSub: {
     fontSize: 10,
-    color: '#9CA3AF',
+    color: base.slate[400],
   },
   itemRow: {
     flexDirection: 'row',
@@ -125,16 +126,16 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: base.slate[100],
   },
   itemTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#111827',
+    color: base.slate[900],
   },
   itemSub: {
     fontSize: 12,
-    color: '#6B7280',
+    color: base.slate[500],
     marginTop: 2,
   },
   itemRight: {
@@ -143,11 +144,11 @@ export const styles = StyleSheet.create({
   itemValue: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#0066CC',
+    color: semantic.light.action,
   },
   itemDate: {
     fontSize: 10,
-    color: '#9CA3AF',
+    color: base.slate[400],
     marginTop: 2,
   },
 });
