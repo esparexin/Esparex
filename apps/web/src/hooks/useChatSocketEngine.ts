@@ -21,6 +21,13 @@ interface UseChatSocketEngineOptions {
   latestCreatedAtRef: MutableRefObject<string | undefined>;
 }
 
+export function shouldMarkConversationRead(
+  messages: IMessageDTO[],
+  currentUserId: string
+): boolean {
+  return messages.some((message) => message.senderId !== currentUserId && !message.readAt);
+}
+
 export function withDeliveryStatus(msg: IMessageDTO, currentUserId: string): IMessageDTO {
   if (msg.deliveryStatus) return msg;
   if (msg.senderId !== currentUserId) return msg;

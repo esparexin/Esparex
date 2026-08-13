@@ -3,8 +3,7 @@
 import { useEffect, useRef, useCallback, type Dispatch, type SetStateAction, type MutableRefObject } from 'react';
 import { chatApi } from '@/lib/api/chatApi';
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
-import { withDeliveryStatus } from './useChatSocketEngine';
-import { shouldMarkConversationRead } from './useChat';
+import { withDeliveryStatus, shouldMarkConversationRead } from './useChatSocketEngine';
 import type { IMessageDTO } from '@esparex/contracts';
 
 const POLL_ACTIVE_MS = 4000;

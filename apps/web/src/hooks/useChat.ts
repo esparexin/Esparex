@@ -12,9 +12,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
-import { useChatSocketEngine, withDeliveryStatus } from './useChatSocketEngine';
+import { useChatSocketEngine, withDeliveryStatus, shouldMarkConversationRead } from './useChatSocketEngine';
 import { useChatPollingEngine } from './useChatPollingEngine';
 import type { IMessageDTO } from "@esparex/contracts";
+
+export { shouldMarkConversationRead };
 
 interface UseChatOptions {
   conversationId: string;
@@ -41,12 +43,7 @@ export interface UseChatReturn {
   sendTyping: (receiverId: string, isTyping: boolean) => void;
 }
 
-export function shouldMarkConversationRead(
-  messages: IMessageDTO[],
-  currentUserId: string
-): boolean {
-  return messages.some((message) => message.senderId !== currentUserId && !message.readAt);
-}
+
 
 export function useChat({
   conversationId,
