@@ -14,7 +14,7 @@ export function PersonalProfileGstSection({
     gstinError,
 }: PersonalProfileGstSectionProps) {
     return (
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
                 <Label htmlFor="profile-gstin" className="text-xs font-semibold text-slate-700">
                     GSTIN Number <span className="text-slate-400 font-normal">(Optional)</span>

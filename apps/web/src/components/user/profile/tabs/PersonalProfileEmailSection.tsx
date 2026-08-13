@@ -14,7 +14,7 @@ export function PersonalProfileEmailSection({
     emailError,
 }: PersonalProfileEmailSectionProps) {
     return (
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
                 <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
                     Notification & Invoice Email <span className="text-slate-400 font-normal">(Optional)</span>

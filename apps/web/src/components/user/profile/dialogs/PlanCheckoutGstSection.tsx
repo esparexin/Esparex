@@ -19,7 +19,7 @@ export function PlanCheckoutGstSection({
     isGstValid,
 }: PlanCheckoutGstSectionProps) {
     return (
-        <div className="space-y-2 pt-1">
+        <div className="flex flex-col gap-2 pt-1">
             <div className="flex items-center gap-2">
                 <Checkbox
                     id="checkout-wants-gst"
@@ -32,7 +32,7 @@ export function PlanCheckoutGstSection({
             </div>
 
             {wantsGst && (
-                <div className="pl-6 space-y-1.5 pt-1">
+                <div className="pl-6 flex flex-col gap-1.5 pt-1">
                     <Label htmlFor="checkout-gstin" className="text-[11px] font-semibold text-slate-700">
                         GSTIN Number
                     </Label>
