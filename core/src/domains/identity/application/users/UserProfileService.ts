@@ -55,7 +55,9 @@ export const getUserProfileById = async (
             : visibleAds.length;
 
     const normalizedUser: SellerPublicUser = {
-        id: seller._id.toHexString(),
+        id: typeof seller._id === 'object' && seller._id && 'toHexString' in seller._id && typeof (seller._id as { toHexString: () => string }).toHexString === 'function'
+            ? (seller._id as { toHexString: () => string }).toHexString()
+            : String(seller._id),
         name: typeof seller.name === 'string' ? seller.name : undefined,
         profilePhoto: typeof seller.avatar === 'string' ? seller.avatar : undefined,
         createdAt: seller.createdAt ? seller.createdAt.toISOString() : undefined,

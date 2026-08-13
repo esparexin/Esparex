@@ -2,6 +2,7 @@ import { Megaphone, LayoutGrid } from "@/icons/IconRegistry";
 import { AdCardGrid } from "@/components/user/ad-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Container } from "@esparex/ui";
 import { type Listing as Ad } from "@/lib/api/user/listings";
 import type { SellerProfilePayload } from "@/lib/api/user/users";
 import { formatStableDate } from "@/lib/formatters";
@@ -41,7 +42,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
 
     return (
         <div className="bg-slate-50 pb-4">
-            <div className="mx-auto w-full max-w-5xl px-4 py-6 md:py-8 space-y-5">
+            <Container variant="lg" className="py-6 md:py-8 space-y-5">
                 <BackButton
                     label="Back"
                     className="text-muted-foreground hover:text-foreground border border-transparent hover:border-slate-200 text-sm"
@@ -137,7 +138,7 @@ export function SellerProfilePage({ profile }: SellerProfilePageProps) {
                         </div>
                     )}
                 </section>
-            </div>
+            </Container>
         </div>
     );
 }

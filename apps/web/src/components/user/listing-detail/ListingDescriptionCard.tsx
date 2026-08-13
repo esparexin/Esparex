@@ -1,4 +1,3 @@
-import { PageSection } from "@/components/layout";
 import { type Ad } from "@/schemas/ad.schema";
 import { cleanupListingDescription } from "@/lib/listings/descriptionCleanup";
 import { Wrench, CheckCircle2, XCircle, ShieldCheck, CircuitBoard, Briefcase } from "@/icons/IconRegistry";
@@ -21,26 +20,22 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
         : "Description & Details";
 
     return (
-        <PageSection
-            variant="bordered"
-            className="rounded-2xl border border-border shadow-xs bg-card p-4 md:p-6"
-            title={
-                <span className="font-bold text-foreground text-sm md:text-base flex items-center gap-2">
-                    {isService ? (
-                        <Briefcase className="size-4 text-emerald-600" />
-                    ) : isSparePart ? (
-                        <CircuitBoard className="size-4 text-indigo-600" />
-                    ) : null}
-                    {titleText}
-                </span>
-            }
-        >
-            <div className="space-y-4 pt-1">
+        <section className="space-y-4 pt-2 pb-6 border-b border-slate-200/80">
+            <h2 className="font-bold text-foreground text-base md:text-lg flex items-center gap-2">
+                {isService ? (
+                    <Briefcase className="size-5 text-emerald-600" />
+                ) : isSparePart ? (
+                    <CircuitBoard className="size-5 text-indigo-600" />
+                ) : null}
+                {titleText}
+            </h2>
+
+            <div className="space-y-4">
                 {/* Specifications & Highlights Grid */}
                 {hasAttributes && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pb-4 border-b border-border">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pb-4 border-b border-slate-200/60">
                         {!!ad.warranty && (
-                            <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border">
+                            <div className="flex items-start gap-2 bg-slate-100/60 rounded-xl p-2.5 border border-slate-200/60">
                                 <ShieldCheck className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Warranty</p>
@@ -50,7 +45,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                         )}
 
                         {isService && ad.onsiteService !== undefined && (
-                            <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border">
+                            <div className="flex items-start gap-2 bg-slate-100/60 rounded-xl p-2.5 border border-slate-200/60">
                                 <Wrench className="h-4 w-4 text-emerald-600 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Service Type</p>
@@ -60,7 +55,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                         )}
 
                         {isSparePart && ad.deviceCondition && (
-                            <div className="flex items-start gap-2 bg-muted/50 rounded-xl p-2.5 border border-border">
+                            <div className="flex items-start gap-2 bg-slate-100/60 rounded-xl p-2.5 border border-slate-200/60">
                                 <CircuitBoard className="h-4 w-4 text-indigo-600 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <p className="text-2xs uppercase font-bold text-muted-foreground tracking-wider">Condition</p>
@@ -91,7 +86,7 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                             <XCircle className="h-4 w-4 text-muted-foreground/70" />
                             What&apos;s Excluded
                         </h3>
-                        <div className="text-xs sm:text-sm text-muted-foreground leading-relaxed bg-muted/40 p-3.5 rounded-xl border border-border whitespace-pre-wrap">
+                        <div className="text-xs sm:text-sm text-muted-foreground leading-relaxed bg-slate-100/60 p-3.5 rounded-xl border border-slate-200/60 whitespace-pre-wrap">
                             {String(ad.excluded)}
                         </div>
                     </div>
@@ -99,9 +94,9 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
 
                 {/* Main Description */}
                 <div>
-                    <h3 className="text-xs font-bold text-foreground-secondary uppercase tracking-wider mb-1.5">Full Details</h3>
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Full Details</h3>
                     {description ? (
-                        <div className="text-foreground-secondary whitespace-pre-wrap leading-relaxed text-xs sm:text-sm font-normal break-words">
+                        <div className="text-foreground-secondary whitespace-pre-wrap leading-relaxed text-sm font-normal break-words">
                             {description}
                         </div>
                     ) : (
@@ -111,6 +106,6 @@ export function ListingDescriptionCard({ ad }: ListingDescriptionCardProps) {
                     )}
                 </div>
             </div>
-        </PageSection>
+        </section>
     );
 }

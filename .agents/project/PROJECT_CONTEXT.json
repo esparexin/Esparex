@@ -2,7 +2,7 @@
   "version": "2026-05-23",
   "status": "active",
   "primary": {
-    "executionWorkflow": "ai-governance/AI_EXECUTION_WORKFLOW.md"
+    "executionWorkflow": ".agents/workflow/AI_WORKFLOW.md"
   },
   "developerAiTools": [
     {

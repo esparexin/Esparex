@@ -8,6 +8,7 @@ import { formatAppTime } from '@/lib/formatters';
 interface MessageBubbleProps {
   message: IMessageDTO;
   isOwn: boolean;
+  onRetry?: (tempId: string) => void;
 }
 
 function formatTime(iso: string): string {
@@ -36,7 +37,7 @@ function buildAttachmentIcon(attachment: ChatAttachment): string {
   return '📎';
 }
 
-export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
+export function MessageBubble({ message, isOwn, onRetry }: MessageBubbleProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -52,10 +53,17 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
   const imageAttachments = attachments.filter(isImageAttachment);
   const fileAttachments = attachments.filter((attachment) => !isImageAttachment(attachment));
   const hasText = message.text.trim().length > 0;
+  const status = message.deliveryStatus || (message.readAt ? 'read' : 'sent');
 
   const openLightbox = (index: number) => {
     setActiveImageIndex(index);
     setIsLightboxOpen(true);
+  };
+
+  const handleRetryClick = () => {
+    if (onRetry && (message.tempId || message.id)) {
+      onRetry(message.tempId || message.id);
+    }
   };
 
   return (
@@ -65,6 +73,7 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
           'chat-bubble',
           isOwn ? 'chat-bubble--own' : 'chat-bubble--other',
           !hasText && attachments.length > 0 ? 'chat-bubble--media-only' : '',
+          status === 'failed' ? 'border border-destructive/40 bg-destructive/5' : '',
         ].join(' ')}
       >
         {hasText && <p className="chat-bubble__text">{message.text}</p>}
@@ -142,20 +151,58 @@ export function MessageBubble({ message, isOwn }: MessageBubbleProps) {
             )}
           </div>
         )}
-        <div className="chat-bubble__footer">
+        <div className="chat-bubble__footer flex items-center gap-1.5 justify-end">
           <span className="chat-bubble__time">{formatTime(message.createdAt)}</span>
           {isOwn && (
-            <span
-              className={`chat-bubble__receipt ${message.readAt ? 'chat-bubble__receipt--read' : 'chat-bubble__receipt--sent'}`}
-              title={message.readAt ? `Read ${formatTime(message.readAt)}` : 'Sent'}
-              aria-label={message.readAt ? 'Read' : 'Sent'}
-            >
-              {message.readAt ? '✓✓' : '✓'}
-            </span>
+            <>
+              {status === 'sending' && (
+                <span
+                  className="chat-bubble__receipt text-muted-foreground animate-pulse text-tiny"
+                  title="Sending message..."
+                  aria-label="Sending message"
+                >
+                  🕒
+                </span>
+              )}
+              {status === 'sent' && (
+                <span
+                  className="chat-bubble__receipt text-muted-foreground text-tiny"
+                  title="Sent"
+                  aria-label="Sent"
+                >
+                  ✓
+                </span>
+              )}
+              {status === 'read' && (
+                <span
+                  className="chat-bubble__receipt chat-bubble__receipt--read text-emerald-500 font-bold text-tiny"
+                  title={message.readAt ? `Read ${formatTime(message.readAt)}` : 'Read'}
+                  aria-label="Read"
+                >
+                  ✓✓
+                </span>
+              )}
+              {status === 'failed' && (
+                <div className="flex items-center gap-1">
+                  <span className="text-destructive font-bold text-tiny" title="Failed to send">
+                    ⚠️ Failed
+                  </span>
+                  {onRetry && (
+                    <button
+                      type="button"
+                      onClick={handleRetryClick}
+                      className="text-tiny text-primary underline hover:text-primary/80 font-bold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded px-0.5"
+                      aria-label="Retry sending message"
+                    >
+                      Retry
+                    </button>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
-
 
       {imageAttachments.length > 0 && (
         <ChatImageLightbox

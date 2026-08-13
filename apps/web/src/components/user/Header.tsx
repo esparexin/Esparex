@@ -174,13 +174,14 @@ export function Header({
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
         {/* Logo */}
-        <button onClick={() => navigateTo("home")} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <button onClick={() => navigateTo("home")} className="flex items-center hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg py-1">
           <Image
             src="/icons/logo.png"
             alt="Esparex Logo"
-            width={512}
-            height={206}
-            style={{ height: "40px", width: "auto" }}
+            width={495}
+            height={112}
+            unoptimized
+            style={{ height: "25px", width: "auto" }}
           />
         </button>
 
@@ -359,16 +360,17 @@ export function Header({
         <div className="h-11 bg-muted/90 border-b border-border flex items-center px-4">
           <button
             type="button"
-            className="flex items-center gap-2 mr-3 h-10"
+            className="flex items-center mr-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
             onClick={() => navigateTo("home")}
             aria-label="Go to homepage"
           >
             <Image
               src="/icons/logo.png"
               alt="Esparex"
-              width={512}
-              height={206}
-              style={{ height: "26px", width: "auto" }}
+              width={495}
+              height={112}
+              unoptimized
+              style={{ height: "20px", width: "auto" }}
             />
           </button>
 

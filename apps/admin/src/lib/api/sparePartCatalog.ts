@@ -43,7 +43,7 @@ export async function createSparePart(data: CreateSparePartDTO) {
 
 export async function updateSparePart(id: string, data: UpdateSparePartDTO) {
     return adminFetch<SparePart>(ADMIN_ROUTES.SPARE_PART_BY_ID(id), {
-        method: "PUT",
+        method: "PATCH",
         body: data
     });
 }

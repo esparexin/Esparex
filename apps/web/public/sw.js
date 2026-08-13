@@ -2,7 +2,7 @@ const CACHE_NAME = 'temporary-v3-static';
 const DYNAMIC_CACHE_NAME = 'temporary-v3-dynamic';
 
 // Static assets to cache immediately
-const OFFLINE_URL = '/offline';
+const OFFLINE_URL = '/offline.html';
 
 const STATIC_ASSETS = [
     '/icons/icon-192x192.png',

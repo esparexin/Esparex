@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult } from './types';
+import { AIResult, AIStreamChunk, GenerateTextOptions, HealthCheckResult, StructuredAIResult } from './types';
 
 export interface AIProvider {
     generateText(
@@ -11,7 +11,7 @@ export interface AIProvider {
         prompt: string,
         schema: z.ZodSchema<T>,
         options?: GenerateTextOptions
-    ): Promise<T>;
+    ): Promise<StructuredAIResult<T>>;
 
     streamText(
         prompt: string,

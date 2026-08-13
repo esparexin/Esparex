@@ -13,7 +13,7 @@ import { ScrollSentinel } from '@/components/common/ScrollSentinel';
 import { isChatRoute } from '@/lib/mobile/chromePolicy';
 
 
-import { PageLayout, Container } from '@esparex/ui';
+import { PageLayout } from '@esparex/ui';
 
 interface CommonLayoutProps {
     children: ReactNode;
@@ -60,10 +60,7 @@ export function CommonLayout({
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
                     
-                    {/* Replaced PageContainer with the new primitive Container */}
-                    <Container variant={hideShellExtras ? "full" : "xl"}>
-                        {children}
-                    </Container>
+                    {children}
 
                     {!hideShellExtras && <BusinessPostFAB />}
                     {!hideShellExtras && <Footer currentYear={activeYear} />}

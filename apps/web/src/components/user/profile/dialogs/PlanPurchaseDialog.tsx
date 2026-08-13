@@ -1,22 +1,27 @@
+
 "use client";
 
-
+import { useState } from "react";
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Label,
 } from "@esparex/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Crown, AlertCircle } from "@/icons/IconRegistry";
 import { PlanFeatureList } from "@/components/user/profile/PlanFeatureList";
+import { PlanCheckoutGstSection } from "./PlanCheckoutGstSection";
 import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
+import { computeInvoiceTax, GSTIN_REGEX } from "@esparex/contracts";
 
 type PlanPurchaseItem = {
     id: string;
@@ -51,10 +56,16 @@ export function PlanPurchaseDialog({
     onConfirm,
 }: PlanPurchaseDialogProps) {
     const { isProcessing, startPlanCheckout } = usePlanCheckout();
+    const [wantsGst, setWantsGst] = useState(false);
+    const [gstin, setGstin] = useState("");
+    const [sendEmailReceipt, setSendEmailReceipt] = useState(true);
 
     if (!selectedPlan) return null;
     const plan = plans.find((p) => p.id === selectedPlan);
     if (!plan) return null;
+
+    const isGstValid = GSTIN_REGEX.test(gstin.trim());
+    const taxResult = computeInvoiceTax(plan.price, wantsGst && isGstValid ? gstin.trim() : undefined);
 
     const handleConfirm = async () => {
         try {
@@ -107,23 +118,81 @@ export function PlanPurchaseDialog({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                    <Card className="bg-gray-50">
+                    <Card className="bg-gray-50 border-slate-200">
                         <CardContent className="p-4 space-y-3">
-                            <div>
-                                <p className="font-semibold">{plan.name}</p>
-                                <p className="text-xs text-muted-foreground">{plan.type}</p>
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="font-semibold text-slate-900">{plan.name}</p>
+                                    <p className="text-xs text-muted-foreground">{plan.type}</p>
+                                </div>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${taxResult.invoiceType === 'TAX_INVOICE' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
+                                    {taxResult.invoiceType === 'TAX_INVOICE' ? 'B2B Tax Invoice' : 'Bill of Supply'}
+                                </span>
                             </div>
                             <Separator />
                             <div>
                                 <p className="text-xs text-muted-foreground mb-2">Features:</p>
                                 <PlanFeatureList features={plan.features} className="space-y-1" />
                             </div>
+
+                            {/* Send PDF Receipt via Email Toggle */}
+                            <div className="flex items-center gap-2 pt-1">
+                                <Checkbox
+                                    id="checkout-send-email"
+                                    checked={sendEmailReceipt}
+                                    onCheckedChange={(checked) => setSendEmailReceipt(Boolean(checked))}
+                                />
+                                <Label htmlFor="checkout-send-email" className="text-xs font-medium text-slate-800 cursor-pointer">
+                                    Send PDF Invoice receipt to my email (if configured)
+                                </Label>
+                            </div>
+
                             <Separator />
-                            <div className="flex items-center justify-between">
-                                <span className="font-medium text-sm">Total Amount:</span>
-                                <span className="text-xl font-bold text-green-600">
-                                    {formatCurrency(plan.price)}
-                                </span>
+
+                            {/* B2B GST Tax Credit Accordion */}
+                            <PlanCheckoutGstSection
+                                wantsGst={wantsGst}
+                                onWantsGstChange={setWantsGst}
+                                gstin={gstin}
+                                onGstinChange={setGstin}
+                                isGstValid={isGstValid}
+                            />
+
+                            <Separator />
+
+                            {/* Pricing & Tax Breakdown */}
+                            <div className="space-y-1 text-xs">
+                                <div className="flex items-center justify-between text-slate-600">
+                                    <span>Subtotal:</span>
+                                    <span>{formatCurrency(taxResult.subtotalAmount)}</span>
+                                </div>
+
+                                {taxResult.taxBreakup?.cgstAmount !== undefined && (
+                                    <>
+                                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                            <span>CGST (9%):</span>
+                                            <span>{formatCurrency(taxResult.taxBreakup.cgstAmount)}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                            <span>SGST (9%):</span>
+                                            <span>{formatCurrency(taxResult.taxBreakup.sgstAmount!)}</span>
+                                        </div>
+                                    </>
+                                )}
+
+                                {taxResult.taxBreakup?.igstAmount !== undefined && (
+                                    <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                        <span>IGST (18%):</span>
+                                        <span>{formatCurrency(taxResult.taxBreakup.igstAmount)}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center justify-between pt-2 border-t border-slate-200">
+                                    <span className="font-bold text-sm text-slate-900">Total Payable:</span>
+                                    <span className="text-xl font-bold text-emerald-600">
+                                        {formatCurrency(taxResult.totalAmount)}
+                                    </span>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

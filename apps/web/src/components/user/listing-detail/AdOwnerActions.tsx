@@ -1,5 +1,4 @@
 import { Button } from "@esparex/ui";
-import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, CheckCheck, Edit2, Trash2, TrendingUp, Sparkles } from "@/icons/IconRegistry";
 
 interface AdOwnerActionsProps {
@@ -29,9 +28,8 @@ export function AdOwnerActions({
     const showViewOnlyState = !isPending && !isActive && !isSold;
 
     return (
-        <Card className="hidden md:block">
-            <CardContent className="p-3 md:p-4 space-y-2">
-                <h3 className="font-semibold text-sm mb-3">Quick Actions</h3>
+        <div className="hidden md:block border-b border-slate-200/80 pb-4 space-y-2">
+            <h3 className="font-bold text-xs uppercase text-slate-500 tracking-wider mb-2">Quick Actions</h3>
 
                 {isPending && (
                     <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
@@ -114,7 +112,6 @@ export function AdOwnerActions({
                         Promote Listing
                     </Button>
                 ) : null}
-            </CardContent>
-        </Card>
+        </div>
     );
 }

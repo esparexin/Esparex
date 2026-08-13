@@ -19,7 +19,7 @@ export default function Error({
     return (
         <div className="min-h-screen bg-background flex items-center justify-center px-4">
             <div className="max-w-md w-full text-center">
-                <div className="bg-card rounded-2xl shadow-sm border border-border p-10">
+                <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
                     <div className="mx-auto mb-6 h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center">
                         <span className="text-3xl">⚠️</span>
                     </div>

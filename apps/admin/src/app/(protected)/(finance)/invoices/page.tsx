@@ -4,11 +4,14 @@ import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, Download, FileText } from "@esparex/ui";
-import { type ColumnDef } from "@/components/ui/DataTable";
+import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { adminFetch, getAdminApiBase } from "@/lib/api/adminClient";
 import { ADMIN_ROUTES } from "@/lib/api/routes";
 import { parseAdminResponse } from "@/lib/api/parseAdminResponse";
-import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
+import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
+import { AlertCircle } from "@esparex/ui";
 import {
   buildUrlWithSearchParams,
   normalizeSearchParamValue,
@@ -197,24 +200,13 @@ export default function InvoicesPage() {
   ];
 
   return (
-    <FinancePageTemplate<AdminInvoice>
+    <AdminPageShell
       title="Invoices"
       description="Review generated invoices, GST billing records, and downloadable PDFs."
-      data={items}
-      columns={columns}
-      isLoading={loading}
-      error={error}
-      emptyMessage="No invoices found"
-      csvFileName="invoices.csv"
-      pagination={{
-        currentPage: page,
-        totalPages: pagination.pages,
-        totalItems: pagination.total,
-        pageSize: pagination.limit,
-        onPageChange: (nextPage) => replaceQueryState({ page: nextPage > 1 ? nextPage : null }),
-      }}
-      filters={
-        <>
+      tabs={<AdminModuleTabs tabs={financeTabs} />}
+    >
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground-subtle" />
             <input
@@ -235,8 +227,33 @@ export default function InvoicesPage() {
             <option value="FAILED">Failed</option>
             <option value="CANCELLED">Cancelled</option>
           </select>
-        </>
-      }
-    />
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+            <AlertCircle size={18} /> {error}
+          </div>
+        )}
+
+        <div className="min-h-0 flex-1">
+          <DataTable
+            data={items}
+            columns={columns}
+            isLoading={loading}
+            emptyMessage="No invoices found"
+            pagination={{
+              currentPage: page,
+              totalPages: pagination.pages,
+              totalItems: pagination.total,
+              pageSize: pagination.limit,
+              onPageChange: (nextPage: number) => replaceQueryState({ page: nextPage > 1 ? nextPage : null }),
+            }}
+            enableCsvExport
+            csvFileName="invoices.csv"
+            enableColumnVisibility
+          />
+        </div>
+      </div>
+    </AdminPageShell>
   );
 }

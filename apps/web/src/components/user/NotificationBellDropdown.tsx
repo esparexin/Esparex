@@ -178,7 +178,7 @@ export function NotificationBellDropdown({
                     >
                         <Bell className={iconClassName} />
                         {unreadCount > 0 ? (
-                            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-background bg-red-500" />
+                            <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full border-2 border-background bg-destructive" />
                         ) : null}
                     </Button>
                 }
@@ -197,7 +197,7 @@ export function NotificationBellDropdown({
                 >
                     <Bell className={iconClassName} />
                     {unreadCount > 0 ? (
-                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-2xs font-bold text-white">
+                        <span className="absolute -top-0.5 -right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 border-background bg-destructive px-1 text-2xs font-bold text-destructive-foreground">
                             {unreadCount > 99 ? "99+" : unreadCount}
                         </span>
                     ) : null}
@@ -207,16 +207,16 @@ export function NotificationBellDropdown({
             <DropdownMenuContent
                 align="end"
                 sideOffset={8}
-                className="w-[min(90vw,17rem)] rounded-2xl border border-slate-200 bg-white p-0 shadow-lg"
+                className="w-[min(90vw,17rem)] rounded-2xl border border-border bg-popover text-popover-foreground p-0 shadow-lg"
             >
-                <div className="border-b border-slate-100 px-3 py-2">
+                <div className="border-b border-border px-3 py-2">
                     <div className="flex items-center justify-between gap-2">
                         <p className="text-xs font-semibold text-foreground">Notifications</p>
                         {unreadCount > 0 ? (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 rounded-full px-2.5 text-tiny font-medium text-foreground-tertiary hover:bg-slate-100"
+                                className="h-7 rounded-full px-2.5 text-tiny font-medium text-foreground-tertiary hover:bg-muted"
                                 onClick={() => markAllReadMutation.mutate()}
                                 disabled={markAllReadMutation.isPending}
                             >
@@ -228,8 +228,8 @@ export function NotificationBellDropdown({
 
                 <div className="max-h-[18rem] overflow-y-auto px-1.5 py-1.5">
                     {notifications.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm">
+                        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/50 px-4 py-6 text-center">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-card shadow-sm">
                                 <Inbox className="h-4 w-4 text-foreground-subtle" />
                             </div>
                             <div className="space-y-0.5">

@@ -28,6 +28,14 @@ export interface User {
     name?: string;
     profilePhoto?: string;
     email?: string;
+    billingEmail?: string;
+    gstin?: string;
+    gstDetails?: {
+        legalName?: string;
+        tradeName?: string;
+        stateCode?: string;
+        isVerified?: boolean;
+    };
     businessId?: string;
     isEmailVerified?: boolean;
 

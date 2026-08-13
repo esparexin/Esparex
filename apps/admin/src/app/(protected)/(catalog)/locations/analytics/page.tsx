@@ -318,7 +318,7 @@ function StatCard({ icon, label, value, color }: {
         violet: "bg-violet-50 text-violet-600",
     };
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-4">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorMap[color]}`}>
                 {icon}
             </div>

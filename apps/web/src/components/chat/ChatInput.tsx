@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 import { Spinner } from '@esparex/ui';
+import { ChatInputAttachmentBanner } from './ChatInputAttachmentBanner';
 
 interface ChatInputProps {
   onSend: (text: string, attachment?: File) => Promise<boolean>;
@@ -44,11 +45,8 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     try {
       const buffer = await file.slice(0, 4).arrayBuffer();
       const bytes = new Uint8Array(buffer);
-      // JPEG: FF D8
       const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8;
-      // PNG: 89 50 4E 47
       const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-      // WebP: RIFF (52 49 46 46)
       const isWebp = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46;
       return isJpeg || isPng || isWebp;
     } catch {
@@ -124,6 +122,34 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
     }
   };
 
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item && item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          if (file.size > MAX_FILE_SIZE) {
+            setFileError('Pasted image exceeds 5 MB limit');
+            return;
+          }
+          const isValid = await validateMagicBytes(file);
+          if (isValid) {
+            setSelectedFile(file);
+            setFileError(null);
+          } else {
+            setFileError('Pasted image must be JPEG, PNG, or WebP');
+          }
+          break;
+        }
+      }
+    }
+  };
+
+  const isNearCharLimit = text.length > MAX_LENGTH * 0.9;
+
   if (disabled) {
     return (
       <div className="chat-input chat-input--disabled">
@@ -136,44 +162,12 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
 
   return (
     <div className="chat-input-shell space-y-2">
-      {/* File Preview Banner */}
-      {selectedFile && (
-        <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50 rounded-lg border text-xs text-slate-700">
-          <div className="flex items-center gap-2 truncate">
-            <span className="font-semibold truncate">{selectedFile.name}</span>
-            <span className="text-slate-400">({(selectedFile.size / 1024).toFixed(0)} KB)</span>
-          </div>
-          <button
-            type="button"
-            className="text-slate-400 hover:text-slate-600 font-bold px-1"
-            onClick={() => setSelectedFile(null)}
-            aria-label="Remove attached file"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* Error Announcement */}
-      {fileError && (
-        <p className="text-xs font-medium text-red-600 px-1" role="alert">
-          {fileError}
-        </p>
-      )}
-
-      {/* Upload Progress Bar */}
-      {uploadProgress !== null && (
-        <div
-          className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"
-          role="progressbar"
-          aria-valuenow={uploadProgress}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label="Attachment upload progress"
-        >
-          <div className="bg-sky-600 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-        </div>
-      )}
+      <ChatInputAttachmentBanner
+        selectedFile={selectedFile}
+        onRemoveFile={() => setSelectedFile(null)}
+        fileError={fileError}
+        uploadProgress={uploadProgress}
+      />
 
       <div className="chat-input">
         <input
@@ -186,7 +180,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
         />
         <button
           type="button"
-          className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+          className="p-2 text-slate-400 hover:text-slate-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
           onClick={() => fileInputRef.current?.click()}
           aria-label="Attach file"
           disabled={isSending}
@@ -203,11 +197,12 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           value={text}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           rows={1}
           maxLength={MAX_LENGTH}
           aria-label="Message input"
         />
-        <span className="chat-input__count">
+        <span className={`chat-input__count ${isNearCharLimit ? 'text-amber-500 font-bold' : ''}`}>
           {text.length}/{MAX_LENGTH}
         </span>
         <button

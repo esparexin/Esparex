@@ -74,7 +74,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Main User Card */}
-          <Card className="p-5 mb-4 items-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <Card className="p-5 mb-4 items-center">
             <Avatar
               src={profile?.profilePhoto}
               fallback={profile?.name ? profile.name.substring(0, 2).toUpperCase() : 'US'}
@@ -108,7 +108,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
           </Card>
 
           {/* User Details & Location */}
-          <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <Card className="p-4 mb-4">
             <AppText variant="h4" className="font-semibold text-slate-900 dark:text-white mb-3">
               Account Details
             </AppText>
@@ -146,7 +146,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
             accessibilityLabel="Go to account settings"
             accessibilityRole="button"
           >
-            <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <Card className="p-4 mb-4">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <AppIcon name="Settings" size={18} color={base.slate[500]} />

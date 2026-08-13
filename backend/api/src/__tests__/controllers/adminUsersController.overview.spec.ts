@@ -2,6 +2,7 @@ jest.mock("@esparex/core/models/User", () => ({
     __esModule: true,
     default: {
         countDocuments: jest.fn(),
+        aggregate: jest.fn(),
     },
 }));
 
@@ -25,7 +26,6 @@ jest.mock("@esparex/core/models/Ad", () => ({
 import type { Request, Response } from "express";
 import * as adminUsersController from "../../controllers/admin/adminUsersController";
 import User from "@esparex/core/models/User";
-import AdminMetrics from "@esparex/core/models/AdminMetrics";
 
 const createMockRes = (req?: Partial<Request>) => {
     const res = {
@@ -36,13 +36,6 @@ const createMockRes = (req?: Partial<Request>) => {
     return res;
 };
 
-const mockMetricsChain = (payload: unknown) => {
-    const lean = jest.fn().mockResolvedValue(payload);
-    const sort = jest.fn().mockReturnValue({ lean });
-    const findOne = (AdminMetrics as any).findOne;
-    findOne.mockReturnValue({ sort });
-};
-
 describe("adminUsersController.getUserManagementOverview", () => {
     const mockUser = User as any;
 
@@ -50,15 +43,21 @@ describe("adminUsersController.getUserManagementOverview", () => {
         jest.clearAllMocks();
     });
 
-    it("returns live totals when metrics cache is missing", async () => {
-        mockMetricsChain(null);
-        mockUser.countDocuments
-            .mockResolvedValueOnce(2) // newUsersToday
-            .mockResolvedValueOnce(1) // suspendedUsers
-            .mockResolvedValueOnce(1) // bannedUsers
-            .mockResolvedValueOnce(8) // totalUsers (live fallback)
-            .mockResolvedValueOnce(6) // activeUsers (live fallback)
-            .mockResolvedValueOnce(5); // verifiedUsers (live fallback)
+    it("returns live overview metrics via single $facet aggregation", async () => {
+        mockUser.aggregate.mockResolvedValue([
+            {
+                totalUsers: [{ count: 8 }],
+                activeUsers: [{ count: 6 }],
+                suspendedUsers: [{ count: 1 }],
+                bannedUsers: [{ count: 1 }],
+                verifiedUsers: [{ count: 5 }],
+                individuals: [{ count: 6 }],
+                businesses: [{ count: 2 }],
+                verifiedBusinesses: [{ count: 2 }],
+                blockedUsers: [{ count: 2 }],
+                newUsersToday: [{ count: 2 }],
+            },
+        ]);
 
         const req = { originalUrl: "/api/v1/admin/user-management/overview" } as any;
         const res = createMockRes(req);
@@ -75,48 +74,15 @@ describe("adminUsersController.getUserManagementOverview", () => {
                     verifiedUsers: 5,
                     suspendedUsers: 1,
                     bannedUsers: 1,
+                    individuals: 6,
+                    businesses: 2,
+                    verifiedBusinesses: 2,
+                    blockedUsers: 2,
                     newUsersToday: 2,
                 }),
             })
         );
-        expect(mockUser.countDocuments).toHaveBeenCalledTimes(10);
-    });
-
-    it("prefers cached totals when metrics cache is complete", async () => {
-        mockMetricsChain({
-            payload: {
-                totalUsers: 10,
-                activeUsers: 7,
-                verifiedUsers: 4,
-                newUsersThisWeek: 3,
-                businessUsers: 2,
-            },
-        });
-        mockUser.countDocuments
-            .mockResolvedValueOnce(1) // newUsersToday
-            .mockResolvedValueOnce(2) // suspendedUsers
-            .mockResolvedValueOnce(3); // bannedUsers
-
-        const req = { originalUrl: "/api/v1/admin/user-management/overview" } as any;
-        const res = createMockRes(req);
-
-        await adminUsersController.getUserManagementOverview(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith(
-            expect.objectContaining({
-                success: true,
-                data: expect.objectContaining({
-                    totalUsers: 10,
-                    activeUsers: 7,
-                    verifiedUsers: 4,
-                    suspendedUsers: 2,
-                    bannedUsers: 3,
-                    newUsersToday: 1,
-                }),
-            })
-        );
-        expect(mockUser.countDocuments).toHaveBeenCalledTimes(7);
+        expect(mockUser.aggregate).toHaveBeenCalledTimes(1);
     });
 });
 

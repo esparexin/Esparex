@@ -135,17 +135,31 @@ function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
     if (filter._id !== undefined) {
         mongoFilter._id = typeof filter._id === 'object' && filter._id !== null ? filter._id : toMongoId(filter._id);
     }
-    if (filter.price !== undefined) {
+    if (filter.minPrice !== undefined || filter.maxPrice !== undefined) {
+        const priceClause: Record<string, number> = {};
+        if (filter.minPrice !== undefined) priceClause.$gte = filter.minPrice;
+        if (filter.maxPrice !== undefined) priceClause.$lte = filter.maxPrice;
+        mongoFilter.price = priceClause;
+    } else if (filter.price !== undefined) {
         mongoFilter.price = filter.price;
+    }
+    if (filter.titleQuery) {
+        mongoFilter.title = { $regex: new RegExp(filter.titleQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
     }
     if (filter.imageHashes !== undefined) {
         mongoFilter.imageHashes = filter.imageHashes;
     }
-    if (filter.status) {
+    if (filter.allowedStatuses && filter.allowedStatuses.length > 0) {
+        mongoFilter.status = { $in: filter.allowedStatuses };
+    } else if (filter.status) {
         mongoFilter.status = Array.isArray(filter.status) ? { $in: filter.status } : filter.status;
     }
     if (filter.listingType) mongoFilter.listingType = filter.listingType;
-    if (filter.sellerId) mongoFilter.sellerId = typeof filter.sellerId === 'object' ? filter.sellerId : toMongoId(filter.sellerId);
+    if (filter.excludeSellerId) {
+        mongoFilter.sellerId = { ...(mongoFilter.sellerId as Record<string, unknown> || {}), $ne: toMongoId(filter.excludeSellerId) };
+    } else if (filter.sellerId) {
+        mongoFilter.sellerId = typeof filter.sellerId === 'object' ? filter.sellerId : toMongoId(filter.sellerId);
+    }
     if (filter.categoryId) mongoFilter.categoryId = typeof filter.categoryId === 'object' ? filter.categoryId : toMongoId(filter.categoryId);
     if (filter.brandId) mongoFilter.brandId = typeof filter.brandId === 'object' ? filter.brandId : toMongoId(filter.brandId);
     if (filter.modelId) mongoFilter.modelId = typeof filter.modelId === 'object' ? filter.modelId : toMongoId(filter.modelId);
@@ -182,18 +196,33 @@ function buildMongoFilter(filter: ListingFilter): Record<string, unknown> {
     if (filter.locationPath) {
         mongoFilter.locationPath = toMongoId(filter.locationPath);
     }
-    if (filter.isSpotlight !== undefined) mongoFilter.isSpotlight = filter.isSpotlight;
-    if (filter.spotlightExpiresAt) {
+    if (filter.spotlightActiveOnly) {
+        mongoFilter.isSpotlight = true;
+        mongoFilter.spotlightExpiresAt = { $gt: new Date() };
+    } else if (filter.isSpotlight !== undefined) {
+        mongoFilter.isSpotlight = filter.isSpotlight;
+    }
+    if (filter.spotlightExpiredBefore) {
+        mongoFilter.spotlightExpiresAt = { $lte: filter.spotlightExpiredBefore };
+    } else if (filter.spotlightExpiresAt) {
         mongoFilter.spotlightExpiresAt = filter.spotlightExpiresAt;
     }
-    if (filter.expiresAt) mongoFilter.expiresAt = filter.expiresAt;
+    if (filter.expiredBefore) {
+        mongoFilter.expiresAt = { $lte: filter.expiredBefore };
+    } else if (filter.expiresAt) {
+        mongoFilter.expiresAt = filter.expiresAt;
+    }
     if (filter.sparePartIds) {
         mongoFilter.sparePartIds = toMongoId(filter.sparePartIds);
     }
     if (filter.favoritesGreaterThan !== undefined) {
         mongoFilter['views.favorites'] = { $gt: filter.favoritesGreaterThan };
     }
-    if (filter.moderationStatus) {
+    if (filter.allowedModerationStatuses && filter.allowedModerationStatuses.length > 0) {
+        mongoFilter.moderationStatus = { ...(mongoFilter.moderationStatus as Record<string, unknown> || {}), $in: filter.allowedModerationStatuses };
+    } else if (filter.excludeModerationStatuses && filter.excludeModerationStatuses.length > 0) {
+        mongoFilter.moderationStatus = { ...(mongoFilter.moderationStatus as Record<string, unknown> || {}), $nin: filter.excludeModerationStatuses };
+    } else if (filter.moderationStatus) {
         mongoFilter.moderationStatus = filter.moderationStatus;
     }
     

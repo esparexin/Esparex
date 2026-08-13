@@ -26,7 +26,7 @@ export async function createBrand(data: CreateBrandDTO) {
 
 export async function updateBrand(id: string, data: UpdateBrandDTO) {
     return adminFetch<Brand>(`${ADMIN_ROUTES.BRANDS}/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         body: data
     });
 }

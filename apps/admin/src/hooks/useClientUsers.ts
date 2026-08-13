@@ -13,6 +13,7 @@ import {
 interface UserFilters {
     q?: string;
     status?: string;
+    role?: string;
     isVerified?: string;
     page?: number;
     limit?: number;
@@ -62,6 +63,7 @@ export function useClientUsers() {
             });
             if (filters.q) queryParams.set("q", filters.q);
             if (filters.status && filters.status !== "all") queryParams.set("status", filters.status);
+            if (filters.role && filters.role !== "all") queryParams.set("role", filters.role);
             if (filters.isVerified && filters.isVerified !== "all") queryParams.set("isVerified", filters.isVerified);
 
             const [response, overviewResponse] = await Promise.all([

@@ -31,29 +31,29 @@ export function TrendsChart({ data, title }: TrendsChartProps) {
 
     if (!mounted) {
         return (
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px] flex items-center justify-center">
+            <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm h-[320px] flex items-center justify-center">
                 <span className="text-xs font-semibold text-foreground-subtle uppercase tracking-widest animate-pulse">Loading Chart...</span>
             </div>
         );
     }
 
     return (
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-lg font-bold text-foreground leading-none">{title}</h3>
-                <div className="flex items-center gap-4">
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-bold text-foreground leading-none">{title}</h3>
+                <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full" />
+                        <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
                         <span className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Ads</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                        <div className="w-3 h-3 bg-emerald-500 rounded-full" />
+                        <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
                         <span className="text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Users</span>
                     </div>
                 </div>
             </div>
 
-            <div className="h-[300px] w-full min-w-0">
+            <div className="h-[250px] w-full min-w-0">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <defs>

@@ -7,7 +7,7 @@ import {
     CatalogCheckboxCard,
     CatalogSelectField,
     CatalogTextInputField,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 
 export type LocationFormLevel = "state" | "city" | "area";
 

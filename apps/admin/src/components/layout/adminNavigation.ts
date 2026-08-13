@@ -14,6 +14,7 @@ import {
     Users,
     Tag,
     List,
+    Cpu,
 } from "@esparex/ui";
 
 export type AdminModuleKey =
@@ -32,7 +33,9 @@ export type AdminModuleKey =
     | "masterData"
     | "partsCatalog"
     | "locations"
-    | "catalogRequests";
+    | "catalogRequests"
+    | "googleAds"
+    | "aiConfig";
 
 export type AdminModuleItem = {
     key: AdminModuleKey;
@@ -148,6 +151,15 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
 
     },
     {
+        key: "googleAds",
+        label: "Google Ads",
+        icon: Tag,
+        href: "/google-ads",
+        roles: ["admin", "superAdmin"],
+        section: "Management",
+        aliases: ["/google-ads"],
+    },
+    {
         key: "administration",
         label: "System Administration",
         icon: ShieldCheck,
@@ -164,6 +176,15 @@ export const ADMIN_NAV_MODULES: AdminModuleItem[] = [
         roles: ["superAdmin"],
         section: "System",
         aliases: ["/settings"],
+    },
+    {
+        key: "aiConfig",
+        label: "AI Configuration",
+        icon: Cpu,
+        href: "/ai-config",
+        roles: ["superAdmin", "admin"],
+        section: "System",
+        aliases: ["/ai-config"],
     },
 ];
 

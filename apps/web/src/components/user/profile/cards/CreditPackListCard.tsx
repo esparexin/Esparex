@@ -72,19 +72,19 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-foreground">{displayName}</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-muted text-muted-foreground">
+                  <span className="px-1.5 py-0.5 rounded text-tiny font-semibold bg-muted text-muted-foreground">
                     {meta.label}
                   </span>
                   {isExhausted ? (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <span className="px-1.5 py-0.5 rounded text-tiny font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400">
                       Used Up
                     </span>
                   ) : isExpired ? (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-destructive/10 text-destructive">
+                    <span className="px-1.5 py-0.5 rounded text-tiny font-bold bg-destructive/10 text-destructive">
                       Expired
                     </span>
                   ) : (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <span className="px-1.5 py-0.5 rounded text-tiny font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                       Active
                     </span>
                   )}

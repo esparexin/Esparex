@@ -12,6 +12,7 @@ export default function CategoriesPage() {
         <AdminPageShell
             title="Device Catalog"
             description="Manage the shared taxonomy — categories, brands, models, and spare parts. Changes here reflect globally across marketplace filters and posting flows."
+            showGlobalSearch={false}
             tabs={<AdminModuleTabs tabs={catalogManagementTabs} variant="pills" />}
         >
             <Suspense fallback={

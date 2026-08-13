@@ -101,7 +101,19 @@ function run(val) {
     }
   }
 
-  val.info('Architecture compliance, package ownership boundaries, and canonical registry verified');
+  // 4. ARCH-PORT: Domain Repository Port Type Safety Validation
+  const portFiles = allSourceFiles.filter(f => f.includes('core/src/domains/') && f.endsWith('Port.ts'));
+  for (const file of portFiles) {
+    const relPath = path.relative(ROOT, file);
+    const content = fs.readFileSync(file, 'utf-8');
+    const looseTypeRe = /:\s*any\b|<\s*any\s*>|Promise<\s*any\s*>|any\[\]/g;
+    const matches = content.match(looseTypeRe);
+    if (matches && matches.length > 0) {
+      val.error(`Domain Port Type Safety Violation: "${relPath}" contains loose type annotations (${matches.join(', ')}). Domain repository ports must be strongly typed.`);
+    }
+  }
+
+  val.info('Architecture compliance, package ownership boundaries, canonical registry, and domain port types verified');
 }
 
 if (require.main === module) {

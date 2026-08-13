@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
+import { Checkbox, Image as ImageIcon, MapPin, ShieldAlert } from "@esparex/ui";
 import { AdminModerationActions } from "./AdminModerationActions";
 import { StatusChip } from "@/components/ui/StatusChip";
 import type { ModerationItem } from "./moderationTypes";
@@ -81,6 +81,11 @@ export function AdsTable({
 }: AdsTableProps) {
     const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
     const allSelected = data.length > 0 && data.every((item) => selectedSet.has(item.id));
+    const headerCheckedState = allSelected
+        ? true
+        : selectedSet.size > 0
+        ? "indeterminate"
+        : false;
     const presentation = getListingPresentation(listingType);
 
     const renderAction = useCallback((item: ModerationItem) => (
@@ -101,22 +106,18 @@ export function AdsTable({
         if (showCheckboxes) {
             cols.push({
                 header: (
-                    <input
-                        type="checkbox"
-                        checked={allSelected}
-                        onChange={(e) => onToggleSelectAll(e.target.checked)}
-                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
+                    <Checkbox
+                        checked={headerCheckedState}
+                        onCheckedChange={(checked) => onToggleSelectAll(checked === true)}
                         aria-label={`Select all ${presentation.actionEntityLabelPlural}`}
                     />
                 ),
                 id: "select",
                 className: "w-12",
                 cell: (item) => (
-                    <input
-                        type="checkbox"
+                    <Checkbox
                         checked={selectedSet.has(item.id)}
-                        onChange={(e) => onToggleSelect(item.id, e.target.checked)}
-                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary/20"
+                        onCheckedChange={(checked) => onToggleSelect(item.id, checked === true)}
                         aria-label={`Select ${presentation.actionEntityLabel} ${item.title}`}
                     />
                 )
@@ -191,14 +192,16 @@ export function AdsTable({
             cell: (item) => {
                 const geo = geoLevel(item);
                 return (
-                    <div className="space-y-1 min-w-[150px]">
-                        <div className="inline-flex items-start gap-1.5 text-xs text-foreground-secondary">
-                            <MapPin size={14} className="mt-0.5 shrink-0" />
-                            <span className="line-clamp-2">{item.locationLabel || "Unknown location"}</span>
+                    <div className="flex flex-col gap-0.5 min-w-[140px]">
+                        <div className="flex items-center gap-1.5 text-xs text-foreground-secondary">
+                            <MapPin size={13} className="shrink-0 text-foreground-subtle" />
+                            <span className="font-medium text-foreground truncate max-w-[130px]">{item.locationLabel || "Unknown"}</span>
                         </div>
-                        <span className={`text-tiny font-bold uppercase tracking-wider ${geo.color}`}>
-                            {geo.label}
-                        </span>
+                        <div className="pl-4">
+                            <span className={`inline-flex rounded px-1.5 py-0.5 text-tiny font-bold uppercase tracking-wider ${geo.color} bg-slate-100/80`}>
+                                {geo.label}
+                            </span>
+                        </div>
                     </div>
                 );
             }
@@ -219,20 +222,20 @@ export function AdsTable({
             header: "Risk",
             id: "risk",
             cell: (item) => (
-                <div className="space-y-1.5 min-w-[80px]">
+                <div className="flex flex-col gap-1 min-w-[85px]">
                     <div className="flex items-center gap-1">
-                        <ShieldAlert size={11} className="text-foreground-subtle shrink-0" />
-                        <span className={`text-tiny font-bold px-1.5 py-0.5 rounded ${riskColor(item.fraudScore)}`}>
-                            F {item.fraudScore}
+                        <span className={`inline-flex items-center gap-0.5 text-tiny font-bold px-1.5 py-0.5 rounded ${riskColor(item.fraudScore)}`}>
+                            <ShieldAlert size={10} className="shrink-0" />
+                            F:{item.fraudScore}
                         </span>
+                        {item.riskScore != null && (
+                            <span className={`inline-flex items-center text-tiny font-bold px-1.5 py-0.5 rounded ${riskColor(item.riskScore)}`}>
+                                R:{item.riskScore}
+                            </span>
+                        )}
                     </div>
-                    {item.riskScore != null && (
-                        <span className={`text-tiny font-bold px-1.5 py-0.5 rounded ${riskColor(item.riskScore)}`}>
-                            R {item.riskScore}
-                        </span>
-                    )}
                     {item.reportCount > 0 && (
-                        <span className="text-tiny text-foreground-tertiary font-medium">
+                        <span className="text-tiny text-rose-600 font-semibold">
                             {item.reportCount} report{item.reportCount !== 1 ? "s" : ""}
                         </span>
                     )}

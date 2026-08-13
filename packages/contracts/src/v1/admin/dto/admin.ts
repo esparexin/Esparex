@@ -19,8 +19,38 @@ export interface AdminStats {
     totalAds: number;
     totalBusinesses: number;
     pendingAds: number;
-    pendingServices: number; // Added pendingServices
+    pendingServices: number;
     pendingBusinesses: number;
-    activeServices?: number; // Added for dashboard
-    totalServices?: number; // Added for dashboard
+    activeServices?: number;
+    totalServices?: number;
+}
+
+export interface CatalogHealthMetricsDTO {
+    pendingRequests: number;
+    averageResolutionHours: number;
+    mergedRequests: number;
+}
+
+export interface AdminDashboardNotificationsDTO {
+    pendingModels: number;
+    reportedAds: number;
+    pendingBusinesses: number;
+    pendingAds: number;
+}
+
+export interface AdminDashboardStatsDTO {
+    totalUsers: number;
+    totalAds: number;
+    activeAds: number;
+    pendingAds: number;
+    totalServices: number;
+    activeServices: number;
+    pendingServices: number;
+    rejectedServices?: number;
+    totalSpareParts: number;
+    activeSpareParts: number;
+    pendingSpareParts: number;
+    notifications?: AdminDashboardNotificationsDTO;
+    revenue?: number;
+    catalogHealth?: CatalogHealthMetricsDTO;
 }

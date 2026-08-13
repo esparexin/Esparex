@@ -30,7 +30,7 @@ export function useAdminSmartAlerts() {
         pages: 1
     });
 
-    const getAlerts = useCallback(async (params: { page: number; limit: number }) => {
+    const getAlerts = useCallback(async (params: { page: number; limit: number; q?: string }) => {
         setLoading(true);
         setError("");
         try {
@@ -38,6 +38,9 @@ export function useAdminSmartAlerts() {
                 page: String(params.page),
                 limit: String(params.limit),
             });
+            if (params.q && params.q.trim()) {
+                query.set("q", params.q.trim());
+            }
             const response = await adminFetch(`${ADMIN_ROUTES.SMART_ALERTS}?${query.toString()}`);
             const parsed = parseAdminResponse<AlertItem>(response);
             

@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { Search, X } from "@esparex/ui";
+import { PageShell, Search, X } from "@esparex/ui";
 import { AdminGlobalSearch } from "./AdminGlobalSearch";
 
-const cn = (...values: Array<string | false | null | undefined>) => values.filter(Boolean).join(" ");
+export { AdminPagination } from "./AdminPagination";
+export { AdminEmptyState } from "./AdminEmptyState";
+export { AdminActionMenu } from "./AdminActionMenu";
+export { MobileRowCard } from "./MobileRowCard";
 
 type AdminPageShellProps = {
     title: string;
@@ -16,6 +19,7 @@ type AdminPageShellProps = {
     tabs?: ReactNode;
     filters?: ReactNode;
     actions?: ReactNode;
+    showGlobalSearch?: boolean;
     children: ReactNode;
     className?: string;
     isNested?: boolean;
@@ -28,57 +32,60 @@ export function AdminPageShell({
     tabs,
     filters,
     actions,
+    showGlobalSearch = true,
     children,
     className,
     isNested = false,
 }: AdminPageShellProps) {
-    const isCompact = headerVariant === "compact";
     const [floatingSearchOpen, setFloatingSearchOpen] = useState(false);
 
+    useEffect(() => {
+        if (!floatingSearchOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setFloatingSearchOpen(false);
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [floatingSearchOpen]);
+
     return (
-        <div className={cn("flex flex-col gap-4", className)}>
-            <header className="shrink-0 space-y-4">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="flex-1">
-                        {isNested ? (
-                            <h2 className="text-h3 font-bold tracking-tight text-foreground">{title}</h2>
-                        ) : (
-                            <h1 className="text-h1 font-bold tracking-tight text-foreground">{title}</h1>
-                        )}
-                        {!isCompact && description && (
-                            <p className={cn("mt-1 text-body text-foreground-tertiary", isNested && "text-foreground-subtle")}>{description}</p>
-                        )}
-                    </div>
-                    {!isCompact && !isNested && (
-                        <div className="hidden flex-1 md:block max-w-xl mx-4">
-                            <AdminGlobalSearch />
-                        </div>
-                    )}
-                    {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
-                </div>
-                {tabs}
-                {filters}
-            </header>
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <>
+            <PageShell
+                title={title}
+                description={description}
+                headerVariant={headerVariant}
+                headerActions={actions}
+                search={showGlobalSearch ? <AdminGlobalSearch /> : null}
+                tabs={tabs}
+                filters={filters}
+                className={className}
+                isNested={isNested}
+            >
+                {children}
+            </PageShell>
 
             {/* Floating Global Search Overlay */}
             {floatingSearchOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 pt-20 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-20 backdrop-blur-sm p-4"
                     onClick={() => setFloatingSearchOpen(false)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Global search overlay"
                 >
                     <div
                         className="w-full max-w-xl"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="relative rounded-2xl bg-white shadow-2xl p-2">
+                        <div className="relative rounded-2xl bg-white shadow-2xl p-2 border border-slate-200">
                             <AdminGlobalSearch autoFocus onClose={() => setFloatingSearchOpen(false)} />
                             <div className="flex items-center justify-between px-3 pb-1 pt-2">
                                 <p className="text-caption text-foreground-tertiary">Press ESC or click outside to close.</p>
                                 <button
                                     type="button"
                                     onClick={() => setFloatingSearchOpen(false)}
-                                    className="text-foreground-subtle hover:text-foreground-secondary"
+                                    className="text-foreground-subtle hover:text-foreground-secondary p-1 rounded-md"
+                                    aria-label="Close search overlay"
                                 >
                                     <X size={16} />
                                 </button>
@@ -92,14 +99,13 @@ export function AdminPageShell({
             <button
                 type="button"
                 onClick={() => setFloatingSearchOpen(true)}
-                className={cn(
-                    "fixed bottom-8 right-8 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-sky-600 text-white shadow-lg shadow-sky-200 hover:bg-sky-700 transition-all",
-                    !isCompact && "md:hidden"
-                )}
+                className="fixed bottom-20 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-sky-600 text-white shadow-lg shadow-sky-200 hover:bg-sky-700 transition-all active:scale-95 lg:hidden"
                 aria-label="Open global search"
             >
                 <Search size={20} />
             </button>
-        </div>
+        </>
     );
 }
+
+
