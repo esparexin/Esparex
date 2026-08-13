@@ -65,6 +65,8 @@ import rootRoutes from './routes/rootRoutes';
 import adminRoutes from './routes/adminRoutes';
 import adminCatalogRoutes from './routes/adminCatalogRoutes';
 import adminChatRoutes from './routes/adminChatRoutes';
+import googleAdsRoutes from './routes/googleAdsRoutes';
+import monetizationRoutes from './routes/monetizationRoutes';
 
 
 
@@ -192,7 +194,11 @@ app.use(helmet({
         maxAge: 31536000, // 1 year
         includeSubDomains: true,
         preload: true
-    }
+    },
+    noSniff: true,
+    xssFilter: true,
+    frameguard: { action: 'sameorigin' },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
 
 /* -------------------------------------------------------------------------- */
@@ -249,23 +255,11 @@ if (env.NODE_ENV !== 'production') {
 /* -------------------------------------------------------------------------- */
 /* RATE LIMITING                                                               */
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* HEALTH & ROOT (NO DB GUARD)                                                  */
-/* -------------------------------------------------------------------------- */
-
-// app.get('/health', healthCheckHandler); // Handled by rootRoutes under /api/v1
-// app.get('/api/v1/health', healthCheckHandler); // Handled by rootRoutes
-
-// Legacy namespace redirects handled by deprecation layer
-
 app.use('/api/v1', globalLimiter);
 
 /* -------------------------------------------------------------------------- */
 /* HEALTH & ROOT (NO DB GUARD)                                                  */
 /* -------------------------------------------------------------------------- */
-// Health check moved to before rate limiter
-
-
 app.get('/health', healthCheckHandler);
 
 app.get('/health/worker', async (_req, res) => {
@@ -279,16 +273,6 @@ app.get('/health/worker', async (_req, res) => {
         });
     } catch (error) {
         res.status(500).json({ status: 'error', error: error instanceof Error ? error.message : String(error) });
-    }
-});
-
-app.get('/metrics', async (_req, res) => {
-    try {
-        const { register } = await import('@esparex/core/utils/metrics');
-        res.setHeader('Content-Type', register.contentType);
-        res.send(await register.metrics());
-    } catch {
-        res.status(500).send('# Metrics error\n');
     }
 });
 
@@ -443,6 +427,7 @@ app.use('/api/v1/smart-alerts', smartAlertRoutes);
 app.use('/api/v1/businesses', businessRoutes);
 app.use('/api/v1/invoices', invoiceRoutes);
 app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/monetization', monetizationRoutes);
 app.use('/api/v1', entitlementRoutes);
 
 // Communication & Feedback
@@ -453,6 +438,7 @@ app.use('/api/v1/admin/chat', adminChatRoutes);
 app.use('/api/v1/admin/catalog-requests', adminCatalogRequestRoutes);
 app.use('/api/v1/admin/catalog', adminCatalogRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1', googleAdsRoutes);
 
 // Legacy API deprecation layer handled by registerDeprecationRoutes(app)
 

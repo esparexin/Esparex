@@ -514,7 +514,7 @@ export function PlanFormModal({ open, onClose, onSaved, editPlan }: PlanFormModa
                         </div>
 
                         {/* Flags */}
-                        <div className="flex flex-wrap items-center gap-5">
+                        <div className="flex flex-wrap items-center gap-6">
                             {formType === "FREE_DEFAULT" && (
                                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground-secondary">
                                     <input

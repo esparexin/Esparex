@@ -6,6 +6,7 @@ import type { SmartAlertDeliveryLogDTO } from "@esparex/contracts";
 interface LogFilters {
     page: number;
     limit: number;
+    q?: string;
 }
 
 export function useSmartAlertLogs() {
@@ -25,6 +26,7 @@ export function useSmartAlertLogs() {
             const { items, pagination: nextPagination } = await fetchSmartAlertLogs({
                 page: filters.page,
                 limit: filters.limit,
+                q: filters.q,
             });
             setLogs(items);
             setPagination({

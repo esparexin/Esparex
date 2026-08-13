@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
+import { useChatAutoScroll } from '@/hooks/useChatAutoScroll';
 import { buildPublicListingDetailRoute } from '@/lib/publicListingRoutes';
 import { buildChatInboxRoute, resolveChatInboxView, resolveChatReturnTo } from '@/lib/chatUiRoutes';
 import { MessageBubble } from './MessageBubble';
@@ -11,40 +12,15 @@ import { ChatInput } from './ChatInput';
 import { QuickReplies } from './QuickReplies';
 import { ChatReadOnly } from './ChatReadOnly';
 import { ChatActionsMenu } from './ChatActionsMenu';
+import { SafetyTips } from './SafetyTips';
+import { DateSeparator } from './DateSeparator';
 import type { IConversationDTO } from "@esparex/contracts";
-import { formatAppDate, formatStableNumber } from '@/lib/formatters';
+import { formatStableNumber } from '@/lib/formatters';
 
 interface ConversationViewProps {
   conversation: IConversationDTO;
   currentUserId: string;
   embedded?: boolean;
-}
-
-function SafetyTips({ onDismiss }: { onDismiss: () => void }) {
-  return (
-    <div className="safety-banner" role="note">
-      <p className="safety-banner__text">
-        🛡️ <strong>Stay safe:</strong> Never share bank details or send money before meeting in person.
-      </p>
-      <button className="safety-banner__close" onClick={onDismiss} aria-label="Dismiss safety tips">
-        ✕
-      </button>
-    </div>
-  );
-}
-
-function DateSeparator({ date }: { date: string }) {
-  const label = formatAppDate(date, {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: undefined,
-  });
-  return (
-    <div className="date-separator" role="separator" aria-label={label}>
-      <span>{label}</span>
-    </div>
-  );
 }
 
 export function ConversationView({ conversation, currentUserId, embedded = false }: ConversationViewProps) {
@@ -114,6 +90,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     isLoadingMore,
     error,
     sendMessage,
+    retryFailedMessage,
     loadMore,
     hasMore,
     retry,
@@ -130,19 +107,21 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     },
   });
 
-  // Auto-scroll message container to bottom on NEW messages or typing updates
-  // (Uses internal container scrollTop to avoid triggering outer window/page scrolling)
-  useEffect(() => {
-    if (!isLoadingMore && messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-    }
-  }, [messages.length, isLoadingMore, isOtherTyping]);
+  const { handleLoadMore, markUserSent, clearUserSent } = useChatAutoScroll({
+    messagesContainerRef,
+    messageCount: messages.length,
+    isLoadingMore,
+    isOtherTyping,
+  });
 
   const handleSend = async (text: string) => {
+    markUserSent();
     const didSend = await sendMessage(text);
     if (didSend) {
       setQuickReplyText('');
       sendTyping(counterpartyUserId, false);
+    } else {
+      clearUserSent();
     }
     return didSend;
   };
@@ -246,7 +225,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
           <div className="conv-messages__load-more">
             <button
               onClick={() => {
-                void loadMore();
+                void handleLoadMore(loadMore);
               }}
               className="conv-messages__load-btn"
               disabled={isLoadingMore}
@@ -284,6 +263,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
               <MessageBubble
                 message={msg}
                 isOwn={msg.senderId === currentUserId}
+                onRetry={retryFailedMessage}
               />
             </div>
           );

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Tag, CheckCircle, XCircle, AlertTriangle, Loader2 } from "@esparex/ui";
+import { Tag, CheckCircle, XCircle, AlertTriangle } from "@esparex/ui";
 import { useAdminBrands } from "@/hooks/useAdminBrands";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { categorySupportsAds, useAssignableCategories } from "@/hooks/useAssignableCategories";
@@ -31,7 +31,7 @@ import {
     CatalogSelectFilter,
     CatalogRejectSuggestionForm,
     CatalogSearchInput,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { normalizeSearchParamValue, parsePositiveIntParam } from "@/lib/urlSearchParams";
 
 import { Brand } from "@esparex/contracts";

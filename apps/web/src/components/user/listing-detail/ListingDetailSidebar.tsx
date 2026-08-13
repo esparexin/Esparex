@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "@/icons/IconRegistry";
+import { Button } from "@esparex/ui";
 
 import type { Ad } from "@/schemas/ad.schema";
 
@@ -11,6 +12,7 @@ import { AdSellerCard } from "./AdSellerCard";
 import { AdBusinessCard } from "./AdBusinessCard";
 import { AdSafetyTips } from "./AdSafetyTips";
 import { AdOwnerActions } from "./AdOwnerActions";
+import { ListingRelatedBusinessesSection } from "./ListingRelatedBusinessesSection";
 
 interface ListingDetailSidebarProps {
     ad: Ad;
@@ -97,6 +99,14 @@ export function ListingDetailSidebar({
                 />
             ) : null}
 
+            {!isOwner && (
+                <ListingRelatedBusinessesSection
+                    ad={ad}
+                    navigateTo={navigateTo}
+                    variant="sidebar"
+                />
+            )}
+
             {!isOwner && <AdSafetyTips adId={ad.id} />}
 
             {isOwner && (
@@ -114,15 +124,17 @@ export function ListingDetailSidebar({
             )}
             {!isOwner && (
                 <div className="pt-2 flex justify-center">
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={onReport}
                         aria-label="Report this listing"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-red-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/20 rounded-lg px-2 py-1"
+                        className="gap-1.5 text-xs font-medium text-slate-400 hover:text-red-600 hover:bg-transparent h-auto px-2 py-1"
                     >
-                        <AlertTriangle className="h-3.5 w-3.5 text-slate-400 group-hover:text-red-600" />
+                        <AlertTriangle className="h-3.5 w-3.5" />
                         <span>Report this listing</span>
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

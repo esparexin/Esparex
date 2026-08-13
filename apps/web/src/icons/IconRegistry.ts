@@ -68,6 +68,8 @@ export {
     LogIn,
 } from "@esparex/ui";
 
+export { Printer } from "lucide-react";
+
 /* =======================
    Status & Feedback
 ======================= */

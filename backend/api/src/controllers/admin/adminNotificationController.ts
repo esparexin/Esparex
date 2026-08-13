@@ -18,6 +18,7 @@ import { NotificationDispatcher } from "@esparex/core/services/notification/Noti
 import { createAdminNotificationTargetCursor } from "@esparex/core/services/notification/AdminNotificationTargetingService";
 import { type IUser } from "@esparex/core/models/User";
 import { respond } from "../../utils/respond";
+import { escapeRegExp } from "@esparex/core/utils/stringUtils";
 
 const BATCH_SIZE = 500;
 
@@ -40,8 +41,6 @@ type HistoryRecord = {
     createdAt: Date;
     sendAt?: Date;
 };
-
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 async function dispatchToAudience(params: {
     audienceId: string;
@@ -197,7 +196,7 @@ export async function getHistory(req: Request, res: Response) {
         const historyStatus = status ?? "all";
         const mergeWindow = skip + limit;
         const searchTerm = q?.trim();
-        const searchRegex = searchTerm ? new RegExp(escapeRegex(searchTerm), "i") : null;
+        const searchRegex = searchTerm ? new RegExp(escapeRegExp(searchTerm), "i") : null;
 
         const logMatch: {
             targetType?: AdminNotificationTargetType;

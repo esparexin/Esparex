@@ -26,7 +26,6 @@ export {
     getStats,
     getDashboardStats,
     getAnalytics,
-    getRecentActivity,
     getContactSubmissions,
     updateContactSubmissionStatus,
     getRateLimitMetrics,

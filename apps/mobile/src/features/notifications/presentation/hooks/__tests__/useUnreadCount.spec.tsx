@@ -21,16 +21,6 @@ const mockGetNotifications = services.notificationService
   typeof services.notificationService.getNotifications
 >;
 
-const makeWrapper = () => {
-  const qc = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={qc}>{children}</QueryClientProvider>
-  );
-  return Wrapper;
-};
-
 const sampleNotifications: AppNotification[] = [
   {
     id: 'n-1',
@@ -59,14 +49,32 @@ const sampleNotifications: AppNotification[] = [
 ];
 
 describe('useNotifications', () => {
-  beforeEach(() => jest.clearAllMocks());
+  let queryClient: QueryClient;
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          gcTime: 0,
+        },
+      },
+    });
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    queryClient.clear();
+  });
+
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 
   it('returns notifications from the service', async () => {
     mockGetNotifications.mockResolvedValueOnce(sampleNotifications);
 
-    const { result } = renderHook(() => useNotifications(), {
-      wrapper: makeWrapper(),
-    });
+    const { result } = renderHook(() => useNotifications(), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(sampleNotifications);
@@ -76,46 +84,83 @@ describe('useNotifications', () => {
   it('returns empty array when service resolves with empty list', async () => {
     mockGetNotifications.mockResolvedValueOnce([]);
 
-    const { result } = renderHook(() => useNotifications(), {
-      wrapper: makeWrapper(),
-    });
+    const { result } = renderHook(() => useNotifications(), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([]);
+    expect(mockGetNotifications).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('useUnreadNotificationsCount', () => {
-  beforeEach(() => jest.clearAllMocks());
+  let queryClient: QueryClient;
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+          gcTime: 0,
+        },
+      },
+    });
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    queryClient.clear();
+  });
+
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 
   it('returns count of unread notifications', async () => {
     mockGetNotifications.mockResolvedValueOnce(sampleNotifications);
 
-    const { result } = renderHook(() => useUnreadNotificationsCount(), {
-      wrapper: makeWrapper(),
-    });
+    const { result } = renderHook(
+      () => ({
+        count: useUnreadNotificationsCount(),
+        query: useNotifications(),
+      }),
+      { wrapper }
+    );
 
-    await waitFor(() => expect(result.current).toBe(2));
+    await waitFor(() => expect(result.current.query.isSuccess).toBe(true));
+    expect(result.current.count).toBe(2);
+    expect(mockGetNotifications).toHaveBeenCalledTimes(1);
   });
 
   it('returns 0 when all notifications are read', async () => {
     const allRead = sampleNotifications.map((n) => ({ ...n, isRead: true }));
     mockGetNotifications.mockResolvedValueOnce(allRead);
 
-    const { result } = renderHook(() => useUnreadNotificationsCount(), {
-      wrapper: makeWrapper(),
-    });
+    const { result } = renderHook(
+      () => ({
+        count: useUnreadNotificationsCount(),
+        query: useNotifications(),
+      }),
+      { wrapper }
+    );
 
-    await waitFor(() => expect(result.current).toBe(0));
+    await waitFor(() => expect(result.current.query.isSuccess).toBe(true));
+    expect(result.current.count).toBe(0);
+    expect(mockGetNotifications).toHaveBeenCalledTimes(1);
   });
 
   it('returns 0 when notifications list is empty', async () => {
     mockGetNotifications.mockResolvedValueOnce([]);
 
-    const { result } = renderHook(() => useUnreadNotificationsCount(), {
-      wrapper: makeWrapper(),
-    });
+    const { result } = renderHook(
+      () => ({
+        count: useUnreadNotificationsCount(),
+        query: useNotifications(),
+      }),
+      { wrapper }
+    );
 
-    await waitFor(() => expect(result.current).toBe(0));
+    await waitFor(() => expect(result.current.query.isSuccess).toBe(true));
+    expect(result.current.count).toBe(0);
+    expect(mockGetNotifications).toHaveBeenCalledTimes(1);
   });
 });

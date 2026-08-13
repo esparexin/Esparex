@@ -1,12 +1,11 @@
 import User from '../../../../../models/User';
 import Ad from '../../../../../models/Ad';
-import AdminMetrics from '../../../../../models/AdminMetrics';
 import { USER_STATUS, Role } from '@esparex/contracts';
 import { hashPassword } from '../../auth/auth';
 import { AppError } from '../../../../../utils/AppError';
 import type { AdminLogFn } from '../../../../../services/AdminListingsService';
 import type { UserFilters } from './types';
-import { ACTIVE_USER_STATUS_QUERY, buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';
+import { buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';
 
 import { escapeRegExp } from '../../../../../utils/stringUtils';
 
@@ -34,13 +33,22 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
 
     const sq = buildUserStatusFilter(status);
     if (sq) query.status = sq;
-    if (role && role !== 'all') query.role = { $eq: String(role) };
-    if (isVerified !== undefined) query.isVerified = { $eq: Boolean(isVerified) };
+    if (role && role !== 'all') {
+        if (role === Role.USER) {
+            query.role = { $in: [Role.USER, null, undefined] };
+        } else {
+            query.role = { $eq: String(role) };
+        }
+    }
+    if (isVerified !== undefined) {
+        query.isVerified = { $eq: Boolean(isVerified) };
+    }
 
     const [users, total] = await Promise.all([
         User.find(query).select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit),
         User.countDocuments(query),
     ]);
+
     const userIds = users.map((u) => u._id);
     const adCounts = userIds.length > 0 ? await Ad.aggregate<{ _id: unknown; totalAdsPosted: number }>([{ $match: { sellerId: { $in: userIds }, isDeleted: { $ne: true } } }, { $group: { _id: '$sellerId', totalAdsPosted: { $sum: 1 } } }]) : [];
     const adsByUserId = new Map(adCounts.map((e) => [String(e._id), Number(e.totalAdsPosted) || 0]));
@@ -49,26 +57,68 @@ export const getUsers = async (filters: UserFilters = {}, pagination: { skip: nu
 };
 
 export const getUserManagementOverview = async () => {
-    const cachedMetrics = await AdminMetrics.findOne({ metricModule: 'USERS_OVERVIEW' }).sort({ aggregationDate: -1 }).lean();
-    const startOfDay = new Date(); startOfDay.setUTCHours(0, 0, 0, 0);
-    const payload = (cachedMetrics && typeof cachedMetrics.payload === 'object' && cachedMetrics.payload) || {};
-    const tn = (v: unknown): number | undefined => typeof v === 'number' && Number.isFinite(v) ? v : undefined;
-    const [newUsersToday, suspendedUsers, bannedUsers, liveTotalUsers, liveActiveUsers, liveVerifiedUsers, individuals, businesses, verifiedBusinesses, blockedUsers] = await Promise.all([
-        User.countDocuments({ userType: 'marketplace', status: { $ne: USER_STATUS.DELETED }, createdAt: { $gte: startOfDay } }),
-        User.countDocuments({ userType: 'marketplace', status: USER_STATUS.SUSPENDED }),
-        User.countDocuments({ userType: 'marketplace', status: USER_STATUS.BANNED }),
-        tn(payload.totalUsers) ?? User.countDocuments({ userType: 'marketplace', status: { $ne: USER_STATUS.DELETED } }),
-        tn(payload.activeUsers) ?? User.countDocuments({ userType: 'marketplace', status: ACTIVE_USER_STATUS_QUERY }),
-        tn(payload.verifiedUsers) ?? (tn(payload.totalUsers) !== undefined && tn(payload.unverifiedUsers) !== undefined ? Math.max(tn(payload.totalUsers)! - tn(payload.unverifiedUsers)!, 0) : User.countDocuments({ userType: 'marketplace', status: { $ne: USER_STATUS.DELETED }, isVerified: true })),
-        User.countDocuments({ userType: 'marketplace', role: Role.USER, status: { $ne: USER_STATUS.DELETED } }),
-        User.countDocuments({ userType: 'marketplace', role: Role.BUSINESS, status: { $ne: USER_STATUS.DELETED } }),
-        User.countDocuments({ userType: 'marketplace', role: Role.BUSINESS, isVerified: true, status: { $ne: USER_STATUS.DELETED } }),
-        User.countDocuments({ userType: 'marketplace', status: { $in: [USER_STATUS.SUSPENDED, USER_STATUS.BANNED] } }),
+    const startOfDay = new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
+
+    const activeStatusQuery = [USER_STATUS.ACTIVE as string, USER_STATUS.LIVE as string];
+    const nonDeletedMatch = { userType: 'marketplace', status: { $ne: USER_STATUS.DELETED } };
+
+    const [facetResults] = await User.aggregate<{
+        totalUsers: [{ count: number }];
+        activeUsers: [{ count: number }];
+        suspendedUsers: [{ count: number }];
+        bannedUsers: [{ count: number }];
+        verifiedUsers: [{ count: number }];
+        individuals: [{ count: number }];
+        businesses: [{ count: number }];
+        verifiedBusinesses: [{ count: number }];
+        blockedUsers: [{ count: number }];
+        newUsersToday: [{ count: number }];
+    }>([
+        {
+            $facet: {
+                totalUsers: [{ $match: nonDeletedMatch }, { $count: 'count' }],
+                activeUsers: [{ $match: { ...nonDeletedMatch, status: { $in: activeStatusQuery } } }, { $count: 'count' }],
+                suspendedUsers: [{ $match: { userType: 'marketplace', status: USER_STATUS.SUSPENDED } }, { $count: 'count' }],
+                bannedUsers: [{ $match: { userType: 'marketplace', status: USER_STATUS.BANNED } }, { $count: 'count' }],
+                verifiedUsers: [{ $match: { ...nonDeletedMatch, isVerified: true } }, { $count: 'count' }],
+                individuals: [{ $match: { ...nonDeletedMatch, $or: [{ role: Role.USER }, { role: { $exists: false } }, { role: null }] } }, { $count: 'count' }],
+                businesses: [{ $match: { ...nonDeletedMatch, role: Role.BUSINESS } }, { $count: 'count' }],
+                verifiedBusinesses: [{ $match: { ...nonDeletedMatch, role: Role.BUSINESS, isVerified: true } }, { $count: 'count' }],
+                blockedUsers: [{ $match: { userType: 'marketplace', status: { $in: [USER_STATUS.SUSPENDED, USER_STATUS.BANNED] } } }, { $count: 'count' }],
+                newUsersToday: [{ $match: { ...nonDeletedMatch, createdAt: { $gte: startOfDay } } }, { $count: 'count' }],
+            }
+        }
     ]);
-    const totalUsers = liveTotalUsers;
-    const activeUsers = liveActiveUsers;
-    const verifiedUsers = liveVerifiedUsers;
-    return { totalUsers, activeUsers, activeUsersPercentage: totalUsers > 0 ? Number(((activeUsers / totalUsers) * 100).toFixed(1)) : 0, verifiedUsers, verifiedUsersPercentage: totalUsers > 0 ? Number(((verifiedUsers / totalUsers) * 100).toFixed(1)) : 0, businessUsers: tn(payload.businessUsers) ?? 0, newUsersThisWeek: tn(payload.newUsersThisWeek) ?? 0, weekGrowth: '', newUsersToday, suspendedUsers, bannedUsers, individuals, businesses, verifiedBusinesses, blockedUsers };
+
+    const totalUsers = facetResults?.totalUsers?.[0]?.count ?? 0;
+    const activeUsers = facetResults?.activeUsers?.[0]?.count ?? 0;
+    const suspendedUsers = facetResults?.suspendedUsers?.[0]?.count ?? 0;
+    const bannedUsers = facetResults?.bannedUsers?.[0]?.count ?? 0;
+    const verifiedUsers = facetResults?.verifiedUsers?.[0]?.count ?? 0;
+    const individuals = facetResults?.individuals?.[0]?.count ?? 0;
+    const businesses = facetResults?.businesses?.[0]?.count ?? 0;
+    const verifiedBusinesses = facetResults?.verifiedBusinesses?.[0]?.count ?? 0;
+    const blockedUsers = facetResults?.blockedUsers?.[0]?.count ?? 0;
+    const newUsersToday = facetResults?.newUsersToday?.[0]?.count ?? 0;
+
+    return {
+        totalUsers,
+        activeUsers,
+        activeUsersPercentage: totalUsers > 0 ? Number(((activeUsers / totalUsers) * 100).toFixed(1)) : 0,
+        verifiedUsers,
+        verifiedUsersPercentage: totalUsers > 0 ? Number(((verifiedUsers / totalUsers) * 100).toFixed(1)) : 0,
+        businessUsers: businesses,
+        newUsersThisWeek: 0,
+        weekGrowth: '',
+        newUsersToday,
+        suspendedUsers,
+        bannedUsers,
+        individuals,
+        businesses,
+        verifiedBusinesses,
+        blockedUsers,
+    };
 };
 
 export const createAdminUser = async (data: Record<string, unknown>, actorId: string, logFn: AdminLogFn) => {

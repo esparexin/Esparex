@@ -2,7 +2,6 @@
 
 import type { User } from "@/types/User";
 import { PROFILE_TAB_ITEMS, type ProfileTabValue } from "@/config/navigation";
-import { Card } from "@/components/ui/card";
 import { LogOut } from "@/icons/IconRegistry";
 import { AccountNavItemList } from "../../AccountNavItemList";
 
@@ -22,7 +21,7 @@ export function MoreMenuTab({
   return (
     <div className="space-y-4 block md:hidden w-full">
       {/* Navigation List */}
-      <Card className="p-2 border-0 shadow-sm bg-white">
+      <div className="p-2 rounded-2xl border border-slate-200/80 bg-white shadow-2xs">
         <div className="space-y-1" role="list">
           <AccountNavItemList
             items={PROFILE_TAB_ITEMS}
@@ -43,7 +42,7 @@ export function MoreMenuTab({
           <LogOut className="h-5 w-5 flex-shrink-0" />
           <span>Logout</span>
         </button>
-      </Card>
+      </div>
     </div>
   );
 }

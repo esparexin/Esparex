@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
 import { notificationsTabs } from "@/components/layout/adminModuleTabSets";
@@ -28,6 +29,9 @@ type AlertItem = {
 };
 
 export default function SmartAlertsPage() {
+    const searchParams = useSearchParams();
+    const q = searchParams.get("q") || undefined;
+
     const [activeView, setActiveView] = useState<'logs' | 'management'>('logs');
     const { logs, loading: logsLoading, error: logsError, pagination: logsPagination, getLogs } = useSmartAlertLogs();
     const { alerts, loading: alertsLoading, error: alertsError, pagination: alertsPagination, getAlerts, handleDeleteAlert, handleBulkResend } = useAdminSmartAlerts();
@@ -37,11 +41,11 @@ export default function SmartAlertsPage() {
     
     useEffect(() => {
         if (activeView === 'logs') {
-            getLogs({ page, limit: 50 });
+            getLogs({ page, limit: 50, q });
         } else {
-            getAlerts({ page, limit: 50 });
+            getAlerts({ page, limit: 50, q });
         }
-    }, [page, activeView, getLogs, getAlerts]);
+    }, [page, activeView, getLogs, getAlerts, q]);
 
     const isLoading = activeView === 'logs' ? logsLoading : alertsLoading;
     const error = activeView === 'logs' ? logsError : alertsError;

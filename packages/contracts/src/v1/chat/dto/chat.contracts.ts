@@ -81,6 +81,8 @@ export interface IMessageDTO {
   text: string;
   attachments?: ChatAttachment[];
   readAt?: string; // ISO
+  deliveryStatus?: 'sending' | 'sent' | 'read' | 'failed';
+  tempId?: string;
   isSystemMessage?: boolean;
   createdAt: string;
 }

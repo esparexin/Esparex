@@ -31,6 +31,8 @@ function SidebarFooterMeta({ role }: { role?: string }) {
 import { cn } from "@esparex/ui";
 import { isSuperAdminRole } from "@esparex/shared";
 
+import Image from "next/image";
+
 export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsMinified }: AdminSidebarProps) {
     const { admin } = useAdminAuth();
     const counts = useAdminSidebarCounts();
@@ -49,10 +51,14 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
             if (window.innerWidth >= 1024) {
                 setIsMobileOpen(false);
             }
+            if (window.innerWidth >= 1024 && window.innerWidth < 1280) {
+                setIsMinified(true);
+            }
         };
+        handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [setIsMobileOpen]);
+    }, [setIsMobileOpen, setIsMinified]);
 
     const sidebarRef = useRef<HTMLElement>(null);
 
@@ -98,20 +104,26 @@ export function AdminSidebar({ isMobileOpen, setIsMobileOpen, isMinified, setIsM
                 ref={sidebarRef}
                 className={cn(
                     "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-800 bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
-                    isMobileOpen ? "translate-x-0 w-[var(--sidebar-expanded)]" : "-translate-x-full w-[var(--sidebar-expanded)]",
+                    isMobileOpen ? "translate-x-0 w-64" : "-translate-x-full w-64",
                     "lg:relative lg:z-20 lg:h-full lg:shrink-0 lg:translate-x-0",
-                    isMinified ? "lg:w-[var(--sidebar-minified)]" : "lg:w-[var(--sidebar-expanded)]"
+                    isMinified ? "lg:w-16" : "lg:w-64"
                 )}
-                style={{ width: isMinified ? "var(--sidebar-minified)" : "var(--sidebar-width)" }}
             >
                 <div className={cn("flex h-14 shrink-0 items-center border-b border-slate-800 px-4", isMinified ? "lg:justify-center justify-between" : "justify-between")}>
-                    <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-blue-500 font-bold text-white shadow-sm">
-                            E
-                        </div>
-                        <span className={cn("whitespace-nowrap text-xl font-bold tracking-tight text-white", isMinified && "lg:hidden")}>
-                            Esparex
-                        </span>
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                        <Image
+                            src="/icons/logo.png"
+                            alt="Esparex Logo"
+                            width={130}
+                            height={32}
+                            priority
+                            className={cn("h-7 w-auto object-contain", isMinified && "lg:hidden")}
+                        />
+                        {isMinified && (
+                            <span className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 font-extrabold text-white shadow-sm text-sm">
+                                E
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex items-center">

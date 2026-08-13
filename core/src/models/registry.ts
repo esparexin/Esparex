@@ -24,6 +24,7 @@ import './SavedAd';
 import './SavedSearch';
 import './ScheduledNotification';
 import './SystemConfig';
+import './GoogleAdPlacement';
 import './UserPlan';
 import './UserWallet';
 import './CreditRule';

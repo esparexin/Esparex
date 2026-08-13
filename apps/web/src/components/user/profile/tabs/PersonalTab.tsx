@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { User, Camera, Lock } from "@/icons/IconRegistry";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
+import { PersonalProfileGstSection } from "./PersonalProfileGstSection";
+import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
 
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
@@ -59,6 +61,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         defaultValues: {
             name: user?.name || "",
             email: user?.email || "",
+            gstin: user?.gstin || "",
             mobileVisibility: (user?.mobileVisibility as 'show' | 'hide' | 'on_request') || MOBILE_VISIBILITY.SHOW,
         },
     });
@@ -69,7 +72,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
         const submitData = new FormData();
         submitData.append("name", data.name);
-        submitData.append("email", data.email);
+        submitData.append("email", data.email || "");
+        if (data.gstin) {
+            submitData.append("gstin", data.gstin);
+        }
         submitData.append("mobileVisibility", data.mobileVisibility);
 
         if (selectedPhotoFile) {
@@ -137,22 +143,23 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
     const nameError = form.formState.errors.name?.message;
     const emailError = form.formState.errors.email?.message;
+    const gstinError = form.formState.errors.gstin?.message;
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full space-y-3.5">
             {/* Profile Photo Section */}
             <div className="flex items-center gap-3.5">
                 <div
-                    className="relative cursor-pointer group shrink-0"
+                    className="relative cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full"
                     onClick={() => setShowPhotoDialog(true)}
-                    role="button"
-                    tabIndex={0}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             setShowPhotoDialog(true);
                         }
                     }}
+                    role="button"
+                    tabIndex={0}
                     aria-label="Change profile photo"
                 >
                     <div className="h-14 w-14 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center relative shadow-2xs">
@@ -201,23 +208,17 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                 <FormError id="profile-name-error" message={nameError} />
             </div>
 
-            {/* Email Field */}
-            <div className="space-y-1.5">
-                <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
-                    Email
-                </Label>
-                <Input
-                    id="profile-email"
-                    type="email"
-                    placeholder="name@company.com"
-                    {...form.register("email")}
-                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${emailError ? "border-red-500" : ""}`}
-                    aria-invalid={!!emailError}
-                    aria-describedby={emailError ? "profile-email-error" : undefined}
-                    autoComplete="email"
-                />
-                <FormError id="profile-email-error" message={emailError} />
-            </div>
+            {/* Notification & Invoice Email Field */}
+            <PersonalProfileEmailSection
+                register={form.register}
+                emailError={emailError}
+            />
+
+            {/* GSTIN Field */}
+            <PersonalProfileGstSection
+                register={form.register}
+                gstinError={gstinError}
+            />
 
             {/* Mobile Number Read-Only Display */}
             <div className="space-y-1.5">

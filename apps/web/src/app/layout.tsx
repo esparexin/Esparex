@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
+import Script from 'next/script';
 import { cookies } from 'next/headers';
 import '../styles/globals.css';
 import { RootClientShell } from '@/components/providers/RootClientShell';
@@ -63,11 +64,20 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
     const cookieStore = await cookies();
     const initialHasAuthCookie = Boolean(cookieStore.get('esparex_auth'));
+    const adSenseClientId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID?.trim();
 
     return (
         <html lang="en" className={geist.variable} suppressHydrationWarning>
             <body className="font-sans antialiased">
                 <RootClientShell initialHasAuthCookie={initialHasAuthCookie}>{children}</RootClientShell>
+                {adSenseClientId && (
+                    <Script
+                        async
+                        src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseClientId}`}
+                        strategy="afterInteractive"
+                        crossOrigin="anonymous"
+                    />
+                )}
             </body>
         </html>
     );

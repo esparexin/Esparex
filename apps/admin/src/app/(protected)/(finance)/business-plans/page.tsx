@@ -15,7 +15,11 @@ import {
     Award
 } from "@esparex/ui";
 import { PlanFormModal } from "@/components/plans/PlanFormModal";
-import { FinancePageTemplate } from "@/components/finance/FinancePageTemplate";
+import { AdminPageShell } from "@/components/layout/AdminPageShell";
+import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { financeTabs } from "@/components/layout/adminModuleTabSets";
+import { DataTable } from "@/components/ui/DataTable";
+import { AlertCircle } from "@esparex/ui";
 import { ConfirmDeactivateDialog } from "@/components/finance/ConfirmDeactivateDialog";
 import {
     buildUrlWithSearchParams,
@@ -194,15 +198,10 @@ export default function BusinessPlansPage() {
 
     return (
         <>
-            <FinancePageTemplate<Plan>
+            <AdminPageShell
                 title="Business Plans"
                 description="Manage Business Base and Business Pro membership subscription plans."
-                data={businessPlans}
-                columns={columns}
-                isLoading={loading}
-                error={error || ""}
-                emptyMessage="No business plans found matching your criteria"
-                csvFileName="business-plans.csv"
+                tabs={<AdminModuleTabs tabs={financeTabs} />}
                 actions={
                     <button
                         onClick={() => { setEditPlan(null); setShowModal(true); }}
@@ -211,26 +210,47 @@ export default function BusinessPlansPage() {
                         <CreditCard size={18} /> New Business Plan
                     </button>
                 }
-                filters={
-                    <div className="relative flex-1 w-full text-black">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search business plans by name or code..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
-                            value={search}
-                            onChange={(e) => replaceQueryState({ q: e.target.value })}
+            >
+                <div className="flex flex-col gap-6">
+                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="relative flex-1 w-full text-black">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
+                            <input
+                                type="text"
+                                placeholder="Search business plans by name or code..."
+                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
+                                value={search}
+                                onChange={(e) => replaceQueryState({ q: e.target.value })}
+                            />
+                        </div>
+                    </div>
+
+                    {error && (
+                        <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
+                            <AlertCircle size={18} /> {error}
+                        </div>
+                    )}
+
+                    <div className="min-h-0 flex-1">
+                        <DataTable
+                            data={businessPlans}
+                            columns={columns}
+                            isLoading={loading}
+                            emptyMessage="No business plans found matching your criteria"
+                            enableCsvExport
+                            csvFileName="business-plans.csv"
+                            enableColumnVisibility
                         />
                     </div>
-                }
-            >
-                <PlanFormModal
-                    open={showModal}
-                    onClose={() => { setShowModal(false); setEditPlan(null); }}
-                    onSaved={() => { void fetchPlans({ q: search, userType: "business" }); }}
-                    editPlan={editPlan}
-                />
-            </FinancePageTemplate>
+
+                    <PlanFormModal
+                        open={showModal}
+                        onClose={() => { setShowModal(false); setEditPlan(null); }}
+                        onSaved={() => { void fetchPlans({ q: search, userType: "business" }); }}
+                        editPlan={editPlan}
+                    />
+                </div>
+            </AdminPageShell>
 
             <ConfirmDeactivateDialog
                 isOpen={!!togglingPlanId}

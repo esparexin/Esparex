@@ -54,7 +54,7 @@ export function ArchivePlanModal({ plan, isOpen, onClose, onConfirm, isMutating 
             {/* Dialog */}
             <div className="relative z-10 w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200">
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-slate-100">
+                <div className="flex items-center justify-between p-6 border-b border-slate-100">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
                             <Archive size={18} className="text-amber-600" aria-hidden="true" />
@@ -77,7 +77,7 @@ export function ArchivePlanModal({ plan, isOpen, onClose, onConfirm, isMutating 
                 </div>
 
                 {/* Body */}
-                <div className="p-5 space-y-4" id="archive-plan-dialog-desc">
+                <div className="p-6 space-y-4" id="archive-plan-dialog-desc">
                     {/* Warning banner */}
                     <div className="flex gap-3 p-3 rounded-lg bg-amber-50 border border-amber-100">
                         <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" aria-hidden="true" />

@@ -18,7 +18,7 @@ import {
     CatalogListingTypeBadges,
     CatalogSearchInput,
     CatalogTextInputField,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { CatalogModal } from "@/components/catalog/CatalogModal";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useCatalogQueryStateSync } from "@/hooks/useCatalogQueryStateSync";

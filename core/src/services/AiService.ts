@@ -98,71 +98,144 @@ export const getStatus = async (): Promise<{ available: boolean; reason: string 
 };
 
 export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AIServiceResult> => {
+    const t0 = Date.now();
     const { type, context, image, contextText } = input;
-    
+
     if (type === 'generate' && !context.brand && !context.model) {
         return toServiceFailure({ ok: false, status: 400, error: 'Brand and Model context are required for generation' });
     }
 
     const status = await getStatus();
     if (!status.available) {
-        return toServiceFailure({ 
-            ok: false, 
-            status: status.reason === AiErrorCode.AI_QUOTA_EXHAUSTED ? 429 : 503, 
+        return toServiceFailure({
+            ok: false,
+            status: status.reason === AiErrorCode.AI_QUOTA_EXHAUSTED ? 429 : 503,
             error: 'AI service unavailable',
             code: status.reason || AiErrorCode.AI_UNAVAILABLE
         });
     }
 
     const config = await getAiConfig();
-    try {
-        const provider = AIProviderFactory.create(config.provider);
+    const tConfig = Date.now() - t0;
 
-        if (type === 'identify') {
-            const prompt = identifyDevicePromptV1(contextText);
-            const schema = z.object({
-                brand: z.string(),
-                model: z.string(),
-                confidence: z.number().optional()
+    const capabilityKeyMap: Record<AIRequestType, string> = {
+        identify: 'device_identification',
+        generate: 'post_ad_title',
+        moderate: 'content_moderation',
+    };
+    const capabilityKey = capabilityKeyMap[type] || 'post_ad_title';
+    const capabilityConfig = (config.capabilities as Record<string, any>)?.[capabilityKey];
+    
+    const primaryProvider = capabilityConfig?.provider || config.provider || 'gemini';
+    const fallbackCandidates = ['gemini', 'openai', 'claude', 'deepseek'];
+    const providerChain = [primaryProvider, ...fallbackCandidates.filter(p => p !== primaryProvider)];
+
+    let lastError: unknown = null;
+
+    for (const providerName of providerChain) {
+        try {
+            const provider = AIProviderFactory.create(providerName);
+
+            if (type === 'identify') {
+                const rawText = typeof contextText === 'string' ? contextText : '';
+                const cacheKey = `sys:ai:identify_cache:${Buffer.from(rawText.trim().toLowerCase()).toString('base64').slice(0, 48)}`;
+                const cachedResult = await getCache<Record<string, unknown>>(cacheKey);
+                if (cachedResult) {
+                    logger.info('[AiService] identify cache hit', {
+                        type,
+                        contextText: rawText,
+                        totalMs: Date.now() - t0,
+                    });
+                    return { ok: true, data: cachedResult };
+                }
+
+                const prompt = identifyDevicePromptV1(rawText);
+                const schema = z.object({
+                    brand: z.string(),
+                    model: z.string(),
+                    confidence: z.number().optional()
+                });
+
+                const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
+                const totalMs = Date.now() - t0;
+                logger.info('[AiService] identify telemetry', {
+                    type,
+                    provider: result.provider,
+                    model: result.model,
+                    wasFallback: providerName !== primaryProvider,
+                    llmLatencyMs: result.latency,
+                    configLookupMs: tConfig,
+                    totalMs,
+                    usage: result.usage,
+                });
+
+                await setCache(cacheKey, JSON.stringify(result.data), 1800);
+
+                return { ok: true, data: result.data as Record<string, unknown> };
+            }
+
+            if (type === 'generate') {
+                const prompt = generateListingPromptV1(context);
+                const schema = z.object({
+                    title: z.string().max(MAX_AD_TITLE_CHARS),
+                    description: z.string().max(MAX_AD_DESCRIPTION_CHARS)
+                });
+
+                const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
+                const totalMs = Date.now() - t0;
+                logger.info('[AiService] generate telemetry', {
+                    type,
+                    provider: result.provider,
+                    model: result.model,
+                    wasFallback: providerName !== primaryProvider,
+                    llmLatencyMs: result.latency,
+                    configLookupMs: tConfig,
+                    totalMs,
+                    usage: result.usage,
+                });
+
+                return { ok: true, data: result.data as Record<string, unknown> };
+            }
+
+            if (type === 'moderate') {
+                const prompt = moderateAdPromptV1(contextText);
+                const schema = z.object({
+                    safe: z.boolean(),
+                    reason: z.string().nullable()
+                });
+
+                const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
+                const totalMs = Date.now() - t0;
+                logger.info('[AiService] moderate telemetry', {
+                    type,
+                    provider: result.provider,
+                    model: result.model,
+                    wasFallback: providerName !== primaryProvider,
+                    llmLatencyMs: result.latency,
+                    configLookupMs: tConfig,
+                    totalMs,
+                    usage: result.usage,
+                });
+
+                return { ok: true, data: result.data as Record<string, unknown> };
+            }
+        } catch (error) {
+            lastError = error;
+            logger.warn(`[AiService] Provider '${providerName}' failed, trying next candidate in chain`, {
+                failedProvider: providerName,
+                capability: capabilityKey,
+                error: error instanceof Error ? error.message : String(error),
             });
-
-            const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
-            
-            return { ok: true, data: result as Record<string, unknown> };
         }
-
-        if (type === 'generate') {
-            const prompt = generateListingPromptV1(context);
-            const schema = z.object({
-                title: z.string().max(MAX_AD_TITLE_CHARS),
-                description: z.string().max(MAX_AD_DESCRIPTION_CHARS)
-            });
-
-            const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
-            return { ok: true, data: result as Record<string, unknown> };
-        }
-
-        if (type === 'moderate') {
-            const prompt = moderateAdPromptV1(contextText);
-            const schema = z.object({
-                safe: z.boolean(),
-                reason: z.string().nullable()
-            });
-
-            const result = await provider.generateStructured(prompt, schema, { timeoutMs: AI_REQUEST_TIMEOUT_MS });
-            return { ok: true, data: result as Record<string, unknown> };
-        }
-
-        return toServiceFailure({ ok: false, status: 400, error: 'Invalid AI request type' });
-    } catch (error) {
-        logger.error('[AiService] executeAiRequest error', { error });
-        const serviceFailure = mapProviderError(error);
-        
-        if (serviceFailure.code === AiErrorCode.AI_QUOTA_EXHAUSTED) {
-            await setCache(AI_QUOTA_CACHE_KEY, '1', AI_QUOTA_COOLDOWN_SECONDS);
-        }
-        
-        return serviceFailure;
     }
+
+    logger.error('[AiService] All providers in fallback chain failed', { error: lastError, totalMs: Date.now() - t0 });
+    const serviceFailure = mapProviderError(lastError);
+
+    if (serviceFailure.code === AiErrorCode.AI_QUOTA_EXHAUSTED) {
+        await setCache(AI_QUOTA_CACHE_KEY, '1', AI_QUOTA_COOLDOWN_SECONDS);
+    }
+
+    return serviceFailure;
 };
 

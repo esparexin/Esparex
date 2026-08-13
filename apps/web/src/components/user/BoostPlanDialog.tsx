@@ -118,7 +118,7 @@ export function BoostPlanDialog({
                 <Zap className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-bold text-blue-900">⚡ Top Ad Currently Active</p>
-                  <p className="text-[11px] text-blue-700 mt-0.5">
+                  <p className="text-tiny text-blue-700 mt-0.5">
                     This listing has an active Top Ad promotion. Switch to the
                     Spotlight Ad tab above to upgrade this listing to Spotlight!
                   </p>
@@ -144,7 +144,7 @@ export function BoostPlanDialog({
                 <Sparkles className="h-3.5 w-3.5" />
                 Spotlight Ad
                 {spotlightCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500 text-white font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-amber-500 text-white font-extrabold">
                     {spotlightCredits}
                   </span>
                 )}
@@ -164,7 +164,7 @@ export function BoostPlanDialog({
                 <Zap className="h-3.5 w-3.5 fill-current" />
                 Top Ad
                 {topAdCredits > 0 && (
-                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-blue-600 text-white font-extrabold">
+                  <span className="ml-1 px-1.5 py-0.2 rounded-full text-tiny bg-blue-600 text-white font-extrabold">
                     {topAdCredits}
                   </span>
                 )}
@@ -194,7 +194,7 @@ export function BoostPlanDialog({
                 {availableCredits > 0 && boostPlans.length > 0 && (
                   <div className="relative flex items-center justify-center py-1">
                     <div className="w-full border-t border-slate-200" />
-                    <span className="absolute bg-white px-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    <span className="absolute bg-white px-2 text-tiny uppercase font-bold text-slate-400 tracking-wider">
                       or Purchase Additional Packs
                     </span>
                   </div>

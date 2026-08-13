@@ -13,7 +13,7 @@ import {
     CatalogSelectFilter,
     CatalogActiveToggleButton,
     CatalogActiveCheckboxField,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import {
     buildSpareCategoryDisplayRows,
     getEntityCategoryIds,

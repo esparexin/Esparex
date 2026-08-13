@@ -6,6 +6,22 @@ export const downloadInvoice = async (transactionId: string): Promise<void> => {
     window.open(invoiceUrl, "_blank", "noopener,noreferrer");
 };
 
+export const fetchInvoiceHtml = async (transactionId: string): Promise<string> => {
+    try {
+        const html = await apiClient.get<string>(`/payments/invoice/${transactionId}`, {
+            responseType: 'text',
+        });
+        return html;
+    } catch {
+        const invoiceUrl = `${resolveRuntimeApiBaseUrl()}/payments/invoice/${transactionId}`;
+        const response = await fetch(invoiceUrl, { credentials: 'include' });
+        if (!response.ok) {
+            throw new Error(`Failed to load invoice (${response.status})`);
+        }
+        return await response.text();
+    }
+};
+
 export const downloadInvoiceFile = async (transactionId: string): Promise<void> => {
     try {
         const blob = await apiClient.get<Blob>(`/payments/invoice/${transactionId}?download=true`, {

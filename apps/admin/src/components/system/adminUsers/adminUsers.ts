@@ -62,6 +62,7 @@ export const ROLE_COLORS: Record<string, string> = {
     superAdmin: "bg-purple-100 text-purple-700",
     [Role.ADMIN]: "bg-blue-100 text-blue-700",
     [Role.MODERATOR]: "bg-amber-100 text-amber-700",
+    business: "bg-amber-100 text-amber-700",
     user_manager: "bg-teal-100 text-teal-700",
     finance_manager: "bg-green-100 text-green-700",
     content_moderator: "bg-orange-100 text-orange-700",

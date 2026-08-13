@@ -64,7 +64,7 @@ export function WalletCreditCard({
       </div>
       <div className="text-right shrink-0">
         <p className="text-xs font-black text-emerald-700">FREE</p>
-        <p className="text-[10px] text-emerald-600 font-semibold">1 Credit</p>
+        <p className="text-tiny text-emerald-600 font-semibold">1 Credit</p>
         {isSelected && <CheckCircle2 className="h-4 w-4 text-emerald-600 ml-auto mt-0.5" />}
       </div>
     </div>

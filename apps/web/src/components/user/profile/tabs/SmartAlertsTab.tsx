@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { PageSection } from "@/components/layout";
 import { FeatureCard } from '@/components/user/FeatureCard';
 import { Button } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
@@ -80,37 +80,38 @@ export function SmartAlertsTab({
     return (
         <div className="space-y-4 w-full">
             {/* Header & Create Action */}
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border-blue-200/80 gap-0 rounded-3xl">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-200/80 rounded-2xl p-4 sm:p-5">
                 <FeatureCard
                     title="Smart Alerts"
                     description="Get instant notifications when new listings match your criteria"
                     Icon={Bell}
                 />
-                <CardContent className="pt-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-blue-100">
-                        <div className="flex items-center gap-3">
-                            <Badge className="bg-blue-600 text-white px-3 py-1 font-semibold">{activeAlerts} Active</Badge>
-                            <span className="text-xs text-slate-600 font-medium">{activeAlerts} alert{activeAlerts === 1 ? "" : "s"} currently running</span>
-                        </div>
-                        <Button
-                            onClick={handleOpenCreateModal}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm h-10 rounded-xl shadow-md gap-1.5 w-full sm:w-auto"
-                        >
-                            <Plus className="h-4 w-4" />
-                            Create Smart Alert
-                        </Button>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 mt-3 border-t border-blue-100">
+                    <div className="flex items-center gap-3">
+                        <Badge className="bg-blue-600 text-white px-3 py-1 font-semibold">{activeAlerts} Active</Badge>
+                        <span className="text-xs text-slate-600 font-medium">{activeAlerts} alert{activeAlerts === 1 ? "" : "s"} currently running</span>
                     </div>
-                </CardContent>
-            </Card>
+                    <Button
+                        onClick={handleOpenCreateModal}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm h-10 rounded-xl shadow-md gap-1.5 w-full sm:w-auto"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Create Smart Alert
+                    </Button>
+                </div>
+            </div>
 
             {/* Active Alerts List */}
-            <Card className="rounded-3xl gap-0 border-slate-200/80">
-                <CardContent className="p-4 sm:p-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-base font-bold text-slate-900">Your Active Alerts</h3>
-                        <span className="text-xs text-slate-500">{smartAlerts.length} total</span>
+            <PageSection
+                variant="bordered"
+                title={
+                    <div className="flex items-center justify-between w-full">
+                        <span className="text-base font-bold text-slate-900">Your Active Alerts</span>
+                        <span className="text-xs font-normal text-slate-500">{smartAlerts.length} total</span>
                     </div>
-
+                }
+            >
+                <div className="space-y-4 pt-1">
                     {smartAlerts.length === 0 ? (
                         <div className="text-center py-10 px-4 rounded-2xl bg-slate-50/80 border border-dashed border-slate-200">
                             <Bell className="h-8 w-8 text-slate-400 mx-auto mb-2 opacity-60" />
@@ -232,24 +233,22 @@ export function SmartAlertsTab({
                     )}
 
                     {/* Upgrade Banner */}
-                    <Card className="bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200/80 rounded-2xl">
-                        <CardContent className="p-4 flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-purple-600 flex items-center justify-center shrink-0 text-white shadow-sm">
-                                <Crown className="h-5 w-5" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="font-bold text-xs sm:text-sm text-slate-900">Want unlimited smart alerts?</h4>
-                                <p className="text-tiny text-slate-500">Upgrade to Premium to create unlimited alert slots.</p>
-                            </div>
-                            <Button
-                                size="sm"
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs h-9 rounded-xl shrink-0"
-                                onClick={() => setActiveTab("plans")}
-                            >
-                                Upgrade
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 rounded-2xl p-4 flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-purple-600 flex items-center justify-center shrink-0 text-white shadow-sm">
+                            <Crown className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-xs sm:text-sm text-slate-900">Want unlimited smart alerts?</h4>
+                            <p className="text-tiny text-slate-500">Upgrade to Premium to create unlimited alert slots.</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs h-9 rounded-xl shrink-0"
+                            onClick={() => setActiveTab("plans")}
+                        >
+                            Upgrade
+                        </Button>
+                    </div>
 
                     <Separator />
 
@@ -285,8 +284,8 @@ export function SmartAlertsTab({
                             </div>
                         )}
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </PageSection>
 
             {/* Dedicated Creation / Edit Modal */}
             <CreateSmartAlertDialog

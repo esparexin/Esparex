@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, MessageCircle, MessageSquareOff, Phone } from "@/icons/IconRegistry";
 import type { Ad } from "@/schemas/ad.schema";
@@ -70,70 +69,68 @@ export function AdSellerCard({
     };
 
     return (
-        <Card className="border border-border shadow-xs overflow-hidden rounded-2xl bg-card">
-            <CardContent className="p-4 md:p-6 space-y-4 md:space-y-5">
-                <SellerIdentityPanel
-                    href={sellerProfileHref}
-                    className={panelClassName}
-                    avatar={renderAvatar()}
-                    name={sellerDisplayName}
-                    subtitle={
-                        <p className="text-xs text-foreground-subtle font-medium">
-                            {ad.isBusiness ? "Verified Business Account" : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
-                        </p>
-                    }
-                    badge={ad.isBusiness && ad.verified ? (
-                        <Badge className="bg-blue-600 text-white text-2xs h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
-                    ) : undefined}
-                    trailing={undefined}
-                />
+        <div className="space-y-4 pb-4 border-b border-slate-200/80">
+            <SellerIdentityPanel
+                href={sellerProfileHref}
+                className={panelClassName}
+                avatar={renderAvatar()}
+                name={sellerDisplayName}
+                subtitle={
+                    <p className="text-xs text-foreground-subtle font-medium">
+                        {ad.isBusiness ? "Verified Business Account" : (ad.time ? `Member since ${ad.time}` : "Registered Member")}
+                    </p>
+                }
+                badge={ad.isBusiness && ad.verified ? (
+                    <Badge className="bg-blue-600 text-white text-2xs h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                ) : undefined}
+                trailing={undefined}
+            />
 
-                {showDesktopActions && (
-                    <div className="hidden md:block space-y-2.5">
-                        <div className={`grid gap-2 ${showInlineChat && showInlinePhone ? "grid-cols-2" : "grid-cols-1"}`}>
-                            {showInlinePhone && (
-                                <Button
-                                    onClick={onRevealPhone}
-                                    variant="outline"
-                                    disabled={isPhoneLoading}
-                                    aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                                    className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
-                                >
-                                    <Phone className="h-4 w-4" />
-                                    <span className="min-w-0 truncate">{phoneButtonLabel}</span>
-                                </Button>
-                            )}
-                            {showInlineChat && (
-                                <Button
-                                    onClick={onChat}
-                                    aria-label="Chat with seller"
-                                    className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
-                                >
-                                    <MessageCircle className="h-5 w-5" />
-                                    Chat
-                                </Button>
-                            )}
-                        </div>
-                        {phoneMessage && (
-                            <p className="px-1 text-xs leading-5 text-muted-foreground">
-                                {phoneMessage}
-                            </p>
+            {showDesktopActions && (
+                <div className="hidden md:block space-y-2.5">
+                    <div className={`grid gap-2 ${showInlineChat && showInlinePhone ? "grid-cols-2" : "grid-cols-1"}`}>
+                        {showInlinePhone && (
+                            <Button
+                                onClick={onRevealPhone}
+                                variant="outline"
+                                disabled={isPhoneLoading}
+                                aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
+                                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
+                            >
+                                <Phone className="h-4 w-4" />
+                                <span className="min-w-0 truncate">{phoneButtonLabel}</span>
+                            </Button>
+                        )}
+                        {showInlineChat && (
+                            <Button
+                                onClick={onChat}
+                                aria-label="Chat with seller"
+                                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
+                            >
+                                <MessageCircle className="h-5 w-5" />
+                                Chat
+                            </Button>
                         )}
                     </div>
-                )}
+                    {phoneMessage && (
+                        <p className="px-1 text-xs leading-5 text-muted-foreground">
+                            {phoneMessage}
+                        </p>
+                    )}
+                </div>
+            )}
 
-                {isChatLocked && (
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
-                            <MessageSquareOff className="h-4 w-4 text-foreground-subtle" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-bold text-foreground-tertiary">Chat Locked</p>
-                            <p className="text-2xs text-foreground-subtle mt-0.5">This listing is no longer accepting new messages.</p>
-                        </div>
+            {isChatLocked && (
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
+                        <MessageSquareOff className="h-4 w-4 text-foreground-subtle" />
                     </div>
-                )}
-            </CardContent>
-        </Card>
+                    <div>
+                        <p className="text-xs font-bold text-foreground-tertiary">Chat Locked</p>
+                        <p className="text-2xs text-foreground-subtle mt-0.5">This listing is no longer accepting new messages.</p>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }

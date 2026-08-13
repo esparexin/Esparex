@@ -11,7 +11,7 @@ export async function fetchAdminSidebarCounts(): Promise<SidebarCounters> {
     const [moderationSummary, reportPayload, businessOverviewPayload] = await Promise.all([
         fetchAdminModerationSummary().catch(() => null),
         adminFetch<unknown>(
-            `${ADMIN_ROUTES.REPORTED_ADS}?${new URLSearchParams({
+            `${ADMIN_ROUTES.REPORTS}?${new URLSearchParams({
                 status: "open",
                 page: "1",
                 limit: "1",

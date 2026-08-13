@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Eye, Pencil, Search, Trash2 } from "@esparex/ui";
+import { Eye, Pencil, Trash2 } from "@esparex/ui";
 import { DataTable, type ColumnDef } from "@/components/ui/DataTable";
 import { BusinessAdminModals } from "@/components/business/BusinessAdminModals";
 import type { BusinessAdminModalController } from "@/components/business/BusinessAdminModals";
@@ -91,14 +91,14 @@ export function BusinessActionButton({
     );
 }
 
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
+
 export function BusinessSearchToolbar({
     search,
     onSearchChange,
     placeholder,
     summary,
     extraFilters,
-    wrap = false,
-    searchClassName = "relative flex-1 max-w-sm",
 }: {
     search: string;
     onSearchChange: (value: string) => void;
@@ -109,22 +109,17 @@ export function BusinessSearchToolbar({
     searchClassName?: string;
 }) {
     return (
-        <div
-            className={`${wrap ? "flex flex-wrap" : "flex"} items-center gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm`}
-        >
-            <div className={searchClassName}>
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={16} />
-                <input
-                    type="text"
-                    placeholder={placeholder}
-                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    value={search}
-                    onChange={(event) => onSearchChange(event.target.value)}
-                />
-            </div>
-            {extraFilters}
-            <div className={`${wrap ? "ml-auto" : ""} text-xs text-foreground-subtle`}>{summary}</div>
-        </div>
+        <AdminFilterToolbar
+            search={search}
+            onSearchChange={onSearchChange}
+            searchPlaceholder={placeholder}
+            extraFilters={
+                <>
+                    {extraFilters}
+                    {summary ? <div className="ml-auto text-xs text-foreground-subtle font-medium">{summary}</div> : null}
+                </>
+            }
+        />
     );
 }
 

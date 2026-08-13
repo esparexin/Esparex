@@ -13,21 +13,73 @@ import logger from '../../utils/logger';
 import { getAdminBusinessAccountsData, transformBusinessDocs } from './helpers';
 
 export const getBusinessOverview = async () => {
-    const thirty = new Date(Date.now() + GOVERNANCE.BUSINESS.AUTO_EXPIRE_CHECK_DAYS * MS_IN_DAY);
-    const seven = new Date(); seven.setDate(seven.getDate() - 7);
-    const [live, pending, suspended, rejected, deleted, total, expiringSoon, expiringIn3Days, timeline, topCities] = await Promise.all([
-        Business.countDocuments({ status: BUSINESS_STATUS.LIVE }),
-        Business.countDocuments({ status: BUSINESS_STATUS.PENDING }),
-        Business.countDocuments({ status: BUSINESS_STATUS.SUSPENDED }),
-        Business.countDocuments({ status: BUSINESS_STATUS.REJECTED }),
-        Business.countDocuments({ isDeleted: true }).setOptions({ withDeleted: true }),
-        Business.countDocuments({}).setOptions({ withDeleted: true }),
-        Business.countDocuments({ status: publishedBusinessStatusQuery, expiresAt: { $lte: thirty, $gte: new Date() }, isDeleted: false }),
-        Business.countDocuments({ status: publishedBusinessStatusQuery, expiresAt: { $lte: new Date(Date.now() + 3 * MS_IN_DAY), $gte: new Date() }, isDeleted: false }),
-        Business.aggregate([{ $match: { createdAt: { $gte: seven }, isDeleted: { $ne: true } } }, { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } }, { $sort: { _id: 1 } }]),
-        Business.aggregate([{ $match: { isDeleted: { $ne: true }, 'location.city': { $exists: true, $ne: '' } } }, { $group: { _id: '$location.city', count: { $sum: 1 } } }, { $sort: { count: -1, _id: 1 } }, { $limit: 5 }, { $project: { _id: 0, city: '$_id', count: 1 } }]),
+    const now = new Date();
+    const thirtyDaysFromNow = new Date(Date.now() + GOVERNANCE.BUSINESS.AUTO_EXPIRE_CHECK_DAYS * MS_IN_DAY);
+    const threeDaysFromNow = new Date(Date.now() + 3 * MS_IN_DAY);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const [facetResults, timeline, topCities] = await Promise.all([
+        Business.aggregate([
+            {
+                $facet: {
+                    total: [{ $match: { isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    live: [{ $match: { status: BUSINESS_STATUS.LIVE, isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    pending: [{ $match: { status: BUSINESS_STATUS.PENDING, isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    suspended: [{ $match: { status: BUSINESS_STATUS.SUSPENDED, isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    rejected: [{ $match: { status: BUSINESS_STATUS.REJECTED, isDeleted: { $ne: true } } }, { $count: 'count' }],
+                    deleted: [{ $match: { isDeleted: true } }, { $count: 'count' }],
+                    expiringSoon: [
+                        {
+                            $match: {
+                                status: publishedBusinessStatusQuery,
+                                expiresAt: { $lte: thirtyDaysFromNow, $gte: now },
+                                isDeleted: { $ne: true }
+                            }
+                        },
+                        { $count: 'count' }
+                    ],
+                    expiringIn3Days: [
+                        {
+                            $match: {
+                                status: publishedBusinessStatusQuery,
+                                expiresAt: { $lte: threeDaysFromNow, $gte: now },
+                                isDeleted: { $ne: true }
+                            }
+                        },
+                        { $count: 'count' }
+                    ]
+                }
+            }
+        ]),
+        Business.aggregate([
+            { $match: { createdAt: { $gte: sevenDaysAgo }, isDeleted: { $ne: true } } },
+            { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } },
+            { $sort: { _id: 1 } }
+        ]),
+        Business.aggregate([
+            { $match: { isDeleted: { $ne: true }, 'location.city': { $exists: true, $ne: '' } } },
+            { $group: { _id: '$location.city', count: { $sum: 1 } } },
+            { $sort: { count: -1, _id: 1 } },
+            { $limit: 5 },
+            { $project: { _id: 0, city: '$_id', count: 1 } }
+        ])
     ]);
-    return { total, pending, live, suspended, rejected, deleted, expiringSoon, expiringIn3Days, analytics: { timeline, topCities } };
+
+    const res = facetResults[0] || {};
+    const extractCount = (arr?: Array<{ count: number }>) => arr?.[0]?.count ?? 0;
+
+    return {
+        total: extractCount(res.total),
+        pending: extractCount(res.pending),
+        live: extractCount(res.live),
+        suspended: extractCount(res.suspended),
+        rejected: extractCount(res.rejected),
+        deleted: extractCount(res.deleted),
+        expiringSoon: extractCount(res.expiringSoon),
+        expiringIn3Days: extractCount(res.expiringIn3Days),
+        analytics: { timeline, topCities }
+    };
 };
 
 export const getAdminBusinessAccounts = async (params: {
@@ -39,6 +91,7 @@ export const getAdminBusinessAccounts = async (params: {
     warningNotSent?: string;
     skip: number;
     limit: number;
+    includeDeleted?: string;
 }) => {
     const { adminQuery } = await getAdminBusinessAccountsData(params);
 
@@ -53,15 +106,17 @@ export const getAdminBusinessAccounts = async (params: {
         ];
     }
 
+    const shouldIncludeDeleted = params.status === BUSINESS_STATUS.DELETED || params.status === 'all' || params.includeDeleted === 'true';
+
     const [rawItems, total] = await Promise.all([
         Business.find(adminQuery)
             .skip(params.skip)
             .limit(params.limit)
             .sort({ createdAt: -1 })
             .populate('userId')
-            .setOptions({ withDeleted: true }),
+            .setOptions(shouldIncludeDeleted ? { withDeleted: true } : {}),
         Business.countDocuments(adminQuery)
-            .setOptions({ withDeleted: true }),
+            .setOptions(shouldIncludeDeleted ? { withDeleted: true } : {}),
     ]);
 
     const items = transformBusinessDocs(rawItems);

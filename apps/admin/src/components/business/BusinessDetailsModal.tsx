@@ -114,7 +114,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
         <Dialog open={Boolean(business)} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl p-0 flex flex-col" hideClose>
                 {/* Header */}
-                <div className="flex items-start justify-between gap-4 p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
+                <div className="flex items-start justify-between gap-4 p-6 border-b border-slate-100 bg-slate-50/50 shrink-0">
                     <div className="flex items-center gap-3 min-w-0">
                         <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                             <Building2 size={22} />
@@ -153,7 +153,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-5 md:p-8 custom-scrollbar space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar space-y-6">
                     {/* Basic Info Grid — single row, each card full-width on mobile */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
@@ -301,7 +301,7 @@ export function BusinessDetailsModal({ business, onClose, onApprove, onReject, o
                 </div>
 
                 {/* Footer Actions */}
-                <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-between gap-2">
+                <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-between gap-2">
                     <div className="flex items-center gap-2">
                         {onModify && (
                             <button

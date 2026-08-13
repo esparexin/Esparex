@@ -17,6 +17,7 @@ export * from "./atoms/Heading";
 export * from "./atoms/Text";
 export * from "./feedback/AlertDialog";
 export * from "./atoms/Button";
+export * from "./atoms/Separator";
 export * from "./forms/Checkbox";
 export * from "./feedback/Dialog";
 export * from "./feedback/Drawer";
@@ -35,7 +36,9 @@ export * from "./navigation/DropdownMenu";
 export * from "./navigation/Accordion";
 export * from "./data-display/Card";
 export * from "./data-display/Badge";
+export * from "./data-display/GoogleAdUnit";
 export * from "./feedback/Skeleton";
+export * from "./feedback/EmptyState";
 
 // UI Patterns
 export * from "./forms/Form";

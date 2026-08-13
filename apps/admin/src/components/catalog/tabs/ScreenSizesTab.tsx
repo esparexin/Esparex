@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Monitor, AlertTriangle, Loader2 } from "@esparex/ui";
+import { Monitor } from "@esparex/ui";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useAdminScreenSizes } from "@/hooks/useAdminScreenSizes";
 import { type ScreenSize } from "@/types/screenSize";
@@ -21,7 +20,7 @@ import {
     CatalogSelectFilter,
     CatalogTextInputField,
     CatalogSearchInput,
-} from "@/components/catalog/CatalogUiPrimitives";
+} from "@/components/catalog/primitives";
 import { toCategoryOptions } from "@/components/catalog/catalogDomainUtils";
 import type { ScreenSizeMutationPayload } from "@/lib/api/screenSizes";
 

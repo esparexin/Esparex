@@ -72,7 +72,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
           contentContainerStyle={styles.scrollContent}
         >
           {/* Account Profile Card */}
-          <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <Card className="p-4 mb-4">
             <View className="flex-row items-center justify-between mb-2">
               <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
                 Account Information
@@ -108,7 +108,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
           </Card>
 
           {/* Preferences */}
-          <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <Card className="p-4 mb-4">
             <AppText variant="h3" className="font-bold text-slate-900 dark:text-white mb-3">
               Notification Settings
             </AppText>
@@ -147,7 +147,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
           </Card>
 
           {/* Danger Zone / Logout */}
-          <Card className="p-4 mb-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <Card className="p-4 mb-4">
             <AppText variant="h3" className="font-bold text-red-500 mb-3">
               Account Actions
             </AppText>

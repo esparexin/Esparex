@@ -47,7 +47,7 @@ export default function AboutPage() {
                 <section>
                     <h2 className="text-xl font-bold text-foreground mb-4">Why the Community Chooses Esparex</h2>
                     <div className="space-y-4">
-                        <div className="flex items-start gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-100/60 border border-slate-200/60">
                             <div className="h-10 w-10 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span className="text-blue-600 font-bold text-lg">1</span>
                             </div>
@@ -56,7 +56,7 @@ export default function AboutPage() {
                                 <p className="text-sm text-muted-foreground leading-relaxed mt-1">We actively vet our business partners. Sellers with the &quot;Verified Business&quot; badge have submitted legitimate KYC, GST, or Shop Establishment Act documents, ensuring you receive authentic parts.</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-100/60 border border-slate-200/60">
                             <div className="h-10 w-10 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span className="text-blue-600 font-bold text-lg">2</span>
                             </div>
@@ -65,7 +65,7 @@ export default function AboutPage() {
                                 <p className="text-sm text-muted-foreground leading-relaxed mt-1">From rare IC chips and flex cables to fully refurbished iPhones and MacBooks, our strictly moderated catalog ensures finding exactly what you need without sifting through spam.</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-100/60 border border-slate-200/60">
                             <div className="h-10 w-10 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span className="text-blue-600 font-bold text-lg">3</span>
                             </div>
@@ -74,7 +74,7 @@ export default function AboutPage() {
                                 <p className="text-sm text-muted-foreground leading-relaxed mt-1">Don&apos;t want to repair it yourself? Use our Services portal to find highly-rated, local technicians who offer on-site repairs or shop walk-ins with transparent pricing.</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-4 p-5 rounded-xl bg-white border border-slate-200 shadow-sm">
+                        <div className="flex items-start gap-4 p-4 rounded-xl bg-slate-100/60 border border-slate-200/60">
                             <div className="h-10 w-10 shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
                                 <span className="text-blue-600 font-bold text-lg">4</span>
                             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('../../../../../bootstrap', () => ({
@@ -54,9 +54,16 @@ describe('ChatThreadScreen Component', () => {
 
   beforeEach(() => {
     queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      defaultOptions: {
+        queries: { retry: false, gcTime: 0 },
+        mutations: { retry: false, gcTime: 0 },
+      },
     });
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    queryClient.clear();
   });
 
   const renderScreen = (props = {}) =>
@@ -85,7 +92,7 @@ describe('ChatThreadScreen Component', () => {
     expect(getByText('Great, what is the best price?')).toBeTruthy();
   });
 
-  it('sends message when Send button is pressed', () => {
+  it('sends message when Send button is pressed', async () => {
     const mockMutate = jest.fn();
 
     mockUseChatThread.mockReturnValue({
@@ -103,11 +110,17 @@ describe('ChatThreadScreen Component', () => {
     const { getByPlaceholderText, getByLabelText } = renderScreen();
 
     fireEvent.changeText(getByPlaceholderText('Type a message...'), 'Can you deliver by Friday?');
-    fireEvent.press(getByLabelText('Send message'));
 
-    expect(mockMutate).toHaveBeenCalledWith(
-      { conversationId: 'conv-99', text: 'Can you deliver by Friday?' },
-      expect.any(Object)
-    );
+    await act(async () => {
+      fireEvent.press(getByLabelText('Send message'));
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    });
+
+    await waitFor(() => {
+      expect(mockMutate).toHaveBeenCalledWith(
+        { conversationId: 'conv-99', text: 'Can you deliver by Friday?' },
+        expect.any(Object)
+      );
+    });
   });
 });

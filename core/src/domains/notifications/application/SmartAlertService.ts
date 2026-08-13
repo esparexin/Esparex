@@ -363,16 +363,24 @@ export const expireSmartAlerts = async () => {
 };
 
 
-export const getAlertDeliveryLogs = async (skip: number, limit: number) => {
+export const getAlertDeliveryLogs = async (skip: number, limit: number, query?: string) => {
+    const filter: Record<string, unknown> = {};
+    if (query && query.trim().length > 0) {
+        const searchRegex = new RegExp(query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        filter.$or = [
+            { userId: searchRegex.test(query.trim()) && query.trim().length === 24 ? query.trim() : { $regex: searchRegex } },
+        ];
+    }
+
     const [logs, total] = await Promise.all([
-        AlertDeliveryLog.find({})
+        AlertDeliveryLog.find(filter)
             .sort({ deliveredAt: -1 })
             .skip(skip)
             .limit(limit)
             .populate('alertId', 'name criteria user')
             .populate('adId', 'title price location status')
             .lean(),
-        AlertDeliveryLog.countDocuments(),
+        AlertDeliveryLog.countDocuments(filter),
     ]);
     return { logs, total };
 };
@@ -433,48 +441,22 @@ export const adminBulkResendAlertWarnings = async (
                 { alertId: String(alert._id) }
             );
 
-            // Queue the save op — will be executed in a single bulkWrite below
             bulkOps.push({
                 updateOne: {
                     filter: { _id: alert._id },
-                    update: {
-                        $set: {
-                            expiryWarningSentAt: now,
-                            expiryWarningCount: ((alert.expiryWarningCount as number) || 0) + 1,
-                            lastExpiryWarningChannel: 'in-app',
-                        },
-                    },
+                    update: { $set: { expiryWarningSentAt: now, expiryWarningCount: ((alert.expiryWarningCount as number) || 0) + 1, lastExpiryWarningChannel: 'in-app' } },
                 },
             });
 
-            await logFn('expiry_warning_resent', 'SmartAlert', id, {
-                subType: 'SmartAlert',
-                adminId: actorId,
-            });
-
+            await logFn('expiry_warning_resent', 'SmartAlert', id, { subType: 'SmartAlert', adminId: actorId });
             results.push({ id, success: true });
         } catch (error) {
-            results.push({ 
-                id, 
-                success: false, 
-                message: error instanceof Error ? error.message : String(error),
-            });
+            results.push({ id, success: false, message: error instanceof Error ? error.message : String(error) });
         }
     }
 
-    // Single bulkWrite for all successful saves (was N×alert.save())
-    if (bulkOps.length > 0) {
-        await SmartAlert.bulkWrite(bulkOps);
-    }
-
-    return {
-        processedCount: ids.length,
-        successCount: results.filter(r => r.success).length,
-        errorCount: results.filter(r => !r.success).length,
-        results,
-    };
+    if (bulkOps.length > 0) await SmartAlert.bulkWrite(bulkOps);
+    return { processedCount: ids.length, successCount: results.filter(r => r.success).length, errorCount: results.filter(r => !r.success).length, results };
 };
 
-export const deleteSmartAlert = async (id: string) => {
-    return SmartAlert.findByIdAndDelete(id);
-};
+export const deleteSmartAlert = async (id: string) => SmartAlert.findByIdAndDelete(id);

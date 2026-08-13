@@ -21,6 +21,9 @@ import * as adminLocations from '../controllers/admin/adminLocationController';
 import * as adminSystemConfig from '../controllers/admin/systemConfigController';
 import * as adminImportContent from '../controllers/admin/content/import.content.controller';
 import * as adminSmartAlerts from '../controllers/admin/adminSmartAlertsController';
+import * as adminGoogleAds from '../controllers/admin/adminGoogleAdsController';
+import * as adminAiConfig from '../controllers/admin/adminAiConfigController';
+import * as adminMonetization from '../controllers/admin/adminMonetizationController';
 
 const router = express.Router();
 
@@ -42,7 +45,6 @@ router.get('/dashboard/stats', adminSystem.getDashboardStats);
 router.get('/analytics', adminSystem.getAnalytics);
 router.get('/analytics/revenue/summary', adminAnalytics.getRevenueSummary);
 router.get('/analytics/revenue/categories', adminAnalytics.getRevenueByCategory);
-router.get('/activity', adminSystem.getRecentActivity);
 router.get('/security/audit', requirePermission('system:logs'), adminAudit.getAuditLogs);
 
 // Users and sessions
@@ -148,6 +150,9 @@ router.get('/notifications/history', adminNotifications.getHistory);
 router.get('/notifications/recipients', adminNotifications.getRecipients);
 
 router.post('/ai/generate', adminAi.generate);
+router.get('/system/ai-config', requirePermission('system:config'), adminAiConfig.getAiConfig);
+router.patch('/system/ai-config', requirePermission('system:config'), adminAiConfig.updateAiConfig);
+router.post('/system/ai-config/test', requirePermission('system:config'), adminAiConfig.testAiProvider);
 
 router.get('/api-keys', adminApiKeys.getApiKeys);
 router.post('/api-keys', requirePermission('system:config'), adminApiKeys.createApiKey);
@@ -192,7 +197,19 @@ router.get('/smart-alerts/logs', adminSmartAlerts.getSmartAlertLogs);
 router.delete('/smart-alerts/:id', requirePermission('ads:write'), adminSmartAlerts.deleteSmartAlertById);
 router.post('/smart-alerts/bulk/resend-warnings', requirePermission('ads:write'), adminSmartAlerts.adminBulkResendAlertWarnings);
 
-// Add these to respective sections if needed, but I'll add them near their bulk operations
-// For clarity, I'll place them exactly where the other bulk operations are.
+// Google Ads
+router.get('/google-ads/placements', adminGoogleAds.getGoogleAdPlacements);
+router.post('/google-ads/placements', requirePermission('system:config'), adminGoogleAds.createAdPlacement);
+router.patch('/google-ads/placements/:id', requirePermission('system:config'), adminGoogleAds.updateAdPlacement);
+router.patch('/google-ads/placements/:id/status', requirePermission('system:config'), adminGoogleAds.mutateAdPlacementStatus);
+router.delete('/google-ads/placements/:id', requirePermission('system:config'), adminGoogleAds.removeAdPlacement);
+
+// Monetization & Advertising Campaign Management
+router.get('/monetization/campaigns', adminMonetization.getCampaigns);
+router.post('/monetization/campaigns', requirePermission('system:config'), adminMonetization.createCampaign);
+router.patch('/monetization/campaigns/:id', requirePermission('system:config'), adminMonetization.updateCampaign);
+router.delete('/monetization/campaigns/:id', requirePermission('system:config'), adminMonetization.deleteCampaign);
+router.get('/monetization/config', adminMonetization.getMonetizationConfig);
+router.patch('/monetization/config', requirePermission('system:config'), adminMonetization.updateMonetizationConfig);
 
 export default router;

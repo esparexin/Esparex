@@ -13,14 +13,11 @@ const ListingDetailDialogs = dynamic(
   () => import("./listing-detail/ListingDetailDialogs").then((mod) => mod.ListingDetailDialogs),
   { ssr: false }
 );
-const ListingRelatedBusinessesSection = dynamic(
-  () => import("./listing-detail/ListingRelatedBusinessesSection").then((mod) => mod.ListingRelatedBusinessesSection),
-  { ssr: false }
-);
 import type { Listing as Ad } from "@/lib/api/user/listings";
 import { AdImageCarousel } from "./listing-detail/AdImageCarousel";
 import { ListingDescriptionCard } from "./listing-detail/ListingDescriptionCard";
 import { AdPendingStatusCard } from "./listing-detail/AdPendingStatusCard";
+import { AdPlacementSlot } from "@/components/common/AdPlacementSlot";
 
 import { canUserPerformAction } from "../../lib/logic/ownership";
 import { getActionBarVariant } from "../../lib/logic/bottomBarActions";
@@ -195,11 +192,12 @@ export function ListingDetail({
             ]}
           />
 
-          <div className="bg-gray-50 pb-6">
-            <div className="w-full md:px-6 lg:px-8 md:py-6">
-              <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 md:gap-6">
-                  <div className="lg:col-span-2 space-y-0 md:space-y-4">
+          <div className="bg-white pb-8">
+            <div className="w-full px-3 md:px-6 lg:px-8 md:py-6">
+              <div className="max-w-6xl mx-auto">
+                <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-10 items-start">
+                  {/* Left Column: Gallery, Description & Ad Placement stacked */}
+                  <div className="lg:col-span-7 xl:col-span-8 w-full flex flex-col gap-6">
                     <AdImageCarousel
                       images={images}
                       title={ad.title}
@@ -213,34 +211,33 @@ export function ListingDetail({
 
                     <ListingDescriptionCard ad={ad} />
 
-                    {!isOwner && (
-                      <ListingRelatedBusinessesSection
-                        ad={ad}
-                        navigateTo={navigateTo}
-                      />
-                    )}
+                    {/* API-driven ad placement — resolves from MonetizationService */}
+                    <AdPlacementSlot placement="listing_detail_below_description" />
                   </div>
 
-                  <ListingDetailSidebar
-                    ad={ad}
-                    categoryLabel={categoryLabel}
-                    viewCount={viewCount}
-                    navigateTo={navigateTo}
-                    sellerDisplayName={sellerDisplayName}
-                    isOwner={isOwner}
-                    adStatus={adStatus}
-                    onChat={handleChatWithSeller}
-                    onRevealPhone={handleRevealPhone}
-                    isPhoneLoading={isPhoneLoading}
-                    revealedPhone={revealedPhone}
-                    phoneMessage={phoneMessage}
-                    onEdit={handleEdit}
-                    onDelete={handleDeleteClick}
-                    onMarkSold={handleMarkSoldClick}
-                    onPromote={handlePromote}
-                    onViewAnalytics={handleViewAnalytics}
-                    onReport={handleReport}
-                  />
+                  {/* Right Column: Title, Price, Seller, Safety Tips, Actions (Sticky) */}
+                  <div className="lg:col-span-5 xl:col-span-4 w-full lg:sticky lg:top-4 self-start">
+                    <ListingDetailSidebar
+                      ad={ad}
+                      categoryLabel={categoryLabel}
+                      viewCount={viewCount}
+                      navigateTo={navigateTo}
+                      sellerDisplayName={sellerDisplayName}
+                      isOwner={isOwner}
+                      adStatus={adStatus}
+                      onChat={handleChatWithSeller}
+                      onRevealPhone={handleRevealPhone}
+                      isPhoneLoading={isPhoneLoading}
+                      revealedPhone={revealedPhone}
+                      phoneMessage={phoneMessage}
+                      onEdit={handleEdit}
+                      onDelete={handleDeleteClick}
+                      onMarkSold={handleMarkSoldClick}
+                      onPromote={handlePromote}
+                      onViewAnalytics={handleViewAnalytics}
+                      onReport={handleReport}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

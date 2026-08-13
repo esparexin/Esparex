@@ -18,9 +18,11 @@ const isJestRuntime = typeof process.env.JEST_WORKER_ID !== 'undefined';
 const shouldSilenceForTests = isTest || isJestRuntime;
 
 const maskPII = winston.format((info) => {
-    if (process.env.NODE_ENV !== 'production') return info;
-
-    const piiFields = ['email', 'phone', 'phonenumber', 'mobile', 'password', 'token'];
+    const piiFields = [
+        'email', 'phone', 'phonenumber', 'mobile',
+        'password', 'token', 'authorization', 'secret',
+        'creditcard', 'cardnumber', 'cvv', 'otp', 'passcode'
+    ];
 
     const mask = (obj: Record<string, unknown>, seen = new WeakSet<Record<string, unknown>>()): void => {
         if (!obj || typeof obj !== 'object' || seen.has(obj)) return;

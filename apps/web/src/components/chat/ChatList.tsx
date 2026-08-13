@@ -192,7 +192,9 @@ export function ChatList({
       <div className="chat-list__search-wrap">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="chat-list__search-icon"
+          className="chat-list__search-icon w-4 h-4 shrink-0"
+          width={16}
+          height={16}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -287,17 +289,17 @@ export function ChatList({
           </button>
         </div>
       ) : filteredConversations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-8 text-center bg-white min-h-[360px]">
+        <div className="flex flex-col items-center justify-center p-8 text-center bg-background min-h-[360px]">
           {/* Sparkle Chat Bubble Graphic */}
           <div className="relative mb-3 flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50/80 text-3xl">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-3xl">
               💬
             </div>
-            <span className="absolute -top-1 -right-1 text-sky-400 text-sm">✨</span>
-            <span className="absolute -bottom-1 -left-1 text-sky-300 text-xs">✨</span>
+            <span className="absolute -top-1 -right-1 text-primary text-sm">✨</span>
+            <span className="absolute -bottom-1 -left-1 text-primary/70 text-xs">✨</span>
           </div>
 
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-foreground">
             {searchQuery
               ? `No conversations match "${searchQuery}"`
               : activeTab === 'unread'
@@ -306,7 +308,7 @@ export function ChatList({
                   ? 'No archived conversations'
                   : 'No conversations yet'}
           </h3>
-          <p className="mt-1 text-xs text-slate-500 max-w-xs leading-relaxed">
+          <p className="mt-1 text-xs text-foreground-subtle max-w-xs leading-relaxed">
             {searchQuery
               ? 'Try searching with another keyword'
               : 'Messages with buyers and sellers will appear here'}
@@ -315,7 +317,7 @@ export function ChatList({
           {!searchQuery && activeTab === 'active' && (
             <Link
               href="/browse"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-white px-4 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary bg-background px-4 py-2 text-xs font-semibold text-primary hover:bg-muted transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
             >
               <span>💬</span>
               <span>Browse Listings</span>

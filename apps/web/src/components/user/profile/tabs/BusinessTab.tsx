@@ -1,5 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@esparex/ui";
+import { PageSection } from "@/components/layout";
 import {
     Building2,
     CheckCircle2,
@@ -157,50 +158,44 @@ export function BusinessTab({
                     </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-2 gap-3">
-                    <Card className="rounded-2xl">
-                        <CardContent className="p-4">
-                            <p className="text-sm text-muted-foreground">Total Services</p>
-                            <p className="mt-1 text-2xl font-bold text-foreground">{businessStats?.totalServices ?? 0}</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="rounded-2xl">
-                        <CardContent className="p-4">
-                            <p className="text-sm text-muted-foreground">Approved</p>
-                            <p className="mt-1 text-2xl font-bold text-emerald-600">{businessStats?.approvedServices ?? 0}</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="rounded-2xl">
-                        <CardContent className="p-4">
-                            <p className="text-sm text-muted-foreground">Pending</p>
-                            <p className="mt-1 text-2xl font-bold text-amber-600">{businessStats?.pendingServices ?? 0}</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="rounded-2xl">
-                        <CardContent className="p-4">
-                            <p className="text-sm text-muted-foreground">Profile Views</p>
-                            <p className="mt-1 text-2xl font-bold text-link">{businessStats?.views ?? 0}</p>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-3.5">
+                        <p className="text-2xs uppercase font-bold text-slate-500 tracking-wider">Total Services</p>
+                        <p className="mt-1 text-xl sm:text-2xl font-black text-slate-900">{businessStats?.totalServices ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-3.5">
+                        <p className="text-2xs uppercase font-bold text-slate-500 tracking-wider">Approved</p>
+                        <p className="mt-1 text-xl sm:text-2xl font-black text-emerald-600">{businessStats?.approvedServices ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-3.5">
+                        <p className="text-2xs uppercase font-bold text-slate-500 tracking-wider">Pending</p>
+                        <p className="mt-1 text-xl sm:text-2xl font-black text-amber-600">{businessStats?.pendingServices ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/80 p-3.5">
+                        <p className="text-2xs uppercase font-bold text-slate-500 tracking-wider">Profile Views</p>
+                        <p className="mt-1 text-xl sm:text-2xl font-black text-blue-600">{businessStats?.views ?? 0}</p>
+                    </div>
                 </div>
 
-                <Card className="rounded-3xl gap-0">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base">
-                            <Wrench className="h-5 w-5 text-link" />
-                            Business services
-                        </CardTitle>
-                        <CardDescription>Post new service listings or manage the ones already attached to your business.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-3 sm:flex-row">
+                <PageSection
+                    variant="bordered"
+                    title={
+                        <div className="flex items-center gap-2 text-base font-bold text-slate-900">
+                            <Wrench className="h-5 w-5 text-blue-600" />
+                            <span>Business services</span>
+                        </div>
+                    }
+                    subtitle="Post new service listings or manage the ones already attached to your business."
+                >
+                    <div className="flex flex-col gap-3 sm:flex-row pt-2">
                         <Button onClick={() => navigateTo("post-service")} className="h-11 rounded-xl bg-blue-600 px-5 font-semibold hover:bg-blue-700">
                             Post Service
                         </Button>
                         <Button onClick={() => navigateTo("my-services")} variant="outline" className="h-11 rounded-xl px-5 font-semibold">
                             Manage Services & Parts
                         </Button>
-                    </CardContent>
-                </Card>
+                    </div>
+                </PageSection>
             </>
         );
     }
@@ -215,16 +210,17 @@ export function BusinessTab({
                 />
 
                 {(status === "deactivated" || status === "expired") && (
-                    <Card className="rounded-3xl border-dashed border-2">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Resume Business Operations</CardTitle>
-                            <CardDescription>
-                                {status === "deactivated" 
-                                    ? "Your business is currently hidden. Reactivate it to start showing your listings again."
-                                    : "Your business subscription has expired. Renew it to continue using premium features."}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex gap-3">
+                    <PageSection
+                        variant="bordered"
+                        className="border-dashed border-2"
+                        title="Resume Business Operations"
+                        subtitle={
+                            status === "deactivated" 
+                                ? "Your business is currently hidden. Reactivate it to start showing your listings again."
+                                : "Your business subscription has expired. Renew it to continue using premium features."
+                        }
+                    >
+                        <div className="flex gap-3 pt-2">
                             {status === "deactivated" && onReactivate && (
                                 <Button onClick={onReactivate} className="h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700">
                                     <Power className="mr-2 h-4 w-4" />
@@ -237,8 +233,8 @@ export function BusinessTab({
                                     Renew Subscription
                                 </Button>
                             )}
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </PageSection>
                 )}
             </div>
         );

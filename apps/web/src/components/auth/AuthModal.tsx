@@ -25,7 +25,7 @@ export function AuthModal({ open, onOpenChange, callbackUrl }: AuthModalProps) {
         className={cn(
           // Responsive Centered Dialog Card (Mobile & Desktop):
           // Fits within viewport bounds with backdrop blur, rounded corners, and shadow
-          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] sm:w-full max-w-[390px] h-auto max-h-[calc(100dvh-2rem)] border border-slate-200/80 rounded-2xl sm:rounded-3xl bg-white shadow-xl p-5 sm:p-6 overflow-y-auto outline-none flex flex-col justify-center",
+          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] sm:w-full max-w-sm h-auto max-h-[calc(100dvh-2rem)] border border-border rounded-2xl sm:rounded-3xl bg-background shadow-xl p-5 sm:p-6 overflow-y-auto outline-none flex flex-col justify-center",
           // Smooth zoom & fade animations:
           "duration-200",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
