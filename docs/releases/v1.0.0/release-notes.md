@@ -24,6 +24,7 @@
 | **Marketplace Experience** | Search & Keyword Matching | ✅ Beta Ready | `@esparex/core` AdQueryService |
 | **Marketplace Experience** | Buyer-Seller Real-Time Chat & Thread Controls | ✅ Beta Ready | `@esparex/core`, `backend/api`, `apps/web`, `apps/mobile` |
 | **Marketplace Experience** | Buyer-Seller Chat Accessibility & Design Token Remediation | ✅ Beta Ready | `apps/web`, `apps/mobile` |
+| **Marketplace Experience** | Real-Time Notifications & Push Engine Remediation | ✅ Beta Ready | `apps/web`, `apps/mobile` |
 | **Finance & Payments** | FEFO Entitlements, Payments & Invoice Engine | ✅ Beta Ready | `@esparex/core`, `backend/api` |
 | **Location & Discovery** | India Geo-Taxonomy, Radius Search & IP Auto-Location | ✅ Beta Ready | `@esparex/core`, `apps/web`, `apps/mobile` |
 | **Admin Governance** | Select, Multi-Select & Checkbox Indeterminate Remediation | ✅ Beta Ready | `packages/ui`, `apps/admin` |
