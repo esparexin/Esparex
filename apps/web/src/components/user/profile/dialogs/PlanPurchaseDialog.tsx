@@ -21,8 +21,7 @@ import { PlanCheckoutGstSection } from "./PlanCheckoutGstSection";
 import { notify } from "@/lib/feedback";
 import logger from "@/lib/logger";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
-import { computeInvoiceTax } from "@esparex/core";
-import { GSTIN_REGEX } from "@esparex/contracts";
+import { computeInvoiceTax, GSTIN_REGEX } from "@esparex/contracts";
 
 type PlanPurchaseItem = {
     id: string;
