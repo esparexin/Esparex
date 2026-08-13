@@ -59,6 +59,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
         defaultValues: {
             name: user?.name || "",
             email: user?.email || "",
+            gstin: user?.gstin || "",
             mobileVisibility: (user?.mobileVisibility as 'show' | 'hide' | 'on_request') || MOBILE_VISIBILITY.SHOW,
         },
     });
@@ -69,7 +70,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
         const submitData = new FormData();
         submitData.append("name", data.name);
-        submitData.append("email", data.email);
+        submitData.append("email", data.email || "");
+        if (data.gstin) {
+            submitData.append("gstin", data.gstin);
+        }
         submitData.append("mobileVisibility", data.mobileVisibility);
 
         if (selectedPhotoFile) {
@@ -137,22 +141,23 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
     const nameError = form.formState.errors.name?.message;
     const emailError = form.formState.errors.email?.message;
+    const gstinError = form.formState.errors.gstin?.message;
 
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full space-y-3.5">
             {/* Profile Photo Section */}
             <div className="flex items-center gap-3.5">
                 <div
-                    className="relative cursor-pointer group shrink-0"
+                    className="relative cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full"
                     onClick={() => setShowPhotoDialog(true)}
-                    role="button"
-                    tabIndex={0}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
                             setShowPhotoDialog(true);
                         }
                     }}
+                    role="button"
+                    tabIndex={0}
                     aria-label="Change profile photo"
                 >
                     <div className="h-14 w-14 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center relative shadow-2xs">
@@ -201,11 +206,13 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                 <FormError id="profile-name-error" message={nameError} />
             </div>
 
-            {/* Email Field */}
+            {/* Notification & Invoice Email Field */}
             <div className="space-y-1.5">
-                <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
-                    Email
-                </Label>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
+                        Notification & Invoice Email <span className="text-slate-400 font-normal">(Optional)</span>
+                    </Label>
+                </div>
                 <Input
                     id="profile-email"
                     type="email"
@@ -213,10 +220,36 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                     {...form.register("email")}
                     className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${emailError ? "border-red-500" : ""}`}
                     aria-invalid={!!emailError}
-                    aria-describedby={emailError ? "profile-email-error" : undefined}
+                    aria-describedby={emailError ? "profile-email-error" : "profile-email-helper"}
                     autoComplete="email"
                 />
+                <p id="profile-email-helper" className="text-tiny text-slate-500">
+                    Used strictly to send PDF invoices and ad status updates.
+                </p>
                 <FormError id="profile-email-error" message={emailError} />
+            </div>
+
+            {/* GSTIN Field */}
+            <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="profile-gstin" className="text-xs font-semibold text-slate-700">
+                        GSTIN Number <span className="text-slate-400 font-normal">(Optional)</span>
+                    </Label>
+                </div>
+                <Input
+                    id="profile-gstin"
+                    type="text"
+                    placeholder="e.g. 27AAAAA0000A1Z5"
+                    maxLength={15}
+                    {...form.register("gstin")}
+                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium uppercase ${gstinError ? "border-red-500" : ""}`}
+                    aria-invalid={!!gstinError}
+                    aria-describedby={gstinError ? "profile-gstin-error" : "profile-gstin-helper"}
+                />
+                <p id="profile-gstin-helper" className="text-tiny text-slate-500">
+                    Enter your 15-character GSTIN to claim 18% Input Tax Credit (ITC) on B2B invoices.
+                </p>
+                <FormError id="profile-gstin-error" message={gstinError} />
             </div>
 
             {/* Mobile Number Read-Only Display */}
