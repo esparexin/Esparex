@@ -12,18 +12,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
-import {
-  getChatSocket,
-  emitChatTyping,
-  queryPresenceStatus,
-  type IChatMessageEvent,
-  type IChatReadEvent,
-  type IChatTypingEvent,
-} from '@/lib/chatSocket';
+import { useChatSocketEngine, withDeliveryStatus } from './useChatSocketEngine';
+import { useChatPollingEngine } from './useChatPollingEngine';
 import type { IMessageDTO } from "@esparex/contracts";
-
-const POLL_ACTIVE_MS = 4000;
-const POLL_FALLBACK_MS = 30000;
 
 interface UseChatOptions {
   conversationId: string;
@@ -57,15 +48,6 @@ export function shouldMarkConversationRead(
   return messages.some((message) => message.senderId !== currentUserId && !message.readAt);
 }
 
-function withDeliveryStatus(msg: IMessageDTO, currentUserId: string): IMessageDTO {
-  if (msg.deliveryStatus) return msg;
-  if (msg.senderId !== currentUserId) return msg;
-  return {
-    ...msg,
-    deliveryStatus: msg.readAt ? 'read' : 'sent',
-  };
-}
-
 export function useChat({
   conversationId,
   currentUserId,
@@ -79,19 +61,30 @@ export function useChat({
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [oldestCursor, setOldestCursor] = useState<string | undefined>(undefined);
-  const [isOtherTyping, setIsOtherTyping] = useState(false);
-  const [isCounterpartyOnline, setIsCounterpartyOnline] = useState(false);
-  const [socketConnected, setSocketConnected] = useState(false);
 
   const latestCreatedAtRef = useRef<string | undefined>(undefined);
   const onConversationStateChangeRef = useRef(onConversationStateChange);
-  const pollerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pollCountRef = useRef(0);
-  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     onConversationStateChangeRef.current = onConversationStateChange;
   }, [onConversationStateChange]);
+
+  const { socketConnected, isOtherTyping, isCounterpartyOnline, sendTyping } = useChatSocketEngine({
+    conversationId,
+    currentUserId,
+    counterpartyUserId,
+    setMessages,
+    latestCreatedAtRef,
+  });
+
+  useChatPollingEngine({
+    conversationId,
+    currentUserId,
+    socketConnected,
+    latestCreatedAtRef,
+    onConversationStateChangeRef,
+    setMessages,
+  });
 
   /* Initial load */
   const loadInitial = useCallback(async () => {
@@ -117,48 +110,6 @@ export function useChat({
       setError('Failed to load messages');
     } finally {
       setIsLoading(false);
-    }
-  }, [conversationId, currentUserId]);
-
-  /* Polling — incremental fetch */
-  const poll = useCallback(async () => {
-    if (document.visibilityState === 'hidden') return;
-    const since = latestCreatedAtRef.current;
-    if (!since) return;
-    pollCountRef.current += 1;
-
-    const handleConversationStateChange = onConversationStateChangeRef.current;
-    if (pollCountRef.current % 10 === 0 && handleConversationStateChange) {
-      try {
-        const metaRes = await chatApi.conversation(conversationId);
-        const meta = metaRes.data;
-        if (meta && (meta.isAdClosed || meta.isBlocked)) {
-          handleConversationStateChange({
-            isAdClosed: meta.isAdClosed,
-            isBlocked: meta.isBlocked,
-          });
-        }
-      } catch { /* meta check failure is non-critical */ }
-    }
-
-    try {
-      const res = await chatApi.poll(conversationId, since);
-      const rawMsgs = res.data ?? [];
-      const newMsgs = rawMsgs.map((m) => withDeliveryStatus(m, currentUserId));
-      if (newMsgs.length > 0) {
-        setMessages((prev) => {
-          const existingIds = new Set(prev.map((m) => m.id));
-          const uniqueNew = newMsgs.filter((m) => !existingIds.has(m.id));
-          return uniqueNew.length > 0 ? [...prev, ...uniqueNew] : prev;
-        });
-        latestCreatedAtRef.current = newMsgs[newMsgs.length - 1]?.createdAt;
-        if (shouldMarkConversationRead(newMsgs, currentUserId)) {
-          await chatApi.markRead(conversationId).catch(() => {});
-          dispatchChatInboxUpdated();
-        }
-      }
-    } catch {
-      // Silently ignore poll failures
     }
   }, [conversationId, currentUserId]);
 
@@ -211,7 +162,6 @@ export function useChat({
           : undefined,
       };
 
-      // Instantly render optimistic bubble in chat stream
       setMessages((prev) => [...prev, optimisticMsg]);
       setIsSending(true);
       setError(null);
@@ -249,7 +199,6 @@ export function useChat({
           deliveryStatus: res.message.readAt ? 'read' : 'sent',
         };
 
-        // Replace optimistic message with confirmed server message
         setMessages((prev) =>
           prev.map((m) => (m.id === tempId || m.tempId === tempId ? confirmed : m))
         );
@@ -261,7 +210,6 @@ export function useChat({
           ? err.message
           : 'Failed to send message';
 
-        // Mark optimistic message as failed
         setMessages((prev) =>
           prev.map((m) =>
             m.id === tempId || m.tempId === tempId
@@ -284,7 +232,6 @@ export function useChat({
       const failedMsg = messages.find((m) => m.id === tempId || m.tempId === tempId);
       if (!failedMsg || failedMsg.deliveryStatus !== 'failed') return false;
 
-      // Reset to sending status
       setMessages((prev) =>
         prev.map((m) =>
           m.id === tempId || m.tempId === tempId
@@ -324,106 +271,11 @@ export function useChat({
     [conversationId, messages]
   );
 
-  /* Send typing status over socket */
-  const sendTyping = useCallback((receiverId: string, isTyping: boolean) => {
-    if (!receiverId || !conversationId) return;
-    emitChatTyping(conversationId, receiverId, isTyping);
-  }, [conversationId]);
-
   /* Initial load */
   useEffect(() => {
-    pollCountRef.current = 0;
     latestCreatedAtRef.current = undefined;
     void (async () => { await loadInitial(); })();
   }, [loadInitial]);
-
-  /* Socket.IO Event Engine */
-  useEffect(() => {
-    const socket = getChatSocket();
-    if (!socket) return undefined;
-
-    const handleConnect = () => setSocketConnected(true);
-    const handleDisconnect = () => setSocketConnected(false);
-
-    if (socket.connected) setSocketConnected(true);
-    socket.on('connect', handleConnect);
-    socket.on('disconnect', handleDisconnect);
-
-    const handleChatMessage = (data: IChatMessageEvent) => {
-      if (data.conversationId !== conversationId || !data.message) return;
-      const incomingMsg = withDeliveryStatus(data.message, currentUserId);
-      setMessages((prev) => {
-        const exists = prev.some((m) => m.id === incomingMsg.id);
-        if (exists) {
-          return prev.map((m) => (m.id === incomingMsg.id ? incomingMsg : m));
-        }
-        return [...prev, incomingMsg];
-      });
-      latestCreatedAtRef.current = incomingMsg.createdAt;
-      if (incomingMsg.senderId !== currentUserId) {
-        setIsOtherTyping(false);
-        void chatApi.markRead(conversationId).catch(() => {});
-        dispatchChatInboxUpdated();
-      }
-    };
-
-    const handleChatRead = (data: IChatReadEvent) => {
-      if (data.conversationId !== conversationId) return;
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.senderId === currentUserId
-            ? { ...msg, readAt: data.readAt, deliveryStatus: 'read' }
-            : msg
-        )
-      );
-    };
-
-    const handleChatTyping = (data: IChatTypingEvent) => {
-      if (data.conversationId !== conversationId || data.senderId === currentUserId) return;
-      setIsOtherTyping(Boolean(data.isTyping));
-
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-      if (data.isTyping) {
-        typingTimerRef.current = setTimeout(() => {
-          setIsOtherTyping(false);
-        }, 3500);
-      }
-    };
-
-    socket.on('chat:message', handleChatMessage);
-    socket.on('chat:read', handleChatRead);
-    socket.on('chat:typing', handleChatTyping);
-
-    // Initial presence query for counterparty
-    if (counterpartyUserId) {
-      queryPresenceStatus(counterpartyUserId, (res) => {
-        if (res.userId === counterpartyUserId) {
-          setIsCounterpartyOnline(res.isOnline);
-        }
-      });
-    }
-
-    return () => {
-      socket.off('connect', handleConnect);
-      socket.off('disconnect', handleDisconnect);
-      socket.off('chat:message', handleChatMessage);
-      socket.off('chat:read', handleChatRead);
-      socket.off('chat:typing', handleChatTyping);
-      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-    };
-  }, [conversationId, currentUserId, counterpartyUserId]);
-
-  /* Polling lifecycle — 4s when disconnected, 30s background sync when connected */
-  useEffect(() => {
-    const intervalMs = socketConnected ? POLL_FALLBACK_MS : POLL_ACTIVE_MS;
-    pollerRef.current = setInterval(poll, intervalMs);
-    return () => {
-      if (pollerRef.current) {
-        clearInterval(pollerRef.current);
-        pollerRef.current = null;
-      }
-    };
-  }, [poll, socketConnected]);
 
   return {
     messages,
