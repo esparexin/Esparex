@@ -153,7 +153,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
               }`}
               accessibilityLabel="Send message"
             >
-              <AppIcon name="Send" size={18} color={inputText.trim() ? '#ffffff' : base.slate[400]} />
+              <AppIcon name="Send" size={18} color={inputText.trim() ? base.white : base.slate[400]} />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

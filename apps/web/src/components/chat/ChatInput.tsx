@@ -145,7 +145,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           </div>
           <button
             type="button"
-            className="text-slate-400 hover:text-slate-600 font-bold px-1"
+            className="text-slate-400 hover:text-slate-600 font-bold px-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
             onClick={() => setSelectedFile(null)}
             aria-label="Remove attached file"
           >
@@ -156,7 +156,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
 
       {/* Error Announcement */}
       {fileError && (
-        <p className="text-xs font-medium text-red-600 px-1" role="alert">
+        <p className="text-xs font-medium text-red-600 px-1" role="alert" aria-live="polite">
           {fileError}
         </p>
       )}
@@ -169,9 +169,11 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
           aria-valuenow={uploadProgress}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-valuetext={`${uploadProgress}% uploaded`}
+          aria-live="polite"
           aria-label="Attachment upload progress"
         >
-          <div className="bg-sky-600 h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+          <div className="bg-primary h-full transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
         </div>
       )}
 
@@ -186,7 +188,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
         />
         <button
           type="button"
-          className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+          className="p-2 text-slate-400 hover:text-slate-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
           onClick={() => fileInputRef.current?.click()}
           aria-label="Attach file"
           disabled={isSending}
