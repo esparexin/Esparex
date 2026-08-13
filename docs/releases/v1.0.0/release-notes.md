@@ -26,6 +26,7 @@
 | **Marketplace Experience** | Buyer-Seller Chat Accessibility & Design Token Remediation | ✅ Beta Ready | `apps/web`, `apps/mobile` |
 | **Marketplace Experience** | Real-Time Notifications & Push Engine Remediation | ✅ Beta Ready | `apps/web`, `apps/mobile` |
 | **Finance & Payments** | FEFO Entitlements, Payments & Invoice Engine | ✅ Beta Ready | `@esparex/core`, `backend/api` |
+| **Finance & Payments** | Optional GST & Unconfigured Email System Handling | ✅ Beta Ready | `@esparex/contracts`, `@esparex/core`, `backend/api`, `apps/web` |
 | **Location & Discovery** | India Geo-Taxonomy, Radius Search & IP Auto-Location | ✅ Beta Ready | `@esparex/core`, `apps/web`, `apps/mobile` |
 | **Location & Discovery** | Search & Filter Aggregation Pipeline Remediation | ✅ Beta Ready | `@esparex/core`, `apps/web` |
 | **Admin Governance** | Select, Multi-Select & Checkbox Indeterminate Remediation | ✅ Beta Ready | `packages/ui`, `apps/admin` |
