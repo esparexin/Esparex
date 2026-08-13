@@ -118,9 +118,10 @@ describe('ChatThreadScreen Component', () => {
 
     await waitFor(() => {
       expect(mockMutate).toHaveBeenCalledWith(
-        { conversationId: 'conv-99', text: 'Can you deliver by Friday?' },
+        expect.objectContaining({ conversationId: 'conv-99', text: 'Can you deliver by Friday?' }),
         expect.any(Object)
       );
     });
+
   });
 });

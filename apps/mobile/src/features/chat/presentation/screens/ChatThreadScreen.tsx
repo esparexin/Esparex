@@ -5,7 +5,8 @@ import { base } from '@esparex/design-tokens';
 import { useChatThread } from '../hooks/useChatThread';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { useProfile } from '../../../user/presentation/hooks/useProfile';
-import { IMessageDTO } from '@esparex/contracts';
+import { MobileChatMessageReceipt } from '../components/MobileChatMessageReceipt';
+import type { IMessageDTO } from '@esparex/contracts';
 import { ErrorState } from '../../../common/components/ErrorState';
 
 interface ChatThreadScreenProps {
@@ -21,7 +22,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
 }) => {
   const { data: userProfile } = useProfile();
   const activeUserId = currentUserIdProp || userProfile?.id || '';
-  const { data: messages, isLoading, isError, refetch } = useChatThread(conversationId);
+  const { data: messages, isError, refetch } = useChatThread(conversationId);
   const sendMessageMutation = useSendMessage();
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
@@ -30,16 +31,30 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
     const trimmed = inputText.trim();
     if (!trimmed || sendMessageMutation.isPending) return;
 
+    const currentText = trimmed;
+    setInputText('');
+
     sendMessageMutation.mutate(
-      { conversationId, text: trimmed },
+      { conversationId, text: currentText, senderId: activeUserId },
       {
         onSuccess: () => {
-          setInputText('');
           setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
         },
       }
     );
-  }, [inputText, conversationId, sendMessageMutation]);
+  }, [inputText, conversationId, activeUserId, sendMessageMutation]);
+
+  const handleRetry = useCallback(
+    (tempId: string, text: string) => {
+      sendMessageMutation.mutate({
+        conversationId,
+        text,
+        senderId: activeUserId,
+        tempId,
+      });
+    },
+    [conversationId, activeUserId, sendMessageMutation]
+  );
 
   const renderMessageItem = useCallback(
     ({ item }: { item: IMessageDTO }) => {
@@ -75,21 +90,22 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
             >
               {item.text}
             </AppText>
-            {formattedTime ? (
-              <AppText
-                variant="tiny"
-                className={`text-right mt-1 ${
-                  isMine ? 'text-brand-100' : 'text-slate-500 dark:text-slate-400'
-                }`}
-              >
-                {formattedTime}
-              </AppText>
-            ) : null}
+            <View className="flex-row items-center justify-end mt-1">
+              {formattedTime ? (
+                <AppText
+                  variant="tiny"
+                  className={isMine ? 'text-brand-100' : 'text-slate-500 dark:text-slate-400'}
+                >
+                  {formattedTime}
+                </AppText>
+              ) : null}
+              <MobileChatMessageReceipt message={item} isMine={isMine} onRetry={handleRetry} />
+            </View>
           </View>
         </View>
       );
     },
-    [activeUserId]
+    [activeUserId, handleRetry]
   );
 
   if (isError) {
@@ -124,7 +140,7 @@ export const ChatThreadScreen: React.FC<ChatThreadScreenProps> = ({
           <FlatList
             ref={flatListRef}
             data={messages || []}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.tempId || item.id}
             renderItem={renderMessageItem}
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -166,4 +182,3 @@ const styles = StyleSheet.create({
   kavContainer: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 20 },
 });
-
