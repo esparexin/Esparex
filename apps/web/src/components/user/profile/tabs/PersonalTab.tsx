@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { User, Camera, Lock } from "@/icons/IconRegistry";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
+import { PersonalProfileGstSection } from "./PersonalProfileGstSection";
+import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
 
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
@@ -207,50 +209,16 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
             </div>
 
             {/* Notification & Invoice Email Field */}
-            <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="profile-email" className="text-xs font-semibold text-slate-700">
-                        Notification & Invoice Email <span className="text-slate-400 font-normal">(Optional)</span>
-                    </Label>
-                </div>
-                <Input
-                    id="profile-email"
-                    type="email"
-                    placeholder="name@company.com"
-                    {...form.register("email")}
-                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${emailError ? "border-red-500" : ""}`}
-                    aria-invalid={!!emailError}
-                    aria-describedby={emailError ? "profile-email-error" : "profile-email-helper"}
-                    autoComplete="email"
-                />
-                <p id="profile-email-helper" className="text-tiny text-slate-500">
-                    Used strictly to send PDF invoices and ad status updates.
-                </p>
-                <FormError id="profile-email-error" message={emailError} />
-            </div>
+            <PersonalProfileEmailSection
+                register={form.register}
+                emailError={emailError}
+            />
 
             {/* GSTIN Field */}
-            <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="profile-gstin" className="text-xs font-semibold text-slate-700">
-                        GSTIN Number <span className="text-slate-400 font-normal">(Optional)</span>
-                    </Label>
-                </div>
-                <Input
-                    id="profile-gstin"
-                    type="text"
-                    placeholder="e.g. 27AAAAA0000A1Z5"
-                    maxLength={15}
-                    {...form.register("gstin")}
-                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium uppercase ${gstinError ? "border-red-500" : ""}`}
-                    aria-invalid={!!gstinError}
-                    aria-describedby={gstinError ? "profile-gstin-error" : "profile-gstin-helper"}
-                />
-                <p id="profile-gstin-helper" className="text-tiny text-slate-500">
-                    Enter your 15-character GSTIN to claim 18% Input Tax Credit (ITC) on B2B invoices.
-                </p>
-                <FormError id="profile-gstin-error" message={gstinError} />
-            </div>
+            <PersonalProfileGstSection
+                register={form.register}
+                gstinError={gstinError}
+            />
 
             {/* Mobile Number Read-Only Display */}
             <div className="space-y-1.5">
