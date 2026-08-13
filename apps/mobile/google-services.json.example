@@ -1,0 +1,39 @@
+{
+  "_comment": "This file is a safe placeholder. It contains NO real credentials.",
+  "_instructions": [
+    "1. Log in to Firebase Console: https://console.firebase.google.com",
+    "2. Select or create the project for package com.esparex.mobile",
+    "3. Go to Project Settings → Your Apps → Android app (com.esparex.mobile)",
+    "4. Click 'Download google-services.json'",
+    "5. Place the real file at: apps/mobile/android/app/google-services.json",
+    "6. Do NOT commit the real file — it is listed in the root .gitignore",
+    "7. For EAS Cloud builds, add the file content as an EAS Secret",
+    "8. For CI, provide the file content via a GitHub Actions secret and write it before the build step"
+  ],
+  "project_info": {
+    "project_number": "REPLACE_WITH_REAL_PROJECT_NUMBER",
+    "project_id": "REPLACE_WITH_REAL_PROJECT_ID",
+    "storage_bucket": "REPLACE_WITH_REAL_PROJECT_ID.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "REPLACE_WITH_REAL_MOBILESDK_APP_ID",
+        "android_client_info": {
+          "package_name": "com.esparex.mobile"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "REPLACE_WITH_REAL_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
