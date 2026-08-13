@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, MapPin, Ban, RotateCcw } from "@esparex/ui";
+import { Building2, MapPin, Ban, RotateCcw, Checkbox } from "@esparex/ui";
 import { format } from "date-fns";
 import type { ColumnDef } from "@/components/ui/DataTable";
 import { Business } from "@esparex/contracts";
@@ -8,11 +8,31 @@ import { BusinessTypesCell, BusinessActionButton, createBusinessStatusColumn, cr
 
 export function buildColumns(opts: { onView: (b: Business) => void; onEdit: (b: Business) => void; onDelete: (b: Business) => void; toggleSelect: (id: string) => void; toggleSelectAll: () => void; selectedIds: Set<string>; allCount: number; setSuspendTarget: (b: Business | null) => void; handleActivate: (id: string) => Promise<void> }): ColumnDef<Business>[] {
     const { onView, onEdit, onDelete, toggleSelect, toggleSelectAll, selectedIds, allCount, setSuspendTarget, handleActivate } = opts;
+    const headerCheckedState = allCount > 0 && selectedIds.size === allCount
+        ? true
+        : selectedIds.size > 0
+        ? "indeterminate"
+        : false;
+
     return [
         {
             id: "selection",
-            header: <input type="checkbox" checked={allCount > 0 && selectedIds.size === allCount} onChange={toggleSelectAll} className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" />,
-            cell: (biz) => <input type="checkbox" checked={selectedIds.has(biz.id)} onChange={() => toggleSelect(biz.id)} onClick={(e) => e.stopPropagation()} className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" />,
+            header: (
+                <Checkbox
+                    checked={headerCheckedState}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all businesses"
+                />
+            ),
+            cell: (biz) => (
+                <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                    <Checkbox
+                        checked={selectedIds.has(biz.id)}
+                        onCheckedChange={() => toggleSelect(biz.id)}
+                        aria-label={`Select business ${biz.name}`}
+                    />
+                </div>
+            ),
             className: "w-10 px-4",
         },
         {
