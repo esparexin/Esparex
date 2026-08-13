@@ -6,7 +6,7 @@ node_modules/
 dist/
 web-build/
 
-# Native builds
+# Native builds (generated — do not commit build artifacts)
 android/
 ios/
 *.orig.*

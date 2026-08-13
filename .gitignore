@@ -64,6 +64,11 @@ apps/admin/.env.*
 service-account.json
 service-account*.json
 **/service-account*.json
+# google-services.json contains Firebase project credentials and must never be committed.
+# Obtain the real file from Firebase Console → Project Settings → Android app (com.esparex.mobile).
+# Place it at apps/mobile/android/app/google-services.json (gitignored, not tracked).
+# A safe placeholder documenting the required shape is at:
+#   apps/mobile/android/app/google-services.json.example  (this file IS tracked)
 google-services.json
 **/google-services.json
 
