@@ -35,7 +35,7 @@ export function AdminPagination({
             role="navigation"
             aria-label="Pagination"
             className={cn(
-                "flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 bg-white px-4 py-3 text-sm text-foreground-secondary",
+                "flex flex-wrap items-center justify-between gap-4 border-t border-border bg-card px-4 py-3 text-sm text-foreground-secondary",
                 className
             )}
         >
@@ -59,7 +59,7 @@ export function AdminPagination({
                     type="button"
                     onClick={() => onPageChange(currentPage - 1)}
                     disabled={currentPage <= 1}
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-foreground-secondary transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground-secondary transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Previous page"
                 >
                     <ChevronLeft size={14} />
@@ -74,7 +74,7 @@ export function AdminPagination({
                     type="button"
                     onClick={() => onPageChange(currentPage + 1)}
                     disabled={currentPage >= totalPages}
-                    className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-foreground-secondary transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-foreground-secondary transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Next page"
                 >
                     <span>Next</span>

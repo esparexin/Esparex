@@ -47,7 +47,7 @@ export function AdminFilterToolbar({
 }: AdminFilterToolbarProps) {
     return (
         <div
-            className={`flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm ${className}`}
+            className={`flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 shadow-sm ${className}`}
         >
             {/* Search */}
             <div className="relative flex min-w-[180px] flex-1">
@@ -61,7 +61,7 @@ export function AdminFilterToolbar({
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
                     placeholder={searchPlaceholder}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-8 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
+                    className="w-full rounded-lg border border-input bg-background py-1.5 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
             </div>
 
@@ -72,7 +72,7 @@ export function AdminFilterToolbar({
                     <select
                         value={status}
                         onChange={(e) => onStatusChange(e.target.value)}
-                        className="rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-7 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-200"
+                        className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
                         {statusOptions.map((opt) => (
                             <option key={opt.value} value={opt.value}>
