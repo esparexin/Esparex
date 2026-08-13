@@ -5,7 +5,7 @@
  * - Real-time presence indicator (`presence:get`, `presence:update`).
  * - Real-time typing indicators with 3.5s auto-dismiss.
  * - Dynamic polling: 4s when socket is disconnected, 30s background sync when socket is active.
- * - Send preserves draft on failure.
+ * - Optimistic message sending with rich delivery statuses ('sending' | 'sent' | 'read' | 'failed').
  */
 'use client';
 
@@ -38,7 +38,8 @@ export interface UseChatReturn {
   isLoading: boolean;
   isSending: boolean;
   error: string | null;
-  sendMessage: (text: string) => Promise<boolean>;
+  sendMessage: (text: string, attachmentFile?: File) => Promise<boolean>;
+  retryFailedMessage: (tempId: string) => Promise<boolean>;
   loadMore: () => Promise<void>;
   hasMore: boolean;
   /** True when a loadMore() is in progress (prepends older msgs — don't auto-scroll) */
@@ -54,6 +55,15 @@ export function shouldMarkConversationRead(
   currentUserId: string
 ): boolean {
   return messages.some((message) => message.senderId !== currentUserId && !message.readAt);
+}
+
+function withDeliveryStatus(msg: IMessageDTO, currentUserId: string): IMessageDTO {
+  if (msg.deliveryStatus) return msg;
+  if (msg.senderId !== currentUserId) return msg;
+  return {
+    ...msg,
+    deliveryStatus: msg.readAt ? 'read' : 'sent',
+  };
 }
 
 export function useChat({
@@ -89,7 +99,8 @@ export function useChat({
       setIsLoading(true);
       setError(null);
       const res = await chatApi.messages(conversationId);
-      const msgs = res.data ?? [];
+      const rawMsgs = res.data ?? [];
+      const msgs = rawMsgs.map((m) => withDeliveryStatus(m, currentUserId));
       setMessages(msgs);
       setHasMore(!!res.nextCursor);
       setOldestCursor(res.nextCursor);
@@ -132,7 +143,8 @@ export function useChat({
 
     try {
       const res = await chatApi.poll(conversationId, since);
-      const newMsgs = res.data ?? [];
+      const rawMsgs = res.data ?? [];
+      const newMsgs = rawMsgs.map((m) => withDeliveryStatus(m, currentUserId));
       if (newMsgs.length > 0) {
         setMessages((prev) => {
           const existingIds = new Set(prev.map((m) => m.id));
@@ -156,7 +168,8 @@ export function useChat({
     try {
       setIsLoadingMore(true);
       const res = await chatApi.messages(conversationId, oldestCursor);
-      const older = res.data ?? [];
+      const olderRaw = res.data ?? [];
+      const older = olderRaw.map((m) => withDeliveryStatus(m, currentUserId));
       setMessages((prev) => [...older, ...prev]);
       setHasMore(!!res.nextCursor);
       setOldestCursor(res.nextCursor);
@@ -165,15 +178,44 @@ export function useChat({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [conversationId, hasMore, oldestCursor, isLoadingMore]);
+  }, [conversationId, currentUserId, hasMore, oldestCursor, isLoadingMore]);
 
-  /* Send a new message */
+  /* Send a new message with optimistic UI rendering */
   const sendMessage = useCallback(
     async (text: string, attachmentFile?: File) => {
       const trimmed = text.trim();
       if (!trimmed && !attachmentFile) return false;
+
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const nowIso = new Date().toISOString();
+
+      const optimisticMsg: IMessageDTO = {
+        id: tempId,
+        tempId,
+        conversationId,
+        senderId: currentUserId,
+        text: trimmed,
+        deliveryStatus: 'sending',
+        createdAt: nowIso,
+        attachments: attachmentFile
+          ? [
+              {
+                url: URL.createObjectURL(attachmentFile),
+                displayUrl: URL.createObjectURL(attachmentFile),
+                mimeType: attachmentFile.type,
+                size: attachmentFile.size,
+                name: attachmentFile.name,
+                status: 'available' as const,
+              },
+            ]
+          : undefined,
+      };
+
+      // Instantly render optimistic bubble in chat stream
+      setMessages((prev) => [...prev, optimisticMsg]);
       setIsSending(true);
       setError(null);
+
       try {
         let attachments;
         if (attachmentFile) {
@@ -202,25 +244,84 @@ export function useChat({
         }
 
         const res = await chatApi.send({ conversationId, text: trimmed, attachments });
-        const confirmed = res.message;
-        setMessages((prev) => {
-          const exists = prev.some((m) => m.id === confirmed.id);
-          return exists ? prev : [...prev, confirmed];
-        });
+        const confirmed: IMessageDTO = {
+          ...res.message,
+          deliveryStatus: res.message.readAt ? 'read' : 'sent',
+        };
+
+        // Replace optimistic message with confirmed server message
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId || m.tempId === tempId ? confirmed : m))
+        );
         latestCreatedAtRef.current = confirmed.createdAt;
         dispatchChatInboxUpdated();
         return true;
       } catch (err) {
-        const message = err instanceof Error && err.message
+        const errorMessage = err instanceof Error && err.message
           ? err.message
           : 'Failed to send message';
-        setError(message);
+
+        // Mark optimistic message as failed
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === tempId || m.tempId === tempId
+              ? { ...m, deliveryStatus: 'failed' }
+              : m
+          )
+        );
+        setError(errorMessage);
         return false;
       } finally {
         setIsSending(false);
       }
     },
-    [conversationId]
+    [conversationId, currentUserId]
+  );
+
+  /* Retry a failed message */
+  const retryFailedMessage = useCallback(
+    async (tempId: string) => {
+      const failedMsg = messages.find((m) => m.id === tempId || m.tempId === tempId);
+      if (!failedMsg || failedMsg.deliveryStatus !== 'failed') return false;
+
+      // Reset to sending status
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === tempId || m.tempId === tempId
+            ? { ...m, deliveryStatus: 'sending' }
+            : m
+        )
+      );
+
+      try {
+        const res = await chatApi.send({
+          conversationId,
+          text: failedMsg.text,
+          attachments: failedMsg.attachments,
+        });
+        const confirmed: IMessageDTO = {
+          ...res.message,
+          deliveryStatus: res.message.readAt ? 'read' : 'sent',
+        };
+
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId || m.tempId === tempId ? confirmed : m))
+        );
+        latestCreatedAtRef.current = confirmed.createdAt;
+        dispatchChatInboxUpdated();
+        return true;
+      } catch {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === tempId || m.tempId === tempId
+              ? { ...m, deliveryStatus: 'failed' }
+              : m
+          )
+        );
+        return false;
+      }
+    },
+    [conversationId, messages]
   );
 
   /* Send typing status over socket */
@@ -250,12 +351,16 @@ export function useChat({
 
     const handleChatMessage = (data: IChatMessageEvent) => {
       if (data.conversationId !== conversationId || !data.message) return;
+      const incomingMsg = withDeliveryStatus(data.message, currentUserId);
       setMessages((prev) => {
-        const exists = prev.some((m) => m.id === data.message.id);
-        return exists ? prev : [...prev, data.message];
+        const exists = prev.some((m) => m.id === incomingMsg.id);
+        if (exists) {
+          return prev.map((m) => (m.id === incomingMsg.id ? incomingMsg : m));
+        }
+        return [...prev, incomingMsg];
       });
-      latestCreatedAtRef.current = data.message.createdAt;
-      if (data.message.senderId !== currentUserId) {
+      latestCreatedAtRef.current = incomingMsg.createdAt;
+      if (incomingMsg.senderId !== currentUserId) {
         setIsOtherTyping(false);
         void chatApi.markRead(conversationId).catch(() => {});
         dispatchChatInboxUpdated();
@@ -266,8 +371,8 @@ export function useChat({
       if (data.conversationId !== conversationId) return;
       setMessages((prev) =>
         prev.map((msg) =>
-          msg.senderId === currentUserId && !msg.readAt
-            ? { ...msg, readAt: data.readAt }
+          msg.senderId === currentUserId
+            ? { ...msg, readAt: data.readAt, deliveryStatus: 'read' }
             : msg
         )
       );
@@ -327,6 +432,7 @@ export function useChat({
     isLoadingMore,
     error,
     sendMessage,
+    retryFailedMessage,
     loadMore,
     hasMore,
     retry: loadInitial,
@@ -335,4 +441,3 @@ export function useChat({
     sendTyping,
   };
 }
-

@@ -90,6 +90,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     isLoadingMore,
     error,
     sendMessage,
+    retryFailedMessage,
     loadMore,
     hasMore,
     retry,
@@ -262,6 +263,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
               <MessageBubble
                 message={msg}
                 isOwn={msg.senderId === currentUserId}
+                onRetry={retryFailedMessage}
               />
             </div>
           );
