@@ -248,6 +248,9 @@ export const ensureInvoicePdf = async (invoiceId?: string) => {
 
         const pdfUrl = await generateInvoicePdf({
             invoiceNumber: invoice.invoiceNumber,
+            transactionId: invoice.transactionId,
+            items: invoice.items,
+            billingAddress: invoice.billingAddress,
             amount: invoice.amount,
             currency: invoice.currency,
             issuedAt: invoice.issuedAt,
