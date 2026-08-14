@@ -92,3 +92,21 @@ Before tag-marking a release candidate (RC) or submitting to the App Store / Goo
 - [ ] **Physical iOS Testing**: Test checkout, push notifications, and chat on at least one physical iPhone.
 - [ ] **Physical Android Testing**: Test checkout, push notifications, and chat on at least one physical Android phone.
 - [ ] **Telemetry Mocks**: Confirm all analytics and exception-tracking logging points resolve to correct production endpoints.
+
+---
+
+## 6. Definition of Build Ready
+
+A mobile code change or pull request is considered **Build Ready** for staging and release merges if and only if all of the following conditions are satisfied:
+
+- [ ] **TypeScript Compilation**: Monorepo type-checking compiles with `0` errors across all workspaces.
+- [ ] **ESLint & Quality Guards**: All files pass linting and static analysis checks.
+- [ ] **Unit Tests**: The full mobile Jest test suite runs and passes with 100% green status.
+- [ ] **Expo Doctor**: Execution of `npx expo-doctor` completes with zero peer dependency conflicts.
+- [ ] **Android Debug Build**: Compilation of the Android debug development client succeeds.
+- [ ] **Android Release Build**: Generating the production Android bundle (AAB/APK) succeeds cleanly.
+- [ ] **iOS Debug Build**: Compilation of the iOS debug development client succeeds.
+- [ ] **iOS Release Build**: Generating the production iOS archive (IPA) succeeds cleanly.
+- [ ] **Android Smoke Testing**: Core user flows (Auth, Chat, Payments) function correctly in the Android Emulator/Device.
+- [ ] **iOS Smoke Testing**: Core user flows (Auth, Chat, Payments) function correctly in the iOS Simulator/Device.
+- [ ] **No Unresolved Warnings**: No critical dependency compatibility warnings or compilation exceptions remain.
