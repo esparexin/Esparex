@@ -211,3 +211,9 @@ tech-debt-insights.md
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Mobile build outputs (iOS simulator bundle, Android APK, NativeWind types)
+*.app/
+*.apk
+*.ipa
+nativewind-env.d.ts
