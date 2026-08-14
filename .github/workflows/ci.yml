@@ -73,6 +73,12 @@ jobs:
       - name: Run clean build
         run: npm run clean
 
+      - name: Verify no stale build artifacts (Pre-Build Check)
+        run: |
+          echo "Verifying clean state..."
+          ! find . -name "dist" -type d | grep -v "node_modules"
+          ! find . -name ".next" -type d | grep -v "node_modules"
+
       - name: Build monorepo packages (Required for static analysis and config loaders)
         run: npm run build
 
@@ -120,12 +126,6 @@ jobs:
 
       - name: Verify PR code quality & file discipline thresholds
         run: npm run guard:pr-quality
-
-      - name: Verify no stale build artifacts
-        run: |
-          echo "Verifying clean state..."
-          ! find . -name "dist" -type d | grep -v "node_modules"
-          ! find . -name ".next" -type d | grep -v "node_modules"
 
       - name: Run ESLint Baseline Enforcement
         run: npm run lint:ci
