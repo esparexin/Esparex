@@ -7,6 +7,15 @@ import { sanitizeMongoObjectId } from "@esparex/shared";
 import { trackPostAdEvent } from "@/lib/analytics/trackPostAd";
 import type { Brand } from "@/lib/api/user/masterData";
 
+/**
+ * Centralized reset of AI-generated/dependent Step 2 details (title & description).
+ * Preserves Step 2 user entries when Step 1 is untouched, but resets them when Step 1 inputs change.
+ */
+export function clearStep2GeneratedDetails(form: UseFormReturn<PostAdFormData>) {
+    form.setValue("title", "", { shouldDirty: true });
+    form.setValue("description", "", { shouldDirty: true });
+}
+
 export function useCategoryDependents(
     form: UseFormReturn<PostAdFormData>,
     categoryMap: Record<string, ListingCategory>,
@@ -37,6 +46,7 @@ export function useCategoryDependents(
         form.setValue("model", "", { shouldDirty: true });
         form.setValue("modelId", "", { shouldDirty: true });
         form.setValue("customModelName", "", { shouldDirty: true });
+        clearStep2GeneratedDetails(form);
     }, [form]);
 
     /**
@@ -50,6 +60,7 @@ export function useCategoryDependents(
         form.setValue("screenSize", "", { shouldValidate: true, shouldDirty: true });
         form.setValue("spareParts", [], { shouldValidate: true, shouldDirty: true });
         form.setValue("deviceCondition", undefined, { shouldValidate: true, shouldDirty: true });
+        clearStep2GeneratedDetails(form);
     }, [form, clearBrandDependents]);
 
     /**
@@ -104,10 +115,18 @@ export function useCategoryDependents(
      * Explicit selection action for Model. Sets canonical form values cleanly without HTTP queries or cache changes.
      */
     const selectModel = useCallback((id: string, name: string) => {
+        const currentModelId = form.getValues("modelId");
+        const currentModelName = form.getValues("model");
+        const modelChanged = currentModelId !== id || currentModelName !== name;
+
         setFormError(null);
         form.setValue("model", name, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
         form.setValue("modelId", id, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
         trackPostAdEvent({ event: "model_selected", metadata: { modelId: id, modelName: name } });
+
+        if (modelChanged) {
+            clearStep2GeneratedDetails(form);
+        }
     }, [form, setFormError]);
 
     /**

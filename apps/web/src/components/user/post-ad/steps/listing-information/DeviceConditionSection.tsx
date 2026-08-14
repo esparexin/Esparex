@@ -1,14 +1,16 @@
 "use client";
 
-import { usePostAdCatalog, usePostAdAction } from "../../context";
+import { usePostAdCatalog, usePostAdAction, usePostAdFlow } from "../../context";
 import { Button, FieldRoot, FieldLabel, FieldControl, FormItem } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Leaf, Contrast, Zap } from "@/icons/IconRegistry";
+import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 
 export function DeviceConditionSection() {
     const { availableSpareParts, isLoadingSpareParts, sparePartsError } = usePostAdCatalog();
     const { watch, toggleSparePart, loadSparePartsForCategory } = usePostAdAction();
+    const { form } = usePostAdFlow();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const spareParts = (watch("spareParts") || []) as string[];
@@ -74,7 +76,12 @@ export function DeviceConditionSection() {
                             <FieldLabel className="text-xs sm:text-sm font-semibold m-0 leading-none text-foreground-secondary">Device Condition</FieldLabel>
                             <FieldControl animateOnError>
                                 <RadioGroupPrimitive.Root
-                                    onValueChange={field.onChange}
+                                    onValueChange={(val) => {
+                                        if (field.value !== val) {
+                                            field.onChange(val);
+                                            clearStep2GeneratedDetails(form);
+                                        }
+                                    }}
                                     value={field.value || ""}
                                     className="flex"
                                     orientation="horizontal"

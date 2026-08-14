@@ -7,6 +7,8 @@ import { useStepFieldError } from "../common/Utils";
 import { cn } from "@/components/ui/utils";
 import { getVisibleAttributeFilters, renderAttributeField } from "../common/attribute-fields";
 
+import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
+
 export function SpecificationSection() {
     const { categorySchema, requiresScreenSize, availableSizes } = usePostAdCatalog();
     const { isEditMode, form } = usePostAdFlow();
@@ -19,12 +21,17 @@ export function SpecificationSection() {
     const screenSizeError = getFieldError("screenSize");
 
     const onScreenSizeChange = useCallback((val: string) => {
-        setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true }); 
-    }, [setValue]);
+        const current = form.getValues("screenSize");
+        if (current !== val) {
+            setValue("screenSize", val, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+            clearStep2GeneratedDetails(form);
+        }
+    }, [form, setValue]);
 
     const updateAttribute = useCallback((id: string, value: unknown) => {
         const current = form.getValues("attributes") as Record<string, unknown> | undefined;
         setValue("attributes", { ...(current ?? {}), [id]: value } as Record<string, unknown>, { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+        clearStep2GeneratedDetails(form);
     }, [form, setValue]);
 
     const dynamicAttributeFilters = getVisibleAttributeFilters(categorySchema, attributes);
