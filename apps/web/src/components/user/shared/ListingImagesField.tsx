@@ -94,40 +94,31 @@ export function ListingImagesField({
             <div className="w-full" {...dropzoneProps}>
                 <Stack gap="md">
                     {images.length === 0 ? (
-                        <div
-                            className={cn(
-                                "flex min-h-[100px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed p-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative overflow-hidden",
-                                disabled
-                                    ? "opacity-60 cursor-not-allowed border-border bg-muted/50"
-                                    : isDraggingOver
-                                        ? "border-primary bg-primary/10 scale-[1.01] shadow-md"
-                                        : "border-border bg-card hover:bg-muted/30 hover:border-primary/50"
-                            )}
-                        >
+                        <div className="w-full">
                             {disabled ? (
-                                <div className="flex flex-col items-center justify-center text-primary animate-pulse py-2">
-                                    <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
+                                <div className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/5 text-primary animate-pulse px-4">
+                                    <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                                     <span className="text-xs font-semibold">Processing & Compressing Photos...</span>
                                 </div>
-                            ) : isDraggingOver ? (
-                                <div className="flex flex-col items-center justify-center text-primary py-2">
-                                    <Upload className="w-7 h-7 mb-1.5 text-primary animate-bounce" />
-                                    <span className="text-xs font-semibold">Drop photos here</span>
-                                </div>
                             ) : (
-                                <div className="flex flex-col items-center gap-1.5">
-                                    <button
-                                        type="button"
-                                        disabled={disabled}
-                                        onClick={handleOpenPicker}
-                                        aria-label="Add product photos"
-                                        className="flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-xs font-semibold text-foreground shadow-xs transition-all hover:bg-muted hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation cursor-pointer active:scale-95"
-                                    >
-                                        <Upload className="w-4 h-4 text-primary" />
-                                        <span>+ Add Photos</span>
-                                    </button>
-                                    <span className="text-2xs text-muted-foreground">First image will be the cover</span>
-                                </div>
+                                <button
+                                    type="button"
+                                    disabled={disabled}
+                                    onClick={handleOpenPicker}
+                                    aria-label="Add product photos"
+                                    className={cn(
+                                        "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed text-xs sm:text-sm font-semibold transition-all cursor-pointer select-none active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                                        isDraggingOver
+                                            ? "border-primary bg-primary/10 text-primary scale-[1.01] shadow-sm"
+                                            : "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary text-primary"
+                                    )}
+                                >
+                                    <Upload className={cn("w-4 h-4 text-primary", isDraggingOver && "animate-bounce")} />
+                                    <span>{isDraggingOver ? "Drop photos here" : "+ Add Photos"}</span>
+                                    {!isDraggingOver && (
+                                        <span className="text-2xs font-normal text-muted-foreground ml-1">(First photo is cover)</span>
+                                    )}
+                                </button>
                             )}
                         </div>
                     ) : (
