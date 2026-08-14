@@ -18,7 +18,7 @@ export interface AIOutput {
 }
 
 export const generateAIContent = async (payload: AIInput): Promise<{ data: AIOutput | null; error: any }> => {
-    return await toApiResult<AIOutput>(apiClient.post(API_ROUTES.USER.AI_GENERATE, payload));
+    return await toApiResult<AIOutput>(apiClient.post(API_ROUTES.USER.AI_GENERATE, payload, { silent: true }));
 };
 
 export const checkAiStatus = async (): Promise<{ available: boolean; reason: string | null; retryAfter: number }> => {

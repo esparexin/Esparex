@@ -29,8 +29,7 @@ interface AICapabilityRoutingTableProps {
 
 export const PROVIDER_MODELS = {
     gemini: [
-        { value: "gemini-2.5-flash", label: "gemini-2.5-flash" },
-        { value: "gemini-2.5-pro", label: "gemini-2.5-pro" },
+        { value: "gemini-2.0-flash", label: "gemini-2.0-flash (Recommended)" },
         { value: "gemini-1.5-flash", label: "gemini-1.5-flash" },
         { value: "gemini-1.5-pro", label: "gemini-1.5-pro" },
     ],
@@ -89,7 +88,7 @@ export function AICapabilityRoutingTable({ capabilities, onChange }: AICapabilit
                     const handleProviderSelect = (newProvider: string) => {
                         onChange(key, "provider", newProvider);
                         const modelsForProvider = (PROVIDER_MODELS as Record<string, { value: string; label: string }[]>)[newProvider] || PROVIDER_MODELS.gemini;
-                        const firstModel = modelsForProvider[0]?.value || "gemini-2.5-flash";
+                        const firstModel = modelsForProvider[0]?.value || "gemini-2.0-flash";
                         onChange(key, "model", firstModel);
                     };
 

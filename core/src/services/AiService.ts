@@ -83,9 +83,26 @@ const mapProviderError = (error: unknown): AIServiceFailure => {
     return { ok: false, status: 502, error: error instanceof Error ? error.message : 'Unknown AI Error', code: AiErrorCode.AI_UNKNOWN_ERROR };
 };
 
+const hasKeyForProvider = (providerName: string, config: { geminiApiKey?: string; openAiApiKey?: string; claudeApiKey?: string; deepseekApiKey?: string }): boolean => {
+    switch (providerName.toLowerCase()) {
+        case 'gemini':
+            return Boolean(config.geminiApiKey);
+        case 'openai':
+            return Boolean(config.openAiApiKey);
+        case 'claude':
+        case 'anthropic':
+            return Boolean(config.claudeApiKey);
+        case 'deepseek':
+            return Boolean(config.deepseekApiKey);
+        default:
+            return false;
+    }
+};
+
 export const getStatus = async (): Promise<{ available: boolean; reason: string | null; retryAfter: number }> => {
     const config = await getAiConfig();
-    if (!config.geminiApiKey && !config.openAiApiKey) {
+    const hasAnyKey = Boolean(config.geminiApiKey || config.openAiApiKey || config.claudeApiKey || config.deepseekApiKey);
+    if (!hasAnyKey) {
         return { available: false, reason: AiErrorCode.AI_UNAVAILABLE, retryAfter: 0 };
     }
     
@@ -128,7 +145,17 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
     
     const primaryProvider = capabilityConfig?.provider || config.provider || 'gemini';
     const fallbackCandidates = ['gemini', 'openai', 'claude', 'deepseek'];
-    const providerChain = [primaryProvider, ...fallbackCandidates.filter(p => p !== primaryProvider)];
+    const rawChain = [primaryProvider, ...fallbackCandidates.filter(p => p !== primaryProvider)];
+    const providerChain = rawChain.filter(p => hasKeyForProvider(p, config));
+
+    if (providerChain.length === 0) {
+        return toServiceFailure({
+            ok: false,
+            status: 503,
+            error: 'AI service unavailable: no active providers with configured API keys found.',
+            code: AiErrorCode.AI_UNAVAILABLE
+        });
+    }
 
     let lastError: unknown = null;
 
@@ -175,6 +202,17 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
             }
 
             if (type === 'generate') {
+                const normalizedKey = JSON.stringify(context, Object.keys(context).sort());
+                const cacheKey = `sys:ai:generate_cache:${Buffer.from(normalizedKey).toString('base64').slice(0, 64)}`;
+                const cachedResult = await getCache<Record<string, unknown>>(cacheKey);
+                if (cachedResult) {
+                    logger.info('[AiService] generate cache hit', {
+                        type,
+                        totalMs: Date.now() - t0,
+                    });
+                    return { ok: true, data: cachedResult };
+                }
+
                 const prompt = generateListingPromptV1(context);
                 const schema = z.object({
                     title: z.string().max(MAX_AD_TITLE_CHARS),
@@ -193,6 +231,8 @@ export const executeAiRequest = async (input: ExecuteAiRequestInput): Promise<AI
                     totalMs,
                     usage: result.usage,
                 });
+
+                await setCache(cacheKey, JSON.stringify(result.data), 3600);
 
                 return { ok: true, data: result.data as Record<string, unknown> };
             }

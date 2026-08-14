@@ -49,7 +49,7 @@ export default function AIConfigPage() {
         setCapabilities((prev) => {
             const current: CapabilityConfig = prev[key] || {
                 provider: "gemini",
-                model: "gemini-2.5-flash",
+                model: "gemini-2.0-flash",
                 temperature: 0.7,
                 maxTokens: 200,
             };
@@ -189,7 +189,7 @@ export default function AIConfigPage() {
 
                     <Stack direction="col" gap="sm">
                         {[
-                            { id: "gemini", name: "Google Gemini", input: geminiKeyInput, setInput: setGeminiKeyInput, models: PROVIDER_MODELS.gemini, defaultM: "gemini-2.5-flash" },
+                            { id: "gemini", name: "Google Gemini", input: geminiKeyInput, setInput: setGeminiKeyInput, models: PROVIDER_MODELS.gemini, defaultM: "gemini-2.0-flash" },
                             { id: "openai", name: "OpenAI", input: openAiKeyInput, setInput: setOpenAiKeyInput, models: PROVIDER_MODELS.openai, defaultM: "gpt-4o-mini" },
                             { id: "claude", name: "Anthropic Claude", input: claudeKeyInput, setInput: setClaudeKeyInput, models: PROVIDER_MODELS.claude, defaultM: "claude-3-5-haiku-20241022" },
                             { id: "deepseek", name: "DeepSeek AI", input: deepseekKeyInput, setInput: setDeepseekKeyInput, models: PROVIDER_MODELS.deepseek, defaultM: "deepseek-chat" },

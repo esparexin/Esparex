@@ -62,7 +62,7 @@ export const BaseAdPayloadSchema = z.object({
         z.number({
             required_error: 'Price is required',
             invalid_type_error: 'Enter a valid price',
-        }).min(1, 'Price must be at least ₹1').max(10_000_000, 'Price cannot exceed ₹1 crore')
+        }).min(0, 'Price must be at least 0').max(10_000_000, 'Price cannot exceed ₹1 crore')
     ),
     images: z
         .array(z.string(), {
@@ -107,6 +107,15 @@ export const AdPayloadSchema = BaseAdPayloadSchema.superRefine((data, ctx) => {
         ctx.addIssue({
             path: ['categoryId'],
             message: 'Category is required',
+            code: z.ZodIssueCode.custom,
+        });
+    }
+
+    // Free item vs priced item rule: if not marked free, price must be at least ₹1
+    if (!data.isFree && (data.price === undefined || data.price < 1)) {
+        ctx.addIssue({
+            path: ['price'],
+            message: 'Price must be at least ₹1',
             code: z.ZodIssueCode.custom,
         });
     }

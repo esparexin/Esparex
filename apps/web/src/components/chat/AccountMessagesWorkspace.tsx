@@ -8,6 +8,8 @@ import { ChatList } from './ChatList';
 import { ConversationView } from './ConversationView';
 import type { IConversationDTO } from "@esparex/contracts";
 
+import { MessageSquare, Sparkles } from '@/icons/IconRegistry';
+
 interface AccountMessagesWorkspaceProps {
   currentUserId: string;
   conversationId?: string;
@@ -33,26 +35,25 @@ export function AccountMessagesWorkspace({
   const renderConversationPanel = () => {
     if (!conversationId) {
       return (
-        <div className="hidden md:flex h-full min-h-[580px] flex-col items-center justify-center bg-slate-50/50 p-8 text-center">
+        <div className="hidden md:flex h-full min-h-0 flex-col items-center justify-center bg-slate-50/50 p-6 text-center">
           {/* Sparkle Chat Bubble Illustration */}
-          <div className="relative mb-4 flex items-center justify-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-50/80 text-4xl">
-              💬
+          <div className="relative mb-3.5 flex items-center justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 shadow-xs">
+              <MessageSquare className="h-7 w-7" />
             </div>
-            <span className="absolute -top-1 -right-1 text-sky-400 text-lg">✨</span>
-            <span className="absolute -bottom-1 -left-1 text-sky-300 text-base">✨</span>
+            <Sparkles className="absolute -top-1.5 -right-1.5 h-4 w-4 text-amber-500 fill-amber-500/20" />
           </div>
 
-          <h3 className="text-xl font-bold text-slate-900">No conversations yet</h3>
-          <p className="mt-2 text-sm text-slate-500 max-w-sm leading-relaxed">
-            Messages with buyers and sellers will appear here
+          <h3 className="text-base font-bold text-slate-900">No conversations yet</h3>
+          <p className="mt-1 text-xs text-slate-500 max-w-xs leading-relaxed">
+            Messages with buyers and sellers will appear here.
           </p>
 
           <Link
             href="/browse"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-white px-5 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 h-9 text-xs font-semibold shadow-xs transition-colors"
           >
-            <span>💬</span>
+            <MessageSquare className="h-3.5 w-3.5" />
             <span>Browse Listings</span>
           </Link>
         </div>
@@ -61,14 +62,16 @@ export function AccountMessagesWorkspace({
 
     if (!initialConversation) {
       return (
-        <div className="flex h-full min-h-[580px] items-center justify-center bg-slate-50/50 p-8">
+        <div className="flex h-full min-h-0 items-center justify-center bg-slate-50/50 p-6">
           <div className="max-w-sm text-center">
             <p className="text-sm font-semibold text-red-600">Unable to load this conversation right now.</p>
             <button
               type="button"
-              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
+              className="mt-4 inline-flex min-h-9 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
               onClick={() => {
-                router.refresh();
+                if (typeof window !== "undefined") {
+                  window.location.reload();
+                }
               }}
             >
               Retry
@@ -88,19 +91,9 @@ export function AccountMessagesWorkspace({
   };
 
   return (
-    <div className="flex flex-col h-full bg-card md:rounded-xl md:border md:border-border md:shadow-sm overflow-hidden">
-      {/* Workspace Header (Hidden on Mobile to eliminate duplicate header) */}
-      <div className="hidden md:flex border-b border-slate-200/80 px-5 py-3.5 items-center justify-between bg-white shrink-0">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 tracking-tight">Messages</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Real-time chat workspace for buyer & seller inquiries
-          </p>
-        </div>
-      </div>
-
-      <div className="md:grid md:flex-1 md:grid-cols-[340px_1fr] overflow-hidden min-h-0">
-        <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-200/80 overflow-y-auto bg-white`}>
+    <div className="flex flex-col h-full md:h-[540px] lg:h-[560px] md:max-h-[calc(100dvh-14rem)] md:min-h-[440px] rounded-none md:rounded-2xl border-0 md:border md:border-slate-200/80 bg-white md:shadow-xs overflow-hidden flex-1 min-h-0">
+      <div className="md:grid md:flex-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] overflow-hidden min-h-0 h-full">
+        <div className={`${conversationId ? 'hidden md:block' : 'block'} border-r border-slate-200/80 overflow-y-auto bg-white h-full min-h-0`}>
           <ChatList
             currentUserId={currentUserId}
             view={initialView}

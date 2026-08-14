@@ -38,9 +38,10 @@ export function DescriptionSection() {
                         <FieldControl animateOnError>
                             <Textarea
                                 {...field}
+                                rows={3}
                                 placeholder="Describe the condition, issues, and what's included..."
                                 maxLength={MAX_AD_DESCRIPTION_CHARS}
-                                className="min-h-[140px] text-base md:text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600"
+                                className="min-h-[88px] text-base md:text-sm font-medium border-slate-200 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 py-2.5 px-3"
                             />
                         </FieldControl>
                         <div className="flex justify-between items-start mt-1">
