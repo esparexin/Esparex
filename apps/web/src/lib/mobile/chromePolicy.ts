@@ -16,7 +16,12 @@ const STICKY_SEARCH_PREFIXES = ["/search", "/category"];
 const LISTING_DETAIL_PREFIXES = ["/ads/", "/services/", "/spare-part-listings/", "/listings/"];
 
 export function isChatRoute(pathname?: string | null): boolean {
-  return pathname === "/chat" || Boolean(pathname?.startsWith("/chat/"));
+  return (
+    pathname === "/chat" ||
+    Boolean(pathname?.startsWith("/chat/")) ||
+    // Embedded chat lives at /account/messages — suppress footer there too
+    Boolean(pathname?.startsWith("/account/messages"))
+  );
 }
 
 export function getMobileChromePolicy(pathname?: string | null): MobileChromePolicy {

@@ -4,7 +4,6 @@
    ========================================================================== */
 
 :root {
-  --chat-header-height: 64px;
   --chat-composer-height: 72px;
   --mobile-safe-bottom: max(16px, env(safe-area-inset-bottom));
 
@@ -390,12 +389,9 @@
 
 .conversation-view--embedded {
   height: 100%;
-  min-height: 680px;
   background: #fff;
-  /* Allow .conv-bottom (ChatInput) to remain visible within the account panel.
-     The base .conversation-view has overflow:hidden for the standalone mobile
-     route; the embedded variant relies on the parent flex container instead. */
-  overflow: visible;
+  /* No min-height: the height is provided by the closed ancestor flex chain.
+     Overflow is managed by .conv-messages (overflow-y:auto) inside. */
 }
 
 .conversation-view--embedded .conv-header__nav {

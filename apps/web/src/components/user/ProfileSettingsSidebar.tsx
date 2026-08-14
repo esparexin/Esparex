@@ -325,8 +325,16 @@ export function ProfileSettingsSidebar({
     }
   };
 
+  const isMessagesTab = activeTab === 'messages';
+
   return (
-    <div className="bg-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
+    <div className={isMessagesTab
+      // Messages tab: fill the scrollable main's client height, contain overflow internally.
+      // h-full resolves to the scroll-container clientHeight (= viewport - site-header)
+      // so the page has nothing left to scroll. Other tabs are unaffected.
+      ? 'h-full flex flex-col overflow-hidden'
+      : 'bg-gray-50 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0'
+    }>
       {/* UNIFIED RESPONSIVE ACCOUNT HEADER (Single Instance) */}
       <AccountHeader
         activeTab={activeTab}
@@ -348,9 +356,15 @@ export function ProfileSettingsSidebar({
         }
       />
 
-      <div className="w-full max-w-7xl mx-auto pt-1 md:py-6">
+      <div className={isMessagesTab
+        ? 'flex-1 min-h-0 overflow-hidden'
+        : 'w-full max-w-7xl mx-auto pt-1 md:py-6'
+      }>
         {/* LAYOUT CONTAINER */}
-        <div className="flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6">
+        <div className={isMessagesTab
+          ? 'flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-0 h-full min-h-0'
+          : 'flex flex-col md:grid md:grid-cols-[240px_1fr] md:gap-6'
+        }>
           {/* LEFT SIDEBAR (Desktop Only) */}
           <aside className="hidden md:block space-y-1" aria-label="Account navigation">
             <div className="rounded-xl border border-slate-200/80 bg-white p-2 shadow-xs">
@@ -383,7 +397,7 @@ export function ProfileSettingsSidebar({
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <section className="min-h-0 bg-transparent">
+          <section className={isMessagesTab ? 'flex-1 min-h-0 overflow-hidden' : 'min-h-0 bg-transparent'}>
             {businessStatusBanner}
             {renderContent()}
           </section>

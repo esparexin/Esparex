@@ -39,7 +39,13 @@ export function CommonLayout({
     const isWizardRoute =
         segments[0] === "edit-ad" ||
         segments[0] === "post-service";
-    const hideShellExtras = chatRoute || isWizardRoute;
+
+    // Chat routes: keep the existing default layout & site header intact.
+    // Only suppress the footer and FAB — the account dimensions don't change.
+    // Wizard routes: retain existing fullscreen + no-header immersive behavior.
+    const hideHeader = isWizardRoute;
+    const hideFooter = chatRoute || isWizardRoute;
+    const useFullscreen = isWizardRoute; // Chat does NOT use fullscreen
 
     const header = suspenseHeader ? (
         <Suspense fallback={null}>
@@ -53,17 +59,17 @@ export function CommonLayout({
         <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>
             <BottomBarProvider>
                 <PageLayout
-                    variant={hideShellExtras ? "fullscreen" : "default"}
-                    header={!hideShellExtras ? header : undefined}
+                    variant={useFullscreen ? "fullscreen" : "default"}
+                    header={!hideHeader ? header : undefined}
                 >
                     <ScrollSentinel />
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
-                    
+
                     {children}
 
-                    {!hideShellExtras && <BusinessPostFAB />}
-                    {!hideShellExtras && <Footer currentYear={activeYear} />}
+                    {!hideFooter && <BusinessPostFAB />}
+                    {!hideFooter && <Footer currentYear={activeYear} />}
                 </PageLayout>
             </BottomBarProvider>
         </UserAppProviders>
