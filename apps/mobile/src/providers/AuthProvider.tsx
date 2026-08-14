@@ -10,6 +10,8 @@ export interface AuthContextType {
   status: AuthStatus;
   login: (payload: unknown) => Promise<void>;
   logout: () => Promise<void>;
+  sendOtp: (mobile: string) => Promise<{ success: boolean; message?: string; isNewUser?: boolean }>;
+  verifyOtp: (mobile: string, otp: string, name?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -59,6 +61,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setStatus('authenticated');
   };
 
+  const sendOtp = async (mobile: string) => {
+    return await authService.sendOtp(mobile);
+  };
+
+  const verifyOtp = async (mobile: string, otp: string, name?: string) => {
+    await authService.verifyOtp(mobile, otp, name);
+    setStatus('authenticated');
+  };
+
   const logout = async () => {
     await authService.logout();
     queryClient.clear(); // Clear all queries on logout for a complete reset
@@ -68,7 +79,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const value = useMemo(() => ({
     status,
     login,
-    logout
+    logout,
+    sendOtp,
+    verifyOtp
   }), [status, authService]);
 
   return (
