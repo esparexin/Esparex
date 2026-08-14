@@ -24,7 +24,12 @@ To maintain local build consistency and eliminate compilation failures, all deve
 ## 2. Development & Build Workflows
 
 ### 2.1 Developer Environment Verification
-Before building the app natively for the first time, run `expo-doctor` to ensure no peer dependency conflicts:
+Before running mobile build or quality gate commands, ensure the monorepo shared packages are compiled (so their compiled `/dist` targets are generated):
+```bash
+npm run build
+```
+
+Then, run `expo-doctor` to verify peer dependency alignments:
 ```bash
 npx expo-doctor
 ```
