@@ -149,3 +149,37 @@ A mobile code change or pull request is considered **Build Ready** for staging a
 - [ ] **Android Smoke Testing**: Core user flows (Auth, Chat, Payments) function correctly in the Android Emulator/Device.
 - [ ] **iOS Smoke Testing**: Core user flows (Auth, Chat, Payments) function correctly in the iOS Simulator/Device.
 - [ ] **No Unresolved Warnings**: No critical dependency compatibility warnings or compilation exceptions remain.
+
+---
+
+## 7. Failure Classification Matrix
+
+When developers encounter a compile-time, lint, or runtime error, they must classify it using the matrix below to identify the root cause layer:
+
+| Error Type / Symptom | Error Category | Root Cause Layer | Primary Troubleshooting Steps |
+| :--- | :--- | :--- | :--- |
+| `Cannot find module` | Bootstrap / Dependency | Workspace package setup | Run `npm install` at root, check `workspaces` in `package.json`, compile shared packages. |
+| Missing `/dist` directory | Bootstrap | Shared package outputs | Run `npm run build` from the monorepo root folder. |
+| Metro cannot resolve package | Bootstrap / Workspace | Monorepo dependency drift | Build shared packages first, check peer dependency lists in `package.json`. |
+| Gradle settings plugin error | Environment | System Java SDK | Verify active Java SDK version is JDK 17 or 21 (run `java -version`). |
+| CocoaPods linkage error | Environment | Xcode / Bundler toolchain | Run `bundle install && bundle exec pod install` inside `apps/mobile/ios`. |
+| Expo SDK mismatch | SDK Compatibility | Sandbox runtime restrictions | Verify Expo SDK version vs Expo Go. Switch to Expo Development Builds. |
+| Native compilation compiler error | Native Dependency | Third-party CocoaPods/Gradle | Check package compatibility with React Native Fabric New Architecture. |
+| TypeScript compilation error | Application | Local TypeScript source code | Check types, imports, interfaces, or generic parameters. |
+| Jest unit test failure | Application | Business logic regression | Inspect component tests, mocks, or local service implementations. |
+| ESLint / Knip failure | Code Quality | Code hygiene guidelines | Clean up unused variables, dead code, or duplicate exports. |
+| Mobile runtime app crash | Application / Native | Code logic / Native module | Check Metro console log outputs, React Native log-box, or native crashlogs. |
+
+---
+
+## 8. The Golden Rules of Mobile Architecture Governance
+
+All developers working on the Esparex mobile workspace must strictly adhere to the following seven principles:
+
+1.  **Never Fix Symptoms Before Identifying the Root Cause**: Do not apply temporary workarounds or overrides without auditing why the error surfaced.
+2.  **Do Not Upgrade SDKs to Solve Unrelated Build Failures**: Upgrading Expo or React Native versions to fix environmental compilation errors is strictly forbidden.
+3.  **Standardize the Developer Environment**: Keep local JDK, Node.js, and package manager toolchains pinned to the official versions.
+4.  **Build Shared Packages Before Running Dependent Tooling**: Always compile shared workspaces (`npm run build`) before running Metro, Knip, or application tests.
+5.  **Validate New Native Dependencies Before Adopting Them**: Complete the compatibility checklist (Fabric support, maintenance, platform parity) before adding native folders to Git.
+6.  **Separate Bootstrap Failures From Application Failures**: Distinguish workspace compilation requirements from actual application code defects.
+7.  **Verify on Both Android and iOS Before Staging Releases**: Do not merge release candidates without verifying physical device smoke tests on both iOS and Android.
