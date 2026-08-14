@@ -65,6 +65,11 @@
           "requestMicrophonePermissionsIOS": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e93d786f-2ab6-432c-bfd4-458e8191d31a"
+      }
+    }
   }
 }

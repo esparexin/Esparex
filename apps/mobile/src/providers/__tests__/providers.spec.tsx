@@ -106,6 +106,8 @@ describe('AppProvider', () => {
   const mockAuthService: IAuthService = {
     login: jest.fn<Promise<AuthResult>, [unknown]>(),
     logout: jest.fn<Promise<void>, []>(),
+    sendOtp: jest.fn<Promise<{ success: boolean; message?: string }>, [string]>().mockResolvedValue({ success: true, message: 'OTP sent' }),
+    verifyOtp: jest.fn<Promise<AuthResult>, [string, string]>().mockResolvedValue({ userId: 'user-1' }),
   };
 
   const mockListingService = new ListingService(new ApiListingRepository());

@@ -1,4 +1,5 @@
 const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
 const path = require('path');
 
 const projectRoot = __dirname;
@@ -15,4 +16,23 @@ config.resolver.nodeModulesPaths = [
   path.resolve(workspaceRoot, 'node_modules'),
 ];
 
-module.exports = config;
+// 3. Force Metro to resolve unique instances of peer dependencies
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const redirectMap = {
+    'react-native-safe-area-context': path.resolve(projectRoot, 'node_modules/react-native-safe-area-context'),
+    'react-native-svg': path.resolve(projectRoot, 'node_modules/react-native-svg'),
+    'react': path.resolve(workspaceRoot, 'node_modules/react'),
+    'react-native': path.resolve(workspaceRoot, 'node_modules/react-native'),
+  };
+
+  if (redirectMap[moduleName]) {
+    return context.resolveRequest(context, redirectMap[moduleName], platform);
+  }
+
+  return context.resolveRequest(context, moduleName, platform);
+};
+
+module.exports = withNativeWind(config, {
+  input: './global.css',
+  configPath: path.resolve(__dirname, 'tailwind.config.js'),
+});

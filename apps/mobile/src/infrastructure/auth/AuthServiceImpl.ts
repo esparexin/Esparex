@@ -33,16 +33,18 @@ export class AuthServiceImpl implements IAuthService {
     };
   }
 
-  async sendOtp(mobile: string): Promise<{ success: boolean; message?: string }> {
+  async sendOtp(mobile: string): Promise<{ success: boolean; message?: string; isNewUser?: boolean }> {
     const response = await this.apiClient.post('/v1/auth/send-otp', { mobile });
+    const data = response.data?.data || response.data;
     return {
       success: response.data?.success ?? true,
-      message: response.data?.message || 'OTP sent successfully'
+      message: response.data?.message || 'OTP sent successfully',
+      isNewUser: data?.isNewUser ?? response.data?.isNewUser
     };
   }
 
-  async verifyOtp(mobile: string, otp: string): Promise<AuthResult> {
-    const response = await this.apiClient.post('/v1/auth/verify-otp', { mobile, otp });
+  async verifyOtp(mobile: string, otp: string, name?: string): Promise<AuthResult> {
+    const response = await this.apiClient.post('/v1/auth/verify-otp', { mobile, otp, name });
     const data = response.data?.data || response.data;
     const accessToken = data?.accessToken || response.data?.accessToken;
     const refreshToken = data?.refreshToken || response.data?.refreshToken;

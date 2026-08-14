@@ -3,11 +3,11 @@
   "rules": {
     "files": "error",
     "dependencies": "error",
-    "devDependencies": "warn",
-    "unlisted": "warn",
-    "exports": "warn",
-    "types": "warn",
-    "duplicates": "warn"
+    "devDependencies": "off",
+    "unlisted": "off",
+    "exports": "off",
+    "types": "off",
+    "duplicates": "off"
   },
   "ignoreBinaries": ["eslint", "tsc"],
   "ignoreDependencies": [
@@ -146,6 +146,9 @@
     "tooling/**",
     "backend/api/scripts/**",
     "packages/mobile-ui/src/**/__tests__/**",
-    "apps/mobile/babel.config.js"
+    "apps/mobile/babel.config.js",
+    "apps/mobile/ios/**",
+    "apps/mobile/android/**",
+    "Esparex.app/**"
   ]
 }

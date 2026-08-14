@@ -73,6 +73,15 @@ jobs:
       - name: Run clean build
         run: npm run clean
 
+      - name: Verify no stale build artifacts (Pre-Build Check)
+        run: |
+          echo "Verifying clean state..."
+          ! find . -name "dist" -type d | grep -v "node_modules"
+          ! find . -name ".next" -type d | grep -v "node_modules"
+
+      - name: Build monorepo packages (Required for static analysis and config loaders)
+        run: npm run build
+
       - name: Validate environment contract
         run: npm run guard:env-contracts
 
@@ -118,12 +127,6 @@ jobs:
       - name: Verify PR code quality & file discipline thresholds
         run: npm run guard:pr-quality
 
-      - name: Verify no stale build artifacts
-        run: |
-          echo "Verifying clean state..."
-          ! find . -name "dist" -type d | grep -v "node_modules"
-          ! find . -name ".next" -type d | grep -v "node_modules"
-
       - name: Run ESLint Baseline Enforcement
         run: npm run lint:ci
 
@@ -132,9 +135,6 @@ jobs:
 
       - name: Run type-check
         run: npm run type-check
-
-      - name: Run build
-        run: npm run build
 
       - name: Run tests
         run: npm run test
@@ -181,6 +181,13 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "No mobile app changes detected — skipping Expo export step."
           fi
+
+      - name: Run Expo Doctor Check
+        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Running Expo Doctor checks..."
+          cd apps/mobile
+          npx expo-doctor
 
       - name: Verify mobile production bundle
         if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
