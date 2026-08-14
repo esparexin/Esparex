@@ -73,6 +73,9 @@ jobs:
       - name: Run clean build
         run: npm run clean
 
+      - name: Build monorepo packages (Required for static analysis and config loaders)
+        run: npm run build
+
       - name: Validate environment contract
         run: npm run guard:env-contracts
 
@@ -132,9 +135,6 @@ jobs:
 
       - name: Run type-check
         run: npm run type-check
-
-      - name: Run build
-        run: npm run build
 
       - name: Run tests
         run: npm run test
