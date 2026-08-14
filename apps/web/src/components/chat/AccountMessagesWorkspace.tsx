@@ -110,7 +110,7 @@ export function AccountMessagesWorkspace({
           />
         </div>
 
-        <div className={`${conversationId ? 'block' : 'hidden md:block'} h-full bg-white overflow-hidden`}>
+        <div className={`${conversationId ? 'flex flex-col' : 'hidden md:flex md:flex-col'} h-full bg-white min-h-0`}>
           {renderConversationPanel()}
         </div>
       </div>

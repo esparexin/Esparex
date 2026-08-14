@@ -392,6 +392,10 @@
   height: 100%;
   min-height: 680px;
   background: #fff;
+  /* Allow .conv-bottom (ChatInput) to remain visible within the account panel.
+     The base .conversation-view has overflow:hidden for the standalone mobile
+     route; the embedded variant relies on the parent flex container instead. */
+  overflow: visible;
 }
 
 .conversation-view--embedded .conv-header__nav {
