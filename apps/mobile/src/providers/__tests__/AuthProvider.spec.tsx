@@ -40,6 +40,8 @@ describe('AuthProvider', () => {
     mockAuthService = {
       login: jest.fn().mockResolvedValue({ userId: 'user-1' }),
       logout: jest.fn().mockResolvedValue(undefined),
+      sendOtp: jest.fn().mockResolvedValue({ success: true, message: 'OTP sent' }),
+      verifyOtp: jest.fn().mockResolvedValue({ userId: 'user-1' }),
     };
     queryClient = new QueryClient({
       defaultOptions: {

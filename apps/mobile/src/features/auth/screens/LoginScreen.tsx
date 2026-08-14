@@ -7,17 +7,20 @@ import { navigate } from '../../../navigation/navigationRef';
 import { ROUTES } from '../../../navigation/routes';
 
 export const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { sendOtp } = useAuth();
 
   const handleLogin = async () => {
+    if (mobile.length !== 10) return;
     setLoading(true);
     try {
-      await login({ email, password });
+      const res = await sendOtp(mobile);
+      if (res.success) {
+        navigate(ROUTES.AUTH_STACK, { screen: ROUTES.OTP, params: { mobile } });
+      }
     } catch {
-      // Login errors are handled via AuthProvider state/toast
+      // Errors handled by service/interceptor
     } finally {
       setLoading(false);
     }
@@ -25,8 +28,8 @@ export const LoginScreen = () => {
 
   return (
     <AuthLayout
-      title="Welcome Back"
-      description="Enter your credentials to continue"
+      title="Welcome to Esparex"
+      description="Login to buy & sell mobile spares"
       footer={
         <TouchableOpacity
           onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.SIGNUP })}
@@ -40,35 +43,20 @@ export const LoginScreen = () => {
       }
     >
       <AppInput
-        label="Email"
-        placeholder="Enter your email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
+        label="Mobile Number"
+        placeholder="Enter your 10-digit mobile number"
+        value={mobile}
+        onChangeText={setMobile}
+        keyboardType="number-pad"
+        maxLength={10}
       />
-      <AppInput
-        label="Password"
-        placeholder="Enter your password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity
-        onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.FORGOT_PASSWORD })}
-        className="self-end mb-2"
-        accessibilityRole="button"
-        accessibilityLabel="Forgot Password?"
-      >
-        <AppText variant="caption" className="text-brand-600 dark:text-brand-400 font-semibold">Forgot Password?</AppText>
-
-      </TouchableOpacity>
       
       <AppButton
-        label="Login"
+        label="Send OTP"
         onPress={handleLogin}
         loading={loading}
-        className="mt-2"
+        className="mt-4"
+        disabled={mobile.length !== 10}
       />
     </AuthLayout>
   );

@@ -48,7 +48,7 @@ export type AuthStackParamList = {
   [ROUTES.LOGIN]: undefined;
   [ROUTES.SIGNUP]: undefined;
   [ROUTES.FORGOT_PASSWORD]: undefined;
-  [ROUTES.OTP]: undefined;
+  [ROUTES.OTP]: { mobile: string } | undefined;
 };
 
 export type MainStackParamList = {
