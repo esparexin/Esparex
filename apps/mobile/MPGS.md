@@ -23,18 +23,52 @@ To maintain local build consistency and eliminate compilation failures, all deve
 
 ## 2. Development & Build Workflows
 
-### 2.1 Developer Environment Verification
-Before running mobile build or quality gate commands, ensure the monorepo shared packages are compiled (so their compiled `/dist` targets are generated):
-```bash
-npm run build
-```
+### 2.1 Project Bootstrap & Environment Verification
 
-Then, run `expo-doctor` to verify peer dependency alignments:
-```bash
-npx expo-doctor
-```
+A clean repository checkout requires bootstrapping before any development or testing can occur. 
 
-### 2.2 Local Testing: The Simulator Workflow
+> [!IMPORTANT]
+> **Bootstrap Dependency Principle**: The monorepo requires shared packages to be built before tools that resolve compiled package outputs (such as Metro, Knip, or application builds) are executed. 
+> 
+> Build failures resulting from missing `/dist` directories must be treated as **bootstrap dependency failures**, not application code defects.
+
+#### The Bootstrap Process:
+1.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+2.  **Verify environment versions**: Ensure your active JDK is version 17 or 21 (run `java -version`), and your Node.js is v22.
+3.  **Verify native toolchains**: Open Android Studio and Xcode to verify SDK platforms are updated.
+4.  **Run Expo Doctor**: Verify peer dependencies are healthy:
+    ```bash
+    npx expo-doctor
+    ```
+
+### 2.2 Build Dependency Order
+
+When compiling the project or running verification pipelines, always execute commands in the following order to satisfy monorepo dependency chains:
+
+1.  **Build Shared Packages (Required First)**:
+    ```bash
+    npm run build
+    ```
+    *(This compiles `@esparex/design-tokens` and `@esparex/contracts` to generate their `/dist` entrypoints).*
+
+2.  **Run Quality & Lint Gates**:
+    ```bash
+    npm run guard:dead-code
+    npm run type-check
+    npm test
+    ```
+
+3.  **Compile & Run the Mobile App**:
+    ```bash
+    npm run ios
+    # or
+    npm run android
+    ```
+
+### 2.3 Local Testing: The Simulator Workflow
 Standard Expo Go is suitable only for early sandboxed prototyping. Because Esparex uses native components (Razorpay, push notification handlers), you **must** build and run custom **Expo Development Builds** (Dev Clients) for development:
 
 *   **iOS Simulator Build**:
@@ -50,7 +84,7 @@ Standard Expo Go is suitable only for early sandboxed prototyping. Because Espar
     npx expo start --dev-client
     ```
 
-### 2.3 Physical Device Testing (iOS & Android)
+### 2.4 Physical Device Testing (iOS & Android)
 *   **iOS Device**: Install the development build via Xcode using a **free Apple ID** for personal testing, or a paid Apple Developer account for TestFlight.
 *   **Android Device**: Enable USB debugging and compile directly onto the device, or share compiled `.apk` developer client archives.
 
