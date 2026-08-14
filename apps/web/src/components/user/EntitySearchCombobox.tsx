@@ -182,7 +182,7 @@ export function EntitySearchCombobox<T>({
                     onKeyDown={handleKeyDown}
                     placeholder={loading ? "Loading options..." : placeholder}
                     disabled={disabled}
-                    className="pl-3 pr-9 h-11 text-base md:text-sm font-medium border-slate-200/90 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 cursor-pointer"
+                    className="pl-3 pr-9 h-11 text-sm font-normal sm:font-medium border-slate-200/90 rounded-xl shadow-2xs focus-visible:ring-2 focus-visible:ring-blue-600/20 focus-visible:border-blue-600 cursor-pointer placeholder:text-xs sm:placeholder:text-sm"
                     role="combobox"
                     aria-expanded={isListOpen}
                     aria-haspopup="listbox"
@@ -242,12 +242,12 @@ export function EntitySearchCombobox<T>({
                                         autoFocus
                                         value={search}
                                         onChange={(e) => {
-                                            const val = e.target.value;
-                                            setSearch(val);
-                                            onSearchChange?.(val);
+                                             const val = e.target.value;
+                                             setSearch(val);
+                                             onSearchChange?.(val);
                                         }}
                                         placeholder={placeholder}
-                                        className="pl-9 pr-10 h-10 text-base md:text-sm font-medium border-slate-200 rounded-xl shadow-2xs"
+                                        className="pl-9 pr-10 h-10 text-sm font-normal sm:font-medium border-slate-200 rounded-xl shadow-2xs placeholder:text-xs sm:placeholder:text-sm"
                                     />
                                     {search.trim() && onProposeCustom && (
                                         <button

@@ -19,7 +19,7 @@ export function DeviceConditionSection() {
         <div className="space-y-4">
             {categoryId && (
                 <section className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground-secondary leading-snug block mb-1.5">Working Spare Parts</label>
+                    <label className="text-xs sm:text-sm font-semibold text-foreground-secondary leading-snug block mb-1.5">Working Spare Parts</label>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-4 gap-2">
                             {Array.from({ length: 8 }).map((_, i) => (
@@ -71,7 +71,7 @@ export function DeviceConditionSection() {
                     name="deviceCondition"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-x-4 gap-y-0 space-y-0">
-                            <FieldLabel className="text-sm font-semibold m-0 leading-none">Device Condition</FieldLabel>
+                            <FieldLabel className="text-xs sm:text-sm font-semibold m-0 leading-none text-foreground-secondary">Device Condition</FieldLabel>
                             <FieldControl animateOnError>
                                 <RadioGroupPrimitive.Root
                                     onValueChange={field.onChange}

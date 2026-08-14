@@ -36,7 +36,7 @@ export function BrandSection() {
                 name="brand"
                 render={() => (
                     <div className="flex flex-col gap-1.5">
-                        <FieldLabel required className="text-sm font-semibold">Brand</FieldLabel>
+                        <FieldLabel required className="text-xs sm:text-sm font-semibold text-foreground-secondary">Brand</FieldLabel>
                         <FieldControl animateOnError>
                             <BrandSearchSelect 
                                 brands={availableBrands} 
