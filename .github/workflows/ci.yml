@@ -189,13 +189,26 @@ jobs:
           cd apps/mobile
           npx expo-doctor
 
-      - name: Verify mobile production bundle
+      - name: Setup Java 17 (Required for Android Native Compilation)
+        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Compile Android Release APK
         if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          echo "Verifying mobile bundle export (iOS & Android)..."
-          cd apps/mobile
-          npx expo export --platform ios --max-workers 2
-          npx expo export --platform android --max-workers 2
+          echo "Compiling Android Release APK..."
+          cd apps/mobile/android
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Verify Android APK Generated
+        if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Verifying Android release APK output..."
+          test -f apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+
 
       - name: Backend startup smoke test
         timeout-minutes: 3
