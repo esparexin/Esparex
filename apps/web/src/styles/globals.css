@@ -18,8 +18,6 @@
   --text-h2: 1.5rem;         /* 24px */
   --text-h3: 1.25rem;        /* 20px */
   --text-h4: 1.125rem;       /* 18px */
-  --text-h5: 1rem;           /* 16px */
-  --text-h6: 0.9375rem;      /* 15px */
   --text-body-lg: 1rem;      /* 16px */
   --text-body: 0.875rem;     /* 14px */
   --text-small: 0.8125rem;   /* 13px */
@@ -247,13 +245,13 @@
   }
 
   h5 {
-    font-size: var(--text-h5); /* 16px */
+    font-size: var(--text-body-lg); /* 16px */
     font-weight: 600;
     line-height: 1.4;
   }
 
   h6 {
-    font-size: var(--text-h6); /* 15px */
+    font-size: var(--text-body); /* 14px */
     font-weight: 600;
     line-height: 1.4;
   }
