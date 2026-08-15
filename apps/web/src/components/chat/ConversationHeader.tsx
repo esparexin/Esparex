@@ -73,10 +73,10 @@ export function ConversationHeader({
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-slate-900 truncate">{otherPartyName}</h3>
               {isCounterpartyOnline && (
-                <span className="text-[11px] font-medium text-emerald-600">Online</span>
+                <span className="text-tiny font-medium text-emerald-600">Online</span>
               )}
               {isOtherTyping && (
-                <span className="text-[11px] font-medium text-blue-600 animate-pulse">typing…</span>
+                <span className="text-tiny font-medium text-blue-600 animate-pulse">typing…</span>
               )}
             </div>
             {isArchived && (

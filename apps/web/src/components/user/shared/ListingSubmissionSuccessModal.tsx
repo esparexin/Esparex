@@ -34,27 +34,27 @@ export function ListingSubmissionSuccessModal({
                     </div>
 
                     <Stack gap="xs">
-                        <DialogTitle className="text-base sm:text-lg font-bold text-slate-900">
+                        <DialogTitle className="text-body-lg sm:text-h4 font-bold text-foreground">
                             {titleText}
                         </DialogTitle>
-                        <DialogDescription id="submission-success-description" className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        <DialogDescription id="submission-success-description" className="text-caption sm:text-body text-foreground-secondary leading-relaxed">
                             Your {entityLabel.toLowerCase()} is pending admin review.<br />
                             It will go live after approval.
                         </DialogDescription>
-                        <p className="text-2xs text-slate-400">Usually reviewed within 24 hours.</p>
+                        <p className="text-tiny text-muted-foreground">Usually reviewed within 24 hours.</p>
                     </Stack>
 
                     <div className="flex flex-col gap-2 pt-1">
                         <Button
                             onClick={onPrimaryAction}
-                            className="w-full h-9 sm:h-10 bg-blue-600 text-white hover:bg-blue-700 font-semibold text-xs sm:text-sm rounded-xl shadow-xs"
+                            className="w-full h-9 sm:h-10 bg-blue-600 text-white hover:bg-blue-700 font-semibold text-caption sm:text-body rounded-xl shadow-xs"
                         >
                             Done
                         </Button>
                         <Button
                             variant="outline"
                             onClick={onSecondaryAction}
-                            className="w-full h-9 sm:h-10 border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-xs sm:text-sm rounded-xl"
+                            className="w-full h-9 sm:h-10 border-slate-200 text-foreground-secondary hover:bg-muted font-medium text-caption sm:text-body rounded-xl"
                         >
                             {pendingActionLabel}
                         </Button>

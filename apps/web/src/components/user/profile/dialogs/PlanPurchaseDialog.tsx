@@ -125,7 +125,7 @@ export function PlanPurchaseDialog({
                                     <p className="font-semibold text-slate-900">{plan.name}</p>
                                     <p className="text-xs text-muted-foreground">{plan.type}</p>
                                 </div>
-                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${taxResult.invoiceType === 'TAX_INVOICE' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
+                                <span className={`text-tiny font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${taxResult.invoiceType === 'TAX_INVOICE' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}`}>
                                     {taxResult.invoiceType === 'TAX_INVOICE' ? 'B2B Tax Invoice' : 'Bill of Supply'}
                                 </span>
                             </div>
@@ -169,11 +169,11 @@ export function PlanPurchaseDialog({
 
                                 {taxResult.taxBreakup?.cgstAmount !== undefined && (
                                     <>
-                                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                        <div className="flex items-center justify-between text-slate-500 text-caption">
                                             <span>CGST (9%):</span>
                                             <span>{formatCurrency(taxResult.taxBreakup.cgstAmount)}</span>
                                         </div>
-                                        <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                        <div className="flex items-center justify-between text-slate-500 text-caption">
                                             <span>SGST (9%):</span>
                                             <span>{formatCurrency(taxResult.taxBreakup.sgstAmount!)}</span>
                                         </div>
@@ -181,7 +181,7 @@ export function PlanPurchaseDialog({
                                 )}
 
                                 {taxResult.taxBreakup?.igstAmount !== undefined && (
-                                    <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                                    <div className="flex items-center justify-between text-slate-500 text-caption">
                                         <span>IGST (18%):</span>
                                         <span>{formatCurrency(taxResult.taxBreakup.igstAmount)}</span>
                                     </div>

@@ -103,7 +103,7 @@ export function MobileNavDrawer({
 
           {/* Nav Items */}
           <div className="flex-1 overflow-y-auto px-3 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-0.5">
-            <p className="px-3 text-2xs font-bold text-foreground-subtle uppercase tracking-widest mb-2">
+            <p className="px-3 text-tiny font-bold text-foreground-subtle uppercase tracking-widest mb-2">
               {isLoggedIn ? "Account" : "Navigation"}
             </p>
             {visibleDrawerItems.map((item) => {

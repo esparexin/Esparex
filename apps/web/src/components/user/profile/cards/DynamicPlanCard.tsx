@@ -30,7 +30,7 @@ export function DynamicPlanCard({ plan, isCurrent, onSelect }: DynamicPlanCardPr
       }`}
     >
       {plan.popular && !isCurrent && (
-        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-bl-xl shadow-xs">
+        <div className="absolute top-0 right-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-tiny uppercase tracking-wider px-2.5 py-0.5 rounded-bl-xl shadow-xs">
           Popular
         </div>
       )}

@@ -208,7 +208,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                   >
                     <span>{catType}</span>
                     <span
-                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      className={`px-1.5 py-0.5 rounded-full text-tiny font-extrabold ${
                         isSelected
                           ? 'bg-white/20 text-white'
                           : 'bg-slate-100 text-slate-600'

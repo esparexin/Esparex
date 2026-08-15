@@ -57,7 +57,7 @@ export function AccountHeader({
             </Button>
           )}
           {/* ui-guard-ignore: multiple-h1 Responsive sibling — mobile-only h1, hidden md:block counterpart below */}
-          <h1 className="account-page-title text-sm font-semibold text-slate-800 truncate">
+          <h1 className="account-page-title truncate">
             {mobileTitle}
           </h1>
         </div>
