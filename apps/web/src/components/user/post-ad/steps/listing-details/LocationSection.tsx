@@ -139,22 +139,22 @@ export function LocationSection() {
     return (
         <section className="space-y-3" aria-labelledby="location-heading">
             <h2 id="location-heading" className="sr-only">Location</h2>
-            <Field label="Where are you located?" labelClassName="text-xs sm:text-sm font-semibold text-foreground-secondary" required error={locationError as string}>
+            <Field label="Where are you located?" labelClassName="text-caption sm:text-body font-semibold text-foreground-secondary" required error={locationError as string}>
                 <div className="space-y-2">
                     <LocationSelector
                         variant="inline"
                         mode="postAd"
                         onLocationSelect={handleSelectLocation}
                         currentDisplay={locationVal?.display}
-                        className="h-11 font-normal text-sm rounded-xl border border-slate-200"
+                        className="h-11 font-normal text-body rounded-xl border border-slate-200"
                         disabled={isLocationLocked}
                     />
                     {isLocationLocked ? (
-                        <p className="text-xs text-amber-600 text-center font-normal">
+                        <p className="text-caption text-amber-600 text-center font-normal">
                             Location cannot be changed once an ad is live or under review.
                         </p>
                     ) : (
-                        <p className="text-xs text-foreground-subtle text-center font-normal">Use GPS auto-detect or search manually for your city.</p>
+                        <p className="text-caption text-foreground-subtle text-center font-normal">Use GPS auto-detect or search manually for your city.</p>
                     )}
                 </div>
             </Field>
