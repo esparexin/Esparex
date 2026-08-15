@@ -249,23 +249,23 @@ export default function UsersPage() {
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-5 max-w-3xl">
                         <Link href={ADMIN_UI_ROUTES.users()} className="rounded-md border border-slate-200 bg-white px-2.5 py-1.5 shadow-2xs transition hover:border-slate-300 hover:shadow-xs">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-foreground-tertiary">Total Users</p>
                             <p className="mt-0.5 text-base font-bold text-foreground">{overview.totalUsers.toLocaleString()}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ role: "user" })} className="rounded-md border border-emerald-200 bg-emerald-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-emerald-300 hover:shadow-xs">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">Individuals</p>
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-emerald-700">Individuals</p>
                             <p className="mt-0.5 text-base font-bold text-emerald-700">{overview.individuals.toLocaleString()}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ role: "business" })} className="rounded-md border border-blue-200 bg-blue-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-blue-300 hover:shadow-xs">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-700">Businesses</p>
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-blue-700">Businesses</p>
                             <p className="mt-0.5 text-base font-bold text-blue-700">{overview.businesses.toLocaleString()}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ role: "business", isVerified: "true" })} className="rounded-md border border-indigo-200 bg-indigo-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-indigo-300 hover:shadow-xs">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-indigo-700">Verified Businesses</p>
                             <p className="mt-0.5 text-base font-bold text-indigo-700">{overview.verifiedBusinesses.toLocaleString()}</p>
                         </Link>
                         <Link href={ADMIN_UI_ROUTES.users({ status: "suspended" })} className="rounded-md border border-red-200 bg-red-50/40 px-2.5 py-1.5 shadow-2xs transition hover:border-red-300 hover:shadow-xs">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-red-700">Blocked Users</p>
+                            <p className="text-tiny font-semibold uppercase tracking-wider text-red-700">Blocked Users</p>
                             <p className="mt-0.5 text-base font-bold text-red-700">{overview.blockedUsers.toLocaleString()}</p>
                         </Link>
                     </div>

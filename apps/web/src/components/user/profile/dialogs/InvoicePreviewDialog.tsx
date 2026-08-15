@@ -88,7 +88,7 @@ export function InvoicePreviewDialog({
                         <div>
                             <DialogTitle id="invoice-preview-title" className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
                                 Invoice #{orderId.slice(-8).toUpperCase()}
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                                     <CheckCircle2 className="w-3 h-3" /> PAID
                                 </span>
                             </DialogTitle>
