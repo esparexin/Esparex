@@ -63,9 +63,9 @@ When compiling the project or running verification pipelines, always execute com
 
 3.  **Compile & Run the Mobile App**:
     ```bash
-    npm run ios
+    npm run mobile:build:android
     # or
-    npm run android
+    npm run mobile:build:ios
     ```
 
 ### 2.3 Local Testing: The Simulator Workflow

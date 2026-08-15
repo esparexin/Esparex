@@ -30,12 +30,12 @@ The table below defines the official platform version constraints required for w
 | `react-native-screens` | `~4.4.0` | Autolinks successfully | Full native support |
 | `react-native-safe-area-context` | `4.12.0` | Autolinks successfully | Full native support |
 | `react-native-svg` | `15.8.0` | Autolinks successfully | Full native support |
-| `react-native-razorpay` | `^3.0.0` | CocoaPods target strip | Managed via New Architecture Bridge Interop |
-| `react-native-worklets` | `0.7.4` | Native autolink disabled | Aligned via Babel build-time compile only |
+| `react-native-razorpay` | `^3.0.0` | Autolinks successfully | Managed via New Architecture Bridge Interop |
 | `react-native-css-interop` | `0.2.6` | Autolinks successfully | Full native support |
 
 ---
 
 ## 3. History and Changelog
 
-*   **2026-08-14**: Standardized JDK 17/21 limits and disabled native autolinking for `react-native-worklets` under React Native 0.76.9.
+*   **2026-08-15**: Pinned OpenJDK 17 LTS as official compilation baseline. Removed redundant `react-native-worklets` package and null autolinking overrides. Enabled clean Android release APK compilation (`BUILD SUCCESSFUL`) and iOS CocoaPods linking via Bundler (`Gemfile`).
+*   **2026-08-14**: Standardized JDK 17/21 limits.
