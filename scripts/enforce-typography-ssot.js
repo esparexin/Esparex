@@ -22,7 +22,7 @@ if (!fs.existsSync(SSOT_TOKEN_FILE)) {
 }
 
 const ssotContent = fs.readFileSync(SSOT_TOKEN_FILE, "utf-8");
-const expectedTokens = ["display", "h1", "h2", "h3", "h4", "body", "small", "caption", "tiny"];
+const expectedTokens = ["display", "h1", "h2", "h3", "h4", "body-lg", "body", "small", "caption", "tiny"];
 const missingTokens = expectedTokens.filter(token => !ssotContent.includes(`'${token}'`) && !ssotContent.includes(`"${token}"`));
 
 if (missingTokens.length > 0) {
@@ -30,10 +30,12 @@ if (missingTokens.length > 0) {
     process.exit(1);
 }
 
-const ARBITRARY_FONT_PATTERN = /\btext-\[\d+px\]/g;
+const ARBITRARY_FONT_SIZE_PATTERN = /\btext-\[\d+(?:\.\d+)?(?:px|rem|em)\]/g;
+const ARBITRARY_FONT_WEIGHT_PATTERN = /\bfont-\[\d+\]/g;
 const SUPPRESSION_PATTERN = /typography-ssot-ignore(?::\s*(.+))?/;
 
-let violations = [];
+let sizeViolations = [];
+let weightViolations = [];
 let emptySuppressions = [];
 
 const checkLineForSuppression = (lines, lineIndex) => {
@@ -68,8 +70,10 @@ const walkDir = (dir) => {
             const lines = content.split("\n");
 
             lines.forEach((line, index) => {
-                const matches = line.match(ARBITRARY_FONT_PATTERN);
-                if (matches) {
+                const sizeMatches = line.match(ARBITRARY_FONT_SIZE_PATTERN);
+                const weightMatches = line.match(ARBITRARY_FONT_WEIGHT_PATTERN);
+
+                if (sizeMatches || weightMatches) {
                     const suppression = checkLineForSuppression(lines, index);
                     const relPath = path.relative(repoRoot, fullPath);
 
@@ -80,12 +84,22 @@ const walkDir = (dir) => {
                             code: line.trim(),
                         });
                     } else if (!suppression.suppressed) {
-                        violations.push({
-                            file: relPath,
-                            line: index + 1,
-                            matches,
-                            code: line.trim(),
-                        });
+                        if (sizeMatches) {
+                            sizeViolations.push({
+                                file: relPath,
+                                line: index + 1,
+                                matches: sizeMatches,
+                                code: line.trim(),
+                            });
+                        }
+                        if (weightMatches) {
+                            weightViolations.push({
+                                file: relPath,
+                                line: index + 1,
+                                matches: weightMatches,
+                                code: line.trim(),
+                            });
+                        }
                     }
                 }
             });
@@ -110,12 +124,34 @@ if (emptySuppressions.length > 0) {
     }
 }
 
-if (violations.length > 0) {
+if (sizeViolations.length > 0) {
     hasErrors = true;
     console.error("\n❌ Typography SSOT Governance Gate Violation: Arbitrary Font Size Utilities Detected!");
-    console.error("Arbitrary pixel font size utilities (e.g. `text-[10px]`) are strictly prohibited.");
-    console.error("Use approved SSOT tokens from `packages/ui/src/tokens/typography.ts` instead (`text-tiny`, `text-small`, `text-caption`, `text-body`, `text-h4`, `text-h3`, `text-h2`, `text-h1`, `text-display`).\n");
-    for (const v of violations) {
+    console.error("Arbitrary pixel/rem font size utilities (e.g. `text-[10px]`, `text-[1.2rem]`) are strictly prohibited.");
+    console.error("Use approved SSOT tokens from `packages/ui/src/tokens/typography.ts` instead:");
+    console.error("  - 11px -> `text-tiny`");
+    console.error("  - 12px -> `text-caption`");
+    console.error("  - 13px -> `text-small`");
+    console.error("  - 14px -> `text-body`");
+    console.error("  - 16px -> `text-body-lg`");
+    console.error("  - 18px -> `text-h4`");
+    console.error("  - 20px -> `text-h3`");
+    console.error("  - 24px -> `text-h2`");
+    console.error("  - 30px -> `text-h1`");
+    console.error("  - 36px -> `text-display`\n");
+    for (const v of sizeViolations) {
+        console.error(`  - ${v.file}:${v.line}`);
+        console.error(`    Matches: ${v.matches.join(", ")}`);
+        console.error(`    Code: ${v.code}\n`);
+    }
+}
+
+if (weightViolations.length > 0) {
+    hasErrors = true;
+    console.error("\n❌ Typography SSOT Governance Gate Violation: Arbitrary Font Weight Utilities Detected!");
+    console.error("Arbitrary bracket font weight utilities (e.g. `font-[600]`) are strictly prohibited.");
+    console.error("Use approved SSOT font weights (`font-normal`, `font-medium`, `font-semibold`, `font-bold`).\n");
+    for (const v of weightViolations) {
         console.error(`  - ${v.file}:${v.line}`);
         console.error(`    Matches: ${v.matches.join(", ")}`);
         console.error(`    Code: ${v.code}\n`);
@@ -125,5 +161,5 @@ if (violations.length > 0) {
 if (hasErrors) {
     process.exit(1);
 } else {
-    console.log("✅ Typography SSOT Governance Gate Passed — 0 unexempted arbitrary font-size utilities found.");
+    console.log("✅ Typography SSOT Governance Gate Passed — 0 unexempted arbitrary typography utilities found.");
 }
