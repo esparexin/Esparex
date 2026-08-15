@@ -33,7 +33,7 @@ export function PlanCheckoutGstSection({
 
             {wantsGst && (
                 <div className="pl-6 flex flex-col gap-1.5 pt-1">
-                    <Label htmlFor="checkout-gstin" className="text-[11px] font-semibold text-slate-700">
+                    <Label htmlFor="checkout-gstin" className="text-caption font-semibold text-slate-700">
                         GSTIN Number
                     </Label>
                     <Input
@@ -46,10 +46,10 @@ export function PlanCheckoutGstSection({
                         className="h-8 rounded-lg text-xs bg-white uppercase font-mono"
                     />
                     {gstin && !isGstValid && (
-                        <p className="text-[10px] text-amber-600">Please enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5)</p>
+                        <p className="text-tiny text-amber-600">Please enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5)</p>
                     )}
                     {isGstValid && (
-                        <p className="text-[10px] text-emerald-600 font-medium flex items-center gap-1">
+                        <p className="text-tiny text-emerald-600 font-medium flex items-center gap-1">
                             <CheckCircle2 className="h-3 w-3 inline" /> Valid GSTIN. B2B Tax Invoice enabled.
                         </p>
                     )}

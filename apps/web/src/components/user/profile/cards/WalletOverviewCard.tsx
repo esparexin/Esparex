@@ -11,7 +11,7 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
   return (
     <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs">
       <CardContent className="p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider">
           Ad Credits & Allowances
         </h4>
 
@@ -23,15 +23,15 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
                 <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
                   <Package className="w-4 h-4 shrink-0" />
                 </div>
-                <span className="text-xs font-bold text-slate-900">Ad Postings</span>
+                <span className="text-small font-bold text-foreground">Ad Postings</span>
               </div>
-              <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="text-tiny font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                 {wallet.monthlyFreeAdsRemaining + wallet.paidAdCredits} Available
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-2xs text-slate-500 pt-2 border-t border-slate-200/60">
-              <span>Free Monthly: <strong className="text-slate-800">{wallet.monthlyFreeAdsRemaining}</strong> / {wallet.monthlyFreeAdsTotal}</span>
-              <span>Extra Paid: <strong className="text-slate-800">{wallet.paidAdCredits}</strong></span>
+            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-slate-200/60">
+              <span>Free Monthly: <strong className="text-foreground">{wallet.monthlyFreeAdsRemaining}</strong> / {wallet.monthlyFreeAdsTotal}</span>
+              <span>Extra Paid: <strong className="text-foreground">{wallet.paidAdCredits}</strong></span>
             </div>
           </div>
 
@@ -42,13 +42,13 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
                 <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100">
                   <Bell className="w-4 h-4 shrink-0" />
                 </div>
-                <span className="text-xs font-bold text-slate-900">Smart Alerts</span>
+                <span className="text-small font-bold text-foreground">Smart Alerts</span>
               </div>
-              <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-tiny font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                 {wallet.smartAlertSlots ?? 0} Active
               </span>
             </div>
-            <div className="text-2xs text-slate-500 pt-2 border-t border-slate-200/60">
+            <div className="text-tiny text-muted-foreground pt-2 border-t border-slate-200/60">
               Instant match notifications for buyer requests
             </div>
           </div>
@@ -60,15 +60,15 @@ export const WalletOverviewCard: React.FC<WalletOverviewCardProps> = ({ wallet }
                 <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600 border border-amber-100">
                   <Zap className="w-4 h-4 shrink-0" />
                 </div>
-                <span className="text-xs font-bold text-slate-900">Listing Boosts</span>
+                <span className="text-small font-bold text-foreground">Listing Boosts</span>
               </div>
-              <span className="text-2xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              <span className="text-tiny font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                 {wallet.spotlightCredits + wallet.topAdCredits} Credits
               </span>
             </div>
-            <div className="flex items-baseline justify-between text-2xs text-slate-500 pt-2 border-t border-slate-200/60">
-              <span>Spotlight: <strong className="text-slate-800">{wallet.spotlightCredits}</strong></span>
-              <span>Top Ad: <strong className="text-slate-800">{wallet.topAdCredits}</strong></span>
+            <div className="flex items-baseline justify-between text-tiny text-muted-foreground pt-2 border-t border-slate-200/60">
+              <span>Spotlight: <strong className="text-foreground">{wallet.spotlightCredits}</strong></span>
+              <span>Top Ad: <strong className="text-foreground">{wallet.topAdCredits}</strong></span>
             </div>
           </div>
         </div>

@@ -49,8 +49,8 @@ export function AccountDesktopSidebar({
       <div className="mt-3 p-3.5 rounded-xl border border-slate-200/80 bg-white shadow-xs">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-2xs font-bold text-slate-500 uppercase tracking-wider">Current Plan</p>
-            <p className="text-sm font-bold text-slate-900 flex items-center gap-1.5 mt-0.5">
+            <p className="text-tiny font-bold text-muted-foreground uppercase tracking-wider">Current Plan</p>
+            <p className="text-body font-bold text-foreground flex items-center gap-1.5 mt-0.5">
               <Crown className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
               <span>{user?.plan || "Free"}</span>
             </p>
@@ -60,7 +60,7 @@ export function AccountDesktopSidebar({
               type="button"
               onClick={() => onTabChange("plans")}
               size="sm"
-              className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs"
+              className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-caption font-semibold shadow-xs"
             >
               Upgrade
             </Button>

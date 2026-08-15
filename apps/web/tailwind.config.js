@@ -17,6 +17,14 @@ const config = {
 			fontSize: {
 				...typography.fontSizes,
 				'2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px legacy fallback
+				// Standard Tailwind scale harmonization mapped to canonical design tokens
+				xs: typography.fontSizes.caption,   // 12px / 0.75rem (lineHeight: 1.4)
+				sm: typography.fontSizes.body,      // 14px / 0.875rem (lineHeight: 1.55)
+				base: typography.fontSizes['body-lg'], // 16px / 1rem (lineHeight: 1.5)
+				lg: typography.fontSizes.h4,        // 18px / 1.125rem (lineHeight: 1.4)
+				xl: typography.fontSizes.h3,        // 20px / 1.25rem (lineHeight: 1.35)
+				'2xl': typography.fontSizes.h2,     // 24px / 1.5rem (lineHeight: 1.3)
+				'3xl': typography.fontSizes.h1,     // 30px / 1.875rem (lineHeight: 1.25)
 			},
 			fontWeight: typography.fontWeights,
 			colors: {

@@ -112,7 +112,7 @@ export function SavedAdsTab({ navigateTo }: SavedAdsTabProps) {
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {ad.category && (
-                    <span className="absolute bottom-1 left-1 bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-semibold px-1.5 py-0.2 rounded">
+                    <span className="absolute bottom-1 left-1 bg-slate-900/80 backdrop-blur-xs text-white text-tiny font-semibold px-1.5 py-0.2 rounded">
                       {ad.category}
                     </span>
                   )}
