@@ -20,6 +20,6 @@ export const TYPOGRAPHY_TOKENS = {
   fontWeight: TYPOGRAPHY_FONT_WEIGHT,
 };
 
-export type TypographyFontSize = 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body' | 'small' | 'caption' | 'tiny';
+export type TypographyFontSize = 'display' | 'h1' | 'h2' | 'h3' | 'h4' | 'body-lg' | 'body' | 'small' | 'caption' | 'tiny';
 export type TypographyFontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
 
