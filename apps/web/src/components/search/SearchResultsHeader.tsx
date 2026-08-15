@@ -59,7 +59,7 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             {...props}
         >
             <SortAsc className="size-4 text-foreground-subtle" />
-            <span className="hidden sm:inline font-normal text-slate-700 text-xs sm:text-sm">{SORT_LABELS[sort]}</span>
+            <span className="hidden sm:inline font-normal text-foreground-secondary text-caption sm:text-body">{SORT_LABELS[sort]}</span>
             <ChevronDown className={cn("size-3.5 text-foreground-subtle transition-transform", open && "rotate-180")} />
         </button>
     );
@@ -86,7 +86,7 @@ function SortDropdownMenu({
                     onSelect={() => onSelect(key)}
                     aria-selected={sort === key}
                     className={cn(
-                        "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-sm",
+                        "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-body",
                         sort === key
                             ? "bg-slate-900 text-white font-medium focus:bg-slate-900 focus:text-white"
                             : "text-foreground-tertiary focus:bg-slate-50 focus:text-foreground-secondary"
@@ -147,7 +147,7 @@ export function SearchResultsHeader({
                 <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
                     {filterNode && <div className="shrink-0 lg:hidden">{filterNode}</div>}
                     {categoryName && (
-                        <h2 className="hidden sm:block text-h4 font-bold text-slate-900 tracking-tight leading-none truncate">
+                        <h2 className="hidden sm:block text-h4 font-bold text-foreground tracking-tight leading-none truncate">
                             {categoryName}
                         </h2>
                     )}
