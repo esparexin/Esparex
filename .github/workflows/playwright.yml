@@ -23,7 +23,7 @@ jobs:
       NEXT_PUBLIC_FIREBASE_VAPID_KEY: placeholder
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: lts/*
     - name: Install dependencies
