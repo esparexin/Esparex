@@ -69,7 +69,7 @@ export const AdCardMeta = memo(function AdCardMeta({
         <span
           className={cn(
             "font-normal sm:font-bold tracking-tight text-emerald-700 dark:text-emerald-400",
-            isList ? "text-sm sm:text-lg" : isDashboard ? "text-sm sm:text-base" : "text-sm sm:text-base"
+            isList ? "text-body sm:text-h4" : isDashboard ? "text-body sm:text-body-lg" : "text-body sm:text-body-lg"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >
@@ -80,8 +80,8 @@ export const AdCardMeta = memo(function AdCardMeta({
       {/* Title — De-congested with relaxed line-height and clean font weight */}
       <div className="min-h-[2rem] sm:min-h-[2.5rem] flex items-start my-0.5">
         <h3 className={cn(
-          "font-normal sm:font-semibold line-clamp-2 leading-relaxed text-slate-800 tracking-normal",
-          isList ? "text-xs sm:text-sm" : "text-xs sm:text-sm"
+          "font-normal sm:font-semibold line-clamp-2 leading-relaxed text-foreground tracking-normal",
+          isList ? "text-caption sm:text-body" : "text-caption sm:text-body"
         )}>
           {sanitizeListingTitle(ad.title, ad)}
         </h3>
