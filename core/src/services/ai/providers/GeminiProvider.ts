@@ -52,6 +52,9 @@ export class GeminiProvider implements AIProvider {
             const client = await this.clientPromise;
             const model = await this.modelNamePromise;
             const config = await getAiConfig();
+            if (!config.geminiApiKey) {
+                throw new GeminiProviderError('Gemini API key is missing', 'Authentication', 401);
+            }
 
             const response = await withTimeout(
                 client.models.generateContent({

@@ -128,16 +128,17 @@ export function SettingsTab({
         <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="space-y-6">
             <PageSection
                 variant="bordered"
+                className="rounded-none sm:rounded-2xl border-0 sm:border border-slate-200/80 bg-transparent sm:bg-white shadow-none sm:shadow-xs p-0 sm:p-5"
                 title={
-                    <span className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                    <span className="hidden md:flex items-center gap-2 text-lg font-semibold text-slate-900">
                         <SettingsIcon className="h-5 w-5 text-blue-600" />
                         Notification Settings
                     </span>
                 }
-                subtitle={ACCOUNT_COPY.notificationsDescription}
+                subtitle={<span className="hidden md:block">{ACCOUNT_COPY.notificationsDescription}</span>}
             >
                 <div className="space-y-4 pt-1">
-                    <div className="rounded-lg border border-blue-100 bg-blue-50/70 px-4 py-3 text-xs text-link-dark leading-relaxed">
+                    <div className="rounded-xl border border-blue-100 bg-blue-50/70 px-3.5 py-2.5 text-xs text-link-dark leading-relaxed">
                         These toggles control the notifications you actually receive. Smart alert delivery also respects
                         the email, push, and instant-alert settings below.
                     </div>
@@ -214,8 +215,7 @@ export function SettingsTab({
                     <FormError message={globalError} />
                     <Button
                         type="submit"
-                        className="w-full md:w-auto h-10 gap-2 text-xs font-semibold px-6"
-                        variant="outline"
+                        className="w-full md:w-auto h-9 gap-2 text-xs font-semibold px-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-xs"
                         disabled={isSaving}
                     >
                         <Save className="h-4 w-4" />
@@ -226,21 +226,21 @@ export function SettingsTab({
 
             <PageSection
                 variant="bordered"
-                className="border-red-200 bg-red-50/30"
+                className="rounded-none sm:rounded-2xl border-0 sm:border border-red-200/80 bg-red-50/10 sm:bg-red-50/20 p-0 sm:p-5"
                 title={
-                    <span className="text-base font-semibold flex items-center gap-2 text-red-600">
+                    <span className="text-sm sm:text-base font-semibold flex items-center gap-2 text-red-600">
                         <Trash2 className="h-4 w-4" />
                         Delete Account
                     </span>
                 }
                 subtitle="Permanently delete your account. Secure confirmation required."
             >
-                <div className="pt-2">
+                <div className="pt-1">
                     <Button
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
-                        className="h-10 gap-2 text-xs font-semibold px-5"
+                        className="h-9 gap-2 text-xs font-semibold px-4 rounded-xl"
                     >
                         <AlertTriangle className="h-4 w-4" />
                         Delete My Account

@@ -61,13 +61,15 @@ export type ProfileTabValue =
   | "purchases"
   | "more";
 
-export const PROFILE_TAB_ITEMS: Array<{
+export interface ProfileTabItem {
   value: ProfileTabValue;
   label: string;
   icon: LucideIcon;
   /** When true, this tab is only shown to admin-verified business accounts */
   businessOnly?: boolean;
-}> = [
+}
+
+export const PROFILE_TAB_ITEMS: ProfileTabItem[] = [
     { value: "personal", label: "Account", icon: UserIcon },
     { value: "mylistings", label: "My Listings", icon: Package },
     { value: "messages", label: "Messages", icon: MessageSquare },

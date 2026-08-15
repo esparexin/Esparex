@@ -6,14 +6,12 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { personalProfileSchema, type PersonalProfileValues, MOBILE_VISIBILITY } from "@esparex/contracts";
 
-import { Button, Switch } from "@esparex/ui";
+import { Button, Card, CardContent, Switch } from "@esparex/ui";
 import { FormError } from "@/components/ui/FormError";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { User, Camera, Lock } from "@/icons/IconRegistry";
 import { UploadSourcePicker } from "@/components/user/shared/UploadSourcePicker";
-import { PersonalProfileGstSection } from "./PersonalProfileGstSection";
-import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
 
 import { updateProfile } from "@/lib/api/user/users";
 import { notify } from "@/lib/feedback";
@@ -21,6 +19,8 @@ import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { isAllowedProfilePhotoType, PROFILE_PHOTO_ALLOWED_LABEL, PROFILE_PHOTO_MAX_BYTES, PROFILE_PHOTO_ACCEPT } from "@/lib/uploads/profilePhotoUpload";
 import type { User as UserType } from "@/types/User";
 import type { ProfileUser } from "../types";
+import { PersonalProfileEmailSection } from "./PersonalProfileEmailSection";
+import { PersonalProfileGstSection } from "./PersonalProfileGstSection";
 
 interface PersonalTabProps {
     user: ProfileUser | null;
@@ -67,39 +67,29 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
     });
 
     const onSubmit = async (data: PersonalProfileValues) => {
-        setGlobalError(null);
         setIsSaving(true);
-
-        const submitData = new FormData();
-        submitData.append("name", data.name);
-        submitData.append("email", data.email || "");
-        if (data.gstin) {
-            submitData.append("gstin", data.gstin);
-        }
-        submitData.append("mobileVisibility", data.mobileVisibility);
-
-        if (selectedPhotoFile) {
-            submitData.append("profilePhoto", selectedPhotoFile);
-        } else if (previewPhoto === null && user?.profilePhoto) {
-            submitData.append("removePhoto", "true");
-        }
+        setGlobalError(null);
 
         try {
-            const updatedUser = await updateProfile(submitData, {
-                headers: { "Content-Type": "multipart/form-data" },
-                silent: true,
-            });
+            const formData = new FormData();
+            formData.append("name", data.name);
+            formData.append("email", data.email || "");
+            formData.append("gstin", data.gstin || "");
+            formData.append("mobileVisibility", data.mobileVisibility);
 
-            if (!updatedUser) {
-                setGlobalError("Failed to update profile.");
-                return;
+            if (selectedPhotoFile) {
+                formData.append("profilePhoto", selectedPhotoFile);
             }
 
-            onUpdateUser(updatedUser);
-            setSelectedPhotoFile(null);
-            notify.success("Profile updated successfully!");
+            const updated = await updateProfile(formData);
+            if (updated) {
+                onUpdateUser(updated);
+            }
+            notify.success("Profile updated successfully");
         } catch (err: unknown) {
-            setGlobalError(err instanceof Error ? err.message : "Failed to update profile");
+            const msg = err instanceof Error ? err.message : "Failed to update profile";
+            setGlobalError(msg);
+            notify.error(msg);
         } finally {
             setIsSaving(false);
         }
@@ -144,125 +134,140 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
     const nameError = form.formState.errors.name?.message;
     const emailError = form.formState.errors.email?.message;
     const gstinError = form.formState.errors.gstin?.message;
+    const formattedMobile = user?.mobile ? (user.mobile.startsWith("+") ? user.mobile : `+${user.mobile}`) : "Not provided";
 
     return (
-        <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full space-y-3.5">
-            {/* Profile Photo Section */}
-            <div className="flex items-center gap-3.5">
-                <div
-                    className="relative cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full"
-                    onClick={() => setShowPhotoDialog(true)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            setShowPhotoDialog(true);
-                        }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Change profile photo"
-                >
-                    <div className="h-14 w-14 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center relative shadow-2xs">
-                        {previewPhoto ? (
-                            <Image
-                                src={previewPhoto}
-                                alt="Profile"
-                                fill
-                                priority
-                                unoptimized
-                                className="object-cover"
-                                sizes="56px"
+        <>
+            <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-slate-200/80 bg-transparent sm:bg-white shadow-none sm:shadow-xs max-w-2xl overflow-hidden">
+                <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
+                    <CardContent className="p-0 sm:p-5 space-y-4">
+                        {/* Profile Photo Section */}
+                        <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                            <div
+                                className="relative cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full shrink-0"
+                                onClick={() => setShowPhotoDialog(true)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        e.preventDefault();
+                                        setShowPhotoDialog(true);
+                                    }
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                aria-label="Change profile photo"
+                            >
+                                <div className="h-12 w-12 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center relative shadow-2xs">
+                                    {previewPhoto ? (
+                                        <Image
+                                            src={previewPhoto}
+                                            alt="Profile"
+                                            fill
+                                            priority
+                                            unoptimized
+                                            className="object-cover"
+                                            sizes="48px"
+                                        />
+                                    ) : (
+                                        <User className="h-6 w-6 text-slate-400" />
+                                    )}
+                                </div>
+                                <div className="absolute bottom-0 right-0 h-4.5 w-4.5 rounded-full bg-slate-900 text-white border-2 border-white flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105">
+                                    <Camera className="h-2.5 w-2.5" />
+                                </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">Profile photo</h4>
+                                <p className="text-tiny text-slate-500">
+                                    JPG, PNG, WEBP. Max 5MB. Click to upload or change.
+                                </p>
+                                <FormError message={photoError} />
+                            </div>
+                        </div>
+
+                        {/* 2-Column Side-by-Side Form Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+                            {/* Column 1: Full Name */}
+                            <div className="space-y-1">
+                                <Label htmlFor="profile-name" className="text-xs font-semibold text-slate-700">
+                                    Full name <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="profile-name"
+                                    type="text"
+                                    placeholder="Enter your full name"
+                                    className="h-9 text-xs sm:text-sm rounded-xl border-slate-200 bg-white px-3.5 focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    {...form.register("name")}
+                                />
+                                <FormError message={nameError} />
+                            </div>
+
+                            {/* Column 2: Mobile Number (Read-only verified) */}
+                            <div className="space-y-1">
+                                <Label htmlFor="profile-mobile" className="text-xs font-semibold text-slate-700">
+                                    Mobile number
+                                </Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                                    <Input
+                                        id="profile-mobile"
+                                        type="tel"
+                                        value={formattedMobile}
+                                        readOnly
+                                        disabled
+                                        className="h-9 text-xs sm:text-sm pl-8.5 pr-3.5 rounded-xl border-slate-200 bg-slate-50 text-slate-800 font-medium cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Column 1: Notification Email */}
+                            <PersonalProfileEmailSection
+                                register={form.register}
+                                emailError={emailError}
                             />
-                        ) : (
-                            <User className="h-7 w-7 text-slate-400" />
-                        )}
-                    </div>
-                    <div className="absolute bottom-0 right-0 h-5.5 w-5.5 rounded-full bg-slate-900 text-white border-2 border-white flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105">
-                        <Camera className="h-3 w-3" />
-                    </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">Profile photo</h4>
-                    <p className="text-tiny sm:text-xs text-slate-500 mt-0.5">
-                        JPG, PNG, WEBP. Max 5MB.
-                    </p>
-                    <FormError message={photoError} />
-                </div>
-            </div>
 
-            {/* Full Name Field */}
-            <div className="space-y-1.5">
-                <Label htmlFor="profile-name" className="text-xs font-semibold text-slate-700">
-                    Full name
-                </Label>
-                <Input
-                    id="profile-name"
-                    placeholder="Kalyn"
-                    maxLength={50}
-                    {...form.register("name")}
-                    className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-xs sm:text-sm font-medium ${nameError ? "border-red-500" : ""}`}
-                    aria-invalid={!!nameError}
-                    aria-describedby={nameError ? "profile-name-error" : undefined}
-                    autoComplete="name"
-                />
-                <FormError id="profile-name-error" message={nameError} />
-            </div>
+                            {/* Column 2: GSTIN Field */}
+                            <PersonalProfileGstSection
+                                register={form.register}
+                                gstinError={gstinError}
+                            />
+                        </div>
 
-            {/* Notification & Invoice Email Field */}
-            <PersonalProfileEmailSection
-                register={form.register}
-                emailError={emailError}
-            />
+                        <FormError message={globalError} />
 
-            {/* GSTIN Field */}
-            <PersonalProfileGstSection
-                register={form.register}
-                gstinError={gstinError}
-            />
+                        {/* Bottom Row: Toggle & Save Changes Button Side-by-Side */}
+                        <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                                <Controller
+                                    name="mobileVisibility"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <Switch
+                                            id="mobile-visibility-toggle"
+                                            checked={field.value === 'show'}
+                                            onCheckedChange={(checked) => field.onChange(checked ? 'show' : 'hide')}
+                                        />
+                                    )}
+                                />
+                                <div>
+                                    <Label htmlFor="mobile-visibility-toggle" className="text-xs sm:text-sm font-semibold text-slate-900 cursor-pointer">
+                                        Show number to buyers
+                                    </Label>
+                                    <p className="text-tiny text-slate-500">Buyers can call you directly</p>
+                                </div>
+                            </div>
 
-            {/* Mobile Number Read-Only Display */}
-            <div className="space-y-1.5">
-                <Label htmlFor="profile-mobile" className="text-xs font-semibold text-slate-700">
-                    Mobile number
-                </Label>
-                <div className="h-10 sm:h-10.5 rounded-xl bg-slate-100/70 border border-slate-200/80 px-3.5 flex items-center gap-2.5">
-                    <Lock className="h-4 w-4 text-slate-400 shrink-0" />
-                    <span className="text-xs sm:text-sm font-semibold text-slate-800 tracking-wide">
-                        {user?.mobile ? (user.mobile.startsWith("+") ? user.mobile : `+91 ${user.mobile}`) : "+91 96787 87688"}
-                    </span>
-                </div>
-            </div>
-
-            {/* Show Number to Buyers Switch Row */}
-            <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between gap-3">
-                <div>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900">Show number to buyers</h4>
-                    <p className="text-tiny text-slate-500 mt-0.5">Buyers can call you directly</p>
-                </div>
-                <Controller
-                    name="mobileVisibility"
-                    control={form.control}
-                    render={({ field }) => (
-                        <Switch
-                            id="mobile-visibility-toggle"
-                            checked={field.value === 'show'}
-                            onCheckedChange={(checked) => field.onChange(checked ? 'show' : 'hide')}
-                        />
-                    )}
-                />
-            </div>
-
-            <FormError message={globalError} />
-
-            {/* Full-Width Dark Save Changes Button (Normal Standard Button Size) */}
-            <Button
-                type="submit"
-                size="lg"
-                disabled={isSaving}
-                className="w-full h-11 sm:h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm sm:text-base rounded-xl transition-all shadow-sm active:scale-[0.98] mt-4 flex items-center justify-center min-h-[44px]"
-            >
-                {isSaving ? "Saving..." : "Save changes"}
-            </Button>
+                            <Button
+                                type="submit"
+                                size="sm"
+                                disabled={isSaving}
+                                className="w-full sm:w-auto h-9 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
+                            >
+                                {isSaving ? "Saving..." : "Save changes"}
+                            </Button>
+                        </div>
+                    </CardContent>
+                </form>
+            </Card>
 
             <input
                 ref={cameraInputRef}
@@ -296,6 +301,6 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                 variant="profile"
                 showRemoveOption={Boolean(user?.profilePhoto)}
             />
-        </form>
+        </>
     );
 }
