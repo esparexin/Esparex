@@ -25,7 +25,12 @@ const FILE_LIMITS = [
 function getBaseRef() {
   const ghBase = process.env.GITHUB_BASE_REF;
   if (ghBase) return `origin/${ghBase}`;
-  return 'origin/main';
+  try {
+    execSync('git rev-parse --verify origin/develop', { cwd: ROOT, stdio: 'ignore' });
+    return 'origin/develop';
+  } catch {
+    return 'origin/main';
+  }
 }
 
 function getMergeBase(baseRef) {

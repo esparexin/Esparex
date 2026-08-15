@@ -43,10 +43,10 @@ export function ModelSection() {
                 name="model"
                 render={() => (
                     <div className={cn("flex flex-col gap-1.5", (!brandNameValue || isEditMode) && "opacity-60 grayscale-[0.5] cursor-not-allowed")}>
-                        <FieldLabel className="text-sm font-semibold">Model</FieldLabel>
+                        <FieldLabel className="text-xs sm:text-sm font-semibold text-foreground-secondary">Model</FieldLabel>
                         <FieldControl animateOnError>
                             {!brandNameValue ? (
-                                <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-sm text-slate-400 font-medium">
+                                <div className="h-11 w-full rounded-xl bg-slate-50 border border-slate-200 flex items-center px-4 text-xs sm:text-sm text-slate-400 font-medium">
                                     Select brand first...
                                 </div>
                             ) : (

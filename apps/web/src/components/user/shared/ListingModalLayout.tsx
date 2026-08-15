@@ -40,7 +40,7 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                                 <X className="w-4 h-4" />
                             </Button>
                             <div className="flex-1 flex items-center gap-2.5 ml-2">
-                                <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight">
+                                <DialogTitle className="font-bold text-slate-900 text-base sm:text-lg tracking-tight">
                                     {title}
                                 </DialogTitle>
                                 {subtitle && (
@@ -66,19 +66,19 @@ export function ListingModalLayout({ title, subtitle, onClose, fullScreen, child
                 variant="bottomSheet"
                 style={{ zIndex: Z_INDEX.listingModal }}
             >
-                <header className="shrink-0 bg-white border-b border-slate-100 flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4">
+                <header className="shrink-0 bg-white border-b border-slate-100 flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
                     <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={onClose}
                         aria-label="Close modal"
-                        className="h-9 w-9 rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 shrink-0"
+                        className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 shrink-0"
                     >
-                        <X className="w-4.5 h-4.5" />
+                        <X className="w-4 h-4" />
                     </Button>
                     <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2.5 min-w-0">
-                        <DialogTitle className="font-bold text-slate-900 text-lg sm:text-xl tracking-tight truncate">
+                        <DialogTitle className="font-bold text-slate-900 text-base sm:text-lg tracking-tight truncate">
                             {title}
                         </DialogTitle>
                         {subtitle && (

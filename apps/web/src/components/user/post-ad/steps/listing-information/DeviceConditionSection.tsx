@@ -1,14 +1,16 @@
 "use client";
 
-import { usePostAdCatalog, usePostAdAction } from "../../context";
+import { usePostAdCatalog, usePostAdAction, usePostAdFlow } from "../../context";
 import { Button, FieldRoot, FieldLabel, FieldControl, FormItem } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { Leaf, Contrast, Zap } from "@/icons/IconRegistry";
+import { clearStep2GeneratedDetails } from "../../hooks/useCategoryDependents";
 
 export function DeviceConditionSection() {
     const { availableSpareParts, isLoadingSpareParts, sparePartsError } = usePostAdCatalog();
     const { watch, toggleSparePart, loadSparePartsForCategory } = usePostAdAction();
+    const { form } = usePostAdFlow();
 
     const categoryId = String(watch("categoryId") || watch("category") || "");
     const spareParts = (watch("spareParts") || []) as string[];
@@ -19,7 +21,7 @@ export function DeviceConditionSection() {
         <div className="space-y-4">
             {categoryId && (
                 <section className="space-y-2">
-                    <label className="text-sm font-semibold text-foreground-secondary leading-snug block mb-1.5">Working Spare Parts</label>
+                    <label className="text-xs sm:text-sm font-semibold text-foreground-secondary leading-snug block mb-1.5">Working Spare Parts</label>
                     {isLoadingSpareParts ? (
                         <div className="grid grid-cols-4 gap-2">
                             {Array.from({ length: 8 }).map((_, i) => (
@@ -71,10 +73,15 @@ export function DeviceConditionSection() {
                     name="deviceCondition"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center gap-x-4 gap-y-0 space-y-0">
-                            <FieldLabel className="text-sm font-semibold m-0 leading-none">Device Condition</FieldLabel>
+                            <FieldLabel className="text-xs sm:text-sm font-semibold m-0 leading-none text-foreground-secondary">Device Condition</FieldLabel>
                             <FieldControl animateOnError>
                                 <RadioGroupPrimitive.Root
-                                    onValueChange={field.onChange}
+                                    onValueChange={(val) => {
+                                        if (field.value !== val) {
+                                            field.onChange(val);
+                                            clearStep2GeneratedDetails(form);
+                                        }
+                                    }}
                                     value={field.value || ""}
                                     className="flex"
                                     orientation="horizontal"

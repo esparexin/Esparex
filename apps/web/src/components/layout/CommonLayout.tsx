@@ -10,8 +10,6 @@ import { UserAppProviders } from '@/components/providers/UserAppProviders';
 import { HeaderWrapper } from '@/app/HeaderWrapper';
 import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
-import { isChatRoute } from '@/lib/mobile/chromePolicy';
-
 
 import { PageLayout } from '@esparex/ui';
 
@@ -34,12 +32,16 @@ export function CommonLayout({
 }: CommonLayoutProps) {
     const activeYear = currentYear ?? new Date().getUTCFullYear();
     const pathname = usePathname();
-    const chatRoute = isChatRoute(pathname);
     const segments = pathname?.split("/").filter(Boolean) ?? [];
     const isWizardRoute =
         segments[0] === "edit-ad" ||
         segments[0] === "post-service";
-    const hideShellExtras = chatRoute || isWizardRoute;
+
+    // Chat & regular routes: keep the default layout & site header and footer intact.
+    // Wizard routes: retain fullscreen + no-header immersive behavior.
+    const hideHeader = isWizardRoute;
+    const hideFooter = isWizardRoute;
+    const useFullscreen = isWizardRoute;
 
     const header = suspenseHeader ? (
         <Suspense fallback={null}>
@@ -53,17 +55,17 @@ export function CommonLayout({
         <UserAppProviders initialHasAuthCookie={initialHasAuthCookie}>
             <BottomBarProvider>
                 <PageLayout
-                    variant={hideShellExtras ? "fullscreen" : "default"}
-                    header={!hideShellExtras ? header : undefined}
+                    variant={useFullscreen ? "fullscreen" : "default"}
+                    header={!hideHeader ? header : undefined}
                 >
                     <ScrollSentinel />
                     <ClientChromeLoader apiUnavailable={false} />
                     <RouteScrollReset />
-                    
+
                     {children}
 
-                    {!hideShellExtras && <BusinessPostFAB />}
-                    {!hideShellExtras && <Footer currentYear={activeYear} />}
+                    {!hideFooter && <BusinessPostFAB />}
+                    {!hideFooter && <Footer currentYear={activeYear} />}
                 </PageLayout>
             </BottomBarProvider>
         </UserAppProviders>

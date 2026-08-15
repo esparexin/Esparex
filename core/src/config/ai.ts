@@ -18,7 +18,7 @@ export const getAiConfig = async () => {
 
     return {
         provider: env.AI_PROVIDER || 'gemini',
-        geminiModel: dbAiConfig?.seo?.model || process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+        geminiModel: dbAiConfig?.seo?.model || process.env.GEMINI_MODEL || 'gemini-2.0-flash',
         geminiApiKey: decryptedGeminiKey || env.GEMINI_API_KEY || '',
         openAiApiKey: decryptedOpenAiKey || dbAiConfig?.seo?.openaiApiKey || process.env.OPENAI_API_KEY || '',
         claudeApiKey: decryptedClaudeKey || process.env.CLAUDE_API_KEY || '',

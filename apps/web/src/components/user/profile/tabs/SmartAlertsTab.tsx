@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { PageSection } from "@/components/layout";
-import { FeatureCard } from '@/components/user/FeatureCard';
-import { Button } from "@esparex/ui";
+import { Button, Card, CardContent } from "@esparex/ui";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Eye, Edit2, Trash2, Crown, Plus } from "@/icons/IconRegistry";
@@ -78,59 +77,61 @@ export function SmartAlertsTab({
     if (loading) return <div className="p-12 text-center text-slate-500 animate-pulse">Loading Alerts...</div>;
 
     return (
-        <div className="space-y-4 w-full">
+        <div className="space-y-4 sm:space-y-5 w-full">
             {/* Header & Create Action */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50/60 border border-blue-200/80 rounded-2xl p-4 sm:p-5">
-                <FeatureCard
-                    title="Smart Alerts"
-                    description="Get instant notifications when new listings match your criteria"
-                    Icon={Bell}
-                />
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 mt-3 border-t border-blue-100">
-                    <div className="flex items-center gap-3">
-                        <Badge className="bg-blue-600 text-white px-3 py-1 font-semibold">{activeAlerts} Active</Badge>
+            <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+                <CardContent className="p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 shrink-0">
+                                <Bell className="h-5 w-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <h3 className="text-base font-bold text-slate-900 truncate">Smart Alerts</h3>
+                                <p className="text-xs text-slate-500 truncate mt-0.5">
+                                    Get instant notifications when new listings match your criteria.
+                                </p>
+                            </div>
+                        </div>
+
+                        <Button
+                            onClick={handleOpenCreateModal}
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs h-9 rounded-xl shadow-xs gap-1.5 shrink-0"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Create Smart Alert
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-3 border-t border-slate-100">
+                        <Badge className="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 text-xs font-semibold">
+                            {activeAlerts} Active
+                        </Badge>
                         <span className="text-xs text-slate-600 font-medium">{activeAlerts} alert{activeAlerts === 1 ? "" : "s"} currently running</span>
                     </div>
-                    <Button
-                        onClick={handleOpenCreateModal}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm h-10 rounded-xl shadow-md gap-1.5 w-full sm:w-auto"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Create Smart Alert
-                    </Button>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
             {/* Active Alerts List */}
             <PageSection
                 variant="bordered"
-                title={
-                    <div className="flex items-center justify-between w-full">
-                        <span className="text-base font-bold text-slate-900">Your Active Alerts</span>
-                        <span className="text-xs font-normal text-slate-500">{smartAlerts.length} total</span>
-                    </div>
-                }
+                title="Your Active Alerts"
+                action={<span className="text-xs font-normal text-slate-500">{smartAlerts.length} total</span>}
             >
                 <div className="space-y-4 pt-1">
                     {smartAlerts.length === 0 ? (
-                        <div className="text-center py-10 px-4 rounded-2xl bg-slate-50/80 border border-dashed border-slate-200">
+                        <div className="text-center py-8 px-4 rounded-2xl bg-slate-50/80 border border-dashed border-slate-200">
                             <Bell className="h-8 w-8 text-slate-400 mx-auto mb-2 opacity-60" />
                             <p className="text-sm font-semibold text-slate-800">No smart alerts set up yet</p>
-                            <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-4">
-                                Create an alert to get notified automatically whenever matching items are posted.
+                            <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
+                                Create an alert using the button above to get notified automatically whenever matching items are posted.
                             </p>
-                            <Button
-                                onClick={handleOpenCreateModal}
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 rounded-xl shadow-sm"
-                            >
-                                <Plus className="h-3.5 w-3.5 mr-1" />
-                                Create Smart Alert
-                            </Button>
                         </div>
                     ) : (
                         <div className="space-y-3">
                             {smartAlerts.map((alert) => (
-                                <div key={alert.id} className="border border-border rounded-2xl p-4 space-y-3 bg-card text-card-foreground hover:border-primary/50 transition-colors">
+                                <div key={alert.id} className="border border-slate-200/80 rounded-2xl p-4 space-y-3 bg-white shadow-xs hover:border-blue-200 transition-colors">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -178,7 +179,7 @@ export function SmartAlertsTab({
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="gap-1.5 text-xs font-semibold h-10 rounded-xl border-slate-200"
+                                            className="gap-1.5 text-xs font-semibold h-8 rounded-lg border-slate-200 text-slate-700 hover:bg-slate-50"
                                             onClick={() => handleViewAlertMatches(alert)}
                                         >
                                             <Eye className="h-3.5 w-3.5 text-slate-500" />
@@ -187,7 +188,7 @@ export function SmartAlertsTab({
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="gap-1.5 text-xs font-semibold h-10 rounded-xl border-slate-200"
+                                            className="gap-1.5 text-xs font-semibold h-8 rounded-lg border-slate-200 text-slate-700 hover:bg-slate-50"
                                             onClick={() => handleOpenEditModal(alert)}
                                         >
                                             <Edit2 className="h-3.5 w-3.5 text-slate-500" />
@@ -196,7 +197,7 @@ export function SmartAlertsTab({
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="gap-1.5 text-xs font-semibold h-10 rounded-xl border-slate-200"
+                                            className="gap-1.5 text-xs font-semibold h-8 rounded-lg border-slate-200 text-slate-700 hover:bg-slate-50"
                                             onClick={() => handleToggleAlertStatus(alert.id)}
                                         >
                                             <Bell className="h-3.5 w-3.5 text-slate-500" />
@@ -206,7 +207,7 @@ export function SmartAlertsTab({
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="gap-1.5 text-xs font-semibold h-10 rounded-xl text-red-600 border-red-200 bg-red-50 hover:bg-red-100"
+                                                className="gap-1.5 text-xs font-semibold h-8 rounded-lg text-red-600 border-red-200 bg-red-50 hover:bg-red-100"
                                                 onClick={() => {
                                                     setPendingDeleteId(null);
                                                     handleDeleteAlert(alert.id);
@@ -219,7 +220,7 @@ export function SmartAlertsTab({
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="gap-1.5 text-xs font-semibold h-10 rounded-xl text-red-600 hover:bg-red-50 border-slate-200"
+                                                className="gap-1.5 text-xs font-semibold h-8 rounded-lg text-red-600 hover:bg-red-50 border-slate-200"
                                                 onClick={() => setPendingDeleteId(alert.id)}
                                             >
                                                 <Trash2 className="h-3.5 w-3.5 text-red-500" />
@@ -233,9 +234,9 @@ export function SmartAlertsTab({
                     )}
 
                     {/* Upgrade Banner */}
-                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 rounded-2xl p-4 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-purple-600 flex items-center justify-center shrink-0 text-white shadow-sm">
-                            <Crown className="h-5 w-5" />
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 border border-purple-200">
+                            <Crown className="h-4.5 w-4.5" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-xs sm:text-sm text-slate-900">Want unlimited smart alerts?</h4>
@@ -243,7 +244,7 @@ export function SmartAlertsTab({
                         </div>
                         <Button
                             size="sm"
-                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs h-9 rounded-xl shrink-0"
+                            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs h-8 px-3 rounded-lg shrink-0 shadow-xs"
                             onClick={() => setActiveTab("plans")}
                         >
                             Upgrade

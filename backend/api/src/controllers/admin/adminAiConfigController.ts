@@ -15,18 +15,18 @@ export const getAiConfig = async (req: Request, res: Response) => {
 
         const responseData = {
             capabilities: capabilities || {
-                post_ad_title: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.7, maxTokens: 200 },
-                post_ad_description: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.7, maxTokens: 1000 },
-                device_identification: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.2, maxTokens: 300 },
-                content_moderation: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.1, maxTokens: 200 },
-                spam_detection: { provider: "gemini", model: "gemini-2.5-flash", temperature: 0.1, maxTokens: 200 },
+                post_ad_title: { provider: "gemini", model: "gemini-2.0-flash", temperature: 0.7, maxTokens: 200 },
+                post_ad_description: { provider: "gemini", model: "gemini-2.0-flash", temperature: 0.7, maxTokens: 1000 },
+                device_identification: { provider: "gemini", model: "gemini-2.0-flash", temperature: 0.2, maxTokens: 300 },
+                content_moderation: { provider: "gemini", model: "gemini-2.0-flash", temperature: 0.1, maxTokens: 200 },
+                spam_detection: { provider: "gemini", model: "gemini-2.0-flash", temperature: 0.1, maxTokens: 200 },
             },
             providers: {
                 gemini: {
                     enabled: providers?.gemini?.enabled ?? true,
                     apiKeyMasked: maskApiKey(providers?.gemini?.apiKeyEncrypted || process.env.GEMINI_API_KEY || ""),
                     hasKey: Boolean(providers?.gemini?.apiKeyEncrypted || process.env.GEMINI_API_KEY),
-                    defaultModel: providers?.gemini?.defaultModel || "gemini-2.5-flash",
+                    defaultModel: providers?.gemini?.defaultModel || "gemini-2.0-flash",
                 },
                 openai: {
                     enabled: providers?.openai?.enabled ?? false,
@@ -75,7 +75,7 @@ export const updateAiConfig = async (req: Request, res: Response) => {
             if (providers.gemini) {
                 updatedProviders.gemini = {
                     enabled: Boolean(providers.gemini.enabled),
-                    defaultModel: providers.gemini.defaultModel || "gemini-2.5-flash",
+                    defaultModel: providers.gemini.defaultModel || "gemini-2.0-flash",
                     apiKeyEncrypted: providers.gemini.apiKey
                         ? encryptApiKey(providers.gemini.apiKey)
                         : updatedProviders.gemini?.apiKeyEncrypted,

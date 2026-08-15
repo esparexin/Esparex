@@ -230,8 +230,6 @@ export function BoostPlanDialog({
                 className={`w-full h-10 text-white font-semibold text-xs rounded-xl shadow-sm transition-colors flex items-center justify-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 ${
                   isPromotionBlocked
                     ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                    : isWalletCreditSelected
-                    ? "bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-emerald-400"
                     : activeCategory === "SPOTLIGHT"
                     ? "bg-amber-500 hover:bg-amber-600 focus-visible:ring-amber-400"
                     : "bg-blue-600 hover:bg-blue-700 focus-visible:ring-blue-400"

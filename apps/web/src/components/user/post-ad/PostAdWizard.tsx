@@ -98,7 +98,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={prevStep}
-                className="text-sm font-semibold h-11 px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 ← Back
               </Button>
@@ -108,7 +108,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
                 variant="outline"
                 size="sm"
                 onClick={handleClose}
-                className="text-sm font-semibold h-11 px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                className="text-xs sm:text-sm font-semibold h-11 px-4 sm:px-5 rounded-xl text-slate-600 border-slate-200/90 hover:bg-slate-50 hover:text-slate-900 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
               >
                 Cancel
               </Button>
@@ -120,7 +120,7 @@ function PostAdWizardContent({ navigateTo }: { navigateTo: PostAdWizardProps["na
               disabled={isButtonDisabled}
               className={cn(
                 "flex-1 sm:flex-none min-w-0 sm:min-w-[180px] rounded-xl font-semibold transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                "h-11 text-sm sm:text-base",
+                "h-11 text-sm font-semibold",
                 "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white shadow-md shadow-blue-600/20 disabled:opacity-50"
               )}
             >
