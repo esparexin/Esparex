@@ -176,8 +176,8 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                 </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">Profile photo</h4>
-                                <p className="text-tiny text-slate-500">
+                                <h4 className="text-small sm:text-body font-bold text-foreground tracking-tight">Profile photo</h4>
+                                <p className="text-tiny text-muted-foreground">
                                     JPG, PNG, WEBP. Max 5MB. Click to upload or change.
                                 </p>
                                 <FormError message={photoError} />
@@ -188,14 +188,14 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                             {/* Column 1: Full Name */}
                             <div className="space-y-1">
-                                <Label htmlFor="profile-name" className="text-xs font-semibold text-slate-700">
+                                <Label htmlFor="profile-name" className="text-caption font-semibold text-foreground-secondary">
                                     Full name <span className="text-red-500">*</span>
                                 </Label>
                                 <Input
                                     id="profile-name"
                                     type="text"
                                     placeholder="Enter your full name"
-                                    className="h-9 text-xs sm:text-sm rounded-xl border-slate-200 bg-white px-3.5 focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    className="h-9 text-caption sm:text-body rounded-xl border-slate-200 bg-white px-3.5 focus-visible:ring-2 focus-visible:ring-blue-500"
                                     {...form.register("name")}
                                 />
                                 <FormError message={nameError} />
@@ -203,7 +203,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
                             {/* Column 2: Mobile Number (Read-only verified) */}
                             <div className="space-y-1">
-                                <Label htmlFor="profile-mobile" className="text-xs font-semibold text-slate-700">
+                                <Label htmlFor="profile-mobile" className="text-caption font-semibold text-foreground-secondary">
                                     Mobile number
                                 </Label>
                                 <div className="relative">
@@ -214,7 +214,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                         value={formattedMobile}
                                         readOnly
                                         disabled
-                                        className="h-9 text-xs sm:text-sm pl-8.5 pr-3.5 rounded-xl border-slate-200 bg-slate-50 text-slate-800 font-medium cursor-not-allowed"
+                                        className="h-9 text-caption sm:text-body pl-8.5 pr-3.5 rounded-xl border-slate-200 bg-slate-50 text-foreground font-medium cursor-not-allowed"
                                     />
                                 </div>
                             </div>
