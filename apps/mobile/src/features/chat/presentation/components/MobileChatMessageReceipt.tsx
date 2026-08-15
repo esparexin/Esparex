@@ -23,7 +23,7 @@ export const MobileChatMessageReceipt: React.FC<MobileChatMessageReceiptProps> =
     return (
       <View className="flex-row items-center ml-1.5 opacity-80" accessibilityLabel="Message sending">
         <AppIcon name="Clock" size={11} color={base.brand[200] || '#93c5fd'} />
-        <AppText variant="tiny" className="text-brand-100 text-[10px] ml-0.5">
+        <AppText variant="tiny" className="text-brand-100 ml-0.5">
           Sending...
         </AppText>
       </View>
@@ -45,7 +45,7 @@ export const MobileChatMessageReceipt: React.FC<MobileChatMessageReceiptProps> =
         accessibilityRole="button"
       >
         <AppIcon name="AlertTriangle" size={11} color="#fca5a5" />
-        <AppText variant="tiny" className="text-red-200 text-[10px] font-semibold ml-1">
+        <AppText variant="tiny" className="text-red-200 font-semibold ml-1">
           Failed · Retry
         </AppText>
       </TouchableOpacity>
