@@ -63,8 +63,8 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
     const renderLink = (label: string, href: string, pageKey: string, compact = false) => {
         const baseClassName = cn(
             compact
-                ? "inline-flex items-center text-xs md:text-sm transition-colors"
-                : "inline-flex min-h-10 items-center text-left text-xs md:text-sm transition-colors md:min-h-0",
+                ? "inline-flex items-center text-caption md:text-body transition-colors"
+                : "inline-flex min-h-10 items-center text-left text-caption md:text-body transition-colors md:min-h-0",
             isDark ? "hover:text-primary text-foreground-subtle" : "hover:text-green-600 text-foreground-tertiary"
         );
 
@@ -111,7 +111,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Mobile Single-Line Footer Links */}
-                <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-xs text-foreground-tertiary md:hidden mb-3">
+                <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-caption text-foreground-tertiary md:hidden mb-3">
                     {FOOTER_LINK_SECTIONS.flatMap((section) => section.links).map((link, idx, arr) => (
                         <div key={link.label} className="inline-flex items-center gap-2.5">
                             {renderLink(link.label, link.href, link.pageKey, true)}
@@ -133,7 +133,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                             key={section.title}
                             className="col-span-1 text-left"
                         >
-                            <h3 className={cn("mb-4 font-bold uppercase tracking-wider text-xs", isDark ? "text-foreground-subtle" : "text-foreground")}>
+                            <h3 className={cn("mb-4 font-bold uppercase tracking-wider text-caption", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
                             </h3>
                             <ul className="space-y-2">
@@ -151,13 +151,13 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                 <div className={cn("flex flex-col items-start justify-between gap-2.5 pt-3 md:flex-row md:items-center md:gap-4 md:pt-4 border-t", isDark ? "border-slate-900" : "border-slate-200")}>
                     <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4">
                         <Badge className={cn(
-                            "border px-2.5 py-0.5 text-tiny md:text-xs",
+                            "border px-2.5 py-0.5 text-tiny md:text-caption",
                             isDark ? "bg-slate-900 text-primary border-slate-800" : "bg-green-50 text-green-700 border-green-100"
                         )}>
                             <CheckCircle className="h-3 w-3 mr-1.5" />
                             Verified Safe Marketplace
                         </Badge>
-                        <span className="text-tiny md:text-xs font-normal text-muted-foreground">
+                        <span className="text-tiny md:text-caption font-normal text-muted-foreground">
                             © {currentYear} Esparex Platform. Built for the future of tech repair.
                         </span>
                     </div>
