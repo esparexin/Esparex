@@ -14,23 +14,13 @@ import { SafetyTips } from './SafetyTips';
 import { DateSeparator } from './DateSeparator';
 import { ConversationHeader } from './ConversationHeader';
 import { MessageSquare } from "@/icons/IconRegistry";
+import { decodeHtmlEntities } from "@/lib/formatters";
 import type { IConversationDTO } from "@esparex/contracts";
 
 interface ConversationViewProps {
   conversation: IConversationDTO;
   currentUserId: string;
   embedded?: boolean;
-}
-
-function decodeHtmlEntities(str?: string): string {
-  if (!str) return '';
-  return str
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
 }
 
 export function ConversationView({ conversation, currentUserId, embedded = false }: ConversationViewProps) {
