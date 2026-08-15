@@ -14,6 +14,7 @@ import { chatApi } from "@/lib/api/chatApi";
 import { dispatchChatInboxUpdated } from '@/lib/chatEvents';
 import { useChatSocketEngine, withDeliveryStatus, shouldMarkConversationRead } from './useChatSocketEngine';
 import { useChatPollingEngine } from './useChatPollingEngine';
+import { uploadChatAttachment } from '@/lib/chat/chatAttachmentUpload';
 import type { IMessageDTO } from "@esparex/contracts";
 
 export { shouldMarkConversationRead };
@@ -91,15 +92,21 @@ export function useChat({
       const res = await chatApi.messages(conversationId);
       const rawMsgs = res.data ?? [];
       const msgs = rawMsgs.map((m) => withDeliveryStatus(m, currentUserId));
-      setMessages(msgs);
+      const seen = new Set<string>();
+      const uniqueMsgs = msgs.filter((m) => {
+        if (!m.id || seen.has(m.id)) return false;
+        seen.add(m.id);
+        return true;
+      });
+      setMessages(uniqueMsgs);
       setHasMore(!!res.nextCursor);
       setOldestCursor(res.nextCursor);
-      if (msgs.length > 0) {
-        latestCreatedAtRef.current = msgs[msgs.length - 1]?.createdAt;
+      if (uniqueMsgs.length > 0) {
+        latestCreatedAtRef.current = uniqueMsgs[uniqueMsgs.length - 1]?.createdAt;
       } else {
         latestCreatedAtRef.current = undefined;
       }
-      if (shouldMarkConversationRead(msgs, currentUserId)) {
+      if (shouldMarkConversationRead(uniqueMsgs, currentUserId)) {
         await chatApi.markRead(conversationId).catch(() => {});
         dispatchChatInboxUpdated();
       }
@@ -118,7 +125,12 @@ export function useChat({
       const res = await chatApi.messages(conversationId, oldestCursor);
       const olderRaw = res.data ?? [];
       const older = olderRaw.map((m) => withDeliveryStatus(m, currentUserId));
-      setMessages((prev) => [...older, ...prev]);
+      setMessages((prev) => {
+        const map = new Map<string, IMessageDTO>();
+        for (const m of older) if (m.id) map.set(m.id, m);
+        for (const m of prev) if (m.id) map.set(m.id, m);
+        return Array.from(map.values());
+      });
       setHasMore(!!res.nextCursor);
       setOldestCursor(res.nextCursor);
     } catch {
@@ -164,31 +176,9 @@ export function useChat({
       setError(null);
 
       try {
-        let attachments;
-        if (attachmentFile) {
-          try {
-            const presigned = await chatApi.uploadUrl(conversationId, attachmentFile.type, attachmentFile.name);
-            if (presigned?.data?.uploadUrl) {
-              await fetch(presigned.data.uploadUrl, {
-                method: 'PUT',
-                body: attachmentFile,
-                headers: { 'Content-Type': attachmentFile.type },
-              });
-              attachments = [
-                {
-                  url: presigned.data.publicUrl,
-                  displayUrl: presigned.data.publicUrl,
-                  mimeType: attachmentFile.type,
-                  size: attachmentFile.size,
-                  name: attachmentFile.name,
-                  status: 'available' as const,
-                },
-              ];
-            }
-          } catch {
-            throw new Error('Failed to upload image attachment');
-          }
-        }
+        const attachments = attachmentFile
+          ? await uploadChatAttachment(conversationId, attachmentFile)
+          : undefined;
 
         const res = await chatApi.send({ conversationId, text: trimmed, attachments });
         const confirmed: IMessageDTO = {
@@ -196,9 +186,14 @@ export function useChat({
           deliveryStatus: res.message.readAt ? 'read' : 'sent',
         };
 
-        setMessages((prev) =>
-          prev.map((m) => (m.id === tempId || m.tempId === tempId ? confirmed : m))
-        );
+        setMessages((prev) => {
+          // If socket already replaced or added the message with confirmed ID, remove any leftover temp entry
+          const alreadyHasConfirmed = prev.some((m) => m.id === confirmed.id && m.id !== tempId);
+          if (alreadyHasConfirmed) {
+            return prev.filter((m) => m.id !== tempId && m.tempId !== tempId);
+          }
+          return prev.map((m) => (m.id === tempId || m.tempId === tempId ? confirmed : m));
+        });
         latestCreatedAtRef.current = confirmed.createdAt;
         dispatchChatInboxUpdated();
         return true;

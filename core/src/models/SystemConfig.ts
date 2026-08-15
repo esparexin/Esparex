@@ -197,31 +197,31 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
         capabilities: {
             post_ad_title: {
                 provider: { type: String, default: 'gemini' },
-                model: { type: String, default: 'gemini-2.5-flash' },
+                model: { type: String, default: 'gemini-2.0-flash' },
                 temperature: { type: Number, default: 0.7 },
                 maxTokens: { type: Number, default: 200 }
             },
             post_ad_description: {
                 provider: { type: String, default: 'gemini' },
-                model: { type: String, default: 'gemini-2.5-flash' },
+                model: { type: String, default: 'gemini-2.0-flash' },
                 temperature: { type: Number, default: 0.7 },
                 maxTokens: { type: Number, default: 1000 }
             },
             device_identification: {
                 provider: { type: String, default: 'gemini' },
-                model: { type: String, default: 'gemini-2.5-flash' },
+                model: { type: String, default: 'gemini-2.0-flash' },
                 temperature: { type: Number, default: 0.2 },
                 maxTokens: { type: Number, default: 300 }
             },
             content_moderation: {
                 provider: { type: String, default: 'gemini' },
-                model: { type: String, default: 'gemini-2.5-flash' },
+                model: { type: String, default: 'gemini-2.0-flash' },
                 temperature: { type: Number, default: 0.1 },
                 maxTokens: { type: Number, default: 200 }
             },
             spam_detection: {
                 provider: { type: String, default: 'gemini' },
-                model: { type: String, default: 'gemini-2.5-flash' },
+                model: { type: String, default: 'gemini-2.0-flash' },
                 temperature: { type: Number, default: 0.1 },
                 maxTokens: { type: Number, default: 200 }
             }
@@ -230,7 +230,7 @@ const SystemConfigSchema = new Schema<ISystemConfig>({
             gemini: {
                 enabled: { type: Boolean, default: true },
                 apiKeyEncrypted: { type: String },
-                defaultModel: { type: String, default: 'gemini-2.5-flash' }
+                defaultModel: { type: String, default: 'gemini-2.0-flash' }
             },
             openai: {
                 enabled: { type: Boolean, default: false },

@@ -211,7 +211,7 @@ const nextConfig = {
                             `script-src ${scriptSrc}`,
                             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
                             "img-src 'self' data: blob: https: http://localhost:* https://maps.googleapis.com https://maps.gstatic.com https://images.unsplash.com https://cdn.razorpay.com https://*.razorpay.com",
-                            "font-src 'self' data: https://fonts.gstatic.com",
+                            "font-src 'self' data: https://fonts.gstatic.com https://vercel.live https://assets.vercel.com",
                             "worker-src 'self' blob:",
 
                             `connect-src ${connectSrc}`,
@@ -334,6 +334,12 @@ const nextConfig = {
             {
                 source: '/business',
                 destination: '/',
+                permanent: true,
+            },
+            // Exact /services match only — /services/[slug] continues to work
+            {
+                source: '/services',
+                destination: '/browse-services',
                 permanent: true,
             },
             // ── Pre-existing redirects ────────────────────────────────────────

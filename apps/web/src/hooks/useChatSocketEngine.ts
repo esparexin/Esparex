@@ -69,10 +69,27 @@ export function useChatSocketEngine({
       if (data.conversationId !== conversationId || !data.message) return;
       const incomingMsg = withDeliveryStatus(data.message, currentUserId);
       setMessages((prev) => {
-        const exists = prev.some((m) => m.id === incomingMsg.id);
-        if (exists) {
+        // 1. Check if message already exists by real ID
+        const existsById = prev.some((m) => m.id === incomingMsg.id);
+        if (existsById) {
           return prev.map((m) => (m.id === incomingMsg.id ? incomingMsg : m));
         }
+
+        // 2. If it's our own message, reconcile with in-flight optimistic temp message
+        if (incomingMsg.senderId === currentUserId) {
+          const tempIndex = prev.findIndex(
+            (m) =>
+              (m.id.startsWith('temp-') || m.tempId) &&
+              m.senderId === currentUserId &&
+              m.text === incomingMsg.text
+          );
+          if (tempIndex !== -1) {
+            const next = [...prev];
+            next[tempIndex] = incomingMsg;
+            return next;
+          }
+        }
+
         return [...prev, incomingMsg];
       });
       latestCreatedAtRef.current = incomingMsg.createdAt;

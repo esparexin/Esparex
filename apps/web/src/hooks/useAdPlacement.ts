@@ -6,6 +6,8 @@ import type {
   ResolveAdResponse,
 } from "@esparex/contracts";
 import { useAuth } from "@/context/AuthContext";
+import { apiClient } from "@/lib/api/client";
+import { toApiResult } from "@/lib/api/result";
 
 export function useAdPlacement(placementId: InContentPlacementId, category?: string) {
   const { user } = useAuth();
@@ -17,35 +19,28 @@ export function useAdPlacement(placementId: InContentPlacementId, category?: str
       const isTablet = typeof window !== "undefined" && window.innerWidth >= 768 && window.innerWidth < 1024;
       const device = isMobile ? "mobile" : isTablet ? "tablet" : "desktop";
 
-      const res = await fetch("/api/v1/monetization/resolve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data: resData } = await toApiResult<ResolveAdResponse>(
+        apiClient.post("/monetization/resolve", {
           placementId,
           device,
           category,
           isAuthenticated: Boolean(user),
           isBusiness: Boolean(user?.businessId),
-        }),
-      });
+        }, { silent: true })
+      );
 
-      if (!res.ok) {
-        return { ad: null, fallbackAd: null, renderedProvider: "none" };
-      }
-
-      const json = await res.json();
-      return json.data || { ad: null, fallbackAd: null, renderedProvider: "none" };
+      return resData || { ad: null, fallbackAd: null, renderedProvider: "none" };
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
   const recordImpression = (campaignId: string) => {
-    fetch(`/api/v1/monetization/${campaignId}/impression`, { method: "POST" }).catch(() => {});
+    apiClient.post(`/monetization/${campaignId}/impression`, {}, { silent: true }).catch(() => {});
   };
 
   const recordClick = (campaignId: string) => {
-    fetch(`/api/v1/monetization/${campaignId}/click`, { method: "POST" }).catch(() => {});
+    apiClient.post(`/monetization/${campaignId}/click`, {}, { silent: true }).catch(() => {});
   };
 
   return {

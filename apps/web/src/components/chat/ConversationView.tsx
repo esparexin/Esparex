@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useChat } from '@/hooks/useChat';
@@ -11,11 +10,12 @@ import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { QuickReplies } from './QuickReplies';
 import { ChatReadOnly } from './ChatReadOnly';
-import { ChatActionsMenu } from './ChatActionsMenu';
 import { SafetyTips } from './SafetyTips';
 import { DateSeparator } from './DateSeparator';
+import { ConversationHeader } from './ConversationHeader';
+import { MessageSquare } from "@/icons/IconRegistry";
+import { decodeHtmlEntities } from "@/lib/formatters";
 import type { IConversationDTO } from "@esparex/contracts";
-import { formatStableNumber } from '@/lib/formatters';
 
 interface ConversationViewProps {
   conversation: IConversationDTO;
@@ -32,6 +32,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const otherPartyName = isBuyer ? conversation.seller.name : conversation.buyer.name;
+  const cleanAdTitle = decodeHtmlEntities(conversation.ad.title);
   const inboxView = resolveChatInboxView(searchParams.get('view'));
   const defaultReturnTo = buildChatInboxRoute(inboxView);
   const returnTo = resolveChatReturnTo(searchParams.get('returnTo'), defaultReturnTo);
@@ -40,7 +41,7 @@ export function ConversationView({ conversation, currentUserId, embedded = false
       id: conversation.ad.id,
       listingType: conversation.ad.listingType,
       seoSlug: conversation.ad.seoSlug,
-      title: conversation.ad.title,
+      title: cleanAdTitle,
     })
     : null;
   const backLabel = returnTo === defaultReturnTo
@@ -101,9 +102,9 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     conversationId: conversation.id,
     currentUserId,
     counterpartyUserId,
-    onConversationStateChange: (state) => {
-      if (state.isAdClosed) setLocalAdClosed(true);
-      if (state.isBlocked) setLocalBlocked(true);
+    onConversationStateChange: ({ isAdClosed: nextAdClosed, isBlocked: nextBlocked }) => {
+      if (nextBlocked) setLocalBlocked(true);
+      if (nextAdClosed) setLocalAdClosed(true);
     },
   });
 
@@ -114,16 +115,16 @@ export function ConversationView({ conversation, currentUserId, embedded = false
     isOtherTyping,
   });
 
-  const handleSend = async (text: string) => {
+  const handleSend = async (text: string, attachmentFile?: File) => {
     markUserSent();
-    const didSend = await sendMessage(text);
-    if (didSend) {
+    const success = await sendMessage(text, attachmentFile);
+    if (success) {
       setQuickReplyText('');
       sendTyping(counterpartyUserId, false);
     } else {
       clearUserSent();
     }
-    return didSend;
+    return success;
   };
 
   const handleQuickReply = (text: string) => {
@@ -135,78 +136,21 @@ export function ConversationView({ conversation, currentUserId, embedded = false
   };
 
   return (
-    <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''}`}>
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <header className="conv-header">
-        <div className="conv-header__nav">
-          <Link href={returnTo} className="conv-header__nav-link">
-            {backLabel}
-          </Link>
-          {listingHref && (
-            <Link href={listingHref} className="conv-header__nav-link conv-header__nav-link--accent">
-              View listing
-            </Link>
-          )}
-        </div>
-
-        <div className="conv-header__main">
-          <div className="conv-header__ad">
-            {conversation.ad.thumbnail && (
-              listingHref ? (
-                <Link href={listingHref} className="conv-header__thumb-link" aria-label={`Open ${conversation.ad.title}`}>
-                  <img
-                    src={conversation.ad.thumbnail}
-                    alt={conversation.ad.title}
-                    className="conv-header__ad-thumb"
-                  />
-                </Link>
-              ) : (
-                <img
-                  src={conversation.ad.thumbnail}
-                  alt={conversation.ad.title}
-                  className="conv-header__ad-thumb"
-                />
-              )
-            )}
-            <div className="conv-header__ad-info">
-              <div className="conv-header__eyebrow-row">
-                <span className="conv-header__eyebrow">{otherPartyName}</span>
-                {isCounterpartyOnline && (
-                  <span className="conv-header__online-pill" title="Online now">
-                    <span className="conv-header__online-dot" /> Online
-                  </span>
-                )}
-                {isOtherTyping && (
-                  <span className="conv-header__typing-pill">
-                    typing…
-                  </span>
-                )}
-              </div>
-              {listingHref ? (
-                <Link href={listingHref} className="conv-header__listing-link">
-                  {conversation.ad.title}
-                </Link>
-              ) : (
-                <p className="conv-header__ad-title">{conversation.ad.title}</p>
-              )}
-              {conversation.ad.price && (
-                <p className="conv-header__ad-price">₹{formatStableNumber(conversation.ad.price)}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="conv-header__other">
-            <span className="conv-header__with">
-              {isArchived ? 'Archived conversation' : `Chat with ${otherPartyName}`}
-            </span>
-            <ChatActionsMenu
-              conversationId={conversation.id}
-              isArchived={Boolean(isArchived)}
-              onActionComplete={handleActionComplete}
-            />
-          </div>
-        </div>
-      </header>
+    <div className={`conversation-view ${embedded ? 'conversation-view--embedded' : ''} h-full min-h-0 flex flex-col overflow-hidden bg-white`}>
+      <ConversationHeader
+        embedded={embedded}
+        inboxView={inboxView}
+        returnTo={returnTo}
+        backLabel={backLabel}
+        otherPartyName={otherPartyName}
+        isCounterpartyOnline={isCounterpartyOnline}
+        isOtherTyping={isOtherTyping}
+        isArchived={isArchived}
+        conversation={conversation}
+        cleanAdTitle={cleanAdTitle}
+        listingHref={listingHref}
+        onActionComplete={handleActionComplete}
+      />
 
       {/* ── Safety Tips ─────────────────────────────────────────── */}
       {showSafetyTips && (
@@ -253,12 +197,29 @@ export function ConversationView({ conversation, currentUserId, embedded = false
             </button>
           </div>
         )}
-        {messages.map((msg, index) => {
+        {messages.length === 0 && !isLoading && (
+          <div className="py-3 px-3 flex flex-col items-center justify-center text-center max-w-xs mx-auto shrink-0 mb-2">
+            <div className="h-8 w-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-1.5 shadow-2xs border border-blue-100">
+              <MessageSquare className="h-4 w-4" />
+            </div>
+            <h4 className="text-xs font-bold text-slate-800 tracking-tight">
+              Start a conversation with {otherPartyName}
+            </h4>
+            {cleanAdTitle && (
+              <p className="text-tiny text-slate-500 mt-0.5 line-clamp-2 max-w-[260px] leading-tight">
+                Inquiring about <span className="font-semibold text-slate-700">{cleanAdTitle}</span>
+              </p>
+            )}
+          </div>
+        )}
+
+        {Array.from(new Map(messages.map((m) => [m.id || m.tempId || m.createdAt, m])).values()).map((msg, index, arr) => {
           const msgDate = msg.createdAt.slice(0, 10);
-          const prevMsgDate = index > 0 ? messages[index - 1]?.createdAt.slice(0, 10) : '';
+          const prevMsgDate = index > 0 ? arr[index - 1]?.createdAt.slice(0, 10) : '';
           const showSep = msgDate !== prevMsgDate;
+          const uniqueKey = msg.id || msg.tempId || `${index}`;
           return (
-            <div key={msg.id}>
+            <div key={uniqueKey}>
               {showSep && <DateSeparator date={msg.createdAt} />}
               <MessageBubble
                 message={msg}
@@ -275,6 +236,13 @@ export function ConversationView({ conversation, currentUserId, embedded = false
           </div>
         )}
 
+        {!isReadOnly && messages.length === 0 && (
+          <QuickReplies
+            onSelect={handleQuickReply}
+            disabled={isSending}
+          />
+        )}
+
         <div ref={bottomRef} aria-hidden />
       </div>
 
@@ -283,20 +251,14 @@ export function ConversationView({ conversation, currentUserId, embedded = false
         {isReadOnly ? (
           <ChatReadOnly reason={readOnlyReason} />
         ) : (
-          <>
-            <QuickReplies
-              onSelect={handleQuickReply}
-              disabled={isSending}
-            />
-            <ChatInput
-              value={quickReplyText}
-              onValueChange={setQuickReplyText}
-              onSend={handleSend}
-              onTypingChange={handleTypingChange}
-              isSending={isSending}
-              disabled={isReadOnly}
-            />
-          </>
+          <ChatInput
+            value={quickReplyText}
+            onValueChange={setQuickReplyText}
+            onSend={handleSend}
+            onTypingChange={handleTypingChange}
+            isSending={isSending}
+            disabled={isReadOnly}
+          />
         )}
       </div>
     </div>

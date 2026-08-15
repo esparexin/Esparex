@@ -41,7 +41,7 @@ export function ListingPriceField<
         <Stack gap="sm" className={className}>
           <div className="flex justify-between items-center">
             {label && (
-              <FieldLabel required={required} className="text-sm font-semibold text-foreground">
+              <FieldLabel required={required} className="text-xs sm:text-sm font-semibold text-foreground-secondary">
                 {label}
               </FieldLabel>
             )}
@@ -61,7 +61,7 @@ export function ListingPriceField<
                   disabled={disabled || isFree}
                   placeholder={placeholder}
                   className={cn(
-                    "h-11 text-sm font-medium rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all",
+                    "h-11 text-sm font-normal sm:font-medium rounded-xl shadow-sm focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:border-primary transition-all placeholder:text-xs sm:placeholder:text-sm",
                     showCurrencySymbol && "pl-8",
                     isFree && "bg-muted border-transparent text-muted-foreground"
                   )}

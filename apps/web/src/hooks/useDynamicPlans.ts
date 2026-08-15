@@ -26,41 +26,44 @@ export function getPlanEntitlementFeatures(p: {
     };
 }): string[] {
     const list: string[] = [];
-
-    const validityStr = p.durationDays ? `${p.durationDays} Days Validity` : (p.duration || "Lifetime Validity");
+    const validityStr = p.durationDays ? `Valid for ${p.durationDays} Days` : (p.duration ? `Valid for ${p.duration}` : "Lifetime Validity");
 
     if (p.type === "SPOTLIGHT") {
         const credits = p.limits?.spotlightCredits ?? p.credits ?? 1;
-        list.push(`${credits} Spotlight ${credits === 1 ? "Credit" : "Credits"}`);
+        list.push(`${credits} Spotlight ${credits === 1 ? "Credit" : "Credits"} for your wallet`);
+        list.push("Prominent Gold Spotlight Ribbon on Listing Card");
+        list.push("Pinned to Category Header & Top Search Results");
+        list.push("Maximum Buyer Viewership & Inquiries");
         list.push(validityStr);
-        if (p.features?.priorityWeight && p.features.priorityWeight > 1) {
-            list.push(`Priority Search Ranking (x${p.features.priorityWeight} Boost)`);
-        }
-        list.push("Featured Badge on Search Results & Homepage");
     } else if (p.type === "AD_PACK") {
-        const slots = p.limits?.maxAds ?? p.credits ?? 1;
-        list.push(`${slots} Ad Posting ${slots === 1 ? "Slot" : "Slots"}`);
+        const slots = p.limits?.maxAds ?? p.credits ?? 5;
+        list.push(`${slots} Extra Ad Posting ${slots === 1 ? "Slot" : "Slots"}`);
         list.push(validityStr);
-        list.push("Standard Listing Visibility & Lead Management");
+        list.push("Up to 10 High-Resolution Photos per Listing");
+        list.push("Direct Buyer Leads via Chat & Verified Phone");
+        list.push("Zero Platform Sales Commission");
     } else if (p.type === "BOOST_AD") {
         const weight = p.features?.priorityWeight ?? 2;
-        list.push(`Search Priority Boost (x${weight} Boost)`);
+        list.push(`Top Ad Search Placement (${weight}x Visibility Boost)`);
+        list.push("Higher Ranking above Standard Marketplace Listings");
         list.push(validityStr);
-        list.push("Higher Placement in Search & Browse Feeds");
+        list.push("Direct Buyer Chat & Call Inquiries");
+        list.push("Zero Sales Commission on Deals");
     } else if (p.type === "SMART_ALERT") {
         const slots = p.limits?.smartAlerts ?? p.credits ?? 1;
         const radius = p.smartAlertConfig?.radiusLimitKm ?? 50;
-        const freq = p.smartAlertConfig?.matchFrequency || "daily";
-        const channels = p.smartAlertConfig?.notificationChannels?.map(c => c.toUpperCase()).join(", ") || "PUSH";
+        const freq = p.smartAlertConfig?.matchFrequency || "instant";
+        const channels = p.smartAlertConfig?.notificationChannels?.map(c => c.toUpperCase()).join(", ") || "Push & Email";
         
-        list.push(`${slots} Smart Alert ${slots === 1 ? "Slot" : "Slots"}`);
-        list.push(`${radius} km Radius Search Matching`);
-        list.push(`${freq.charAt(0).toUpperCase() + freq.slice(1)} Instant Match Alerts`);
-        list.push(`${channels} Notifications`);
+        list.push(`${slots} Smart Alert ${slots === 1 ? "Monitor" : "Monitors"}`);
+        list.push(`${radius} km Geo-Radius Matching`);
+        list.push(`${freq.charAt(0).toUpperCase() + freq.slice(1)} Deal Notifications (${channels})`);
+        list.push("First Access to Newly Listed Parts & Vehicles");
         list.push(validityStr);
     } else if (p.type === "FREE_DEFAULT") {
         const slots = p.limits?.maxAds ?? p.credits ?? 5;
-        list.push(`${slots} Monthly Free Ad Slots`);
+        list.push(`${slots} Monthly Free Ad Posting Slots`);
+        list.push("Full Access to Marketplace Search & Chat");
         list.push("Lifetime Access");
     }
 
@@ -68,7 +71,7 @@ export function getPlanEntitlementFeatures(p: {
         list.unshift(p.description.trim());
     }
 
-    return list.length > 0 ? list : [validityStr, "Standard Platform Features"];
+    return list.length > 0 ? list : [validityStr, "Standard Platform Features", "Direct Buyer Leads"];
 }
 
 export function useDynamicPlans(activeTab: string, user: User | null) {

@@ -90,18 +90,22 @@ export const formatShortRelativeTime = (
     return `${Math.floor(diffHours / 24)}d ago`;
 };
 
+const HTML_ENTITIES: Record<string, string> = {
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&#x27;": "'",
+    "&nbsp;": " ",
+    "&amp;": "&",
+};
+
 /**
- * Decodes standard HTML entities in strings for SSOT normalization.
+ * Decodes standard HTML entities in strings using a single-pass lookup to prevent double-unescaping vulnerabilities.
  */
 export function decodeHtmlEntities(str: string): string {
     if (!str || typeof str !== "string") return "";
-    return str
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'")
-        .replace(/&#x27;/g, "'")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&amp;/g, "&");
+    return str.replace(/&(?:lt|gt|quot|#39|#x27|nbsp|amp);/g, (entity) => HTML_ENTITIES[entity] ?? entity);
 }
+
 
