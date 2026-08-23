@@ -9,7 +9,7 @@ import { CreatePaymentOrderMapper } from './mappers/CreatePaymentOrderMapper';
 
 export class ApiPaymentRepository implements IPaymentRepository {
   async getPlans(): Promise<Plan[]> {
-    const response = await apiClient.get<{ data: Plan[] }>('/v1/payments/plans');
+    const response = await apiClient.get<{ data: Plan[] }>('/payments/plans');
     const resData = response.data;
     if (Array.isArray(resData)) return resData;
     return resData?.data || [];
@@ -17,13 +17,13 @@ export class ApiPaymentRepository implements IPaymentRepository {
 
   async createPaymentOrder(planId: string): Promise<PaymentOrder> {
     const payload = CreatePaymentOrderMapper.toPayload(planId);
-    const response = await apiClient.post<{ data: PaymentOrder }>('/v1/payments/orders', payload);
+    const response = await apiClient.post<{ data: PaymentOrder }>('/payments/orders', payload);
     return response.data.data;
   }
 
   async verifyPayment(input: VerifyPaymentInput): Promise<void> {
     try {
-      await apiClient.post('/v1/payments/verify', {
+      await apiClient.post('/payments/verify', {
         razorpay_payment_id: input.razorpayPaymentId,
         razorpay_order_id: input.razorpayOrderId,
         razorpay_signature: input.razorpaySignature,
@@ -76,7 +76,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
   }
 
   async getWalletSummary(): Promise<WalletSummary> {
-    const response = await apiClient.get<{ data: WalletSummary }>('/v1/payments/credits/wallet');
+    const response = await apiClient.get<{ data: WalletSummary }>('/payments/credits/wallet');
     return response.data?.data ?? {
       adCredits: 0,
       spotlightCredits: 0,
@@ -85,7 +85,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
   }
 
   async getTransactionHistory(): Promise<PaymentTransaction[]> {
-    const response = await apiClient.get<{ data: PaymentTransaction[] }>('/v1/payments/history');
+    const response = await apiClient.get<{ data: PaymentTransaction[] }>('/payments/history');
     const resData = response.data;
     if (Array.isArray(resData)) return resData;
     return resData?.data || [];
@@ -93,7 +93,7 @@ export class ApiPaymentRepository implements IPaymentRepository {
 
   async getPlansWalletDashboard(): Promise<PlansWalletV1DTO | null> {
     try {
-      const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/v1/payments/account/plans-wallet');
+      const res = await apiClient.get<{ success?: boolean; data?: PlansWalletV1DTO }>('/payments/account/plans-wallet');
       if (res.data?.data) {
         return res.data.data;
       }

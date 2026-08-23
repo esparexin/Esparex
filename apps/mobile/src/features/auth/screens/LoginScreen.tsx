@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
 import { AppInput, AppButton, AppText } from '@esparex/mobile-ui';
 import { AuthLayout } from '../layouts/AuthLayout';
 import { useAuth } from '../../../providers/AuthProvider';
@@ -9,18 +9,50 @@ import { ROUTES } from '../../../navigation/routes';
 export const LoginScreen = () => {
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { sendOtp } = useAuth();
 
-  const handleLogin = async () => {
-    if (mobile.length !== 10) return;
+  const handleMobileChange = (text: string) => {
+    const digitsOnly = text.replace(/\D/g, '').slice(0, 10);
+    setMobile(digitsOnly);
+    if (error) setError(null);
+  };
+
+  const handleSendOtp = async () => {
+    if (mobile.length !== 10) {
+      setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
     setLoading(true);
+    setError(null);
+
     try {
       const res = await sendOtp(mobile);
       if (res.success) {
-        navigate(ROUTES.AUTH_STACK, { screen: ROUTES.OTP, params: { mobile } });
+        navigate(ROUTES.AUTH_STACK, {
+          screen: ROUTES.OTP,
+          params: {
+            mobile,
+            isNewUser: res.isNewUser,
+            name: res.name,
+          },
+        });
       }
-    } catch {
-      // Errors handled by service/interceptor
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string; message?: string; details?: { lockUntil?: string } }; status?: number } };
+      const apiError = axiosErr?.response?.data?.error || axiosErr?.response?.data?.message;
+      const status = axiosErr?.response?.status;
+
+      if (status === 423) {
+        setError('Account temporarily locked due to failed attempts. Please try again later.');
+      } else if (status === 429) {
+        setError('Too many OTP requests. Please wait a few minutes before trying again.');
+      } else if (apiError) {
+        setError(apiError);
+      } else {
+        setError('Unable to send OTP. Please check your internet connection.');
+      }
     } finally {
       setLoading(false);
     }
@@ -29,34 +61,39 @@ export const LoginScreen = () => {
   return (
     <AuthLayout
       title="Welcome to Esparex"
-      description="Login to buy & sell mobile spares"
+      description="Login or register with your 10-digit mobile number"
       footer={
-        <TouchableOpacity
-          onPress={() => navigate(ROUTES.AUTH_STACK, { screen: ROUTES.SIGNUP })}
-          accessibilityRole="button"
-          accessibilityLabel="Don't have an account? Sign up"
-        >
-          <AppText variant="body" className="text-slate-500">
-            Don&apos;t have an account? <AppText className="text-brand-600 dark:text-brand-400 font-semibold">Sign up</AppText>
+        <View className="px-4">
+          <AppText variant="caption" className="text-center text-slate-400 dark:text-slate-500">
+            By continuing, you agree to Esparex Terms of Service &amp; Privacy Policy.
           </AppText>
-        </TouchableOpacity>
+        </View>
       }
     >
       <AppInput
         label="Mobile Number"
-        placeholder="Enter your 10-digit mobile number"
+        placeholder="Enter 10-digit number"
         value={mobile}
-        onChangeText={setMobile}
-        keyboardType="number-pad"
+        onChangeText={handleMobileChange}
+        keyboardType="phone-pad"
         maxLength={10}
+        error={error || undefined}
+        leftIcon={
+          <AppText variant="body" className="font-semibold text-slate-700 dark:text-slate-300">
+            +91
+          </AppText>
+        }
+        accessibilityLabel="Mobile Number"
+        accessibilityHint="Enter your 10-digit Indian mobile number"
       />
       
       <AppButton
         label="Send OTP"
-        onPress={handleLogin}
+        onPress={handleSendOtp}
         loading={loading}
         className="mt-4"
-        disabled={mobile.length !== 10}
+        disabled={mobile.length !== 10 || loading}
+        accessibilityLabel="Send OTP Button"
       />
     </AuthLayout>
   );

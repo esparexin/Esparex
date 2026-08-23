@@ -63,9 +63,9 @@ When compiling the project or running verification pipelines, always execute com
 
 3.  **Compile & Run the Mobile App**:
     ```bash
-    npm run ios
+    npm run mobile:build:android
     # or
-    npm run android
+    npm run mobile:build:ios
     ```
 
 ### 2.3 Local Testing: The Simulator Workflow
@@ -183,3 +183,41 @@ All developers working on the Esparex mobile workspace must strictly adhere to t
 5.  **Validate New Native Dependencies Before Adopting Them**: Complete the compatibility checklist (Fabric support, maintenance, platform parity) before adding native folders to Git.
 6.  **Separate Bootstrap Failures From Application Failures**: Distinguish workspace compilation requirements from actual application code defects.
 7.  **Verify on Both Android and iOS Before Staging Releases**: Do not merge release candidates without verifying physical device smoke tests on both iOS and Android.
+
+---
+
+## Appendix A — Platform Compatibility Matrix (PCM)
+
+*This appendix was previously maintained as `PCM.md`. Consolidated here per DOCUMENTATION-GOVERNANCE §7 anti-sprawl policy.*
+
+This matrix registers the active toolchain, SDK, compiler, and workstation runtime versions supported by the Esparex mobile workspace. Updated with every SDK migration or environment baseline change.
+
+### A.1 Active Toolchain Version Constraints
+
+| Component / Toolchain | Supported / Pinned Version | Verification Command |
+| :--- | :--- | :--- |
+| **Node.js** | `v22.x.x` (LTS) | `node -v` |
+| **npm** | `v10.x.x` | `npm -v` |
+| **Expo SDK** | `v52.x.x` | `npx expo -v` |
+| **React Native** | `0.76.9` | `npx react-native -v` |
+| **JDK (Java)** | JDK `17` or `21` | `java -version` |
+| **Android Gradle Plugin** | `8.7.2` | Checked in root gradle build files |
+| **Gradle** | `8.10.2` | `cd android && ./gradlew -v` |
+| **Xcode** | `Minimum v16.0` (for iOS 18 SDK) | `xcodebuild -version` |
+| **CocoaPods** | `Minimum v1.15.0` | `pod --version` |
+
+### A.2 Active Native Packages Verification
+
+| Linked Package | Installed Version | Architecture Validation | New Architecture (Fabric) Support |
+| :--- | :--- | :--- | :--- |
+| `react-native-reanimated` | `~3.16.1` | Autolinks successfully | Full native support |
+| `react-native-screens` | `~4.4.0` | Autolinks successfully | Full native support |
+| `react-native-safe-area-context` | `4.12.0` | Autolinks successfully | Full native support |
+| `react-native-svg` | `15.8.0` | Autolinks successfully | Full native support |
+| `react-native-razorpay` | `^3.0.0` | Autolinks successfully | Managed via New Architecture Bridge Interop |
+| `react-native-css-interop` | `0.2.6` | Autolinks successfully | Full native support |
+
+### A.3 Changelog
+
+*   **2026-08-15**: Pinned OpenJDK 17 LTS as official compilation baseline. Removed redundant `react-native-worklets` package and null autolinking overrides. Enabled clean Android release APK compilation (`BUILD SUCCESSFUL`) and iOS CocoaPods linking via Bundler (`Gemfile`).
+*   **2026-08-14**: Standardized JDK 17/21 limits.

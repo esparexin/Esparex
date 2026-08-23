@@ -62,6 +62,7 @@ import adminCatalogRequestRoutes from './routes/adminCatalogRequestRoutes';
 import editorialRoutes from './routes/editorialRoutes';
 import contactRoutes from './routes/contactRoutes';
 import rootRoutes from './routes/rootRoutes';
+import fallbackRoutes from './routes/fallbackRoutes';
 import adminRoutes from './routes/adminRoutes';
 import adminCatalogRoutes from './routes/adminCatalogRoutes';
 import adminChatRoutes from './routes/adminChatRoutes';
@@ -224,6 +225,12 @@ import { getSystemMetricsSummary } from '@esparex/core/utils/systemMetricsSummar
 import { requireMetricsAuth } from './middleware/metricsAuth';
 
 app.use(requestIdMiddleware); // FIRST: establishes correlationId in AsyncLocalStorage
+app.use((req, res, next) => {
+    logger.info(`[INCOMING_REQUEST] ${req.method} ${req.url}`, {
+        headers: req.headers,
+    });
+    next();
+});
 app.use(sentryRequestHandler); // Sentry request context
 app.use(sentryTracingHandler); // Sentry performance monitoring
 app.use(apiLatencyMiddleware);
@@ -387,6 +394,9 @@ app.use('/api/v1', requireDb, maintenanceMiddleware);
 
 // Apply CSRF protection to all state-changing requests
 app.use('/api/v1', verifyCsrfToken);
+
+// Fallback routing for un-prefixed requests (Must be applied before /api 404 handler)
+app.use('/api', fallbackRoutes);
 
 /* -------------------------------------------------------------------------- */
 /* ROUTES                                                                      */

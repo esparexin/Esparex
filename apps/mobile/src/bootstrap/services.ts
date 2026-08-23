@@ -1,7 +1,6 @@
 import { SecureStoreAdapter } from '../infrastructure/auth/SecureStoreAdapter';
 import { AuthServiceImpl } from '../infrastructure/auth/AuthServiceImpl';
 import { apiClient } from '../infrastructure/api/apiClient';
-import { setRefreshExecutor } from '../infrastructure/api/refreshQueue';
 import { IAuthService } from '../infrastructure/auth/AuthService';
 import { ApiListingRepository } from '../features/listings/application/ApiListingRepository';
 import { ListingService } from '../features/listings/application/ListingService';
@@ -29,6 +28,8 @@ import { ApiPaymentRepository } from '../features/payment/application/ApiPayment
 import { PaymentService } from '../features/payment/application/PaymentService';
 import { ApiSmartAlertRepository } from '../features/smartAlert/application/ApiSmartAlertRepository';
 import { SmartAlertService } from '../features/smartAlert/application/SmartAlertService';
+import { ApiLocationRepository } from '../features/listings/infrastructure/ApiLocationRepository';
+import { LocationService } from '../features/listings/application/LocationService';
 
 export interface IServices {
   authService: IAuthService;
@@ -45,6 +46,7 @@ export interface IServices {
   businessService: BusinessService;
   paymentService: PaymentService;
   smartAlertService: SmartAlertService;
+  locationService: LocationService;
 }
 
 export const bootstrapServices = (): IServices => {
@@ -58,7 +60,6 @@ export const bootstrapServices = (): IServices => {
 
   // 2. Auth (injected with pushTokenRegistrationService)
   const authService = new AuthServiceImpl(apiClient, SecureStoreAdapter, pushTokenRegistrationService);
-  setRefreshExecutor(authService.executeTokenRefresh);
 
   // 3. User
   const userRepository = new ApiUserRepository();
@@ -99,6 +100,10 @@ export const bootstrapServices = (): IServices => {
   const smartAlertRepository = new ApiSmartAlertRepository();
   const smartAlertService = new SmartAlertService(smartAlertRepository);
 
+  // 13. Location
+  const locationRepository = new ApiLocationRepository(apiClient);
+  const locationService = new LocationService(locationRepository);
+
   return {
     authService,
     userService,
@@ -114,6 +119,7 @@ export const bootstrapServices = (): IServices => {
     businessService,
     paymentService,
     smartAlertService,
+    locationService,
   };
 };
 

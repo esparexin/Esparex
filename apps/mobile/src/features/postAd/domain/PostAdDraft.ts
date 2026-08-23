@@ -1,3 +1,4 @@
+import { LocationMeta } from '@esparex/contracts';
 import { PickedImage } from './PickedImage';
 
 /**
@@ -10,12 +11,21 @@ import { PickedImage } from './PickedImage';
 export interface PostAdDraft {
   categoryId?: string;
   categoryName?: string;
+  brandId?: string;
+  brandName?: string;
+  modelId?: string;
+  modelName?: string;
+  customBrandName?: string;
+  customModelName?: string;
+  deviceCondition?: 'power_on' | 'power_off';
+  spareParts?: string[];
   title?: string;
   description?: string;
   price?: number;
-  condition?: string;
-  localImages?: readonly string[];
-  pickedImages?: readonly PickedImage[];
+  isFree?: boolean;
+  location?: LocationMeta | null;
   locationId?: string;
   locationDisplay?: string;
+  pickedImages?: readonly PickedImage[];
+  localImages?: readonly string[];
 }

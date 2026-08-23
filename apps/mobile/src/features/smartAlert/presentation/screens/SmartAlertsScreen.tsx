@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { Screen, Container, Card, AppButton, AppText } from '@esparex/mobile-ui';
+import { Screen, Container, Card, AppButton, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useSmartAlertsList } from '../hooks/useSmartAlertsList';
 import { useDeleteSmartAlert } from '../hooks/useDeleteSmartAlert';
@@ -9,9 +9,10 @@ import { SmartAlert } from '../../domain/SmartAlert';
 
 interface SmartAlertsScreenProps {
   onUpgradePlan?: () => void;
+  onBack?: () => void;
 }
 
-export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
+export function SmartAlertsScreen({ onUpgradePlan, onBack }: SmartAlertsScreenProps) {
   const { data: alerts, isLoading } = useSmartAlertsList();
   const deleteMutation = useDeleteSmartAlert();
   const [modalVisible, setModalVisible] = useState(false);
@@ -73,9 +74,21 @@ export function SmartAlertsScreen({ onUpgradePlan }: SmartAlertsScreenProps) {
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
       <View className="flex-row items-center justify-between px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
-          Smart Search Alerts
-        </AppText>
+        <View className="flex-row items-center">
+          {onBack && (
+            <TouchableOpacity
+              onPress={onBack}
+              accessibilityLabel="Back to profile"
+              accessibilityRole="button"
+              className="mr-3 p-1"
+            >
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+            </TouchableOpacity>
+          )}
+          <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
+            Smart Search Alerts
+          </AppText>
+        </View>
         <TouchableOpacity
           className="bg-brand-600 dark:bg-brand-500 px-3 py-1.5 rounded-lg"
           onPress={() => {

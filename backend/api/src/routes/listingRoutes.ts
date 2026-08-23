@@ -24,6 +24,9 @@ const router = Router();
  * Public Discovery Routes
  */
 
+// Discovery feed alias mapped to home feed
+router.get("/feed", publicCacheControl(300, 3600), searchLimiter, getListingsController.getHomeFeed);
+
 // GET /api/v1/listings/home
 router.get("/home", publicCacheControl(300, 3600), searchLimiter, getListingsController.getHomeFeed);
 

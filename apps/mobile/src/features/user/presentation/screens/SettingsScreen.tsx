@@ -151,9 +151,7 @@ export const SettingsScreen = ({ navigation }: Props) => {
             <AppText variant="h3" className="font-bold text-red-500 mb-3">
               Account Actions
             </AppText>
-            <AppButton variant="destructive" onPress={handleLogoutPress}>
-              Sign Out
-            </AppButton>
+            <AppButton variant="destructive" label="Sign Out" onPress={handleLogoutPress} />
           </Card>
         </ScrollView>
 

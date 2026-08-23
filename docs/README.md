@@ -42,6 +42,7 @@ Welcome to the Esparex Platform documentation hub. This directory contains techn
 - **Owner**: QA & Governance Team
 - **Key Specifications**:
   - [UI_FOUNDATION_AUDIT.md](audits/UI_FOUNDATION_AUDIT.md) — Sprint 1 UI Foundation Audit.
+  - [MOBILE_UX_ROOT_CAUSE_AUDIT.md — §9 Integration & Accessibility](audits/MOBILE_UX_ROOT_CAUSE_AUDIT.md#9-integration--accessibility-post-fix-report) — Mobile Integration & Accessibility Audit (August 2026).
   - [accessibility-audit.md](audits/accessibility-audit.md) — WCAG 2.2 AA accessibility audit register.
   - [component-consolidation-audit.md](audits/component-consolidation-audit.md) — Primitive component consolidation audit.
   - [visual-qa-report.md](audits/visual-qa-report.md) — 23 Viewport & theme visual QA matrix report.

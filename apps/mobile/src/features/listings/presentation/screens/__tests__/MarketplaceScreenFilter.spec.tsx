@@ -1,12 +1,45 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 
+const mockCategories = [
+  { id: 'cat-phones', name: 'Smartphones' },
+  { id: 'cat-laptops', name: 'Laptops' },
+];
+
 jest.mock('../../../../../bootstrap', () => ({
   services: {
     listingService: {
       getMarketplaceFeed: jest.fn(),
     },
+    categoryService: {
+      getCategories: jest.fn().mockImplementation(() => Promise.resolve(mockCategories)),
+    },
   },
+}));
+
+jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
+  useCategories: () => ({
+    categories: mockCategories,
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useSavedListings', () => ({
+  useSavedListings: () => ({
+    data: [],
+    isLoading: false,
+    isRefetching: false,
+    refetch: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useToggleSaveListing', () => ({
+  useToggleSaveListing: () => ({
+    mutate: jest.fn(),
+    isLoading: false,
+  }),
 }));
 
 jest.mock('lucide-react-native', () => {
@@ -55,11 +88,18 @@ describe('MarketplaceScreen Filters Integration', () => {
     expect(mockUseListings).toHaveBeenCalledWith({});
   });
 
-  it('opens FilterModal when Filters button is pressed', () => {
-    const { getByText, queryByText } = render(<MarketplaceScreen />);
+  it('confirms Home is pure discovery feed without duplicate Filters button', () => {
+    const { queryByText } = render(<MarketplaceScreen />);
+    expect(queryByText('Filters')).toBeNull();
     expect(queryByText('Filter Listings')).toBeNull();
+  });
 
-    fireEvent.press(getByText('Filters'));
-    expect(getByText('Filter Listings')).toBeTruthy();
+  it('filters by category when category chip is pressed', () => {
+    const { getByText } = render(<MarketplaceScreen />);
+    const smartphoneChip = getByText('Smartphones');
+    expect(smartphoneChip).toBeTruthy();
+
+    fireEvent.press(smartphoneChip);
+    expect(mockUseListings).toHaveBeenCalledWith(expect.objectContaining({ categoryId: 'cat-phones' }));
   });
 });

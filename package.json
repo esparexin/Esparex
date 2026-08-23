@@ -19,6 +19,8 @@
     "clean": "node scripts/clean.js",
     "clean:workspace-installs": "node -e \"['backend/api/node_modules', 'apps/admin/node_modules', 'apps/web/node_modules', 'shared/node_modules', 'core/node_modules'].forEach(p => require('fs').rmSync(p, { recursive: true, force: true }))\"",
     "build": "npm run build -w @esparex/design-tokens && npm run build -w @esparex/contracts && npm run build -w @esparex/shared && npm run build -w @esparex/core && npm run build -w @esparex/backend-api && npm run build -w @esparex/apps-admin && npm run build -w @esparex/apps-web",
+    "mobile:build:android": "npm run build -w @esparex/design-tokens -w @esparex/contracts -w @esparex/shared && cd apps/mobile/android && ./gradlew assembleRelease",
+    "mobile:build:ios": "npm run build -w @esparex/design-tokens -w @esparex/contracts -w @esparex/shared && cd apps/mobile/ios && xcodebuild -workspace Esparex.xcworkspace -scheme Esparex -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build",
     "type-check": "npm run type-check -w @esparex/design-tokens && npm run type-check -w @esparex/contracts && npm run type-check -w @esparex/shared && npm run type-check -w @esparex/core && npm run type-check -w @esparex/backend-api && npm run type-check -w @esparex/apps-admin && npm run type-check -w @esparex/apps-web && npm run type-check -w @esparex/mobile-ui && npm run type-check -w @esparex/apps-mobile",
     "dev": "npm run dev -w @esparex/apps-web",
     "dev:all": "concurrently \"npm run dev -w @esparex/backend-api\" \"npm run dev -w @esparex/apps-admin\" \"npm run dev -w @esparex/apps-web\"",
@@ -28,10 +30,11 @@
     "guard:route-collision": "node scripts/enforce-route-collision-guard.js",
     "guard:route-hierarchy": "node scripts/guard-route-shadowing.js",
     "guard:mobile-architecture": "node scripts/enforce-mobile-architecture-guard.js",
+    "guard:mobile-toolchain": "node scripts/guard-mobile-toolchain.js",
     "guard:shared-ssot": "node scripts/enforce-shared-ssot.js",
     "guard:typography-ssot": "node scripts/enforce-typography-ssot.js",
     "guard:auth-ssot": "node scripts/enforce-authorization-ssot.js",
-    "guard:platform-governance": "node scripts/guard-platform-governance.js && node scripts/enforce-compatibility-markers-baseline.js && node scripts/enforce-component-api-boundary.js && node scripts/enforce-agents-ssot.js && node scripts/enforce-no-ad-hard-delete.js && node scripts/enforce-moderation-route-whitelist.js && node scripts/enforce-notification-governance.js && node scripts/enforce-shared-ssot.js && node scripts/enforce-typography-ssot.js && node scripts/enforce-authorization-ssot.js",
+    "guard:platform-governance": "node scripts/guard-platform-governance.js && node scripts/enforce-compatibility-markers-baseline.js && node scripts/enforce-component-api-boundary.js && node scripts/enforce-agents-ssot.js && node scripts/enforce-no-ad-hard-delete.js && node scripts/enforce-moderation-route-whitelist.js && node scripts/enforce-notification-governance.js && node scripts/enforce-shared-ssot.js && node scripts/enforce-typography-ssot.js && node scripts/enforce-authorization-ssot.js && node scripts/guard-mobile-toolchain.js",
     "guard:ai-governance": "node scripts/enforce-agents-ssot.js",
     "guard:no-ad-hard-delete": "node scripts/enforce-no-ad-hard-delete.js",
     "guard:moderation-namespace": "node scripts/enforce-moderation-route-whitelist.js",
@@ -121,7 +124,9 @@
     "architecture": "npx tsx tooling/architecture/index.ts",
     "architecture:changed": "npx tsx tooling/architecture/index.ts --changed",
     "generate:domain": "npx tsx tooling/architecture/generate-domain.ts",
-    "verify:architecture": "npx tsx tooling/architecture/verify-architecture.ts"
+    "verify:architecture": "npx tsx tooling/architecture/verify-architecture.ts",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "optionalDependencies": {
     "@emnapi/runtime": "^1.8.1"

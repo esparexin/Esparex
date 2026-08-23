@@ -33,6 +33,22 @@ Every UI component in the monorepo has an assigned owner package:
 
 ---
 
+### 2.1 Component Lifecycle Maturity Taxonomy
+
+*Previously documented in `docs/architecture/ESPAREX_UI_COMPONENT_GUIDELINES.md`. Consolidated here per DOCUMENTATION-GOVERNANCE §7 anti-sprawl policy.*
+
+```text
+Experimental  ──►  Internal  ──►  Public  ──►  Stable  ──►  Deprecated  ──►  Legacy
+(Local feature)   (@esparex/ui)  (Documented)  (L4 Standard) (JSDoc notice)  (To be deleted)
+```
+
+- **Stable**: Fully tested, WCAG 2.2 AA compliant, tokenized, zero breaking changes permitted.
+- **Deprecated**: Maintained only for backwards compatibility; points developers to the canonical replacement with JSDoc `@deprecated` annotation.
+- **Legacy**: Scheduled for removal in the next cleanup phase. Do not use in new code.
+
+
+---
+
 ## 🌐 3. Multi-Platform Boundaries (Web vs Mobile)
 
 ```text

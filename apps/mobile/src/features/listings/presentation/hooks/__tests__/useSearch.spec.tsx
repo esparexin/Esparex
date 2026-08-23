@@ -53,10 +53,12 @@ describe('useSearch hook', () => {
     isPremium: false,
   };
 
-  it('does not run search query when search text is empty', () => {
+  it('does not run search query when search text and filters are empty', () => {
     const { result } = renderHook(() => useSearch(), { wrapper });
 
     expect(result.current.debouncedQuery).toBe('');
+    expect(result.current.activeFilterCount).toBe(0);
+    expect(result.current.hasSearchFilter).toBe(false);
     expect(result.current.fetchStatus).toBe('idle');
     expect(mockGetMarketplaceFeed).not.toHaveBeenCalled();
   });
@@ -87,6 +89,59 @@ describe('useSearch hook', () => {
     });
   });
 
+  it('executes search query when category filter is selected without text query', async () => {
+    mockGetMarketplaceFeed.mockResolvedValueOnce([sampleListing]);
+
+    const { result } = renderHook(() => useSearch(), { wrapper });
+
+    act(() => {
+      result.current.handleSelectCategory('cat-smartphones');
+    });
+
+    expect(result.current.activeFilterCount).toBe(1);
+    expect(result.current.hasSearchFilter).toBe(true);
+
+    await waitFor(() => expect(mockGetMarketplaceFeed).toHaveBeenCalledWith({
+      categoryId: 'cat-smartphones',
+      page: 1,
+      limit: 20,
+    }));
+  });
+
+  it('combines text query and facet filters', async () => {
+    mockGetMarketplaceFeed.mockResolvedValueOnce([sampleListing]);
+
+    const { result } = renderHook(() => useSearch(), { wrapper });
+
+    act(() => {
+      result.current.handleQueryChange('MacBook');
+      result.current.setFilters({
+        categoryId: 'cat-laptops',
+        sortBy: 'price-low',
+        condition: 'used_good',
+        minPrice: 20000,
+        maxPrice: 80000,
+      });
+    });
+
+    expect(result.current.activeFilterCount).toBe(4);
+
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    await waitFor(() => expect(mockGetMarketplaceFeed).toHaveBeenCalledWith({
+      search: 'MacBook',
+      categoryId: 'cat-laptops',
+      sortBy: 'price-low',
+      condition: 'used_good',
+      minPrice: 20000,
+      maxPrice: 80000,
+      limit: 20,
+      page: 1,
+    }));
+  });
+
   it('resets query immediately on handleClear', () => {
     const { result } = renderHook(() => useSearch(), { wrapper });
 
@@ -100,5 +155,25 @@ describe('useSearch hook', () => {
 
     expect(result.current.query).toBe('');
     expect(result.current.debouncedQuery).toBe('');
+  });
+
+  it('clears all facet filters on handleClearFilters', () => {
+    const { result } = renderHook(() => useSearch(), { wrapper });
+
+    act(() => {
+      result.current.setFilters({
+        categoryId: 'cat-phones',
+        sortBy: 'newest',
+      });
+    });
+
+    expect(result.current.activeFilterCount).toBe(2);
+
+    act(() => {
+      result.current.handleClearFilters();
+    });
+
+    expect(result.current.activeFilterCount).toBe(0);
+    expect(result.current.filters).toEqual({});
   });
 });

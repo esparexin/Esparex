@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 
 jest.mock('../../../../../bootstrap', () => ({
   services: {
@@ -22,6 +22,7 @@ jest.mock('lucide-react-native', () => {
 import { ProfileScreen } from '../ProfileScreen';
 import { useProfile } from '../../hooks/useProfile';
 import { User } from '@esparex/contracts';
+import { ROUTES } from '../../../../../navigation/routes';
 
 jest.mock('../../hooks/useProfile');
 
@@ -66,7 +67,7 @@ describe('ProfileScreen Component', () => {
     expect(queryByText('Jane Doe')).toBeNull();
   });
 
-  it('renders user profile details when fetch succeeds', () => {
+  it('renders user profile details and activity menu entries when fetch succeeds', () => {
     mockUseProfile.mockReturnValue({
       data: sampleUser,
       isLoading: false,
@@ -78,8 +79,20 @@ describe('ProfileScreen Component', () => {
     const { getByText } = render(<ProfileScreen navigation={mockNavigation} route={mockRoute} />);
     expect(getByText('Jane Doe')).toBeTruthy();
     expect(getByText('+919876543210')).toBeTruthy();
-    expect(getByText('Phone Verified')).toBeTruthy();
-    expect(getByText('Mumbai, Maharashtra')).toBeTruthy();
+    expect(getByText('Verified')).toBeTruthy();
+    expect(getByText('My Ads & Listings')).toBeTruthy();
+    expect(getByText('Saved Ads & Favorites')).toBeTruthy();
+    expect(getByText('Smart Search Alerts')).toBeTruthy();
+    expect(getByText('Register as Business')).toBeTruthy();
+    expect(getByText('Ad Credits & Plans')).toBeTruthy();
+    expect(getByText('Account Settings')).toBeTruthy();
+
+    // Test navigation
+    fireEvent.press(getByText('My Ads & Listings'));
+    expect(mockNavigation.navigate).toHaveBeenCalledWith(ROUTES.MY_LISTINGS);
+
+    fireEvent.press(getByText('Saved Ads & Favorites'));
+    expect(mockNavigation.navigate).toHaveBeenCalledWith(ROUTES.SAVED_ADS);
   });
 
   it('renders error state when profile query fails', () => {

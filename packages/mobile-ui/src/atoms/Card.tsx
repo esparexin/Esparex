@@ -4,12 +4,14 @@ import { View, ViewProps } from 'react-native';
 export interface CardProps extends ViewProps {
   elevation?: 'none' | 'sm' | 'md' | 'lg';
   variant?: 'default' | 'outlined' | 'ghost' | 'soft';
+  padded?: boolean;
   className?: string;
 }
 
 export const Card: React.FC<CardProps> = ({ 
   elevation = 'sm', 
   variant = 'default',
+  padded = true,
   className = '', 
   children, 
   ...props 
@@ -37,7 +39,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <View 
-      className={`rounded-xl overflow-hidden p-3.5 ${getVariantStyles()} ${getElevationStyles()} ${className}`}
+      className={`rounded-xl overflow-hidden ${padded ? 'p-3.5' : ''} ${getVariantStyles()} ${getElevationStyles()} ${className}`}
       {...props}
     >
       {children}

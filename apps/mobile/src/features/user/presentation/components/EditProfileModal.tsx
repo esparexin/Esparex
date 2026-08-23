@@ -61,7 +61,7 @@ export const EditProfileModal = React.memo<EditProfileModalProps>(({
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} className="my-4 space-y-4">
+          <ScrollView showsVerticalScrollIndicator={false} className="my-4 gap-4">
             <View className="mb-4">
               <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 mb-2">
                 Full Name

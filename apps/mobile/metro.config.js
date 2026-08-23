@@ -18,6 +18,21 @@ config.resolver.nodeModulesPaths = [
 
 // 3. Force Metro to resolve unique instances of peer dependencies
 config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (
+    moduleName === './index' ||
+    moduleName === 'index' ||
+    moduleName === './apps/mobile/index' ||
+    moduleName.endsWith('/index') ||
+    moduleName.endsWith('index.js')
+  ) {
+    if (context.originModulePath === workspaceRoot || context.originModulePath === `${workspaceRoot}/.` || context.originModulePath === projectRoot) {
+      return {
+        type: 'sourceFile',
+        filePath: path.resolve(projectRoot, 'index.js'),
+      };
+    }
+  }
+
   const redirectMap = {
     'react-native-safe-area-context': path.resolve(projectRoot, 'node_modules/react-native-safe-area-context'),
     'react-native-svg': path.resolve(projectRoot, 'node_modules/react-native-svg'),

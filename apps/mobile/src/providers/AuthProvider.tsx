@@ -1,17 +1,18 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { IAuthService } from '../infrastructure/auth/AuthService';
+import { IAuthService, SendOtpResult } from '../infrastructure/auth/AuthService';
 import { SessionRestoration } from '../infrastructure/auth/SessionRestoration';
 import { IPushTokenRegistrationService } from '../features/notifications/application/IPushTokenRegistrationService';
+import { TokenProvider } from '../infrastructure/api/TokenProvider';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'anonymous';
 
 export interface AuthContextType {
   status: AuthStatus;
-  login: (payload: unknown) => Promise<void>;
-  logout: () => Promise<void>;
-  sendOtp: (mobile: string) => Promise<{ success: boolean; message?: string; isNewUser?: boolean }>;
+  sendOtp: (mobile: string) => Promise<SendOtpResult>;
   verifyOtp: (mobile: string, otp: string, name?: string) => Promise<void>;
+  cancelOtp: (mobile: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -56,12 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     };
   }, [pushTokenRegistrationService]);
 
-  const login = async (payload: unknown) => {
-    await authService.login(payload);
-    setStatus('authenticated');
-  };
-
-  const sendOtp = async (mobile: string) => {
+  const sendOtp = async (mobile: string): Promise<SendOtpResult> => {
     return await authService.sendOtp(mobile);
   };
 
@@ -70,18 +66,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setStatus('authenticated');
   };
 
+  const cancelOtp = async (mobile: string) => {
+    await authService.cancelOtp(mobile);
+  };
+
   const logout = async () => {
     await authService.logout();
+    TokenProvider.clearCache();
     queryClient.clear(); // Clear all queries on logout for a complete reset
     setStatus('anonymous');
   };
 
   const value = useMemo(() => ({
     status,
-    login,
-    logout,
     sendOtp,
-    verifyOtp
+    verifyOtp,
+    cancelOtp,
+    logout
   }), [status, authService]);
 
   return (

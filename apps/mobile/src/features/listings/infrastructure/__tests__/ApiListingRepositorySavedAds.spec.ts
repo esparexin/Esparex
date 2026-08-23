@@ -39,7 +39,7 @@ describe('ApiListingRepository - Saved Ads', () => {
 
     const listings = await repository.getSavedListings();
 
-    expect(apiClient.get).toHaveBeenCalledWith('/v1/users/saved-ads');
+    expect(apiClient.get).toHaveBeenCalledWith('/users/saved-ads');
     expect(listings.length).toBe(1);
     expect(listings[0].id).toBe('ad-101');
     expect(listings[0].title).toBe('iPhone 13 Saved');
@@ -50,7 +50,7 @@ describe('ApiListingRepository - Saved Ads', () => {
 
     await repository.toggleSaveListing('ad-101', true);
 
-    expect(apiClient.delete).toHaveBeenCalledWith('/v1/users/saved-ads/ad-101');
+    expect(apiClient.delete).toHaveBeenCalledWith('/users/saved-ads/ad-101');
   });
 
   it('calls POST /v1/users/saved-ads when saving an ad', async () => {
@@ -58,6 +58,6 @@ describe('ApiListingRepository - Saved Ads', () => {
 
     await repository.toggleSaveListing('ad-101', false);
 
-    expect(apiClient.post).toHaveBeenCalledWith('/v1/users/saved-ads', { adId: 'ad-101' });
+    expect(apiClient.post).toHaveBeenCalledWith('/users/saved-ads', { adId: 'ad-101' });
   });
 });

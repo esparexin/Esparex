@@ -13,143 +13,145 @@ describe('AuthServiceImpl', () => {
     };
 
     mockTokenStorage = {
-      setTokens: jest.fn(),
-      getTokens: jest.fn(),
-      clearTokens: jest.fn(),
-      hasTokens: jest.fn(),
-      isAvailable: jest.fn(),
+      setAccessToken: jest.fn().mockResolvedValue(undefined),
+      getAccessToken: jest.fn().mockResolvedValue('test-access-token'),
+      setTokens: jest.fn().mockResolvedValue(undefined),
+      getTokens: jest.fn().mockResolvedValue({ accessToken: 'test-access-token', refreshToken: null }),
+      clearTokens: jest.fn().mockResolvedValue(undefined),
+      hasTokens: jest.fn().mockResolvedValue(true),
+      isAvailable: jest.fn().mockResolvedValue(true),
     };
 
     authService = new AuthServiceImpl(mockApiClient as any, mockTokenStorage);
   });
 
-  describe('login()', () => {
-    it('should map backend DTO to Domain AuthResult and store tokens', async () => {
+  describe('sendOtp()', () => {
+    it('should call /auth/send-otp with normalized mobile and return response', async () => {
       mockApiClient.post.mockResolvedValue({
         data: {
-          accessToken: 'test-access',
-          refreshToken: 'test-refresh',
-          userId: 'user-123'
+          success: true,
+          data: {
+            success: true,
+            isNewUser: false,
+            otpExpiresIn: 300,
+            name: 'Kalyan'
+          }
         }
       });
 
-      const result = await authService.login({ email: 'test@example.com', password: 'password' });
+      const result = await authService.sendOtp('9876543210');
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/login', { email: 'test@example.com', password: 'password' });
-      expect(mockTokenStorage.setTokens).toHaveBeenCalledWith('test-access', 'test-refresh');
-      expect(result).toEqual({ userId: 'user-123' });
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/send-otp', { mobile: '9876543210' });
+      expect(result).toEqual({
+        success: true,
+        isNewUser: false,
+        otpExpiresIn: 300,
+        name: 'Kalyan',
+        message: 'OTP sent successfully'
+      });
     });
 
-    it('should handle missing tokens gracefully', async () => {
+    it('should handle new user flag correctly from backend', async () => {
       mockApiClient.post.mockResolvedValue({
         data: {
-          userId: 'user-123'
+          success: true,
+          data: {
+            success: true,
+            isNewUser: true,
+            otpExpiresIn: 300
+          }
         }
       });
 
-      const result = await authService.login({ email: 'test@example.com' });
+      const result = await authService.sendOtp('9876543210');
 
-      expect(mockTokenStorage.setTokens).not.toHaveBeenCalled();
-      expect(result).toEqual({ userId: 'user-123' });
+      expect(result.isNewUser).toBe(true);
+    });
+  });
+
+  describe('verifyOtp()', () => {
+    it('should verify OTP for existing user and persist access token to storage', async () => {
+      mockApiClient.post.mockResolvedValue({
+        data: {
+          success: true,
+          data: {
+            success: true,
+            token: 'jwt-token-xyz',
+            user: {
+              _id: 'user-123',
+              mobile: '+919876543210',
+              name: 'Kalyan'
+            }
+          }
+        }
+      });
+
+      const result = await authService.verifyOtp('9876543210', '123456');
+
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/verify-otp', {
+        mobile: '9876543210',
+        otp: '123456'
+      });
+      expect(mockTokenStorage.setAccessToken).toHaveBeenCalledWith('jwt-token-xyz');
+      expect(result.userId).toBe('user-123');
+      expect(result.accessToken).toBe('jwt-token-xyz');
+    });
+
+    it('should pass name when registering a new user', async () => {
+      mockApiClient.post.mockResolvedValue({
+        data: {
+          success: true,
+          data: {
+            success: true,
+            token: 'jwt-token-new',
+            isNewUser: true,
+            user: {
+              _id: 'user-456',
+              mobile: '+919876543210',
+              name: 'John Doe'
+            }
+          }
+        }
+      });
+
+      const result = await authService.verifyOtp('9876543210', '123456', 'John Doe');
+
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/verify-otp', {
+        mobile: '9876543210',
+        otp: '123456',
+        name: 'John Doe'
+      });
+      expect(mockTokenStorage.setAccessToken).toHaveBeenCalledWith('jwt-token-new');
+      expect(result.userId).toBe('user-456');
+    });
+  });
+
+  describe('cancelOtp()', () => {
+    it('should call /auth/cancel-otp with mobile number', async () => {
+      mockApiClient.post.mockResolvedValue({ data: { success: true } });
+
+      await authService.cancelOtp('9876543210');
+
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/cancel-otp', { mobile: '9876543210' });
     });
   });
 
   describe('logout()', () => {
-    it('should call logout endpoint and clear tokens', async () => {
-      mockApiClient.post.mockResolvedValue({});
+    it('should call logout endpoint and clear tokens from storage', async () => {
+      mockApiClient.post.mockResolvedValue({ data: { success: true } });
 
       await authService.logout();
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/logout');
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
       expect(mockTokenStorage.clearTokens).toHaveBeenCalled();
     });
 
-    it('should clear tokens even if logout endpoint fails', async () => {
+    it('should clear tokens even if logout endpoint throws error', async () => {
       mockApiClient.post.mockRejectedValue(new Error('Network error'));
 
       await authService.logout();
 
-      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/logout');
-      expect(mockTokenStorage.clearTokens).toHaveBeenCalled();
-    });
-  });
-
-  describe('executeTokenRefresh()', () => {
-    it('should refresh tokens and save new tokens', async () => {
-      mockTokenStorage.getTokens.mockResolvedValue({
-        accessToken: 'old-access',
-        refreshToken: 'old-refresh'
-      });
-
-      mockApiClient.post.mockResolvedValue({
-        data: {
-          accessToken: 'new-access',
-          refreshToken: 'new-refresh'
-        }
-      });
-
-      const newAccessToken = await authService.executeTokenRefresh();
-
-      expect(mockTokenStorage.getTokens).toHaveBeenCalled();
-      expect(mockApiClient.post).toHaveBeenCalledWith('/v1/auth/refresh', {
-        refreshToken: 'old-refresh'
-      });
-      expect(mockTokenStorage.setTokens).toHaveBeenCalledWith('new-access', 'new-refresh');
-      expect(newAccessToken).toBe('new-access');
-    });
-
-    it('should fallback to old refresh token if new one is not provided', async () => {
-      mockTokenStorage.getTokens.mockResolvedValue({
-        accessToken: 'old-access',
-        refreshToken: 'old-refresh'
-      });
-
-      mockApiClient.post.mockResolvedValue({
-        data: {
-          accessToken: 'new-access',
-          // no new refresh token
-        }
-      });
-
-      const newAccessToken = await authService.executeTokenRefresh();
-
-      expect(mockTokenStorage.setTokens).toHaveBeenCalledWith('new-access', 'old-refresh');
-      expect(newAccessToken).toBe('new-access');
-    });
-
-    it('should throw if no refresh token is available', async () => {
-      mockTokenStorage.getTokens.mockResolvedValue({
-        accessToken: 'old-access',
-        refreshToken: null
-      });
-
-      await expect(authService.executeTokenRefresh()).rejects.toThrow('No refresh token available');
-      expect(mockApiClient.post).not.toHaveBeenCalled();
-    });
-
-    it('should clear tokens and re-throw if refresh API call fails', async () => {
-      mockTokenStorage.getTokens.mockResolvedValue({
-        accessToken: 'old-access',
-        refreshToken: 'old-refresh'
-      });
-
-      mockApiClient.post.mockRejectedValue(new Error('Invalid refresh token'));
-
-      await expect(authService.executeTokenRefresh()).rejects.toThrow('Invalid refresh token');
-      expect(mockTokenStorage.clearTokens).toHaveBeenCalled();
-    });
-
-    it('should clear tokens if refresh response contains no access token', async () => {
-      mockTokenStorage.getTokens.mockResolvedValue({
-        accessToken: 'old-access',
-        refreshToken: 'old-refresh'
-      });
-
-      mockApiClient.post.mockResolvedValue({
-        data: {}
-      });
-
-      await expect(authService.executeTokenRefresh()).rejects.toThrow('No access token returned from refresh endpoint');
+      expect(mockApiClient.post).toHaveBeenCalledWith('/auth/logout');
       expect(mockTokenStorage.clearTokens).toHaveBeenCalled();
     });
   });

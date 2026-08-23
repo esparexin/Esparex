@@ -1,26 +1,36 @@
 import React, { useReducer, useMemo, useCallback } from 'react';
+import { LocationMeta } from '@esparex/contracts';
 import { PostAdContext } from './PostAdContext';
 import { postAdReducer } from './domain/postAdReducer';
 import { INITIAL_POST_AD_STATE } from './domain/PostAdState';
+import { PickedImage } from './domain/PickedImage';
+import { WizardStep } from './domain/WizardStep';
 
 interface PostAdProviderProps {
   children: React.ReactNode;
 }
 
-/**
- * PostAdProvider — scoped to the Post Ad tab only (not AppProvider).
- *
- * Mounts when the user opens the Post Ad tab.
- * Unmounts (and resets all state) when they leave.
- *
- * Exposes explicit intent methods — not raw dispatch — so the reducer
- * implementation can evolve without any consumer changes.
- */
 export const PostAdProvider: React.FC<PostAdProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(postAdReducer, INITIAL_POST_AD_STATE);
 
   const setCategory = useCallback((categoryId: string, categoryName: string) => {
     dispatch({ type: 'SET_CATEGORY', payload: { categoryId, categoryName } });
+  }, []);
+
+  const setBrand = useCallback((brand: { brandId?: string; brandName?: string; customBrandName?: string }) => {
+    dispatch({ type: 'SET_BRAND', payload: brand });
+  }, []);
+
+  const setModel = useCallback((model: { modelId?: string; modelName?: string; customModelName?: string }) => {
+    dispatch({ type: 'SET_MODEL', payload: model });
+  }, []);
+
+  const setDeviceCondition = useCallback((condition: 'power_on' | 'power_off') => {
+    dispatch({ type: 'SET_DEVICE_CONDITION', payload: condition });
+  }, []);
+
+  const setSpareParts = useCallback((parts: string[]) => {
+    dispatch({ type: 'SET_SPARE_PARTS', payload: parts });
   }, []);
 
   const setTitle = useCallback((title: string) => {
@@ -35,16 +45,24 @@ export const PostAdProvider: React.FC<PostAdProviderProps> = ({ children }) => {
     dispatch({ type: 'SET_PRICE', payload: price });
   }, []);
 
-  const setCondition = useCallback((condition: string) => {
-    dispatch({ type: 'SET_CONDITION', payload: condition });
+  const setIsFree = useCallback((isFree: boolean) => {
+    dispatch({ type: 'SET_IS_FREE', payload: isFree });
   }, []);
 
-  const setLocation = useCallback((locationId?: string, locationDisplay?: string) => {
-    dispatch({ type: 'SET_LOCATION', payload: { locationId, locationDisplay } });
+  const setLocation = useCallback((location: LocationMeta | null) => {
+    dispatch({ type: 'SET_LOCATION', payload: location });
+  }, []);
+
+  const setPickedImages = useCallback((images: readonly PickedImage[]) => {
+    dispatch({ type: 'SET_PICKED_IMAGES', payload: images });
   }, []);
 
   const setImages = useCallback((localUris: string[]) => {
     dispatch({ type: 'SET_IMAGES', payload: localUris });
+  }, []);
+
+  const setStep = useCallback((step: WizardStep) => {
+    dispatch({ type: 'SET_STEP', payload: step });
   }, []);
 
   const nextStep = useCallback(() => {
@@ -59,20 +77,43 @@ export const PostAdProvider: React.FC<PostAdProviderProps> = ({ children }) => {
     dispatch({ type: 'RESET' });
   }, []);
 
-  // Memoised so consumers don't re-render when unrelated state changes
   const value = useMemo(() => ({
     state,
     setCategory,
+    setBrand,
+    setModel,
+    setDeviceCondition,
+    setSpareParts,
     setTitle,
     setDescription,
     setPrice,
-    setCondition,
+    setIsFree,
     setLocation,
+    setPickedImages,
     setImages,
+    setStep,
     nextStep,
     previousStep,
     reset,
-  }), [state, setCategory, setTitle, setDescription, setPrice, setCondition, setLocation, setImages, nextStep, previousStep, reset]);
+  }), [
+    state,
+    setCategory,
+    setBrand,
+    setModel,
+    setDeviceCondition,
+    setSpareParts,
+    setTitle,
+    setDescription,
+    setPrice,
+    setIsFree,
+    setLocation,
+    setPickedImages,
+    setImages,
+    setStep,
+    nextStep,
+    previousStep,
+    reset,
+  ]);
 
   return (
     <PostAdContext.Provider value={value}>

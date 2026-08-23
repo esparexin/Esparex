@@ -1,8 +1,11 @@
 import React, { useCallback } from 'react';
 import { View, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, Card, AppButton, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { useConversations } from '../hooks/useConversations';
 import { IConversationDTO } from '@esparex/contracts';
 import { ErrorState } from '../../../common/components/ErrorState';
@@ -14,6 +17,13 @@ interface ConversationListScreenProps {
 export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
   onSelectConversation,
 }) => {
+  let authStatus: string = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
   const { data: conversations, isLoading, isError, refetch, isRefetching } = useConversations();
 
   const renderConversationItem = useCallback(
@@ -32,60 +42,55 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
           <TouchableOpacity
             onPress={() => onSelectConversation?.(item.id)}
             className="flex-row items-center justify-between"
+            accessibilityRole="button"
+            accessibilityLabel={`Conversation with ${otherParticipant}`}
           >
-            {/* Thumbnail / Avatar */}
-            <View className="relative mr-3">
-              {item.ad.thumbnail ? (
-                <Image
-                  source={{ uri: item.ad.thumbnail }}
-                  contentFit="cover"
-                  cachePolicy="memory-disk"
-                  transition={150}
-                  style={styles.thumbnail}
-                  accessibilityLabel={`Thumbnail for ${item.ad.title}`}
-                />
-              ) : (
-                <View className="w-12 h-12 rounded-full bg-brand-50 dark:bg-brand-950/40 items-center justify-center">
-                  <AppIcon name="MessageSquare" size={20} color={base.brand[500]} />
-                </View>
-              )}
-              {unreadCount > 0 && (
-                <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 items-center justify-center">
-                  <AppText variant="tiny" className="text-white font-bold">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </AppText>
-                </View>
-              )}
-            </View>
-
-            {/* Conversation Details */}
-            <View className="flex-1 mr-2">
-              <View className="flex-row items-center justify-between mb-1">
-                <AppText
-                  variant="body"
-                  className="font-bold text-slate-900 dark:text-white"
-                  numberOfLines={1}
-                >
-                  {otherParticipant}
-                </AppText>
-                {formattedDate ? (
-                  <AppText variant="caption" className="text-slate-400 text-xs">
-                    {formattedDate}
-                  </AppText>
-                ) : null}
+            <View className="flex-row items-center flex-1">
+              <View className="relative">
+                {item.ad?.thumbnail ? (
+                  <Image
+                    source={{ uri: item.ad.thumbnail }}
+                    style={styles.thumbnail}
+                    contentFit="cover"
+                    transition={200}
+                    accessibilityLabel={item.ad.title || 'Listing thumbnail'}
+                  />
+                ) : (
+                  <View className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 items-center justify-center">
+                    <AppIcon name="MessageSquare" size={20} color={base.brand[500]} />
+                  </View>
+                )}
+                {unreadCount > 0 && (
+                  <View className="absolute -top-1 -right-1 bg-brand-600 rounded-full w-5 h-5 items-center justify-center border-2 border-white dark:border-slate-900">
+                    <AppText variant="caption" className="text-white text-[10px] font-bold">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </AppText>
+                  </View>
+                )}
               </View>
 
-              <AppText variant="caption" className="text-brand-600 dark:text-brand-400 font-medium mb-1">
-                {item.ad.title}
-              </AppText>
+              <View className="ml-3 flex-1">
+                <View className="flex-row justify-between items-center mb-1">
+                  <AppText variant="body" className="font-bold text-slate-900 dark:text-white" numberOfLines={1}>
+                    {otherParticipant}
+                  </AppText>
+                  <AppText variant="caption" className="text-slate-500 dark:text-slate-400 text-xs">
+                    {formattedDate}
+                  </AppText>
+                </View>
 
-              <AppText
-                variant="caption"
-                className="text-slate-500 dark:text-slate-400"
-                numberOfLines={1}
-              >
-                {item.lastMessage || 'No messages yet'}
-              </AppText>
+                <AppText variant="caption" className="text-slate-600 dark:text-slate-400 font-medium" numberOfLines={1}>
+                  {item.ad?.title || 'General Inquiry'}
+                </AppText>
+
+                <AppText
+                  variant="caption"
+                  className="text-slate-500 dark:text-slate-400"
+                  numberOfLines={1}
+                >
+                  {item.lastMessage || 'No messages yet'}
+                </AppText>
+              </View>
             </View>
 
             <AppIcon name="ChevronRight" size={18} color={base.slate[400]} />
@@ -95,6 +100,30 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
     },
     [onSelectConversation]
   );
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <Container className="flex-1 justify-center items-center px-6 bg-slate-50 dark:bg-slate-950">
+          <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
+            <AppIcon name="MessageSquare" size={32} color={base.brand[500]} />
+          </View>
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center mb-2">
+            Your Conversations
+          </AppText>
+          <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
+            Sign in to view your messages and chat directly with buyers and sellers.
+          </AppText>
+          <AppButton
+            label="Sign In / Register"
+            onPress={() => navigate(ROUTES.AUTH_STACK)}
+            className="w-full"
+            accessibilityLabel="Sign in to view messages"
+          />
+        </Container>
+      </Screen>
+    );
+  }
 
   if (isError) {
     return (

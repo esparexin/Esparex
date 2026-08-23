@@ -1,6 +1,6 @@
 import { IListingRepository } from './IListingRepository';
 import { Listing } from '../domain/Listing';
-import { ListingQueryParams, CreateListingRequest } from '@esparex/contracts';
+import { ListingQueryParams, CreateListingRequest, Category } from '@esparex/contracts';
 
 export class ListingService {
   constructor(private readonly repository: IListingRepository) {}
@@ -55,6 +55,24 @@ export class ListingService {
       return await this.repository.update(id, request);
     } catch (error) {
       console.error(`ListingService.updateListing failed for ID ${id}:`, error);
+      throw error;
+    }
+  }
+
+  public async getCategories(): Promise<readonly Category[]> {
+    try {
+      return await this.repository.getCategories();
+    } catch (error) {
+      console.error('ListingService.getCategories failed:', error);
+      throw error;
+    }
+  }
+
+  public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
+    try {
+      return await this.repository.reportListing(adId, reason, description);
+    } catch (error) {
+      console.error(`ListingService.reportListing failed for ID ${adId}:`, error);
       throw error;
     }
   }

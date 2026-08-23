@@ -37,11 +37,17 @@ export class ApiImageUploadService implements IImageUploadService {
     const contentType = image.mimeType || 'image/jpeg';
 
     // 1. Request a presigned URL from the backend
-    const presignResponse = await apiClient.post<PresignedUploadResult>('/v1/upload/presign', {
-      contentType,
-    });
+    const presignResponse = await apiClient.post<{ data?: PresignedUploadResult } & PresignedUploadResult>(
+      '/listings/upload-presign',
+      {
+        fileType: contentType,
+        contentType,
+        folder: 'listings',
+      }
+    );
 
-    const { uploadUrl, key, publicUrl } = presignResponse.data;
+    const payload = presignResponse.data?.data || presignResponse.data;
+    const { uploadUrl, key, publicUrl } = payload;
 
     // 2. Fetch the local file URI as a blob and PUT to the presigned URL
     const fileResponse = await fetch(image.uri);
