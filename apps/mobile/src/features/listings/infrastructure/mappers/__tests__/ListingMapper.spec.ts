@@ -100,4 +100,29 @@ describe('ListingMapper', () => {
     const listing = ListingMapper.mapAdToListing(spotlightAd);
     expect(listing.isSpotlight).toBe(true);
   });
+
+  it('correctly unescapes HTML entities in title and description', () => {
+    const htmlAd = createMockAd({
+      id: 'ad-7',
+      title: 'Dell &amp; HP &quot;Laptops&quot; &lt;Parts&#39;n&#39;More&gt;',
+      description: 'Brand new &amp; sealed &lt;Fast&gt; &#39;Special&#39;',
+    });
+
+    const listing = ListingMapper.mapAdToListing(htmlAd);
+    expect(listing.title).toBe("Dell & HP \"Laptops\" <Parts'n'More>");
+    expect(listing.description).toBe("Brand new & sealed <Fast> 'Special'");
+  });
+
+  it('does NOT double-unescape encoded HTML entities (security regression test)', () => {
+    const doubleEncodedAd = createMockAd({
+      id: 'ad-8',
+      title: '&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;',
+      description: '&amp;quot;malicious&amp;quot;',
+    });
+
+    const listing = ListingMapper.mapAdToListing(doubleEncodedAd);
+    // &amp;lt; should become &lt;, NOT <
+    expect(listing.title).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(listing.description).toBe('&quot;malicious&quot;');
+  });
 });

@@ -5,6 +5,20 @@ import { normalizeImageUrl } from '../../../../infrastructure/image/imageUrl';
 /**
  * ListingMapper — pure infrastructure mapper transforming raw Ad DTO objects into Listing domain models.
  */
+const HTML_ENTITY_MAP: Record<string, string> = {
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&#39;': "'",
+};
+
+const HTML_ENTITY_REGEX = /&(?:amp|lt|gt|quot|#39);/g;
+
+function unescapeHtml(text: string): string {
+  return text.replace(HTML_ENTITY_REGEX, (entity) => HTML_ENTITY_MAP[entity] ?? entity);
+}
+
 export class ListingMapper {
   private static resolveCondition(rawAd: Ad): 'power_on' | 'power_off' | undefined {
     const adRecord = rawAd as Record<string, unknown>;
@@ -49,12 +63,7 @@ export class ListingMapper {
   }
 
   public static mapAdToListing(ad: Ad): Listing {
-    const cleanTitle = (ad.title || 'Untitled')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
+    const cleanTitle = unescapeHtml(ad.title || 'Untitled');
 
     const sellerName = ad.sellerName || ad.businessName || 'Seller';
     const priceAmount = typeof ad.price === 'number' ? ad.price : 0;
@@ -89,12 +98,7 @@ export class ListingMapper {
     return {
       id: String(ad.id),
       title: cleanTitle,
-      description: (ad.description || '')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'"),
+      description: unescapeHtml(ad.description || ''),
       price: {
         amount: priceAmount,
         currency: 'INR',
