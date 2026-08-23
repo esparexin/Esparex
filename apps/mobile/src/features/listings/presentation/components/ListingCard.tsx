@@ -39,11 +39,11 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress }) =
         <View className="p-4">
           <View className="flex-row justify-between items-start mb-2">
             <View className="flex-1 mr-4">
-              <AppText variant="h3" className="text-slate-100" numberOfLines={2}>
+              <AppText variant="h3" className="text-slate-900 dark:text-slate-100" numberOfLines={2}>
                 {listing.title}
               </AppText>
             </View>
-            <AppText variant="h2" className="text-sky-400">
+            <AppText variant="h2" className="text-sky-600 dark:text-sky-400 font-bold">
               {listing.price.formatted}
             </AppText>
           </View>
@@ -51,22 +51,22 @@ export const ListingCard = React.memo<ListingCardProps>(({ listing, onPress }) =
           {listing.location?.display && (
             <View className="flex-row items-center mb-3">
               <AppIcon name="MapPin" size={14} color="#64748b" />
-              <AppText variant="caption" className="text-slate-400 ml-1">
+              <AppText variant="caption" className="text-slate-500 dark:text-slate-400 ml-1">
                 {listing.location.display}
               </AppText>
             </View>
           )}
 
-          <View className="flex-row justify-between items-center mt-2 border-t border-slate-800 pt-3">
+          <View className="flex-row justify-between items-center mt-2 border-t border-slate-100 dark:border-slate-800 pt-3">
             <View className="flex-row items-center">
-              <View className="w-6 h-6 rounded-full bg-slate-700 mr-2 items-center justify-center">
+              <View className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 mr-2 items-center justify-center">
                 <AppIcon
                   name={listing.seller.type === 'business' ? 'Briefcase' : 'User'}
                   size={12}
-                  color="#94a3b8"
+                  color="#64748b"
                 />
               </View>
-              <AppText variant="caption" className="text-slate-300">
+              <AppText variant="caption" className="text-slate-600 dark:text-slate-300">
                 {listing.seller.name}
               </AppText>
               {listing.seller.isVerified && (

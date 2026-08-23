@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { FlatList, RefreshControl, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Screen, Container } from '@esparex/mobile-ui';
+import { Screen, Container, AppText } from '@esparex/mobile-ui';
 import { ListingQueryParams } from '@esparex/contracts';
 import { useListings } from '../hooks/useListings';
 import { ListingCard } from '../components/ListingCard';
@@ -86,6 +86,13 @@ export const MarketplaceScreen = () => {
   return (
     <Screen edges={['top', 'left', 'right']}>
       <Container className="flex-1">
+        {/* Header */}
+        <View className="flex-row items-center justify-between py-2">
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-slate-100">
+            Marketplace
+          </AppText>
+        </View>
+
         <FilterBar
           filters={filters}
           activeFilterCount={activeFilterCount}
@@ -109,10 +116,12 @@ export const MarketplaceScreen = () => {
             keyExtractor={keyExtractor}
             contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 64 }}
             showsVerticalScrollIndicator={false}
-            removeClippedSubviews={true}
-            windowSize={5}
-            maxToRenderPerBatch={5}
-            initialNumToRender={5}
+            keyboardShouldPersistTaps="handled"
+            scrollEventThrottle={16}
+            removeClippedSubviews={false}
+            windowSize={11}
+            maxToRenderPerBatch={10}
+            initialNumToRender={8}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) {
                 fetchNextPage();

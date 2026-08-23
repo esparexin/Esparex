@@ -1,5 +1,4 @@
-/** @type {import('tailwindcss').Config} */
-const { typography } = require("../../packages/design-tokens/dist/index.js");
+const { typography, base } = require("../../packages/design-tokens/dist/index.js");
 
 module.exports = {
   content: [
@@ -14,6 +13,9 @@ module.exports = {
       fontSize: typography.fontSizes,
       fontWeight: typography.fontWeights,
       colors: {
+        brand: base.brand,
+        slate: base.slate,
+        action: base.action,
         link: {
           DEFAULT: 'hsl(var(--link))',
           dark: 'hsl(var(--link-dark))',
