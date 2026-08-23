@@ -3,6 +3,8 @@ import { View, ScrollView, ActivityIndicator, Alert, Linking } from 'react-nativ
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { AppText, Center, Screen } from '@esparex/mobile-ui';
 import { MainStackParamList, ROUTES } from '../../../../navigation/routes';
+import { navigate } from '../../../../navigation/navigationRef';
+import { useAuth, AuthStatus } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { ImageCarousel } from '../components/details/ImageCarousel';
 import { PriceSection } from '../components/details/PriceSection';
@@ -15,11 +17,23 @@ type ListingDetailsRouteProp = RouteProp<MainStackParamList, typeof ROUTES.LISTI
 
 export const ListingDetailsScreen = () => {
   const route = useRoute<ListingDetailsRouteProp>();
-  const { id } = route.params;
+  let authStatus: AuthStatus = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
+  const id = route.params?.id || '';
 
   const { data: listing, isLoading, error } = useListingDetails(id);
 
   const handleMessagePress = useCallback(() => {
+    if (authStatus !== 'authenticated') {
+      navigate(ROUTES.AUTH_STACK);
+      return;
+    }
+
     Alert.alert(
       'Contact Seller',
       'Safety Reminder: Never pay in advance or send money online before inspecting items in person.',
@@ -28,7 +42,7 @@ export const ListingDetailsScreen = () => {
         { text: 'Start Chat', onPress: () => {} },
       ]
     );
-  }, []);
+  }, [authStatus]);
 
   const handleCallPress = useCallback(() => {
     Alert.alert('Call Seller', 'Do you want to make a call to the seller?', [

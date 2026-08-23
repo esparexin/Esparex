@@ -1,8 +1,11 @@
 import React, { useCallback } from 'react';
 import { View, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { Screen, Container, AppText, Card, AppIcon } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, Card, AppButton, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
+import { ROUTES } from '../../../../navigation/routes';
 import { useConversations } from '../hooks/useConversations';
 import { IConversationDTO } from '@esparex/contracts';
 import { ErrorState } from '../../../common/components/ErrorState';
@@ -14,7 +17,38 @@ interface ConversationListScreenProps {
 export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
   onSelectConversation,
 }) => {
+  let authStatus: string = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
   const { data: conversations, isLoading, isError, refetch, isRefetching } = useConversations();
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <Container className="flex-1 justify-center items-center px-6 bg-slate-50 dark:bg-slate-950">
+          <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
+            <AppIcon name="MessageSquare" size={32} color={base.brand[500]} />
+          </View>
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center mb-2">
+            Your Conversations
+          </AppText>
+          <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
+            Sign in to view your messages and chat directly with buyers and sellers.
+          </AppText>
+          <AppButton
+            label="Sign In / Register"
+            onPress={() => navigate(ROUTES.AUTH_STACK)}
+            className="w-full"
+            accessibilityLabel="Sign in to view messages"
+          />
+        </Container>
+      </Screen>
+    );
+  }
 
   const renderConversationItem = useCallback(
     ({ item }: { item: IConversationDTO }) => {

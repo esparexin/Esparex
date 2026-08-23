@@ -1,12 +1,29 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 
+const mockCategories = [
+  { id: 'cat-phones', name: 'Smartphones' },
+  { id: 'cat-laptops', name: 'Laptops' },
+];
+
 jest.mock('../../../../../bootstrap', () => ({
   services: {
     listingService: {
       getMarketplaceFeed: jest.fn(),
     },
+    categoryService: {
+      getCategories: jest.fn().mockImplementation(() => Promise.resolve(mockCategories)),
+    },
   },
+}));
+
+jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
+  useCategories: () => ({
+    categories: mockCategories,
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
 }));
 
 jest.mock('lucide-react-native', () => {
@@ -61,5 +78,14 @@ describe('MarketplaceScreen Filters Integration', () => {
 
     fireEvent.press(getByText('Filters'));
     expect(getByText('Filter Listings')).toBeTruthy();
+  });
+
+  it('filters by category when category chip is pressed', () => {
+    const { getByText } = render(<MarketplaceScreen />);
+    const smartphoneChip = getByText('Smartphones');
+    expect(smartphoneChip).toBeTruthy();
+
+    fireEvent.press(smartphoneChip);
+    expect(mockUseListings).toHaveBeenCalledWith(expect.objectContaining({ categoryId: 'cat-phones' }));
   });
 });

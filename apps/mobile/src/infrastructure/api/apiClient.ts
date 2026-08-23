@@ -1,21 +1,39 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axiosRetry, { isNetworkOrIdempotentRequestError } from 'axios-retry';
 import * as Crypto from 'expo-crypto';
+import { API_V1_BASE_PATH } from '@esparex/shared';
 import { TokenProvider } from './TokenProvider';
-import { handleRefresh } from './refreshQueue';
-
-interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
-  _retry?: boolean;
-}
+import { SecureStoreAdapter } from '../auth/SecureStoreAdapter';
+import { Platform } from 'react-native';
 
 // Determine Base URL (fall back to local development URL)
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+const getBaseUrl = () => {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    const envUrl = process.env.EXPO_PUBLIC_API_URL;
+    return envUrl.endsWith('/') ? envUrl : `${envUrl}/`;
+  }
+
+  // Auto-detect host for Android Emulator vs iOS Simulator
+  const host = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+  return `http://${host}:5001/api/v1/`;
+};
+
+const BASE_URL = getBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
+  },
+  paramsSerializer: (params) => {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params || {})) {
+      if (value !== undefined && value !== null && value !== '' && value !== 'undefined') {
+        searchParams.append(key, String(value));
+      }
+    }
+    return searchParams.toString();
   },
 });
 
@@ -48,8 +66,9 @@ export const fetchCsrfToken = async (): Promise<string | null> => {
 
   csrfFetchPromise = (async () => {
     try {
+      const csrfUrl = `${BASE_URL.replace(/\/+$/, '')}/csrf-token`;
       const response = await axios.get<{ csrfToken?: string; data?: { csrfToken?: string } }>(
-        `${BASE_URL}/v1/csrf-token`,
+        csrfUrl,
         { withCredentials: true }
       );
       const token = response.data?.csrfToken || response.data?.data?.csrfToken || null;
@@ -70,9 +89,21 @@ export const fetchCsrfToken = async (): Promise<string | null> => {
 // Request Interceptor: Attach Tokens, CSRF, and Correlation ID
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    // 1. Generate and attach UUID v4 Correlation ID per request
-    const correlationId = Crypto.randomUUID();
+    // 1. Fix 404: Ensure URL is relative to baseURL's path by removing leading slash
+    if (config.url?.startsWith('/')) {
+      config.url = config.url.substring(1);
+    }
+
+    // 2. Generate and attach Correlation ID per request
+    let correlationId: string;
+    try {
+      correlationId = Crypto.randomUUID();
+    } catch (e) {
+      correlationId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
     config.headers.set('X-Correlation-ID', correlationId);
+
+    const fullUrl = `${config.baseURL}${config.url}`;
 
     // 2. Attach Authorization Token if available
     const token = await TokenProvider.getAccessToken();
@@ -97,33 +128,14 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handle 401 Unauthorized via RefreshQueue
+// Response Interceptor: Handle 401 Unauthorized
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as CustomAxiosRequestConfig;
-
-    // If the error is 401 and we haven't already retried this request
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        // Enqueue this failed request and wait for the refresh to complete
-        const newToken = await handleRefresh(originalRequest);
-
-        // Update the header with the new token
-        if (newToken) {
-          originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
-        }
-
-        // Retry the original request
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        // Refresh failed (e.g. refresh token expired), reject the promise
-        return Promise.reject(refreshError);
-      }
+    if (error.response?.status === 401) {
+      TokenProvider.clearCache();
+      await SecureStoreAdapter.clearTokens().catch(() => {});
     }
-
     return Promise.reject(error);
   }
 );

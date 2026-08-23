@@ -124,7 +124,9 @@
     "architecture": "npx tsx tooling/architecture/index.ts",
     "architecture:changed": "npx tsx tooling/architecture/index.ts --changed",
     "generate:domain": "npx tsx tooling/architecture/generate-domain.ts",
-    "verify:architecture": "npx tsx tooling/architecture/verify-architecture.ts"
+    "verify:architecture": "npx tsx tooling/architecture/verify-architecture.ts",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "optionalDependencies": {
     "@emnapi/runtime": "^1.8.1"

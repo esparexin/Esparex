@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect } from 'react';
 import { View, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Screen } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, AppButton, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../providers/AuthProvider';
 import { usePostAdDraft } from '../usePostAdDraft';
 import { PostAdValidator } from '../application/PostAdValidator';
 import { WizardStep } from '../domain/WizardStep';
@@ -11,7 +13,7 @@ import { StepDetails } from './steps/StepDetails';
 import { StepImages } from './steps/StepImages';
 import { StepPreview } from './steps/StepPreview';
 import { useSubmitAd } from './hooks/useSubmitAd';
-import { navigationRef } from '../../../navigation/navigationRef';
+import { navigationRef, navigate } from '../../../navigation/navigationRef';
 import { ROUTES } from '../../../navigation/routes';
 
 // ---------------------------------------------------------------------------
@@ -38,25 +40,41 @@ const SUBMIT_LABELS: Record<string, string> = {
 // PostAdScreen — wizard orchestrator
 // ---------------------------------------------------------------------------
 
-/**
- * PostAdScreen — the wizard container.
- *
- * Responsibilities:
- *   1. Read current step and draft from usePostAdDraft
- *   2. Compute canGoNext via PostAdValidator (no inline validation logic here)
- *   3. Delegate submission to useSubmitAd on the last step
- *   4. Navigate to Home on successful submission
- *   5. Display a dismissable error Alert on failure
- *
- * Does NOT:
- *   - Directly read or write draft fields
- *   - Contain business validation rules
- *   - Orchestrate upload or API calls (useSubmitAd → PostAdService own those)
- */
 export const PostAdScreen = () => {
+  let authStatus: string = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
   const { state, nextStep, previousStep } = usePostAdDraft();
   const { currentStep, draft } = state;
   const { submit, status, submitError, resetError } = useSubmitAd();
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
+        <Container className="flex-1 justify-center items-center px-6">
+          <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
+            <AppIcon name="PlusCircle" size={32} color={base.brand[500]} />
+          </View>
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center mb-2">
+            Post an Ad on Esparex
+          </AppText>
+          <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
+            Sign in to create your listing, upload photos, and connect with verified buyers across India.
+          </AppText>
+          <AppButton
+            label="Sign In / Register"
+            onPress={() => navigate(ROUTES.AUTH_STACK)}
+            className="w-full"
+            accessibilityLabel="Sign in to post an ad"
+          />
+        </Container>
+      </Screen>
+    );
+  }
 
   const isLastStep = currentStep === WizardStep.PREVIEW;
   const isSubmitting = status === 'uploading' || status === 'creating';

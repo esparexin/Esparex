@@ -11,13 +11,30 @@ export const ESPAREX_AUTH_REFRESH_TOKEN = 'ESPAREX_AUTH_REFRESH_TOKEN';
  */
 export const SecureStoreAdapter: ITokenStorage = {
   /**
+   * Securely saves the 7-day JWT access token to the native hardware keystore.
+   */
+  async setAccessToken(accessToken: string): Promise<void> {
+    await SecureStore.setItemAsync(ESPAREX_AUTH_ACCESS_TOKEN, accessToken);
+  },
+
+  /**
+   * Retrieves the access token from the native keystore.
+   */
+  async getAccessToken(): Promise<string | null> {
+    return SecureStore.getItemAsync(ESPAREX_AUTH_ACCESS_TOKEN);
+  },
+
+  /**
    * Securely saves access and refresh tokens to the native hardware keystore.
    */
-  async setTokens(accessToken: string, refreshToken: string): Promise<void> {
-    await Promise.all([
+  async setTokens(accessToken: string, refreshToken?: string): Promise<void> {
+    const promises: Promise<void>[] = [
       SecureStore.setItemAsync(ESPAREX_AUTH_ACCESS_TOKEN, accessToken),
-      SecureStore.setItemAsync(ESPAREX_AUTH_REFRESH_TOKEN, refreshToken),
-    ]);
+    ];
+    if (refreshToken) {
+      promises.push(SecureStore.setItemAsync(ESPAREX_AUTH_REFRESH_TOKEN, refreshToken));
+    }
+    await Promise.all(promises);
   },
 
   /**
@@ -50,9 +67,8 @@ export const SecureStoreAdapter: ITokenStorage = {
    * Checks if valid token data exists in storage.
    */
   async hasTokens(): Promise<boolean> {
-    // Only verify presence, don't allocate strings if not needed
-    const { accessToken, refreshToken } = await this.getTokens();
-    return accessToken !== null && refreshToken !== null;
+    const accessToken = await this.getAccessToken();
+    return accessToken !== null;
   },
 
   /**

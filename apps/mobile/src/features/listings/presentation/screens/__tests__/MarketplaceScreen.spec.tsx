@@ -6,7 +6,19 @@ jest.mock('../../../../../bootstrap', () => ({
     listingService: {
       getMarketplaceFeed: jest.fn(),
     },
+    categoryService: {
+      getCategories: jest.fn().mockResolvedValue([]),
+    },
   },
+}));
+
+jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
+  useCategories: () => ({
+    categories: [],
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
 }));
 
 jest.mock('lucide-react-native', () => {
@@ -55,7 +67,7 @@ describe('MarketplaceScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders skeleton loading state when loading initial page', () => {
+  it('renders brand header, location, search prompt, and loading skeletons', () => {
     mockUseListings.mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -66,7 +78,9 @@ describe('MarketplaceScreen', () => {
       isFetchingNextPage: false,
     } as any);
 
-    const { queryByText } = render(<MarketplaceScreen />);
+    const { queryByText, getByText, getByPlaceholderText } = render(<MarketplaceScreen />);
+    expect(getByText('All India')).toBeTruthy();
+    expect(getByPlaceholderText('Search spare parts, laptops, phones…')).toBeTruthy();
     expect(queryByText('Samsung Galaxy S22')).toBeNull();
   });
 

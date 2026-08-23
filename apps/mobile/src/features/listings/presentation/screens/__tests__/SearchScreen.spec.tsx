@@ -6,7 +6,22 @@ jest.mock('../../../../../bootstrap', () => ({
     listingService: {
       getMarketplaceFeed: jest.fn(),
     },
+    categoryService: {
+      getCategories: jest.fn().mockResolvedValue([]),
+    },
   },
+}));
+
+jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
+  useCategories: () => ({
+    categories: [
+      { id: 'cat-mobiles', name: 'Mobiles' },
+      { id: 'cat-laptops', name: 'Laptops' },
+    ],
+    isLoading: false,
+    error: null,
+    refetch: jest.fn(),
+  }),
 }));
 
 jest.mock('lucide-react-native', () => {
@@ -17,6 +32,16 @@ jest.mock('lucide-react-native', () => {
       get: () => View,
     }
   );
+});
+
+jest.mock('react-native-safe-area-context', () => {
+  const inset = { top: 0, right: 0, bottom: 0, left: 0 };
+  return {
+    SafeAreaProvider: jest.fn().mockImplementation(({ children }) => children),
+    SafeAreaConsumer: jest.fn().mockImplementation(({ children }) => children(inset)),
+    SafeAreaView: jest.fn().mockImplementation(({ children }) => children),
+    useSafeAreaInsets: jest.fn().mockReturnValue(inset),
+  };
 });
 
 import { SearchScreen } from '../SearchScreen';
@@ -45,13 +70,22 @@ describe('SearchScreen', () => {
     jest.clearAllMocks();
   });
 
-  it('renders initial prompt when search text is empty', () => {
+  it('renders initial prompt when search text and filters are empty', () => {
     mockUseSearch.mockReturnValue({
       query: '',
       debouncedQuery: '',
+      filters: {},
+      activeFilterCount: 0,
+      hasSearchFilter: false,
+      setFilters: jest.fn(),
       handleQueryChange: jest.fn(),
       handleSubmit: jest.fn(),
       handleClear: jest.fn(),
+      handleClearFilters: jest.fn(),
+      handleSelectCategory: jest.fn(),
+      handleRemoveSort: jest.fn(),
+      handleRemoveCondition: jest.fn(),
+      handleRemovePrice: jest.fn(),
       data: undefined,
       isLoading: false,
       isError: false,
@@ -62,16 +96,25 @@ describe('SearchScreen', () => {
     } as any);
 
     const { getByText } = render(<SearchScreen />);
-    expect(getByText('Search for listings')).toBeTruthy();
+    expect(getByText('Search Esparex')).toBeTruthy();
   });
 
   it('renders skeleton loading state during search execution', () => {
     mockUseSearch.mockReturnValue({
       query: 'OnePlus',
       debouncedQuery: 'OnePlus',
+      filters: {},
+      activeFilterCount: 0,
+      hasSearchFilter: true,
+      setFilters: jest.fn(),
       handleQueryChange: jest.fn(),
       handleSubmit: jest.fn(),
       handleClear: jest.fn(),
+      handleClearFilters: jest.fn(),
+      handleSelectCategory: jest.fn(),
+      handleRemoveSort: jest.fn(),
+      handleRemoveCondition: jest.fn(),
+      handleRemovePrice: jest.fn(),
       data: undefined,
       isLoading: true,
       isError: false,
@@ -89,9 +132,18 @@ describe('SearchScreen', () => {
     mockUseSearch.mockReturnValue({
       query: 'OnePlus',
       debouncedQuery: 'OnePlus',
+      filters: {},
+      activeFilterCount: 0,
+      hasSearchFilter: true,
+      setFilters: jest.fn(),
       handleQueryChange: jest.fn(),
       handleSubmit: jest.fn(),
       handleClear: jest.fn(),
+      handleClearFilters: jest.fn(),
+      handleSelectCategory: jest.fn(),
+      handleRemoveSort: jest.fn(),
+      handleRemoveCondition: jest.fn(),
+      handleRemovePrice: jest.fn(),
       data: { pages: [[sampleListing]], pageParams: [1] },
       isLoading: false,
       isError: false,
@@ -109,9 +161,18 @@ describe('SearchScreen', () => {
     mockUseSearch.mockReturnValue({
       query: 'NonExistentProduct',
       debouncedQuery: 'NonExistentProduct',
+      filters: {},
+      activeFilterCount: 0,
+      hasSearchFilter: true,
+      setFilters: jest.fn(),
       handleQueryChange: jest.fn(),
       handleSubmit: jest.fn(),
       handleClear: jest.fn(),
+      handleClearFilters: jest.fn(),
+      handleSelectCategory: jest.fn(),
+      handleRemoveSort: jest.fn(),
+      handleRemoveCondition: jest.fn(),
+      handleRemovePrice: jest.fn(),
       data: { pages: [[]], pageParams: [1] },
       isLoading: false,
       isError: false,
@@ -124,5 +185,37 @@ describe('SearchScreen', () => {
     const { getByText } = render(<SearchScreen />);
     expect(getByText('No Listings Found')).toBeTruthy();
     expect(getByText('No items match your search for "NonExistentProduct".')).toBeTruthy();
+  });
+
+  it('opens and closes filter modal when Filters button is pressed', () => {
+    mockUseSearch.mockReturnValue({
+      query: '',
+      debouncedQuery: '',
+      filters: {},
+      activeFilterCount: 0,
+      hasSearchFilter: false,
+      setFilters: jest.fn(),
+      handleQueryChange: jest.fn(),
+      handleSubmit: jest.fn(),
+      handleClear: jest.fn(),
+      handleClearFilters: jest.fn(),
+      handleSelectCategory: jest.fn(),
+      handleRemoveSort: jest.fn(),
+      handleRemoveCondition: jest.fn(),
+      handleRemovePrice: jest.fn(),
+      data: undefined,
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      fetchNextPage: jest.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    } as any);
+
+    const { getByText, queryByText } = render(<SearchScreen />);
+    expect(queryByText('Filter Listings')).toBeNull();
+
+    fireEvent.press(getByText('Filters'));
+    expect(getByText('Filter Listings')).toBeTruthy();
   });
 });

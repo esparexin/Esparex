@@ -1,6 +1,6 @@
 import { apiClient } from '../apiClient';
 import { TokenProvider } from '../TokenProvider';
-import { setRefreshExecutor } from '../refreshQueue';
+import { SecureStoreAdapter } from '../../auth/SecureStoreAdapter';
 import * as Crypto from 'expo-crypto';
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 
@@ -8,6 +8,13 @@ jest.mock('../TokenProvider', () => ({
   TokenProvider: {
     getAccessToken: jest.fn(),
     getRefreshToken: jest.fn(),
+    clearCache: jest.fn(),
+  }
+}));
+
+jest.mock('../../auth/SecureStoreAdapter', () => ({
+  SecureStoreAdapter: {
+    clearTokens: jest.fn().mockResolvedValue(undefined),
   }
 }));
 
@@ -19,20 +26,7 @@ describe('apiClient', () => {
   beforeAll(() => {
     // Inject a mock adapter to prevent actual network calls and easily inspect configs
     apiClient.defaults.adapter = async (config) => {
-      // Simulate 401 for specific URL for testing refresh logic
       if (config.url === '/401' || config.url === '401') {
-        if (config.headers?.Authorization === 'Bearer new-access-token') {
-           // Return success on retry with new token
-           return {
-             data: 'retry-success',
-             status: 200,
-             statusText: 'OK',
-             headers: config.headers ? new AxiosHeaders(config.headers) : new AxiosHeaders(),
-             config,
-             request: {}
-           };
-        }
-
         const error = new AxiosError('Unauthorized', '401', config, {}, { 
           status: 401, 
           data: {}, 
@@ -84,28 +78,12 @@ describe('apiClient', () => {
     });
   });
 
-  describe('Response Interceptor & RefreshQueue', () => {
-    it('should queue concurrent 401s and resume after refresh', async () => {
-      const executor = jest.fn().mockResolvedValue('new-access-token');
-      setRefreshExecutor(executor);
+  describe('Response Interceptor', () => {
+    it('should clear token cache and secure store on 401 Unauthorized', async () => {
+      await expect(apiClient.get('/401')).rejects.toThrow();
 
-      // Fire two requests that will hit 401
-      const p1 = apiClient.get('/401');
-      const p2 = apiClient.get('/401');
-
-      const results = await Promise.all([p1, p2]);
-
-      expect(executor).toHaveBeenCalledTimes(1); // deduplication
-      
-      expect(results[0].data).toBe('retry-success');
-      expect(results[1].data).toBe('retry-success');
-    });
-
-    it('should reject queued requests when refresh fails', async () => {
-      const executor = jest.fn().mockRejectedValue(new Error('Refresh failed'));
-      setRefreshExecutor(executor);
-
-      await expect(apiClient.get('/401')).rejects.toThrow('Refresh failed');
+      expect(TokenProvider.clearCache).toHaveBeenCalled();
+      expect(SecureStoreAdapter.clearTokens).toHaveBeenCalled();
     });
   });
 });

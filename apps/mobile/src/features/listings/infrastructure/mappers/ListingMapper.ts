@@ -1,28 +1,43 @@
 import type { Ad } from '@esparex/contracts/src/v1/listings/schema/ad.schema';
 import { Listing } from '../../domain/Listing';
+import { normalizeImageUrl } from '../../../../infrastructure/image/imageUrl';
 
 /**
  * ListingMapper — pure infrastructure mapper transforming raw Ad DTO objects into Listing domain models.
  */
 export class ListingMapper {
   public static mapAdToListing(ad: Ad): Listing {
+    const cleanTitle = (ad.title || 'Untitled')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+
+    const sellerName = ad.sellerName || ad.businessName || 'Verified Technician';
+
     return {
       id: String(ad.id),
-      title: ad.title || 'Untitled',
-      description: ad.description || '',
+      title: cleanTitle,
+      description: (ad.description || '')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'"),
       price: {
         amount: ad.price || 0,
-        currency: 'USD',
-        formatted: `$${(ad.price || 0).toLocaleString()}`,
+        currency: 'INR',
+        formatted: `₹${(ad.price || 0).toLocaleString('en-IN')}`,
       },
       seller: {
         id: ad.sellerId || '',
-        name: ad.sellerName || 'Unknown Seller',
-        type: ad.sellerType === 'business' ? 'business' : 'user',
-        isVerified: !!ad.verified,
+        name: sellerName,
+        type: ad.sellerType === 'business' || !!ad.businessName ? 'business' : 'user',
+        isVerified: !!ad.verified || !!ad.isBusiness,
       },
       images: (ad.images || []).map((img, index) => ({
-        url: img,
+        url: normalizeImageUrl(img),
         isPrimary: index === 0,
       })),
       location: ad.location

@@ -19,17 +19,36 @@ interface PaginatedResponse<T> {
 export class ApiListingRepository implements IListingRepository {
   public async getListings(params?: ListingQueryParams): Promise<readonly Listing[]> {
     const queryParams: Record<string, any> = { ...params };
-    if (params?.search && !queryParams.q) {
-      queryParams.q = params.search;
+    if (queryParams.search && !queryParams.q) {
+      queryParams.q = queryParams.search;
     }
+    delete queryParams.search;
 
     const response = await apiClient.get<PaginatedResponse<Ad> | Ad[]>('/listings', { params: queryParams });
-    const resData = response.data;
-    const items: Ad[] = Array.isArray(resData)
-      ? resData
-      : Array.isArray(resData?.data)
-      ? resData.data
-      : [];
+    const resData = response.data as {
+      data?: Ad[] | { items?: Ad[]; ads?: Ad[] };
+      items?: Ad[];
+      ads?: Ad[];
+    } | Ad[];
+
+    let items: Ad[] = [];
+    if (Array.isArray(resData)) {
+      items = resData;
+    } else if (resData && typeof resData === 'object') {
+      if ('data' in resData && resData.data) {
+        if (Array.isArray(resData.data)) {
+          items = resData.data;
+        } else if ('items' in resData.data && Array.isArray(resData.data.items)) {
+          items = resData.data.items;
+        } else if ('ads' in resData.data && Array.isArray(resData.data.ads)) {
+          items = resData.data.ads;
+        }
+      } else if ('items' in resData && Array.isArray(resData.items)) {
+        items = resData.items;
+      } else if ('ads' in resData && Array.isArray(resData.ads)) {
+        items = resData.ads;
+      }
+    }
     return items.map(ListingMapper.mapAdToListing);
   }
 

@@ -1,7 +1,6 @@
 import { SecureStoreAdapter } from '../infrastructure/auth/SecureStoreAdapter';
 import { AuthServiceImpl } from '../infrastructure/auth/AuthServiceImpl';
 import { apiClient } from '../infrastructure/api/apiClient';
-import { setRefreshExecutor } from '../infrastructure/api/refreshQueue';
 import { IAuthService } from '../infrastructure/auth/AuthService';
 import { ApiListingRepository } from '../features/listings/application/ApiListingRepository';
 import { ListingService } from '../features/listings/application/ListingService';
@@ -58,7 +57,6 @@ export const bootstrapServices = (): IServices => {
 
   // 2. Auth (injected with pushTokenRegistrationService)
   const authService = new AuthServiceImpl(apiClient, SecureStoreAdapter, pushTokenRegistrationService);
-  setRefreshExecutor(authService.executeTokenRefresh);
 
   // 3. User
   const userRepository = new ApiUserRepository();

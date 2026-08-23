@@ -8,8 +8,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Screen, Container, AppText, Avatar, Card, AppIcon, Badge } from '@esparex/mobile-ui';
+import { Screen, Container, AppText, Avatar, Card, AppIcon, Badge, AppButton } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
+import { useAuth } from '../../../../providers/AuthProvider';
+import { navigate } from '../../../../navigation/navigationRef';
 import { useProfile } from '../hooks/useProfile';
 import { ErrorState } from '../../../common/components/ErrorState';
 import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
@@ -17,6 +19,13 @@ import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
 type Props = NativeStackScreenProps<ProfileStackParamList, typeof ROUTES.PROFILE_OVERVIEW>;
 
 export const ProfileScreen = ({ navigation }: Props) => {
+  let authStatus: string = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
   const { data: profile, isLoading, isError, refetch, isRefetching } = useProfile();
 
   const memberSince = profile?.createdAt
@@ -29,6 +38,55 @@ export const ProfileScreen = ({ navigation }: Props) => {
   const handleSettingsPress = useCallback(() => {
     navigation.navigate(ROUTES.PROFILE_SETTINGS);
   }, [navigation]);
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']}>
+        <Container className="flex-1 bg-slate-50 dark:bg-slate-950 p-4">
+          <View className="px-2 pt-2 pb-4">
+            <AppText variant="h2" className="font-bold text-slate-900 dark:text-white">
+              My Profile
+            </AppText>
+          </View>
+
+          <Card className="p-6 mb-4 items-center">
+            <Avatar fallback="GU" size="lg" className="mb-3" />
+            <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center">
+              Welcome to Esparex
+            </AppText>
+            <AppText variant="body" className="text-slate-500 dark:text-slate-400 mt-1 text-center mb-5">
+              Sign in to manage your listings, view saved items, and access account settings.
+            </AppText>
+            <AppButton
+              label="Sign In / Register"
+              onPress={() => navigate(ROUTES.AUTH_STACK)}
+              className="w-full"
+              accessibilityLabel="Sign in to your account"
+            />
+          </Card>
+
+          {/* Public Legal Links */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate(ROUTES.TERMS_AND_PRIVACY)}
+            accessibilityLabel="View terms of service and privacy policy"
+            accessibilityRole="button"
+          >
+            <Card className="p-4">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <AppIcon name="Shield" size={18} color={base.slate[500]} />
+                  <AppText variant="body" className="font-semibold text-slate-800 dark:text-slate-200 ml-2.5">
+                    Terms of Service &amp; Privacy Policy
+                  </AppText>
+                </View>
+                <AppIcon name="ChevronRight" size={18} color={base.slate[400]} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        </Container>
+      </Screen>
+    );
+  }
 
   if (isError) {
     return (

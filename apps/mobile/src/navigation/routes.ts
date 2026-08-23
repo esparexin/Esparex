@@ -5,8 +5,6 @@ export const ROUTES = {
 
   // Auth Screens
   LOGIN: 'Login',
-  SIGNUP: 'Signup',
-  FORGOT_PASSWORD: 'ForgotPassword',
   OTP: 'OTP',
 
   // Main Stack Screens
@@ -46,9 +44,7 @@ export type RootStackParamList = {
 
 export type AuthStackParamList = {
   [ROUTES.LOGIN]: undefined;
-  [ROUTES.SIGNUP]: undefined;
-  [ROUTES.FORGOT_PASSWORD]: undefined;
-  [ROUTES.OTP]: { mobile: string } | undefined;
+  [ROUTES.OTP]: { mobile: string; isNewUser?: boolean; name?: string } | undefined;
 };
 
 export type MainStackParamList = {
