@@ -11,10 +11,12 @@
     "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
     "prebuild": "expo prebuild",
+    "eas-build-post-install": "npm run build -w @esparex/design-tokens -w @esparex/contracts -w @esparex/shared",
     "test": "jest"
   },
   "dependencies": {
     "@esparex/contracts": "*",
+    "@esparex/design-tokens": "*",
     "@esparex/mobile-ui": "*",
     "@esparex/shared": "*",
     "@react-navigation/bottom-tabs": "^7.18.14",
@@ -33,18 +35,18 @@
     "expo-image-picker": "~16.0.6",
     "expo-notifications": "~0.29.14",
     "expo-secure-store": "~14.0.1",
+    "expo-splash-screen": "~0.29.24",
     "expo-status-bar": "~2.0.0",
     "nativewind": "^4.0.1",
     "react": "18.3.1",
     "react-native": "0.76.9",
+    "react-native-css-interop": "0.2.6",
     "react-native-razorpay": "^3.0.0",
+    "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
     "react-native-svg": "15.8.0",
-    "tailwindcss": "^3.4.1",
-    "@esparex/design-tokens": "*",
-    "react-native-reanimated": "~3.16.1",
-    "react-native-css-interop": "0.2.6"
+    "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

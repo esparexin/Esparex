@@ -20,7 +20,7 @@ describe('apiClient', () => {
     // Inject a mock adapter to prevent actual network calls and easily inspect configs
     apiClient.defaults.adapter = async (config) => {
       // Simulate 401 for specific URL for testing refresh logic
-      if (config.url === '/401') {
+      if (config.url === '/401' || config.url === '401') {
         if (config.headers?.Authorization === 'Bearer new-access-token') {
            // Return success on retry with new token
            return {
