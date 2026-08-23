@@ -9,18 +9,6 @@ jest.mock('../../../../../bootstrap', () => ({
   },
 }));
 
-jest.mock('../../../../notifications/presentation/hooks/useNotifications', () => ({
-  useUnreadNotificationsCount: jest.fn().mockReturnValue(0),
-}));
-
-jest.mock('@react-navigation/native', () => ({
-  ...jest.requireActual('@react-navigation/native'),
-  useNavigation: () => ({
-    navigate: jest.fn(),
-    goBack: jest.fn(),
-  }),
-}));
-
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(
@@ -46,9 +34,6 @@ import { useListings } from '../../hooks/useListings';
 import { Listing } from '../../../domain/Listing';
 
 jest.mock('../../hooks/useListings');
-jest.mock('../../hooks/useCategories', () => ({
-  useCategories: () => ({ data: [], isLoading: false }),
-}));
 
 const mockUseListings = useListings as jest.MockedFunction<typeof useListings>;
 
