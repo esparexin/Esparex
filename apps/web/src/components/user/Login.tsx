@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useEffect, useCallback } from "react";
 
 import { ArrowLeft, Loader2, Pencil } from "@/icons/IconRegistry";
@@ -27,17 +26,7 @@ import {
 } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-// Validation Schemas
-const loginSchema = z.object({
-  mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number"),
-  name: z.string()
-    .regex(/^[a-zA-Z\s'.-]*$/, "Name can only contain letters, spaces, dots, hyphens, and apostrophes")
-    .refine(val => !val || val.trim().length >= 2, { message: "Name must be at least 2 characters" })
-    .optional(),
-  otp: z.string().optional(),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { loginSchema, type LoginValues } from "@/schemas/login.schema";
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -112,11 +101,11 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     defaultValues: { mobile: "", name: "", otp: "" },
   });
 
-  const mobileValue = form.watch("mobile") || "";
-  const nameValue = form.watch("name") || "";
-  const otpValue = form.watch("otp") || "";
+  const mobileValue = useWatch({ control: form.control, name: "mobile" }) ?? "";
+  const nameValue = useWatch({ control: form.control, name: "name" }) ?? "";
+  const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
-  // Auto-focus management using RHF
+  // Auto-focus management using RHF & DOM element targeting
   useEffect(() => {
     if (step === "enterMobile") {
       const id = setTimeout(() => form.setFocus("mobile"), 0);
@@ -124,6 +113,13 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     }
     if (step === "enterNameAndOtp") {
       const id = setTimeout(() => form.setFocus("name"), 0);
+      return () => clearTimeout(id);
+    }
+    if (step === "enterOtp") {
+      const id = setTimeout(() => {
+        const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
+        firstOtpInput?.focus();
+      }, 50);
       return () => clearTimeout(id);
     }
     return undefined;
@@ -363,6 +359,13 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
                       field.onChange(e);
                       form.clearErrors("name");
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && field.value?.trim()) {
+                        e.preventDefault();
+                        const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
+                        firstOtpInput?.focus();
+                      }
+                    }}
                   />
                 </FieldControl>
                 <FieldMessage className="text-xs" />
@@ -381,6 +384,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           name="otp"
           length={6}
           disabled={otpInputDisabled}
+          autoFocus={step === "enterOtp"}
           className="justify-center"
           animateOnError
         />

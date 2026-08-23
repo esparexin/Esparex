@@ -80,6 +80,7 @@
     "guard:type-casts": "node scripts/guard-type-cast-baseline.js",
     "guard:repository-ports": "node scripts/guard-repository-ports.js",
     "guard:pr-quality": "node scripts/guard-pr-quality.js",
+    "pr:gate": "node scripts/guard-pr-quality.js && node scripts/enforce-no-new-unused-imports.js && node scripts/guard-type-cast-baseline.js && npm run guard:shared-ssot && npm run guard:auth-ssot && npm run lint:ci && npm run repo:gate && npm run type-check && npm test",
     "guard:pr-description": "node scripts/ci/verify-pr-description.js",
     "guard:generated-artifacts": "node scripts/guard-generated-artifacts.js",
     "audit:duplicates": "node scripts/catalog-governance-audit.js duplicates",

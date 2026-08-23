@@ -1,5 +1,5 @@
 node scripts/guard-generated-artifacts.js
-npm run guard:unused-imports
-npm run guard:type-casts
-npm run guard:pr-quality
+node scripts/enforce-no-new-unused-imports.js --staged
+node scripts/guard-type-cast-baseline.js
+node scripts/guard-pr-quality.js --staged
 npx lint-staged
