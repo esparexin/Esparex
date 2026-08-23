@@ -8,6 +8,7 @@ import {
     CheckCircle,
 } from "@/icons/IconRegistry";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
+import { isWizardPathname } from "@/lib/routeUtils";
 import { cn } from "@/lib/utils";
 
 interface FooterProps {
@@ -56,7 +57,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
     const hasMobileBottomNav = getMobileChromePolicy(pathname).showMobileBottomNav;
 
     // Hide footer on Post Ad wizard to prevent sticky CTA conflicts
-    if (pathname === "/post-ad" || pathname?.startsWith("/edit-ad") || pathname === "/post-service" || pathname === "/account/business/apply") return null;
+    if (isWizardPathname(pathname)) return null;
 
     const isDark = theme === "dark";
 

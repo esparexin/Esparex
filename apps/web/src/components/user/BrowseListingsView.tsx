@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocationData } from "@/context/LocationContext";
 import { resolveListingLocationLabel } from "@/lib/listings/listingPresentation";
 import { BrowseFiltersHeaderTrigger } from "@/components/user/BrowseFiltersBar";
@@ -112,6 +114,54 @@ export function BrowseListingsView<TItem, TFilters>({
     fetchPage,
   });
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const minPriceParam = searchParams.get("minPrice");
+  const maxPriceParam = searchParams.get("maxPrice");
+  const sellerTypeParam = (searchParams.get("sellerType") as "all" | "user" | "business") || "all";
+  const deviceConditionParam = searchParams.get("condition") || searchParams.get("deviceCondition") || "";
+
+  const minPrice = minPriceParam ? Number.parseInt(minPriceParam, 10) : undefined;
+  const maxPrice = maxPriceParam ? Number.parseInt(maxPriceParam, 10) : undefined;
+
+  const updateFiltersInUrl = useCallback(
+    (updates: Record<string, string | number | undefined | null>) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries()));
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "" || value === "all") {
+          current.delete(key);
+        } else {
+          current.set(key, String(value));
+        }
+      });
+      const search = current.toString();
+      const queryStr = search ? `?${search}` : "";
+      router.push(`${window.location.pathname}${queryStr}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  const handlePriceChange = useCallback(
+    (min?: number, max?: number) => {
+      updateFiltersInUrl({ minPrice: min, maxPrice: max });
+    },
+    [updateFiltersInUrl]
+  );
+
+  const handleSellerTypeChange = useCallback(
+    (seller: "all" | "user" | "business") => {
+      updateFiltersInUrl({ sellerType: seller });
+    },
+    [updateFiltersInUrl]
+  );
+
+  const handleConditionChange = useCallback(
+    (cond: string) => {
+      updateFiltersInUrl({ condition: cond });
+    },
+    [updateFiltersInUrl]
+  );
+
   const selectedCategoryObj = categories.find((c: Category) =>
     getCategoryValue
       ? getCategoryValue(c) === selectedCategory
@@ -133,6 +183,13 @@ export function BrowseListingsView<TItem, TFilters>({
     getCategoryValue,
     inputClassName,
     selectTriggerClassName,
+    minPrice,
+    maxPrice,
+    onPriceChange: handlePriceChange,
+    sellerType: sellerTypeParam,
+    onSellerTypeChange: handleSellerTypeChange,
+    deviceCondition: deviceConditionParam,
+    onDeviceConditionChange: handleConditionChange,
   };
 
   return (
@@ -153,6 +210,13 @@ export function BrowseListingsView<TItem, TFilters>({
             categories={categories}
             selectedCategory={selectedCategory}
             onCategoryChange={handleCategoryChange}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onPriceChange={handlePriceChange}
+            sellerType={sellerTypeParam}
+            onSellerTypeChange={handleSellerTypeChange}
+            deviceCondition={deviceConditionParam}
+            onDeviceConditionChange={handleConditionChange}
             onReset={handleReset}
             activeFilterCount={activeFilterCount}
           />

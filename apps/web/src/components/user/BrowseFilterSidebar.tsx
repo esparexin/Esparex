@@ -27,6 +27,17 @@ export interface BrowseFilterSidebarProps {
   className?: string;
 }
 
+const SELLER_OPTIONS = [
+  { id: "all", label: "All Sellers" },
+  { id: "user", label: "Individual Users" },
+  { id: "business", label: "Verified Businesses" },
+] as const;
+
+const CONDITION_OPTIONS = [
+  { id: "power_on", label: "Powers On (Working)" },
+  { id: "power_off", label: "Powers Off (Parts / Repair)" },
+] as const;
+
 export function BrowseFilterSidebar({
   categories,
   selectedCategory,
@@ -61,10 +72,7 @@ export function BrowseFilterSidebar({
     <div
       role="region"
       aria-label="Filter listings"
-      className={cn(
-        "w-[260px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-5",
-        className
-      )}
+      className={cn("w-[260px] rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm space-y-5", className)}
     >
       {/* Header Bar */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
@@ -77,14 +85,8 @@ export function BrowseFilterSidebar({
             </span>
           )}
         </div>
-
         {activeFilterCount > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReset}
-            className="h-8 text-caption font-semibold text-slate-500 hover:text-red-600 px-2 gap-1"
-          >
+          <Button variant="ghost" size="sm" onClick={onReset} className="h-8 text-caption font-semibold text-slate-500 hover:text-red-600 px-2 gap-1">
             <RotateCcw className="size-3" />
             Clear
           </Button>
@@ -95,17 +97,17 @@ export function BrowseFilterSidebar({
       <div className="space-y-2 border-b border-slate-100 pb-4">
         <button
           type="button"
+          aria-expanded={categoryExpanded}
+          aria-controls="filter-categories-section"
           onClick={() => setCategoryExpanded(!categoryExpanded)}
           className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Categories</span>
-          <ChevronDown
-            className={cn("size-4 transition-transform", !categoryExpanded && "-rotate-90")}
-          />
+          <ChevronDown className={cn("size-4 transition-transform", !categoryExpanded && "-rotate-90")} />
         </button>
 
         {categoryExpanded && (
-          <nav aria-label="Category Tree Navigation" className="pt-1 space-y-1">
+          <nav id="filter-categories-section" aria-label="Category Tree Navigation" className="pt-1 space-y-1">
             <button
               type="button"
               onClick={() => onCategoryChange("all")}
@@ -118,7 +120,6 @@ export function BrowseFilterSidebar({
             >
               <span>All Categories</span>
             </button>
-
             {categories.map((cat) => {
               const isSelected = selectedCategory === cat.slug || selectedCategory === cat.id;
               return (
@@ -128,9 +129,7 @@ export function BrowseFilterSidebar({
                   onClick={() => onCategoryChange(cat.slug || cat.id)}
                   className={cn(
                     "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-small font-medium transition-colors pl-4",
-                    isSelected
-                      ? "bg-slate-900 text-white font-semibold"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    isSelected ? "bg-slate-900 text-white font-semibold" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   )}
                 >
                   <span className="truncate">{cat.name}</span>
@@ -146,17 +145,17 @@ export function BrowseFilterSidebar({
       <div className="space-y-3 border-b border-slate-100 pb-4">
         <button
           type="button"
+          aria-expanded={priceExpanded}
+          aria-controls="filter-price-section"
           onClick={() => setPriceExpanded(!priceExpanded)}
           className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Price Range (₹)</span>
-          <ChevronDown
-            className={cn("size-4 transition-transform", !priceExpanded && "-rotate-90")}
-          />
+          <ChevronDown className={cn("size-4 transition-transform", !priceExpanded && "-rotate-90")} />
         </button>
 
         {priceExpanded && (
-          <div className="space-y-3 pt-1">
+          <div id="filter-price-section" className="space-y-3 pt-1">
             <div className="flex items-center gap-2">
               <div className="space-y-1 flex-1">
                 <Label htmlFor="sidebar-min-price" className="text-tiny text-slate-500 font-medium">Min</Label>
@@ -182,13 +181,7 @@ export function BrowseFilterSidebar({
                 />
               </div>
             </div>
-
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleApplyPrice}
-              className="w-full h-9 text-small font-semibold rounded-lg border-slate-200 bg-slate-50 hover:bg-slate-100 min-h-[36px]"
-            >
+            <Button size="sm" variant="outline" onClick={handleApplyPrice} className="w-full h-9 text-small font-semibold rounded-lg border-slate-200 bg-slate-50 hover:bg-slate-100 min-h-[36px]">
               Apply Price
             </Button>
           </div>
@@ -199,26 +192,19 @@ export function BrowseFilterSidebar({
       <div className="space-y-3 border-b border-slate-100 pb-4">
         <button
           type="button"
+          aria-expanded={sellerTypeExpanded}
+          aria-controls="filter-seller-section"
           onClick={() => setSellerTypeExpanded(!sellerTypeExpanded)}
           className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Seller Type</span>
-          <ChevronDown
-            className={cn("size-4 transition-transform", !sellerTypeExpanded && "-rotate-90")}
-          />
+          <ChevronDown className={cn("size-4 transition-transform", !sellerTypeExpanded && "-rotate-90")} />
         </button>
 
         {sellerTypeExpanded && (
-          <div className="space-y-2 pt-1">
-            {[
-              { id: "all", label: "All Sellers" },
-              { id: "user", label: "Individual Users" },
-              { id: "business", label: "Verified Businesses" },
-            ].map((option) => (
-              <label
-                key={option.id}
-                className="flex items-center gap-2.5 text-small text-slate-700 font-medium cursor-pointer hover:text-slate-900 min-h-[36px]"
-              >
+          <div id="filter-seller-section" className="space-y-2 pt-1">
+            {SELLER_OPTIONS.map((option) => (
+              <label key={option.id} className="flex items-center gap-2.5 text-small text-slate-700 font-medium cursor-pointer hover:text-slate-900 min-h-[36px]">
                 <input
                   type="radio"
                   name="sellerType"
@@ -238,21 +224,18 @@ export function BrowseFilterSidebar({
       <div className="space-y-3">
         <button
           type="button"
+          aria-expanded={conditionExpanded}
+          aria-controls="filter-condition-section"
           onClick={() => setConditionExpanded(!conditionExpanded)}
           className="flex w-full items-center justify-between text-caption font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
         >
           <span>Condition</span>
-          <ChevronDown
-            className={cn("size-4 transition-transform", !conditionExpanded && "-rotate-90")}
-          />
+          <ChevronDown className={cn("size-4 transition-transform", !conditionExpanded && "-rotate-90")} />
         </button>
 
         {conditionExpanded && (
-          <div className="space-y-2 pt-1">
-            {[
-              { id: "power_on", label: "Powers On (Working)" },
-              { id: "power_off", label: "Powers Off (Parts / Repair)" },
-            ].map((cond) => {
+          <div id="filter-condition-section" className="space-y-2 pt-1">
+            {CONDITION_OPTIONS.map((cond) => {
               const isChecked = deviceCondition === cond.id;
               return (
                 <div key={cond.id} className="flex items-center gap-2.5 min-h-[36px]">
@@ -263,10 +246,7 @@ export function BrowseFilterSidebar({
                       onDeviceConditionChange?.(checked ? cond.id : "");
                     }}
                   />
-                  <Label
-                    htmlFor={`sidebar-cond-${cond.id}`}
-                    className="text-small font-medium text-slate-700 cursor-pointer hover:text-slate-900"
-                  >
+                  <Label htmlFor={`sidebar-cond-${cond.id}`} className="text-small font-medium text-slate-700 cursor-pointer hover:text-slate-900">
                     {cond.label}
                   </Label>
                 </div>

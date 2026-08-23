@@ -13,6 +13,7 @@ import {
     shouldUseLogoutRedirectBypass,
 } from "@/lib/authHelpers";
 import { buildPublicBrowseRouteFromPathname } from "@/lib/publicBrowseRoutes";
+import { isWizardPathname } from "@/lib/routeUtils";
 
 import { MobileNavDrawerProvider } from "@/components/mobile/MobileNavDrawerProvider";
 import { MobileNavDrawer } from "@/components/mobile/MobileNavDrawer";
@@ -31,9 +32,7 @@ export function HeaderWrapper() {
     const isLoggedIn = status === "authenticated";
     const isAuthLoading = status === "loading";
     const isAdminRoute = segments[0] === 'admin';
-    const isWizardRoute =
-        segments[0] === "edit-ad" ||
-        segments[0] === "post-service";
+    const isWizardRoute = isWizardPathname(pathname);
 
     const loginCallbackUrl = useMemo(() => {
         return buildAuthCallbackUrl(pathname || "/", searchParams);
