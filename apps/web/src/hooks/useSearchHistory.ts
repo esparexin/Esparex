@@ -1,9 +1,31 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useSyncExternalStore, useCallback } from "react";
 
 export const SEARCH_STORAGE_KEY = "esparex_recent_searches";
 export const POPULAR_SEARCHES = ["iPhone 15", "Display Screen", "Battery Replacement", "Motherboard"] as const;
+
+let memoryCache: string[] = [];
+let memoryRaw: string | null = null;
+const listeners = new Set<() => void>();
+
+function notify() {
+  listeners.forEach((l) => l());
+}
+
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === SEARCH_STORAGE_KEY) {
+      callback();
+    }
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(callback);
+    window.removeEventListener("storage", onStorage);
+  };
+}
 
 export function parseSearchHistory(raw: string | null): string[] {
   if (!raw) return [];
@@ -18,6 +40,25 @@ export function parseSearchHistory(raw: string | null): string[] {
   return [];
 }
 
+function getSnapshot(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(SEARCH_STORAGE_KEY);
+    if (raw !== memoryRaw) {
+      memoryRaw = raw;
+      memoryCache = parseSearchHistory(raw);
+    }
+    return memoryCache;
+  } catch {
+    return memoryCache;
+  }
+}
+
+const SERVER_SNAPSHOT: string[] = [];
+function getServerSnapshot(): string[] {
+  return SERVER_SNAPSHOT;
+}
+
 export function addSearchQueryToHistory(history: string[], query: string): string[] {
   const trimmed = query.trim();
   if (!trimmed) return history;
@@ -25,35 +66,29 @@ export function addSearchQueryToHistory(history: string[], query: string): strin
 }
 
 export function useSearchHistory() {
-  const [history, setHistory] = useState<string[]>([]);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(SEARCH_STORAGE_KEY);
-      setHistory(parseSearchHistory(raw));
-    } catch {
-      // Ignore storage read errors in SSR/sandboxes
-    }
-  }, []);
+  const history = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const saveSearch = useCallback((query: string) => {
     const trimmed = query.trim();
     if (!trimmed) return;
-    setHistory((prev) => {
-      const next = addSearchQueryToHistory(prev, trimmed);
-      try {
-        localStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // Ignore storage write errors
-      }
-      return next;
-    });
+    try {
+      const current = getSnapshot();
+      const next = addSearchQueryToHistory(current, trimmed);
+      localStorage.setItem(SEARCH_STORAGE_KEY, JSON.stringify(next));
+      memoryRaw = JSON.stringify(next);
+      memoryCache = next;
+      notify();
+    } catch {
+      // Ignore storage write errors
+    }
   }, []);
 
   const clearHistory = useCallback(() => {
-    setHistory([]);
     try {
       localStorage.removeItem(SEARCH_STORAGE_KEY);
+      memoryRaw = null;
+      memoryCache = [];
+      notify();
     } catch {
       // Ignore storage write errors
     }
