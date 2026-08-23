@@ -9,6 +9,7 @@ export interface OtpInputProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onComplete?: (value: string) => void;
   disabled?: boolean;
   hasError?: boolean;
+  autoFocus?: boolean;
 }
 
 const createEmptyOtp = (length: number, value?: string): string[] => {
@@ -21,13 +22,23 @@ const createEmptyOtp = (length: number, value?: string): string[] => {
 };
 
 export const OtpInput = React.forwardRef<HTMLDivElement, OtpInputProps>(
-  ({ length = 6, value = "", onChange, onComplete, disabled, hasError, className, ...props }, ref) => {
+  ({ length = 6, value = "", onChange, onComplete, disabled, hasError, autoFocus, className, ...props }, ref) => {
     const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
     const [otp, setOtp] = React.useState<string[]>(() => createEmptyOtp(length, value));
 
     React.useEffect(() => {
       setOtp(createEmptyOtp(length, value));
     }, [value, length]);
+
+    React.useEffect(() => {
+      if (autoFocus && !disabled) {
+        const timer = setTimeout(() => {
+          inputRefs.current[0]?.focus();
+        }, 50);
+        return () => clearTimeout(timer);
+      }
+      return undefined;
+    }, [autoFocus, disabled]);
 
     const focusInput = React.useCallback((index: number) => {
       inputRefs.current[index]?.focus();

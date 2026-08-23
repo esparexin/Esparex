@@ -116,7 +116,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
   const nameValue = form.watch("name") || "";
   const otpValue = form.watch("otp") || "";
 
-  // Auto-focus management using RHF
+  // Auto-focus management using RHF & DOM element targeting
   useEffect(() => {
     if (step === "enterMobile") {
       const id = setTimeout(() => form.setFocus("mobile"), 0);
@@ -124,6 +124,13 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     }
     if (step === "enterNameAndOtp") {
       const id = setTimeout(() => form.setFocus("name"), 0);
+      return () => clearTimeout(id);
+    }
+    if (step === "enterOtp") {
+      const id = setTimeout(() => {
+        const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
+        firstOtpInput?.focus();
+      }, 50);
       return () => clearTimeout(id);
     }
     return undefined;
@@ -363,6 +370,13 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
                       field.onChange(e);
                       form.clearErrors("name");
                     }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && field.value?.trim()) {
+                        e.preventDefault();
+                        const firstOtpInput = document.getElementById("otp-digit-1") as HTMLInputElement | null;
+                        firstOtpInput?.focus();
+                      }
+                    }}
                   />
                 </FieldControl>
                 <FieldMessage className="text-xs" />
@@ -381,6 +395,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           name="otp"
           length={6}
           disabled={otpInputDisabled}
+          autoFocus={step === "enterOtp"}
           className="justify-center"
           animateOnError
         />
