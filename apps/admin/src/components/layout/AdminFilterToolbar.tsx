@@ -61,7 +61,8 @@ export function AdminFilterToolbar({
                     value={search}
                     onChange={(e) => onSearchChange(e.target.value)}
                     placeholder={searchPlaceholder}
-                    className="w-full rounded-lg border border-input bg-background py-1.5 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    aria-label={searchPlaceholder}
+                    className="w-full rounded-lg border border-input bg-background py-1.5 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 />
             </div>
 
@@ -72,7 +73,8 @@ export function AdminFilterToolbar({
                     <select
                         value={status}
                         onChange={(e) => onStatusChange(e.target.value)}
-                        className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        aria-label="Filter by status"
+                        className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
                         {statusOptions.map((opt) => (
                             <option key={opt.value} value={opt.value}>
