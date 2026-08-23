@@ -9,8 +9,9 @@
     "types": "off",
     "duplicates": "off"
   },
-  "ignoreBinaries": ["eslint", "tsc"],
+  "ignoreBinaries": ["eslint", "tsc", "expo"],
   "ignoreDependencies": [
+    "expo-splash-screen",
     "@radix-ui/*",
     "@react-google-maps/api",
     "@sentry/*",
