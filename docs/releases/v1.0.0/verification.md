@@ -18,3 +18,5 @@
 | **Expo Export (iOS)** | `cd apps/mobile && npx expo export --platform ios` | `0` | ✅ PASS | Bundled 3,199 modules |
 | **Expo Export (Android)** | `cd apps/mobile && npx expo export --platform android` | `0` | ✅ PASS | Bundled 3,200 modules |
 | **Visual QA Matrix** | 23 Viewport & Theme Matrices | `N/A` | ✅ PASS | `docs/audits/visual-qa-report.md` |
+| **Android 15 Compatibility** | `zipalign -v -c -P 16 4 app-release.apk` | `0` | ✅ PASS | Verified 16 KB page alignment for production APK |
+| **Accessibility Audit** | Structural UI audit (focusable/labels) | `N/A` | ✅ PASS | Complies with `AGENTS.md` & `MOBILE_INTEGRATION_ACCESSIBILITY_REPORT.md` |

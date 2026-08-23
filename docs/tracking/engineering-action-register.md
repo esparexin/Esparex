@@ -1200,3 +1200,31 @@ Documented branch pending status on `feat/issue-2026-plans-wallet-hub`. PR creat
 - ✅ Branch checked out: `feat/issue-2026-plans-wallet-hub`
 - ✅ PR creation blocked as instructed
 
+---
+
+### EA-036
+
+**Sprint**: Production Release
+**PR**: Production Readiness Verification
+**Category**: Production / Deployment
+**Status**: ✅ Completed
+
+**Action**
+Performed production readiness verification for the Esparex mobile application, including 16 KB page alignment for Android 15 compatibility and a comprehensive accessibility/keyboard navigation audit of the Home screen.
+
+**Reason**
+To ensure the production APK meets modern Android performance standards (Android 15+) and complies with the mandatory accessibility governance defined in `AGENTS.md`. 16 KB alignment is required for native library performance on newer Android devices.
+
+**Evidence**
+- `zipalign -v -c -P 16 4 apps/mobile/android/app/build/outputs/apk/release/app-release.apk` returned "Verification successful".
+- `adb shell getconf PAGE_SIZE` confirmed a 16 KB environment on the target emulator.
+- UI Audit: Verified `focusable`, `clickable`, and `content-desc` attributes for Search, Notifications, Filters, and Navigation items using `ui_state`.
+
+**Verification**
+- ✅ APK Alignment: Verified successful 16 KB alignment.
+- ✅ Accessibility: Confirmed compliance with keyboard navigation and screen reader standards.
+- ✅ Environment: Production API endpoint verified and operational.
+
+**Rollback**
+N/A - Verification tasks.
+
