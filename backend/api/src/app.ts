@@ -62,12 +62,12 @@ import adminCatalogRequestRoutes from './routes/adminCatalogRequestRoutes';
 import editorialRoutes from './routes/editorialRoutes';
 import contactRoutes from './routes/contactRoutes';
 import rootRoutes from './routes/rootRoutes';
+import fallbackRoutes from './routes/fallbackRoutes';
 import adminRoutes from './routes/adminRoutes';
 import adminCatalogRoutes from './routes/adminCatalogRoutes';
 import adminChatRoutes from './routes/adminChatRoutes';
 import googleAdsRoutes from './routes/googleAdsRoutes';
 import monetizationRoutes from './routes/monetizationRoutes';
-import compatibilityRoutes from './routes/compatibilityRoutes';
 
 
 
@@ -395,8 +395,8 @@ app.use('/api/v1', requireDb, maintenanceMiddleware);
 // Apply CSRF protection to all state-changing requests
 app.use('/api/v1', verifyCsrfToken);
 
-// 🛡️ MOBILE STALE BUNDLE COMPATIBILITY LAYER (Must be applied before /api 404 handler)
-app.use('/api', compatibilityRoutes);
+// Fallback routing for un-prefixed requests (Must be applied before /api 404 handler)
+app.use('/api', fallbackRoutes);
 
 /* -------------------------------------------------------------------------- */
 /* ROUTES                                                                      */

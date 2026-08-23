@@ -88,7 +88,7 @@ export const ReportAdModal = ({ visible, adId, adTitle, onClose }: ReportAdModal
             </AppText>
 
             {/* Reasons list */}
-            <View className="space-y-2 mb-4">
+            <View className="gap-2 mb-4">
               {REPORT_REASONS.map((item) => {
                 const isSelected = selectedReason === item.value;
                 return (

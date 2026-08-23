@@ -126,7 +126,7 @@ export const OTPScreen = () => {
       title={isNewUser ? 'Complete Registration' : 'Verify OTP'}
       description={`Enter the 6-digit code sent to +91 ${mobile}`}
       footer={
-        <View className="items-center space-y-3">
+        <View className="items-center gap-3">
           <TouchableOpacity
             onPress={handleChangeNumber}
             accessibilityRole="button"

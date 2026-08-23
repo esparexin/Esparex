@@ -9,16 +9,16 @@ import logger from '@esparex/core/utils/logger';
 
 const router = express.Router();
 
-// 🛡️ MOBILE STALE BUNDLE COMPATIBILITY LAYER
+// Fallback routing layer for un-prefixed requests
 router.use((req, res, next) => {
-    logger.info(`[COMPATIBILITY_LAYER] Intercepted legacy request: ${req.method} ${req.originalUrl}`);
+    logger.info(`[FALLBACK_ROUTER] Intercepted un-prefixed request: ${req.method} ${req.originalUrl}`);
     next();
 });
 
 /**
- * Specific Stale Mappings
+ * Specific Mappings
  */
-// The stale bundle requests /listings/feed, which is now /listings/home
+// Un-prefixed feed requests mapped to home feed
 router.get("/listings/feed", publicCacheControl(300, 3600), searchLimiter, getListingsController.getHomeFeed);
 
 // Standard Mappings

@@ -34,7 +34,7 @@ export const BrandModelSection = ({
   onSelectModel,
 }: BrandModelSectionProps) => {
   return (
-    <View className="mb-5 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+    <View className="mb-5 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 gap-3">
       <AppText variant="body" className="font-bold text-slate-900 dark:text-white">
         Brand & Model
       </AppText>

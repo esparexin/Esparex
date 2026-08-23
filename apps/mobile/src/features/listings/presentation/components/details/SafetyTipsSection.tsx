@@ -13,7 +13,7 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
 
   return (
     <View className="px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-      <View className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 p-4 space-y-3">
+      <View className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 p-4 gap-3">
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center">
             <View className="mr-1.5">
@@ -30,7 +30,7 @@ export const SafetyTipsSection = ({ adId, onReportPress }: SafetyTipsSectionProp
           ) : null}
         </View>
 
-        <View className="space-y-2">
+        <View className="gap-2">
           <View className="flex-row items-start mb-2">
             <View className="mr-2 mt-0.5">
               <AppIcon name="CheckCircle2" size={14} color="#059669" />
