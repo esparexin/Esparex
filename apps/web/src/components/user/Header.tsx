@@ -9,7 +9,6 @@ import {
   Search,
   LogIn,
   ChevronDown,
-  Clock,
   TrendingUp,
   Building2,
   LayoutDashboard,
@@ -37,6 +36,7 @@ import {
 } from "@/config/navigation";
 import { getMobileChromePolicy } from "@/lib/mobile/chromePolicy";
 import { useSharedHeaderLogic } from "@/components/user/hooks/useSharedHeaderLogic";
+import { HeaderSearchDropdown } from "./header/HeaderSearchDropdown";
 import { NotificationBellDropdown } from "@/components/user/NotificationBellDropdown";
 import { usePostAdNavigation } from "@/hooks/usePostAdNavigation";
 import { normalizeBusinessStatus } from "@/lib/status/statusNormalization";
@@ -64,8 +64,6 @@ export interface HeaderProps {
   onSearch?: (query: string) => void;
   onShowLogin?: () => void;
 }
-
-const recentSearches = ["iPhone 14 Pro", "Samsung Galaxy", "MacBook Pro", "iPad Air"];
 
 export function Header({
   navigateTo,
@@ -137,6 +135,9 @@ export function Header({
     handleSearch,
     handleSearchSubmit,
     handleSearchFocus,
+    searchItems,
+    isRecent,
+    clearSearchHistory,
   } = useSharedHeaderLogic({
     isLoggedIn,
     onSearch,
@@ -205,24 +206,13 @@ export function Header({
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
           </div>
-          {showSearchDropdown && (
-            <div
-              style={{ zIndex: Z_INDEX.userHeaderDropdown }}
-              className="absolute top-full left-0 right-0 mt-2 bg-popover border rounded-xl shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-2"
-            >
-              <div className="text-xs font-semibold text-muted-foreground uppercase px-2 mb-1">Recent</div>
-              {recentSearches.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleSearch(s)}
-                  className="w-full text-left px-2 py-2 hover:bg-muted rounded flex items-center gap-2 text-sm"
-                >
-                  <Clock className="h-3 w-3 text-muted-foreground" />
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
+          <HeaderSearchDropdown
+            isOpen={showSearchDropdown}
+            isRecent={isRecent}
+            searchItems={searchItems}
+            onSelectSearch={handleSearch}
+            onClearHistory={clearSearchHistory}
+          />
         </div>
 
         {/* Desktop User Actions */}
