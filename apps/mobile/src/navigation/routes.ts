@@ -25,6 +25,7 @@ export const ROUTES = {
   // Profile nested screens
   PROFILE_OVERVIEW: 'ProfileOverview',
   PROFILE_SETTINGS: 'ProfileSettings',
+  MY_LISTINGS: 'MyListings',
   BUSINESS_REGISTRATION: 'BusinessRegistration',
   BUSINESS_STATUS: 'BusinessStatus',
   PLAN_SELECTION: 'PlanSelection',
@@ -66,10 +67,11 @@ export type ChatStackParamList = {
   [ROUTES.CHAT_THREAD]: { conversationId: string };
 };
 
-// Profile stack: overview → settings → business → payment → smart alerts → saved ads → edit listing → terms
+// Profile stack: overview → settings → my listings → business → payment → smart alerts → saved ads → edit listing → terms
 export type ProfileStackParamList = {
   [ROUTES.PROFILE_OVERVIEW]: undefined;
   [ROUTES.PROFILE_SETTINGS]: undefined;
+  [ROUTES.MY_LISTINGS]: undefined;
   [ROUTES.BUSINESS_REGISTRATION]: undefined;
   [ROUTES.BUSINESS_STATUS]: undefined;
   [ROUTES.PLAN_SELECTION]: undefined;

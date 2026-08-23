@@ -1,12 +1,16 @@
 import React from 'react';
-import { View, FlatList, ActivityIndicator } from 'react-native';
-import { Screen, Container, Card, AppText } from '@esparex/mobile-ui';
+import { View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { Screen, Container, Card, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useQuery } from '@tanstack/react-query';
 import { services } from '../../../../bootstrap';
 import { PaymentTransaction } from '../../domain/PaymentTransaction';
 
-export function TransactionHistoryScreen() {
+interface TransactionHistoryScreenProps {
+  onBack?: () => void;
+}
+
+export function TransactionHistoryScreen({ onBack }: TransactionHistoryScreenProps = {}) {
   const { data: transactions, isLoading } = useQuery<PaymentTransaction[], Error>({
     queryKey: ['payment', 'history'],
     queryFn: () => services.paymentService.getTransactionHistory(),
@@ -42,7 +46,17 @@ export function TransactionHistoryScreen() {
 
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
-      <View className="px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <View className="flex-row items-center px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        {onBack && (
+          <TouchableOpacity
+            onPress={onBack}
+            accessibilityLabel="Back to profile"
+            accessibilityRole="button"
+            className="mr-3 p-1"
+          >
+            <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+          </TouchableOpacity>
+        )}
         <AppText variant="h3" className="font-bold text-slate-900 dark:text-slate-100">
           Purchase History
         </AppText>

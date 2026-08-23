@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
-import { Screen, Container, Card, AppText, AppButton } from '@esparex/mobile-ui';
+import { View, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import { Screen, Container, Card, AppText, AppButton, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useSavedListings } from '../hooks/useSavedListings';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
@@ -10,9 +10,10 @@ import { Listing } from '../../domain/Listing';
 interface SavedAdsScreenProps {
   onPressListing?: (listingId: string) => void;
   onExploreListings?: () => void;
+  onBack?: () => void;
 }
 
-export function SavedAdsScreen({ onPressListing, onExploreListings }: SavedAdsScreenProps) {
+export function SavedAdsScreen({ onPressListing, onExploreListings, onBack }: SavedAdsScreenProps) {
   const { data: listings, isLoading, isRefetching, refetch } = useSavedListings();
   const toggleSaveMutation = useToggleSaveListing();
 
@@ -31,7 +32,17 @@ export function SavedAdsScreen({ onPressListing, onExploreListings }: SavedAdsSc
 
   return (
     <Screen edges={['top', 'left', 'right']}>
-      <View className="px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+      <View className="flex-row items-center px-4 py-3.5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        {onBack && (
+          <TouchableOpacity
+            onPress={onBack}
+            accessibilityLabel="Back to profile"
+            accessibilityRole="button"
+            className="mr-3 p-1"
+          >
+            <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+          </TouchableOpacity>
+        )}
         <AppText variant="h3" className="font-bold text-slate-900 dark:text-white">
           Saved Ads & Favorites
         </AppText>

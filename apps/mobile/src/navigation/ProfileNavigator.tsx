@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ProfileStackParamList, ROUTES } from './routes';
 import { ProfileScreen } from '../features/user/presentation/screens/ProfileScreen';
 import { SettingsScreen } from '../features/user/presentation/screens/SettingsScreen';
+import { MyListingsScreen } from '../features/listings/presentation/screens/MyListingsScreen';
 import { BusinessRegistrationWizardScreen, BusinessStatusScreen, useBusinessProfile } from '../features/business';
 import { PlanSelectionScreen, TransactionHistoryScreen } from '../features/payment';
 import { SmartAlertsScreen } from '../features/smartAlert';
@@ -11,6 +12,14 @@ import { EditListingScreen } from '../features/listings/presentation/screens/Edi
 import { TermsAndPrivacyScreen } from '../features/user/presentation/screens/TermsAndPrivacyScreen';
 
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
+
+function MyListingsWrapper({ navigation }: any) {
+  return (
+    <MyListingsScreen
+      onBack={() => navigation.goBack()}
+    />
+  );
+}
 
 function BusinessRegistrationWrapper({ navigation }: any) {
   return (
@@ -40,10 +49,28 @@ function BusinessStatusWrapper({ navigation }: any) {
   );
 }
 
+function PlanSelectionWrapper({ navigation }: any) {
+  return (
+    <PlanSelectionScreen
+      onSuccess={() => navigation.navigate(ROUTES.PROFILE_OVERVIEW)}
+      onBack={() => navigation.goBack()}
+    />
+  );
+}
+
+function TransactionHistoryWrapper({ navigation }: any) {
+  return (
+    <TransactionHistoryScreen
+      onBack={() => navigation.goBack()}
+    />
+  );
+}
+
 function SmartAlertsWrapper({ navigation }: any) {
   return (
     <SmartAlertsScreen
       onUpgradePlan={() => navigation.navigate(ROUTES.PLAN_SELECTION)}
+      onBack={() => navigation.goBack()}
     />
   );
 }
@@ -53,6 +80,7 @@ function SavedAdsWrapper({ navigation }: any) {
     <SavedAdsScreen
       onPressListing={(id) => navigation.navigate(ROUTES.LISTING_DETAILS, { id })}
       onExploreListings={() => navigation.navigate(ROUTES.SEARCH_TAB)}
+      onBack={() => navigation.goBack()}
     />
   );
 }
@@ -61,10 +89,11 @@ export const ProfileNavigator = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name={ROUTES.PROFILE_OVERVIEW} component={ProfileScreen} />
     <Stack.Screen name={ROUTES.PROFILE_SETTINGS} component={SettingsScreen} />
+    <Stack.Screen name={ROUTES.MY_LISTINGS} component={MyListingsWrapper} />
     <Stack.Screen name={ROUTES.BUSINESS_REGISTRATION} component={BusinessRegistrationWrapper} />
     <Stack.Screen name={ROUTES.BUSINESS_STATUS} component={BusinessStatusWrapper} />
-    <Stack.Screen name={ROUTES.PLAN_SELECTION} component={PlanSelectionScreen} />
-    <Stack.Screen name={ROUTES.TRANSACTION_HISTORY} component={TransactionHistoryScreen} />
+    <Stack.Screen name={ROUTES.PLAN_SELECTION} component={PlanSelectionWrapper} />
+    <Stack.Screen name={ROUTES.TRANSACTION_HISTORY} component={TransactionHistoryWrapper} />
     <Stack.Screen name={ROUTES.SMART_ALERTS} component={SmartAlertsWrapper} />
     <Stack.Screen name={ROUTES.SAVED_ADS} component={SavedAdsWrapper} />
     <Stack.Screen name={ROUTES.EDIT_LISTING} component={EditListingScreen} />
