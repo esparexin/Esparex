@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useEffect, useCallback } from "react";
 
 import { ArrowLeft, Loader2, Pencil } from "@/icons/IconRegistry";
@@ -27,17 +26,7 @@ import {
 } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-// Validation Schemas
-const loginSchema = z.object({
-  mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number"),
-  name: z.string()
-    .regex(/^[a-zA-Z\s'.-]*$/, "Name can only contain letters, spaces, dots, hyphens, and apostrophes")
-    .refine(val => !val || val.trim().length >= 2, { message: "Name must be at least 2 characters" })
-    .optional(),
-  otp: z.string().optional(),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { loginSchema, type LoginValues } from "@/schemas/login.schema";
 
 interface LoginProps {
   onLoginSuccess: () => void;
