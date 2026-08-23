@@ -35,7 +35,7 @@ export const WizardNavBar = ({
   onNext,
 }: WizardNavBarProps) => {
   const isFirstStep = currentStep === WizardStep.CATEGORY;
-  const computedLabel = isLastStep ? 'Submit' : 'Next';
+  const computedLabel = isLastStep ? 'Post Ad Now' : 'Continue';
   const displayLabel = nextLabel ?? computedLabel;
 
 

@@ -11,20 +11,18 @@ import { WizardNavBar } from './components/WizardNavBar';
 import { StepCategory } from './steps/StepCategory';
 import { StepDetails } from './steps/StepDetails';
 import { StepImages } from './steps/StepImages';
-import { StepPreview } from './steps/StepPreview';
 import { useSubmitAd } from './hooks/useSubmitAd';
 import { navigationRef, navigate } from '../../../navigation/navigationRef';
 import { ROUTES } from '../../../navigation/routes';
 
 // ---------------------------------------------------------------------------
-// Step router — maps WizardStep enum to the correct step component
+// Step router — maps WizardStep enum to the correct step component (3 Steps)
 // ---------------------------------------------------------------------------
 
 const STEP_COMPONENTS: Record<WizardStep, React.ComponentType> = {
   [WizardStep.CATEGORY]: StepCategory,
   [WizardStep.DETAILS]: StepDetails,
-  [WizardStep.IMAGES]: StepImages,
-  [WizardStep.PREVIEW]: StepPreview,
+  [WizardStep.PHOTOS]: StepImages,
 };
 
 // ---------------------------------------------------------------------------
@@ -33,7 +31,7 @@ const STEP_COMPONENTS: Record<WizardStep, React.ComponentType> = {
 
 const SUBMIT_LABELS: Record<string, string> = {
   uploading: 'Uploading photos\u2026',
-  creating:  'Creating listing\u2026',
+  creating: 'Publishing listing\u2026',
 };
 
 // ---------------------------------------------------------------------------
@@ -48,7 +46,7 @@ export const PostAdScreen = () => {
   } catch {
     authStatus = 'authenticated';
   }
-  const { state, nextStep, previousStep } = usePostAdDraft();
+  const { state, nextStep, previousStep, reset } = usePostAdDraft();
   const { currentStep, draft } = state;
   const { submit, status, submitError, resetError } = useSubmitAd();
 
@@ -76,7 +74,7 @@ export const PostAdScreen = () => {
     );
   }
 
-  const isLastStep = currentStep === WizardStep.PREVIEW;
+  const isLastStep = currentStep === WizardStep.PHOTOS;
   const isSubmitting = status === 'uploading' || status === 'creating';
   const canGoNext = PostAdValidator.canAdvanceFrom(currentStep, draft);
   const StepComponent = STEP_COMPONENTS[currentStep];
