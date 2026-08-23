@@ -21,7 +21,7 @@ let redisReadyWaitInFlight: Promise<boolean> | null = null;
 
 export const resolveRequestIp = (req: Request): string => req.ip || req.socket?.remoteAddress || 'unknown';
 
-export const resolveUserOrMobile = (req: Request): string | undefined => {
+export const resolveUserOrMobile = (req: any): string | undefined => {
     const userId = req.user?._id ? String(req.user._id) : undefined;
     if (userId) return userId;
     const body = req.body as { mobile?: unknown; email?: unknown } | undefined;
@@ -30,7 +30,7 @@ export const resolveUserOrMobile = (req: Request): string | undefined => {
     return undefined;
 };
 
-export const buildHybridRateLimitKey = (req: Request, actor?: string): string => {
+export const buildHybridRateLimitKey = (req: any, actor?: string): string => {
     const ip = resolveRequestIp(req);
     return `${actor || resolveUserOrMobile(req) || 'anonymous'}:${ip}`;
 };
@@ -75,7 +75,7 @@ const formatCountdown = (seconds: number): string => {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
-export const respondRateLimited = (req: Request, res: Response, error: string, bucket: string, options: { code?: string; retryAfterSeconds?: number } = {}) => {
+export const respondRateLimited = (req: any, res: Response, error: string, bucket: string, options: { code?: string; retryAfterSeconds?: number } = {}) => {
     const key = `spike:${req.ip}:${req.originalUrl}`; const now = Date.now();
     let record = spikeCache.get(key);
     if (!record || now > record.resetAt) {
@@ -121,13 +121,13 @@ export function createRedisStore(prefix: string, windowMs: number) {
 }
 
 export function createLimiter({ windowMs, max, keyPrefix, keyGenerator, errorCode }: {
-    windowMs: number; max: number; keyPrefix: string; keyGenerator?: (req: Request) => string; errorCode?: string;
+    windowMs: number; max: number; keyPrefix: string; keyGenerator?: (req: any) => string; errorCode?: string;
 }) {
     const code = errorCode ?? 'RATE_LIMITED';
     return rateLimit({
         windowMs, max, standardHeaders: true, legacyHeaders: false,
         store: createRedisStore(keyPrefix, windowMs),
-        keyGenerator: keyGenerator,
+        keyGenerator: keyGenerator as any,
         validate: keyGenerator ? false : { ip: false },
         handler: (req: Request, res: Response) => {
             const retryAfterSeconds = resolveRetryAfterSeconds(req, Math.ceil(windowMs / 1000));

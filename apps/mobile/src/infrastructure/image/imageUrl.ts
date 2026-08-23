@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { API_V1_BASE_PATH } from '@esparex/shared';
 
 const resolveApiOrigin = (): string => {
@@ -9,7 +10,8 @@ const resolveApiOrigin = (): string => {
       // Fall through on malformed env URL
     }
   }
-  return 'https://api.esparex.in';
+  const host = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+  return `http://${host}:5001`;
 };
 
 /**

@@ -32,7 +32,7 @@ let lastErrorRateSnapshot = {
     errorRate: 0,
 };
 
-const resolveUserId = (req: Request): string | undefined => {
+const resolveUserId = (req: any): string | undefined => {
     const raw = req.user?._id;
     if (typeof raw === 'string') return raw;
     if (raw && typeof raw.toString === 'function') return raw.toString();
@@ -88,7 +88,7 @@ const evaluateErrorRateWindow = () => {
     errorWindowErrorRequests = 0;
 };
 
-export const apiLatencyMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const apiLatencyMiddleware = (req: any, res: Response, next: NextFunction) => {
     const start = Date.now();
 
     res.on('finish', () => {
