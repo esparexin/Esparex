@@ -52,4 +52,23 @@ export class ApiBusinessRepository implements IBusinessRepository {
     const rawResData: unknown = resData;
     return rawResData as string;
   }
+
+  async getNearbyBusinesses(params?: { category?: string; city?: string; limit?: number }): Promise<readonly Business[]> {
+    try {
+      const response = await apiClient.get<any>('/v1/businesses', { params });
+      const resData = response.data;
+      const items: Business[] = Array.isArray(resData?.data)
+        ? resData.data
+        : Array.isArray(resData?.data?.items)
+        ? resData.data.items
+        : Array.isArray(resData?.items)
+        ? resData.items
+        : Array.isArray(resData)
+        ? resData
+        : [];
+      return items;
+    } catch {
+      return [];
+    }
+  }
 }

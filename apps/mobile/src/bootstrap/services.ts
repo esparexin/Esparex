@@ -28,6 +28,8 @@ import { ApiPaymentRepository } from '../features/payment/application/ApiPayment
 import { PaymentService } from '../features/payment/application/PaymentService';
 import { ApiSmartAlertRepository } from '../features/smartAlert/application/ApiSmartAlertRepository';
 import { SmartAlertService } from '../features/smartAlert/application/SmartAlertService';
+import { ApiLocationRepository } from '../features/listings/infrastructure/ApiLocationRepository';
+import { LocationService } from '../features/listings/application/LocationService';
 
 export interface IServices {
   authService: IAuthService;
@@ -44,6 +46,7 @@ export interface IServices {
   businessService: BusinessService;
   paymentService: PaymentService;
   smartAlertService: SmartAlertService;
+  locationService: LocationService;
 }
 
 export const bootstrapServices = (): IServices => {
@@ -97,6 +100,10 @@ export const bootstrapServices = (): IServices => {
   const smartAlertRepository = new ApiSmartAlertRepository();
   const smartAlertService = new SmartAlertService(smartAlertRepository);
 
+  // 13. Location
+  const locationRepository = new ApiLocationRepository(apiClient);
+  const locationService = new LocationService(locationRepository);
+
   return {
     authService,
     userService,
@@ -112,6 +119,7 @@ export const bootstrapServices = (): IServices => {
     businessService,
     paymentService,
     smartAlertService,
+    locationService,
   };
 };
 

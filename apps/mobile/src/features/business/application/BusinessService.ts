@@ -16,4 +16,8 @@ export class BusinessService {
   async uploadDocument(uri: string, fileType: string): Promise<string> {
     return this.businessRepository.uploadDocument(uri, fileType);
   }
+
+  async getNearbyBusinesses(params?: { category?: string; city?: string; limit?: number }): Promise<readonly Business[]> {
+    return this.businessRepository.getNearbyBusinesses(params);
+  }
 }
