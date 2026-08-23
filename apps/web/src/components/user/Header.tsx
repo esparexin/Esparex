@@ -195,7 +195,8 @@ export function Header({
           <div className="relative group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
             <Input
-              id="header-global-search"
+              id="header-desktop-search"
+              aria-label="Search for mobiles, parts, services"
               className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-sm text-base md:text-sm"
               placeholder="Search for mobiles, parts, services..."
               value={searchQuery}
@@ -433,6 +434,7 @@ export function Header({
             >
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
               <Input
+                id="header-mobile-search"
                 autoFocus={isMobileSearchEditing}
                 className="w-full pl-9 h-11 bg-muted border-transparent focus-visible:bg-background focus-visible:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-100 transition-all rounded-xl text-sm placeholder:text-foreground-subtle"
                 placeholder="Search phones, laptops, spare parts..."
