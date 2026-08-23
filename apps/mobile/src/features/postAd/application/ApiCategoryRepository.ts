@@ -26,10 +26,15 @@ interface PaginatedResponse<T> {
  */
 export class ApiCategoryRepository implements ICategoryRepository {
   public async getCategories(): Promise<readonly CategoryOption[]> {
-    const response = await apiClient.get<PaginatedResponse<CategoryDto>>('/v1/categories');
-    const items = Array.isArray(response.data?.data) ? response.data.data : [];
+    const response = await apiClient.get<PaginatedResponse<CategoryDto> | CategoryDto[]>('/catalog/categories');
+    const resData = response.data;
+    const items: CategoryDto[] = Array.isArray(resData)
+      ? resData
+      : Array.isArray(resData?.data)
+      ? resData.data
+      : [];
 
-    return items.map((item) => ({
+    return items.map((item: CategoryDto) => ({
       id: item.id || item._id || item.slug || item.name,
       name: item.name,
       icon: item.icon || 'Package',
