@@ -105,9 +105,12 @@ export class ApiListingRepository implements IListingRepository {
   }
 
   public async getCategories(): Promise<readonly Category[]> {
-    const response = await apiClient.get<Category[]>(API_ROUTES.USER.CATEGORIES);
+    const response = await apiClient.get<Category[] | { data: Category[] }>(API_ROUTES.USER.CATEGORIES);
     const data = response.data;
-    return Array.isArray((data as any)?.data) ? (data as any).data : Array.isArray(data) ? data : [];
+    if (data && 'data' in data && Array.isArray(data.data)) {
+      return data.data;
+    }
+    return Array.isArray(data) ? data : [];
   }
 
   public async reportListing(adId: string, reason: string, description?: string): Promise<void> {

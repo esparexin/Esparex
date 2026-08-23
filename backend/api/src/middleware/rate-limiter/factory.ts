@@ -121,13 +121,13 @@ export function createRedisStore(prefix: string, windowMs: number) {
 }
 
 export function createLimiter({ windowMs, max, keyPrefix, keyGenerator, errorCode }: {
-    windowMs: number; max: number; keyPrefix: string; keyGenerator?: (req: any) => string; errorCode?: string;
+    windowMs: number; max: number; keyPrefix: string; keyGenerator?: (req: Request, res: Response) => string | Promise<string>; errorCode?: string;
 }) {
     const code = errorCode ?? 'RATE_LIMITED';
     return rateLimit({
         windowMs, max, standardHeaders: true, legacyHeaders: false,
         store: createRedisStore(keyPrefix, windowMs),
-        keyGenerator: keyGenerator as any,
+        ...(keyGenerator ? { keyGenerator } : {}),
         validate: keyGenerator ? false : { ip: false },
         handler: (req: Request, res: Response) => {
             const retryAfterSeconds = resolveRetryAfterSeconds(req, Math.ceil(windowMs / 1000));

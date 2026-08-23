@@ -43,10 +43,7 @@ export const ListingDetailsScreen = () => {
   const isSaved = (savedListings || []).some((item) => String(item.id) === String(id));
   const isOwner =
     authStatus === 'authenticated' &&
-    Boolean(
-      (userProfile?.id && String(userProfile.id) === String(listing?.seller.id)) ||
-      ((userProfile as any)?._id && String((userProfile as any)._id) === String(listing?.seller.id))
-    );
+    Boolean(userProfile?.id && String(userProfile.id) === String(listing?.seller.id));
 
   const handleToggleFavorite = useCallback(() => {
     if (authStatus !== 'authenticated') {
