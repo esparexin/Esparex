@@ -21,6 +21,22 @@ jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
   }),
 }));
 
+jest.mock('../../hooks/useSavedListings', () => ({
+  useSavedListings: () => ({
+    data: [],
+    isLoading: false,
+    isRefetching: false,
+    refetch: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useToggleSaveListing', () => ({
+  useToggleSaveListing: () => ({
+    mutate: jest.fn(),
+    isLoading: false,
+  }),
+}));
+
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(
@@ -132,5 +148,24 @@ describe('MarketplaceScreen', () => {
     const retryButton = getByText('Try Again');
     fireEvent.press(retryButton);
     expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens LocationSelectorModal when location header pill is pressed', () => {
+    mockUseListings.mockReturnValue({
+      data: { pages: [[]], pageParams: [1] },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+      fetchNextPage: jest.fn(),
+      hasNextPage: false,
+      isFetchingNextPage: false,
+    } as any);
+
+    const { getByLabelText, getByText } = render(<MarketplaceScreen />);
+    const locationPill = getByLabelText('Current location: All India. Tap to change location.');
+    expect(locationPill).toBeTruthy();
+
+    fireEvent.press(locationPill);
+    expect(getByText('Select Location')).toBeTruthy();
   });
 });

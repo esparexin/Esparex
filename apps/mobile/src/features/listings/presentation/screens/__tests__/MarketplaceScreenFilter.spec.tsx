@@ -26,6 +26,22 @@ jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
   }),
 }));
 
+jest.mock('../../hooks/useSavedListings', () => ({
+  useSavedListings: () => ({
+    data: [],
+    isLoading: false,
+    isRefetching: false,
+    refetch: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useToggleSaveListing', () => ({
+  useToggleSaveListing: () => ({
+    mutate: jest.fn(),
+    isLoading: false,
+  }),
+}));
+
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(
@@ -72,12 +88,10 @@ describe('MarketplaceScreen Filters Integration', () => {
     expect(mockUseListings).toHaveBeenCalledWith({});
   });
 
-  it('opens FilterModal when Filters button is pressed', () => {
-    const { getByText, queryByText } = render(<MarketplaceScreen />);
+  it('confirms Home is pure discovery feed without duplicate Filters button', () => {
+    const { queryByText } = render(<MarketplaceScreen />);
+    expect(queryByText('Filters')).toBeNull();
     expect(queryByText('Filter Listings')).toBeNull();
-
-    fireEvent.press(getByText('Filters'));
-    expect(getByText('Filter Listings')).toBeTruthy();
   });
 
   it('filters by category when category chip is pressed', () => {

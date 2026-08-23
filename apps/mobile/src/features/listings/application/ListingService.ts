@@ -67,4 +67,13 @@ export class ListingService {
       throw error;
     }
   }
+
+  public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
+    try {
+      return await this.repository.reportListing(adId, reason, description);
+    } catch (error) {
+      console.error(`ListingService.reportListing failed for ID ${adId}:`, error);
+      throw error;
+    }
+  }
 }

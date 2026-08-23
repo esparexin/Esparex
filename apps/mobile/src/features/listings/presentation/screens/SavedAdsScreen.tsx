@@ -24,6 +24,8 @@ export function SavedAdsScreen({ onPressListing, onExploreListings }: SavedAdsSc
     <ListingCard
       listing={item}
       onPress={() => onPressListing && onPressListing(item.id)}
+      isSaved={true}
+      onToggleSave={handleToggleFavorite}
     />
   );
 

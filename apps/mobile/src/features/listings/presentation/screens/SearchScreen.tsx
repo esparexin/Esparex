@@ -1,9 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { FlatList, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Container, AppText, Center, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
 import { useSearch } from '../hooks/useSearch';
+import { useSavedListings } from '../hooks/useSavedListings';
+import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
+import { useAuth } from '../../../../providers/AuthProvider';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryChips } from '../components/CategoryChips';
 import { FilterBar } from '../components/FilterBar';
@@ -19,6 +22,22 @@ import { Listing } from '../../domain/Listing';
 export const SearchScreen = () => {
   const insets = useSafeAreaInsets();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
+  let authStatus = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
+
+  const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
+  const toggleSaveMutation = useToggleSaveListing();
+
+  const savedAdIdSet = useMemo(
+    () => new Set((savedListings || []).map((s) => s.id)),
+    [savedListings],
+  );
 
   const {
     query,
@@ -51,9 +70,28 @@ export const SearchScreen = () => {
     });
   }, []);
 
+  const handleToggleSave = useCallback(
+    (id: string) => {
+      if (authStatus !== 'authenticated') {
+        navigate(ROUTES.AUTH_STACK);
+        return;
+      }
+      const isSaved = savedAdIdSet.has(id);
+      toggleSaveMutation.mutate({ adId: id, isSaved });
+    },
+    [authStatus, savedAdIdSet, toggleSaveMutation],
+  );
+
   const renderItem = useCallback(
-    ({ item }: { item: Listing }) => <ListingCard listing={item} onPress={handlePress} />,
-    [handlePress],
+    ({ item }: { item: Listing }) => (
+      <ListingCard
+        listing={item}
+        onPress={handlePress}
+        isSaved={savedAdIdSet.has(item.id)}
+        onToggleSave={handleToggleSave}
+      />
+    ),
+    [handlePress, savedAdIdSet, handleToggleSave],
   );
 
   const keyExtractor = useCallback((item: Listing) => item.id, []);
@@ -83,9 +121,11 @@ export const SearchScreen = () => {
 
     if (isLoading && listings.length === 0) {
       return (
-        <View className="px-4 py-2">
-          {[1, 2, 3].map((key) => (
-            <ListingSkeleton key={key} />
+        <View className="px-3 py-2 flex-row flex-wrap justify-between">
+          {[1, 2, 3, 4].map((key) => (
+            <View key={key} className="w-[48%]">
+              <ListingSkeleton key={key} />
+            </View>
           ))}
         </View>
       );
@@ -96,6 +136,8 @@ export const SearchScreen = () => {
         data={listings}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: 'space-between', gap: 10 }}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 80 }]}
         showsVerticalScrollIndicator={false}
         removeClippedSubviews={true}
@@ -177,7 +219,7 @@ export const SearchScreen = () => {
 
 const styles = StyleSheet.create({
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: 12,
+    paddingTop: 10,
   },
 });

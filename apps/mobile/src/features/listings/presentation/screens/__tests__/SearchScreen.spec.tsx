@@ -24,6 +24,22 @@ jest.mock('../../../../postAd/presentation/hooks/useCategories', () => ({
   }),
 }));
 
+jest.mock('../../hooks/useSavedListings', () => ({
+  useSavedListings: () => ({
+    data: [],
+    isLoading: false,
+    isRefetching: false,
+    refetch: jest.fn(),
+  }),
+}));
+
+jest.mock('../../hooks/useToggleSaveListing', () => ({
+  useToggleSaveListing: () => ({
+    mutate: jest.fn(),
+    isLoading: false,
+  }),
+}));
+
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
   return new Proxy(

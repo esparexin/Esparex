@@ -3,14 +3,17 @@ import { FlatList, RefreshControl, View, Image, TouchableOpacity } from 'react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen, Container, AppText, AppIcon } from '@esparex/mobile-ui';
 import { base } from '@esparex/design-tokens';
-import { ListingQueryParams } from '@esparex/contracts';
+import { ListingQueryParams, LocationMeta } from '@esparex/contracts';
 import { useListings } from '../hooks/useListings';
+import { useSavedListings } from '../hooks/useSavedListings';
+import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
+import { useAuth } from '../../../../providers/AuthProvider';
 import { ListingCard } from '../components/ListingCard';
 import { ListingSkeleton } from '../components/ListingSkeleton';
-import { FilterBar } from '../components/FilterBar';
-import { FilterModal } from '../components/FilterModal';
+import { MarketplaceHeader } from '../components/MarketplaceHeader';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryChips } from '../components/CategoryChips';
+import { LocationSelectorModal } from '../components/LocationSelectorModal';
 import { EmptyState } from '../../../common/components/EmptyState';
 import { ErrorState } from '../../../common/components/ErrorState';
 import { navigate } from '../../../../navigation/navigationRef';
@@ -20,8 +23,25 @@ import { Listing } from '../../domain/Listing';
 export const MarketplaceScreen = () => {
   const insets = useSafeAreaInsets();
   const [filters, setFilters] = useState<ListingQueryParams>({});
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [selectedLocationDisplay, setSelectedLocationDisplay] = useState('All India');
+
+  let authStatus = 'authenticated';
+  try {
+    const auth = useAuth();
+    authStatus = auth.status;
+  } catch {
+    authStatus = 'authenticated';
+  }
+
+  const { data: savedListings } = useSavedListings(authStatus === 'authenticated');
+  const toggleSaveMutation = useToggleSaveListing();
+
+  const savedAdIdSet = useMemo(
+    () => new Set((savedListings || []).map((s) => s.id)),
+    [savedListings],
+  );
 
   // Debounced search query updating filters
   useEffect(() => {
@@ -46,25 +66,6 @@ export const MarketplaceScreen = () => {
     isFetchingNextPage,
   } = useListings(filters);
 
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (filters.sortBy) count += 1;
-    if (filters.condition) count += 1;
-    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) count += 1;
-    if (filters.categoryId) count += 1;
-    if (filters.locationId) count += 1;
-    return count;
-  }, [filters]);
-
-  const handleApplyFilters = useCallback((newFilters: ListingQueryParams) => {
-    setFilters(newFilters);
-  }, []);
-
-  const handleClearFilters = useCallback(() => {
-    setFilters({});
-    setSearchQuery('');
-  }, []);
-
   const handleSelectCategory = useCallback((categoryId?: string) => {
     setFilters((prev) => ({
       ...prev,
@@ -73,20 +74,23 @@ export const MarketplaceScreen = () => {
     }));
   }, []);
 
-  const handleRemoveCategory = useCallback(() => {
-    setFilters((prev) => ({ ...prev, categoryId: undefined, page: 1 }));
-  }, []);
-
-  const handleRemoveSort = useCallback(() => {
-    setFilters((prev) => ({ ...prev, sortBy: undefined, page: 1 }));
-  }, []);
-
-  const handleRemoveCondition = useCallback(() => {
-    setFilters((prev) => ({ ...prev, condition: undefined, page: 1 }));
-  }, []);
-
-  const handleRemovePrice = useCallback(() => {
-    setFilters((prev) => ({ ...prev, minPrice: undefined, maxPrice: undefined, page: 1 }));
+  const handleSelectLocation = useCallback((location: LocationMeta | null) => {
+    if (location) {
+      const locId = location.locationId || (location as { _id?: string })._id || location.name;
+      setFilters((prev) => ({
+        ...prev,
+        locationId: locId,
+        page: 1,
+      }));
+      setSelectedLocationDisplay(location.display || location.city || location.name || 'Selected Location');
+    } else {
+      setFilters((prev) => ({
+        ...prev,
+        locationId: undefined,
+        page: 1,
+      }));
+      setSelectedLocationDisplay('All India');
+    }
   }, []);
 
   const handlePress = useCallback((id: string) => {
@@ -96,9 +100,28 @@ export const MarketplaceScreen = () => {
     });
   }, []);
 
+  const handleToggleSave = useCallback(
+    (id: string) => {
+      if (authStatus !== 'authenticated') {
+        navigate(ROUTES.AUTH_STACK);
+        return;
+      }
+      const isSaved = savedAdIdSet.has(id);
+      toggleSaveMutation.mutate({ adId: id, isSaved });
+    },
+    [authStatus, savedAdIdSet, toggleSaveMutation],
+  );
+
   const renderItem = useCallback(
-    ({ item }: { item: Listing }) => <ListingCard listing={item} onPress={handlePress} />,
-    [handlePress],
+    ({ item }: { item: Listing }) => (
+      <ListingCard
+        listing={item}
+        onPress={handlePress}
+        isSaved={savedAdIdSet.has(item.id)}
+        onToggleSave={handleToggleSave}
+      />
+    ),
+    [handlePress, savedAdIdSet, handleToggleSave],
   );
 
   const keyExtractor = useCallback((item: Listing) => item.id, []);
@@ -117,22 +140,10 @@ export const MarketplaceScreen = () => {
     <Screen edges={['top', 'left', 'right']}>
       <Container padded={false} className="flex-1">
         {/* Brand & Location Header */}
-        <View className="flex-row items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-          <Image
-            source={require('../../../../../assets/logo.png')}
-            style={{ width: 120, height: 28 }}
-            resizeMode="contain"
-            accessibilityRole="image"
-            accessibilityLabel="Esparex Logo"
-          />
-
-          <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
-            <AppIcon name="MapPin" size={13} color={base.brand[500]} />
-            <AppText variant="caption" className="font-semibold text-slate-700 dark:text-slate-300 ml-1">
-              All India
-            </AppText>
-          </View>
-        </View>
+        <MarketplaceHeader
+          selectedLocationDisplay={selectedLocationDisplay}
+          onOpenLocationModal={() => setIsLocationModalOpen(true)}
+        />
 
         {/* Quick Search Bar */}
         <SearchBar
@@ -149,23 +160,13 @@ export const MarketplaceScreen = () => {
           onSelectCategory={handleSelectCategory}
         />
 
-        {/* Filter Bar */}
-        <FilterBar
-          filters={filters}
-          activeFilterCount={activeFilterCount}
-          onOpenFilterModal={() => setIsFilterModalOpen(true)}
-          onClearFilters={handleClearFilters}
-          onRemoveCategory={handleRemoveCategory}
-          onRemoveCondition={handleRemoveCondition}
-          onRemovePrice={handleRemovePrice}
-          onRemoveSort={handleRemoveSort}
-        />
-
         {/* Listings Feed */}
         {isLoading && listings.length === 0 ? (
-          <View className="px-4 py-3">
-            {[1, 2, 3].map((key) => (
-              <ListingSkeleton key={key} />
+          <View className="px-3 py-2 flex-row flex-wrap justify-between">
+            {[1, 2, 3, 4].map((key) => (
+              <View key={key} className="w-[48%]">
+                <ListingSkeleton />
+              </View>
             ))}
           </View>
         ) : (
@@ -173,7 +174,9 @@ export const MarketplaceScreen = () => {
             data={listings}
             renderItem={renderItem}
             keyExtractor={keyExtractor}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: insets.bottom + 64 }}
+            numColumns={2}
+            columnWrapperStyle={{ justifyContent: 'space-between', gap: 10 }}
+            contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 10, paddingBottom: insets.bottom + 64 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             scrollEventThrottle={16}
@@ -191,8 +194,8 @@ export const MarketplaceScreen = () => {
               <EmptyState
                 title="No Listings Found"
                 description={
-                  activeFilterCount > 0 || searchQuery.length > 0
-                    ? 'No listings match your search or filters. Try resetting filters.'
+                  searchQuery.length > 0 || filters.categoryId || filters.locationId
+                    ? 'No listings match your search or location. Try selecting another category or location.'
                     : 'Check back later for new items.'
                 }
                 icon="Search"
@@ -215,12 +218,11 @@ export const MarketplaceScreen = () => {
           />
         )}
 
-        <FilterModal
-          visible={isFilterModalOpen}
-          initialFilters={filters}
-          onClose={() => setIsFilterModalOpen(false)}
-          onApply={handleApplyFilters}
-          onReset={handleClearFilters}
+        <LocationSelectorModal
+          visible={isLocationModalOpen}
+          onClose={() => setIsLocationModalOpen(false)}
+          onSelectLocation={handleSelectLocation}
+          selectedLocationId={filters.locationId}
         />
       </Container>
     </Screen>

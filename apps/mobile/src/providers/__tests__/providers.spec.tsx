@@ -142,6 +142,7 @@ describe('AppProvider', () => {
     businessService: { getMyBusiness: jest.fn() } as any,
     paymentService: { getPlans: jest.fn() } as any,
     smartAlertService: { getSmartAlerts: jest.fn() } as any,
+    locationService: { searchLocations: jest.fn(), detectLocation: jest.fn() } as any,
   };
 
 

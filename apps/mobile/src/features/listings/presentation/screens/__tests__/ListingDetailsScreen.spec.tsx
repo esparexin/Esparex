@@ -28,9 +28,21 @@ jest.mock('lucide-react-native', () => {
 
 import { ListingDetailsScreen } from '../ListingDetailsScreen';
 import { useListingDetails } from '../../hooks/useListingDetails';
+import { useNearbyBusinesses } from '../../hooks/useNearbyBusinesses';
+import { useToggleSaveListing } from '../../hooks/useToggleSaveListing';
+import { useSavedListings } from '../../hooks/useSavedListings';
 import { Listing } from '../../../domain/Listing';
 
 jest.mock('../../hooks/useListingDetails');
+jest.mock('../../hooks/useNearbyBusinesses', () => ({
+  useNearbyBusinesses: jest.fn().mockReturnValue({ data: [], isLoading: false }),
+}));
+jest.mock('../../hooks/useToggleSaveListing', () => ({
+  useToggleSaveListing: jest.fn().mockReturnValue({ mutate: jest.fn() }),
+}));
+jest.mock('../../hooks/useSavedListings', () => ({
+  useSavedListings: jest.fn().mockReturnValue({ data: [] }),
+}));
 
 const mockUseListingDetails = useListingDetails as jest.MockedFunction<typeof useListingDetails>;
 

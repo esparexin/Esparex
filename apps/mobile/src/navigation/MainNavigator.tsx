@@ -15,7 +15,7 @@ export const MainNavigator = () => {
       <Stack.Screen 
         name={ROUTES.LISTING_DETAILS} 
         component={ListingDetailsScreen} 
-        options={{ headerShown: true, title: 'Listing Details' }}
+        options={{ headerShown: true, title: '', headerBackTitle: '', headerShadowVisible: false }}
       />
     </Stack.Navigator>
   );

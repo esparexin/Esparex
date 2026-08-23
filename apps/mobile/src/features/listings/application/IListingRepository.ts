@@ -11,4 +11,5 @@ export interface IListingRepository {
   create(request: CreateListingRequest): Promise<CreatedListing>;
   update(id: string, request: Partial<CreateListingRequest>): Promise<Listing>;
   getCategories(): Promise<readonly Category[]>;
+  reportListing(adId: string, reason: string, description?: string): Promise<void>;
 }

@@ -15,3 +15,14 @@ jest.mock('expo-secure-store', () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
 }));
 
+jest.mock('expo-crypto', () => ({
+  randomUUID: jest.fn(() => 'mock-uuid-1234'),
+  digestStringAsync: jest.fn().mockResolvedValue('mock-hash'),
+}));
+
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(),
+  launchCameraAsync: jest.fn(),
+  MediaTypeOptions: { Images: 'Images' },
+}));
+

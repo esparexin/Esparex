@@ -109,4 +109,13 @@ export class ApiListingRepository implements IListingRepository {
     const data = response.data;
     return Array.isArray((data as any)?.data) ? (data as any).data : Array.isArray(data) ? data : [];
   }
+
+  public async reportListing(adId: string, reason: string, description?: string): Promise<void> {
+    await apiClient.post('/reports', {
+      targetType: 'ad',
+      targetId: adId,
+      reason,
+      description,
+    });
+  }
 }
