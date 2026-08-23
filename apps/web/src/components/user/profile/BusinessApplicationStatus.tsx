@@ -239,7 +239,7 @@ export function BusinessApplicationStatus({
                 businessName={businessLabel}
                 actions={
                     <Button
-                        onClick={() => window.location.href = '/support'}
+                        onClick={() => window.location.href = '/contact'}
                         className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                     >
                         Contact Support

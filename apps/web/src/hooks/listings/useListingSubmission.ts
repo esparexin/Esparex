@@ -246,7 +246,7 @@ export function useListingSubmission<T extends ListingSubmissionValues, R = unkn
                             label: "View My Listings",
                             action: () => {
                                 if (typeof window !== "undefined") {
-                                    window.location.href = "/my-account/listings";
+                                    window.location.href = "/account/ads";
                                 }
                             }
                         },
