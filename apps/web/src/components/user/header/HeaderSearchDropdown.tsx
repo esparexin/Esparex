@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock } from "@/icons/IconRegistry";
-import { Z_INDEX } from "@/constants/zIndex";
+import { Z_INDEX } from "@esparex/ui";
 
 interface HeaderSearchDropdownProps {
   isOpen: boolean;
