@@ -34,9 +34,11 @@ import { useListingDetails } from '../../hooks/useListingDetails';
 import { useNearbyBusinesses } from '../../hooks/useNearbyBusinesses';
 import { useToggleSaveListing } from '../../hooks/useToggleSaveListing';
 import { useSavedListings } from '../../hooks/useSavedListings';
+import { useProfile } from '../../../../user/presentation/hooks/useProfile';
 import { Listing } from '../../../domain/Listing';
 
 jest.mock('../../hooks/useListingDetails');
+jest.mock('../../../../user/presentation/hooks/useProfile');
 jest.mock('../../hooks/useNearbyBusinesses', () => ({
   useNearbyBusinesses: jest.fn().mockReturnValue({ data: [], isLoading: false }),
 }));
@@ -48,6 +50,7 @@ jest.mock('../../hooks/useSavedListings', () => ({
 }));
 
 const mockUseListingDetails = useListingDetails as jest.MockedFunction<typeof useListingDetails>;
+const mockUseProfile = useProfile as jest.MockedFunction<typeof useProfile>;
 
 describe('ListingDetailsScreen', () => {
   const sampleListing: Listing = {
@@ -65,6 +68,9 @@ describe('ListingDetailsScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseProfile.mockReturnValue({
+      data: { id: 'usr-viewer-123', name: 'Other User' },
+    } as any);
   });
 
   it('renders loading activity indicator when details query is pending', () => {
@@ -90,7 +96,7 @@ describe('ListingDetailsScreen', () => {
     expect(getByText('Listing not found')).toBeTruthy();
   });
 
-  it('renders listing details, price, seller info, and CTAs when loaded', () => {
+  it('renders listing details, price, seller info, and CTAs when loaded for non-owner', () => {
     mockUseListingDetails.mockReturnValue({
       data: sampleListing,
       isLoading: false,
@@ -103,5 +109,22 @@ describe('ListingDetailsScreen', () => {
     expect(getByText('Tech Store')).toBeTruthy();
     expect(getByText('Call Seller')).toBeTruthy();
     expect(getByText('Chat / Message')).toBeTruthy();
+  });
+
+  it('renders Edit Listing CTA when viewer is the listing owner', () => {
+    mockUseProfile.mockReturnValue({
+      data: { id: 'usr-88', name: 'Tech Store Owner' },
+    } as any);
+
+    mockUseListingDetails.mockReturnValue({
+      data: sampleListing,
+      isLoading: false,
+      error: null,
+    } as any);
+
+    const { getByText, queryByText } = render(<ListingDetailsScreen />);
+    expect(getByText('Edit Listing')).toBeTruthy();
+    expect(queryByText('Call Seller')).toBeNull();
+    expect(queryByText('Chat / Message')).toBeNull();
   });
 });

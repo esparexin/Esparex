@@ -8,6 +8,7 @@ import { useAuth, AuthStatus } from '../../../../providers/AuthProvider';
 import { useListingDetails } from '../hooks/useListingDetails';
 import { useToggleSaveListing } from '../hooks/useToggleSaveListing';
 import { useSavedListings } from '../hooks/useSavedListings';
+import { useProfile } from '../../../user/presentation/hooks/useProfile';
 import { ImageCarousel } from '../components/details/ImageCarousel';
 import { PriceSection } from '../components/details/PriceSection';
 import { SellerSection } from '../components/details/SellerSection';
@@ -37,8 +38,15 @@ export const ListingDetailsScreen = () => {
   const { data: listing, isLoading, error } = useListingDetails(id);
   const { mutate: toggleSave } = useToggleSaveListing();
   const { data: savedListings } = useSavedListings();
+  const { data: userProfile } = useProfile();
 
   const isSaved = (savedListings || []).some((item) => String(item.id) === String(id));
+  const isOwner =
+    authStatus === 'authenticated' &&
+    Boolean(
+      (userProfile?.id && String(userProfile.id) === String(listing?.seller.id)) ||
+      ((userProfile as any)?._id && String((userProfile as any)._id) === String(listing?.seller.id))
+    );
 
   const handleToggleFavorite = useCallback(() => {
     if (authStatus !== 'authenticated') {
@@ -59,6 +67,19 @@ export const ListingDetailsScreen = () => {
       // ignore
     }
   }, [listing]);
+
+  const handleEditPress = useCallback(() => {
+    navigate(ROUTES.MAIN_STACK, {
+      screen: ROUTES.MAIN_TABS,
+      params: {
+        screen: ROUTES.PROFILE_TAB,
+        params: {
+          screen: ROUTES.EDIT_LISTING,
+          params: { id },
+        },
+      },
+    });
+  }, [id]);
 
   const handleMessagePress = useCallback(() => {
     if (authStatus !== 'authenticated') {
@@ -131,20 +152,29 @@ export const ListingDetailsScreen = () => {
 
   const imageUrls = listing.images ? listing.images.map((img) => img.url) : [];
 
-  const actions: ActionDef[] = [
-    {
-      label: 'Call Seller',
-      onPress: handleCallPress,
-      isPrimary: false,
-      variant: 'outline',
-    },
-    {
-      label: 'Chat / Message',
-      onPress: handleMessagePress,
-      isPrimary: true,
-      variant: 'primary',
-    },
-  ];
+  const actions: ActionDef[] = isOwner
+    ? [
+        {
+          label: 'Edit Listing',
+          onPress: handleEditPress,
+          isPrimary: true,
+          variant: 'primary',
+        },
+      ]
+    : [
+        {
+          label: 'Call Seller',
+          onPress: handleCallPress,
+          isPrimary: false,
+          variant: 'outline',
+        },
+        {
+          label: 'Chat / Message',
+          onPress: handleMessagePress,
+          isPrimary: true,
+          variant: 'primary',
+        },
+      ];
 
   return (
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">

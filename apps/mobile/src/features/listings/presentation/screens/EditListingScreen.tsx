@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { Screen, Container, Card, AppText } from '@esparex/mobile-ui';
+import { ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, View } from 'react-native';
+import { Screen, Container, Card, AppText, AppIcon } from '@esparex/mobile-ui';
+import { base } from '@esparex/design-tokens';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { ProfileStackParamList, ROUTES } from '../../../../navigation/routes';
 import { useListingDetails } from '../hooks/useListingDetails';
@@ -19,7 +20,9 @@ function EditListingForm({ id, listing }: EditListingFormProps) {
   const updateMutation = useUpdateListing();
 
   const [title, setTitle] = useState(listing.title || '');
-  const [price, setPrice] = useState(listing.price ? String(listing.price) : '');
+  const [price, setPrice] = useState(
+    listing.price?.amount !== undefined ? String(listing.price.amount) : ''
+  );
   const [description, setDescription] = useState(listing.description || '');
 
   const handleSave = async () => {
@@ -56,12 +59,24 @@ function EditListingForm({ id, listing }: EditListingFormProps) {
     <Screen className="flex-1 bg-slate-50 dark:bg-slate-950">
       <ScrollView className="flex-1 px-4 py-4" keyboardShouldPersistTaps="handled">
         <Container className="mb-4">
-          <AppText variant="h2" className="text-slate-900 dark:text-white font-bold mb-1">
-            Edit Listing
-          </AppText>
-          <AppText variant="body" className="text-slate-500 dark:text-slate-400">
-            Update your ad title, price, or description.
-          </AppText>
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              accessibilityLabel="Back"
+              accessibilityRole="button"
+              className="mr-3 p-1"
+            >
+              <AppIcon name="ArrowLeft" size={20} color={base.brand[500]} />
+            </TouchableOpacity>
+            <View className="flex-1">
+              <AppText variant="h2" className="text-slate-900 dark:text-white font-bold mb-1">
+                Edit Listing
+              </AppText>
+              <AppText variant="body" className="text-slate-500 dark:text-slate-400">
+                Update your ad title, price, or description.
+              </AppText>
+            </View>
+          </View>
         </Container>
 
         <Card className="p-4 mb-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
