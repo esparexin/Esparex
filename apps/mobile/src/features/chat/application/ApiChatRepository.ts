@@ -1,6 +1,7 @@
 import {
   IConversationDTO,
   IMessageDTO,
+  IChatStartResponse,
   IConversationListResponse,
   IConversationResponse,
   IMessageListResponse,
@@ -10,6 +11,11 @@ import { apiClient } from '../../../infrastructure/api/apiClient';
 import { IChatRepository } from './IChatRepository';
 
 export class ApiChatRepository implements IChatRepository {
+  async startChat(adId: string): Promise<string> {
+    const response = await apiClient.post<IChatStartResponse>('/chat/start', { adId });
+    return response.data.conversationId;
+  }
+
   async getConversations(): Promise<IConversationDTO[]> {
     const response = await apiClient.get<IConversationListResponse>('/chat/list');
     return response.data.data;

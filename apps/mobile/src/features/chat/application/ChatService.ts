@@ -4,6 +4,10 @@ import { IChatRepository } from './IChatRepository';
 export class ChatService {
   constructor(private readonly chatRepository: IChatRepository) {}
 
+  async startChat(adId: string): Promise<string> {
+    return this.chatRepository.startChat(adId);
+  }
+
   async getConversations(): Promise<IConversationDTO[]> {
     return this.chatRepository.getConversations();
   }

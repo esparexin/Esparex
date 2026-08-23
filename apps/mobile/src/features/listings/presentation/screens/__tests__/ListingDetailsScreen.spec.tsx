@@ -6,6 +6,9 @@ jest.mock('../../../../../bootstrap', () => ({
     listingService: {
       getListingDetails: jest.fn(),
     },
+    chatService: {
+      startChat: jest.fn(),
+    },
   },
 }));
 

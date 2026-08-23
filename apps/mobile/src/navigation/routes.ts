@@ -49,7 +49,7 @@ export type AuthStackParamList = {
 };
 
 export type MainStackParamList = {
-  [ROUTES.MAIN_TABS]: undefined;
+  [ROUTES.MAIN_TABS]: NavigatorScreenParams<MainTabParamList> | undefined;
   [ROUTES.LISTING_DETAILS]: { id: string };
 };
 

@@ -18,6 +18,8 @@ import { NearbyRepairServicesSection } from '../components/details/NearbyRepairS
 import { ReportAdModal } from '../components/details/ReportAdModal';
 import { ActionBar, ActionDef } from '../components/details/ActionBar';
 
+import { services } from '../../../../bootstrap';
+
 type ListingDetailsRouteProp = RouteProp<MainStackParamList, typeof ROUTES.LISTING_DETAILS>;
 
 export const ListingDetailsScreen = () => {
@@ -30,12 +32,13 @@ export const ListingDetailsScreen = () => {
   } catch {
     authStatus = 'authenticated';
   }
-  const id = route.params?.id || '';
+  const { id } = route.params;
 
   const { data: listing, isLoading, error } = useListingDetails(id);
   const { mutate: toggleSave } = useToggleSaveListing();
-  const { data: savedListings = [] } = useSavedListings(authStatus === 'authenticated');
-  const isSaved = savedListings.some((item) => String(item.id) === String(id));
+  const { data: savedListings } = useSavedListings();
+
+  const isSaved = (savedListings || []).some((item) => String(item.id) === String(id));
 
   const handleToggleFavorite = useCallback(() => {
     if (authStatus !== 'authenticated') {
@@ -68,10 +71,31 @@ export const ListingDetailsScreen = () => {
       'Safety Reminder: Never pay in advance or send money online before inspecting items in person.',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Start Chat', onPress: () => {} },
+        {
+          text: 'Start Chat',
+          onPress: async () => {
+            try {
+              const conversationId = await services.chatService.startChat(id);
+              if (conversationId) {
+                navigate(ROUTES.MAIN_STACK, {
+                  screen: ROUTES.MAIN_TABS,
+                  params: {
+                    screen: ROUTES.CHAT_TAB,
+                    params: {
+                      screen: ROUTES.CHAT_THREAD,
+                      params: { conversationId },
+                    },
+                  },
+                });
+              }
+            } catch (err: any) {
+              Alert.alert('Unable to start chat', err?.message || 'Please try again later.');
+            }
+          },
+        },
       ]
     );
-  }, [authStatus]);
+  }, [authStatus, id]);
 
   const handleCallPress = useCallback(() => {
     Alert.alert('Call Seller', 'Do you want to make a call to the seller?', [
