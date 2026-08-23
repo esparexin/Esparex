@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npm run build -w @esparex/design-tokens && NEXT_DISABLE_WEBPACK_CACHE=1 next build",
+  "buildCommand": "npm run build -w @esparex/design-tokens && npm run build -w @esparex/contracts && NEXT_DISABLE_WEBPACK_CACHE=1 next build --webpack",
   "outputDirectory": ".next",
   "env": {
     "HUSKY": "0"
