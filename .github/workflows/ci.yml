@@ -199,8 +199,10 @@ jobs:
       - name: Compile Android Release APK
         if: steps.mobile_check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          echo "Compiling Android Release APK..."
-          cd apps/mobile/android
+          echo "Generating and Compiling Android Release APK..."
+          cd apps/mobile
+          npx expo prebuild --platform android --no-install --clean
+          cd android
           ./gradlew assembleRelease --no-daemon --stacktrace
 
       - name: Verify Android APK Generated
