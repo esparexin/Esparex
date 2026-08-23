@@ -50,30 +50,6 @@ export const PostAdScreen = () => {
   const { currentStep, draft } = state;
   const { submit, status, submitError, resetError } = useSubmitAd();
 
-  if (authStatus === 'anonymous') {
-    return (
-      <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
-        <Container className="flex-1 justify-center items-center px-6">
-          <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
-            <AppIcon name="PlusCircle" size={32} color={base.brand[500]} />
-          </View>
-          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center mb-2">
-            Post an Ad on Esparex
-          </AppText>
-          <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
-            Sign in to create your listing, upload photos, and connect with verified buyers across India.
-          </AppText>
-          <AppButton
-            label="Sign In / Register"
-            onPress={() => navigate(ROUTES.AUTH_STACK)}
-            className="w-full"
-            accessibilityLabel="Sign in to post an ad"
-          />
-        </Container>
-      </Screen>
-    );
-  }
-
   const isLastStep = currentStep === WizardStep.PHOTOS;
   const isSubmitting = status === 'uploading' || status === 'creating';
   const canGoNext = PostAdValidator.canAdvanceFrom(currentStep, draft);
@@ -124,6 +100,30 @@ export const PostAdScreen = () => {
       );
     }
   }, [submitError, resetError]);
+
+  if (authStatus === 'anonymous') {
+    return (
+      <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">
+        <Container className="flex-1 justify-center items-center px-6">
+          <View className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-4">
+            <AppIcon name="PlusCircle" size={32} color={base.brand[500]} />
+          </View>
+          <AppText variant="h2" className="font-bold text-slate-900 dark:text-white text-center mb-2">
+            Post an Ad on Esparex
+          </AppText>
+          <AppText variant="body" className="text-slate-600 dark:text-slate-400 text-center mb-6">
+            Sign in to create your listing, upload photos, and connect with verified buyers across India.
+          </AppText>
+          <AppButton
+            label="Sign In / Register"
+            onPress={() => navigate(ROUTES.AUTH_STACK)}
+            className="w-full"
+            accessibilityLabel="Sign in to post an ad"
+          />
+        </Container>
+      </Screen>
+    );
+  }
 
   return (
     <Screen edges={['top', 'left', 'right']} backgroundColor="bg-slate-50 dark:bg-slate-950">

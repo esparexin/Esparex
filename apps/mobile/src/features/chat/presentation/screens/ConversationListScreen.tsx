@@ -26,6 +26,81 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
   }
   const { data: conversations, isLoading, isError, refetch, isRefetching } = useConversations();
 
+  const renderConversationItem = useCallback(
+    ({ item }: { item: IConversationDTO }) => {
+      const otherParticipant = item.seller.name || item.buyer.name || 'Chat User';
+      const unreadCount = item.unreadBuyer || item.unreadSeller || 0;
+      const formattedDate = item.lastMessageAt
+        ? new Date(item.lastMessageAt).toLocaleDateString([], {
+            month: 'short',
+            day: 'numeric',
+          })
+        : '';
+
+      return (
+        <Card className="mb-3 p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+          <TouchableOpacity
+            onPress={() => onSelectConversation?.(item.id)}
+            className="flex-row items-center justify-between"
+            accessibilityRole="button"
+            accessibilityLabel={`Conversation with ${otherParticipant}`}
+          >
+            <View className="flex-row items-center flex-1">
+              <View className="relative">
+                {item.ad?.thumbnail ? (
+                  <Image
+                    source={{ uri: item.ad.thumbnail }}
+                    style={styles.thumbnail}
+                    contentFit="cover"
+                    transition={200}
+                    accessibilityLabel={item.ad.title || 'Listing thumbnail'}
+                  />
+                ) : (
+                  <View className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 items-center justify-center">
+                    <AppIcon name="MessageSquare" size={20} color={base.brand[500]} />
+                  </View>
+                )}
+                {unreadCount > 0 && (
+                  <View className="absolute -top-1 -right-1 bg-brand-600 rounded-full w-5 h-5 items-center justify-center border-2 border-white dark:border-slate-900">
+                    <AppText variant="caption" className="text-white text-[10px] font-bold">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </AppText>
+                  </View>
+                )}
+              </View>
+
+              <View className="ml-3 flex-1">
+                <View className="flex-row justify-between items-center mb-1">
+                  <AppText variant="body" className="font-bold text-slate-900 dark:text-white" numberOfLines={1}>
+                    {otherParticipant}
+                  </AppText>
+                  <AppText variant="caption" className="text-slate-500 dark:text-slate-400 text-xs">
+                    {formattedDate}
+                  </AppText>
+                </View>
+
+                <AppText variant="caption" className="text-slate-600 dark:text-slate-400 font-medium" numberOfLines={1}>
+                  {item.ad?.title || 'General Inquiry'}
+                </AppText>
+
+                <AppText
+                  variant="caption"
+                  className="text-slate-500 dark:text-slate-400"
+                  numberOfLines={1}
+                >
+                  {item.lastMessage || 'No messages yet'}
+                </AppText>
+              </View>
+            </View>
+
+            <AppIcon name="ChevronRight" size={18} color={base.slate[400]} />
+          </TouchableOpacity>
+        </Card>
+      );
+    },
+    [onSelectConversation]
+  );
+
   if (authStatus === 'anonymous') {
     return (
       <Screen edges={['top', 'left', 'right']}>
@@ -49,86 +124,6 @@ export const ConversationListScreen: React.FC<ConversationListScreenProps> = ({
       </Screen>
     );
   }
-
-  const renderConversationItem = useCallback(
-    ({ item }: { item: IConversationDTO }) => {
-      const otherParticipant = item.seller.name || item.buyer.name || 'Chat User';
-      const unreadCount = item.unreadBuyer || item.unreadSeller || 0;
-      const formattedDate = item.lastMessageAt
-        ? new Date(item.lastMessageAt).toLocaleDateString([], {
-            month: 'short',
-            day: 'numeric',
-          })
-        : '';
-
-      return (
-        <Card className="mb-3 p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-          <TouchableOpacity
-            onPress={() => onSelectConversation?.(item.id)}
-            className="flex-row items-center justify-between"
-          >
-            {/* Thumbnail / Avatar */}
-            <View className="relative mr-3">
-              {item.ad.thumbnail ? (
-                <Image
-                  source={{ uri: item.ad.thumbnail }}
-                  contentFit="cover"
-                  cachePolicy="memory-disk"
-                  transition={150}
-                  style={styles.thumbnail}
-                  accessibilityLabel={`Thumbnail for ${item.ad.title}`}
-                />
-              ) : (
-                <View className="w-12 h-12 rounded-full bg-brand-50 dark:bg-brand-950/40 items-center justify-center">
-                  <AppIcon name="MessageSquare" size={20} color={base.brand[500]} />
-                </View>
-              )}
-              {unreadCount > 0 && (
-                <View className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 items-center justify-center">
-                  <AppText variant="tiny" className="text-white font-bold">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </AppText>
-                </View>
-              )}
-            </View>
-
-            {/* Conversation Details */}
-            <View className="flex-1 mr-2">
-              <View className="flex-row items-center justify-between mb-1">
-                <AppText
-                  variant="body"
-                  className="font-bold text-slate-900 dark:text-white"
-                  numberOfLines={1}
-                >
-                  {otherParticipant}
-                </AppText>
-                {formattedDate ? (
-                  <AppText variant="caption" className="text-slate-400 text-xs">
-                    {formattedDate}
-                  </AppText>
-                ) : null}
-              </View>
-
-              <AppText variant="caption" className="text-brand-600 dark:text-brand-400 font-medium mb-1">
-                {item.ad.title}
-              </AppText>
-
-              <AppText
-                variant="caption"
-                className="text-slate-500 dark:text-slate-400"
-                numberOfLines={1}
-              >
-                {item.lastMessage || 'No messages yet'}
-              </AppText>
-            </View>
-
-            <AppIcon name="ChevronRight" size={18} color={base.slate[400]} />
-          </TouchableOpacity>
-        </Card>
-      );
-    },
-    [onSelectConversation]
-  );
 
   if (isError) {
     return (
