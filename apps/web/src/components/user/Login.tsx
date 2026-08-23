@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useCallback } from "react";
 
@@ -101,9 +101,9 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     defaultValues: { mobile: "", name: "", otp: "" },
   });
 
-  const mobileValue = form.watch("mobile") || "";
-  const nameValue = form.watch("name") || "";
-  const otpValue = form.watch("otp") || "";
+  const mobileValue = useWatch({ control: form.control, name: "mobile" }) ?? "";
+  const nameValue = useWatch({ control: form.control, name: "name" }) ?? "";
+  const otpValue = useWatch({ control: form.control, name: "otp" }) ?? "";
 
   // Auto-focus management using RHF & DOM element targeting
   useEffect(() => {

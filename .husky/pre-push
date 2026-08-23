@@ -1,5 +1,1 @@
-npm run repo:gate
-npm run type-check
-npm run guard:knip
-npm run guard:type-casts
-npm run test
+npm run pr:gate
