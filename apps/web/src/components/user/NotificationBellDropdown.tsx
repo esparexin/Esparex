@@ -2,20 +2,17 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-    Bell,
-    Inbox,
-} from "@/icons/IconRegistry";
+import { Bell, Inbox } from "@/icons/IconRegistry";
 import { usePathname, useRouter } from "next/navigation";
 
 import { queryKeys } from "@/hooks/queries";
 import { notificationApi, type Notification, type NotificationResponse } from "@/lib/api/user/notifications";
-import { Button } from "@esparex/ui";
 import {
+    Button,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@esparex/ui";
 import { NotificationItemCard } from "@/components/user/NotificationItemCard";
 import { NotificationDrawer } from "@/components/user/NotificationDrawer";
 
@@ -111,11 +108,7 @@ export function NotificationBellDropdown({
             const now = new Date().toISOString();
             syncNotificationCaches((current) => ({
                 ...current,
-                notifications: current.notifications.map((item) => ({
-                    ...item,
-                    isRead: true,
-                    readAt: item.readAt || now,
-                })),
+                notifications: current.notifications.map((item) => ({ ...item, isRead: true, readAt: item.readAt || now })),
                 unreadCount: 0,
             }));
             void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });

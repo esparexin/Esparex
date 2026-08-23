@@ -12,6 +12,7 @@ import { ClientChromeLoader } from '@/components/layout/ClientChromeLoader';
 import { ScrollSentinel } from '@/components/common/ScrollSentinel';
 
 import { PageLayout } from '@esparex/ui';
+import { isWizardPathname } from '@/lib/routeUtils';
 
 interface CommonLayoutProps {
     children: ReactNode;
@@ -32,10 +33,7 @@ export function CommonLayout({
 }: CommonLayoutProps) {
     const activeYear = currentYear ?? new Date().getUTCFullYear();
     const pathname = usePathname();
-    const segments = pathname?.split("/").filter(Boolean) ?? [];
-    const isWizardRoute =
-        segments[0] === "edit-ad" ||
-        segments[0] === "post-service";
+    const isWizardRoute = isWizardPathname(pathname);
 
     // Chat & regular routes: keep the default layout & site header and footer intact.
     // Wizard routes: retain fullscreen + no-header immersive behavior.

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Card } from "@esparex/ui";
 import PostAdPageClient from "@/components/user/post-ad/PostAdPageClient";
 
@@ -91,18 +92,18 @@ export default async function PostAdPage() {
                     </div>
 
                     <div className="flex flex-col gap-3 pt-2">
-                        <a
+                        <Link
                             href="/account/plans"
                             className="w-full inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-semibold text-sm h-11 px-4 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
                         >
                             Buy Ad Pack
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/"
                             className="w-full inline-flex items-center justify-center rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 active:bg-slate-100 font-semibold text-sm h-11 px-4 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
                         >
                             Back to Home
-                        </a>
+                        </Link>
                     </div>
                 </Card>
             </div>
