@@ -64,8 +64,8 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
     const renderLink = (label: string, href: string, pageKey: string, compact = false) => {
         const baseClassName = cn(
             compact
-                ? "inline-flex items-center text-caption md:text-body transition-colors"
-                : "inline-flex min-h-10 items-center text-left text-caption md:text-body transition-colors md:min-h-0",
+                ? "inline-flex items-center text-caption transition-colors leading-relaxed"
+                : "inline-flex min-h-8 items-center text-left text-caption transition-colors md:min-h-0 leading-relaxed",
             isDark ? "hover:text-primary text-foreground-subtle" : "hover:text-green-600 text-foreground-tertiary"
         );
 
@@ -134,12 +134,12 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                             key={section.title}
                             className="col-span-1 text-left"
                         >
-                            <h3 className={cn("mb-4 font-bold uppercase tracking-wider text-caption", isDark ? "text-foreground-subtle" : "text-foreground")}>
+                            <p className={cn("mb-3 font-bold uppercase tracking-wider text-caption", isDark ? "text-foreground-subtle" : "text-foreground")}>
                                 {section.title}
-                            </h3>
-                            <ul className="space-y-2">
+                            </p>
+                            <ul className="space-y-1.5">
                                 {section.links.map((link) => (
-                                    <li key={link.label} className="leading-5">
+                                    <li key={link.label} className="leading-snug">
                                         {renderLink(link.label, link.href, link.pageKey, true)}
                                     </li>
                                 ))}
