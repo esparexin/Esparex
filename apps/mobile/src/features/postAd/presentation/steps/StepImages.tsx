@@ -21,24 +21,44 @@ export const StepImages = () => {
   const pickedImages = state.draft.pickedImages ?? [];
   const canAddMore = images.length < MAX_AD_IMAGES;
 
-  const handleAdd = useCallback(async () => {
-    if (!canAddMore) return;
+  const processImageResult = useCallback(
+    (result: Awaited<ReturnType<typeof services.imagePicker.pick>>) => {
+      if (result.success) {
+        const available = MAX_AD_IMAGES - images.length;
+        const newPicked = result.images.slice(0, available);
+        const combinedPicked = [...pickedImages, ...newPicked];
+        setPickedImages(combinedPicked);
+        setImages(combinedPicked.map((img) => img.uri));
+      } else if (result.reason === 'permission-denied') {
+        Alert.alert(
+          'Permission Required',
+          result.message || 'Camera or photo gallery access is required to add photos.'
+        );
+      } else if (result.reason === 'error') {
+        Alert.alert('Image Selection Failed', result.message || 'Could not process photo.');
+      }
+    },
+    [images.length, pickedImages, setPickedImages, setImages]
+  );
+
+  const handlePickFromGallery = useCallback(async () => {
     const result = await services.imagePicker.pick();
-    if (result.success) {
-      const available = MAX_AD_IMAGES - images.length;
-      const newPicked = result.images.slice(0, available);
-      const combinedPicked = [...pickedImages, ...newPicked];
-      setPickedImages(combinedPicked);
-      setImages(combinedPicked.map((img) => img.uri));
-    } else if (result.reason === 'permission-denied') {
-      Alert.alert(
-        'Permission Required',
-        'Photo gallery access is required to add photos to your listing.'
-      );
-    } else if (result.reason === 'error') {
-      Alert.alert('Image Selection Failed', result.message || 'Could not select photo.');
-    }
-  }, [images.length, pickedImages, canAddMore, setPickedImages, setImages]);
+    processImageResult(result);
+  }, [processImageResult]);
+
+  const handleCaptureFromCamera = useCallback(async () => {
+    const result = await services.imagePicker.captureFromCamera();
+    processImageResult(result);
+  }, [processImageResult]);
+
+  const handleAdd = useCallback(() => {
+    if (!canAddMore) return;
+    Alert.alert('Add Photo', 'Choose how you want to add photos to your listing', [
+      { text: 'Take Photo', onPress: () => void handleCaptureFromCamera() },
+      { text: 'Choose from Gallery', onPress: () => void handlePickFromGallery() },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }, [canAddMore, handleCaptureFromCamera, handlePickFromGallery]);
 
   const handleRemove = useCallback(
     (index: number) => {

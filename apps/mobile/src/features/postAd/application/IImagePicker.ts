@@ -21,10 +21,11 @@ export const pickedImageUris = (images: readonly PickedImage[]): readonly string
   images.map((img) => img.uri);
 
 /**
- * IImagePicker — stable interface for device image selection.
+ * IImagePicker — stable interface for device image selection and camera capture.
  */
 export interface IImagePicker {
   pick(): Promise<PickImagesResult>;
+  captureFromCamera(): Promise<PickImagesResult>;
 }
 
 /**
@@ -33,6 +34,11 @@ export interface IImagePicker {
 export class MockImagePicker implements IImagePicker {
   public async pick(): Promise<PickImagesResult> {
     const mockItem: PickedImage = { uri: 'mock://image-1', width: 400, height: 400, mimeType: 'image/jpeg' };
+    return { success: true, images: [mockItem] };
+  }
+
+  public async captureFromCamera(): Promise<PickImagesResult> {
+    const mockItem: PickedImage = { uri: 'mock://camera-1', width: 800, height: 600, mimeType: 'image/jpeg' };
     return { success: true, images: [mockItem] };
   }
 }
