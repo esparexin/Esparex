@@ -100,24 +100,24 @@ export function AdTitlePriceCard({
                         {isService ? "Contact for Quote" : "Free"}
                     </span>
                 ) : (
-                    <span className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                    <span className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
                         {formatPrice(ad.price)}
                     </span>
                 )}
             </div>
 
-            <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-xs text-foreground-subtle pt-2">
+            <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-caption text-foreground-subtle pt-2">
                 <div className="flex flex-col md:gap-0.5">
-                    <span className="hidden md:block text-2xs uppercase font-bold text-slate-400 tracking-wider">Location</span>
-                    <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                        <MapPin className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                    <span className="hidden md:block text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Location</span>
+                    <div className="flex items-center gap-1.5 text-foreground-secondary font-medium">
+                        <MapPin className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
                         <span className="truncate">{locationLabel}</span>
                     </div>
                 </div>
                 <div className="flex flex-col md:gap-0.5">
-                    <span className="hidden md:block text-2xs uppercase font-bold text-slate-400 tracking-wider">Posted</span>
-                    <div className="flex items-center gap-1.5 text-slate-600 font-medium">
-                        <Clock className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+                    <span className="hidden md:block text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Posted</span>
+                    <div className="flex items-center gap-1.5 text-foreground-secondary font-medium">
+                        <Clock className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
                         <span className="truncate">{ad.time}</span>
                     </div>
                 </div>

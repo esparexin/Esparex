@@ -12,7 +12,18 @@ const config: Config = {
     theme: {
         extend: {
             fontFamily: TYPOGRAPHY_TOKENS.fontFamily,
-            fontSize: TYPOGRAPHY_TOKENS.fontSize,
+            fontSize: {
+                ...TYPOGRAPHY_TOKENS.fontSize,
+                '2xs': ['0.625rem', { lineHeight: '1rem' }],  // 10px legacy fallback
+                // Standard Tailwind scale harmonization mapped to canonical design tokens
+                xs: TYPOGRAPHY_TOKENS.fontSize['caption']!,
+                sm: TYPOGRAPHY_TOKENS.fontSize['body']!,
+                base: TYPOGRAPHY_TOKENS.fontSize['body-lg']!,
+                lg: TYPOGRAPHY_TOKENS.fontSize['h4']!,
+                xl: TYPOGRAPHY_TOKENS.fontSize['h3']!,
+                '2xl': TYPOGRAPHY_TOKENS.fontSize['h2']!,
+                '3xl': TYPOGRAPHY_TOKENS.fontSize['h1']!,
+            },
             fontWeight: TYPOGRAPHY_TOKENS.fontWeight,
             colors: {
                 background: "hsl(var(--background))",
