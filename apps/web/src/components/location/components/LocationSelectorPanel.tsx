@@ -38,18 +38,18 @@ export function LocationSelectorPanel({
 }) {
     return (
         <div className={cn("flex h-full min-h-0 flex-col bg-background", className)} onKeyDown={onKeyDown}>
-            <div className="sticky top-0 z-10 border-b bg-background/95 px-3 pb-3 pt-2 backdrop-blur" style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}>
-                <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="sticky top-0 z-10 border-b border-border/80 bg-background/95 p-3.5 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur">
+                <div className="mb-2.5 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                        <p className="text-sm font-semibold text-foreground">Choose location</p>
-                        <p className="text-tiny text-muted-foreground">Use GPS or search by city and state.</p>
+                        <p className="text-body font-bold text-foreground">Choose location</p>
+                        <p className="text-caption text-foreground-subtle">Use GPS or search by city and state.</p>
                     </div>
                     {onClose ? (
                         <Button
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9 shrink-0 rounded-full"
+                            className="h-8 w-8 shrink-0 rounded-full hover:bg-muted cursor-pointer"
                             onClick={onClose}
                             aria-label="Close location selector"
                         >
@@ -60,42 +60,43 @@ export function LocationSelectorPanel({
 
                 <div className="space-y-2">
                     <Button
+                        type="button"
                         variant="outline"
                         className={cn(
-                            "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/20 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10",
+                            "h-auto min-h-[44px] w-full justify-between rounded-xl border-primary/20 bg-primary/5 px-3 py-2 text-body font-medium text-primary hover:bg-primary/10 transition-colors cursor-pointer",
                             isDetecting && "border-primary/40 bg-primary/10"
                         )}
                         disabled={isDetecting || !!successFeedback}
                         onClick={handlePanelDetect}
                     >
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <div className="flex min-w-0 flex-1 items-center gap-2.5">
                             {successFeedback ? (
-                                <Target className="h-4 w-4 shrink-0 text-green-600" />
+                                <Target className="h-4 w-4 shrink-0 text-emerald-600" />
                             ) : (
-                                <Target className={cn("h-4 w-4 shrink-0", isDetecting && "animate-spin")} />
+                                <Target className={cn("h-4 w-4 shrink-0 text-primary", isDetecting && "animate-spin")} />
                             )}
                             <div className="flex flex-col items-start leading-tight min-w-0 flex-1 text-left">
                                 {successFeedback ? (
-                                    <span className="text-green-600 font-semibold truncate w-full">{successFeedback}</span>
+                                    <span className="text-emerald-600 font-semibold truncate w-full text-caption sm:text-body">{successFeedback}</span>
                                 ) : isDetecting ? (
-                                    <span className="truncate w-full">{detectFeedback || "Detecting location..."}</span>
+                                    <span className="truncate w-full text-caption text-primary">{detectFeedback || "Detecting location..."}</span>
                                 ) : (location?.source === "auto" || location?.source === "ip") && location?.display && location?.display !== "India" ? (
                                     <>
-                                        <span className="truncate w-full font-semibold">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
+                                        <span className="truncate w-full font-semibold text-foreground text-caption sm:text-body">{location.city || location.name}{location.state ? `, ${location.state}` : ''}</span>
                                         <span className="text-tiny font-medium text-emerald-600 mt-0.5 w-full truncate">Auto-Detected Location</span>
                                     </>
                                 ) : (
-                                    <span className="truncate w-full font-medium">Use Current Location</span>
+                                    <span className="truncate w-full font-semibold text-foreground text-caption sm:text-body">Use Current Location</span>
                                 )}
                             </div>
                         </div>
                     </Button>
 
                     {detectFeedback && !isDetecting && (
-                        <div className="rounded-lg border border-destructive/10 bg-destructive/5 px-3 py-2">
+                        <div className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2">
                             <div className="flex items-start gap-2">
                                 <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
-                                <p className="text-tiny font-medium leading-4 text-destructive">{detectFeedback}</p>
+                                <p className="text-caption font-medium leading-4 text-destructive">{detectFeedback}</p>
                             </div>
                         </div>
                     )}
@@ -104,7 +105,7 @@ export function LocationSelectorPanel({
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             placeholder="Search city, area, district..."
-                            className="h-11 rounded-xl pl-9 pr-9 text-sm"
+                            className="h-10 rounded-xl pl-9 pr-9 text-caption sm:text-body bg-muted/40 border-border focus-visible:bg-background"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={onKeyDown}
@@ -117,16 +118,16 @@ export function LocationSelectorPanel({
                                 className="absolute right-3 top-1/2 -translate-y-1/2"
                             />
                         ) : query ? (
-                            <button onClick={handleClearQuery} className="absolute right-3 top-1/2 -translate-y-1/2" type="button" aria-label="Clear search">
-                                <X className="h-4 w-4" />
+                            <button onClick={handleClearQuery} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer p-1" type="button" aria-label="Clear search">
+                                <X className="h-3.5 w-3.5" />
                             </button>
                         ) : null}
                     </div>
                 </div>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col px-3 pb-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
-                <div className={cn("min-h-0 flex-1 overflow-y-auto pt-2 pr-1", isSearching && "opacity-60")}>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+                <div className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain py-1.5 px-1 space-y-0.5 focus:outline-none", isSearching && "opacity-60")}>
                     {children}
                 </div>
             </div>
