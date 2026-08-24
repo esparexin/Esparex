@@ -39,16 +39,16 @@ const getSectionCopy = (listingType?: string) => {
       };
     case "spare_part":
       return {
-        title: "Nearby Repair Services",
+        title: "Repair Shops",
         description: "Service centers near this listing that offer relevant live services.",
-        empty: "No nearby repair services matched this spare-part category yet.",
+        empty: "No nearby repair shops matched this spare-part category yet.",
       };
     case "ad":
     default:
       return {
-        title: "Nearby Repair Services",
+        title: "Repair Shops",
         description: "Service centers near this listing that offer relevant live services.",
-        empty: "No nearby repair services matched this category yet.",
+        empty: "No nearby repair shops matched this category yet.",
       };
   }
 };
@@ -113,10 +113,10 @@ export function RelatedBusinessesSection({
   }
 
   return (
-    <section id="nearby-repair-services" className="mt-4 md:mt-6 px-3.5 md:px-0">
-      <div className="mb-4 md:mb-6 flex items-center justify-between gap-4">
+    <section id="nearby-repair-services" className="mt-2 md:mt-4">
+      <div className="mb-3 md:mb-4 flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold md:text-xl text-foreground">{sectionCopy.title}</h2>
+          <h3 className="text-base font-bold md:text-lg text-foreground">{sectionCopy.title}</h3>
           <p className="mt-0.5 text-xs text-foreground-subtle hidden md:block">
             {sectionCopy.description}
           </p>
@@ -126,16 +126,18 @@ export function RelatedBusinessesSection({
             <Button
               size="icon"
               variant="outline"
-              className="h-9 w-9 rounded-xl border-slate-200"
+              className="h-8 w-8 rounded-xl border-border hover:bg-muted"
               onClick={() => scrollCarousel("left")}
+              aria-label="Previous repair shops"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               size="icon"
               variant="outline"
-              className="h-9 w-9 rounded-xl border-slate-200"
+              className="h-8 w-8 rounded-xl border-border hover:bg-muted"
               onClick={() => scrollCarousel("right")}
+              aria-label="Next repair shops"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -146,41 +148,41 @@ export function RelatedBusinessesSection({
       {isLoading ? (
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="h-[320px] w-72 flex-shrink-0 animate-pulse rounded-3xl bg-slate-100" />
+            <div key={index} className="h-[280px] w-64 flex-shrink-0 animate-pulse rounded-2xl bg-muted" />
           ))}
         </div>
       ) : null}
 
       {!isLoading && isError ? (
-        <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+        <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 px-5 py-4 text-sm text-amber-900">
           <div className="flex items-center gap-2 font-semibold">
-            <AlertCircle className="h-4 w-4" />
-            Unable to load nearby service centers
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            Unable to load nearby repair shops
           </div>
-          <p className="mt-1 text-amber-700">
+          <p className="mt-1 text-xs text-amber-800">
             Try again to check nearby businesses with matching live services.
           </p>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="mt-3 rounded-xl border-amber-300 bg-transparent text-amber-800 hover:bg-amber-100"
+            className="mt-3 rounded-xl border-amber-300 bg-transparent text-amber-900 hover:bg-amber-100"
             onClick={() => void refetch()}
           >
-            <RefreshCcw className="mr-2 h-4 w-4" />
+            <RefreshCcw className="mr-2 h-3.5 w-3.5" />
             Retry
           </Button>
         </div>
       ) : null}
 
       {!isLoading && !isError && !normalizedContext.canSearch ? (
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-foreground-tertiary">
-          Nearby service-center suggestions are unavailable because this listing is missing location details.
+        <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-xs md:text-sm text-foreground-subtle">
+          Nearby repair shop suggestions are unavailable because this listing is missing location details.
         </div>
       ) : null}
 
       {!isLoading && !isError && normalizedContext.canSearch && businesses.length === 0 ? (
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-foreground-tertiary">
+        <div className="rounded-2xl border border-border bg-muted/40 px-5 py-4 text-xs md:text-sm text-foreground-subtle">
           {sectionCopy.empty}
         </div>
       ) : null}
@@ -188,7 +190,7 @@ export function RelatedBusinessesSection({
       {!isLoading && !isError && businesses.length > 0 ? (
         <div
           ref={carouselRef}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
+          className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {businesses.map((business) => (
