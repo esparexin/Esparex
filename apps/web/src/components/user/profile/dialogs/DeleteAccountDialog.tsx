@@ -54,8 +54,8 @@ export function DeleteAccountDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent mobileSafe className="sm:max-w-lg !p-0 overflow-hidden">
-                <DialogHeader className="!mb-0 shrink-0 border-b bg-white px-5 py-4 pr-12">
-                    <DialogTitle className="flex items-center gap-2 text-red-600">
+                <DialogHeader className="!mb-0 shrink-0 border-b bg-card px-5 py-4 pr-12">
+                    <DialogTitle className="flex items-center gap-2 text-destructive">
                         <AlertTriangle className="h-5 w-5" />
                         Delete Account
                     </DialogTitle>
@@ -65,7 +65,7 @@ export function DeleteAccountDialog({
                 </DialogHeader>
                 <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
                     <div className="space-y-4">
-                        <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <div className="rounded-xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-body text-destructive">
                             Deleting your account removes access to your listings, chats, and saved activity. This cannot be undone.
                         </div>
 
@@ -91,7 +91,7 @@ export function DeleteAccountDialog({
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="delete-account-feedback">Optional feedback</Label>
-                                <span className={`text-xs font-medium ${deleteFeedback.length >= 500 ? "text-amber-600" : "text-muted-foreground"}`}>
+                                <span className={`text-caption font-medium ${deleteFeedback.length >= 500 ? "text-amber-600" : "text-muted-foreground"}`}>
                                     {deleteFeedback.length}/500
                                 </span>
                             </div>
@@ -124,7 +124,7 @@ export function DeleteAccountDialog({
                         <FormError message={deleteAccountGlobalError} />
                     </div>
                 </div>
-                <DialogFooter className="!mt-0 shrink-0 gap-2 border-t bg-white px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end">
+                <DialogFooter className="!mt-0 shrink-0 gap-2 border-t bg-card px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:justify-end">
                     <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
                         Cancel
                     </Button>

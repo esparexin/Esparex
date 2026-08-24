@@ -38,10 +38,10 @@ export function AdPlacementSlot({
     return (
       <aside
         aria-label="Sponsored Advertisement"
-        className={`w-full rounded-2xl overflow-hidden border border-slate-200/80 bg-white shadow-2xs group transition-all ${className}`}
+        className={`w-full rounded-2xl overflow-hidden border border-border bg-card shadow-2xs group transition-all ${className}`}
       >
-        <div className="flex items-center justify-between px-3 py-1.5 bg-slate-50/80 border-b border-slate-100">
-          <span className="text-2xs font-bold uppercase tracking-wider text-slate-400">
+        <div className="flex items-center justify-between px-3 py-1.5 bg-muted/40 border-b border-border">
+          <span className="text-tiny font-bold uppercase tracking-wider text-foreground-subtle">
             Sponsored
           </span>
         </div>
@@ -68,9 +68,9 @@ export function AdPlacementSlot({
     return (
       <aside
         aria-label="Google Advertisement"
-        className={`w-full rounded-2xl overflow-hidden border border-slate-200/60 bg-slate-50/50 p-2 text-center my-3 ${className}`}
+        className={`w-full rounded-2xl overflow-hidden border border-border bg-muted/30 p-2 text-center my-3 ${className}`}
       >
-        <span className="block text-2xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+        <span className="block text-tiny font-bold uppercase tracking-wider text-foreground-subtle mb-1">
           Advertisement
         </span>
         <ins
@@ -90,17 +90,17 @@ export function AdPlacementSlot({
     return (
       <aside
         aria-label="Esparex Announcement"
-        className={`w-full rounded-2xl p-4 bg-blue-50/60 border border-blue-100 text-slate-800 flex flex-col gap-1.5 ${className}`}
+        className={`w-full rounded-2xl p-4 bg-primary/5 border border-primary/20 text-foreground flex flex-col gap-1.5 ${className}`}
       >
-        <span className="text-2xs font-bold uppercase tracking-wider text-blue-600 block">
+        <span className="text-tiny font-bold uppercase tracking-wider text-primary block">
           Esparex Notice
         </span>
-        <h4 className="text-xs font-bold text-slate-800">{activeAd.name}</h4>
+        <h4 className="text-caption font-bold text-foreground">{activeAd.name}</h4>
         {activeAd.providerConfig?.bannerTargetUrl && (
           <a
             href={activeAd.providerConfig.bannerTargetUrl}
             onClick={() => recordClick(activeAd.id)}
-            className="text-xs font-bold text-blue-600 hover:underline block pt-1"
+            className="text-caption font-bold text-primary hover:underline block pt-1"
           >
             Learn more →
           </a>

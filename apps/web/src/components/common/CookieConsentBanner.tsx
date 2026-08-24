@@ -42,13 +42,13 @@ export function CookieConsentBanner() {
             )}
         >
             <div className="max-w-3xl mx-auto pointer-events-auto">
-                <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl shadow-slate-200/80 px-4 py-4 md:px-6 md:py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="bg-card border border-border rounded-2xl shadow-2xl shadow-black/10 px-4 py-4 md:px-6 md:py-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                     {/* Icon + Text */}
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                         <div className="h-9 w-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
                             <ShieldCheck className="h-4 w-4 text-green-600" />
                         </div>
-                        <p className="text-sm text-foreground-tertiary leading-relaxed">
+                        <p className="text-body text-foreground-tertiary leading-relaxed">
                             We use essential cookies to keep you logged in and secure your account. Optional cookies help track ad view counts.{" "}
                             <Link
                                 href="/privacy"
@@ -66,14 +66,14 @@ export function CookieConsentBanner() {
                             variant="outline"
                             size="sm"
                             onClick={handleDecline}
-                            className="flex-1 sm:flex-none h-11 text-foreground-tertiary border-slate-200 hover:bg-slate-50"
+                            className="flex-1 sm:flex-none h-11 text-foreground-tertiary border-border hover:bg-muted cursor-pointer"
                         >
                             Decline Optional
                         </Button>
                         <Button
                             size="sm"
                             onClick={handleAccept}
-                            className="flex-1 sm:flex-none h-11 bg-green-600 hover:bg-green-700 text-white"
+                            className="flex-1 sm:flex-none h-11 bg-green-600 hover:bg-green-700 text-white cursor-pointer"
                         >
                             Accept All
                         </Button>

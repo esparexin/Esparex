@@ -26,7 +26,7 @@ export function PersonalProfileGstSection({
                 placeholder="e.g. 27AAAAA0000A1Z5"
                 maxLength={15}
                 {...register("gstin")}
-                className={`h-10 sm:h-10.5 rounded-xl bg-white border-slate-200 px-3.5 text-caption sm:text-body font-medium uppercase ${gstinError ? "border-red-500" : ""}`}
+                className={`h-10 sm:h-10.5 rounded-xl bg-card border-border px-3.5 text-caption sm:text-body font-medium uppercase ${gstinError ? "border-destructive" : ""}`}
                 aria-invalid={!!gstinError}
                 aria-describedby={gstinError ? "profile-gstin-error" : "profile-gstin-helper"}
             />

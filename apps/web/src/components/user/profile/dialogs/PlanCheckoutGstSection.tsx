@@ -26,14 +26,14 @@ export function PlanCheckoutGstSection({
                     checked={wantsGst}
                     onCheckedChange={(checked) => onWantsGstChange(Boolean(checked))}
                 />
-                <Label htmlFor="checkout-wants-gst" className="text-xs font-medium text-slate-800 cursor-pointer">
+                <Label htmlFor="checkout-wants-gst" className="text-caption font-medium text-foreground cursor-pointer">
                     I need a B2B Tax Invoice for Input Tax Credit (ITC)
                 </Label>
             </div>
 
             {wantsGst && (
                 <div className="pl-6 flex flex-col gap-1.5 pt-1">
-                    <Label htmlFor="checkout-gstin" className="text-caption font-semibold text-slate-700">
+                    <Label htmlFor="checkout-gstin" className="text-caption font-semibold text-foreground-secondary">
                         GSTIN Number
                     </Label>
                     <Input
@@ -43,7 +43,7 @@ export function PlanCheckoutGstSection({
                         maxLength={15}
                         value={gstin}
                         onChange={(e) => onGstinChange(e.target.value.toUpperCase())}
-                        className="h-8 rounded-lg text-xs bg-white uppercase font-mono"
+                        className="h-8 rounded-lg text-caption bg-card uppercase font-mono"
                     />
                     {gstin && !isGstValid && (
                         <p className="text-tiny text-amber-600">Please enter a valid 15-character GSTIN (e.g. 27AAAAA0000A1Z5)</p>

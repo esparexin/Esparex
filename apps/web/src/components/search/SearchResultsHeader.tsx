@@ -53,7 +53,7 @@ const SortDropdownTrigger = React.forwardRef<HTMLButtonElement, SortDropdownTrig
             aria-label={`Sort listings, current ${SORT_LABELS[sort]}`}
             className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "h-10 shrink-0 gap-1.5 rounded-full border-slate-200 bg-white px-3 shadow-none hover:bg-slate-50",
+                "h-10 shrink-0 gap-1.5 rounded-full border-border bg-card px-3 shadow-none hover:bg-muted cursor-pointer",
                 className
             )}
             {...props}
@@ -78,7 +78,7 @@ function SortDropdownMenu({
         <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="w-52 rounded-xl border border-slate-100 p-1 shadow-xl"
+            className="w-52 rounded-xl border border-border p-1 shadow-xl bg-card"
         >
             {SORT_OPTIONS.map((key) => (
                 <DropdownMenuItem
@@ -88,8 +88,8 @@ function SortDropdownMenu({
                     className={cn(
                         "min-h-[44px] cursor-pointer rounded-lg px-3 py-2.5 text-body",
                         sort === key
-                            ? "bg-slate-900 text-white font-medium focus:bg-slate-900 focus:text-white"
-                            : "text-foreground-tertiary focus:bg-slate-50 focus:text-foreground-secondary"
+                            ? "bg-primary text-primary-foreground font-medium focus:bg-primary focus:text-primary-foreground"
+                            : "text-foreground-tertiary focus:bg-muted focus:text-foreground-secondary"
                     )}
                 >
                     {SORT_LABELS[key]}

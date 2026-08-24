@@ -138,13 +138,13 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
 
     return (
         <>
-            <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-slate-200/80 bg-transparent sm:bg-white shadow-none sm:shadow-xs max-w-2xl overflow-hidden">
+            <Card className="rounded-none sm:rounded-2xl border-0 sm:border border-border bg-transparent sm:bg-card shadow-none sm:shadow-xs max-w-2xl overflow-hidden">
                 <form onSubmit={form.handleSubmit(onSubmit)} noValidate className="w-full">
                     <CardContent className="p-0 sm:p-5 space-y-4">
                         {/* Profile Photo Section */}
-                        <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                        <div className="flex items-center gap-3 pb-3 border-b border-border">
                             <div
-                                className="relative cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 rounded-full shrink-0"
+                                className="relative cursor-pointer group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-full shrink-0"
                                 onClick={() => setShowPhotoDialog(true)}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
@@ -156,7 +156,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                 tabIndex={0}
                                 aria-label="Change profile photo"
                             >
-                                <div className="h-12 w-12 rounded-full border border-slate-200 overflow-hidden bg-white flex items-center justify-center relative shadow-2xs">
+                                <div className="h-12 w-12 rounded-full border border-border overflow-hidden bg-card flex items-center justify-center relative shadow-2xs">
                                     {previewPhoto ? (
                                         <Image
                                             src={previewPhoto}
@@ -168,10 +168,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                             sizes="48px"
                                         />
                                     ) : (
-                                        <User className="h-6 w-6 text-slate-400" />
+                                        <User className="h-6 w-6 text-foreground-subtle" />
                                     )}
                                 </div>
-                                <div className="absolute bottom-0 right-0 h-4.5 w-4.5 rounded-full bg-slate-900 text-white border-2 border-white flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105">
+                                <div className="absolute bottom-0 right-0 h-4.5 w-4.5 rounded-full bg-primary text-primary-foreground border-2 border-card flex items-center justify-center shadow-2xs transition-transform group-hover:scale-105">
                                     <Camera className="h-2.5 w-2.5" />
                                 </div>
                             </div>
@@ -189,13 +189,13 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                             {/* Column 1: Full Name */}
                             <div className="space-y-1">
                                 <Label htmlFor="profile-name" className="text-caption font-semibold text-foreground-secondary">
-                                    Full name <span className="text-red-500">*</span>
+                                    Full name <span className="text-destructive">*</span>
                                 </Label>
                                 <Input
                                     id="profile-name"
                                     type="text"
                                     placeholder="Enter your full name"
-                                    className="h-9 text-caption sm:text-body rounded-xl border-slate-200 bg-white px-3.5 focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    className="h-9 text-caption sm:text-body rounded-xl border-border bg-card px-3.5 focus-visible:ring-2 focus-visible:ring-primary"
                                     {...form.register("name")}
                                 />
                                 <FormError message={nameError} />
@@ -207,14 +207,14 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                     Mobile number
                                 </Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground-subtle" />
                                     <Input
                                         id="profile-mobile"
                                         type="tel"
                                         value={formattedMobile}
                                         readOnly
                                         disabled
-                                        className="h-9 text-caption sm:text-body pl-8.5 pr-3.5 rounded-xl border-slate-200 bg-slate-50 text-foreground font-medium cursor-not-allowed"
+                                        className="h-9 text-caption sm:text-body pl-8.5 pr-3.5 rounded-xl border-border bg-muted text-foreground font-medium cursor-not-allowed"
                                     />
                                 </div>
                             </div>
@@ -235,7 +235,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                         <FormError message={globalError} />
 
                         {/* Bottom Row: Toggle & Save Changes Button Side-by-Side */}
-                        <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-3">
                                 <Controller
                                     name="mobileVisibility"
@@ -249,10 +249,10 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                     )}
                                 />
                                 <div>
-                                    <Label htmlFor="mobile-visibility-toggle" className="text-xs sm:text-sm font-semibold text-slate-900 cursor-pointer">
+                                    <Label htmlFor="mobile-visibility-toggle" className="text-caption sm:text-body font-semibold text-foreground cursor-pointer">
                                         Show number to buyers
                                     </Label>
-                                    <p className="text-tiny text-slate-500">Buyers can call you directly</p>
+                                    <p className="text-tiny text-foreground-subtle">Buyers can call you directly</p>
                                 </div>
                             </div>
 
@@ -260,7 +260,7 @@ export function PersonalTab({ user, onUpdateUser }: PersonalTabProps) {
                                 type="submit"
                                 size="sm"
                                 disabled={isSaving}
-                                className="w-full sm:w-auto h-9 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
+                                className="w-full sm:w-auto h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-caption px-6 rounded-xl transition-all shadow-xs active:scale-[0.98] flex items-center justify-center shrink-0"
                             >
                                 {isSaving ? "Saving..." : "Save changes"}
                             </Button>

@@ -75,24 +75,24 @@ export function InvoicePreviewDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
-                className="max-w-4xl w-[94vw] h-[88vh] max-h-[850px] p-0 flex flex-col rounded-2xl overflow-hidden bg-slate-900 border-slate-800 shadow-2xl"
+                className="max-w-4xl w-[94vw] h-[88vh] max-h-[850px] p-0 flex flex-col rounded-2xl overflow-hidden bg-card border-border shadow-2xl"
                 aria-labelledby="invoice-preview-title"
                 aria-describedby="invoice-preview-desc"
             >
                 {/* Header Bar */}
-                <DialogHeader className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-800 bg-slate-950 flex flex-row items-center justify-between shrink-0">
+                <DialogHeader className="px-4 py-3 sm:px-6 sm:py-4 border-b border-border bg-muted/30 flex flex-row items-center justify-between shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
                             <FileText className="w-5 h-5" />
                         </div>
                         <div>
-                            <DialogTitle id="invoice-preview-title" className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                            <DialogTitle id="invoice-preview-title" className="text-body sm:text-body-lg font-bold text-foreground flex items-center gap-2">
                                 Invoice #{orderId.slice(-8).toUpperCase()}
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-tiny font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                                     <CheckCircle2 className="w-3 h-3" /> PAID
                                 </span>
                             </DialogTitle>
-                            <DialogDescription id="invoice-preview-desc" className="text-xs text-slate-400 truncate max-w-xs sm:max-w-md">
+                            <DialogDescription id="invoice-preview-desc" className="text-caption text-foreground-subtle truncate max-w-xs sm:max-w-md">
                                 {description || "Tax Invoice & Receipt"} {amount ? `• ₹${amount.toLocaleString()}` : ""}
                             </DialogDescription>
                         </div>
@@ -106,7 +106,7 @@ export function InvoicePreviewDialog({
                             size="sm"
                             onClick={handlePrint}
                             disabled={loading || !html}
-                            className="h-8 sm:h-9 px-2.5 sm:px-3 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700 rounded-lg gap-1.5"
+                            className="h-8 sm:h-9 px-2.5 sm:px-3 text-caption rounded-lg gap-1.5"
                             aria-label="Print Invoice"
                         >
                             <Printer className="w-3.5 h-3.5" />
@@ -116,7 +116,7 @@ export function InvoicePreviewDialog({
                             type="button"
                             size="sm"
                             onClick={handleDownload}
-                            className="h-8 sm:h-9 px-3 sm:px-4 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg gap-1.5 font-semibold"
+                            className="h-8 sm:h-9 px-3 sm:px-4 text-caption bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg gap-1.5 font-semibold"
                             aria-label="Download Invoice PDF"
                         >
                             <Download className="w-3.5 h-3.5" />
@@ -126,11 +126,11 @@ export function InvoicePreviewDialog({
                 </DialogHeader>
 
                 {/* Content Frame */}
-                <div className="flex-1 bg-slate-950/50 relative overflow-hidden flex items-center justify-center">
+                <div className="flex-1 bg-muted/20 relative overflow-hidden flex items-center justify-center">
                     {loading && (
-                        <div className="flex flex-col items-center gap-3 text-slate-400">
+                        <div className="flex flex-col items-center gap-3 text-foreground-subtle">
                             <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-                            <p className="text-xs font-medium">Generating Invoice Preview...</p>
+                            <p className="text-caption font-medium">Generating Invoice Preview...</p>
                         </div>
                     )}
 

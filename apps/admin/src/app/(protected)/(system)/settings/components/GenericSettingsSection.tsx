@@ -132,11 +132,11 @@ export function GenericSettingsSection({
             className={field.type === "toggle" ? "col-span-full" : ""}
           >
             {field.type === "toggle" ? (
-              <div className="flex flex-col gap-3 rounded-lg border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+              <div className="flex flex-col gap-3 rounded-lg border border-border p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground">{field.label}</p>
+                  <p className="text-body font-medium text-foreground">{field.label}</p>
                   {field.description && (
-                    <p className="text-xs text-foreground-tertiary">{field.description}</p>
+                    <p className="text-caption text-foreground-tertiary">{field.description}</p>
                   )}
                 </div>
                 <div className="self-start sm:self-center">
@@ -152,7 +152,7 @@ export function GenericSettingsSection({
                   <select
                     value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) => updateField(field.path, e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                   >
                     {field.placeholder && <option value="">{field.placeholder}</option>}
                     {field.options?.map((opt) => (
@@ -166,7 +166,7 @@ export function GenericSettingsSection({
                     value={(formData[field.path] ?? "") as string | number | undefined}
                     onChange={(e) => updateField(field.path, e.target.value)}
                     placeholder={field.placeholder}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                     rows={3}
                   />
                 ) : (
@@ -183,7 +183,7 @@ export function GenericSettingsSection({
                       )
                     }
                     placeholder={field.placeholder}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
+                    className="w-full rounded-lg border border-border bg-muted/40 px-3 py-2 text-body shadow-sm transition-all focus:border-primary focus:ring-2 focus:ring-primary/10"
                   />
                 )}
               </Field>

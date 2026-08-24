@@ -16,8 +16,8 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
         <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground mb-1">
           <Package className="w-4 h-4" />
         </div>
-        <h4 className="text-xs sm:text-sm font-bold text-foreground">No Credit Packs Purchased Yet</h4>
-        <p className="text-2xs sm:text-xs text-muted-foreground max-w-sm mx-auto">
+        <h4 className="text-caption sm:text-body font-bold text-foreground">No Credit Packs Purchased Yet</h4>
+        <p className="text-2xs sm:text-caption text-muted-foreground max-w-sm mx-auto">
           When you buy extra ad posting packs or alert slots, your itemized packs and usage progress will display here.
         </p>
       </div>
@@ -34,7 +34,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
   return (
     <div className="bg-surface rounded-xl p-3.5 sm:p-4 border border-border/60 shadow-2xs">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+        <h4 className="text-caption sm:text-body font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
           <Package className="w-4 h-4 text-primary shrink-0" />
           My Credit Packs ({creditPacks.length})
         </h4>
@@ -63,7 +63,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
           return (
             <div
               key={pack.packId}
-              className={`p-3 rounded-xl border text-xs space-y-2 transition-all ${
+              className={`p-3 rounded-xl border text-caption space-y-2 transition-all ${
                 isExhausted || isExpired
                   ? 'bg-muted/30 border-border/30 opacity-80'
                   : 'bg-background border-border/40'
@@ -90,7 +90,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
                   )}
                 </div>
 
-                <div className="text-right font-black text-primary text-xs sm:text-sm">
+                <div className="text-right font-black text-primary text-caption sm:text-body">
                   {pack.remaining} Available
                 </div>
               </div>
@@ -131,7 +131,7 @@ export const CreditPackListCard: React.FC<CreditPackListCardProps> = ({ creditPa
       {hasMore && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="w-full mt-3 py-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors text-center cursor-pointer"
+          className="w-full mt-3 py-1.5 text-caption font-semibold text-primary hover:text-primary/80 transition-colors text-center cursor-pointer"
         >
           {showAll ? 'Show Only Active Credit Packs' : `Show All ${creditPacks.length} Credit Packs & History`}
         </button>

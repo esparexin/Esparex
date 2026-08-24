@@ -1,403 +1,183 @@
 "use client";
+
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  Loader2,
+  Pencil,
 } from "@esparex/ui";
-import { mapErrorToMessage } from '@/lib/mapErrorToMessage';
-
-import { useEffect, useState } from "react";
-import { Loader2, Pencil, MapPin, Search } from "@esparex/ui";
-
-import { CHAT_STATUS } from "@esparex/contracts";
-import { Business } from "@esparex/contracts";
-import { AdminApiError } from "@/lib/api/adminClient";
-import { getLocationOptions, reverseGeocode } from "@/lib/api/locations";
-import type { Location } from "@/types/location";
-
-type CanonicalCoordinates = Business["location"]["coordinates"] | null;
-
-const formatLocationLabel = (location: {
-    display?: string;
-    name?: string;
-    city?: string;
-    state?: string;
-    level?: string;
-}) => {
-    return (
-        location.display ||
-        [location.name || location.city, location.state].filter(Boolean).join(", ") ||
-        location.name ||
-        location.city ||
-        "Unknown location"
-    );
-};
+import { mapErrorToMessage } from "@/lib/mapErrorToMessage";
+import type { Business } from "@esparex/contracts";
+import {
+  BusinessModifyLocationSection,
+  type BusinessModifyFormState,
+} from "./BusinessModifyLocationSection";
 
 interface BusinessModifyModalProps {
-    business: Business;
-    onClose: () => void;
-    onConfirm: (patch: Partial<Business>) => Promise<void>;
+  business: Business;
+  onClose: () => void;
+  onConfirm: (patch: Partial<Business>) => Promise<void>;
 }
 
 export function BusinessModifyModal({ business, onClose, onConfirm }: BusinessModifyModalProps) {
-    const [form, setForm] = useState({
-        name: business.name ?? "",
-        description: business.description ?? "",
-        mobile: business.mobile ?? "",
-        email: business.email ?? "",
-        website: business.website ?? "",
-        gstNumber: business.gstNumber ?? "",
-        registrationNumber: business.registrationNumber ?? "",
-        shopNo: business.location?.shopNo ?? "",
-        street: business.location?.street ?? "",
-        landmark: business.location?.landmark ?? "",
-        address: business.location?.address ?? "",
-        city: business.location?.city ?? "",
-        state: business.location?.state ?? "",
-        pincode: business.location?.pincode ?? "",
-        locationId: business.location?.locationId ?? business.locationId ?? "",
-        coordinates: (business.location?.coordinates ?? null) as CanonicalCoordinates,
-    });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [locationQuery, setLocationQuery] = useState("");
-    const [locationResults, setLocationResults] = useState<Location[]>([]);
-    const [locationSearchLoading, setLocationSearchLoading] = useState(false);
-    const [locationSearchError, setLocationSearchError] = useState("");
-    const [selectedLocationLabel, setSelectedLocationLabel] = useState(
-        form.locationId
-            ? formatLocationLabel({
-                display: business.location?.display,
-                city: business.location?.city,
-                state: business.location?.state,
-            })
-            : "",
-    );
-    const [detecting, setDetecting] = useState(false);
-    type FormTextKey = Exclude<keyof typeof form, "coordinates">;
+  const [form, setForm] = useState<BusinessModifyFormState>({
+    name: business.name ?? "",
+    description: business.description ?? "",
+    mobile: business.mobile ?? "",
+    email: business.email ?? "",
+    website: business.website ?? "",
+    gstNumber: business.gstNumber ?? "",
+    registrationNumber: business.registrationNumber ?? "",
+    shopNo: business.location?.shopNo ?? "",
+    street: business.location?.street ?? "",
+    landmark: business.location?.landmark ?? "",
+    address: business.location?.address ?? "",
+    city: business.location?.city ?? "",
+    state: business.location?.state ?? "",
+    pincode: business.location?.pincode ?? "",
+    locationId: business.location?.locationId ?? business.locationId ?? "",
+    coordinates: business.location?.coordinates ?? null,
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    // Smart Pincode Extraction from Address Summary
-    useEffect(() => {
-        if (form.pincode) return; // Don't override existing pincode
-        const match = form.address.match(/\b\d{6}\b/);
-        if (match) {
-            void (async () => {
-                setForm(f => ({ ...f, pincode: match[0] }));
-            })();
-        }
-    }, [form.address, form.pincode]);
+  type FormTextKey = Exclude<keyof BusinessModifyFormState, "coordinates">;
 
-    // Auto-compute Address Summary from granular fields
-    useEffect(() => {
-        const parts = [form.shopNo, form.street, form.landmark, form.city].filter(Boolean);
-        if (parts.length > 0 && !form.address) {
-            void (async () => {
-                setForm(f => ({ ...f, address: parts.join(', ') }));
-            })();
-        }
-    }, [form.shopNo, form.street, form.landmark, form.city, form.address]);
+  const renderField = (key: FormTextKey, label: string, opts?: { type?: string; rows?: number }) => (
+    <div>
+      <label className="block text-tiny font-bold text-foreground-tertiary uppercase tracking-wider mb-1">
+        {label}
+      </label>
+      {opts?.rows ? (
+        <textarea
+          className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
+          rows={opts.rows}
+          value={form[key]}
+          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+          disabled={loading}
+        />
+      ) : (
+        <input
+          type={opts?.type ?? "text"}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-body text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          value={form[key]}
+          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+          disabled={loading}
+        />
+      )}
+    </div>
+  );
 
-    useEffect(() => {
-        const nextQuery = locationQuery.trim();
-        if (nextQuery.length < 2) {
-            void (async () => {
-                setLocationResults([]);
-                setLocationSearchLoading(false);
-                setLocationSearchError("");
-            })();
-            return;
-        }
+  const handleSubmit = async () => {
+    if (!form.name.trim()) {
+      setError("Business name is required.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const patch: Record<string, unknown> = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        mobile: form.mobile.trim(),
+        email: form.email.trim(),
+        website: form.website.trim(),
+        gstNumber: form.gstNumber.trim(),
+        registrationNumber: form.registrationNumber.trim(),
+        location: {
+          ...(form.locationId.trim() ? { locationId: form.locationId.trim() } : {}),
+          shopNo: form.shopNo.trim(),
+          street: form.street.trim(),
+          landmark: form.landmark.trim(),
+          address: form.address.trim(),
+          city: form.city.trim(),
+          state: form.state.trim(),
+          pincode: form.pincode.trim(),
+          ...(form.coordinates ? { coordinates: form.coordinates } : {}),
+        },
+      };
+      await onConfirm(patch as Partial<Business>);
+      onClose();
+    } catch (err) {
+      setError(mapErrorToMessage(err, "Failed to update business"));
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        let active = true;
-        const timer = window.setTimeout(async () => {
-            setLocationSearchLoading(true);
-            setLocationSearchError("");
-            try {
-                const nextResults = await getLocationOptions({
-                    search: nextQuery,
-                    status: CHAT_STATUS.ACTIVE,
-                    limit: 8,
-                });
+  return (
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl p-0 flex flex-col">
+        <DialogHeader className="p-6 border-b border-border bg-muted/30">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <Pencil size={18} />
+            </div>
+            <div>
+              <DialogTitle className="text-body-lg font-bold text-foreground">Modify Business</DialogTitle>
+              <DialogDescription className="text-caption text-foreground-tertiary mt-0.5">
+                Editing <span className="font-semibold text-foreground-secondary">{business.name}</span> — status will remain unchanged.
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
 
-                if (!active) return;
-                setLocationResults(
-                    nextResults.filter((location) => location.level !== "country" && location.level !== "state"),
-                );
-            } catch (searchError) {
-                if (!active) return;
-                setLocationResults([]);
-                setLocationSearchError(
-                    AdminApiError.resolveMessage(searchError, "Failed to search active locations"),
-                );
-            } finally {
-                if (active) {
-                    setLocationSearchLoading(false);
-                }
-            }
-        }, 250);
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+          {/* Core Info */}
+          <section className="space-y-3">
+            <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest">Business Info</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {renderField("name", "Business Name *")}
+              {renderField("mobile", "Mobile Number")}
+              {renderField("email", "Email Address", { type: "email" })}
+              {renderField("website", "Website")}
+              {renderField("gstNumber", "GST Number")}
+              {renderField("registrationNumber", "Registration Number")}
+            </div>
+            {renderField("description", "Description", { rows: 3 })}
+          </section>
 
-        return () => {
-            active = false;
-            window.clearTimeout(timer);
-        };
-    }, [locationQuery]);
+          {/* Location Section */}
+          <BusinessModifyLocationSection
+            form={form}
+            setForm={setForm}
+            loading={loading}
+            setError={setError}
+            renderField={renderField}
+            initialDisplay={business.location?.display}
+          />
 
-    const field = (key: FormTextKey, label: string, opts?: { type?: string; rows?: number }) => (
-        <div>
-            <label className="block text-tiny font-bold text-foreground-tertiary uppercase tracking-wider mb-1">{label}</label>
-            {opts?.rows ? (
-                <textarea
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition-all"
-                    rows={opts.rows}
-                    value={form[key]}
-                    onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
-                    disabled={loading}
-                />
-            ) : (
-                <input
-                    type={opts?.type ?? "text"}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    value={form[key]}
-                    onChange={(e) => setForm(f => ({ ...f, [key]: e.target.value }))}
-                    disabled={loading}
-                />
-            )}
+          {error && (
+            <p className="text-caption text-destructive bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
         </div>
-    );
 
-    const handleCanonicalLocationSelect = (location: Location) => {
-        setForm((previous) => ({
-            ...previous,
-            locationId: location.locationId || location.id,
-            coordinates: location.coordinates ?? null,
-            city: location.city || location.name || previous.city,
-            state: location.state || previous.state,
-            pincode: location.pincode || previous.pincode,
-        }));
-        setSelectedLocationLabel(formatLocationLabel(location));
-        setLocationQuery("");
-        setLocationResults([]);
-        setLocationSearchError("");
-    };
-
-    const handleDetectLocation = () => {
-        if (!navigator.geolocation) {
-            setError("Geolocation is not supported by your browser.");
-            return;
-        }
-
-        setDetecting(true);
-        setError("");
-
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                try {
-                    const { latitude, longitude } = position.coords;
-                    const coords = { type: "Point" as const, coordinates: [longitude, latitude] as [number, number] };
-                    
-                    // Call reverse geocode to get city/state/pincode
-                    const match = await reverseGeocode(latitude, longitude);
-                    
-                    setForm(f => ({
-                        ...f,
-                        coordinates: coords,
-                        city: match?.city || f.city,
-                        state: match?.state || f.state,
-                        pincode: match?.pincode || f.pincode,
-                        locationId: match?.locationId || match?.id || f.locationId
-                    }));
-
-                    if (match) {
-                        setSelectedLocationLabel(formatLocationLabel(match));
-                    }
-                    
-                    setDetecting(false);
-                } catch {
-                    setError("Failed to resolve address from your position.");
-                    setDetecting(false);
-                }
-            },
-            (err) => {
-                setError(`Location access denied or failed: ${err.message}`);
-                setDetecting(false);
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
-    };
-
-    const handleSubmit = async () => {
-        if (!form.name.trim()) {
-            setError("Business name is required.");
-            return;
-        }
-        setLoading(true);
-        setError("");
-        try {
-            const patch: Record<string, unknown> = {
-                name: form.name.trim(),
-                description: form.description.trim(),
-                mobile: form.mobile.trim(),
-                email: form.email.trim(),
-                website: form.website.trim(),
-                gstNumber: form.gstNumber.trim(),
-                registrationNumber: form.registrationNumber.trim(),
-                location: {
-                    ...(form.locationId.trim() ? { locationId: form.locationId.trim() } : {}),
-                    shopNo: form.shopNo.trim(),
-                    street: form.street.trim(),
-                    landmark: form.landmark.trim(),
-                    address: form.address.trim(),
-                    city: form.city.trim(),
-                    state: form.state.trim(),
-                    pincode: form.pincode.trim(),
-                    ...(form.coordinates ? { coordinates: form.coordinates } : {}),
-                },
-            };
-            await onConfirm(patch as Partial<Business>);
-            onClose();
-        } catch (err) {
-            setError(mapErrorToMessage(err, "Failed to update business"));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl p-0 flex flex-col">
-                <DialogHeader className="p-6 border-b border-slate-100 bg-slate-50/50">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                            <Pencil size={18} />
-                        </div>
-                        <div>
-                            <DialogTitle className="text-base font-bold text-foreground">Modify Business</DialogTitle>
-                            <DialogDescription className="text-xs text-foreground-tertiary mt-0.5">
-                                Editing <span className="font-semibold text-foreground-secondary">{business.name}</span> — status will remain unchanged.
-                            </DialogDescription>
-                        </div>
-                    </div>
-                </DialogHeader>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
-                    {/* Core Info */}
-                    <section className="space-y-3">
-                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest">Business Info</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {field("name", "Business Name *")}
-                            {field("mobile", "Mobile Number")}
-                            {field("email", "Email Address", { type: "email" })}
-                            {field("website", "Website")}
-                            {field("gstNumber", "GST Number")}
-                            {field("registrationNumber", "Registration Number")}
-                        </div>
-                        {field("description", "Description", { rows: 3 })}
-                    </section>
-
-                    {/* Location */}
-                    <section className="space-y-3">
-                        <p className="text-tiny font-bold text-foreground-subtle uppercase tracking-widest flex items-center justify-between gap-1.5">
-                            <span className="flex items-center gap-1.5"><MapPin size={12} /> Location</span>
-                            <button
-                                type="button"
-                                onClick={handleDetectLocation}
-                                disabled={detecting || loading}
-                                className="text-primary hover:text-primary/80 transition-colors flex items-center gap-1 normal-case font-semibold h-6 px-2 rounded-md hover:bg-primary/5"
-                            >
-                                {detecting ? (
-                                    <Loader2 size={12} className="animate-spin" />
-                                ) : (
-                                    <MapPin size={12} />
-                                )}
-                                {detecting ? "Detecting..." : "Detect Current Location"}
-                            </button>
-                        </p>
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3">
-                            <div className="space-y-1">
-                                <p className="text-xs font-bold uppercase tracking-wider text-foreground-tertiary">Canonical location</p>
-                                <p className="text-xs text-foreground-secondary">
-                                    Search an active city, district, village, or area to repair the verified location link and map coordinates.
-                                </p>
-                            </div>
-                            <div className="relative">
-                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" />
-                                <input
-                                    type="text"
-                                    value={locationQuery}
-                                    onChange={(e) => setLocationQuery(e.target.value)}
-                                    disabled={loading}
-                                    placeholder="Search active city or area"
-                                    className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-10 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                />
-                                {locationSearchLoading ? (
-                                    <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-foreground-subtle" />
-                                ) : null}
-                            </div>
-                            {selectedLocationLabel ? (
-                                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-900">
-                                    Linked to: <span className="font-semibold">{selectedLocationLabel}</span>
-                                </div>
-                            ) : null}
-                            {locationSearchError ? (
-                                <p className="text-xs text-red-600">{locationSearchError}</p>
-                            ) : null}
-                            {locationResults.length > 0 ? (
-                                <div className="max-h-52 space-y-2 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2">
-                                    {locationResults.map((location) => (
-                                        <button
-                                            key={location.locationId || location.id}
-                                            type="button"
-                                            disabled={loading}
-                                            onClick={() => handleCanonicalLocationSelect(location)}
-                                            className="w-full rounded-lg border border-transparent px-3 py-2 text-left transition-all hover:border-primary/20 hover:bg-slate-50"
-                                        >
-                                            <p className="text-sm font-semibold text-foreground">
-                                                {formatLocationLabel(location)}
-                                            </p>
-                                            <p className="mt-1 text-tiny uppercase tracking-wide text-foreground-tertiary">
-                                                {location.level}
-                                            </p>
-                                        </button>
-                                    ))}
-                                </div>
-                            ) : null}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {field("shopNo", "Shop / Unit")}
-                            {field("street", "Street / Area")}
-                            {field("landmark", "Landmark")}
-                            {field("address", "Address Summary")}
-                            {field("city", "City")}
-                            {field("state", "State")}
-                            {field("pincode", "Pincode")}
-                        </div>
-                    </section>
-
-                    {error && (
-                        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
-                    )}
-                </div>
-
-                <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
-                    <button
-                        onClick={onClose}
-                        disabled={loading}
-                        className="px-5 py-2 rounded-xl border border-slate-200 text-foreground-secondary font-semibold hover:bg-white transition-all text-sm"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={loading}
-                        className="px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all text-sm flex items-center gap-2 disabled:opacity-50"
-                    >
-                        <Pencil size={16} />
-                        {loading ? "Saving..." : "Save Changes"}
-                    </button>
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
+        <div className="p-6 border-t border-border bg-muted/30 flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="px-5 py-2 rounded-xl border border-border text-foreground-secondary font-semibold hover:bg-card transition-all text-body cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
+            className="px-5 py-2 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all text-body flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : <Pencil size={16} />}
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }

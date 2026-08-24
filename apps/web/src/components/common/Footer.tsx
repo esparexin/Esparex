@@ -106,7 +106,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                 hasMobileBottomNav
                     ? "pt-4 pb-[calc(4rem+env(safe-area-inset-bottom))] md:py-6"
                     : "py-4 md:py-6",
-                isDark ? "bg-slate-950 border-slate-900 text-foreground-subtle" : "bg-slate-50 border-slate-200 text-foreground-tertiary",
+                isDark ? "bg-card border-border text-foreground-subtle" : "bg-muted/30 border-border text-foreground-tertiary",
                 className
             )}
         >
@@ -116,7 +116,7 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                     {FOOTER_LINK_SECTIONS.flatMap((section) => section.links).map((link, idx, arr) => (
                         <div key={link.label} className="inline-flex items-center gap-2.5">
                             {renderLink(link.label, link.href, link.pageKey, true)}
-                            {idx < arr.length - 1 && <span className="text-slate-300 select-none">•</span>}
+                            {idx < arr.length - 1 && <span className="text-border select-none">•</span>}
                         </div>
                     ))}
                 </div>
@@ -149,11 +149,11 @@ export function Footer({ theme = "light", onNavigate, className, currentYear }: 
                 </div>
 
                 {/* Bottom Bar */}
-                <div className={cn("flex flex-col items-start justify-between gap-2.5 pt-3 md:flex-row md:items-center md:gap-4 md:pt-4 border-t", isDark ? "border-slate-900" : "border-slate-200")}>
+                <div className={cn("flex flex-col items-start justify-between gap-2.5 pt-3 md:flex-row md:items-center md:gap-4 md:pt-4 border-t border-border")}>
                     <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4">
                         <Badge className={cn(
                             "border px-2.5 py-0.5 text-tiny md:text-caption",
-                            isDark ? "bg-slate-900 text-primary border-slate-800" : "bg-green-50 text-green-700 border-green-100"
+                            isDark ? "bg-muted text-primary border-border" : "bg-green-50 text-green-700 border-green-100"
                         )}>
                             <CheckCircle className="h-3 w-3 mr-1.5" />
                             Verified Safe Marketplace
