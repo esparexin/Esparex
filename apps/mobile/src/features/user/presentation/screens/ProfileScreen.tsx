@@ -208,7 +208,7 @@ export const ProfileScreen = ({ navigation }: Props) => {
                 {profile?.isPhoneVerified && (
                   <View className="flex-row items-center bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
                     <AppIcon name="CheckCircle2" size={10} color={base.success} />
-                    <AppText variant="caption" className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1 text-[11px]">
+                    <AppText variant="caption" className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1 text-tiny">
                       Verified
                     </AppText>
                   </View>

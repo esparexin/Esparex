@@ -105,7 +105,7 @@ export const ImageCarousel = ({
       {/* Numerical Counter Pill */}
       {images.length > 1 && (
         <View className="absolute bottom-3 right-3 bg-black/60 px-2 py-0.5 rounded-full">
-          <AppText variant="caption" className="text-white text-[11px] font-semibold">
+          <AppText variant="caption" className="text-white text-tiny font-semibold">
             {activeIndex + 1}/{images.length}
           </AppText>
         </View>
