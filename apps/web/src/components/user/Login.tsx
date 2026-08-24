@@ -26,7 +26,7 @@ import {
 } from "@esparex/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-import { loginSchema, type LoginValues } from "@/schemas/login.schema";
+import { loginFormSchema, type LoginFormValues } from "@/schemas/login.schema";
 
 interface LoginProps {
   onLoginSuccess: () => void;
@@ -96,8 +96,8 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     getMobileLockInfo, requestOtp, handleResendOtp, resetToMobileStep, verifyOtpCode,
   } = flow;
 
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: { mobile: "", name: "", otp: "" },
   });
 
@@ -125,7 +125,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     return undefined;
   }, [step, form]);
 
-  const onMobileSubmit = async (values: LoginValues) => {
+  const onMobileSubmit = async (values: LoginFormValues) => {
     if (authError?.type === "generic") clearAuthErrorOfTypes(["generic"]);
 
     const lockInfo = getMobileLockInfo(values.mobile);
@@ -153,7 +153,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
     await verifyOtpCode(mobileValue, otpValue, nameValue);
   };
 
-  const onSubmit = (values: LoginValues) => {
+  const onSubmit = (values: LoginFormValues) => {
     if (step === "enterMobile") {
       void onMobileSubmit(values);
     } else if (isOtpStep) {
@@ -191,7 +191,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-3.5 animate-in fade-in-0 slide-in-from-bottom-1 duration-200"
         >
-          <FieldRoot<LoginValues, "mobile">
+          <FieldRoot<LoginFormValues, "mobile">
             name="mobile"
             render={({ field }) => (
               <div className="space-y-1.5">
@@ -341,7 +341,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
         )}
 
         {step === "enterNameAndOtp" && (
-          <FieldRoot<LoginValues, "name">
+          <FieldRoot<LoginFormValues, "name">
             name="name"
             render={({ field }) => (
               <div className="space-y-1.5">
@@ -380,7 +380,7 @@ export function LoginForm({ flow, onBack }: LoginFormProps) {
           </p>
         )}
 
-        <ControlledOtp<LoginValues, "otp">
+        <ControlledOtp<LoginFormValues, "otp">
           name="otp"
           length={6}
           disabled={otpInputDisabled}

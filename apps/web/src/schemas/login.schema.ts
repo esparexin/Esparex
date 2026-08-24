@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-export const loginSchema = z.object({
+export const loginFormSchema = z.object({
   mobile: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number"),
   name: z.string()
     .regex(/^[a-zA-Z\s'.-]*$/, "Name can only contain letters, spaces, dots, hyphens, and apostrophes")
@@ -9,4 +9,4 @@ export const loginSchema = z.object({
   otp: z.string().optional(),
 });
 
-export type LoginValues = z.infer<typeof loginSchema>;
+export type LoginFormValues = z.infer<typeof loginFormSchema>;
