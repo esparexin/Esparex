@@ -68,7 +68,7 @@ export const PlansTab: React.FC<PlansTabProps> = ({
     <div className="space-y-6">
       {/* Header Navigation: 3-Tab Navigation for Wallet view, Standalone Title for Buy Plans view */}
       {initialTab !== 'BUY_PLANS' ? (
-        <div className="bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 inline-flex space-x-1 mb-2">
+        <div className="bg-muted/80 p-1 rounded-xl border border-border inline-flex space-x-1 mb-2">
           <nav className="flex space-x-1 overflow-x-auto scrollbar-none" aria-label="Wallet Navigation" role="tablist">
             <button
               id="tab-overview"
@@ -76,10 +76,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'OVERVIEW'}
               aria-controls="panel-overview"
               onClick={() => handleTabSwitch('OVERVIEW')}
-              className={`h-8 px-4 text-xs font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer ${
+              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'OVERVIEW'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
               My Plan
@@ -91,10 +91,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'CREDIT_PACKS'}
               aria-controls="panel-credit-packs"
               onClick={() => handleTabSwitch('CREDIT_PACKS')}
-              className={`h-8 px-4 text-xs font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer ${
+              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'CREDIT_PACKS'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
               Ad Credits
@@ -106,10 +106,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               aria-selected={activeTab === 'INVOICES'}
               aria-controls="panel-invoices"
               onClick={() => handleTabSwitch('INVOICES')}
-              className={`h-8 px-4 text-xs font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 cursor-pointer ${
+              className={`h-8 px-4 text-caption font-semibold rounded-lg transition-all whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                 activeTab === 'INVOICES'
-                  ? 'bg-white text-slate-900 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-card text-foreground shadow-xs'
+                  : 'text-foreground-secondary hover:text-foreground hover:bg-card/50'
               }`}
             >
               Invoices
@@ -117,10 +117,10 @@ export const PlansTab: React.FC<PlansTabProps> = ({
           </nav>
         </div>
       ) : (
-        <div className="hidden md:flex border-b border-slate-200 pb-3 items-center justify-between">
+        <div className="hidden md:flex border-b border-border pb-3 items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Buy Plans & Packages</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <h3 className="text-h4 font-bold text-foreground tracking-tight">Buy Plans & Packages</h3>
+            <p className="text-caption text-foreground-subtle mt-0.5">
               Select an ad posting pack, spotlight promotion, or alert slot package for your account.
             </p>
           </div>
@@ -130,18 +130,18 @@ export const PlansTab: React.FC<PlansTabProps> = ({
       {/* Loading Skeletons */}
       {isLoading && (
         <div className="space-y-4 animate-pulse">
-          <div className="h-32 bg-slate-100 rounded-xl" />
-          <div className="h-40 bg-slate-100 rounded-xl" />
+          <div className="h-32 bg-muted rounded-xl" />
+          <div className="h-40 bg-muted rounded-xl" />
         </div>
       )}
 
       {/* Error Boundary Banner */}
       {isError && (
-        <div role="alert" className="bg-red-50 text-red-700 p-4 rounded-xl text-sm flex items-center justify-between border border-red-200">
+        <div role="alert" className="bg-destructive/10 text-destructive p-4 rounded-xl text-body flex items-center justify-between border border-destructive/20">
           <span>Unable to load live plans and wallet data. Please refresh or try again later.</span>
           <button
             onClick={() => void refetch()}
-            className="px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition-colors"
+            className="px-3 py-1 bg-destructive text-destructive-foreground rounded-lg text-caption font-semibold hover:bg-destructive/90 transition-colors"
           >
             Retry
           </button>
@@ -200,18 +200,18 @@ export const PlansTab: React.FC<PlansTabProps> = ({
                     role="tab"
                     aria-selected={isSelected}
                     onClick={() => setSelectedCategory(catType)}
-                    className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 shrink-0 ${
+                    className={`min-h-[38px] px-3.5 py-1.5 rounded-full text-caption font-bold transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shrink-0 ${
                       isSelected
-                        ? 'bg-blue-600 text-white shadow-xs'
-                        : 'bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 shadow-2xs'
+                        ? 'bg-primary text-primary-foreground shadow-xs'
+                        : 'bg-card text-foreground-secondary hover:text-foreground hover:bg-muted border border-border shadow-2xs'
                     }`}
                   >
                     <span>{catType}</span>
                     <span
                       className={`px-1.5 py-0.5 rounded-full text-tiny font-extrabold ${
                         isSelected
-                          ? 'bg-white/20 text-white'
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-primary-foreground/20 text-primary-foreground'
+                          : 'bg-muted text-foreground-secondary'
                       }`}
                     >
                       {count}
@@ -247,9 +247,9 @@ export const PlansTab: React.FC<PlansTabProps> = ({
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl p-8 border border-slate-200/80 text-center space-y-2 shadow-xs">
-              <h4 className="text-sm font-bold text-slate-900">No Packages Available</h4>
-              <p className="text-xs text-slate-500">
+            <div className="bg-card rounded-2xl p-8 border border-border text-center space-y-2 shadow-xs">
+              <h4 className="text-body font-bold text-foreground">No Packages Available</h4>
+              <p className="text-caption text-foreground-subtle">
                 There are currently no active packages in the {currentCategory} category.
               </p>
             </div>

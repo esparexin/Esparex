@@ -27,7 +27,7 @@ export function AccountDesktopSidebar({
 }: AccountDesktopSidebarProps) {
   return (
     <aside className="hidden md:block space-y-1" aria-label="Account navigation">
-      <div className="rounded-xl border border-slate-200/80 bg-white p-2 shadow-xs">
+      <div className="rounded-xl border border-border bg-card p-2 shadow-xs">
         <AccountNavItemList
           items={items}
           activeTab={activeTab}
@@ -39,14 +39,14 @@ export function AccountDesktopSidebar({
         <button
           type="button"
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors hover:bg-red-50 text-red-600 font-medium text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition-colors hover:bg-destructive/10 text-destructive font-medium text-body focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2"
         >
           <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
           <span>Log out</span>
         </button>
       </div>
 
-      <div className="mt-3 p-3.5 rounded-xl border border-slate-200/80 bg-white shadow-xs">
+      <div className="mt-3 p-3.5 rounded-xl border border-border bg-card shadow-xs">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-tiny font-bold text-muted-foreground uppercase tracking-wider">Current Plan</p>
@@ -60,7 +60,7 @@ export function AccountDesktopSidebar({
               type="button"
               onClick={() => onTabChange("plans")}
               size="sm"
-              className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-caption font-semibold shadow-xs"
+              className="h-8 px-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-caption font-semibold shadow-xs"
             >
               Upgrade
             </Button>

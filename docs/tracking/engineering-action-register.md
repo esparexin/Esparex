@@ -1232,36 +1232,12 @@ N/A - Verification tasks.
 
 ### EA-037
 
-**Sprint**: Web Polish & Tech Debt  
-**PR**: PR #460 (`feat(web): refine ad detail typography scale, 3-tab layout, and mobile carousel navigation`)  
-**Category**: Governance / Quality Gate Remediation  
-**Status**: ✅ Completed  
 
-**Action**  
-Remediated `DUP-001` duplicate rate regression and `SSOT-001` canonical ownership collision on `feat/ad-detail-typography-and-tabs`.
-
-**Reason**  
-Gate failed on CI due to duplicate reverse geocoding blocks in `locationDetection.ts`, redundant dropdown/drawer options rendering in `EntitySearchCombobox.tsx`, and a symbol name collision between `apps/web`'s `ValidationResult` and `@esparex/core`'s catalog validation service.
-
-**Files Modified**:
-```
-apps/web/src/components/user/EntitySearchCombobox.tsx
-apps/web/src/lib/fieldValidators.ts
-apps/web/src/lib/formValidation.ts
-apps/web/src/lib/location/locationDetection.ts
-apps/web/src/lib/validation.ts
 docs/tracking/engineering-action-register.md
 ```
 
 **Verification**:
-- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score: 100%, 18/18 checks pass)
-- ✅ `npm run guard:duplicate-code` ──► PASS (Clones reduced from 10 to 8, rate: 0.08%)
-- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
-- ✅ `npm test` ──► PASS (100% green)
 
-**Rollback**:
-```bash
-git checkout HEAD~1
 ```
 
 

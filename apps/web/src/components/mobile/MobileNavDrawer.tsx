@@ -71,31 +71,31 @@ export function MobileNavDrawer({
           >
             {isLoggedIn ? (
               <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-2xl bg-blue-600 flex items-center justify-center font-bold text-lg text-white shadow-lg shadow-blue-900/30">
+                <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center font-bold text-h4 text-primary-foreground shadow-lg shadow-black/20">
                   {getUserInitials(user?.name || "")}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-base text-white truncate">{user?.name}</p>
-                  <p className="text-xs text-foreground-subtle mt-0.5">View profile</p>
+                  <p className="font-bold text-body-lg text-white truncate">{user?.name}</p>
+                  <p className="text-caption text-foreground-subtle mt-0.5">View profile</p>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <div>
                   <Image src="/icons/logo.png" alt="Esparex" width={495} height={112} unoptimized style={{ height: '24px', width: 'auto' }} className="mb-2.5" />
-                  <h2 className="text-lg font-bold text-white">Welcome to Esparex</h2>
-                  <p className="text-xs text-foreground-subtle mt-0.5">Buy & sell mobile spares</p>
+                  <h2 className="text-h4 font-bold text-white">Welcome to Esparex</h2>
+                  <p className="text-caption text-foreground-subtle mt-0.5">Buy & sell mobile spares</p>
                 </div>
                 {!isAuthLoading ? (
                   <Button
                     variant="secondary"
-                    className="w-full justify-start gap-2 h-11 font-semibold text-foreground bg-white hover:bg-slate-100 rounded-xl"
+                    className="w-full justify-start gap-2 h-11 font-semibold text-foreground bg-white hover:bg-muted rounded-xl cursor-pointer"
                     onClick={() => { close(); onShowLogin(); }}
                   >
                     <LogIn className="h-4 w-4" /> Login / Sign Up
                   </Button>
                 ) : (
-                  <p className="text-sm text-foreground-subtle">Checking session...</p>
+                  <p className="text-body text-foreground-subtle">Checking session...</p>
                 )}
               </div>
             )}
@@ -112,7 +112,7 @@ export function MobileNavDrawer({
                 <Button
                   key={item.id}
                   variant="ghost"
-                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-foreground-secondary hover:bg-muted hover:text-foreground rounded-xl"
+                  className="w-full justify-start gap-3 h-11 text-body font-medium text-foreground-secondary hover:bg-muted hover:text-foreground rounded-xl cursor-pointer"
                   onClick={() => handleNavigationItemClick(item)}
                 >
                   <Icon className="h-4.5 w-4.5 text-foreground-subtle flex-shrink-0" /> {item.label}
@@ -125,7 +125,7 @@ export function MobileNavDrawer({
                 <div className="h-px bg-border my-3 mx-2" />
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-3 h-11 text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 rounded-xl"
+                  className="w-full justify-start gap-3 h-11 text-body font-medium text-destructive hover:bg-destructive/10 rounded-xl cursor-pointer"
                   onClick={() => { close(); onLogout(); }}
                 >
                   <LogOut className="h-4 w-4 flex-shrink-0" /> Logout

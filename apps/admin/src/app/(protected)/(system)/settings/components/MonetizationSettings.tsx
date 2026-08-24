@@ -111,17 +111,17 @@ export function MonetizationSettings() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-sm text-slate-500">Loading monetization engine...</div>;
+    return <div className="p-8 text-center text-body text-foreground-subtle">Loading monetization engine...</div>;
   }
 
   return (
     <div className="flex flex-col gap-8">
       {feedback && (
         <div
-          className={`flex items-center gap-2 p-3.5 rounded-xl border text-xs font-semibold ${
+          className={`flex items-center gap-2 p-3.5 rounded-xl border text-caption font-semibold ${
             feedback.type === "success"
               ? "bg-emerald-50 border-emerald-200 text-emerald-800"
-              : "bg-red-50 border-red-200 text-red-800"
+              : "bg-destructive/10 border-destructive/20 text-destructive"
           }`}
         >
           {feedback.type === "success" ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}

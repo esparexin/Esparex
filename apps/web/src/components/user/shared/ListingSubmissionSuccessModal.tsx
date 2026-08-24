@@ -24,7 +24,7 @@ export function ListingSubmissionSuccessModal({
             <DialogContent
                 hideClose
                 aria-describedby="submission-success-description"
-                className="w-[calc(100%-2rem)] max-w-[320px] sm:max-w-sm rounded-2xl bg-white p-4 sm:p-5 text-center shadow-xl border-none"
+                className="w-[calc(100%-2rem)] max-w-[320px] sm:max-w-sm rounded-2xl bg-card p-4 sm:p-5 text-center shadow-xl border-none"
             >
                 <Stack gap="md">
                     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 ring-4 ring-emerald-50">
@@ -47,14 +47,14 @@ export function ListingSubmissionSuccessModal({
                     <div className="flex flex-col gap-2 pt-1">
                         <Button
                             onClick={onPrimaryAction}
-                            className="w-full h-9 sm:h-10 bg-blue-600 text-white hover:bg-blue-700 font-semibold text-caption sm:text-body rounded-xl shadow-xs"
+                            className="w-full h-9 sm:h-10 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-caption sm:text-body rounded-xl shadow-xs cursor-pointer"
                         >
                             Done
                         </Button>
                         <Button
                             variant="outline"
                             onClick={onSecondaryAction}
-                            className="w-full h-9 sm:h-10 border-slate-200 text-foreground-secondary hover:bg-muted font-medium text-caption sm:text-body rounded-xl"
+                            className="w-full h-9 sm:h-10 border-border text-foreground-secondary hover:bg-muted font-medium text-caption sm:text-body rounded-xl cursor-pointer"
                         >
                             {pendingActionLabel}
                         </Button>

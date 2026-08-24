@@ -180,7 +180,7 @@ export function ChatInput({ onSend, disabled, disabledReason, isSending, value, 
         />
         <button
           type="button"
-          className="p-2 text-slate-400 hover:text-slate-600 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all"
+          className="p-2 text-foreground-subtle hover:text-foreground-secondary rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 transition-all cursor-pointer"
           onClick={() => fileInputRef.current?.click()}
           aria-label="Attach file"
           disabled={isSending}

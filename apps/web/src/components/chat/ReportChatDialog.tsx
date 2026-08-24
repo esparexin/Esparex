@@ -52,10 +52,10 @@ export function ReportChatDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-body font-medium text-foreground-secondary">
             Reason
             <select
-              className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
               value={reportReason}
               onChange={(e) => onReasonChange(e.target.value as ChatReportReasonValue)}
             >
@@ -65,10 +65,10 @@ export function ReportChatDialog({
             </select>
           </label>
 
-          <label className="block text-sm font-medium text-slate-700">
+          <label className="block text-body font-medium text-foreground-secondary">
             Additional details (optional)
             <textarea
-              className="mt-1 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="mt-1 block w-full rounded-lg border border-border bg-card px-3 py-2 text-body text-foreground shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
               value={reportDesc}
               onChange={(e) => onDescriptionChange(e.target.value.slice(0, 500))}
               placeholder="Describe the issue…"
@@ -79,13 +79,13 @@ export function ReportChatDialog({
         </div>
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onCancel} disabled={isSubmitting} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+          <Button variant="outline" onClick={onCancel} disabled={isSubmitting} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer">
             Cancel
           </Button>
           <Button
             onClick={onSubmit}
             disabled={isSubmitting}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer"
           >
             {isSubmitting ? 'Submitting…' : 'Submit Report'}
           </Button>

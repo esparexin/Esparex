@@ -20,13 +20,13 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
 
   if (!uniquePromotions || uniquePromotions.length === 0) {
     return (
-      <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs text-center">
+      <Card className="rounded-2xl border border-border bg-card shadow-xs text-center">
         <CardContent className="p-6 sm:p-8 space-y-2">
           <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center mx-auto text-amber-600 mb-1">
             <Zap className="w-5 h-5" />
           </div>
-          <h4 className="text-sm font-bold text-slate-900">No Boosted Ads Right Now</h4>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+          <h4 className="text-body font-bold text-foreground">No Boosted Ads Right Now</h4>
+          <p className="text-caption text-foreground-subtle max-w-sm mx-auto leading-relaxed">
             When you boost an ad with Spotlight or Top Ad credits, your boosted listings and active dates will appear here.
           </p>
         </CardContent>
@@ -35,7 +35,7 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
   }
 
   return (
-    <Card className="rounded-2xl border border-slate-200/80 bg-white shadow-xs">
+    <Card className="rounded-2xl border border-border bg-card shadow-xs">
       <CardContent className="p-3.5 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="text-caption font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -52,7 +52,7 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
             return (
               <div
                 key={promo.promotionId}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 text-caption"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-muted/50 border border-border text-caption"
               >
                 <div>
                   <div className="font-bold text-foreground">{promo.entityTitle || 'Boosted Listing'}</div>
@@ -70,7 +70,7 @@ export const ActivePromotionsCard: React.FC<ActivePromotionsCardProps> = ({ prom
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-tiny font-semibold ${
                       isExpired
-                        ? 'bg-slate-100 text-muted-foreground'
+                        ? 'bg-muted text-muted-foreground'
                         : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                     }`}
                   >
