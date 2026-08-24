@@ -7,22 +7,48 @@ import type { AdminLogFn } from '../../../../../services/AdminListingsService';
 import type { UserFilters } from './types';
 import { buildUserStatusFilter, normalizeAdminManagedUser } from './helpers';
 
+import { escapeRegExp } from '../../../../../utils/stringUtils';
+
 export const getUsers = async (filters: UserFilters = {}, pagination: { skip: number; limit: number }) => {
-    const { search, status, role, isVerified } = filters;
+    const search = typeof filters.search === 'string' ? filters.search.trim() : '';
+    const status = typeof filters.status === 'string' ? filters.status.trim() : undefined;
+    const role = typeof filters.role === 'string' ? filters.role.trim() : undefined;
+    const isVerified = typeof filters.isVerified === 'boolean' ? filters.isVerified : undefined;
     const { skip, limit } = pagination;
-    const query: Record<string, unknown> = { status: { $ne: USER_STATUS.DELETED }, userType: 'marketplace' };
-    if (search) query.$or = [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }, { mobile: { $regex: search, $options: 'i' } }];
+
+    const query: Record<string, unknown> = {
+        status: { $ne: USER_STATUS.DELETED },
+        userType: { $eq: 'marketplace' },
+    };
+
+    if (search) {
+        const safeSearch = escapeRegExp(search);
+        const searchRegex = new RegExp(safeSearch, 'i');
+        query.$or = [
+            { name: { $regex: searchRegex } },
+            { email: { $regex: searchRegex } },
+            { mobile: { $regex: searchRegex } },
+        ];
+    }
+
     const sq = buildUserStatusFilter(status);
     if (sq) query.status = sq;
     if (role && role !== 'all') {
         if (role === Role.USER) {
             query.role = { $in: [Role.USER, null, undefined] };
         } else {
-            query.role = role;
+            query.role = { $eq: String(role) };
         }
     }
-    if (isVerified !== undefined) query.isVerified = isVerified;
-    const [users, total] = await Promise.all([User.find(query).select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit), User.countDocuments(query)]);
+    if (isVerified !== undefined) {
+        query.isVerified = { $eq: Boolean(isVerified) };
+    }
+
+    const [users, total] = await Promise.all([
+        User.find(query).select('-password').sort({ createdAt: -1 }).skip(skip).limit(limit),
+        User.countDocuments(query),
+    ]);
+
     const userIds = users.map((u) => u._id);
     const adCounts = userIds.length > 0 ? await Ad.aggregate<{ _id: unknown; totalAdsPosted: number }>([{ $match: { sellerId: { $in: userIds }, isDeleted: { $ne: true } } }, { $group: { _id: '$sellerId', totalAdsPosted: { $sum: 1 } } }]) : [];
     const adsByUserId = new Map(adCounts.map((e) => [String(e._id), Number(e.totalAdsPosted) || 0]));
@@ -98,7 +124,9 @@ export const getUserManagementOverview = async () => {
 export const createAdminUser = async (data: Record<string, unknown>, actorId: string, logFn: AdminLogFn) => {
     const name = data.name as string | undefined; const mobile = data.mobile as string | undefined; const email = data.email as string | undefined; const password = data.password as string | undefined; const isVerified = data.isVerified;
     if (!mobile || !name) throw new AppError('Name and Mobile are required', 400);
-    const exists = await User.findOne({ $or: [{ mobile }, ...(email ? [{ email }] : [])] });
+    const safeMobile = String(mobile).trim();
+    const safeEmail = email ? String(email).trim().toLowerCase() : undefined;
+    const exists = await User.findOne({ $or: [{ mobile: { $eq: safeMobile } }, ...(safeEmail ? [{ email: { $eq: safeEmail } }] : [])] });
     if (exists) throw new AppError('User with this mobile or email already exists', 409, 'USER_ALREADY_EXISTS');
     const userData: Record<string, unknown> = { name, mobile, role: Role.USER, email, isVerified: !!isVerified, isPhoneVerified: !!isVerified, isEmailVerified: !!isVerified && !!email, status: USER_STATUS.LIVE, createdBy: actorId };
     if (password?.trim()) userData.password = await hashPassword(password);
