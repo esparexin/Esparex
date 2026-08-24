@@ -90,18 +90,18 @@ export function AdTitlePriceCard({
                 </div>
             )}
 
-            <h1 className="text-lg md:text-2xl font-extrabold text-foreground leading-snug tracking-tight">
+            <h1 className="text-base sm:text-lg md:text-xl font-bold text-foreground leading-snug tracking-tight">
                 {ad.title || "Ad Title"}
             </h1>
 
             <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
                 <div className="flex items-baseline gap-1">
                     {ad.price === 0 ? (
-                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold uppercase tracking-wide">
+                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1 text-xs md:text-caption font-bold uppercase tracking-wide">
                             {isService ? "Contact for Quote" : "Free"}
                         </span>
                     ) : (
-                        <span className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                        <span className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
                             {formatPrice(ad.price)}
                         </span>
                     )}
