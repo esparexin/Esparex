@@ -1,5 +1,5 @@
 import type { AppLocation, LocationLevel } from "@/types/location";
-import { getLatitude, getLongitude } from "@esparex/shared";
+import { getLatitude, getLongitude, sanitizeMongoObjectId } from "@esparex/shared";
 type QueryLocation = Partial<Pick<AppLocation, "source" | "locationId" | "level" | "coordinates">> | null | undefined;
 
 export function isRegionLocationLevel(level?: LocationLevel | string): boolean {
@@ -7,7 +7,7 @@ export function isRegionLocationLevel(level?: LocationLevel | string): boolean {
 }
 
 export function hasCanonicalLocationId(location: QueryLocation): boolean {
-    return typeof location?.locationId === "string" && location.locationId.trim().length > 0;
+    return Boolean(sanitizeMongoObjectId(location?.locationId));
 }
 
 export function shouldUseExactLocationHierarchy(location: QueryLocation): boolean {

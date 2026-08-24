@@ -1,7 +1,7 @@
 // HomeFeedClient.tsx - client component handling feed logic
 "use client";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, PackageOpen } from "@/icons/IconRegistry";
 import { type Listing as Ad, type HomeAdsPayload } from "@/lib/api/user/listings";
 import { useLocationData } from "@/context/LocationContext";
@@ -36,6 +36,25 @@ export function HomeFeedClient({ initialData }: HomeFeedProps) {
 
     const hasUserLocation = isUserSelectedLocation(location);
     const shouldUseGeoSearch = hasUserLocation && shouldUseGeoRadiusLocation(location);
+
+    const locationIdentity = useMemo(() => {
+        if (!hasUserLocation) return "default";
+        const rawLocationId = location.locationId || location.id || "";
+        const validLocationId = sanitizeMongoObjectId(rawLocationId) || "";
+        const latStr = typeof latitude === "number" ? latitude.toFixed(3) : "";
+        const lngStr = typeof longitude === "number" ? longitude.toFixed(3) : "";
+        return [validLocationId, location.city || "", location.level || "", latStr, lngStr].join(":");
+    }, [hasUserLocation, latitude, location.city, location.id, location.level, location.locationId, longitude]);
+
+    // Soft-reset pagination cursor when location changes without unmounting tree
+    const prevLocationIdentityRef = useRef(locationIdentity);
+    useEffect(() => {
+        if (prevLocationIdentityRef.current !== locationIdentity) {
+            prevLocationIdentityRef.current = locationIdentity;
+            setCursor(undefined);
+            setNextCursor(null);
+        }
+    }, [locationIdentity]);
     
     const requestParams = useMemo(() => {
         const rawLocationId = hasUserLocation ? (location.locationId || location.id) : undefined;

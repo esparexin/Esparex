@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import Admin, { IAdmin } from '../../../../../models/Admin';
 import User from '../../../../../models/User';
 import { USER_STATUS, Role } from '@esparex/contracts';
@@ -22,32 +23,34 @@ export const getAdminByIdForAdmin = async (id: string) => Admin.findById(id).sel
 export const getUserByIdForAdmin = async (id: string) => User.findById(id).select('-password');
 
 export const updateAdminUser = async (userId: string, data: Record<string, unknown>, actorId: string, logFn: AdminLogFn) => {
+    if (!Types.ObjectId.isValid(userId)) throw new AppError('Invalid User ID format', 400);
     const { name, email, mobile } = data as { name?: string; email?: string; mobile?: string };
     if (email || mobile) {
         const orClauses: Record<string, unknown>[] = [];
-        if (email) orClauses.push({ email });
-        if (mobile) orClauses.push({ mobile });
+        if (email) orClauses.push({ email: { $eq: String(email).trim().toLowerCase() } });
+        if (mobile) orClauses.push({ mobile: { $eq: String(mobile).trim() } });
         if (orClauses.length > 0) { const exists = await User.findOne({ _id: { $ne: userId }, $or: orClauses }); if (exists) throw new AppError('Email or Mobile already in use', 409, 'USER_ALREADY_EXISTS'); }
     }
     const updateData: Record<string, unknown> = { updatedBy: actorId };
     if (name !== undefined) updateData.name = name;
     if (email !== undefined) updateData.email = email;
     if (mobile !== undefined) updateData.mobile = mobile;
-    const user = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-password');
+    const user = await User.findByIdAndUpdate(userId, { $set: updateData }, { new: true }).select('-password');
     if (!user) throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     await logFn('UPDATE_USER', 'User', userId, { changes: Object.keys(data) });
     return normalizeAdminManagedUser(user);
 };
 
 export const verifyUserById = async (id: string, isVerified: boolean, actorId: string, logFn: AdminLogFn) => {
-    const user = await User.findByIdAndUpdate(id, { isVerified }, { new: true }).select('-password');
+    if (!Types.ObjectId.isValid(id)) throw new AppError('Invalid User ID format', 400);
+    const user = await User.findByIdAndUpdate(id, { $set: { isVerified: !!isVerified } }, { new: true }).select('-password');
     if (!user) throw new AppError('User not found', 404);
     await logFn('VERIFY_USER', 'User', String(user._id), { isVerified });
     setImmediate(() => void recalculateTrustScore(user._id).catch(() => {}));
     return normalizeAdminManagedUser(user);
 };
 
-export const findAdminByEmail = async (email: string) => Admin.findOne({ email });
+export const findAdminByEmail = async (email: string) => Admin.findOne({ email: { $eq: String(email).trim().toLowerCase() } });
 
 export const createAdminAccount = async (data: Record<string, unknown>, actorRole: string, actorId: string, logFn: AdminLogFn) => {
     const d = data as { firstName?: string; lastName?: string; name?: string; email?: string; mobile?: string; password?: string; role?: string; permissions?: string[] };

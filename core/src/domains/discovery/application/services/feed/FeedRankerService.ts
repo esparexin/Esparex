@@ -30,7 +30,13 @@ export const toCreatedAtMs = (ad: FeedAdRecord): number => {
 };
 
 export const sortByCreatedAtDesc = (ads: FeedAdRecord[]): FeedAdRecord[] =>
-    [...ads].sort((left, right) => toCreatedAtMs(right) - toCreatedAtMs(left));
+    [...ads].sort((left, right) => {
+        const timeDiff = toCreatedAtMs(right) - toCreatedAtMs(left);
+        if (timeDiff !== 0) return timeDiff;
+        const rightId = extractObjectIdHex(right) || extractAdId(right);
+        const leftId = extractObjectIdHex(left) || extractAdId(left);
+        return compareObjectIdHex(rightId, leftId);
+    });
 
 export const compareObjectIdHex = (left: string, right: string): number => {
     if (left === right) return 0;

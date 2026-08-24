@@ -1,10 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
 import { type HomeAdsPayload } from "@/lib/api/user/listings";
-import { useLocationData } from "@/context/LocationContext";
-import { getSearchLocationLabel } from "@/lib/location/locationLabels";
-import { getLatitude, getLongitude } from "@esparex/shared";
 import { HomeFeedClient } from "./HomeFeedClient";
 
 interface HomeFeedProps {
@@ -12,33 +8,10 @@ interface HomeFeedProps {
 }
 
 /**
- * HomeFeed - Wrapper component that provides a stable key to HomeFeedClient 
- * based on the current location context. This ensures that the feed state 
- * (ads, cursor, etc.) is reset correctly whenever the location changes.
+ * HomeFeed - Serves the recommended ads feed on the Home page.
+ * Keeps HomeFeedClient stably mounted across client location hydration
+ * and location updates.
  */
 export function HomeFeed({ initialData }: HomeFeedProps) {
-    const { location } = useLocationData();
-    const latitude = getLatitude(location);
-    const longitude = getLongitude(location);
-    const locationSearchLabel = useMemo(() => getSearchLocationLabel(location), [location]);
-    
-    const locationContextKey = useMemo(
-        () =>
-            [
-                location.locationId ?? "",
-                locationSearchLabel ?? "",
-                location.level ?? "",
-                location.source ?? "",
-                typeof latitude === "number" ? latitude.toFixed(3) : "",
-                typeof longitude === "number" ? longitude.toFixed(3) : "",
-            ].join("|"),
-        [latitude, location.level, location.locationId, locationSearchLabel, location.source, longitude]
-    );
-
-    return (
-        <HomeFeedClient 
-            key={locationContextKey} 
-            initialData={initialData} 
-        />
-    );
+    return <HomeFeedClient initialData={initialData} />;
 }
