@@ -6,7 +6,6 @@ import { ColumnDef } from "@/components/ui/DataTable";
 import { Plan } from "@esparex/contracts";
 import {
     CreditCard,
-    Search,
     Filter,
     CheckCircle2,
     XCircle,
@@ -22,6 +21,7 @@ import { PlanFormModal } from "@/components/plans/PlanFormModal";
 import { ArchivePlanModal } from "@/components/plans/ArchivePlanModal";
 import { AdminPageShell } from "@/components/layout/AdminPageShell";
 import { AdminModuleTabs } from "@/components/layout/AdminModuleTabs";
+import { AdminFilterToolbar } from "@/components/layout/AdminFilterToolbar";
 import { financeTabs } from "@/components/layout/adminModuleTabSets";
 import { DataTable } from "@/components/ui/DataTable";
 import { AlertCircle } from "@esparex/ui";
@@ -296,33 +296,29 @@ export default function PlansPage() {
                 }
             >
                 <div className="flex flex-col gap-6">
-                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                        <div className="relative flex-1 w-full text-black">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-subtle" size={18} />
-                            <input
-                                type="text"
-                                placeholder="Search plans by name or code..."
-                                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-black outline-none"
-                                value={search}
-                                onChange={(e) => replaceQueryState({ q: e.target.value })}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 w-full md:w-auto text-black">
-                            <Filter className="text-foreground-subtle" size={18} />
-                            <select
-                                className="flex-1 md:w-40 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-black outline-none"
-                                value={typeFilter}
-                                onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
-                            >
-                                <option value="all">Every Type</option>
-                                <option value="FREE_DEFAULT">Free Plan (Default)</option>
-                                <option value="AD_PACK">Ad Packs</option>
-                                <option value="BOOST_AD">Boost Ad</option>
-                                <option value="SPOTLIGHT">Spotlight</option>
-                                <option value="SMART_ALERT">Smart Alerts</option>
-                            </select>
-                        </div>
-                    </div>
+                    <AdminFilterToolbar
+                        search={search}
+                        onSearchChange={(value) => replaceQueryState({ q: value })}
+                        searchPlaceholder="Search plans by name or code..."
+                        extraFilters={
+                            <div className="flex items-center gap-1.5">
+                                <Filter className="shrink-0 text-foreground-subtle" size={14} aria-hidden="true" />
+                                <select
+                                    aria-label="Filter by plan type"
+                                    className="rounded-lg border border-input bg-background py-1.5 pl-2.5 pr-7 text-sm font-medium text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                    value={typeFilter}
+                                    onChange={(e) => replaceQueryState({ type: e.target.value === "all" ? null : e.target.value })}
+                                >
+                                    <option value="all">Every Type</option>
+                                    <option value="FREE_DEFAULT">Free Plan (Default)</option>
+                                    <option value="AD_PACK">Ad Packs</option>
+                                    <option value="BOOST_AD">Boost Ad</option>
+                                    <option value="SPOTLIGHT">Spotlight</option>
+                                    <option value="SMART_ALERT">Smart Alerts</option>
+                                </select>
+                            </div>
+                        }
+                    />
 
                     {error && (
                         <div className="bg-red-50 border border-red-100 text-red-600 rounded-lg p-4 text-sm font-medium flex items-center gap-2">
