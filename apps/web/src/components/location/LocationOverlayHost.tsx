@@ -41,9 +41,9 @@ export function LocationOverlayHost({
         if (rect) {
             setDropdownStyle({
                 position: "fixed",
-                top: rect.bottom + 4,
-                left: rect.left,
-                width: 288, // w-72
+                top: rect.bottom + 6,
+                left: Math.max(12, rect.left),
+                width: 336, // Expanded width for optimal typography & breathing room
             });
         }
     }, [isOpen, isMobile, containerRef]);
@@ -71,7 +71,7 @@ export function LocationOverlayHost({
             <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
                 <SheetContent
                     side="bottom"
-                    className="h-[60dvh] max-h-[440px] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[70dvh] sm:max-h-[520px]"
+                    className="h-[65dvh] max-h-[480px] overflow-hidden rounded-t-2xl border-t-0 p-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-2xl mx-auto max-w-sm w-full sm:h-[70dvh] sm:max-h-[520px]"
                 >
                     <SheetTitle className="sr-only">Select Location</SheetTitle>
                     <SheetDescription className="sr-only">Choose your city</SheetDescription>
@@ -85,10 +85,10 @@ export function LocationOverlayHost({
         <div
             ref={dropdownRef}
             style={{ zIndex: Z_INDEX.userHeaderDropdown, ...dropdownStyle }}
-            className="max-h-[52dvh] bg-popover border rounded-xl shadow-lg overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0"
+            className="max-h-[min(500px,75vh)] bg-popover border border-border rounded-2xl shadow-xl overflow-hidden transition-all duration-200 flex flex-col opacity-100 visible translate-y-0 overscroll-contain"
             onClick={(e) => e.stopPropagation()}
         >
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                 <LocationSelector variant="panel" onClose={onClose} />
             </div>
         </div>
