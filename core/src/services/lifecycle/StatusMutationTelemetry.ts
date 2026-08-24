@@ -56,7 +56,7 @@ export const createHistoryRecord = async (params: {
             ua: actor.userAgent,
             mutationService: 'v1'
         }
-    }], { session });
+    }], { session: (session || undefined) as mongoose.ClientSession | undefined });
 };
 
 export async function recordMutationMetric(

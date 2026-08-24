@@ -47,15 +47,21 @@ interface IStatusable {
     [key: string]: unknown;
 }
 
-export function getModelForDomain(domain: ValidDomain) {
+async function findEntityDoc(domain: ValidDomain, entityId: string | mongoose.Types.ObjectId, session?: unknown): Promise<(mongoose.Document & IStatusable) | null> {
+    const s = (session || null) as ClientSession | null;
     switch (domain) {
-        case 'ad': return Ad;
-        case 'user': return User;
-        case 'business': return Business;
-        case 'service': return Ad;
-        case 'spare_part_listing': return Ad;
-        case 'catalog_part': throw new Error('Domain \'catalog_part\' uses CatalogStatus — route through admin catalog service, not statusMutationService');
-        default: throw new Error(`Unsupported domain: ${domain as string}`);
+        case 'ad':
+        case 'service':
+        case 'spare_part_listing':
+            return Ad.findById(entityId).setOptions({ withDeleted: true }).session(s).exec() as Promise<(mongoose.Document & IStatusable) | null>;
+        case 'user':
+            return User.findById(entityId).setOptions({ withDeleted: true }).session(s).exec() as Promise<(mongoose.Document & IStatusable) | null>;
+        case 'business':
+            return Business.findById(entityId).setOptions({ withDeleted: true }).session(s).exec() as Promise<(mongoose.Document & IStatusable) | null>;
+        case 'catalog_part':
+            throw new Error('Domain \'catalog_part\' uses CatalogStatus — route through admin catalog service, not statusMutationService');
+        default:
+            throw new Error(`Unsupported domain: ${domain as string}`);
     }
 }
 
@@ -78,8 +84,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
                 return executeListingOperations(activeSession);
             }
             
-            const Model = getModelForDomain(domain);
-            const doc = await Model.findById(entityId).setOptions({ withDeleted: true }).session((activeSession || null) as ClientSession | null) as (mongoose.Document & IStatusable) | null;
+            const doc = await findEntityDoc(domain, entityId, activeSession);
             if (!doc) {
                 throw new AppError(`Entity ${String(entityId)} not found in domain ${domain}`, 404, BusinessErrorCode.RESOURCE_NOT_FOUND);
             }
@@ -263,7 +268,7 @@ export const mutateStatus = async (request: MutationRequest): Promise<Record<str
     }
 };
 
-const bulkHandler = createStatusMutationBulkHandler(mutateStatus, getModelForDomain);
+const bulkHandler = createStatusMutationBulkHandler(mutateStatus);
 
 export const mutateStatuses = bulkHandler.mutateStatuses;
 export const mutateStatusesBulk = bulkHandler.mutateStatusesBulk;

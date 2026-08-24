@@ -3,6 +3,9 @@ import { LISTING_STATUS, type ActorMetadata } from '@esparex/contracts';
 import { pLimit } from '../../utils/pLimit';
 import { lifecycleEvents } from '../../events';
 import type { ValidDomain } from './LifecycleGuard';
+import Ad from '../../models/Ad';
+import User from '../../models/User';
+import Business from '../../models/Business';
 
 const MUTATE_STATUSES_CONCURRENCY = 5;
 
@@ -17,17 +20,25 @@ export interface BulkMutationRequest {
     session?: unknown;
 }
 
-type StatusFindableModel = {
-    find: (filter: Record<string, unknown>) => {
-        select: (fields: string) => {
-            lean: <T>() => Promise<T>;
-        };
-    };
-};
+type BulkMutationDoc = { _id: mongoose.Types.ObjectId; listingType?: string };
+
+async function findBulkEntityDocs(domain: ValidDomain, entityIds: string[]): Promise<BulkMutationDoc[]> {
+    switch (domain) {
+        case 'ad':
+        case 'service':
+        case 'spare_part_listing':
+            return Ad.find({ _id: { $in: entityIds } }).select('_id status listingType').lean<BulkMutationDoc[]>();
+        case 'user':
+            return User.find({ _id: { $in: entityIds } }).select('_id status').lean<BulkMutationDoc[]>();
+        case 'business':
+            return Business.find({ _id: { $in: entityIds } }).select('_id status').lean<BulkMutationDoc[]>();
+        default:
+            return [];
+    }
+}
 
 export const createStatusMutationBulkHandler = (
-    mutateStatus: (request: BulkMutationRequest) => Promise<Record<string, unknown> | null>,
-    getModelForDomain: (domain: ValidDomain) => StatusFindableModel
+    mutateStatus: (request: BulkMutationRequest) => Promise<Record<string, unknown> | null>
 ) => {
     const mutateStatuses = async (requests: BulkMutationRequest[]): Promise<(Record<string, unknown> | null)[]> => {
         const limit = pLimit(MUTATE_STATUSES_CONCURRENCY);
@@ -43,11 +54,7 @@ export const createStatusMutationBulkHandler = (
     ): Promise<number> => {
         if (!entityIds.length) return 0;
         
-        const Model = getModelForDomain(domain);
-        type BulkMutationDoc = { _id: mongoose.Types.ObjectId; listingType?: string };
-        const docs = await Model.find({ _id: { $in: entityIds } })
-            .select('_id status listingType')
-            .lean<BulkMutationDoc[]>();
+        const docs = await findBulkEntityDocs(domain, entityIds);
         if (!docs.length) return 0;
 
         await mutateStatuses(
