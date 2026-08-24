@@ -21,7 +21,6 @@ export const PLACEMENT_LABELS: Record<InContentPlacementId, string> = {
   static_pages_footer: "Static Pages (FAQ/About) — Footer Banner",
   footer_leaderboard: "Global Footer — Leaderboard Banner",
   mobile_sticky_bottom: "Mobile Viewport — Sticky Bottom Banner (320×50)",
-  // Legacy aliases
   listing_detail_sidebar_bottom: "Listing Detail — Sidebar Bottom (300×250)",
   listing_detail_below_description: "Listing Detail — Below Description (728×90)",
   home_below_hero: "Home — Below Search Hero (Leaderboard)",
