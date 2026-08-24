@@ -70,11 +70,13 @@ describe("AdCard Component SSOT & Architecture", () => {
 
   describe("Centralized Relative Date Formatting", () => {
     it("formats relative dates cleanly for card metadata display", () => {
-      const now = Date.now();
+      const now = new Date("2026-08-25T12:00:00Z").getTime();
       expect(formatShortRelativeTime(new Date(now), now)).toBe("Just now");
       expect(formatShortRelativeTime(new Date(now - 120000), now)).toBe("2m ago");
       expect(formatShortRelativeTime(new Date(now - 7200000), now)).toBe("2h ago");
-      expect(formatShortRelativeTime(new Date(now - 172800000), now)).toBe("2d ago");
+      expect(formatShortRelativeTime(new Date(now - 86400000), now)).toBe("1 day ago");
+      expect(formatShortRelativeTime(new Date("2026-07-24T12:00:00Z"), now)).toBe("24 Jul");
+      expect(formatShortRelativeTime(new Date("2025-07-24T12:00:00Z"), now)).toBe("24 Jul 2025");
     });
   });
 });
