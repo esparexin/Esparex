@@ -2,7 +2,7 @@
 
 import { memo } from "react";
 import { MapPin, Clock } from "@/icons/IconRegistry";
-import { formatPrice, formatStableDate } from "@/lib/formatters";
+import { formatPrice, formatStableDate, formatShortRelativeTime } from "@/lib/formatters";
 import { resolveListingLocationLabel, sanitizeListingTitle } from "@/lib/listings/listingPresentation";
 import { cn } from "@/components/ui/utils";
 import {
@@ -63,34 +63,39 @@ export const AdCardMeta = memo(function AdCardMeta({
   })();
 
   return (
-    <div className={cn("flex flex-col justify-between gap-1.5", className)}>
-      {/* Price Row — Standalone clean green price display */}
-      <div className="flex items-center justify-between min-h-[1.25rem]">
+    <div className={cn("flex flex-col justify-between gap-1", className)}>
+      {/* Price + Condition Badge Row */}
+      <div className="flex items-center justify-between min-h-[1.25rem] gap-1.5">
         <span
           className={cn(
-            "font-normal sm:font-bold tracking-tight text-emerald-700 dark:text-emerald-400",
+            "font-normal sm:font-bold tracking-tight text-emerald-700 dark:text-emerald-400 truncate",
             isList ? "text-body sm:text-h4" : isDashboard ? "text-body sm:text-body-lg" : "text-body sm:text-body-lg"
           )}
           aria-label={`Price: ${priceDisplay}`}
         >
           {priceDisplay}
         </span>
+        {!isDashboard && !isList && conditionBadge && (
+          <div className="shrink-0 flex items-center">
+            {conditionBadge}
+          </div>
+        )}
       </div>
 
-      {/* Title — De-congested with relaxed line-height and clean font weight */}
-      <div className="min-h-[2rem] sm:min-h-[2.5rem] flex items-start my-0.5">
+      {/* Title — De-congested with snug line-height and discrete Geist font size */}
+      <div className="min-h-[1.75rem] sm:min-h-[2.25rem] flex items-start">
         <h3 className={cn(
-          "font-normal sm:font-semibold line-clamp-2 leading-relaxed text-foreground tracking-normal",
+          "font-normal sm:font-semibold line-clamp-2 leading-snug text-foreground tracking-normal",
           isList ? "text-caption sm:text-body" : "text-caption sm:text-body"
         )}>
           {sanitizeListingTitle(ad.title, ad)}
         </h3>
       </div>
 
-      {/* Location + Condition Badge (replaces Date) Metadata Row */}
+      {/* Location + Date Metadata Row */}
       <div
         className={cn(
-          "flex items-center justify-between text-tiny text-foreground-tertiary pt-1.5 mt-0.5 border-t border-border/40 gap-2 min-w-0",
+          "flex items-center justify-between text-tiny text-foreground-tertiary pt-1.5 mt-1 border-t border-border/40 gap-2 min-w-0",
           isDashboard && "grid grid-cols-2 gap-2 justify-start border-none pt-0 mt-0",
           isList && "border-none pt-0 mt-0"
         )}
@@ -128,11 +133,13 @@ export const AdCardMeta = memo(function AdCardMeta({
               )}
             </div>
 
-            {/* Condition Badge (Power On / Power Off) — Rendered on bottom chip row in list view */}
-            {!isDashboard && !isList && conditionBadge && (
-              <div className="shrink-0 ml-auto flex items-center">
-                {conditionBadge}
-              </div>
+            {/* Posted Date */}
+            {!isList && (
+              <span className="shrink-0 text-tiny text-foreground-tertiary font-normal">
+                {"createdAt" in ad && ad.createdAt
+                  ? formatShortRelativeTime(ad.createdAt as string)
+                  : "Just now"}
+              </span>
             )}
           </>
         )}

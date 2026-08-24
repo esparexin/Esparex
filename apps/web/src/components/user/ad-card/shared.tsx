@@ -7,7 +7,6 @@ import { Sparkles, Zap } from "@/icons/IconRegistry";
 import { Power } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui/utils";
-import { formatPrice } from "@/lib/formatters";
 import { toSafeImageSrc } from "@/lib/image/imageUrl";
 import { buildPublicListingDetailRoute } from "@/lib/publicListingRoutes";
 import type { AdData } from "@/types/home";
@@ -360,30 +359,5 @@ export function getConditionBadge(
         </>
       )}
     </span>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Price display (ALWAYS text-green-600 for numeric prices and "Free")        */
-/* -------------------------------------------------------------------------- */
-
-export function AdCardPriceDisplay({
-  price,
-  className,
-}: {
-  price: number;
-  className?: string;
-}) {
-  const isFree = price === 0;
-  return (
-    <div
-      className={cn(
-        "font-bold text-green-600 tracking-tight",
-        className
-      )}
-      aria-label={`Price: ${isFree ? "Free" : formatPrice(price)}`}
-    >
-      {isFree ? "Free" : formatPrice(price)}
-    </div>
   );
 }
