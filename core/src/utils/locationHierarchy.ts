@@ -68,24 +68,29 @@ export const toLocationIdString = (value: LocationIdLike | null | undefined): st
     return value.toString();
 };
 
+const parsePathEntries = (path: unknown): string[] =>
+    Array.isArray(path)
+        ? path.map((e) => toLocationIdString(e)).filter((e): e is string => Boolean(e))
+        : typeof path === 'string'
+            ? path.split(/[,\/]/).map((e) => e.trim()).filter(Boolean)
+            : [];
+
 export const buildLocationSummary = (
     location: CanonicalLocationDoc,
     hierarchyMap: Map<string, CanonicalLocationDoc>
 ) => {
     const ownName = asString(location.name) || '';
     const currentLevel = asString(location.level) || '';
-    const hierarchyTrail = Array.isArray(location.path)
-        ? location.path
-            .map((entry) => toLocationIdString(entry))
-            .filter((entry): entry is string => Boolean(entry))
-            .map((entry) => hierarchyMap.get(entry))
-            .filter((entry): entry is CanonicalLocationDoc => Boolean(entry))
-        : [];
+    const directCity = asString((location as { city?: unknown })?.city);
+    const directState = asString((location as { state?: unknown })?.state);
+    const hierarchyTrail = parsePathEntries(location.path)
+        .map((id) => hierarchyMap.get(id))
+        .filter((entry): entry is CanonicalLocationDoc => Boolean(entry));
 
     const findHierarchyName = (level: string): string =>
         hierarchyTrail.find((entry) => entry.level === level)?.name || '';
 
-    let city = findHierarchyName('city');
+    let city = directCity || findHierarchyName('city');
     if (!city) {
         if (currentLevel === 'city' || currentLevel === 'district' || currentLevel === 'state' || currentLevel === 'country') {
             city = ownName;
@@ -96,15 +101,11 @@ export const buildLocationSummary = (
         }
     }
 
-    let state = findHierarchyName('state');
-    if (!state && currentLevel === 'state') {
-        state = ownName;
-    }
+    let state = directState || findHierarchyName('state');
+    if (!state && currentLevel === 'state') state = ownName;
 
     let district = findHierarchyName('district');
-    if (!district && currentLevel === 'district') {
-        district = ownName;
-    }
+    if (!district && currentLevel === 'district') district = ownName;
 
     const country = asString(location.country) || findHierarchyName('country') || '';
 
@@ -128,26 +129,21 @@ export const loadHierarchyMapForLocations = async (
         if (!location) continue;
 
         const currentId = toLocationIdString(location._id);
-        if (currentId) {
-            hierarchyIds.add(currentId);
-        }
+        if (currentId && mongoose.Types.ObjectId.isValid(currentId)) hierarchyIds.add(currentId);
 
-        for (const entry of location.path || []) {
-            const entryId = toLocationIdString(entry);
-            if (entryId) {
-                hierarchyIds.add(entryId);
-            }
+        for (const entryId of parsePathEntries(location.path)) {
+            if (mongoose.Types.ObjectId.isValid(entryId)) hierarchyIds.add(entryId);
         }
 
         const parentId = toLocationIdString(location.parentId);
-        if (parentId) {
-            hierarchyIds.add(parentId);
-        }
+        if (parentId && mongoose.Types.ObjectId.isValid(parentId)) hierarchyIds.add(parentId);
     }
 
-    const hierarchyLocations: CanonicalLocationDoc[] = hierarchyIds.size > 0
-        ? await locationRepository.findMany({ _id: { $in: Array.from(hierarchyIds) } })
-            .select('_id name country level parentId path')
+    const validObjectIds = Array.from(hierarchyIds).map((id) => new mongoose.Types.ObjectId(id));
+
+    const hierarchyLocations: CanonicalLocationDoc[] = validObjectIds.length > 0
+        ? await locationRepository.findMany({ _id: { $in: validObjectIds } })
+            .select('_id name country level parentId path city state')
             .lean()
         : [];
 

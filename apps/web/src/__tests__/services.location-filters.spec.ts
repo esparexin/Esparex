@@ -103,6 +103,29 @@ describe("Services location filters regression", () => {
         expect(String(trendingEndpoint)).not.toContain("location=Pune");
     });
 
+    it("serializes geo coordinates and radius for home ads discovery", async () => {
+        vi.stubGlobal("window", {});
+        vi.mocked(apiClient.get).mockResolvedValueOnce({
+            success: true,
+            data: { ads: [], nextCursor: null, hasMore: false },
+        });
+
+        await getHomeAds({
+            limit: 12,
+            level: "city",
+            lat: 17.385,
+            lng: 78.486,
+            radiusKm: 50,
+        });
+
+        expect(apiClient.get).toHaveBeenCalledTimes(1);
+        const [homeEndpoint] = vi.mocked(apiClient.get).mock.calls[0] ?? [];
+        expect(String(homeEndpoint)).toContain("lat=17.385");
+        expect(String(homeEndpoint)).toContain("lng=78.486");
+        expect(String(homeEndpoint)).toContain("radiusKm=50");
+        expect(String(homeEndpoint)).toContain("level=city");
+    });
+
     it("serializes only canonical business discovery filters", async () => {
         vi.stubGlobal("window", {});
         vi.mocked(apiClient.get).mockResolvedValueOnce({
