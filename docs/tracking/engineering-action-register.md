@@ -1240,4 +1240,40 @@ docs/tracking/engineering-action-register.md
 
 ```
 
+---
+
+### EA-038
+
+**Sprint**: Tech Debt & Governance Optimization  
+**PR**: PR Governance Hardening  
+**Category**: Architecture Governance & Workflow Standardization  
+**Status**: ✅ Completed  
+
+**Action**  
+Codified the **Extract-Before-Split Modularity Standard**, **Top-Level Symbol Shadowing Prohibition**, and **Dynamic JSCPD Token Ratchet Rules** into `AGENTS.md`, `.agents/AGENTS.md`, `.agents/skills/skill-orchestrator/SKILL.md`, and `package.json` (`pr:gate`).
+
+**Reason**  
+Permanently prevents developer and AI agent friction caused by file splitting duplicating boilerplate tokens, symbol collisions triggering SSOT warnings, and stale JSCPD reports on pre-push execution.
+
+**Files Modified**:
+```
+AGENTS.md
+.agents/AGENTS.md
+.agents/skills/skill-orchestrator/SKILL.md
+package.json
+docs/tracking/engineering-action-register.md
+```
+
+**Verification**:
+- ✅ `npm run guard:duplicate-code` ──► PASS (0.08% duplicate rate preserved)
+- ✅ `node scripts/git/repo-gate.js` ──► PASS (Health Score: 100%, 18/18 checks pass)
+- ✅ `npm run type-check` ──► PASS (0 errors across 9 workspaces)
+- ✅ `npm test` ──► PASS (100% green)
+
+**Rollback**:
+```bash
+git checkout HEAD~1
+```
+
+
 
