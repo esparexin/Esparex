@@ -112,7 +112,6 @@ export function Header({
     showLocationSelector,
     setShowLocationSelector,
     locationDropdownRef,
-    headerLocationDetails,
     resolvedHeaderLocation,
     searchQuery,
     setSearchQuery,
@@ -146,6 +145,7 @@ export function Header({
   };
 
   const [isMobileSearchEditing, setIsMobileSearchEditing] = useState(false);
+  const [headerLocationQuery, setHeaderLocationQuery] = useState("");
 
   useEffect(() => {
     setShowLocationSelector(false);
@@ -161,21 +161,17 @@ export function Header({
     >
       {/* ── DESKTOP HEADER INNER (MD+) ───────────────────────────────────────────────────────────── */}
       <div className="hidden md:flex max-w-7xl mx-auto px-4 h-16 items-center gap-6">
-        {/* Logo */}
         <button onClick={() => navigateTo("home")} className="flex items-center hover:opacity-80 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg py-1 cursor-pointer">
-          <Image
-            src="/icons/logo.png"
-            alt="Esparex Logo"
-            width={495}
-            height={112}
-            unoptimized
-            style={{ height: "25px", width: "auto" }}
-          />
+          <Image src="/icons/logo.png" alt="Esparex Logo" width={495} height={112} unoptimized className="h-[25px] w-auto" />
         </button>
 
-        {/* Location Selector */}
         <div className="relative" ref={locationDropdownRef}>
-          <HeaderLocation onClick={() => { setShowLocationSelector(!showLocationSelector); setShowSearchDropdown(false); }} />
+          <HeaderLocation
+            isOpen={showLocationSelector}
+            onOpenChange={(open) => { setShowLocationSelector(open); if (open) setShowSearchDropdown(false); }}
+            query={headerLocationQuery}
+            onQueryChange={setHeaderLocationQuery}
+          />
         </div>
 
         {/* Global Search Bar */}
@@ -185,7 +181,7 @@ export function Header({
             <Input
               id="header-desktop-search"
               aria-label="Search for mobiles, parts, services"
-              className="pl-11 h-11 w-full bg-muted/50 border-border/50 focus-visible:bg-background focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/5 transition-all rounded-2xl shadow-xs text-body"
+              className="pl-11 h-11 w-full bg-background border border-border focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10 transition-all rounded-2xl shadow-xs text-body"
               placeholder="Search for mobiles, parts, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -202,7 +198,6 @@ export function Header({
           />
         </div>
 
-        {/* Desktop User Actions */}
         <div className="flex items-center gap-3 ml-auto">
           {!isMounted || isAuthLoading ? (
             <>
@@ -218,14 +213,12 @@ export function Header({
                 businessStatus={businessStatus}
                 onNavigate={navigateTo}
               />
-
               <NotificationBellDropdown
                 notificationsData={notificationsData}
                 unreadCount={notifUnreadCount}
                 onRefresh={refetchNotifications}
                 variant="desktop"
               />
-
               <HeaderAccountMenu
                 user={user}
                 safeProfilePhoto={safeProfilePhoto}
@@ -252,83 +245,31 @@ export function Header({
         </div>
       </div>
 
-      {/* ── MOBILE HEADER INNER (< MD) ───────────────────────────────────────────────────────────── */}
-      <div className="md:hidden">
-        {/* Top Location Bar */}
-        <div className="h-11 bg-muted/90 border-b border-border flex items-center px-4">
-          <button
-            type="button"
-            className="flex items-center mr-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md cursor-pointer"
-            onClick={() => navigateTo("home")}
-            aria-label="Go to homepage"
-          >
-            <Image
-              src="/icons/logo.png"
-              alt="Esparex"
-              width={495}
-              height={112}
-              unoptimized
-              style={{ height: "20px", width: "auto" }}
-            />
-          </button>
-
-          <div className="h-4 w-[1px] bg-border mx-2" />
-
-          <button
-            type="button"
-            className="active:bg-muted transition-colors flex items-center flex-1 min-w-0 text-left h-10 cursor-pointer"
-            onClick={() => isMounted && setShowLocationSelector(true)}
-            aria-label={
-              headerLocationDetails.headerText
-                ? `Change location. Current location: ${headerLocationDetails.headerText}`
-                : "Open location selector"
-            }
-          >
-            <MapPin className="h-4 w-4 text-primary mr-1.5 flex-shrink-0" />
-            <span className="min-w-0 flex-1 truncate text-caption sm:text-body font-normal text-foreground-secondary">
-              <span className={`block transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
-                {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
+      <div className="flex md:hidden flex-col">
+        <div className="flex items-center px-3.5 h-10 bg-muted/40 border-b border-border/50 text-caption text-foreground-secondary">
+          <button type="button" onClick={() => setShowLocationSelector(true)} className="flex items-center justify-between w-full h-full text-left hover:text-primary transition-colors cursor-pointer group" aria-label={`Current location: ${resolvedHeaderLocation || DEFAULT_APP_LOCATION.display}. Tap to change location.`}>
+            <div className="flex items-center min-w-0 flex-1 gap-1.5">
+              <MapPin className="h-4 w-4 text-primary shrink-0 group-hover:scale-105 transition-transform" />
+              <span className="truncate text-caption font-medium text-foreground">
+                <span className={`transition-opacity duration-200 ${isMounted ? "opacity-100" : "opacity-0"}`}>
+                  {isMounted ? resolvedHeaderLocation || DEFAULT_APP_LOCATION.display : DEFAULT_APP_LOCATION.display}
+                </span>
               </span>
-            </span>
-            <ChevronDown className="h-4 w-4 text-muted-foreground ml-1.5 flex-shrink-0" />
+            </div>
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0 ml-1" />
           </button>
         </div>
-
-        {/* Main Header Row */}
         <div className={`flex items-center px-3 py-1 bg-background ${chromePolicy.showStickySearch ? "min-h-[56px] h-14 gap-2.5 border-b border-border" : "min-h-[58px] h-14 gap-2.5"}`}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary cursor-pointer"
-            aria-label="Open navigation menu"
-            onClick={() => setIsMobileDrawerOpen(true)}
-          >
+          <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl -ml-1 hover:bg-muted text-foreground-secondary cursor-pointer" onClick={() => setIsMobileDrawerOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
-
           {chromePolicy.showStickySearch && !isMobileSearchEditing ? (
-            <button
-              type="button"
-              onClick={() => {
-                setIsMobileSearchEditing(true);
-                setSearchQuery(browseParams.q || "");
-              }}
-              className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer"
-              aria-label={`Tap to search. Current search: ${stickySearchLabel}`}
-            >
+            <button type="button" onClick={() => { setIsMobileSearchEditing(true); setSearchQuery(browseParams.q || ""); }} className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-border bg-muted/50 px-4 h-11 text-left hover:bg-muted transition-colors cursor-pointer" aria-label={`Tap to search. Current search: ${stickySearchLabel}`}>
               <Search className="h-4 w-4 shrink-0 text-foreground-subtle" />
-              <span className="truncate text-body font-medium text-foreground-secondary">
-                {stickySearchLabel}
-              </span>
+              <span className="truncate text-body font-medium text-foreground-secondary">{stickySearchLabel}</span>
             </button>
           ) : (
-            <form
-              onSubmit={(e) => {
-                handleSearchSubmit(e);
-                setIsMobileSearchEditing(false);
-              }}
-              className="flex-1 relative"
-            >
+            <form onSubmit={(e) => { handleSearchSubmit(e); setIsMobileSearchEditing(false); }} className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground-subtle" />
               <Input
                 id="header-mobile-search"
@@ -337,46 +278,30 @@ export function Header({
                 placeholder="Search phones, laptops, spare parts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onBlur={() => {
-                  if (!searchQuery.trim() && chromePolicy.showStickySearch) {
-                    setIsMobileSearchEditing(false);
-                  }
-                }}
+                onBlur={() => { if (!searchQuery.trim() && chromePolicy.showStickySearch) setIsMobileSearchEditing(false); }}
                 aria-label="Search listings"
               />
             </form>
           )}
-
           <div className="flex items-center gap-1">
             {!isLoggedIn && !isAuthLoading && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer"
-                onClick={onShowLogin}
-                aria-label="Login"
-              >
+              <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-link hover:bg-primary/10 cursor-pointer" onClick={onShowLogin}>
                 <LogIn className="h-5 w-5" />
               </Button>
             )}
-
             {isLoggedIn && (
-              <NotificationBellDropdown
-                notificationsData={notificationsData}
-                unreadCount={notifUnreadCount}
-                onRefresh={refetchNotifications}
-                variant="mobile"
-              />
+              <NotificationBellDropdown notificationsData={notificationsData} unreadCount={notifUnreadCount} onRefresh={refetchNotifications} variant="mobile" />
             )}
           </div>
         </div>
       </div>
 
-      {/* ── LOCATION OVERLAY ───────────────────────────────────────────────────────────────────────── */}
       <LocationOverlayHost
         isOpen={showLocationSelector}
-        onClose={() => setShowLocationSelector(false)}
+        onClose={() => { setShowLocationSelector(false); setHeaderLocationQuery(""); }}
         containerRef={locationDropdownRef}
+        locationQuery={headerLocationQuery}
+        onLocationQueryChange={setHeaderLocationQuery}
       />
     </header>
   );

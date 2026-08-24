@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertCircle, MapPin, RefreshCw } from "@/icons/IconRegistry";
+import { AlertCircle, Check, MapPin, RefreshCw } from "@/icons/IconRegistry";
 import type { Location } from "@/lib/api/user/locations";
 import { Button } from "@esparex/ui";
 import { cn } from "@/components/ui/utils";
@@ -17,14 +17,31 @@ export const POPULAR_CITIES: Location[] = [
     { id: "delhi", locationId: "delhi", slug: "delhi", city: "Delhi", state: "Delhi", country: "India", name: "Delhi", display: "Delhi, NCT", displayName: "Delhi", level: "city", coordinates: { type: "Point", coordinates: [77.1025, 28.7041] }, isActive: true, isPopular: true },
 ];
 
+function formatLocationLine(primary: string, secondary?: string): { main: string; sub: string | null } {
+    const trimmedPrimary = primary.trim();
+    const trimmedSecondary = secondary?.trim() || "";
+
+    if (!trimmedSecondary) {
+        return { main: trimmedPrimary, sub: null };
+    }
+
+    // If primary already includes the secondary state (e.g. "Machaloddi, Telangana")
+    if (trimmedPrimary.toLowerCase().endsWith(trimmedSecondary.toLowerCase())) {
+        return { main: trimmedPrimary, sub: null };
+    }
+
+    return { main: trimmedPrimary, sub: `, ${trimmedSecondary}` };
+}
+
 export function LocationResultsList({
     query,
     showSkeleton,
     searchError,
     retryCount,
     locations,
-    isSearching,
+    isSearching: _isSearching,
     selectedIndex,
+    selectedCityName,
     onRetry,
     onSelect,
     getLocationPrimaryLabel,
@@ -35,8 +52,9 @@ export function LocationResultsList({
     searchError: { message: string; retryable?: boolean } | null;
     retryCount: number;
     locations: Location[];
-    isSearching: boolean;
+    isSearching?: boolean;
     selectedIndex: number;
+    selectedCityName?: string;
     onRetry: () => void;
     onSelect: (loc: Location) => void;
     getLocationPrimaryLabel: (loc: Location) => string;
@@ -51,9 +69,18 @@ export function LocationResultsList({
         }
     }, [selectedIndex, query]);
 
+    const isCurrentCity = (cityName?: string) => {
+        if (!cityName || !selectedCityName) return false;
+        return cityName.trim().toLowerCase() === selectedCityName.trim().toLowerCase();
+    };
+
     return (
-        <div className="py-0.5" role="listbox" id="location-results-listbox" aria-label="Location search results">
-            {query ? (
+        <div className="py-1 space-y-1" role="listbox" id="location-results-listbox" aria-label="Location search results">
+            {query.trim().length === 1 ? (
+                <div className="p-3 text-center text-foreground-subtle text-caption">
+                    Type at least 2 characters to search...
+                </div>
+            ) : query ? (
                 showSkeleton ? (
                     <LocationSkeleton count={4} />
                 ) : searchError ? (
@@ -62,7 +89,7 @@ export function LocationResultsList({
                             <AlertCircle className="w-7 h-7 text-destructive/60" />
                         </div>
                         <div className="space-y-0.5">
-                            <p className="text-xs font-medium text-destructive">{searchError.message}</p>
+                            <p className="text-caption font-medium text-destructive">{searchError.message}</p>
                             {searchError.retryable && (
                                 <p className="text-tiny text-muted-foreground">
                                     {retryCount > 0 && `Attempt ${retryCount} of 3`}
@@ -70,99 +97,116 @@ export function LocationResultsList({
                             )}
                         </div>
                         {searchError.retryable && retryCount < 3 && (
-                            <Button type="button" variant="outline" onClick={onRetry} className="gap-1.5 h-8 text-xs">
+                            <Button type="button" variant="outline" onClick={onRetry} className="gap-1.5 h-8 text-caption">
                                 <RefreshCw className="w-3.5 h-3.5" /> Try Again
                             </Button>
                         )}
                         {locations.length > 0 && (
-                            <div className="pt-2 border-t">
-                                <p className="text-tiny text-muted-foreground mb-1">Cached results:</p>
-                                <div className="space-y-0.5">
-                                    {locations.slice(0, 3).map((loc, index) => (
-                                        <button
-                                            key={`fallback-${loc.id || index}`}
-                                            id={`location-fallback-option-${index}`}
-                                            role="option"
-                                            aria-selected={selectedIndex === index}
-                                            type="button"
-                                            onClick={() => void onSelect(loc)}
-                                            className="flex items-start gap-2 w-full px-3 py-2 rounded-xl hover:bg-accent text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 cursor-pointer select-none"
-                                        >
-                                            <MapPin className="mt-0.5 h-3 w-3 text-muted-foreground shrink-0" />
-                                            <span className="min-w-0">
-                                                <span className="block truncate text-xs font-medium text-foreground">
-                                                    {getLocationPrimaryLabel(loc)}
-                                                </span>
-                                                <span className="block truncate text-tiny text-muted-foreground">
-                                                    {getLocationSecondaryLabel(loc)}
-                                                </span>
-                                            </span>
-                                        </button>
-                                    ))}
+                            <div className="pt-2 border-t border-border/60">
+                                <p className="text-tiny font-bold uppercase tracking-wider text-muted-foreground/80 px-3 mb-1">Cached results:</p>
+                                <div className="space-y-1">
+                                    {locations.slice(0, 3).map((loc, index) => {
+                                        const isSelected = selectedIndex === index || isCurrentCity(loc.city || loc.name);
+                                        const { main, sub } = formatLocationLine(
+                                            getLocationPrimaryLabel(loc),
+                                            getLocationSecondaryLabel(loc)
+                                        );
+                                        return (
+                                            <button
+                                                key={`fallback-${loc.id || index}`}
+                                                id={`location-fallback-option-${index}`}
+                                                role="option"
+                                                aria-selected={isSelected}
+                                                type="button"
+                                                onClick={() => void onSelect(loc)}
+                                                className={cn(
+                                                    "flex items-center justify-between gap-2.5 w-full px-3 py-2.5 rounded-lg text-left transition-colors cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                                                    isSelected ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-muted/80 active:bg-muted"
+                                                )}
+                                            >
+                                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                    <MapPin className={cn("h-4 w-4 shrink-0", isSelected ? "text-primary" : "text-muted-foreground")} />
+                                                    <span className="min-w-0 flex-1 truncate text-caption font-semibold text-foreground">
+                                                        {main}
+                                                        {sub ? <span className="font-normal text-muted-foreground text-caption">{sub}</span> : null}
+                                                    </span>
+                                                </div>
+                                                {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
                     </div>
                 ) : locations.length > 0 ? (
-                    locations.slice(0, MAX_DROPDOWN_RESULTS).map((loc, index) => {
-                        return (
+                    <div className="space-y-1">
+                        <p className="text-tiny font-bold uppercase tracking-wider text-muted-foreground/80 px-3 pt-2 pb-0.5">Search Results</p>
+                        {locations.slice(0, MAX_DROPDOWN_RESULTS).map((loc, index) => {
+                            const isSelected = selectedIndex === index || isCurrentCity(loc.city || loc.name);
+                            const { main, sub } = formatLocationLine(
+                                getLocationPrimaryLabel(loc),
+                                getLocationSecondaryLabel(loc)
+                            );
+                            return (
                                 <button
                                     key={`loc-${loc.id || index}`}
                                     id={`location-option-${index}`}
                                     role="option"
-                                    aria-selected={selectedIndex === index}
+                                    aria-selected={isSelected}
                                     type="button"
                                     onClick={() => void onSelect(loc)}
                                     className={cn(
-                                        "flex items-start gap-2 w-full px-3 py-2.5 text-left transition-colors rounded-xl",
-                                        "hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                                        selectedIndex === index && "bg-accent"
+                                        "flex items-center justify-between gap-2.5 w-full px-3 py-2.5 text-left transition-colors rounded-lg cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                                        isSelected ? "bg-primary/10 text-primary border border-primary/20" : "hover:bg-muted/80 active:bg-muted"
                                     )}
                                 >
-                                <MapPin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-xs font-semibold text-foreground">
-                                        {getLocationPrimaryLabel(loc)}
-                                    </span>
-                                    <span className="block truncate text-tiny text-muted-foreground">
-                                        {getLocationSecondaryLabel(loc)}
-                                    </span>
-                                </span>
-                            </button>
-                        );
-                    })
+                                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                                        <MapPin className={cn("h-4 w-4 shrink-0", isSelected ? "text-primary" : "text-muted-foreground")} />
+                                        <span className="min-w-0 flex-1 truncate text-caption font-semibold text-foreground">
+                                            {main}
+                                            {sub ? <span className="font-normal text-muted-foreground text-caption">{sub}</span> : null}
+                                        </span>
+                                    </div>
+                                    {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
+                                </button>
+                            );
+                        })}
+                    </div>
                 ) : (
-                    <div className="p-4 text-center text-muted-foreground text-xs">
-                        {isSearching ? "Searching..." : "No locations found."}
+                    <div className="p-4 text-center text-foreground-subtle text-caption">
+                        No locations found.
                     </div>
                 )
             ) : (
                 <div className="space-y-1">
-                    <p className="text-tiny font-medium text-muted-foreground px-2 py-1">Popular Cities</p>
-                    {POPULAR_CITIES.map((loc, index) => (
-                        <button
-                            key={`popular-${loc.id}`}
-                            id={`popular-option-${index}`}
-                            role="option"
-                            aria-selected={selectedIndex === index}
-                            type="button"
-                            onClick={() => void onSelect(loc)}
-                            className={cn(
-                                "flex items-center gap-2.5 w-full px-3 py-2 text-left transition-colors rounded-xl hover:bg-accent cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-                                selectedIndex === index && "bg-accent"
-                            )}
-                        >
-                            <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate text-xs font-semibold text-foreground">
-                                    {loc.name}
-                                </span>
-                                <span className="block truncate text-tiny text-muted-foreground">
-                                    {loc.state}
-                                </span>
-                            </span>
-                        </button>
-                    ))}
+                    <p className="text-tiny font-bold uppercase tracking-wider text-muted-foreground/80 px-3 pt-2 pb-0.5">Popular Cities</p>
+                    {POPULAR_CITIES.map((loc, index) => {
+                        const isSelected = selectedIndex === index || isCurrentCity(loc.city || loc.name);
+                        return (
+                            <button
+                                key={`popular-${loc.id}`}
+                                id={`popular-option-${index}`}
+                                role="option"
+                                aria-selected={isSelected}
+                                type="button"
+                                onClick={() => void onSelect(loc)}
+                                className={cn(
+                                    "flex items-center justify-between gap-2.5 w-full px-3 py-2.5 text-left transition-colors rounded-lg cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                                    isSelected ? "bg-primary/10 border border-primary/20 text-primary" : "hover:bg-muted/80 active:bg-muted"
+                                )}
+                            >
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    <MapPin className={cn("h-4 w-4 shrink-0", isSelected ? "text-primary" : "text-primary/70")} />
+                                    <span className="min-w-0 flex-1 truncate text-caption font-semibold">
+                                        <span className={isSelected ? "text-primary" : "text-foreground"}>{loc.name}</span>
+                                        <span className="font-normal text-muted-foreground text-caption">, {loc.state}</span>
+                                    </span>
+                                </div>
+                                {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
+                            </button>
+                        );
+                    })}
                 </div>
             )}
         </div>
