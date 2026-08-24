@@ -83,10 +83,10 @@ export const AdCardMeta = memo(function AdCardMeta({
       </div>
 
       {/* Title — De-congested with snug line-height and discrete Geist font size */}
-      <div className="min-h-[1.75rem] sm:min-h-[2.25rem] flex items-start">
+      <div className="min-h-[1.75rem] sm:min-h-[2rem] flex items-start">
         <h3 className={cn(
           "font-normal sm:font-semibold line-clamp-2 leading-snug text-foreground tracking-normal",
-          isList ? "text-caption sm:text-body" : "text-caption sm:text-body"
+          isList ? "text-caption sm:text-small" : "text-caption sm:text-small"
         )}>
           {sanitizeListingTitle(ad.title, ad)}
         </h3>
