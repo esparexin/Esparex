@@ -5,11 +5,13 @@
 
 import { createValidationError, type EsparexError, sanitizeInput } from "./errorHandler";
 
-export interface ValidationResult {
+export interface FieldValidationResult {
   valid: boolean;
   error?: EsparexError;
   sanitized?: string;
 }
+
+export type { FieldValidationResult as ValidationResult };
 
 // ============================================================================
 // VALIDATION RULES (patterns, lengths, messages)
@@ -113,7 +115,7 @@ export const ValidationRules = {
 // INDIVIDUAL FIELD VALIDATORS
 // ============================================================================
 
-export const validateBusinessName = (value: unknown): ValidationResult => {
+export const validateBusinessName = (value: unknown): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = sanitizeInput(strValue, ValidationRules.businessName.maxLength);
   if (!sanitized)
@@ -127,7 +129,7 @@ export const validateBusinessName = (value: unknown): ValidationResult => {
   return { valid: true, sanitized };
 };
 
-export const validateEmail = (value: unknown): ValidationResult => {
+export const validateEmail = (value: unknown): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = strValue.trim().toLowerCase();
   if (!sanitized)
@@ -139,7 +141,7 @@ export const validateEmail = (value: unknown): ValidationResult => {
   return { valid: true, sanitized };
 };
 
-export const validateMobile = (value: unknown): ValidationResult => {
+export const validateMobile = (value: unknown): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = strValue.replace(/[\s\-()]/g, "");
   if (!sanitized)
@@ -149,7 +151,7 @@ export const validateMobile = (value: unknown): ValidationResult => {
   return { valid: true, sanitized };
 };
 
-export const validateGSTNumber = (value: unknown, required = false): ValidationResult => {
+export const validateGSTNumber = (value: unknown, required = false): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = strValue.trim().toUpperCase();
   if (!sanitized) {
@@ -163,7 +165,7 @@ export const validateGSTNumber = (value: unknown, required = false): ValidationR
   return { valid: true, sanitized };
 };
 
-export const validatePincode = (value: unknown): ValidationResult => {
+export const validatePincode = (value: unknown): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = strValue.trim();
   if (!sanitized)
@@ -173,7 +175,7 @@ export const validatePincode = (value: unknown): ValidationResult => {
   return { valid: true, sanitized };
 };
 
-export const validateURL = (value: unknown, required = false): ValidationResult => {
+export const validateURL = (value: unknown, required = false): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = strValue.trim();
   if (!sanitized) {
@@ -190,7 +192,7 @@ export const validateURL = (value: unknown, required = false): ValidationResult 
   return { valid: true, sanitized };
 };
 
-export const validateDescription = (value: unknown): ValidationResult => {
+export const validateDescription = (value: unknown): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = sanitizeInput(strValue, ValidationRules.description.maxLength);
   if (!sanitized)
@@ -202,7 +204,7 @@ export const validateDescription = (value: unknown): ValidationResult => {
   return { valid: true, sanitized };
 };
 
-export const validateTagline = (value: unknown, required = false): ValidationResult => {
+export const validateTagline = (value: unknown, required = false): FieldValidationResult => {
   const strValue = typeof value === "string" ? value : String(value || "");
   const sanitized = sanitizeInput(strValue, ValidationRules.tagline.maxLength);
   if (!sanitized) {
@@ -214,7 +216,7 @@ export const validateTagline = (value: unknown, required = false): ValidationRes
   return { valid: true, sanitized };
 };
 
-export const validateRequired = (value: string, fieldName: string): ValidationResult => {
+export const validateRequired = (value: string, fieldName: string): FieldValidationResult => {
   const sanitized = value.trim();
   if (!sanitized)
     return { valid: false, error: createValidationError(fieldName, "required") };
@@ -226,7 +228,7 @@ export const validateLength = (
   fieldName: string,
   min?: number,
   max?: number,
-): ValidationResult => {
+): FieldValidationResult => {
   const sanitized = value.trim();
   if (min && sanitized.length < min)
     return { valid: false, error: createValidationError(fieldName, "minLength", sanitized) };

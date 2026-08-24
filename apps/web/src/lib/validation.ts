@@ -10,7 +10,7 @@
  * All existing imports from "@/lib/validation" continue to work unchanged.
  */
 
-export type { ValidationResult } from "./fieldValidators";
+export type { FieldValidationResult, ValidationResult } from "./fieldValidators";
 export {
   ValidationRules,
   validateBusinessName,

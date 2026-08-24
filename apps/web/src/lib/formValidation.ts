@@ -3,7 +3,7 @@
  * Consumes individual field validators from fieldValidators.ts.
  */
 
-import type { ValidationResult } from "./fieldValidators";
+import type { FieldValidationResult } from "./fieldValidators";
 import {
   validateBusinessName,
   validateDescription,
@@ -20,7 +20,7 @@ import {
 // ============================================================================
 
 export interface FormValidationRules {
-  [key: string]: (value: unknown) => ValidationResult;
+  [key: string]: (value: unknown) => FieldValidationResult;
 }
 
 export interface FormValidationErrors {
@@ -66,7 +66,7 @@ export const businessProfileOptionalValidationRules: FormValidationRules = {
 // ============================================================================
 
 export const createFieldValidator = (
-  validatorFn: (value: string) => ValidationResult,
+  validatorFn: (value: string) => FieldValidationResult,
 ) => {
   return (value: string): { error: string | null; sanitized?: string } => {
     const result = validatorFn(value);

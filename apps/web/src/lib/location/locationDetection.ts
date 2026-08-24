@@ -103,6 +103,23 @@ type CurrentLocationOptions = {
     enableHighAccuracy?: boolean;
 };
 
+async function resolveCoordsToLocation(coords: GeolocationCoordinates): Promise<{ location: AppLocation; isResolved: boolean }> {
+    const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
+    if (resolved) return { location: resolved, isResolved: true };
+    return {
+        location: buildAppLocation({
+            formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED,
+            city: LABEL_CURRENT_LOCATION,
+            state: "",
+            country: "Unknown",
+            coordinates: createPoint(coords.longitude, coords.latitude),
+            source: "auto",
+            name: LABEL_CURRENT_LOCATION,
+        }),
+        isResolved: false,
+    };
+}
+
 export async function* detectPreciseLocationGenerator(
     options: CurrentLocationOptions = {},
 ): AsyncGenerator<LocationDetectionState, LocationDetectResult, void> {
@@ -141,20 +158,10 @@ export async function* detectPreciseLocationGenerator(
 
             yield "gps_acquired";
             yield "reverse_geocoding";
-            const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
-
-            if (resolved) { yield "location_resolved"; return { location: resolved, source: "auto" }; }
-
+            const { location, isResolved } = await resolveCoordsToLocation(coords);
+            if (isResolved) { yield "location_resolved"; return { location, source: "auto" }; }
             yield "reverse_geocode_failed";
-            return {
-                location: buildAppLocation({
-                    formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED, city: LABEL_CURRENT_LOCATION,
-                    state: "", country: "Unknown",
-                    coordinates: createPoint(coords.longitude, coords.latitude),
-                    source: "auto", name: LABEL_CURRENT_LOCATION,
-                }),
-                source: "auto",
-            };
+            return { location, source: "auto" };
         } catch (error) {
             lastError = error;
             const failure = mapGeolocationError(error);
@@ -178,18 +185,10 @@ export async function* detectPreciseLocationGenerator(
             });
             yield "gps_acquired";
             yield "reverse_geocoding";
-            const resolved = await autoDetectLocation(coords.latitude, coords.longitude);
-            if (resolved) { yield "location_resolved"; return { location: resolved, source: "auto" }; }
+            const { location, isResolved } = await resolveCoordsToLocation(coords);
+            if (isResolved) { yield "location_resolved"; return { location, source: "auto" }; }
             yield "reverse_geocode_failed";
-            return {
-                location: buildAppLocation({
-                    formattedAddress: LABEL_CURRENT_LOCATION_CAPTURED, city: LABEL_CURRENT_LOCATION,
-                    state: "", country: "Unknown",
-                    coordinates: createPoint(coords.longitude, coords.latitude),
-                    source: "auto", name: LABEL_CURRENT_LOCATION,
-                }),
-                source: "auto",
-            };
+            return { location, source: "auto" };
         } catch { /* fall through to IP detection */ }
     }
 
