@@ -44,28 +44,28 @@ export function RelatedBusinessSidebar({
     <div className="space-y-3 pt-2">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-bold text-slate-800">{title}</h3>
-          <p className="text-2xs text-slate-500 line-clamp-1">{description}</p>
+          <h3 className="text-sm md:text-base font-bold text-foreground">{title}</h3>
+          <p className="text-xs text-foreground-subtle line-clamp-1">{description}</p>
         </div>
         {!isLoading && businesses.length > 0 && (
           <div className="flex items-center gap-1 shrink-0">
             <Button
               size="icon"
               variant="outline"
-              className="h-7 w-7 rounded-lg border-slate-200"
+              className="h-8 w-8 rounded-xl border-border hover:bg-muted"
               onClick={() => scrollVertical("up")}
-              aria-label="Previous services"
+              aria-label="Previous repair shops"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               size="icon"
               variant="outline"
-              className="h-7 w-7 rounded-lg border-slate-200"
+              className="h-8 w-8 rounded-xl border-border hover:bg-muted"
               onClick={() => scrollVertical("down")}
-              aria-label="Next services"
+              aria-label="Next repair shops"
             >
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         )}
@@ -74,19 +74,19 @@ export function RelatedBusinessSidebar({
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="h-14 w-full animate-pulse rounded-xl bg-slate-100" />
+            <div key={index} className="h-14 w-full animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       ) : null}
 
       {!isLoading && isError ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800">
-          <span>Unable to load nearby services.</span>
+        <div className="rounded-xl border border-amber-200/80 bg-amber-50/70 p-2.5 text-xs text-amber-900">
+          <span>Unable to load repair shops.</span>
         </div>
       ) : null}
 
       {!isLoading && !isError && businesses.length === 0 ? (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-2xs text-slate-500">
+        <div className="rounded-xl border border-border bg-muted/40 p-2.5 text-xs text-foreground-subtle">
           {emptyCopy}
         </div>
       ) : null}
@@ -94,7 +94,7 @@ export function RelatedBusinessSidebar({
       {!isLoading && !isError && businesses.length > 0 ? (
         <div
           ref={carouselRef}
-          className="flex flex-col gap-2 max-h-[220px] overflow-y-auto scrollbar-hide scroll-smooth"
+          className="flex flex-col gap-2 max-h-[240px] overflow-y-auto scrollbar-hide scroll-smooth"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {businesses.map((business) => {
@@ -108,9 +108,9 @@ export function RelatedBusinessSidebar({
               <Link
                 key={business.id}
                 href={businessHref}
-                className="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200/80 bg-white hover:border-blue-300 hover:bg-slate-50/60 transition-all group"
+                className="flex items-center gap-2.5 p-2 rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-muted/40 transition-all group"
               >
-                <div className="relative size-10 shrink-0 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/60">
+                <div className="relative size-10 shrink-0 rounded-lg overflow-hidden bg-muted border border-border/60">
                   <SafeImage
                     src={imageSrc}
                     alt={business.name}
@@ -122,11 +122,11 @@ export function RelatedBusinessSidebar({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-bold text-slate-800 group-hover:text-blue-600 truncate transition-colors">
+                  <h4 className="text-xs md:text-small font-bold text-foreground group-hover:text-primary truncate transition-colors">
                     {business.name}
                   </h4>
-                  <div className="flex items-center gap-1.5 text-2xs text-slate-500 mt-0.5">
-                    <span className="text-amber-500 font-semibold flex items-center">★ 4.5</span>
+                  <div className="flex items-center gap-1.5 text-xs text-foreground-subtle mt-0.5">
+                    <span className="text-amber-500 font-bold flex items-center">★ 4.5</span>
                     <span>·</span>
                     <span className="truncate">{locationLabel}</span>
                     {distanceLabel ? <span>· {distanceLabel}</span> : null}
@@ -141,10 +141,10 @@ export function RelatedBusinessSidebar({
       <div className="text-center pt-1">
         <Link
           href="/services"
-          className="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors inline-flex items-center gap-1"
+          className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1"
         >
           <span>View more services</span>
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     </div>

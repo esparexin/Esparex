@@ -41,7 +41,7 @@ export function AdSellerCard({
         : null;
 
     const isInteractive = !ad.isBusiness && !!sellerProfileHref;
-    const panelClassName = `items-center p-2.5 rounded-2xl border border-transparent ${
+    const panelClassName = `items-center p-2 rounded-xl border border-transparent ${
         isInteractive ? "hover:bg-muted/50 group hover:border-border" : ""
     }`;
     const showInlineChat = !isChatLocked && Boolean(onChat);
@@ -54,14 +54,14 @@ export function AdSellerCard({
     const renderAvatar = () => {
         if (ad.isBusiness) {
             return (
-                <div className={`h-12 w-12 rounded-2xl bg-blue-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-100 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                    <Building2 className="h-6 w-6 text-white" />
+                <div className={`h-10 w-10 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-xs ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                    <Building2 className="h-5 w-5 text-primary-foreground" />
                 </div>
             );
         }
         return (
-            <div className={`h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
-                <span className="font-bold text-primary text-base">
+            <div className={`h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 ${isInteractive ? 'group-hover:scale-105 transition-transform' : ''}`}>
+                <span className="font-bold text-primary text-sm">
                     {ad.sellerName?.charAt(0) || sellerDisplayName.charAt(0) || 'E'}
                 </span>
             </div>
@@ -69,7 +69,7 @@ export function AdSellerCard({
     };
 
     return (
-        <div className="space-y-4 pb-4 border-b border-slate-200/80">
+        <div className="space-y-3 pb-4 border-b border-border">
             <SellerIdentityPanel
                 href={sellerProfileHref}
                 className={panelClassName}
@@ -81,13 +81,13 @@ export function AdSellerCard({
                     </p>
                 }
                 badge={ad.isBusiness && ad.verified ? (
-                    <Badge className="bg-blue-600 text-white text-2xs h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
+                    <Badge className="bg-primary text-primary-foreground text-tiny h-4 px-1.5 rounded-md border-none font-bold">PRO</Badge>
                 ) : undefined}
                 trailing={undefined}
             />
 
             {showDesktopActions && (
-                <div className="hidden md:block space-y-2.5">
+                <div className="hidden md:block space-y-2">
                     <div className={`grid gap-2 ${showInlineChat && showInlinePhone ? "grid-cols-2" : "grid-cols-1"}`}>
                         {showInlinePhone && (
                             <Button
@@ -95,7 +95,7 @@ export function AdSellerCard({
                                 variant="outline"
                                 disabled={isPhoneLoading}
                                 aria-label={revealedPhone ? `Call ${revealedPhone}` : "Reveal seller phone number"}
-                                className="w-full h-11 rounded-xl font-semibold gap-2 border-slate-200 text-foreground-secondary hover:bg-slate-50"
+                                className="w-full h-10 rounded-xl text-xs sm:text-sm font-semibold gap-2 border-border text-foreground-secondary hover:bg-muted cursor-pointer"
                             >
                                 <Phone className="h-4 w-4" />
                                 <span className="min-w-0 truncate">{phoneButtonLabel}</span>
@@ -105,30 +105,25 @@ export function AdSellerCard({
                             <Button
                                 onClick={onChat}
                                 aria-label="Chat with seller"
-                                className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold gap-2 shadow-md shadow-blue-100 transition-all active:scale-[0.98]"
+                                className="w-full h-10 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm font-semibold gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
                             >
-                                <MessageCircle className="h-5 w-5" />
-                                Chat
+                                <MessageCircle className="h-4 w-4" />
+                                <span>Chat</span>
                             </Button>
                         )}
                     </div>
                     {phoneMessage && (
-                        <p className="px-1 text-xs leading-5 text-muted-foreground">
+                        <p className="text-caption text-foreground-subtle text-center">
                             {phoneMessage}
                         </p>
                     )}
                 </div>
             )}
 
-            {isChatLocked && (
-                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-slate-200 flex items-center justify-center flex-shrink-0">
-                        <MessageSquareOff className="h-4 w-4 text-foreground-subtle" />
-                    </div>
-                    <div>
-                        <p className="text-xs font-bold text-foreground-tertiary">Chat Locked</p>
-                        <p className="text-2xs text-foreground-subtle mt-0.5">This listing is no longer accepting new messages.</p>
-                    </div>
+            {isChatLocked && !isOwner && (
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/60 text-muted-foreground text-caption">
+                    <MessageSquareOff className="h-4 w-4 flex-shrink-0" />
+                    <span>Chat is disabled for this listing.</span>
                 </div>
             )}
         </div>

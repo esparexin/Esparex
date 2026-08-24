@@ -209,7 +209,7 @@ export function ListingDetail({
 
                     {isPendingOwner && <AdPendingStatusCard />}
 
-                    <ListingDescriptionCard ad={ad} />
+                    <ListingDescriptionCard ad={ad} navigateTo={navigateTo} />
 
                     {/* API-driven ad placement — resolves from MonetizationService */}
                     <AdPlacementSlot placement="listing_detail_below_description" />
