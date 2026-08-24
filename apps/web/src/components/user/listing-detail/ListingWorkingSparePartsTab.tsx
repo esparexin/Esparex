@@ -115,10 +115,7 @@ export function ListingWorkingSparePartsTab({ ad, sparePartItems }: ListingWorki
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm md:text-base font-bold text-foreground">Spare Parts</h3>
-                    <p className="text-xs text-foreground-subtle">
-                        Components and spare parts available with this listing.
-                    </p>
+                    <h3 className="text-sm md:text-base font-bold text-foreground">Working Spare Parts</h3>
                 </div>
                 {resolvedSpareParts.length > 0 && (
                     <span className="text-xs font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">

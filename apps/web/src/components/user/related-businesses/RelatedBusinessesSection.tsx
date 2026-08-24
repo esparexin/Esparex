@@ -34,20 +34,17 @@ const getSectionCopy = (listingType?: string) => {
     case "service":
       return {
         title: "Other Service Centers Nearby",
-        description: "Businesses offering related live services near this listing.",
         empty: "No nearby service centers matched this service category yet.",
       };
     case "spare_part":
       return {
-        title: "Repair Shops",
-        description: "Service centers near this listing that offer relevant live services.",
+        title: "Nearby Repair Shops",
         empty: "No nearby repair shops matched this spare-part category yet.",
       };
     case "ad":
     default:
       return {
-        title: "Repair Shops",
-        description: "Service centers near this listing that offer relevant live services.",
+        title: "Nearby Repair Shops",
         empty: "No nearby repair shops matched this category yet.",
       };
   }
@@ -105,7 +102,7 @@ export function RelatedBusinessesSection({
         isLoading={isLoading}
         isError={isError}
         title={sectionCopy.title}
-        description={sectionCopy.description}
+        description=""
         emptyCopy={sectionCopy.empty}
         formatDistance={formatDistance}
       />
@@ -117,9 +114,6 @@ export function RelatedBusinessesSection({
       <div className="mb-3 md:mb-4 flex items-center justify-between gap-4">
         <div>
           <h3 className="text-base font-bold md:text-lg text-foreground">{sectionCopy.title}</h3>
-          <p className="mt-0.5 text-xs text-foreground-subtle hidden md:block">
-            {sectionCopy.description}
-          </p>
         </div>
         {!isLoading && businesses.length > 0 ? (
           <div className="hidden gap-2 md:flex">
