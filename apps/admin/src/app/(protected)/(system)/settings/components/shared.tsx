@@ -54,18 +54,18 @@ export function SettingsSection({
 
   return (
     <>
-      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
-        <header className="border-b border-slate-100 px-5 py-4">
+      <section className="rounded-xl border border-border bg-card shadow-sm">
+        <header className="border-b border-border px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h2 className="text-base font-semibold text-foreground">{title}</h2>
-              <p className="mt-1 text-xs text-foreground-tertiary">{description}</p>
+              <h2 className="text-body-lg font-semibold text-foreground">{title}</h2>
+              <p className="mt-1 text-caption text-foreground-tertiary">{description}</p>
             </div>
             {help ? (
               <button
                 type="button"
                 onClick={() => setHelpOpen(true)}
-                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-xs font-semibold text-foreground-secondary hover:bg-slate-50"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border bg-card text-caption font-semibold text-foreground-secondary hover:bg-muted/50 transition-colors cursor-pointer"
                 aria-label={`Help for ${title}`}
                 title={`Help for ${title}`}
               >
@@ -75,20 +75,20 @@ export function SettingsSection({
           </div>
         </header>
         <div className="space-y-4 p-6">{children}</div>
-        {actions ? <footer className="border-t border-slate-100 px-5 py-6">{actions}</footer> : null}
+        {actions ? <footer className="border-t border-border px-5 py-6">{actions}</footer> : null}
       </section>
 
       {helpOpen && help ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
-            <h3 className="text-base font-semibold text-foreground">{title} Help</h3>
-            <div className="mt-3 space-y-3 text-sm text-foreground-secondary">
+          <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-xl">
+            <h3 className="text-body-lg font-semibold text-foreground">{title} Help</h3>
+            <div className="mt-3 space-y-3 text-body text-foreground-secondary">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">What this controls</p>
+                <p className="text-caption font-semibold uppercase tracking-wide text-foreground-tertiary">What this controls</p>
                 <p className="mt-1">{help.description}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">Impact</p>
+                <p className="text-caption font-semibold uppercase tracking-wide text-foreground-tertiary">Impact</p>
                 <p className="mt-1">{help.impact}</p>
               </div>
             </div>
@@ -96,7 +96,7 @@ export function SettingsSection({
               <button
                 type="button"
                 onClick={() => setHelpOpen(false)}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+                className="rounded-lg bg-primary px-4 py-2 text-body font-semibold text-primary-foreground hover:bg-primary/90 cursor-pointer"
               >
                 Close
               </button>
@@ -119,7 +119,7 @@ export function Field({
 }) {
   return (
     <label className="block space-y-1.5">
-      <span className="text-xs font-semibold uppercase tracking-wide text-foreground-tertiary">{label}</span>
+      <span className="text-caption font-semibold uppercase tracking-wide text-foreground-tertiary">{label}</span>
       {children}
       {hint ? <span className="block text-tiny text-foreground-subtle">{hint}</span> : null}
     </label>
@@ -139,12 +139,12 @@ export function Toggle({
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
-        checked ? "bg-primary" : "bg-slate-300"
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 cursor-pointer ${
+        checked ? "bg-primary" : "bg-muted"
       }`}
     >
       <span
-        className={`pointer-events-none absolute left-0.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-white shadow-sm transition-transform ${
+        className={`pointer-events-none absolute left-0.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full bg-background shadow-sm transition-transform ${
           checked ? "translate-x-5" : "translate-x-0"
         }`}
       />
@@ -166,7 +166,7 @@ export function SaveButton({
       type="button"
       onClick={onClick}
       disabled={saving}
-      className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+      className="rounded-lg bg-primary px-4 py-2 text-body font-semibold text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
     >
       {saving ? "Saving..." : label}
     </button>
