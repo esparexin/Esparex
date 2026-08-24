@@ -5,6 +5,7 @@ import type {
   InContentPlacementId,
   AdProviderType,
   AdCampaignStatus,
+  AdFallbackStrategy,
 } from "@esparex/contracts";
 import { PLACEMENT_LABELS } from "./CampaignListTable";
 
@@ -118,7 +119,7 @@ export function CampaignEditModal({
               <label className="block text-caption font-semibold text-foreground-secondary mb-1">Fallback Strategy</label>
               <select
                 value={campaign.fallbackStrategy || "collapse"}
-                onChange={(e) => onChange({ ...campaign, fallbackStrategy: e.target.value as any })}
+                onChange={(e) => onChange({ ...campaign, fallbackStrategy: e.target.value as AdFallbackStrategy })}
                 className="w-full h-9 px-2 rounded-xl border border-border bg-card text-caption text-foreground"
               >
                 <option value="collapse">Collapse Slot (Zero Whitespace)</option>

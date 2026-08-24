@@ -13,7 +13,7 @@ interface AdPlacementSlotProps {
 
 declare global {
   interface Window {
-    adsbygoogle?: any[];
+    adsbygoogle?: Array<Record<string, unknown>>;
   }
 }
 
@@ -26,13 +26,15 @@ function GoogleAdSenseSlot({
   className?: string;
   onImpression: (id: string) => void;
 }) {
-  const [adStatus, setAdStatus] = useState<"loading" | "filled" | "unfilled">("loading");
+  const slotId = ad.providerConfig?.googleSlotId;
+  const [adStatus, setAdStatus] = useState<"loading" | "filled" | "unfilled">(() =>
+    slotId ? "loading" : "unfilled"
+  );
   const insRef = useRef<HTMLModElement>(null);
   const publisherId =
     ad.providerConfig?.googlePublisherId ||
     process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_CLIENT_ID ||
     "ca-pub-esparex-official-master";
-  const slotId = ad.providerConfig?.googleSlotId;
 
   const handleStatusCheck = useCallback(() => {
     if (!insRef.current) return;
@@ -49,18 +51,15 @@ function GoogleAdSenseSlot({
   }, [ad.id, onImpression]);
 
   useEffect(() => {
-    if (!slotId) {
-      setAdStatus("unfilled");
-      return;
-    }
+    if (!slotId) return;
 
     try {
       if (typeof window !== "undefined") {
         (window.adsbygoogle = window.adsbygoogle || []).push({});
       }
     } catch {
-      setAdStatus("unfilled");
-      return;
+      const errorTimer = setTimeout(() => setAdStatus("unfilled"), 0);
+      return () => clearTimeout(errorTimer);
     }
 
     const ins = insRef.current;

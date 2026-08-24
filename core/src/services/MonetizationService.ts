@@ -7,12 +7,11 @@ import {
 import {
     getPlacementEquivalents,
     type AdCampaignItem,
+    type AdTargetingCriteria,
     type MonetizationSystemState,
     type ResolveAdRequest,
     type ResolveAdResponse,
 } from "@esparex/contracts";
-
-type QueryFilter<T = unknown> = Record<string, unknown>;
 
 interface RawCampaignDoc extends Omit<Partial<IAdvertisementCampaign>, "_id"> {
     _id?: Types.ObjectId | string;
@@ -38,7 +37,7 @@ const mapDocToCampaignItem = (doc: RawCampaignDoc): AdCampaignItem => ({
     updatedAt: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : new Date().toISOString(),
 });
 
-const matchesTargeting = (targeting: any, req: ResolveAdRequest): boolean => {
+const matchesTargeting = (targeting: AdTargetingCriteria | undefined, req: ResolveAdRequest): boolean => {
     if (!targeting) return true;
     if (targeting.device && targeting.device !== "all" && req.device && req.device !== targeting.device) {
         return false;
@@ -83,7 +82,7 @@ export class MonetizationService {
                     { $or: [{ startAt: null }, { startAt: { $lte: now } }] },
                     { $or: [{ endAt: null }, { endAt: { $gte: now } }] },
                 ],
-            })
+            } as Record<string, unknown>)
             .sort({ priority: 1, createdAt: -1 })
             .lean();
 

@@ -1,4 +1,4 @@
-import GoogleAdPlacement from "../models/GoogleAdPlacement";
+import GoogleAdPlacement, { type IGoogleAdPlacement } from "../models/GoogleAdPlacement";
 import { getAdvertisementCampaignModel } from "../models/AdvertisementCampaign";
 import {
     GOOGLE_AD_STATUS,
@@ -11,7 +11,10 @@ import { getCache, setCache, delCache } from "../utils/redisCache";
 const PUBLIC_ADS_CACHE_KEY = "sys:google_ads:active_placements";
 const PUBLIC_ADS_CACHE_TTL = 300; // 5 minutes
 
-const syncToAdvertisementCampaign = async (placement: any, isDelete = false) => {
+const syncToAdvertisementCampaign = async (
+    placement: IGoogleAdPlacement | GoogleAdPlacementDTO,
+    isDelete = false
+) => {
     try {
         const campaignModel = getAdvertisementCampaignModel();
         const campaignName = `[GoogleAd] ${placement.name}`;
@@ -70,7 +73,7 @@ const syncToAdvertisementCampaign = async (placement: any, isDelete = false) => 
     }
 };
 
-export const serializeGoogleAdPlacement = (doc: any): GoogleAdPlacementDTO => {
+export const serializeGoogleAdPlacement = (doc: IGoogleAdPlacement): GoogleAdPlacementDTO => {
     return {
         id: doc._id.toString(),
         placementKey: doc.placementKey,
