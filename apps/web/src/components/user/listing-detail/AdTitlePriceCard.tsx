@@ -23,7 +23,7 @@ export function AdTitlePriceCard({
     const isActiveSpotlight = Boolean(ad.isSpotlight);
 
     return (
-        <div className="space-y-3.5 pb-4 border-b border-slate-200/80">
+        <div className="space-y-3 pb-4 border-b border-border">
             <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                 {/* Listing Type Badge */}
                 {isService ? (
@@ -40,7 +40,7 @@ export function AdTitlePriceCard({
 
                 {/* Category Badge */}
                 {categoryLabel && categoryLabel !== "Category" && (
-                    <Badge variant="outline" className="flex-shrink-0 text-xs font-medium border-slate-200 text-slate-600 rounded-lg bg-slate-100 px-2.5 py-0.5 text-2xs">
+                    <Badge variant="outline" className="flex-shrink-0 font-medium border-border text-foreground-subtle rounded-lg bg-muted px-2.5 py-0.5 text-2xs">
                         {categoryLabel}
                     </Badge>
                 )}
@@ -94,29 +94,26 @@ export function AdTitlePriceCard({
                 {ad.title || "Ad Title"}
             </h1>
 
-            <div className="flex items-baseline gap-1">
-                {ad.price === 0 ? (
-                    <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold uppercase tracking-wide">
-                        {isService ? "Contact for Quote" : "Free"}
-                    </span>
-                ) : (
-                    <span className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-                        {formatPrice(ad.price)}
-                    </span>
-                )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 md:gap-y-4 md:gap-x-2 text-caption text-foreground-subtle pt-2">
-                <div className="flex flex-col md:gap-0.5">
-                    <span className="hidden md:block text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Location</span>
-                    <div className="flex items-center gap-1.5 text-foreground-secondary font-medium">
-                        <MapPin className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
-                        <span className="truncate">{locationLabel}</span>
-                    </div>
+            <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
+                <div className="flex items-baseline gap-1">
+                    {ad.price === 0 ? (
+                        <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold uppercase tracking-wide">
+                            {isService ? "Contact for Quote" : "Free"}
+                        </span>
+                    ) : (
+                        <span className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+                            {formatPrice(ad.price)}
+                        </span>
+                    )}
                 </div>
-                <div className="flex flex-col md:gap-0.5">
-                    <span className="hidden md:block text-tiny uppercase font-bold text-foreground-subtle tracking-wider">Posted</span>
-                    <div className="flex items-center gap-1.5 text-foreground-secondary font-medium">
+
+                <div className="flex items-center gap-3 text-xs text-foreground-subtle">
+                    <div className="flex items-center gap-1 text-foreground-secondary font-medium">
+                        <MapPin className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
+                        <span className="truncate max-w-[140px] sm:max-w-[180px]">{locationLabel}</span>
+                    </div>
+                    <span>•</span>
+                    <div className="flex items-center gap-1 text-foreground-secondary font-medium">
                         <Clock className="h-3.5 w-3.5 text-foreground-subtle flex-shrink-0" />
                         <span className="truncate">{ad.time}</span>
                     </div>
