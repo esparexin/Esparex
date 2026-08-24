@@ -12,8 +12,6 @@ interface AdCardActionsProps {
   isSaved?: boolean;
   onToggleSave?: (adId: string | number, e: React.MouseEvent) => void;
   className?: string;
-  isBusiness?: boolean;
-  showBusinessBadge?: boolean;
 }
 
 export const AdCardActions = memo(function AdCardActions({
@@ -21,8 +19,6 @@ export const AdCardActions = memo(function AdCardActions({
   isSaved: propIsSaved,
   onToggleSave: propOnToggleSave,
   className,
-  isBusiness,
-  showBusinessBadge,
 }: AdCardActionsProps) {
   const internalFavorite = useFavoriteAd(adId, propIsSaved);
 
@@ -34,8 +30,7 @@ export const AdCardActions = memo(function AdCardActions({
       size="icon"
       variant="secondary"
       className={cn(
-        "h-10 w-10 sm:h-11 sm:w-11 rounded-full shadow-md z-10 transition-colors bg-background/80 hover:bg-background backdrop-blur-sm",
-        isBusiness && showBusinessBadge ? "right-7 md:right-9" : "right-1.5 md:right-2",
+        "h-9 w-9 sm:h-10 sm:w-10 rounded-full shadow-md z-20 transition-colors bg-background/80 hover:bg-background backdrop-blur-sm",
         className
       )}
       onClick={(e) => {
@@ -46,7 +41,7 @@ export const AdCardActions = memo(function AdCardActions({
       }}
       aria-label={isSaved ? "Remove from favorites" : "Add to favorites"}
     >
-      <Heart className={cn("h-4.5 w-4.5 sm:h-5 sm:w-5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
+      <Heart className={cn("h-4 w-4 sm:h-4.5 sm:w-4.5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-muted-foreground")} />
     </Button>
   );
 });
